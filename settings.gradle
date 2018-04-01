@@ -30,3 +30,5 @@ registerProject2('korau-ogg-vorbis', 'korau', 'Korau: OGG Vorbis extension')
 
 registerProject1('korag', 'Korag: Kotlin cORoutines Accelerated Graphics')
 registerProject1('korui', 'Korui: Kotlin cORoutines User Interfaces for Kotlin Common')
+
+registerProject1('kbignum', 'KBigNum: Big Numbers for multiplatform Kotlin')
