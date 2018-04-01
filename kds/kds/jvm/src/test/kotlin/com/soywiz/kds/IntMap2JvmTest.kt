@@ -1,6 +1,5 @@
 package com.soywiz.kds
 
-import org.junit.Test
 import java.util.*
 import kotlin.test.*
 

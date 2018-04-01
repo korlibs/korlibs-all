@@ -3,7 +3,6 @@ package com.soywiz.korio.vfs
 import com.soywiz.kds.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.util.*
-import org.junit.Test
 import kotlin.test.*
 
 class VfsReadSpecialTest {
@@ -19,7 +18,7 @@ class VfsReadSpecialTest {
 	}
 
 	@Test
-	fun testReadSpecial() = syncTest {
+	fun testReadSpecial() = suspendTest {
 		val mem = MemoryVfs(lmapOf())
 		assertEquals(
 			MySpecialClass(mem.vfs, "/test.txt"),
@@ -28,7 +27,7 @@ class VfsReadSpecialTest {
 	}
 
 	@kotlin.test.Test
-	fun testReadSpecial2() = syncTest {
+	fun testReadSpecial2() = suspendTest {
 		val mem = MemoryVfs(lmapOf())
 		val root = MergedVfs(listOf(mem))
 		assertEquals(
@@ -38,7 +37,7 @@ class VfsReadSpecialTest {
 	}
 
 	@kotlin.test.Test
-	fun testReadSpecialNonHandled() = syncTest {
+	fun testReadSpecialNonHandled() = suspendTest {
 		expectException<Throwable> {
 			val mem = MemoryVfs(lmapOf())
 			mem["test.txt"].readSpecial<MySpecialClass2>()

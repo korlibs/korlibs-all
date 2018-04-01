@@ -5,8 +5,6 @@ import com.soywiz.korge.*
 import com.soywiz.korge.render.*
 import com.soywiz.korim.format.*
 import com.soywiz.korio.async.*
-import org.junit.*
-import org.junit.Test
 import kotlin.test.*
 
 class BitmapFontTest {
@@ -31,7 +29,7 @@ class BitmapFontTest {
 		font.drawText(ctx.batch, 72.0 / 4.0, "ABF,", 0, 0)
 		ctx.flush()
 
-		Assert.assertEquals(
+		assertEquals(
 			"""
 			createBuffer(VERTEX):0
 			createBuffer(INDEX):1

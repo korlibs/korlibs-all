@@ -4,14 +4,14 @@ import kotlin.test.*
 
 class ParallelTest {
 	@kotlin.test.Test
-	fun empty() = syncTest {
+	fun empty() = suspendTest {
 		val out = ""
 		parallel()
 		assertEquals("", out)
 	}
 
 	@kotlin.test.Test
-	fun one() = syncTest {
+	fun one() = suspendTest {
 		var out = ""
 		parallel(
 			{ sleep(100); out += "a" }
@@ -20,7 +20,7 @@ class ParallelTest {
 	}
 
 	@kotlin.test.Test
-	fun couple() = syncTest {
+	fun couple() = suspendTest {
 		var out = ""
 		parallel(
 			{ sleep(100); out += "a" },

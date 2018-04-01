@@ -1,6 +1,5 @@
 package com.soywiz.korge.time
 
-import org.junit.Test
 import kotlin.test.*
 
 class TimeSpanTest {

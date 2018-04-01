@@ -3,7 +3,6 @@ package com.soywiz.korma.geom.triangle
 import com.soywiz.kds.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
-import org.junit.Test
 import kotlin.math.*
 import kotlin.test.*
 

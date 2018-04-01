@@ -1,7 +1,6 @@
 package com.soywiz.klogger.test
 
 import com.soywiz.klogger.*
-import org.junit.Test
 import kotlin.test.*
 
 class LoggerTest {

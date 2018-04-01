@@ -3,7 +3,6 @@ package com.soywiz.korge.component.list
 import com.soywiz.korge.tests.*
 import com.soywiz.korim.color.*
 import com.soywiz.korma.geom.*
-import org.junit.Test
 import kotlin.test.*
 
 class ViewListTest : ViewsForTesting() {

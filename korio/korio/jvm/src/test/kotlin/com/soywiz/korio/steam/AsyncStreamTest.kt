@@ -2,7 +2,6 @@ package com.soywiz.korio.steam
 
 import com.soywiz.korio.async.*
 import com.soywiz.korio.stream.*
-import org.junit.Test
 import kotlin.test.*
 
 class AsyncStreamTest {

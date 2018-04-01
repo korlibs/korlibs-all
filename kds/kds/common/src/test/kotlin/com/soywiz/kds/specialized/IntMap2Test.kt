@@ -1,7 +1,6 @@
 package com.soywiz.kds.specialized
 
 import com.soywiz.kds.*
-import org.junit.Test
 import kotlin.test.*
 
 class IntMap2Test {

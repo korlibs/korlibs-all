@@ -3,7 +3,6 @@ package com.soywiz.korge.atlas
 import com.soywiz.korge.*
 import com.soywiz.korio.async.*
 import com.soywiz.korma.geom.*
-import org.junit.Test
 import kotlin.test.*
 
 class AtlasInfoTest {

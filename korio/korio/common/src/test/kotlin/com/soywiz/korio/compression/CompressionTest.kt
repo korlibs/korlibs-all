@@ -7,7 +7,7 @@ import kotlin.test.*
 
 class CompressionTest {
 	@Test
-	fun name() = syncTest {
+	fun name() = suspendTest {
 		val data =
 			Base64.decode("H4sIAAAAAAAAA+3SsREAEBSD4WcFm2ACTID9dxGFxgDcub/4mjQpEmdmDuYPKwsSJT3qz1KkXu7fWZMu4/IGr78AAAAAAD+a6ywcnAAQAAA=")
 		val res = Compression.uncompressGzip(data)

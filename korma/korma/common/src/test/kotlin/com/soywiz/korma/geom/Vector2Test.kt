@@ -1,7 +1,6 @@
 package com.soywiz.korma.geom
 
 import com.soywiz.korma.*
-import org.junit.Test
 import kotlin.math.*
 import kotlin.test.*
 

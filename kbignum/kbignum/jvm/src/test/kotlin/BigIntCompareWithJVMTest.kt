@@ -1,5 +1,4 @@
 import com.soywiz.*
-import org.junit.Test
 import java.math.*
 import kotlin.test.*
 

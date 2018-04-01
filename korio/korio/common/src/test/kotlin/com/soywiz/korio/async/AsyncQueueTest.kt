@@ -4,7 +4,7 @@ import kotlin.test.*
 
 class AsyncQueueTest {
 	@Test
-	fun sequence() = syncTest {
+	fun sequence() = suspendTest {
 		var out = ""
 		val queue = AsyncQueue()
 		queue { sleep(100); out += "a" }
@@ -18,7 +18,7 @@ class AsyncQueueTest {
 	}
 
 	@Test
-	fun parallel() = syncTest {
+	fun parallel() = suspendTest {
 		var out = ""
 		val queue1 = AsyncQueue()
 		val queue2 = AsyncQueue()

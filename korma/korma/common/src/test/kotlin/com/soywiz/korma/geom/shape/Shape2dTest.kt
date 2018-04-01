@@ -1,7 +1,6 @@
 package com.soywiz.korma.geom.shape
 
 import com.soywiz.korma.geom.*
-import org.junit.Test
 import kotlin.test.*
 
 class Shape2dTest {

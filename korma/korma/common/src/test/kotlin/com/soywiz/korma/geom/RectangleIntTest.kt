@@ -1,6 +1,5 @@
 package com.soywiz.korma.geom
 
-import org.junit.Test
 import kotlin.test.*
 
 class RectangleIntTest {

@@ -1,6 +1,5 @@
 package com.soywiz
 
-import org.junit.Test
 import kotlin.test.*
 
 class BigNumTest {

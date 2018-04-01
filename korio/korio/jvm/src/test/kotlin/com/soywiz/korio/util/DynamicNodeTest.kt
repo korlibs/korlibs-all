@@ -1,7 +1,6 @@
 package com.soywiz.korio.util
 
 import com.soywiz.kds.*
-import org.junit.Test
 import kotlin.test.*
 
 class DynamicNodeTest {

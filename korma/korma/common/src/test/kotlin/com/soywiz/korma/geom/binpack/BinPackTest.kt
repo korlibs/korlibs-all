@@ -1,7 +1,6 @@
 package com.soywiz.korma.geom.binpack
 
 import com.soywiz.korma.geom.*
-import org.junit.Test
 import kotlin.test.*
 
 class BinPackTest {

@@ -1,6 +1,5 @@
 package com.soywiz.kds
 
-import org.junit.Test
 import kotlin.test.*
 
 class QueueTest {

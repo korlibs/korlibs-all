@@ -4,7 +4,6 @@ import com.soywiz.korge.input.*
 import com.soywiz.korge.render.*
 import com.soywiz.korge.tests.*
 import com.soywiz.korge.view.*
-import org.junit.Test
 import kotlin.test.*
 
 class MouseComponentTest : ViewsForTesting() {

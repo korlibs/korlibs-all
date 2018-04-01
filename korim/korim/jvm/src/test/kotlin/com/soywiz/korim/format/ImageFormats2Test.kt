@@ -4,9 +4,6 @@ import com.soywiz.korim.awt.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.vfs.*
-import org.junit.*
-import org.junit.Ignore
-import org.junit.Test
 import kotlin.test.*
 
 class ImageFormats2Test {
@@ -14,23 +11,23 @@ class ImageFormats2Test {
 	//val root = ResourcesVfs
 	lateinit var root: VfsFile
 
-	@Before
-	fun before() = syncTest {
+	fun imgTest(callback: suspend () -> Unit) = syncTest {
 		for (path in listOf(applicationVfs["src/test/resources"], ResourcesVfs)) {
 			root = path
 			if (root["kotlin8.png"].exists()) break
 		}
+		callback()
 	}
 
 	@Test
-	fun png8() = syncTest {
+	fun png8() = imgTest {
 		val bitmap = root["kotlin8.png"].readBitmapNoNative(formats)
 		assertEquals("Bitmap8(190, 190, palette=32)", bitmap.toString())
 		//awtShowImage(bitmap); Thread.sleep(10000L)
 	}
 
 	@Test
-	fun png24() = syncTest {
+	fun png24() = imgTest {
 		val bitmap = root["kotlin24.png"].readBitmapNoNative(formats)
 		assertEquals("Bitmap32(190, 190)", bitmap.toString())
 		//val bitmap2 = bitmap.toBMP32().mipmap(2)
@@ -40,7 +37,7 @@ class ImageFormats2Test {
 
 	@Test
 	@Ignore
-	fun mipmaps() = syncTest {
+	fun mipmaps() = imgTest {
 		val bitmap = root["kotlin24.png"].readBitmapNoNative(formats)
 		assertEquals("Bitmap32(190, 190)", bitmap.toString())
 		val bitmap2 = bitmap.toBMP32().mipmap(2)
@@ -48,7 +45,7 @@ class ImageFormats2Test {
 	}
 
 	@Test
-	fun png32() = syncTest {
+	fun png32() = imgTest {
 		val bitmap = root["kotlin32.png"].readBitmapNoNative(formats)
 		assertEquals("Bitmap32(190, 190)", bitmap.toString())
 		//awtShowImage(bitmap); Thread.sleep(10000L)
@@ -56,21 +53,21 @@ class ImageFormats2Test {
 	}
 
 	@Test
-	fun jpeg() = syncTest {
+	fun jpeg() = imgTest {
 		val bitmap = root["kotlin.jpg"].readBitmapNoNative(formats)
 		assertEquals("Bitmap32(190, 190)", bitmap.toString())
 		//bitmap.writeTo(LocalVfs("c:/temp/img1.jpg.png"), formats = formats)
 	}
 
 	@Test
-	fun jpeg2() = syncTest {
+	fun jpeg2() = imgTest {
 		val bitmap = root["img1.jpg"].readBitmapNoNative(formats)
 		assertEquals("Bitmap32(460, 460)", bitmap.toString())
 		//bitmap.writeTo(LocalVfs("c:/temp/img1.jpg.tga"), formats = formats)
 	}
 
 	@Test
-	fun ico() = syncTest {
+	fun ico() = imgTest {
 		val bitmaps = root["icon.ico"].readBitmapListNoNative(formats)
 		assertEquals(
 			"[Bitmap32(256, 256), Bitmap32(128, 128), Bitmap32(96, 96), Bitmap32(72, 72), Bitmap32(64, 64), Bitmap32(48, 48), Bitmap32(32, 32), Bitmap32(24, 24), Bitmap32(16, 16)]",
@@ -79,7 +76,7 @@ class ImageFormats2Test {
 	}
 
 	@Test
-	fun pngInterlaced() = syncTest {
+	fun pngInterlaced() = imgTest {
 		val bitmap1 = root["icon0.png"].readBitmapNoNative(formats)
 		val bitmap2 = root["icon0.deinterlaced.png"].readBitmapNoNative(formats)
 		assertTrue(bitmap1.matchContents(bitmap2))

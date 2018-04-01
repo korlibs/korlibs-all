@@ -2,7 +2,6 @@ package com.soywiz.korio.util
 
 import com.soywiz.kds.*
 import com.soywiz.korio.async.*
-import org.junit.Test
 import kotlin.test.*
 
 class DynamicTest {

@@ -5,7 +5,6 @@ import com.soywiz.korio.async.*
 import com.soywiz.korio.serialization.xml.*
 import com.soywiz.korio.stream.*
 import org.junit.Ignore
-import org.junit.Test
 import kotlin.test.*
 
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")

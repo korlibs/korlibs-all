@@ -17,11 +17,11 @@ import kotlin.reflect.*
 
 object Yaml {
 	fun decode(@Language("yaml") str: String) = read(ListReader(StrReader(str).tokenize()), level = 0)
-	inline fun <reified T : Any> decodeToType(@Language("yaml") s: String, mapper: ObjectMapper): T =
+	inline fun <reified T : Any> decodeToType(@Language("yaml") s: String, mapper: ObjectMapper = Mapper): T =
 		decodeToType(s, T::class, mapper)
 
 	@Suppress("UNCHECKED_CAST")
-	fun <T : Any> decodeToType(@Language("yaml") s: String, clazz: KClass<T>, mapper: ObjectMapper): T =
+	fun <T : Any> decodeToType(@Language("yaml") s: String, clazz: KClass<T>, mapper: ObjectMapper = Mapper): T =
 		mapper.toTyped(clazz, decode(s))
 
 	fun read(str: String) = read(ListReader(StrReader(str).tokenize()), level = 0)

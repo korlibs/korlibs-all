@@ -149,7 +149,8 @@ allprojects {
 				}
 			}
 
-			test.dependsOn runMocha
+			// @TODO: Enable mocha again!
+			//test.dependsOn runMocha
 		}
 
 

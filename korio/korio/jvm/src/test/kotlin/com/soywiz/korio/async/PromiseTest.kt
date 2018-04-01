@@ -2,7 +2,6 @@ package com.soywiz.korio.async
 
 import com.soywiz.korio.expectException
 import org.junit.Ignore
-import org.junit.Test
 import kotlin.IllegalStateException
 import kotlin.String
 import kotlin.test.*

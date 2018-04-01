@@ -1,6 +1,5 @@
 package com.soywiz.korio.stream
 
-import org.junit.Test
 import kotlin.test.*
 
 class MemorySyncStreamTest {

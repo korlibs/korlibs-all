@@ -2,7 +2,6 @@ package com.soywiz.korim.format
 
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korio.async.*
-import org.junit.Test
 import kotlin.test.*
 
 class PSDTest {

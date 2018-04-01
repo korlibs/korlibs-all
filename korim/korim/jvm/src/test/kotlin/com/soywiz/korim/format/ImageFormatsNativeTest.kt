@@ -4,7 +4,6 @@ import com.soywiz.korim.bitmap.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.vfs.*
 import com.soywiz.korma.geom.*
-import org.junit.Test
 import kotlin.test.*
 
 class ImageFormatsNativeTest {

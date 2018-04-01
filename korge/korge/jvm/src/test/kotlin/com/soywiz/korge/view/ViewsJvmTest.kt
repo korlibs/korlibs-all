@@ -5,8 +5,6 @@ import com.soywiz.korge.bitmapfont.*
 import com.soywiz.korge.render.*
 import com.soywiz.korge.tests.*
 import com.soywiz.korma.geom.*
-import org.junit.*
-import org.junit.Test
 import kotlin.test.*
 
 class ViewsJvmTest : ViewsForTesting() {
@@ -17,7 +15,7 @@ class ViewsJvmTest : ViewsForTesting() {
 		views.stage += views.container().apply {
 			this += views.image(tex)
 		}
-		Assert.assertEquals(
+		assertEquals(
 			"""
 				|Stage(0)
 				| Container(1)
@@ -26,7 +24,7 @@ class ViewsJvmTest : ViewsForTesting() {
 			views.stage.dumpToString()
 		)
 		views.render()
-		Assert.assertEquals(
+		assertEquals(
 			"""
 			createBuffer(VERTEX):0
 			createBuffer(INDEX):1

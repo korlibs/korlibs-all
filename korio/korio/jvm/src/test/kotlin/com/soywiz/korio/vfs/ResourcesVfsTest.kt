@@ -1,12 +1,12 @@
 package com.soywiz.korio.vfs
 
 import com.soywiz.korio.async.*
-import org.junit.Test
 import kotlin.test.*
 
 class ResourcesVfsTest {
 	@Test
-	fun name() = syncTest {
+	@Ignore
+	fun name() = suspendTest {
 		println("[A]")
 		val listing = ResourcesVfs["tresfolder"].list()
 		println("[B]")

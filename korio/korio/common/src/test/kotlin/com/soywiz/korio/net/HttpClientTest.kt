@@ -2,12 +2,11 @@ package com.soywiz.korio.net
 
 import com.soywiz.korio.async.*
 import com.soywiz.korio.net.http.*
-import org.junit.Test
 import kotlin.test.*
 
 class HttpClientTest {
 	@Test
-	fun testFullRedirections() = syncTest {
+	fun testFullRedirections() = suspendTest {
 		val httpClient = LogHttpClient().apply {
 			onRequest().redirect("https://www.google.es/")
 			onRequest(url = "https://www.google.es/").ok("Worked!")

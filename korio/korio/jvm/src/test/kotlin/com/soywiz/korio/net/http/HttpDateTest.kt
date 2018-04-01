@@ -1,6 +1,5 @@
 package com.soywiz.korio.net.http
 
-import org.junit.Test
 import kotlin.test.*
 
 class HttpDateTest {

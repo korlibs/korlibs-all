@@ -4,7 +4,6 @@ import com.soywiz.korge.tests.*
 import com.soywiz.korge.time.*
 import com.soywiz.korge.tween.Easing
 import com.soywiz.korio.async.*
-import org.junit.Test
 import kotlin.test.*
 
 class TweenTest : ViewsForTesting() {

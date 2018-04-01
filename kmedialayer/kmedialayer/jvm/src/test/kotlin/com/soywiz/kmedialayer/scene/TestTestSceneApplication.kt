@@ -7,8 +7,8 @@ class TestTestSceneApplication {
 	@Test
 	fun name() = testSceneApplication(MyScene()) { application ->
 		val image = root["image"] as Image
-		assertEquals(32f, image.tex.fwidth)
-		assertEquals(32f, image.tex.fheight)
+		assertEquals(32, image.tex.width)
+		assertEquals(32, image.tex.height)
 		assertEquals("0.0,0.0", "${image.x},${image.y}")
 		moveImage()
 		assertEquals("10.0,10.0", "${image.x},${image.y}")

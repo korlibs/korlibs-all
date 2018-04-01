@@ -2,12 +2,11 @@ package com.soywiz.korio.vfs
 
 import com.soywiz.korio.async.*
 import com.soywiz.korio.lang.*
-import org.junit.Test
 import kotlin.test.*
 
 class MapLikeStorageVfsTest {
 	@Test
-	fun name() = syncTest {
+	fun name() = suspendTest {
 		val map = LinkedHashMap<String, String>()
 
 		val root = MapLikeStorageVfs(object : SimpleStorage {

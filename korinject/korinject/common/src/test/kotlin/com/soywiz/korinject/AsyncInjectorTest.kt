@@ -1,7 +1,6 @@
 package com.soywiz.korinject
 
 import com.soywiz.korinject.util.*
-import org.junit.Test
 import kotlin.test.*
 
 class AsyncInjectorTest {

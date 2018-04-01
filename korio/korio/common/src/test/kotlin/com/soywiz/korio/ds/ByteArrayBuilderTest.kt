@@ -2,7 +2,6 @@ package com.soywiz.korio.ds
 
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
-import org.junit.Test
 import kotlin.test.*
 
 class ByteArrayBuilderTest {

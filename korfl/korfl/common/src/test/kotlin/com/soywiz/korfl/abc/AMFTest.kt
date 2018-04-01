@@ -4,7 +4,6 @@ import com.soywiz.kds.*
 import com.soywiz.korfl.amf.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
-import org.junit.Test
 import kotlin.test.*
 
 class AMFTest {

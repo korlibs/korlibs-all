@@ -1,6 +1,5 @@
 package com.soywiz.korge.animate
 
-import org.junit.Test
 import kotlin.test.*
 
 class TimedTest {

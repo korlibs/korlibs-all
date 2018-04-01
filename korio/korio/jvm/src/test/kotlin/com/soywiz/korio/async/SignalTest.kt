@@ -1,6 +1,5 @@
 package com.soywiz.korio.async
 
-import org.junit.Test
 import java.util.concurrent.*
 import kotlin.test.*
 

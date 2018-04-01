@@ -5,7 +5,6 @@ import com.soywiz.korio.async.syncTest
 import com.soywiz.korio.async.toList
 import com.soywiz.korio.vfs.MemoryVfs
 import com.soywiz.korio.vfs.ResourcesVfs
-import org.junit.Test
 import kotlin.test.assertEquals
 
 class AtlasResourceProcessorTest {

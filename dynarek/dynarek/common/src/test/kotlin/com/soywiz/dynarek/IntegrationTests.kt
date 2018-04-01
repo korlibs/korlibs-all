@@ -1,6 +1,5 @@
 package com.soywiz.dynarek
 
-import org.junit.Test
 import kotlin.test.*
 
 class IntegrationTests {

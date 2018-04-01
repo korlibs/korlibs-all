@@ -2,7 +2,6 @@ package com.soywiz.korio.util
 
 import com.soywiz.korio.serialization.*
 import com.soywiz.korio.serialization.json.*
-import org.junit.Test
 import kotlin.test.*
 
 class ClassFactoryTest {

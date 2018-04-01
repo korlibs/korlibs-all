@@ -6,24 +6,22 @@ import com.soywiz.korim.format.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.vfs.*
-import org.junit.*
-import org.junit.Test
 import kotlin.test.*
 
 class TtfFontTest {
 	lateinit var root: VfsFile
 
-	@Before
-	fun before() = syncTest {
+	fun ttfTest(callback: suspend () -> Unit) = syncTest {
 		for (path in listOf(applicationVfs["src/test/resources"], ResourcesVfs)) {
 			root = path
 			if (root["kotlin8.png"].exists()) break
 		}
+		callback()
 	}
 
 	@Test
 	@Ignore
-	fun name() = syncTest {
+	fun name() = ttfTest {
 		val font = TtfFont(root["Comfortaa-Regular.ttf"].readAll().openSync())
 		showImageAndWait(NativeImage(512, 128).apply {
 			getContext2d()

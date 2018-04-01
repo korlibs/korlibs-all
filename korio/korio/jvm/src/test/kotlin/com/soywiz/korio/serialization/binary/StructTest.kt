@@ -1,7 +1,6 @@
 package com.soywiz.korio.serialization.binary
 
 import com.soywiz.korio.stream.*
-import org.junit.Test
 import kotlin.test.*
 
 class StructTest {

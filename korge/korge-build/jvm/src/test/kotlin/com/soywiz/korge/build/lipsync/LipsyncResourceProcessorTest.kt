@@ -11,7 +11,6 @@ import com.soywiz.korio.vfs.MemoryVfs
 import com.soywiz.korio.vfs.ResourcesVfs
 import org.junit.Assert
 import org.junit.Ignore
-import org.junit.Test
 
 class LipsyncResourceProcessorTest {
 	@Ignore

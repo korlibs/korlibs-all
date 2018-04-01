@@ -1,6 +1,5 @@
 package com.soywiz.korio.lang
 
-import org.junit.Test
 import kotlin.test.*
 
 class StringExtTest {

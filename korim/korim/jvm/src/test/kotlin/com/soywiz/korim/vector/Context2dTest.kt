@@ -6,7 +6,6 @@ import com.soywiz.korim.format.*
 import com.soywiz.korim.vector.format.SVG
 import com.soywiz.korio.async.*
 import com.soywiz.korio.vfs.*
-import org.junit.Test
 import kotlin.test.*
 
 class Context2dTest {
@@ -35,7 +34,8 @@ class Context2dTest {
 	}
 
 	@Test
-	fun name2(): Unit = syncTest {
+	@Ignore
+	fun name2(): Unit = suspendTest {
 		val img = NativeImage(256, 256)
 		val ctx = img.getContext2d()
 		ctx.apply {
@@ -82,7 +82,7 @@ class Context2dTest {
 	}
 
 	@Test
-	fun name3(): Unit = syncTest {
+	fun name3(): Unit = suspendTest {
 		val img = NativeImage(400, 450)
 		val ctx = img.getContext2d()
 

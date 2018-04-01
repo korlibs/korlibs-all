@@ -4,7 +4,6 @@ import com.soywiz.korio.async.*
 import com.soywiz.korio.util.*
 import com.soywiz.korui.light.log.*
 import com.soywiz.korui.ui.*
-import org.junit.Test
 import kotlin.test.*
 
 class BasicTest {

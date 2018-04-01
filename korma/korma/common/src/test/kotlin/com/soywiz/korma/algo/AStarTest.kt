@@ -2,7 +2,6 @@ package com.soywiz.korma.algo
 
 import com.soywiz.kds.*
 import com.soywiz.korma.geom.*
-import org.junit.Test
 import kotlin.test.*
 
 class AStarTest {

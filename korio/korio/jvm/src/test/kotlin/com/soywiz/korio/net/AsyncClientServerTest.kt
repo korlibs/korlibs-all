@@ -3,7 +3,6 @@ package com.soywiz.korio.net
 import com.soywiz.korio.async.*
 import com.soywiz.korio.stream.*
 import org.junit.Ignore
-import org.junit.Test
 import java.util.*
 import kotlin.test.*
 
