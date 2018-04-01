@@ -34,6 +34,9 @@ allprojects {
 	apply plugin: 'maven-publish'
 	apply plugin: 'idea'
 
+	group projectGroup
+	version projectVersion
+
 	repositories {
 		mavenLocal()
 		jcenter()
