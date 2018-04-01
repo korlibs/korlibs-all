@@ -1,5 +1,5 @@
 apply plugin: 'kotlin-platform-common'
 
 dependencies {
-    compile project(":kmem-common")
+	compile project(":kmem-common")
 }

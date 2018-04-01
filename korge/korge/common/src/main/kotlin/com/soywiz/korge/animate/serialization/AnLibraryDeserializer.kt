@@ -1,42 +1,33 @@
 package com.soywiz.korge.animate.serialization
 
-import com.soywiz.kds.DoubleArrayList
-import com.soywiz.kds.IntArrayList
-import com.soywiz.kmem.extract
-import com.soywiz.korau.sound.NativeSound
-import com.soywiz.korau.sound.readNativeSoundOptimized
+import com.soywiz.kds.*
+import com.soywiz.kmem.*
+import com.soywiz.korau.sound.*
 import com.soywiz.korge.animate.*
-import com.soywiz.korge.render.Texture
-import com.soywiz.korge.render.TextureWithBitmapSlice
-import com.soywiz.korge.view.BlendMode
-import com.soywiz.korge.view.Views
-import com.soywiz.korge.view.texture
-import com.soywiz.korim.bitmap.Bitmap
-import com.soywiz.korim.bitmap.Bitmap32
-import com.soywiz.korim.bitmap.slice
-import com.soywiz.korim.color.ColorTransform
-import com.soywiz.korim.format.readBitmapOptimized
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korio.serialization.json.Json
-import com.soywiz.korio.stream.FastByteArrayInputStream
-import com.soywiz.korio.stream.SyncStream
-import com.soywiz.korio.stream.readAll
-import com.soywiz.korio.vfs.VfsFile
-import com.soywiz.korma.Matrix2d
-import com.soywiz.korma.geom.Rectangle
-import com.soywiz.korma.geom.RectangleInt
-import com.soywiz.korma.geom.VectorPath
+import com.soywiz.korge.render.*
+import com.soywiz.korge.view.*
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
+import com.soywiz.korim.format.*
+import com.soywiz.korio.error.*
+import com.soywiz.korio.serialization.json.*
+import com.soywiz.korio.stream.*
+import com.soywiz.korio.vfs.*
+import com.soywiz.korma.*
+import com.soywiz.korma.geom.*
 
 suspend fun VfsFile.readAni(views: Views, content: FastByteArrayInputStream? = null): AnLibrary {
 	val file = this
-	return AnLibraryDeserializer.read(content ?: FastByteArrayInputStream(this.readBytes()), views, externalReaders = AnLibraryDeserializer.ExternalReaders(
-		atlasReader = { index ->
-			file.withExtension("ani.$index.png").readBitmapOptimized()
-		},
-		readSound = { index ->
-			file.withExtension("ani.$index.mp3").readNativeSoundOptimized()
-		}
-	))
+	return AnLibraryDeserializer.read(content ?: FastByteArrayInputStream(this.readBytes()),
+		views,
+		externalReaders = AnLibraryDeserializer.ExternalReaders(
+			atlasReader = { index ->
+				file.withExtension("ani.$index.png").readBitmapOptimized()
+			},
+			readSound = { index ->
+				file.withExtension("ani.$index.mp3").readNativeSoundOptimized()
+			}
+		))
 }
 
 object AnLibraryDeserializer {
@@ -45,11 +36,19 @@ object AnLibraryDeserializer {
 		val readSound: suspend (index: Int) -> NativeSound
 	)
 
-	suspend fun read(s: ByteArray, views: Views, externalReaders: ExternalReaders): AnLibrary = FastByteArrayInputStream(s).readLibrary(views, externalReaders)
-	suspend fun read(s: SyncStream, views: Views, externalReaders: ExternalReaders): AnLibrary = FastByteArrayInputStream(s.readAll()).readLibrary(views, externalReaders)
-	suspend fun read(s: FastByteArrayInputStream, views: Views, externalReaders: ExternalReaders): AnLibrary = s.readLibrary(views, externalReaders)
+	suspend fun read(s: ByteArray, views: Views, externalReaders: ExternalReaders): AnLibrary =
+		FastByteArrayInputStream(s).readLibrary(views, externalReaders)
 
-	suspend private fun FastByteArrayInputStream.readLibrary(views: Views, externalReaders: ExternalReaders): AnLibrary {
+	suspend fun read(s: SyncStream, views: Views, externalReaders: ExternalReaders): AnLibrary =
+		FastByteArrayInputStream(s.readAll()).readLibrary(views, externalReaders)
+
+	suspend fun read(s: FastByteArrayInputStream, views: Views, externalReaders: ExternalReaders): AnLibrary =
+		s.readLibrary(views, externalReaders)
+
+	suspend private fun FastByteArrayInputStream.readLibrary(
+		views: Views,
+		externalReaders: ExternalReaders
+	): AnLibrary {
 		val magic = readStringz(8)
 		//AnLibrary(views)
 		if (magic != AniFile.MAGIC) invalidOp("Not a ${AniFile.MAGIC} file")
@@ -91,7 +90,11 @@ object AnLibraryDeserializer {
 		return library
 	}
 
-	private fun FastByteArrayInputStream.readSymbol(strings: Array<String?>, atlases: List<Pair<Bitmap, Texture>>, sounds: List<NativeSound>): AnSymbol {
+	private fun FastByteArrayInputStream.readSymbol(
+		strings: Array<String?>,
+		atlases: List<Pair<Bitmap, Texture>>,
+		sounds: List<NativeSound>
+	): AnSymbol {
 		val symbolId = readU_VL()
 		val symbolName = strings[readU_VL()]
 		val type = readU_VL()
@@ -156,12 +159,14 @@ object AnLibraryDeserializer {
 					val bitmap = atlas.first
 					val texture = atlas.second
 
-					texturesWithBitmap.add(ratio1000, TextureWithBitmapSlice(
-						texture = texture.slice(textureBounds.toDouble()),
-						bitmapSlice = bitmap.slice(textureBounds),
-						scale = scale,
-						bounds = bounds
-					))
+					texturesWithBitmap.add(
+						ratio1000, TextureWithBitmapSlice(
+							texture = texture.slice(textureBounds.toDouble()),
+							bitmapSlice = bitmap.slice(textureBounds),
+							scale = scale,
+							bounds = bounds
+						)
+					)
 				}
 				AnSymbolMorphShape(
 					id = symbolId,
@@ -182,7 +187,11 @@ object AnLibraryDeserializer {
 		return symbol
 	}
 
-	private fun FastByteArrayInputStream.readMovieClip(symbolId: Int, symbolName: String?, strings: Array<String?>): AnSymbolMovieClip {
+	private fun FastByteArrayInputStream.readMovieClip(
+		symbolId: Int,
+		symbolName: String?,
+		strings: Array<String?>
+	): AnSymbolMovieClip {
 		val mcFlags = readU8()
 
 		val totalDepths = readU_VL()
@@ -192,7 +201,8 @@ object AnLibraryDeserializer {
 		val uidsToCharacterIds = (0 until totalUids).map {
 			val charId = readU_VL()
 			val extraPropsString = readStringVL()
-			val extraProps = if (extraPropsString.isEmpty()) LinkedHashMap<String, String>() else Json.decode(extraPropsString) as MutableMap<String, String>
+			val extraProps =
+				if (extraPropsString.isEmpty()) LinkedHashMap<String, String>() else Json.decode(extraPropsString) as MutableMap<String, String>
 			//val extraProps = LinkedHashMap<String, String>()
 			AnSymbolUidDef(charId, extraProps)
 		}.toTypedArray()
@@ -291,16 +301,18 @@ object AnLibraryDeserializer {
 					if (hasBlendMode) {
 						lastBlendMode = BlendMode.BY_ORDINAL[readU8()] ?: BlendMode.INHERIT
 					}
-					timeline.add(frameTime * 1000, AnSymbolTimelineFrame(
-						depth = depth,
-						uid = lastUid,
-						transform = lastMatrix,
-						name = lastName,
-						colorTransform = lastColorTransform,
-						blendMode = lastBlendMode,
-						ratio = lastRatio,
-						clipDepth = lastClipDepth
-					))
+					timeline.add(
+						frameTime * 1000, AnSymbolTimelineFrame(
+							depth = depth,
+							uid = lastUid,
+							transform = lastMatrix,
+							name = lastName,
+							colorTransform = lastColorTransform,
+							blendMode = lastBlendMode,
+							ratio = lastRatio,
+							clipDepth = lastClipDepth
+						)
+					)
 				}
 			}
 			ss
@@ -319,6 +331,9 @@ object AnLibraryDeserializer {
 		return mc
 	}
 
-	fun FastByteArrayInputStream.readRect() = Rectangle(x = readS_VL() / 20.0, y = readS_VL() / 20.0, width = readS_VL() / 20.0, height = readS_VL() / 20.0)
-	fun FastByteArrayInputStream.readIRect() = RectangleInt(x = readS_VL(), y = readS_VL(), width = readS_VL(), height = readS_VL())
+	fun FastByteArrayInputStream.readRect() =
+		Rectangle(x = readS_VL() / 20.0, y = readS_VL() / 20.0, width = readS_VL() / 20.0, height = readS_VL() / 20.0)
+
+	fun FastByteArrayInputStream.readIRect() =
+		RectangleInt(x = readS_VL(), y = readS_VL(), width = readS_VL(), height = readS_VL())
 }

@@ -1,8 +1,7 @@
 package com.soywiz.korim.bitmap
 
-import com.soywiz.korio.util.splitInChunks
-import com.soywiz.korio.util.toHexString
-import kotlin.test.assertEquals
+import com.soywiz.korio.util.*
+import kotlin.test.*
 
 class Bitmap1Test {
 	@kotlin.test.Test

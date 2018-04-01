@@ -1,18 +1,29 @@
 package com.soywiz.korim.font.ttf
 
-import com.soywiz.kds.IntArrayList
-import com.soywiz.klock.DateTime
-import com.soywiz.klock.years
-import com.soywiz.kmem.toUnsigned
-import com.soywiz.korim.color.Colors
-import com.soywiz.korim.vector.Context2d
-import com.soywiz.korim.vector.GraphicsPath
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korio.lang.UTF16_BE
-import com.soywiz.korio.lang.UTF8
-import com.soywiz.korio.lang.toString
+import com.soywiz.kds.*
+import com.soywiz.klock.*
+import com.soywiz.kmem.*
+import com.soywiz.korim.color.*
+import com.soywiz.korim.vector.*
+import com.soywiz.korio.error.*
+import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korio.util.hex
+import com.soywiz.korio.util.*
+import kotlin.collections.LinkedHashMap
+import kotlin.collections.List
+import kotlin.collections.arrayListOf
+import kotlin.collections.copyOf
+import kotlin.collections.filterNotNull
+import kotlin.collections.getOrNull
+import kotlin.collections.indices
+import kotlin.collections.last
+import kotlin.collections.lastOrNull
+import kotlin.collections.listOf
+import kotlin.collections.map
+import kotlin.collections.plus
+import kotlin.collections.plusAssign
+import kotlin.collections.set
+import kotlin.collections.toList
 
 // Used information from:
 // - https://www.sweetscape.com/010editor/repository/files/TTF.bt
@@ -152,7 +163,8 @@ class TtfFont private constructor(val s: SyncStream) {
 				else -> UTF16_BE
 			}
 			//println("" + (stringOffset.toLong() + offset) + " : " + length + " : " + charset)
-			val string = this.clone().sliceWithSize(stringOffset.toLong() + offset, length.toLong()).readAll().toString(charset)
+			val string =
+				this.clone().sliceWithSize(stringOffset.toLong() + offset, length.toLong()).readAll().toString(charset)
 			//println(string)
 		}
 	}
@@ -244,7 +256,8 @@ class TtfFont private constructor(val s: SyncStream) {
 	fun readHmtx() = openTable("hmtx")?.run {
 		val firstMetrics = (0 until numberOfHMetrics).map { HorMetric(readU16_be(), readS16_be()) }
 		val lastAdvanceWidth = firstMetrics.last().advanceWidth
-		val compressedMetrics = (0 until (numGlyphs - numberOfHMetrics)).map { HorMetric(lastAdvanceWidth, readS16_be()) }
+		val compressedMetrics =
+			(0 until (numGlyphs - numberOfHMetrics)).map { HorMetric(lastAdvanceWidth, readS16_be()) }
 		horMetrics = firstMetrics + compressedMetrics
 	}
 
@@ -370,7 +383,15 @@ class TtfFont private constructor(val s: SyncStream) {
 		TOP, BASELINE
 	}
 
-	fun fillText(c: Context2d, text: String, size: Double = 16.0, x: Double = 0.0, y: Double = 0.0, color: Int = Colors.WHITE, origin: Origin = Origin.BASELINE) = c.run {
+	fun fillText(
+		c: Context2d,
+		text: String,
+		size: Double = 16.0,
+		x: Double = 0.0,
+		y: Double = 0.0,
+		color: Int = Colors.WHITE,
+		origin: Origin = Origin.BASELINE
+	) = c.run {
 		val font = this@TtfFont
 		val scale = size / unitsPerEm.toDouble()
 		translate(x, y)
@@ -385,19 +406,19 @@ class TtfFont private constructor(val s: SyncStream) {
 	}
 
 	data class GlyphReference(
-			val glyph: IGlyph,
-			val x: Int, val y: Int,
-			val scaleX: Float,
-			val scale01: Float,
-			val scale10: Float,
-			val scaleY: Float
+		val glyph: IGlyph,
+		val x: Int, val y: Int,
+		val scaleX: Float,
+		val scale01: Float,
+		val scale10: Float,
+		val scaleY: Float
 	)
 
 	inner class CompositeGlyph(
-			override val xMin: Int, override val yMin: Int,
-			override val xMax: Int, override val yMax: Int,
-			val refs: List<GlyphReference>,
-			override val advanceWidth: Int
+		override val xMin: Int, override val yMin: Int,
+		override val xMax: Int, override val yMax: Int,
+		val refs: List<GlyphReference>,
+		override val advanceWidth: Int
 	) : IGlyph {
 		override fun fill(c: Context2d, size: Double, origin: Origin, color: Int) {
 			val scale = size / unitsPerEm.toDouble()
@@ -414,13 +435,13 @@ class TtfFont private constructor(val s: SyncStream) {
 	}
 
 	inner class Glyph(
-			override val xMin: Int, override val yMin: Int,
-			override val xMax: Int, override val yMax: Int,
-			val contoursIndices: IntArray,
-			val flags: IntArray,
-			val xPos: IntArray,
-			val yPos: IntArray,
-			override val advanceWidth: Int
+		override val xMin: Int, override val yMin: Int,
+		override val xMax: Int, override val yMax: Int,
+		val contoursIndices: IntArray,
+		val flags: IntArray,
+		val xPos: IntArray,
+		val yPos: IntArray,
+		override val advanceWidth: Int
 	) : IGlyph {
 		val npoints: Int get() = xPos.size
 		fun onCurve(n: Int) = (flags[n] and 1) != 0
@@ -627,11 +648,29 @@ class TtfFont private constructor(val s: SyncStream) {
 			//println("$ncontours, $xMin, $yMax, $xMax, $yMax, ${endPtsOfContours.toList()}, $numPoints, ${flags.toList()}")
 			//println(xPos.toList())
 			//println(yPos.toList())
-			return Glyph(xMin, yMin, xMax, yMax, contoursIndices, flags.data.copyOf(flags.size), xPos, yPos, horMetrics[index].advanceWidth)
+			return Glyph(
+				xMin,
+				yMin,
+				xMax,
+				yMax,
+				contoursIndices,
+				flags.data.copyOf(flags.size),
+				xPos,
+				yPos,
+				horMetrics[index].advanceWidth
+			)
 		}
 	}
 }
 
-fun Context2d.fillText(font: TtfFont, text: String, size: Double = 16.0, x: Double = 0.0, y: Double = 0.0, color: Int = Colors.WHITE, origin: TtfFont.Origin = TtfFont.Origin.BASELINE) {
+fun Context2d.fillText(
+	font: TtfFont,
+	text: String,
+	size: Double = 16.0,
+	x: Double = 0.0,
+	y: Double = 0.0,
+	color: Int = Colors.WHITE,
+	origin: TtfFont.Origin = TtfFont.Origin.BASELINE
+) {
 	font.fillText(this, text, size, x, y, color, origin)
 }

@@ -1,7 +1,6 @@
 package com.soywiz.korio.async
 
-import com.soywiz.korio.lang.Console
-import com.soywiz.korio.lang.printStackTrace
+import com.soywiz.korio.lang.*
 
 object ExceptionHook {
 	var show = false

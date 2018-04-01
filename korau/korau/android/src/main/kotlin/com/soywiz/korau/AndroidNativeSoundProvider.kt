@@ -21,7 +21,8 @@ class AndroidNativeSoundProvider : NativeSoundProvider() {
 		}
 	}
 
-	override suspend fun createSound(data: ByteArray): NativeSound = AndroidNativeSound(this, "data:audio/mp3;base64," + Base64.encode(data))
+	override suspend fun createSound(data: ByteArray): NativeSound =
+		AndroidNativeSound(this, "data:audio/mp3;base64," + Base64.encode(data))
 	//suspend override fun createSound(file: VfsFile): NativeSound {
 	//}
 }

@@ -198,12 +198,14 @@ enum class AbcOpcode(val id: Int, val type: AbcOpcode.Kind) {
 		BasicOperation({ AbcBasicOperation(op) }),
 		LabelOperation({ AbcLabelOperation(op, s.position) }),
 		IntOperation({
-			AbcIntOperation(op, when (op) {
-				AbcOpcode.GetScopeObject -> s.readU8()
-				AbcOpcode.PushByte -> s.readS8()
-				AbcOpcode.PushShort -> (s.readU30() shl 2) shr 2
-				else -> s.readU30()
-			})
+			AbcIntOperation(
+				op, when (op) {
+					AbcOpcode.GetScopeObject -> s.readU8()
+					AbcOpcode.PushByte -> s.readS8()
+					AbcOpcode.PushShort -> (s.readU30() shl 2) shr 2
+					else -> s.readU30()
+				}
+			)
 		}),
 		UIntOperation({ AbcIntOperation(op, uints[s.readU30()]) }),
 		NumberOperation({ AbcDoubleOperation(op, doubles[s.readU30()]) }),
@@ -214,7 +216,15 @@ enum class AbcOpcode(val id: Int, val type: AbcOpcode.Kind) {
 				AbcIntIntOperation(op, s.readU30(), s.readU30())
 			}
 		}),
-		IntStringIntIntOperation({ AbcIntStringIntIntOperation(op, s.readU8(), strings[s.readU30()], s.readU8(), s.readU30()) }),
+		IntStringIntIntOperation({
+			AbcIntStringIntIntOperation(
+				op,
+				s.readU8(),
+				strings[s.readU30()],
+				s.readU8(),
+				s.readU30()
+			)
+		}),
 		StringOperation({ AbcStringOperation(op, strings[s.readU30()]) }),
 		MultinameOperation({ AbcMultinameOperation(op, multinames[s.readU30()]) }),
 		MultinameIntOperation({ AbcMultinameIntOperation(op, multinames[s.readU30()], s.readU30()) }),
@@ -251,8 +261,17 @@ interface AbcOperation {
 
 data class AbcBasicOperation(override val opcode: AbcOpcode) : AbcOperation
 data class AbcLabelOperation(override val opcode: AbcOpcode, val position: Long) : AbcOperation
-data class AbcLookupSwitchOperation(override val opcode: AbcOpcode, val defaultMarker: Long, val markers: LongArray) : AbcOperation
-data class AbcIntStringIntIntOperation(override val opcode: AbcOpcode, val int1: Int, val string: String, val int2: Int, val int3: Int) : AbcOperation
+data class AbcLookupSwitchOperation(override val opcode: AbcOpcode, val defaultMarker: Long, val markers: LongArray) :
+	AbcOperation
+
+data class AbcIntStringIntIntOperation(
+	override val opcode: AbcOpcode,
+	val int1: Int,
+	val string: String,
+	val int2: Int,
+	val int3: Int
+) : AbcOperation
+
 data class AbcIntOperation(override val opcode: AbcOpcode, val value: Int) : AbcOperation
 data class AbcJumpOperation(override val opcode: AbcOpcode, val position: Long) : AbcOperation
 data class AbcStringOperation(override val opcode: AbcOpcode, val value: String) : AbcOperation
@@ -260,5 +279,10 @@ data class AbcIntIntOperation(override val opcode: AbcOpcode, val value1: Int, v
 data class AbcDoubleOperation(override val opcode: AbcOpcode, val value: Double) : AbcOperation
 data class AbcNewClassOperation(override val opcode: AbcOpcode, val value: Int) : AbcOperation
 data class AbcMultinameOperation(override val opcode: AbcOpcode, val multiname: ABC.AbstractMultiname) : AbcOperation
-data class AbcMultinameIntOperation(override val opcode: AbcOpcode, val multiname: ABC.AbstractMultiname, val value: Int) : AbcOperation
+data class AbcMultinameIntOperation(
+	override val opcode: AbcOpcode,
+	val multiname: ABC.AbstractMultiname,
+	val value: Int
+) : AbcOperation
+
 data class AbcNamespaceOperation(override val opcode: AbcOpcode, val namespace: ABC.Namespace) : AbcOperation

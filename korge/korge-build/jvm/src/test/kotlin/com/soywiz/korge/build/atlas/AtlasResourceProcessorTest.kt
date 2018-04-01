@@ -18,7 +18,12 @@ class AtlasResourceProcessorTest {
 		assertEquals(true, memoryVfs["simple.atlas.json"].exists())
 		assertEquals(true, memoryVfs["simple.atlas.png"].exists())
 		assertEquals(
-			ResourceVersion(name = "simple.atlas", loaderVersion = 0, sha1 = "2001b3a895e3d9a8bee7267928a93941b6aee181", configSha1 = ""),
+			ResourceVersion(
+				name = "simple.atlas",
+				loaderVersion = 0,
+				sha1 = "2001b3a895e3d9a8bee7267928a93941b6aee181",
+				configSha1 = ""
+			),
 			ResourceVersion.readMeta(memoryVfs["simple.atlas.json.meta"])
 		)
 		val processed2 = AtlasResourceProcessor.process(ResourcesVfs["simple.atlas"], memoryVfs)

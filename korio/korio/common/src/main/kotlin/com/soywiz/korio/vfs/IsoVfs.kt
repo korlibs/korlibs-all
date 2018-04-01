@@ -1,7 +1,7 @@
 package com.soywiz.korio.vfs
 
-import com.soywiz.korio.async.asyncGenerate
-import com.soywiz.korio.lang.format
+import com.soywiz.korio.async.*
+import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 
 suspend fun IsoVfs(file: VfsFile): VfsFile = ISO.openVfs(file.open(VfsOpenMode.READ))
@@ -20,7 +20,8 @@ object ISO {
 			val vfs = this
 			val isoFile = iso
 
-			fun getVfsStat(file: IsoFile): VfsStat = createExistsStat(file.fullname, isDirectory = file.isDirectory, size = file.size)
+			fun getVfsStat(file: IsoFile): VfsStat =
+				createExistsStat(file.fullname, isDirectory = file.isDirectory, size = file.size)
 
 			suspend override fun stat(path: String): VfsStat = try {
 				getVfsStat(isoFile[path])
@@ -41,13 +42,18 @@ object ISO {
 	}
 
 	class IsoReader(val s: AsyncStream) {
-		suspend fun getSector(sector: Int, size: Int): AsyncStream = s.sliceWithSize(sector.toLong() * SECTOR_SIZE, size.toLong())
+		suspend fun getSector(sector: Int, size: Int): AsyncStream =
+			s.sliceWithSize(sector.toLong() * SECTOR_SIZE, size.toLong())
+
 		suspend fun getSectorMemory(sector: Int, size: Int) = getSector(sector, size).readAvailable().openSync()
 
 		suspend fun read(): IsoFile {
 			val primary = PrimaryVolumeDescriptor(getSectorMemory(0x10, SECTOR_SIZE.toInt()))
 			val root = IsoFile(this@IsoReader, primary.rootDirectoryRecord, null)
-			readDirectoryRecords(root, getSectorMemory(primary.rootDirectoryRecord.extent, primary.rootDirectoryRecord.size))
+			readDirectoryRecords(
+				root,
+				getSectorMemory(primary.rootDirectoryRecord.extent, primary.rootDirectoryRecord.size)
+			)
 			return root
 		}
 
@@ -90,7 +96,8 @@ object ISO {
 					"" -> Unit
 					"." -> Unit
 					".." -> current = current.parent!!
-					else -> current = current.children.firstOrNull { it.name.toUpperCase() == part.toUpperCase() } ?: throw IllegalStateException("Can't find part $part for accessing path $name children: ${current.children}")
+					else -> current = current.children.firstOrNull { it.name.toUpperCase() == part.toUpperCase() } ?:
+							throw IllegalStateException("Can't find part $part for accessing path $name children: ${current.children}")
 				}
 			}
 			return current
@@ -225,7 +232,8 @@ object ISO {
 		val hsecond = data.substring(14, 16).toIntOrNull() ?: 0
 		//val offset = data.substring(16).toInt()
 
-		override fun toString(): String = "IsoDate(%04d-%02d-%02d %02d:%02d:%02d.%d)".format(year, month, day, hour, minute, second, hsecond)
+		override fun toString(): String =
+			"IsoDate(%04d-%02d-%02d %02d:%02d:%02d.%d)".format(year, month, day, hour, minute, second, hsecond)
 	}
 
 	data class DateStruct(

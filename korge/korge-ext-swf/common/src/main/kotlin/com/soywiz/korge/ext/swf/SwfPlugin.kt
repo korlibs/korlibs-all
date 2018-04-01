@@ -1,10 +1,8 @@
 package com.soywiz.korge.ext.swf
 
-import com.soywiz.korge.animate.animateLibraryLoaders
-import com.soywiz.korge.plugin.KorgePlugin
-import com.soywiz.korge.view.KorgeFileLoader
-import com.soywiz.korge.view.KorgeFileLoaderTester
-import com.soywiz.korge.view.Views
+import com.soywiz.korge.animate.*
+import com.soywiz.korge.plugin.*
+import com.soywiz.korge.view.*
 
 object SwfPlugin : KorgePlugin() {
 	override suspend fun register(views: Views) {

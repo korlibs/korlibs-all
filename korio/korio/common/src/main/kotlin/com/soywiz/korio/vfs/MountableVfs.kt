@@ -2,10 +2,8 @@
 
 package com.soywiz.korio.vfs
 
-import com.soywiz.korio.coroutine.Continuation
-import com.soywiz.korio.coroutine.CoroutineContext
-import com.soywiz.korio.coroutine.korioStartCoroutine
-import com.soywiz.korio.coroutine.korioSuspendCoroutine
+import com.soywiz.korio.coroutine.*
+import kotlin.coroutines.experimental.*
 
 suspend fun MountableVfs(callback: suspend Mountable.() -> Unit): VfsFile = korioSuspendCoroutine { c ->
 	val mount = object : Vfs.Proxy(), Mountable {

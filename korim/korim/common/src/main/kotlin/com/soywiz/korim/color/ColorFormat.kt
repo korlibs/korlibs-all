@@ -1,9 +1,9 @@
 package com.soywiz.korim.color
 
 import com.soywiz.kmem.*
-import com.soywiz.korim.bitmap.Bitmap32
-import com.soywiz.korio.JvmStatic
-import kotlin.math.min
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korio.*
+import kotlin.math.*
 
 interface ColorFormatBase {
 	fun getR(v: Int): Int
@@ -13,10 +13,10 @@ interface ColorFormatBase {
 	fun pack(r: Int, g: Int, b: Int, a: Int): Int
 
 	class Mixin(
-			val rOffset: Int, val rSize: Int,
-			val gOffset: Int, val gSize: Int,
-			val bOffset: Int, val bSize: Int,
-			val aOffset: Int, val aSize: Int
+		val rOffset: Int, val rSize: Int,
+		val gOffset: Int, val gSize: Int,
+		val bOffset: Int, val bSize: Int,
+		val aOffset: Int, val aSize: Int
 	) : ColorFormatBase {
 		override fun getR(v: Int): Int = v.extractScaledFF(rOffset, rSize)
 		override fun getG(v: Int): Int = v.extractScaledFF(gOffset, gSize)
@@ -24,10 +24,10 @@ interface ColorFormatBase {
 		override fun getA(v: Int): Int = v.extractScaledFFDefault(aOffset, aSize, default = 0xFF)
 		override fun pack(r: Int, g: Int, b: Int, a: Int): Int {
 			return 0
-					.insertScaledFF(r, rOffset, rSize)
-					.insertScaledFF(g, gOffset, gSize)
-					.insertScaledFF(b, bOffset, bSize)
-					.insertScaledFF(a, aOffset, aSize)
+				.insertScaledFF(r, rOffset, rSize)
+				.insertScaledFF(g, gOffset, gSize)
+				.insertScaledFF(b, bOffset, bSize)
+				.insertScaledFF(a, aOffset, aSize)
 		}
 	}
 }
@@ -55,7 +55,7 @@ abstract class ColorFormat(val bpp: Int) : ColorFormatBase {
 	fun unpackToRGBA(packed: Int): Int = RGBA.packFast(getR(packed), getG(packed), getB(packed), getA(packed))
 
 	fun convertTo(color: Int, target: ColorFormat): Int = target.pack(
-			this.getR(color), this.getG(color), this.getB(color), this.getA(color)
+		this.getR(color), this.getG(color), this.getB(color), this.getA(color)
 	)
 
 	companion object {
@@ -69,7 +69,14 @@ abstract class ColorFormat(val bpp: Int) : ColorFormatBase {
 		fun clampFF(a: Int): Int = min(a, 255)
 	}
 
-	inline fun decodeInternal(data: ByteArray, dataOffset: Int, out: IntArray, outOffset: Int, size: Int, read: (data: ByteArray, io: Int) -> Int): Unit {
+	inline fun decodeInternal(
+		data: ByteArray,
+		dataOffset: Int,
+		out: IntArray,
+		outOffset: Int,
+		size: Int,
+		read: (data: ByteArray, io: Int) -> Int
+	): Unit {
 		var io = dataOffset
 		var oo = outOffset
 		val bytesPerPixel = this.bytesPerPixel
@@ -81,7 +88,14 @@ abstract class ColorFormat(val bpp: Int) : ColorFormatBase {
 		}
 	}
 
-	open fun decode(data: ByteArray, dataOffset: Int, out: IntArray, outOffset: Int, size: Int, littleEndian: Boolean = true): Unit {
+	open fun decode(
+		data: ByteArray,
+		dataOffset: Int,
+		out: IntArray,
+		outOffset: Int,
+		size: Int,
+		littleEndian: Boolean = true
+	): Unit {
 		when (bpp) {
 			16 -> if (littleEndian) {
 				decodeInternal(data, dataOffset, out, outOffset, size, ByteArray::readU16_le)
@@ -102,21 +116,44 @@ abstract class ColorFormat(val bpp: Int) : ColorFormatBase {
 		}
 	}
 
-	open fun decode(data: ByteArray, dataOffset: Int = 0, size: Int = data.size / bytesPerPixel, littleEndian: Boolean = true): IntArray {
+	open fun decode(
+		data: ByteArray,
+		dataOffset: Int = 0,
+		size: Int = data.size / bytesPerPixel,
+		littleEndian: Boolean = true
+	): IntArray {
 		val out = IntArray(size)
 		decode(data, dataOffset, out, 0, size, littleEndian)
 		return out
 	}
 
-	open fun decodeToBitmap32(width: Int, height: Int, data: ByteArray, dataOffset: Int = 0, littleEndian: Boolean = true): Bitmap32 {
+	open fun decodeToBitmap32(
+		width: Int,
+		height: Int,
+		data: ByteArray,
+		dataOffset: Int = 0,
+		littleEndian: Boolean = true
+	): Bitmap32 {
 		return Bitmap32(width, height, decode(data, dataOffset, width * height, littleEndian))
 	}
 
-	open fun decodeToBitmap32(bmp: Bitmap32, data: ByteArray, dataOffset: Int = 0, littleEndian: Boolean = true): Bitmap32 {
+	open fun decodeToBitmap32(
+		bmp: Bitmap32,
+		data: ByteArray,
+		dataOffset: Int = 0,
+		littleEndian: Boolean = true
+	): Bitmap32 {
 		return bmp.apply { decode(data, dataOffset, this.data, 0, bmp.area) }
 	}
 
-	open fun encode(colors: IntArray, colorsOffset: Int, out: ByteArray, outOffset: Int, size: Int, littleEndian: Boolean = true): Unit {
+	open fun encode(
+		colors: IntArray,
+		colorsOffset: Int,
+		out: ByteArray,
+		outOffset: Int,
+		size: Int,
+		littleEndian: Boolean = true
+	): Unit {
 		var io = colorsOffset
 		var oo = outOffset
 		for (n in 0 until size) {
@@ -132,7 +169,12 @@ abstract class ColorFormat(val bpp: Int) : ColorFormatBase {
 		}
 	}
 
-	open fun encode(colors: IntArray, colorsOffset: Int = 0, size: Int = colors.size, littleEndian: Boolean = true): ByteArray {
+	open fun encode(
+		colors: IntArray,
+		colorsOffset: Int = 0,
+		size: Int = colors.size,
+		littleEndian: Boolean = true
+	): ByteArray {
 		val out = ByteArray(size * bytesPerPixel)
 		encode(colors, colorsOffset, out, 0, size, littleEndian)
 		return out

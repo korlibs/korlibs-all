@@ -1,11 +1,9 @@
 package com.soywiz.korge.view
 
-import com.soywiz.korge.render.RenderContext
-import com.soywiz.korge.render.Texture
-import com.soywiz.korma.Matrix2d
-import com.soywiz.korma.geom.Point2d
-import com.soywiz.korma.geom.Rectangle
-import kotlin.math.min
+import com.soywiz.korge.render.*
+import com.soywiz.korma.*
+import com.soywiz.korma.geom.*
+import kotlin.math.*
 
 class NinePatch(
 	views: Views,
@@ -85,4 +83,12 @@ class NinePatch(
 	}
 }
 
-fun Views.ninePatch(tex: Texture, width: Double, height: Double, left: Double, top: Double, right: Double, bottom: Double) = NinePatch(this, tex, width, height, left, top, right, bottom)
+fun Views.ninePatch(
+	tex: Texture,
+	width: Double,
+	height: Double,
+	left: Double,
+	top: Double,
+	right: Double,
+	bottom: Double
+) = NinePatch(this, tex, width, height, left, top, right, bottom)

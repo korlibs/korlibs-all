@@ -1,13 +1,13 @@
 package com.soywiz.korge.view
 
-import com.soywiz.korge.DebugBitmapFont
-import com.soywiz.korge.bitmapfont.toKorge
-import com.soywiz.korge.render.Texture
-import com.soywiz.korge.tests.ViewsForTesting
-import com.soywiz.korma.geom.Rectangle
-import org.junit.Assert
+import com.soywiz.korge.*
+import com.soywiz.korge.bitmapfont.*
+import com.soywiz.korge.render.*
+import com.soywiz.korge.tests.*
+import com.soywiz.korma.geom.*
+import org.junit.*
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class ViewsJvmTest : ViewsForTesting() {
 	val tex = Texture(views.ag.createTexture(), 10, 10)

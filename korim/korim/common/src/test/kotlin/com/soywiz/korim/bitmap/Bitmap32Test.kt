@@ -1,9 +1,7 @@
 package com.soywiz.korim.bitmap
 
-import com.soywiz.korim.color.Colors
-import com.soywiz.korio.async.syncTest
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import com.soywiz.korim.color.*
+import kotlin.test.*
 
 class Bitmap32Test {
 	@kotlin.test.Test

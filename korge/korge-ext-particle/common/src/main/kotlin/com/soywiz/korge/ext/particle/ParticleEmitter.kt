@@ -1,27 +1,18 @@
 package com.soywiz.korge.ext.particle
 
-import com.soywiz.korag.AG
-import com.soywiz.korge.render.Texture
-import com.soywiz.korge.render.readTexture
-import com.soywiz.korge.resources.Path
-import com.soywiz.korge.resources.ResourcesRoot
-import com.soywiz.korge.view.BlendMode
-import com.soywiz.korge.view.Container
-import com.soywiz.korge.view.Views
-import com.soywiz.korim.color.RGBA
-import com.soywiz.korim.color.RGBAf
-import com.soywiz.korinject.AsyncFactory
-import com.soywiz.korio.JvmField
-import com.soywiz.korio.math.toRadians
-import com.soywiz.korio.serialization.xml.readXml
-import com.soywiz.korio.vfs.VfsFile
-import com.soywiz.korma.geom.Point2d
-import com.soywiz.korma.random.MtRand
-import com.soywiz.korma.random.nextDouble
-import kotlin.math.cos
-import kotlin.math.max
-import kotlin.math.sin
-import kotlin.math.sqrt
+import com.soywiz.korag.*
+import com.soywiz.korge.render.*
+import com.soywiz.korge.resources.*
+import com.soywiz.korge.view.*
+import com.soywiz.korim.color.*
+import com.soywiz.korinject.*
+import com.soywiz.korio.*
+import com.soywiz.korio.math.*
+import com.soywiz.korio.serialization.xml.*
+import com.soywiz.korio.vfs.*
+import com.soywiz.korma.geom.*
+import com.soywiz.korma.random.*
+import kotlin.math.*
 
 //e: java.lang.UnsupportedOperationException: Class literal annotation arguments are not yet supported: Factory
 //@AsyncFactoryClass(ParticleEmitter.Factory::class)
@@ -65,9 +56,10 @@ class ParticleEmitter(val views: Views) {
 	var rotationEnd = 0.0
 	var rotationEndVariance = 0.0
 
-	fun create(x: Double = 0.0, y: Double = 0.0, time: Int = Int.MAX_VALUE): ParticleEmitterView = ParticleEmitterView(this, Point2d(x, y)).apply {
-		this.timeUntilStop = time
-	}
+	fun create(x: Double = 0.0, y: Double = 0.0, time: Int = Int.MAX_VALUE): ParticleEmitterView =
+		ParticleEmitterView(this, Point2d(x, y)).apply {
+			this.timeUntilStop = time
+		}
 
 	suspend fun load(file: VfsFile): ParticleEmitter = this.apply {
 		val particleXml = file.readXml()
@@ -93,7 +85,8 @@ class ParticleEmitter(val views: Views) {
 			}
 
 			fun angle() = toRadians(item.double("value"))
-			fun color(): RGBAf = RGBAf(item.double("red"), item.double("green"), item.double("blue"), item.double("alpha"))
+			fun color(): RGBAf =
+				RGBAf(item.double("red"), item.double("green"), item.double("blue"), item.double("alpha"))
 
 			when (item.name.toLowerCase()) {
 				"texture" -> texture = file.parent[item.str("name")].readTexture(views.ag)
@@ -120,7 +113,8 @@ class ParticleEmitter(val views: Views) {
 				"finishparticlesize" -> endSize = scalar()
 				"finishparticlesizevariance" -> endSizeVariance = scalar()
 				"duration" -> duration = scalar()
-				"emittertype" -> emitterType = when (scalar().toInt()) { 0 -> Type.GRAVITY; 1 -> Type.RADIAL; else -> Type.GRAVITY; }
+				"emittertype" -> emitterType =
+						when (scalar().toInt()) { 0 -> Type.GRAVITY; 1 -> Type.RADIAL; else -> Type.GRAVITY; }
 				"maxradius" -> maxRadius = scalar()
 				"maxradiusvariance" -> maxRadiusVariance = scalar()
 				"minradius" -> minRadius = scalar()
@@ -217,7 +211,8 @@ class ParticleEmitter(val views: Views) {
 			particle.emitRotation = randomVariance(emitter.angle, emitter.angleVariance)
 			particle.emitRotationDelta = randomVariance(emitter.rotatePerSecond, emitter.rotatePerSecondVariance)
 			particle.radialAcceleration = randomVariance(emitter.radialAcceleration, emitter.radialAccelVariance)
-			particle.tangentialAcceleration = randomVariance(emitter.tangentialAcceleration, emitter.tangentialAccelVariance)
+			particle.tangentialAcceleration =
+					randomVariance(emitter.tangentialAcceleration, emitter.tangentialAccelVariance)
 
 			val startSize = max(0.1, randomVariance(emitter.startSize, emitter.startSizeVariance))
 			val endSize = max(0.1, randomVariance(emitter.endSize, emitter.endSizeVariance))
@@ -316,7 +311,13 @@ class ParticleEmitter(val views: Views) {
 
 suspend fun VfsFile.readParticle(views: Views): ParticleEmitter = ParticleEmitter(views).load(this)
 
-suspend fun Container.attachParticleAndWait(particle: ParticleEmitter, x: Double, y: Double, time: Int = 1000, speed: Double = 1.0) {
+suspend fun Container.attachParticleAndWait(
+	particle: ParticleEmitter,
+	x: Double,
+	y: Double,
+	time: Int = 1000,
+	speed: Double = 1.0
+) {
 	val p = particle.create(x, y, time)
 	p.speed = speed
 	this += p

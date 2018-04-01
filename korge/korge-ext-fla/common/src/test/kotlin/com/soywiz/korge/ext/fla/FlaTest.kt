@@ -1,8 +1,7 @@
 package com.soywiz.korge.ext.fla
 
-import com.soywiz.korio.async.syncTest
-import com.soywiz.korio.vfs.ResourcesVfs
-import org.junit.Test
+import com.soywiz.korio.async.*
+import org.junit.*
 
 class FlaTest {
 	val TestAssertVfs = localCurrentDirVfs["src/test/resources"]

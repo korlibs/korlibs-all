@@ -1,12 +1,11 @@
 package com.soywiz.korui.light
 
-import com.soywiz.kds.Extra
-import com.soywiz.kds.extraProperty
-import com.soywiz.korag.AG
-import com.soywiz.korim.bitmap.Bitmap
-import com.soywiz.korim.color.Colors
-import com.soywiz.korio.lang.Closeable
-import com.soywiz.korio.vfs.VfsFile
+import com.soywiz.kds.*
+import com.soywiz.korag.*
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.vfs.*
 
 expect object NativeLightsComponentsFactory : LightComponentsFactory {
 	override fun create(): LightComponents

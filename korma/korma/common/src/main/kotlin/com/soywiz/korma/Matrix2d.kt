@@ -1,9 +1,7 @@
 package com.soywiz.korma
 
-import com.soywiz.korma.geom.Point2d
-import com.soywiz.korma.interpolation.Interpolable
-import com.soywiz.korma.interpolation.MutableInterpolable
-import com.soywiz.korma.interpolation.interpolate
+import com.soywiz.korma.geom.*
+import com.soywiz.korma.interpolation.*
 import kotlin.math.*
 
 interface IMatrix2d {
@@ -163,7 +161,8 @@ data class Matrix2d(
 		l.tx * r.b + l.ty * r.d + r.ty
 	)
 
-	fun transform(px: Double, py: Double, out: Vector2 = Vector2()): Vector2 = out.setTo(transformX(px, py), transformY(px, py))
+	fun transform(px: Double, py: Double, out: Vector2 = Vector2()): Vector2 =
+		out.setTo(transformX(px, py), transformY(px, py))
 
 	fun transform(p: Vector2, out: Vector2 = Vector2()): Vector2 = out.setTo(transformX(p.x, p.y), transformY(p.x, p.y))
 
@@ -203,7 +202,15 @@ data class Matrix2d(
 
 	fun identity() = setTo(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)
 
-	fun setTransform(x: Double, y: Double, scaleX: Double, scaleY: Double, rotation: Double, skewX: Double, skewY: Double): Matrix2d {
+	fun setTransform(
+		x: Double,
+		y: Double,
+		scaleX: Double,
+		scaleY: Double,
+		rotation: Double,
+		skewX: Double,
+		skewY: Double
+	): Matrix2d {
 		if (skewX == 0.0 && skewY == 0.0) {
 			if (rotation == 0.0) {
 				this.setTo(scaleX, 0.0, 0.0, scaleY, x, y)
@@ -235,7 +242,13 @@ data class Matrix2d(
 		this.ty = ty
 	}
 
-	fun createGradientBox(width: Double, height: Double, rotation: Double = 0.0, tx: Double = 0.0, ty: Double = 0.0): Unit {
+	fun createGradientBox(
+		width: Double,
+		height: Double,
+		rotation: Double = 0.0,
+		tx: Double = 0.0,
+		ty: Double = 0.0
+	): Unit {
 		this.createBox(width / 1638.4, height / 1638.4, rotation, tx + width / 2, ty + height / 2)
 	}
 
@@ -257,8 +270,10 @@ data class Matrix2d(
 			if (this.skewX != this.skewX) this.skewX = 0.0
 			if (this.skewY != this.skewY) this.skewY = 0.0
 
-			this.scaleY = if (this.skewX > -PI_4 && this.skewX < PI_4) matrix.d / cos(this.skewX) else -matrix.c / sin(this.skewX)
-			this.scaleX = if (this.skewY > -PI_4 && this.skewY < PI_4) matrix.a / cos(this.skewY) else matrix.b / sin(this.skewY)
+			this.scaleY =
+					if (this.skewX > -PI_4 && this.skewX < PI_4) matrix.d / cos(this.skewX) else -matrix.c / sin(this.skewX)
+			this.scaleX =
+					if (this.skewY > -PI_4 && this.skewY < PI_4) matrix.a / cos(this.skewY) else matrix.b / sin(this.skewY)
 
 			if (abs(this.skewX - this.skewY) < 0.0001) {
 				this.rotation = this.skewX
@@ -271,11 +286,21 @@ data class Matrix2d(
 			return this
 		}
 
-		fun toMatrix(out: Matrix2d = Matrix2d()): Matrix2d = out.setTransform(x, y, scaleX, scaleY, rotation, skewX, skewY)
+		fun toMatrix(out: Matrix2d = Matrix2d()): Matrix2d =
+			out.setTransform(x, y, scaleX, scaleY, rotation, skewX, skewY)
 
-		fun copyFrom(that: Transform) = setTo(that.x, that.y, that.scaleX, that.scaleY, that.rotation, that.skewX, that.skewY)
+		fun copyFrom(that: Transform) =
+			setTo(that.x, that.y, that.scaleX, that.scaleY, that.rotation, that.skewX, that.skewY)
 
-		fun setTo(x: Double, y: Double, scaleX: Double, scaleY: Double, rotation: Double, skewX: Double, skewY: Double): Transform {
+		fun setTo(
+			x: Double,
+			y: Double,
+			scaleX: Double,
+			scaleY: Double,
+			rotation: Double,
+			skewX: Double,
+			skewY: Double
+		): Transform {
 			this.x = x
 			this.y = y
 			this.scaleX = scaleX
@@ -303,11 +328,13 @@ data class Matrix2d(
 		ty = ratio.interpolate(l.ty, r.ty)
 	)
 
-	override fun interpolateWith(other: Matrix2d, ratio: Double): Matrix2d = Matrix2d().setToInterpolated(this, other, ratio)
+	override fun interpolateWith(other: Matrix2d, ratio: Double): Matrix2d =
+		Matrix2d().setToInterpolated(this, other, ratio)
 }
 
 // This is to be able to mix integers with doubles without boxing at all due to the inline
-inline fun Matrix2d(a: Number, b: Number = 0.0, c: Number = 0.0, d: Number = 1.0, tx: Number = 0.0, ty: Number = 0.0) = Matrix2d(a.toDouble(), b.toDouble(), c.toDouble(), d.toDouble(), tx.toDouble(), ty.toDouble())
+inline fun Matrix2d(a: Number, b: Number = 0.0, c: Number = 0.0, d: Number = 1.0, tx: Number = 0.0, ty: Number = 0.0) =
+	Matrix2d(a.toDouble(), b.toDouble(), c.toDouble(), d.toDouble(), tx.toDouble(), ty.toDouble())
 
 fun Matrix2d(m: Matrix2d): Matrix2d = m.copy()
 

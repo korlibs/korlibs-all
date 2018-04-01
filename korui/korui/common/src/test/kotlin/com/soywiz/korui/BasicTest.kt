@@ -1,12 +1,11 @@
 package com.soywiz.korui
 
-import com.soywiz.korio.async.EventLoopTest
-import com.soywiz.korio.async.sync
-import com.soywiz.korio.util.OS
-import com.soywiz.korui.light.log.LogLightComponents
-import com.soywiz.korui.ui.button
+import com.soywiz.korio.async.*
+import com.soywiz.korio.util.*
+import com.soywiz.korui.light.log.*
+import com.soywiz.korui.ui.*
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class BasicTest {
 	val eventLoop = EventLoopTest()
@@ -25,7 +24,7 @@ class BasicTest {
 			eventLoop.step(60)
 
 			assertEquals(
-					"""
+				"""
 				create(FRAME)=0
 				setProperty(0,LightProperty[TEXT],Title)
 				setBounds(0,0,0,640,480)
@@ -37,7 +36,7 @@ class BasicTest {
 				setBounds(1,0,0,640,480)
 				setBounds(0,0,0,640,480)
 			""".trimIndent(),
-					lc.log.joinToString("\n")
+				lc.log.joinToString("\n")
 			)
 		}
 	}

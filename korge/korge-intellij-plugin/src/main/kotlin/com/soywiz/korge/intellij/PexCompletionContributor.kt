@@ -84,12 +84,18 @@ class PexCompletionContributor : CompletionContributor() {
 		extend(CompletionType.BASIC, PlatformPatterns.psiElement()
 			.inVirtualFile(virtualFile().withExtension("pex"))
 			.withLanguage(XMLLanguage.INSTANCE)
-			.inside(XmlPatterns.xmlAttributeValue().inside(
-				XmlPatterns.xmlTag().withName("texture")
-			))
+			.inside(
+				XmlPatterns.xmlAttributeValue().inside(
+					XmlPatterns.xmlTag().withName("texture")
+				)
+			)
 			,
 			object : CompletionProvider<CompletionParameters>() {
-				override fun addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
+				override fun addCompletions(
+					parameters: CompletionParameters,
+					context: ProcessingContext,
+					result: CompletionResultSet
+				) {
 					val pos = parameters.position
 					val posTextRange = pos.textRange
 					val posTextRangeStartOffset = posTextRange.startOffset
@@ -102,11 +108,19 @@ class PexCompletionContributor : CompletionContributor() {
 						val directoryIcon = directory.getIcon(0)
 						for (file in directory.files) {
 							val fullFileName = (root.trim('/') + "/${file.name}").trim('/')
-							result.addElement(LookupElementBuilder.create(emptyObj()).withTailText(fullFileName).withIcon(file.getIcon(0)).withInsertHandler(ReplaceInsertHandler(replaceRange, fullFileName)))
+							result.addElement(
+								LookupElementBuilder.create(emptyObj()).withTailText(fullFileName).withIcon(
+									file.getIcon(0)
+								).withInsertHandler(ReplaceInsertHandler(replaceRange, fullFileName))
+							)
 						}
 						for (file in listOf(".", "..")) {
 							val fullFileName = (root.trim('/') + "/${file}").trim('/')
-							result.addElement(LookupElementBuilder.create(emptyObj()).withTailText(fullFileName).withIcon(directoryIcon).withInsertHandler(ReplaceInsertHandler(replaceRange, fullFileName)))
+							result.addElement(
+								LookupElementBuilder.create(emptyObj()).withTailText(fullFileName).withIcon(
+									directoryIcon
+								).withInsertHandler(ReplaceInsertHandler(replaceRange, fullFileName))
+							)
 						}
 					}
 					result.stopHere()
@@ -120,7 +134,11 @@ class PexCompletionContributor : CompletionContributor() {
 			.withParent(XmlPatterns.xmlAttributeValue())
 			,
 			object : CompletionProvider<CompletionParameters>() {
-				override fun addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
+				override fun addCompletions(
+					parameters: CompletionParameters,
+					context: ProcessingContext,
+					result: CompletionResultSet
+				) {
 					result.stopHere()
 				}
 			}
@@ -133,7 +151,11 @@ class PexCompletionContributor : CompletionContributor() {
 				XmlPatterns.xmlAttribute()
 			),
 			object : CompletionProvider<CompletionParameters>() {
-				override fun addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
+				override fun addCompletions(
+					parameters: CompletionParameters,
+					context: ProcessingContext,
+					result: CompletionResultSet
+				) {
 					val tag = PsiTreeUtil.getParentOfType(parameters.position, XmlTag::class.java)
 					if (tag != null) {
 						val tagName = tag.name.toLowerCase()
@@ -156,7 +178,11 @@ class PexCompletionContributor : CompletionContributor() {
 				XmlPatterns.xmlTag().withName("particleEmitterConfig")
 			),
 			object : CompletionProvider<CompletionParameters>() {
-				override fun addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
+				override fun addCompletions(
+					parameters: CompletionParameters,
+					context: ProcessingContext,
+					result: CompletionResultSet
+				) {
 					for (tag in PexTags.values()) {
 						result.addElement(LookupElementBuilder.create(tag.name).withTailText("${tag.type}"))
 					}
@@ -196,18 +222,19 @@ fun PsiElement.getTextToCaret(editor: Editor): String {
 	return editor.document.getText(TextRange(textRange.startOffset, min(textRange.endOffset, editor.caretModel.offset)))
 }
 
-val PsiElement.textWithoutDummy: String get() {
-	val out = this.text
-	if (out.endsWith(CompletionInitializationContext.DUMMY_IDENTIFIER)) {
-		return out.substring(0, out.length - CompletionInitializationContext.DUMMY_IDENTIFIER.length)
+val PsiElement.textWithoutDummy: String
+	get() {
+		val out = this.text
+		if (out.endsWith(CompletionInitializationContext.DUMMY_IDENTIFIER)) {
+			return out.substring(0, out.length - CompletionInitializationContext.DUMMY_IDENTIFIER.length)
+		}
+		//else if (out.endsWith(CompletionInitializationContext.DUMMY_IDENTIFIER_TRIMMED)) {
+		//	return out.substring(0, out.length - CompletionInitializationContext.DUMMY_IDENTIFIER_TRIMMED.length)
+		//}
+		else {
+			return out
+		}
 	}
-	//else if (out.endsWith(CompletionInitializationContext.DUMMY_IDENTIFIER_TRIMMED)) {
-	//	return out.substring(0, out.length - CompletionInitializationContext.DUMMY_IDENTIFIER_TRIMMED.length)
-	//}
-	else {
-		return out
-	}
-}
 
 fun PsiFileSystemItem.getSpecial(path: String, nearest: Boolean = false): PsiFileSystemItem? {
 	var current: PsiFileSystemItem? = this

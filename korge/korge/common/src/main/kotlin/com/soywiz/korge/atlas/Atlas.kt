@@ -1,23 +1,42 @@
 package com.soywiz.korge.atlas
 
-import com.soywiz.korge.plugin.KorgePlugin
-import com.soywiz.korge.render.TransformedTexture
-import com.soywiz.korge.render.readTexture
-import com.soywiz.korge.resources.Path
-import com.soywiz.korge.resources.ResourcesRoot
-import com.soywiz.korge.resources.VPath
-import com.soywiz.korge.view.Views
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korinject.AsyncFactory
-import com.soywiz.korio.serialization.Mapper
-import com.soywiz.korio.vfs.VfsFile
+import com.soywiz.korge.plugin.*
+import com.soywiz.korge.render.*
+import com.soywiz.korge.resources.*
+import com.soywiz.korge.view.*
+import com.soywiz.korinject.*
+import com.soywiz.korio.error.*
+import com.soywiz.korio.serialization.*
+import com.soywiz.korio.vfs.*
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.hashMapOf
+import kotlin.collections.iterator
+import kotlin.collections.set
 
 object AtlasPlugin : KorgePlugin() {
 	init {
-		Mapper.registerType { AtlasInfo.Meta(it["app"].gen(), it["format"].gen(), it["image"].gen(), it["scale"].gen(), it["size"].gen(), it["version"].gen()) }
+		Mapper.registerType {
+			AtlasInfo.Meta(
+				it["app"].gen(),
+				it["format"].gen(),
+				it["image"].gen(),
+				it["scale"].gen(),
+				it["size"].gen(),
+				it["version"].gen()
+			)
+		}
 		Mapper.registerType { AtlasInfo.Rect(it["x"].gen(), it["y"].gen(), it["w"].gen(), it["h"].gen()) }
 		Mapper.registerType { AtlasInfo.Size(it["w"].gen(), it["h"].gen()) }
-		Mapper.registerType { AtlasInfo.Entry(it["frame"].gen(), it["rotated"].gen(), it["source"].gen(), it["spriteSourceSize"].gen(), it["trimmed"].gen()) }
+		Mapper.registerType {
+			AtlasInfo.Entry(
+				it["frame"].gen(),
+				it["rotated"].gen(),
+				it["source"].gen(),
+				it["spriteSourceSize"].gen(),
+				it["trimmed"].gen()
+			)
+		}
 		Mapper.registerType { AtlasInfo(it["frames"].genMap(), it["meta"].gen()) }
 	}
 

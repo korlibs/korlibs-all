@@ -1,18 +1,11 @@
 package com.soywiz.korge.ui.korui
 
-import com.soywiz.korge.input.mouse
-import com.soywiz.korge.ui.UIFactory
-import com.soywiz.korge.ui.button
-import com.soywiz.korge.ui.label
-import com.soywiz.korge.view.Container
-import com.soywiz.korge.view.IText
-import com.soywiz.korge.view.View
+import com.soywiz.korge.input.*
+import com.soywiz.korge.ui.*
+import com.soywiz.korge.view.*
 import com.soywiz.korio.lang.Closeable
 import com.soywiz.korio.util.closeable
-import com.soywiz.korui.light.LightComponents
-import com.soywiz.korui.light.LightMouseHandler
-import com.soywiz.korui.light.LightProperty
-import com.soywiz.korui.light.LightType
+import com.soywiz.korui.light.*
 
 //class KorgeLightComponentsFactory : LightComponentsFactory() {
 //	//override fun create(): LightComponents = KorgeLightComponents()

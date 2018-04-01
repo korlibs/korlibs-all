@@ -1,13 +1,11 @@
 package com.soywiz.korge.ext.particle
 
-import com.soywiz.korge.render.RenderContext
-import com.soywiz.korge.time.waitFrame
-import com.soywiz.korge.view.View
-import com.soywiz.korim.color.RGBA
-import com.soywiz.korim.color.RGBAf
-import com.soywiz.korio.util.redirect
-import com.soywiz.korma.Matrix2d
-import com.soywiz.korma.geom.Point2d
+import com.soywiz.korge.render.*
+import com.soywiz.korge.time.*
+import com.soywiz.korge.view.*
+import com.soywiz.korio.util.*
+import com.soywiz.korma.*
+import com.soywiz.korma.geom.*
 
 class ParticleEmitterView(val emitter: ParticleEmitter, emitterPos: Point2d = Point2d()) : View(emitter.views) {
 	val simulator = ParticleEmitter.Simulator(emitter, emitterPos)

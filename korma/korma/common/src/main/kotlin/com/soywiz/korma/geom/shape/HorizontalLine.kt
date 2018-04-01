@@ -1,7 +1,6 @@
 package com.soywiz.korma.geom.shape
 
-import com.soywiz.korma.geom.bezier.Bezier
-import com.soywiz.korma.geom.bezier.SegmentEmitter
+import com.soywiz.korma.geom.bezier.*
 
 object HorizontalLine {
 	val segmentEmitter = SegmentEmitter()

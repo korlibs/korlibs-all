@@ -29,7 +29,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.soywiz.kzlib
 
-import kotlin.math.min
+import kotlin.math.*
 
 open class InflaterInputStream(
 	i: InputStream,

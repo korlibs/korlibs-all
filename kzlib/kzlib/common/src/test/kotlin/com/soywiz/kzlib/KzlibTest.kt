@@ -1,6 +1,6 @@
 package com.soywiz.kzlib
 
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class KzlibTest {
 	@kotlin.test.Test

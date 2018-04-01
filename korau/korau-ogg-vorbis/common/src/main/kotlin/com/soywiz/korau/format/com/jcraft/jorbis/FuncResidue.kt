@@ -26,23 +26,23 @@
 
 package com.soywiz.korau.format.com.jcraft.jorbis
 
-import com.soywiz.korau.format.com.jcraft.jogg.Buffer
+import com.soywiz.korau.format.com.jcraft.jogg.*
 
 abstract class FuncResidue {
 
-    abstract fun pack(vr: Any, opb: Buffer)
+	abstract fun pack(vr: Any, opb: Buffer)
 
-    abstract fun unpack(vi: Info, opb: Buffer): Any?
+	abstract fun unpack(vi: Info, opb: Buffer): Any?
 
-    abstract fun look(vd: DspState, vm: InfoMode, vr: Any): Any
+	abstract fun look(vd: DspState, vm: InfoMode, vr: Any): Any
 
-    abstract fun free_info(i: Any)
+	abstract fun free_info(i: Any)
 
-    abstract fun free_look(i: Any)
+	abstract fun free_look(i: Any)
 
-    abstract fun inverse(vb: Block, vl: Any, `in`: Array<FloatArray>, nonzero: IntArray, ch: Int): Int
+	abstract fun inverse(vb: Block, vl: Any, `in`: Array<FloatArray>, nonzero: IntArray, ch: Int): Int
 
-    companion object {
-        var residue_P = arrayOf<FuncResidue>(Residue0(), Residue1(), Residue2())
-    }
+	companion object {
+		var residue_P = arrayOf<FuncResidue>(Residue0(), Residue1(), Residue2())
+	}
 }

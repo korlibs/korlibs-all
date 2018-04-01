@@ -1,11 +1,10 @@
 package com.soywiz.korte
 
-import com.soywiz.korio.error.noImpl
-import com.soywiz.korio.reflect.ObjectMapper2
-import com.soywiz.korio.util.quote
-import com.soywiz.korio.util.toNumber
-import kotlin.reflect.KClass
-import kotlin.math.pow
+import com.soywiz.korio.error.*
+import com.soywiz.korio.serialization.*
+import com.soywiz.korio.util.*
+import kotlin.math.*
+import kotlin.reflect.*
 
 //expect class DynamicBase {
 //	//fun getFields(obj: Any?): List<String>
@@ -148,7 +147,7 @@ object Dynamic2 {
 		else -> listOf<Any?>()
 	}
 
-	suspend fun accessAny(instance: Any?, key: Any?, mapper: ObjectMapper2): Any? = when (instance) {
+	suspend fun accessAny(instance: Any?, key: Any?, mapper: ObjectMapper): Any? = when (instance) {
 		null -> null
 		is Map<*, *> -> instance[key]
 		is Iterable<*> -> instance.toList()[toInt(key)]
@@ -171,7 +170,7 @@ object Dynamic2 {
 		}
 	}
 
-	suspend fun setAny(instance: Any?, key: Any?, value: Any?, mapper: ObjectMapper2): Unit = when (instance) {
+	suspend fun setAny(instance: Any?, key: Any?, value: Any?, mapper: ObjectMapper): Unit = when (instance) {
 		null -> Unit
 		is MutableMap<*, *> -> (instance as MutableMap<Any?, Any?>).set(key, value)
 		is MutableList<*> -> (instance as MutableList<Any?>)[toInt(key)] = value
@@ -179,7 +178,12 @@ object Dynamic2 {
 			when {
 				mapper.hasProperty(instance, key.toDynamicString()) -> mapper.set(instance, key, value)
 				mapper.hasMethod(instance, key.toDynamicString()) -> {
-					mapper.invokeAsync(instance::class as KClass<Any>, instance as Any?, key.toDynamicString(), listOf(value))
+					mapper.invokeAsync(
+						instance::class as KClass<Any>,
+						instance as Any?,
+						key.toDynamicString(),
+						listOf(value)
+					)
 					Unit
 				}
 				else -> Unit
@@ -187,7 +191,9 @@ object Dynamic2 {
 		}
 	}
 
-	suspend fun callAny(any: Any?, args: List<Any?>, mapper: ObjectMapper2): Any? = callAny(any, "invoke", args, mapper = mapper)
+	suspend fun callAny(any: Any?, args: List<Any?>, mapper: ObjectMapper2): Any? =
+		callAny(any, "invoke", args, mapper = mapper)
+
 	suspend fun callAny(any: Any?, methodName: Any?, args: List<Any?>, mapper: ObjectMapper2): Any? = when (any) {
 		null -> null
 		else -> mapper.invokeAsync(any::class as KClass<Any>, any, methodName.toDynamicString(), args)
@@ -202,8 +208,13 @@ internal fun Any?.toDynamicInt() = Dynamic2.toInt(this)
 internal fun Any?.toDynamicList() = Dynamic2.toList(this)
 internal fun Any?.dynamicLength() = Dynamic2.length(this)
 suspend internal fun Any?.dynamicGet(key: Any?, mapper: ObjectMapper2) = Dynamic2.accessAny(this, key, mapper)
-suspend internal fun Any?.dynamicSet(key: Any?, value: Any?, mapper: ObjectMapper2) = Dynamic2.setAny(this, key, value, mapper)
-suspend internal fun Any?.dynamicCall(vararg args: Any?, mapper: ObjectMapper2) = Dynamic2.callAny(this, args.toList(), mapper = mapper)
-suspend internal fun Any?.dynamicCallMethod(methodName: Any?, vararg args: Any?, mapper: ObjectMapper2) = Dynamic2.callAny(this, methodName, args.toList(), mapper = mapper)
+suspend internal fun Any?.dynamicSet(key: Any?, value: Any?, mapper: ObjectMapper2) =
+	Dynamic2.setAny(this, key, value, mapper)
+
+suspend internal fun Any?.dynamicCall(vararg args: Any?, mapper: ObjectMapper2) =
+	Dynamic2.callAny(this, args.toList(), mapper = mapper)
+
+suspend internal fun Any?.dynamicCallMethod(methodName: Any?, vararg args: Any?, mapper: ObjectMapper2) =
+	Dynamic2.callAny(this, methodName, args.toList(), mapper = mapper)
 //suspend internal fun Any?.dynamicCastTo(target: KClass<*>) = Dynamic2.dynamicCast(this, target)
 

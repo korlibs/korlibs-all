@@ -1,7 +1,6 @@
 package com.soywiz.dynarek
 
-import kotlin.reflect.KClass
-import kotlin.reflect.KMutableProperty1
+import kotlin.reflect.*
 
 open class DNodeVisitor {
 	open fun visit(func: DFunction): Unit {

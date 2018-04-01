@@ -1,11 +1,9 @@
 package com.soywiz.korge.ext.spriter.com.brashmonkey.spriter
 
-import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.Mainline.Key.BoneRef
-import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.Timeline.Key.Bone
-import com.soywiz.korio.math.toRadians
-import kotlin.math.cos
-import kotlin.math.sign
-import kotlin.math.sin
+import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.Mainline.Key.*
+import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.Timeline.Key.*
+import com.soywiz.korio.math.*
+import kotlin.math.*
 
 /**
  * An inverse kinematics resolver implementation.
@@ -46,8 +44,10 @@ class CCDResolver(player: Player) : IKResolver(player) {
 		while (i < chainLength && parentRef != null) {
 			if (Calculator.distanceBetween(xx, yy, x, y) <= this.tolerance)
 				return
-			parent!!._angle += Calculator.angleDifference(Calculator.angleBetween(unmappedParent!!.position.x, unmappedParent.position.y, x, y),
-				Calculator.angleBetween(unmappedParent.position.x, unmappedParent.position.y, xx, yy))
+			parent!!._angle += Calculator.angleDifference(
+				Calculator.angleBetween(unmappedParent!!.position.x, unmappedParent.position.y, x, y),
+				Calculator.angleBetween(unmappedParent.position.x, unmappedParent.position.y, xx, yy)
+			)
 			parentRef = parentRef.parent
 			if (parentRef != null && i < chainLength - 1) {
 				parent = player.tweenedKeys[parentRef.timeline].`object`()

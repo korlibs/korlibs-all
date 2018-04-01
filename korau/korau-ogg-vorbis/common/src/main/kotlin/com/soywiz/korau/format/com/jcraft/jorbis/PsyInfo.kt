@@ -28,46 +28,46 @@ package com.soywiz.korau.format.com.jcraft.jorbis
 
 // psychoacoustic setup
 class PsyInfo {
-    var athp: Int = 0
-    var decayp: Int = 0
-    var smoothp: Int = 0
-    var noisefitp: Int = 0
-    var noisefit_subblock: Int = 0
-    var noisefit_threshdB: Float = 0.toFloat()
+	var athp: Int = 0
+	var decayp: Int = 0
+	var smoothp: Int = 0
+	var noisefitp: Int = 0
+	var noisefit_subblock: Int = 0
+	var noisefit_threshdB: Float = 0.toFloat()
 
-    var ath_att: Float = 0.toFloat()
+	var ath_att: Float = 0.toFloat()
 
-    var tonemaskp: Int = 0
-    var toneatt_125Hz = FloatArray(5)
-    var toneatt_250Hz = FloatArray(5)
-    var toneatt_500Hz = FloatArray(5)
-    var toneatt_1000Hz = FloatArray(5)
-    var toneatt_2000Hz = FloatArray(5)
-    var toneatt_4000Hz = FloatArray(5)
-    var toneatt_8000Hz = FloatArray(5)
+	var tonemaskp: Int = 0
+	var toneatt_125Hz = FloatArray(5)
+	var toneatt_250Hz = FloatArray(5)
+	var toneatt_500Hz = FloatArray(5)
+	var toneatt_1000Hz = FloatArray(5)
+	var toneatt_2000Hz = FloatArray(5)
+	var toneatt_4000Hz = FloatArray(5)
+	var toneatt_8000Hz = FloatArray(5)
 
-    var peakattp: Int = 0
-    var peakatt_125Hz = FloatArray(5)
-    var peakatt_250Hz = FloatArray(5)
-    var peakatt_500Hz = FloatArray(5)
-    var peakatt_1000Hz = FloatArray(5)
-    var peakatt_2000Hz = FloatArray(5)
-    var peakatt_4000Hz = FloatArray(5)
-    var peakatt_8000Hz = FloatArray(5)
+	var peakattp: Int = 0
+	var peakatt_125Hz = FloatArray(5)
+	var peakatt_250Hz = FloatArray(5)
+	var peakatt_500Hz = FloatArray(5)
+	var peakatt_1000Hz = FloatArray(5)
+	var peakatt_2000Hz = FloatArray(5)
+	var peakatt_4000Hz = FloatArray(5)
+	var peakatt_8000Hz = FloatArray(5)
 
-    var noisemaskp: Int = 0
-    var noiseatt_125Hz = FloatArray(5)
-    var noiseatt_250Hz = FloatArray(5)
-    var noiseatt_500Hz = FloatArray(5)
-    var noiseatt_1000Hz = FloatArray(5)
-    var noiseatt_2000Hz = FloatArray(5)
-    var noiseatt_4000Hz = FloatArray(5)
-    var noiseatt_8000Hz = FloatArray(5)
+	var noisemaskp: Int = 0
+	var noiseatt_125Hz = FloatArray(5)
+	var noiseatt_250Hz = FloatArray(5)
+	var noiseatt_500Hz = FloatArray(5)
+	var noiseatt_1000Hz = FloatArray(5)
+	var noiseatt_2000Hz = FloatArray(5)
+	var noiseatt_4000Hz = FloatArray(5)
+	var noiseatt_8000Hz = FloatArray(5)
 
-    var max_curve_dB: Float = 0.toFloat()
+	var max_curve_dB: Float = 0.toFloat()
 
-    var attack_coeff: Float = 0.toFloat()
-    var decay_coeff: Float = 0.toFloat()
+	var attack_coeff: Float = 0.toFloat()
+	var decay_coeff: Float = 0.toFloat()
 
-    fun free() {}
+	fun free() {}
 }

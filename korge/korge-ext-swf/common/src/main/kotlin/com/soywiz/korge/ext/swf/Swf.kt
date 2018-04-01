@@ -1,20 +1,17 @@
 package com.soywiz.korge.ext.swf
 
-import com.codeazur.as3swf.SWF
-import com.codeazur.as3swf.tags.TagDefineMorphShape
-import com.codeazur.as3swf.tags.TagDefineShape
-import com.codeazur.as3swf.tags.TagPlaceObject
-import com.codeazur.as3swf.tags.TagRemoveObject
+import com.codeazur.as3swf.*
+import com.codeazur.as3swf.tags.*
+import com.soywiz.kds.*
 import com.soywiz.korge.animate.*
-import com.soywiz.korge.animate.serialization.AnLibrarySerializer
-import com.soywiz.korge.view.Views
-import com.soywiz.korim.bitmap.Bitmap
-import com.soywiz.korim.vector.Context2d
-import com.soywiz.korio.lang.printStackTrace
-import com.soywiz.korio.serialization.Mapper
-import com.soywiz.korio.serialization.yaml.Yaml
-import com.soywiz.kds.Extra
-import com.soywiz.korio.vfs.VfsFile
+import com.soywiz.korge.animate.serialization.*
+import com.soywiz.korge.view.*
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.vector.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.serialization.*
+import com.soywiz.korio.serialization.yaml.*
+import com.soywiz.korio.vfs.*
 
 data class SWFExportConfig(
 	val debug: Boolean = false,
@@ -33,11 +30,12 @@ data class SWFExportConfig(
 	val smoothInterpolation: Boolean = true
 )
 
-fun SWFExportConfig.toAnLibrarySerializerConfig(compression: Double = 1.0): AnLibrarySerializer.Config = AnLibrarySerializer.Config(
-	compression = compression,
-	keepPaths = this.exportPaths,
-	mipmaps = this.mipmaps
-)
+fun SWFExportConfig.toAnLibrarySerializerConfig(compression: Double = 1.0): AnLibrarySerializer.Config =
+	AnLibrarySerializer.Config(
+		compression = compression,
+		keepPaths = this.exportPaths,
+		mipmaps = this.mipmaps
+	)
 
 suspend fun VfsFile.readSWF(views: Views, config: SWFExportConfig?): AnLibrary {
 	return if (config != null) this.readSWF(views, config) else this.readSWF(views)
@@ -45,7 +43,11 @@ suspend fun VfsFile.readSWF(views: Views, config: SWFExportConfig?): AnLibrary {
 
 var AnLibrary.swfExportConfig by Extra.Property { SWFExportConfig() }
 
-suspend fun VfsFile.readSWF(views: Views, content: ByteArray? = null, defaultConfig: SWFExportConfig = SWFExportConfig()): AnLibrary {
+suspend fun VfsFile.readSWF(
+	views: Views,
+	content: ByteArray? = null,
+	defaultConfig: SWFExportConfig = SWFExportConfig()
+): AnLibrary {
 	val configFile = this.appendExtension("config")
 	val config = try {
 		if (configFile.exists()) {
@@ -62,7 +64,8 @@ suspend fun VfsFile.readSWF(views: Views, content: ByteArray? = null, defaultCon
 	return lib
 }
 
-suspend fun VfsFile.readSWF(views: Views, config: SWFExportConfig, content: ByteArray? = null): AnLibrary = SwfLoaderMethod(views, config).load(content ?: this.readAll())
+suspend fun VfsFile.readSWF(views: Views, config: SWFExportConfig, content: ByteArray? = null): AnLibrary =
+	SwfLoaderMethod(views, config).load(content ?: this.readAll())
 
 inline val TagPlaceObject.depth0: Int get() = this.depth - 1
 inline val TagPlaceObject.clipDepth0: Int get() = this.clipDepth - 1

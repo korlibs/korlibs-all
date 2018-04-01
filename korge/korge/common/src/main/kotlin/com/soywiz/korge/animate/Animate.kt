@@ -1,26 +1,18 @@
 package com.soywiz.korge.animate
 
-import com.soywiz.kmem.fill
-import com.soywiz.korag.AG
-import com.soywiz.korge.audio.soundSystem
-import com.soywiz.korge.html.Html
-import com.soywiz.korge.render.RenderContext
-import com.soywiz.korge.render.Texture
-import com.soywiz.korge.render.TextureWithBitmapSlice
+import com.soywiz.kds.*
+import com.soywiz.kmem.*
+import com.soywiz.korag.*
+import com.soywiz.korge.audio.*
+import com.soywiz.korge.html.*
+import com.soywiz.korge.render.*
 import com.soywiz.korge.view.*
-import com.soywiz.korio.async.Promise
-import com.soywiz.korio.async.Signal
-import com.soywiz.korio.async.go
-import com.soywiz.korio.lang.Closeable
-import com.soywiz.kds.Extra
-import com.soywiz.korio.util.Once
-import com.soywiz.korio.util.redirect
-import com.soywiz.korio.util.redirectField
-import com.soywiz.korma.Matrix2d
-import com.soywiz.korma.geom.Anchor
-import com.soywiz.korma.geom.Point2d
-import com.soywiz.korma.geom.Rectangle
-import kotlin.math.min
+import com.soywiz.korio.async.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.util.*
+import com.soywiz.korma.*
+import com.soywiz.korma.geom.*
+import kotlin.math.*
 
 interface AnElement {
 	val library: AnLibrary
@@ -30,7 +22,8 @@ interface AnElement {
 fun AnElement.createDuplicated() = symbol.create(library)
 fun AnElement.createDuplicatedView() = symbol.create(library) as View
 
-abstract class AnBaseShape(override final val library: AnLibrary, override final val symbol: AnSymbolBaseShape) : View(library.views), AnElement {
+abstract class AnBaseShape(override final val library: AnLibrary, override final val symbol: AnSymbolBaseShape) :
+	View(library.views), AnElement {
 	var ninePatch: Rectangle? = null
 
 	abstract val dx: Float
@@ -64,13 +57,40 @@ abstract class AnBaseShape(override final val library: AnLibrary, override final
 			val ascaleY = lm.d
 
 			posCuts[1].setTo(((npLeft) / texWidth) / ascaleX, ((npTop) / texHeight) / ascaleY)
-			posCuts[2].setTo(1.0 - ((texWidth - npRight) / texWidth) / ascaleX, 1.0 - ((texHeight - npBottom) / texHeight) / ascaleY)
+			posCuts[2].setTo(
+				1.0 - ((texWidth - npRight) / texWidth) / ascaleX,
+				1.0 - ((texHeight - npBottom) / texHeight) / ascaleY
+			)
 			texCuts[1].setTo((npLeft / texWidth), (npTop / texHeight))
 			texCuts[2].setTo((npRight / texWidth), (npBottom / texWidth))
 
-			ctx.batch.drawNinePatch(tex, x = dx, y = dy, width = texWidth, height = texHeight, posCuts = posCuts, texCuts = texCuts, m = m, filtering = smoothing, colorMul = globalColorMul, colorAdd = globalColorAdd, blendFactors = computedBlendMode.factors)
+			ctx.batch.drawNinePatch(
+				tex,
+				x = dx,
+				y = dy,
+				width = texWidth,
+				height = texHeight,
+				posCuts = posCuts,
+				texCuts = texCuts,
+				m = m,
+				filtering = smoothing,
+				colorMul = globalColorMul,
+				colorAdd = globalColorAdd,
+				blendFactors = computedBlendMode.factors
+			)
 		} else {
-			ctx.batch.drawQuad(tex, x = dx, y = dy, width = texWidth, height = texHeight, m = m, filtering = smoothing, colorMul = globalColorMul, colorAdd = globalColorAdd, blendFactors = computedBlendMode.factors)
+			ctx.batch.drawQuad(
+				tex,
+				x = dx,
+				y = dy,
+				width = texWidth,
+				height = texHeight,
+				m = m,
+				filtering = smoothing,
+				colorMul = globalColorMul,
+				colorAdd = globalColorAdd,
+				blendFactors = computedBlendMode.factors
+			)
 		}
 	}
 
@@ -79,7 +99,15 @@ abstract class AnBaseShape(override final val library: AnLibrary, override final
 		val sTop = dy.toDouble()
 		val sRight = sLeft + texWidth
 		val sBottom = sTop + texHeight
-		return if (checkGlobalBounds(x, y, sLeft, sTop, sRight, sBottom) && (symbol.path?.containsPoint(globalToLocalX(x, y), globalToLocalY(x, y)) ?: true)) this else null
+		return if (checkGlobalBounds(
+				x,
+				y,
+				sLeft,
+				sTop,
+				sRight,
+				sBottom
+			) && (symbol.path?.containsPoint(globalToLocalX(x, y), globalToLocalY(x, y)) ?: true)
+		) this else null
 	}
 
 	override fun getLocalBoundsInternal(out: Rectangle) {
@@ -103,7 +131,8 @@ class AnShape(library: AnLibrary, val shapeSymbol: AnSymbolShape) : AnBaseShape(
 	override val smoothing = true
 }
 
-class AnMorphShape(library: AnLibrary, val morphSymbol: AnSymbolMorphShape) : AnBaseShape(library, morphSymbol), AnElement {
+class AnMorphShape(library: AnLibrary, val morphSymbol: AnSymbolMorphShape) : AnBaseShape(library, morphSymbol),
+	AnElement {
 	private val timedResult = Timed.Result<TextureWithBitmapSlice>()
 
 	var texWBS: TextureWithBitmapSlice? = null
@@ -152,11 +181,13 @@ class AnMorphShape(library: AnLibrary, val morphSymbol: AnSymbolMorphShape) : An
 	}
 }
 
-class AnEmptyView(override val library: AnLibrary, override val symbol: AnSymbolEmpty = AnSymbolEmpty) : View(library.views), AnElement {
+class AnEmptyView(override val library: AnLibrary, override val symbol: AnSymbolEmpty = AnSymbolEmpty) :
+	View(library.views), AnElement {
 	override fun createInstance(): View = symbol.create(library) as View
 }
 
-class AnTextField(override val library: AnLibrary, override val symbol: AnTextFieldSymbol) : Container(library.views), AnElement, IText, IHtml {
+class AnTextField(override val library: AnLibrary, override val symbol: AnTextFieldSymbol) : Container(library.views),
+	AnElement, IText, IHtml {
 	private val textField = views.text("", 16.0).apply {
 		textBounds.copyFrom(symbol.bounds)
 		html = symbol.initialHtml
@@ -324,7 +355,8 @@ class AnSimpleAnimation(
 	}
 }
 
-class AnMovieClip(override val library: AnLibrary, override val symbol: AnSymbolMovieClip) : Container(library.views), AnElement, AnPlayable {
+class AnMovieClip(override val library: AnLibrary, override val symbol: AnSymbolMovieClip) : Container(library.views),
+	AnElement, AnPlayable {
 	override fun clone(): View = createInstance().apply {
 		this@apply.copyPropsFrom(this)
 	}
@@ -624,7 +656,8 @@ class AnMovieClip(override val library: AnLibrary, override val symbol: AnSymbol
 
 fun View?.play(name: String) = run { (this as? AnPlayable?)?.play(name) }
 suspend fun View?.playAndWaitStop(name: String) = run { (this as? AnMovieClip?)?.playAndWaitStop(name) }
-suspend fun View?.playAndWaitEvent(name: String, vararg events: String) = run { (this as? AnMovieClip?)?.playAndWaitEvent(name, *events) }
+suspend fun View?.playAndWaitEvent(name: String, vararg events: String) =
+	run { (this as? AnMovieClip?)?.playAndWaitEvent(name, *events) }
 
 suspend fun View?.waitStop() = run { (this as? AnMovieClip?)?.waitStop() }
 suspend fun View?.waitEvent(vararg events: String) = run { (this as? AnMovieClip?)?.waitEvent(*events) }

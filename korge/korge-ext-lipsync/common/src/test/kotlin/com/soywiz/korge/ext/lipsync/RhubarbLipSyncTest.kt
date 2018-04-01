@@ -1,13 +1,5 @@
 package com.soywiz.korge.ext.lipsync
 
-import com.soywiz.korau.format.readAudioData
-import com.soywiz.korio.async.syncTest
-import com.soywiz.korio.serialization.json.Json
-import com.soywiz.korio.vfs.ResourcesVfs
-import org.junit.Assert
-import org.junit.Ignore
-import org.junit.Test
-
 class RhubarbLipSyncTest {
 	/*
 	@Ignore

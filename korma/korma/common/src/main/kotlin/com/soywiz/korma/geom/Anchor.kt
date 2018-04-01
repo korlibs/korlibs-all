@@ -1,7 +1,6 @@
 package com.soywiz.korma.geom
 
-import com.soywiz.korma.interpolation.Interpolable
-import com.soywiz.korma.interpolation.interpolate
+import com.soywiz.korma.interpolation.*
 
 data class Anchor(val sx: Double, val sy: Double) : Interpolable<Anchor> {
 	companion object {

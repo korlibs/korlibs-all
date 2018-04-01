@@ -1,8 +1,7 @@
 package com.soywiz.korio.vfs
 
-import com.soywiz.korio.async.SuspendingSequence
-import com.soywiz.korio.async.asyncGenerate
-import com.soywiz.korio.error.ignoreErrors
+import com.soywiz.korio.async.*
+import com.soywiz.korio.error.*
 
 open class MergedVfs(vfsList: List<VfsFile> = listOf()) : Vfs.Proxy() {
 	val vfsList = ArrayList(vfsList)

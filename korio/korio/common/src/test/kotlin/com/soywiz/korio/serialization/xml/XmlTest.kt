@@ -1,7 +1,7 @@
 package com.soywiz.korio.serialization.xml
 
-import com.soywiz.kds.lmapOf
-import kotlin.test.assertEquals
+import com.soywiz.kds.*
+import kotlin.test.*
 
 class XmlTest {
 	@kotlin.test.Test

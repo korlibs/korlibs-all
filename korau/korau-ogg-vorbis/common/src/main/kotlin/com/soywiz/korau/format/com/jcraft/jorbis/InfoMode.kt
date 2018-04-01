@@ -27,8 +27,8 @@
 package com.soywiz.korau.format.com.jcraft.jorbis
 
 class InfoMode {
-    var blockflag: Int = 0
-    var windowtype: Int = 0
-    var transformtype: Int = 0
-    var mapping: Int = 0
+	var blockflag: Int = 0
+	var windowtype: Int = 0
+	var transformtype: Int = 0
+	var mapping: Int = 0
 }

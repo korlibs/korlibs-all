@@ -1,6 +1,6 @@
 package com.soywiz.korau.format
 
-import com.soywiz.kmem.arraycopy
+import com.soywiz.kmem.*
 
 open class AudioBuffer {
 	var buffer = ShortArray(0)

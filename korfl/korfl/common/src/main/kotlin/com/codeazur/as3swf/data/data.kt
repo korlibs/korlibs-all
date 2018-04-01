@@ -1,19 +1,16 @@
 package com.codeazur.as3swf.data
 
-import com.codeazur.as3swf.SWFData
-import com.codeazur.as3swf.data.actions.IAction
+import com.codeazur.as3swf.*
+import com.codeazur.as3swf.data.actions.*
 import com.codeazur.as3swf.data.consts.*
-import com.codeazur.as3swf.data.etc.CurvedEdge
-import com.codeazur.as3swf.data.etc.IEdge
-import com.codeazur.as3swf.data.etc.StraightEdge
-import com.codeazur.as3swf.exporters.ShapeExporter
+import com.codeazur.as3swf.data.etc.*
+import com.codeazur.as3swf.exporters.*
 import com.codeazur.as3swf.utils.*
-import com.soywiz.korim.vector.Context2d
-import com.soywiz.korio.lang.format
-import com.soywiz.korio.util.toString
-import com.soywiz.korma.Matrix2d
-import com.soywiz.korma.geom.Point2d
-import com.soywiz.korma.geom.Rectangle
+import com.soywiz.korim.vector.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.util.*
+import com.soywiz.korma.*
+import com.soywiz.korma.geom.*
 import kotlin.collections.set
 import kotlin.math.*
 
@@ -160,7 +157,8 @@ class SWFButtonCondAction {
 				str += "\n" + " ".repeat(indent + 2) + "[" + i + "] " + actions[i].toString(indent + 2)
 			}
 		} else {
-			val context: com.codeazur.as3swf.data.actions.ActionExecutionContext = com.codeazur.as3swf.data.actions.ActionExecutionContext(actions, arrayListOf(), labelCount)
+			val context: com.codeazur.as3swf.data.actions.ActionExecutionContext =
+				com.codeazur.as3swf.data.actions.ActionExecutionContext(actions, arrayListOf(), labelCount)
 			for (i in 0 until actions.size) {
 				str += "\n" + " ".repeat(indent + 4) + actions[i].toBytecode(indent + 4, context)
 			}
@@ -264,7 +262,8 @@ class SWFClipActionRecord {
 				str += "\n" + " ".repeat(indent + 2) + "[" + i + "] " + actions[i].toString(indent + 2)
 			}
 		} else {
-			val context: com.codeazur.as3swf.data.actions.ActionExecutionContext = com.codeazur.as3swf.data.actions.ActionExecutionContext(actions, arrayListOf(), labelCount)
+			val context: com.codeazur.as3swf.data.actions.ActionExecutionContext =
+				com.codeazur.as3swf.data.actions.ActionExecutionContext(actions, arrayListOf(), labelCount)
 			for (i in 0 until actions.size) {
 				str += "\n" + " ".repeat(indent + 4) + actions[i].toBytecode(indent + 4, context)
 			}
@@ -384,10 +383,26 @@ open class SWFColorTransform {
 	var hasMultTerms = false
 	var hasAddTerms = false
 
-	var rMult: Double get() = (_rMult.toDouble() / 256); set(value) = run { _rMult = clamp((value * 256).toInt()); updateHasMultTerms() }
-	var gMult: Double get() = (_gMult.toDouble() / 256); set(value) = run { _gMult = clamp((value * 256).toInt()); updateHasMultTerms() }
-	var bMult: Double get() = (_bMult.toDouble() / 256); set(value) = run { _bMult = clamp((value * 256).toInt()); updateHasMultTerms() }
-	open var aMult: Double get() = (_aMult.toDouble() / 256); set(value) = run { _aMult = clamp((value * 256).toInt()); updateHasMultTerms() }
+	var rMult: Double
+		get() = (_rMult.toDouble() / 256);
+		set(value) = run {
+			_rMult = clamp((value * 256).toInt()); updateHasMultTerms()
+		}
+	var gMult: Double
+		get() = (_gMult.toDouble() / 256);
+		set(value) = run {
+			_gMult = clamp((value * 256).toInt()); updateHasMultTerms()
+		}
+	var bMult: Double
+		get() = (_bMult.toDouble() / 256);
+		set(value) = run {
+			_bMult = clamp((value * 256).toInt()); updateHasMultTerms()
+		}
+	open var aMult: Double
+		get() = (_aMult.toDouble() / 256);
+		set(value) = run {
+			_aMult = clamp((value * 256).toInt()); updateHasMultTerms()
+		}
 
 	var rAdd: Int get() = _rAdd; set(value) = run { _rAdd = clamp(value); updateHasAddTerms() }
 	var gAdd: Int get() = _gAdd; set(value) = run { _gAdd = clamp(value); updateHasAddTerms() }
@@ -419,7 +434,9 @@ open class SWFColorTransform {
 		}
 	}
 
-	protected open fun updateHasMultTerms(): Unit = run { hasMultTerms = (_rMult != 256) || (_gMult != 256) || (_bMult != 256) }
+	protected open fun updateHasMultTerms(): Unit =
+		run { hasMultTerms = (_rMult != 256) || (_gMult != 256) || (_bMult != 256) }
+
 	protected open fun updateHasAddTerms(): Unit = run { hasAddTerms = (_rAdd != 0) || (_gAdd != 0) || (_bAdd != 0) }
 
 	protected fun clamp(value: Int): Int = min(max(value, -32768), 32767)
@@ -462,8 +479,11 @@ class SWFColorTransformWithAlpha : SWFColorTransform() {
 		}
 	}
 
-	override fun updateHasMultTerms(): Unit = run { hasMultTerms = (_rMult != 256) || (_gMult != 256) || (_bMult != 256) || (_aMult != 256) }
-	override fun updateHasAddTerms(): Unit = run { hasAddTerms = (_rAdd != 0) || (_gAdd != 0) || (_bAdd != 0) || (_aAdd != 0) }
+	override fun updateHasMultTerms(): Unit =
+		run { hasMultTerms = (_rMult != 256) || (_gMult != 256) || (_bMult != 256) || (_aMult != 256) }
+
+	override fun updateHasAddTerms(): Unit =
+		run { hasAddTerms = (_rAdd != 0) || (_gAdd != 0) || (_bAdd != 0) || (_aAdd != 0) }
 
 	override fun toString(): String = "($rMult,$gMult,$bMult,$aMult,$rAdd,$gAdd,$bAdd,$aAdd)"
 }
@@ -487,7 +507,8 @@ class SWFFillStyle {
 				rgb = if (level <= 2) data.readRGB() else data.readRGBA()
 			}
 			0x10, 0x12, 0x13 -> {
-				gradientMatrix = data.readMATRIX(); gradient = if (type == 0x13) data.readFOCALGRADIENT(level) else data.readGRADIENT(level)
+				gradientMatrix = data.readMATRIX(); gradient =
+						if (type == 0x13) data.readFOCALGRADIENT(level) else data.readGRADIENT(level)
 			}
 			0x40, 0x41, 0x42, 0x43 -> {
 				bitmapId = data.readUI16(); bitmapMatrix = data.readMATRIX()
@@ -499,7 +520,9 @@ class SWFFillStyle {
 	override fun toString(): String {
 		var str: String = "[SWFFillStyle] Type: " + "%02x".format(type)
 		when (type) {
-			0x00 -> str += " (solid), Color: " + (if (_level <= 2) ColorUtils.rgbToString(rgb) else ColorUtils.rgbaToString(rgb))
+			0x00 -> str += " (solid), Color: " + (if (_level <= 2) ColorUtils.rgbToString(rgb) else ColorUtils.rgbaToString(
+				rgb
+			))
 			0x10 -> str += " (linear gradient), Gradient: $gradient, Matrix: $gradientMatrix"
 			0x12 -> str += " (radial gradient), Gradient: $gradient, Matrix: $gradientMatrix"
 			0x13 -> str += " (focal radial gradient), Gradient: $gradient, Matrix: $gradientMatrix, FocalPoint: ${gradient?.focalPoint}"
@@ -557,7 +580,8 @@ open class SWFGradient {
 		for (i in 0 until numGradients) records.add(data.readGRADIENTRECORD(level))
 	}
 
-	override fun toString(): String = "(${records.joinToString(",")}), SpreadMode: $spreadMode, InterpolationMode: $interpolationMode"
+	override fun toString(): String =
+		"(${records.joinToString(",")}), SpreadMode: $spreadMode, InterpolationMode: $interpolationMode"
 }
 
 class SWFGradientRecord {
@@ -572,7 +596,8 @@ class SWFGradientRecord {
 		color = if (level <= 2) data.readRGB() else data.readRGBA()
 	}
 
-	override fun toString(): String = "[" + ratio + "," + (if (_level <= 2) ColorUtils.rgbToString(color) else ColorUtils.rgbaToString(color)) + "]"
+	override fun toString(): String =
+		"[" + ratio + "," + (if (_level <= 2) ColorUtils.rgbToString(color) else ColorUtils.rgbaToString(color)) + "]"
 }
 
 class SWFKerningRecord {
@@ -613,7 +638,10 @@ open class SWFLineStyle {
 		color = if (level <= 2) data.readRGB() else data.readRGBA()
 	}
 
-	override fun toString(): String = "[SWFLineStyle] Width: " + width + " Color: " + (if (_level <= 2) ColorUtils.rgbToString(color) else ColorUtils.rgbaToString(color))
+	override fun toString(): String =
+		"[SWFLineStyle] Width: " + width + " Color: " + (if (_level <= 2) ColorUtils.rgbToString(color) else ColorUtils.rgbaToString(
+			color
+		))
 }
 
 class SWFLineStyle2 : SWFLineStyle() {
@@ -638,9 +666,9 @@ class SWFLineStyle2 : SWFLineStyle() {
 
 	override fun toString(): String {
 		var str: String = "[SWFLineStyle2] Width: " + width + ", " +
-			"StartCaps: " + (startCapsStyle) + ", " +
-			"EndCaps: " + (endCapsStyle) + ", " +
-			"Joint: " + LineJointStyle.toString(jointStyle) + ", "
+				"StartCaps: " + (startCapsStyle) + ", " +
+				"EndCaps: " + (endCapsStyle) + ", " +
+				"Joint: " + LineJointStyle.toString(jointStyle) + ", "
 		if (noClose) str += "NoClose, "
 		if (noHScaleFlag) str += "NoHScale, "
 		if (noVScaleFlag) str += "NoVScale, "
@@ -666,7 +694,15 @@ class SWFMatrix {
 	var yscale: Double = 0.0
 	var rotation: Double = 0.0
 
-	val matrix: Matrix2d get() = Matrix2d(scaleX, rotateSkew0, rotateSkew1, scaleY, translateX.toDouble() / 20.0, translateY.toDouble() / 20.0)
+	val matrix: Matrix2d
+		get() = Matrix2d(
+			scaleX,
+			rotateSkew0,
+			rotateSkew1,
+			scaleY,
+			translateX.toDouble() / 20.0,
+			translateY.toDouble() / 20.0
+		)
 
 	fun parse(data: SWFData) {
 		data.resetBitsPending()
@@ -695,7 +731,9 @@ class SWFMatrix {
 		yscale = sqrt(rotateSkew1 * rotateSkew1 + scaleY * scaleY)
 	}
 
-	fun isIdentity(): Boolean = (scaleX == 1.0 && scaleY == 1.0 && rotateSkew0 == 0.0 && rotateSkew1 == 0.0 && translateX == 0 && translateY == 0)
+	fun isIdentity(): Boolean =
+		(scaleX == 1.0 && scaleY == 1.0 && rotateSkew0 == 0.0 && rotateSkew1 == 0.0 && translateX == 0 && translateY == 0)
+
 	override fun toString(): String = "($scaleX,$rotateSkew0,$rotateSkew1,$scaleY,$translateX,$translateY)"
 }
 
@@ -753,7 +791,9 @@ class SWFMorphFillStyle {
 
 	override fun toString(): String {
 		return "[SWFMorphFillStyle] Type: " + type.toString(16) + when (type) {
-			0x00 -> " (solid), StartColor: " + ColorUtils.rgbaToString(startColor) + ", EndColor: " + ColorUtils.rgbaToString(endColor)
+			0x00 -> " (solid), StartColor: " + ColorUtils.rgbaToString(startColor) + ", EndColor: " + ColorUtils.rgbaToString(
+				endColor
+			)
 			0x10 -> " (linear gradient), Gradient: " + gradient
 			0x12 -> " (radial gradient), Gradient: " + gradient
 			0x13 -> " (focal radial gradient), Gradient: " + gradient
@@ -840,7 +880,8 @@ class SWFMorphGradientRecord {
 		return gradientRecord
 	}
 
-	override fun toString(): String = "[$startRatio,${ColorUtils.rgbaToString(startColor)},$endRatio,${ColorUtils.rgbaToString(endColor)}]"
+	override fun toString(): String =
+		"[$startRatio,${ColorUtils.rgbaToString(startColor)},$endRatio,${ColorUtils.rgbaToString(endColor)}]"
 }
 
 open class SWFMorphLineStyle {
@@ -889,7 +930,9 @@ open class SWFMorphLineStyle {
 	}
 
 	override fun toString(): String {
-		return "[SWFMorphLineStyle] StartWidth: $startWidth, EndWidth: $endWidth, StartColor: ${ColorUtils.rgbaToString(startColor)}, EndColor: ${ColorUtils.rgbaToString(endColor)}"
+		return "[SWFMorphLineStyle] StartWidth: $startWidth, EndWidth: $endWidth, StartColor: ${ColorUtils.rgbaToString(
+			startColor
+		)}, EndColor: ${ColorUtils.rgbaToString(endColor)}"
 	}
 }
 
@@ -917,11 +960,11 @@ class SWFMorphLineStyle2 : SWFMorphLineStyle() {
 
 	override fun toString(): String {
 		var str: String = "[SWFMorphLineStyle2] " +
-			"StartWidth: " + startWidth + ", " +
-			"EndWidth: " + endWidth + ", " +
-			"StartCaps: " + (startCapsStyle) + ", " +
-			"EndCaps: " + (endCapsStyle) + ", " +
-			"Joint: " + (jointStyle)
+				"StartWidth: " + startWidth + ", " +
+				"EndWidth: " + endWidth + ", " +
+				"StartCaps: " + (startCapsStyle) + ", " +
+				"EndCaps: " + (endCapsStyle) + ", " +
+				"Joint: " + (jointStyle)
 		if (hasFillFlag) {
 			str += ", Fill: " + fillType.toString()
 		} else {
@@ -954,7 +997,8 @@ class SWFRecordHeader(
 ) {
 	val tagLength: Int get() = headerLength + contentLength
 
-	override fun toString(): String = "[SWFRecordHeader] type: $type, headerLength: $headerLength, contentlength: $contentLength"
+	override fun toString(): String =
+		"[SWFRecordHeader] type: $type, headerLength: $headerLength, contentlength: $contentLength"
 }
 
 class SWFRectangle(
@@ -1129,7 +1173,8 @@ open class SWFShape(var unitDivisor: Double = 20.0) {
 						// This (probably) means that a group starts with the next record
 						if (styleChangeRecord.stateLineStyle && styleChangeRecord.lineStyle == 0 &&
 							styleChangeRecord.stateFillStyle0 && styleChangeRecord.fillStyle0 == 0 &&
-							styleChangeRecord.stateFillStyle1 && styleChangeRecord.fillStyle1 == 0) {
+							styleChangeRecord.stateFillStyle1 && styleChangeRecord.fillStyle1 == 0
+						) {
 							cleanEdgeMap(currentFillEdgeMap)
 							cleanEdgeMap(currentLineEdgeMap)
 							fillEdgeMaps.add(currentFillEdgeMap)
@@ -1201,7 +1246,12 @@ open class SWFShape(var unitDivisor: Double = 20.0) {
 		}
 	}
 
-	protected fun processSubPath(subPath: ArrayList<IEdge>, lineStyleIdx: Int, fillStyleIdx0: Int, fillStyleIdx1: Int): Unit {
+	protected fun processSubPath(
+		subPath: ArrayList<IEdge>,
+		lineStyleIdx: Int,
+		fillStyleIdx0: Int,
+		fillStyleIdx1: Int
+	): Unit {
 		if (fillStyleIdx0 != 0) {
 			var path = currentFillEdgeMap[fillStyleIdx0]
 			if (path == null) {
@@ -1280,7 +1330,13 @@ open class SWFShape(var unitDivisor: Double = 20.0) {
 								// Bitmap fill
 								val m = fillStyle.bitmapMatrix!!
 								matrix = Matrix2d()
-								matrix.createBox(m.xscale / 20, m.yscale / 20, m.rotation, m.translateX / 20.0, m.translateY / 20.0)
+								matrix.createBox(
+									m.xscale / 20,
+									m.yscale / 20,
+									m.rotation,
+									m.translateX / 20.0,
+									m.translateY / 20.0
+								)
 								handler.beginBitmapFill(
 									fillStyle.bitmapId,
 									matrix,
@@ -1345,7 +1401,8 @@ open class SWFShape(var unitDivisor: Double = 20.0) {
 							(lineStyle.startCapsStyle),
 							(lineStyle.endCapsStyle),
 							LineJointStyle.toString(lineStyle.jointStyle),
-							lineStyle.miterLimitFactor)
+							lineStyle.miterLimitFactor
+						)
 
 						if (lineStyle.hasFillFlag) {
 							val fillStyle: SWFFillStyle = lineStyle.fillType!!
@@ -1514,7 +1571,8 @@ data class SWFShapeRecordCurvedEdge(
 	}
 
 	override val type = SWFShapeRecord.TYPE_CURVEDEDGE
-	override fun toString(): String = "[SWFShapeRecordCurvedEdge] ControlDelta: $controlDeltaX,$controlDeltaY, AnchorDelta: $anchorDeltaX,$anchorDeltaY"
+	override fun toString(): String =
+		"[SWFShapeRecordCurvedEdge] ControlDelta: $controlDeltaX,$controlDeltaY, AnchorDelta: $anchorDeltaX,$anchorDeltaY"
 
 	override fun clone(): SWFShapeRecord = this.copy()
 
@@ -1650,7 +1708,11 @@ class SWFShapeWithStyle(unitDivisor: Double = 20.0) : SWFShape(unitDivisor) {
 	override fun parse(data: SWFData, level: Int): Unit {
 		data.resetBitsPending()
 		for (i in 0 until readStyleArrayLength(data, level)) initialFillStyles.add(data.readFILLSTYLE(level))
-		for (i in 0 until readStyleArrayLength(data, level)) initialLineStyles.add(if (level <= 3) data.readLINESTYLE(level) else data.readLINESTYLE2(level))
+		for (i in 0 until readStyleArrayLength(data, level)) initialLineStyles.add(
+			if (level <= 3) data.readLINESTYLE(
+				level
+			) else data.readLINESTYLE2(level)
+		)
 		data.resetBitsPending()
 		val numFillBits: Int = data.readUB(4)
 		val numLineBits: Int = data.readUB(4)
@@ -1750,7 +1812,13 @@ class SWFTextRecord {
 
 	protected var _level = 0
 
-	fun parse(data: SWFData, glyphBits: Int, advanceBits: Int, previousRecord: SWFTextRecord? = null, level: Int = 1): Unit {
+	fun parse(
+		data: SWFData,
+		glyphBits: Int,
+		advanceBits: Int,
+		previousRecord: SWFTextRecord? = null,
+		level: Int = 1
+	): Unit {
 		_level = level
 		val styles: Int = data.readUI8()
 		type = styles ushr 7
@@ -1759,7 +1827,8 @@ class SWFTextRecord {
 		hasYOffset = ((styles and 0x02) != 0)
 		hasXOffset = ((styles and 0x01) != 0)
 		fontId = if (hasFont) data.readUI16() else previousRecord?.fontId ?: fontId
-		textColor = if (hasColor) (if (level < 2) data.readRGB() else data.readRGBA()) else previousRecord?.textColor ?: textColor
+		textColor = if (hasColor) (if (level < 2) data.readRGB() else data.readRGBA()) else previousRecord?.textColor
+				?: textColor
 		xOffset = if (hasXOffset) data.readSI16() else previousRecord?.xOffset ?: xOffset
 		yOffset = if (hasYOffset) data.readSI16() else previousRecord?.yOffset ?: yOffset
 		textHeight = if (hasFont) data.readUI16() else previousRecord?.textHeight ?: textHeight
@@ -1769,7 +1838,11 @@ class SWFTextRecord {
 	fun toString(indent: Int = 0): String {
 		val params = arrayListOf("Glyphs: " + glyphEntries.size.toString())
 		if (hasFont) params.add("FontID: " + fontId); params.add("Height: " + textHeight)
-		if (hasColor) params.add("Color: " + (if (_level <= 2) ColorUtils.rgbToString(textColor) else ColorUtils.rgbaToString(textColor)))
+		if (hasColor) params.add(
+			"Color: " + (if (_level <= 2) ColorUtils.rgbToString(textColor) else ColorUtils.rgbaToString(
+				textColor
+			))
+		)
 		if (hasXOffset) params.add("XOffset: " + xOffset)
 		if (hasYOffset) params.add("YOffset: " + yOffset)
 		var str: String = params.joinToString(", ")

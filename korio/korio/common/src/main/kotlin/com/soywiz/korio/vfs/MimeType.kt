@@ -1,6 +1,6 @@
 package com.soywiz.korio.vfs
 
-import com.soywiz.kds.lmapOf
+import com.soywiz.kds.*
 
 class MimeType(val mime: String, val exts: List<String>) : Vfs.Attribute {
 	companion object {
@@ -42,7 +42,8 @@ class MimeType(val mime: String, val exts: List<String>) : Vfs.Attribute {
 			)
 		}
 
-		fun getByExtension(ext: String, default: MimeType = APPLICATION_OCTET_STREAM): MimeType = byExtensions[ext.toLowerCase()] ?: default
+		fun getByExtension(ext: String, default: MimeType = APPLICATION_OCTET_STREAM): MimeType =
+			byExtensions[ext.toLowerCase()] ?: default
 	}
 }
 

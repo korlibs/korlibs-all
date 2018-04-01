@@ -1,8 +1,8 @@
 package com.soywiz.korau.format
 
-import com.soywiz.korio.async.syncTest
-import com.soywiz.korio.vfs.ResourcesVfs
-import kotlin.test.assertEquals
+import com.soywiz.korio.async.*
+import com.soywiz.korio.vfs.*
+import kotlin.test.*
 
 class AudioFormatTest {
 	val formats = AudioFormats().registerStandard()

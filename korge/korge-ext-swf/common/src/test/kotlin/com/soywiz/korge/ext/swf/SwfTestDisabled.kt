@@ -1,21 +1,17 @@
 package com.soywiz.korge.ext.swf
 
-import com.soywiz.korge.Korge
-import com.soywiz.korge.animate.AnLibrary
-import com.soywiz.korge.animate.serialization.readAni
-import com.soywiz.korge.animate.serialization.writeTo
-import com.soywiz.korge.scene.Module
-import com.soywiz.korge.scene.Scene
-import com.soywiz.korge.view.Container
-import com.soywiz.korge.view.Views
-import com.soywiz.korge.view.get
-import com.soywiz.korim.color.ColorTransform
-import com.soywiz.korio.vfs.LocalVfs
-import com.soywiz.korio.vfs.VfsFile
+import com.soywiz.korge.*
+import com.soywiz.korge.animate.*
+import com.soywiz.korge.animate.serialization.*
+import com.soywiz.korge.scene.*
+import com.soywiz.korge.view.*
+import com.soywiz.korim.color.*
+import com.soywiz.korio.vfs.*
 
 class SwfTestDisabled {
 	companion object {
-		@JvmStatic fun main(args: Array<String>) = Korge(object : Module() {
+		@JvmStatic
+		fun main(args: Array<String>) = Korge(object : Module() {
 			override val width: Int = (550 * 1.5).toInt()
 			override val height: Int = (400 * 1.5).toInt()
 			override val virtualWidth: Int = 550

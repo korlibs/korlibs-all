@@ -1,6 +1,6 @@
 package com.soywiz.kmem
 
-import kotlin.math.max
+import kotlin.math.*
 
 class ByteArrayBuffer(var data: ByteArray, size: Int = data.size) {
 	constructor(initialCapacity: Int = 4096) : this(ByteArray(initialCapacity), 0)

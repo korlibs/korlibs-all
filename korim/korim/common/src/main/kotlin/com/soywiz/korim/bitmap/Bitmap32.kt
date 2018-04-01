@@ -1,14 +1,9 @@
 package com.soywiz.korim.bitmap
 
-import com.soywiz.kmem.arraycopy
-import com.soywiz.kmem.fill
-import com.soywiz.korim.color.ColorFormat
-import com.soywiz.korim.color.RGBA
-import com.soywiz.korim.color.YCbCr
-import com.soywiz.korim.vector.Bitmap32Context2d
-import com.soywiz.korim.vector.Context2d
-import kotlin.math.abs
-import kotlin.math.max
+import com.soywiz.kmem.*
+import com.soywiz.korim.color.*
+import com.soywiz.korim.vector.*
+import kotlin.math.*
 
 class Bitmap32(
 	width: Int,
@@ -32,7 +27,11 @@ class Bitmap32(
 		data.fill(value)
 	}
 
-	constructor(width: Int, height: Int, premult: Boolean = false, generator: (x: Int, y: Int) -> Int) : this(width, height, premult = premult) {
+	constructor(width: Int, height: Int, premult: Boolean = false, generator: (x: Int, y: Int) -> Int) : this(
+		width,
+		height,
+		premult = premult
+	) {
 		setEach(generator)
 	}
 
@@ -57,7 +56,8 @@ class Bitmap32(
 			val dstOffset = dst.index(dx, dy + y)
 			val srcOffset = src.index(sleft, stop + y)
 			if (mix) {
-				for (x in 0 until width) dstData[dstOffset + x] = RGBA.mix(dstData[dstOffset + x], srcData[srcOffset + x])
+				for (x in 0 until width) dstData[dstOffset + x] =
+						RGBA.mix(dstData[dstOffset + x], srcData[srcOffset + x])
 			} else {
 				// System.arraycopy
 				arraycopy(srcData, srcOffset, dstData, dstOffset, width)
@@ -117,7 +117,8 @@ class Bitmap32(
 	fun put(src: BitmapSlice<Bitmap32>, dx: Int = 0, dy: Int = 0) = _draw(src, dx, dy, mix = false)
 	fun draw(src: BitmapSlice<Bitmap32>, dx: Int = 0, dy: Int = 0) = _draw(src, dx, dy, mix = true)
 
-	fun copySliceWithBounds(left: Int, top: Int, right: Int, bottom: Int): Bitmap32 = copySliceWithSize(left, top, right - left, bottom - top)
+	fun copySliceWithBounds(left: Int, top: Int, right: Int, bottom: Int): Bitmap32 =
+		copySliceWithSize(left, top, right - left, bottom - top)
 
 	fun copySliceWithSize(x: Int, y: Int, width: Int, height: Int): Bitmap32 {
 		val out = Bitmap32(width, height)
@@ -197,7 +198,16 @@ class Bitmap32(
 	}
 
 	companion object {
-		fun copyRect(src: Bitmap32, srcX: Int, srcY: Int, dst: Bitmap32, dstX: Int, dstY: Int, width: Int, height: Int) {
+		fun copyRect(
+			src: Bitmap32,
+			srcX: Int,
+			srcY: Int,
+			dst: Bitmap32,
+			dstX: Int,
+			dstY: Int,
+			width: Int,
+			height: Int
+		) {
 			for (y in 0 until height) {
 				val srcIndex = src.index(srcX, srcY + y)
 				val dstIndex = dst.index(dstX, dstY + y)
@@ -205,7 +215,11 @@ class Bitmap32(
 			}
 		}
 
-		fun createWithAlpha(color: Bitmap32, alpha: Bitmap32, alphaChannel: BitmapChannel = BitmapChannel.RED): Bitmap32 {
+		fun createWithAlpha(
+			color: Bitmap32,
+			alpha: Bitmap32,
+			alphaChannel: BitmapChannel = BitmapChannel.RED
+		): Bitmap32 {
 			val out = Bitmap32(color.width, color.height)
 			out.put(color)
 			out.writeChannel(BitmapChannel.ALPHA, alpha, BitmapChannel.RED)
@@ -219,7 +233,9 @@ class Bitmap32(
 			val diff = diff(a, b)
 			//for (c in diff.data) println("%02X, %02X, %02X".format(RGBA.getR(c), RGBA.getG(c), RGBA.getB(c)))
 			return diff.data.all {
-				(RGBA.getR(it) < threshold) && (RGBA.getG(it) < threshold) && (RGBA.getB(it) < threshold) && (RGBA.getA(it) < threshold)
+				(RGBA.getR(it) < threshold) && (RGBA.getG(it) < threshold) && (RGBA.getB(it) < threshold) && (RGBA.getA(
+					it
+				) < threshold)
 			}
 		}
 
@@ -266,9 +282,10 @@ class Bitmap32(
 		arraycopy(temp, 0, data, s1, width)
 	}
 
-	fun writeDecoded(color: ColorFormat, data: ByteArray, offset: Int = 0, littleEndian: Boolean = true): Bitmap32 = this.apply {
-		color.decode(data, offset, this.data, 0, this.area, littleEndian = littleEndian)
-	}
+	fun writeDecoded(color: ColorFormat, data: ByteArray, offset: Int = 0, littleEndian: Boolean = true): Bitmap32 =
+		this.apply {
+			color.decode(data, offset, this.data, 0, this.area, littleEndian = littleEndian)
+		}
 
 	override fun getContext2d(antialiasing: Boolean): Context2d = Context2d(Bitmap32Context2d(this))
 
@@ -398,6 +415,11 @@ class Bitmap32(
 		}
 	}
 
-	fun rgbaToYCbCr(): Bitmap32 = Bitmap32(width, height).apply { for (n in 0 until area) this.data[n] = YCbCr.rgbaToYCbCr(this@Bitmap32.data[n]) }
-	fun yCbCrToRgba(): Bitmap32 = Bitmap32(width, height).apply { for (n in 0 until area) this.data[n] = YCbCr.yCbCrToRgba(this@Bitmap32.data[n]) }
+	fun rgbaToYCbCr(): Bitmap32 = Bitmap32(width, height).apply {
+		for (n in 0 until area) this.data[n] = YCbCr.rgbaToYCbCr(this@Bitmap32.data[n])
+	}
+
+	fun yCbCrToRgba(): Bitmap32 = Bitmap32(width, height).apply {
+		for (n in 0 until area) this.data[n] = YCbCr.yCbCrToRgba(this@Bitmap32.data[n])
+	}
 }

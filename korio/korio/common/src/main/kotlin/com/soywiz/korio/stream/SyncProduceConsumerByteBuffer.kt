@@ -1,10 +1,10 @@
 package com.soywiz.korio.stream
 
-import com.soywiz.kds.Queue
-import com.soywiz.kmem.arraycopy
-import com.soywiz.korio.lang.Semaphore
-import com.soywiz.korio.util.indexOf
-import kotlin.math.min
+import com.soywiz.kds.*
+import com.soywiz.kmem.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.util.*
+import kotlin.math.*
 
 class SyncProduceConsumerByteBuffer : SyncOutputStream, SyncInputStream {
 	companion object {

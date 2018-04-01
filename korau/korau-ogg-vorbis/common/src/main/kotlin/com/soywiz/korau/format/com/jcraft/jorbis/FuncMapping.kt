@@ -26,23 +26,23 @@
 
 package com.soywiz.korau.format.com.jcraft.jorbis
 
-import com.soywiz.korau.format.com.jcraft.jogg.Buffer
+import com.soywiz.korau.format.com.jcraft.jogg.*
 
 abstract class FuncMapping {
 
-    abstract fun pack(info: Info, imap: Any, buffer: Buffer)
+	abstract fun pack(info: Info, imap: Any, buffer: Buffer)
 
-    abstract fun unpack(info: Info, buffer: Buffer): Any?
+	abstract fun unpack(info: Info, buffer: Buffer): Any?
 
-    abstract fun look(vd: DspState, vm: InfoMode, m: Any): Any
+	abstract fun look(vd: DspState, vm: InfoMode, m: Any): Any
 
-    abstract fun free_info(imap: Any)
+	abstract fun free_info(imap: Any)
 
-    abstract fun free_look(imap: Any)
+	abstract fun free_look(imap: Any)
 
-    abstract fun inverse(vd: Block, lm: Any): Int
+	abstract fun inverse(vd: Block, lm: Any): Int
 
-    companion object {
-        var mapping_P = arrayOf<FuncMapping>(Mapping0())
-    }
+	companion object {
+		var mapping_P = arrayOf<FuncMapping>(Mapping0())
+	}
 }

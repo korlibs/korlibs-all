@@ -1,8 +1,7 @@
 package com.soywiz.korge.ext.spriter.com.brashmonkey.spriter
 
-import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.Entity.ObjectInfo
-import kotlin.math.max
-import kotlin.math.min
+import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.Entity.*
+import kotlin.math.*
 
 /**
  * Represents a box, which consists of four points: top-left, top-right, bottom-left and bottom-right.

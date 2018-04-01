@@ -1,20 +1,27 @@
 package com.soywiz.korio.serialization.json
 
-import com.soywiz.korio.Language
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korio.serialization.Mapper
-import com.soywiz.korio.serialization.ObjectMapper
-import com.soywiz.korio.util.Indenter
-import com.soywiz.korio.util.StrReader
-import com.soywiz.korio.util.readStringLit
-import com.soywiz.korio.util.toNumber
-import kotlin.reflect.KClass
+import com.soywiz.korio.*
+import com.soywiz.korio.error.*
+import com.soywiz.korio.serialization.*
+import com.soywiz.korio.util.*
+import kotlin.collections.Iterable
+import kotlin.collections.LinkedHashMap
+import kotlin.collections.Map
+import kotlin.collections.arrayListOf
+import kotlin.collections.plusAssign
+import kotlin.collections.set
+import kotlin.collections.toList
+import kotlin.collections.withIndex
+import kotlin.reflect.*
 
 object Json {
 	inline fun <reified T : Any> encodePretty(obj: T, mapper: ObjectMapper = Mapper) = stringifyPretty<T>(obj, mapper)
-	inline fun <reified T : Any> encode(obj: T?, mapper: ObjectMapper = Mapper, pretty: Boolean = false): String = stringify(obj, mapper, pretty)
+	inline fun <reified T : Any> encode(obj: T?, mapper: ObjectMapper = Mapper, pretty: Boolean = false): String =
+		stringify(obj, mapper, pretty)
 
-	inline fun <reified T : Any> stringifyPretty(obj: T, mapper: ObjectMapper = Mapper) = stringify<T>(obj, mapper, pretty = true)
+	inline fun <reified T : Any> stringifyPretty(obj: T, mapper: ObjectMapper = Mapper) =
+		stringify<T>(obj, mapper, pretty = true)
+
 	inline fun <reified T : Any> stringify(obj: T?, mapper: ObjectMapper = Mapper, pretty: Boolean = false): String {
 		return if (pretty) {
 			encodePrettyUntyped(mapper.toUntyped(T::class, obj))
@@ -24,21 +31,25 @@ object Json {
 	}
 
 	fun parse(@Language("json") s: String): Any? = StrReader(s).decode()
-	inline fun <reified T : Any> parseTyped(@Language("json") s: String, mapper: ObjectMapper = Mapper): T = decodeToType(T::class, s, mapper)
+	inline fun <reified T : Any> parseTyped(@Language("json") s: String, mapper: ObjectMapper = Mapper): T =
+		decodeToType(T::class, s, mapper)
 
 	fun invalidJson(msg: String = "Invalid JSON"): Nothing = throw com.soywiz.korio.IOException(msg)
 
 	fun decode(@Language("json") s: String): Any? = StrReader(s).decode()
 
 	@Deprecated("Not compatible with Kotlin.JS (for now)")
-	inline fun <reified T : Any> decodeToType(@Language("json") s: String, mapper: ObjectMapper = Mapper): T = decodeToType(T::class, s, mapper)
+	inline fun <reified T : Any> decodeToType(@Language("json") s: String, mapper: ObjectMapper = Mapper): T =
+		decodeToType(T::class, s, mapper)
 
 	@Suppress("UNCHECKED_CAST")
 	@Deprecated("Put class first")
-	fun <T : Any> decodeToType(@Language("json") s: String, clazz: KClass<T>, mapper: ObjectMapper = Mapper): T = mapper.toTyped(clazz, decode(s))
+	fun <T : Any> decodeToType(@Language("json") s: String, clazz: KClass<T>, mapper: ObjectMapper = Mapper): T =
+		mapper.toTyped(clazz, decode(s))
 
 	@Suppress("UNCHECKED_CAST")
-	fun <T : Any> decodeToType(clazz: KClass<T>, @Language("json") s: String, mapper: ObjectMapper = Mapper): T = mapper.toTyped(clazz, decode(s))
+	fun <T : Any> decodeToType(clazz: KClass<T>, @Language("json") s: String, mapper: ObjectMapper = Mapper): T =
+		mapper.toTyped(clazz, decode(s))
 
 	fun StrReader.decode(): Any? {
 		val ic = skipSpaces().read()
@@ -69,7 +80,8 @@ object Json {
 			}
 			'-', '+', in '0'..'9' -> {
 				unread()
-				val res = readWhile { (it in '0'..'9') || it == '.' || it == 'e' || it == 'E' || it == '-' || it == '+' }
+				val res =
+					readWhile { (it in '0'..'9') || it == '.' || it == 'e' || it == 'E' || it == '-' || it == '+' }
 				return res.toNumber()
 			}
 			't', 'f', 'n' -> {

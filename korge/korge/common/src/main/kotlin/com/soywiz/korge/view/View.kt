@@ -1,28 +1,35 @@
 package com.soywiz.korge.view
 
-import com.soywiz.korge.component.Component
-import com.soywiz.korge.event.EventDispatcher
-import com.soywiz.korge.render.RenderContext
-import com.soywiz.korim.color.ColorTransform
-import com.soywiz.korio.async.CoroutineContextHolder
-import com.soywiz.korio.async.EventLoop
-import com.soywiz.korio.async.go
-import com.soywiz.korio.coroutine.CoroutineContext
-import com.soywiz.korio.error.MustOverrideException
-import com.soywiz.korio.math.toDegrees
-import com.soywiz.korio.math.toRadians
-import com.soywiz.korio.util.Cancellable
-import com.soywiz.kds.Extra
-import com.soywiz.korge.lang.portableSimpleName
-import com.soywiz.korma.Matrix2d
-import com.soywiz.korma.geom.BoundsBuilder
-import com.soywiz.korma.geom.Point2d
-import com.soywiz.korma.geom.Rectangle
-import kotlin.reflect.KClass
+import com.soywiz.kds.*
+import com.soywiz.korge.component.*
+import com.soywiz.korge.event.*
+import com.soywiz.korge.lang.*
+import com.soywiz.korge.render.*
+import com.soywiz.korim.color.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.error.*
+import com.soywiz.korio.math.*
+import com.soywiz.korio.util.*
+import com.soywiz.korma.*
+import com.soywiz.korma.geom.*
+import kotlin.collections.ArrayList
+import kotlin.collections.List
+import kotlin.collections.Map
+import kotlin.collections.arrayListOf
+import kotlin.collections.contains
+import kotlin.collections.firstOrNull
+import kotlin.collections.iterator
+import kotlin.collections.linkedMapOf
+import kotlin.collections.plusAssign
+import kotlin.collections.removeAll
+import kotlin.collections.set
+import kotlin.coroutines.experimental.*
+import kotlin.reflect.*
 
 class CustomView(views: Views, override val autoFlush: Boolean = true) : View(views)
 
-open class View(val views: Views) : Renderable, Updatable, Extra by Extra.Mixin(), EventDispatcher by EventDispatcher.Mixin(), CoroutineContextHolder {
+open class View(val views: Views) : Renderable, Updatable, Extra by Extra.Mixin(),
+	EventDispatcher by EventDispatcher.Mixin(), CoroutineContextHolder {
 	companion object {
 		private val tempTransform = Matrix2d.Transform()
 		//private val tempMatrix = Matrix2d()
@@ -79,18 +86,61 @@ open class View(val views: Views) : Renderable, Updatable, Extra by Extra.Mixin(
 
 	val pos = Point2d()
 
-	var x: Double; set(v) = run { ensureTransform(); if (pos.x != v) run { pos.x = v; invalidateMatrix() } }; get() = ensureTransform().pos.x
-	var y: Double; set(v) = run { ensureTransform(); if (pos.y != v) run { pos.y = v; invalidateMatrix() } }; get() = ensureTransform().pos.y
-	var scaleX: Double; set(v) = run { ensureTransform(); if (_scaleX != v) run { _scaleX = v; invalidateMatrix() } }; get() = ensureTransform()._scaleX
-	var scaleY: Double; set(v) = run { ensureTransform(); if (_scaleY != v) run { _scaleY = v; invalidateMatrix() } }; get() = ensureTransform()._scaleY
-	var skewX: Double; set(v) = run { ensureTransform(); if (_skewX != v) run { _skewX = v; invalidateMatrix() } }; get() = ensureTransform()._skewX
-	var skewY: Double; set(v) = run { ensureTransform(); if (_skewY != v) run { _skewY = v; invalidateMatrix() } }; get() = ensureTransform()._skewY
-	var rotation: Double; set(v) = run { ensureTransform(); if (_rotation != v) run { _rotation = v; invalidateMatrix() } }; get() = ensureTransform()._rotation
+	var x: Double
+		get() = ensureTransform().pos.x
+		set(v) = run {
+			ensureTransform(); if (pos.x != v) run { pos.x = v; invalidateMatrix() }
+		}
+
+	var y: Double
+		set(v) = run {
+			ensureTransform(); if (pos.y != v) run { pos.y = v; invalidateMatrix() }
+		}
+		get() = ensureTransform().pos.y
+
+	var scaleX: Double
+		set(v) = run {
+			ensureTransform(); if (_scaleX != v) run { _scaleX = v; invalidateMatrix() }
+		}
+		get() = ensureTransform()._scaleX
+
+	var scaleY: Double
+		set(v) = run {
+			ensureTransform(); if (_scaleY != v) run { _scaleY = v; invalidateMatrix() }
+		}
+		get() = ensureTransform()._scaleY
+
+	var skewX: Double
+		set(v) = run {
+			ensureTransform(); if (_skewX != v) run { _skewX = v; invalidateMatrix() }
+		}
+		get() = ensureTransform()._skewX
+
+	var skewY: Double
+		set(v) = run {
+			ensureTransform(); if (_skewY != v) run { _skewY = v; invalidateMatrix() }
+		}
+		get() = ensureTransform()._skewY
+
+	var rotation: Double
+		set(v) = run {
+			ensureTransform(); if (_rotation != v) run { _rotation = v; invalidateMatrix() }
+		}
+		get() = ensureTransform()._rotation
 
 	var rotationDegrees: Double; set(v) = run { rotation = toRadians(v) }; get() = toDegrees(rotation)
 	var scale: Double; get() = (scaleX + scaleY) / 2.0; set(v) = run { scaleX = v; scaleY = v }
-	var globalX: Double get() = parent?.localToGlobalX(x, y) ?: x; set(value) = run { x = parent?.globalToLocalX(value, globalY) ?: value }
-	var globalY: Double get() = parent?.localToGlobalY(x, y) ?: y; set(value) = run { y = parent?.globalToLocalY(globalX, value) ?: value }
+	var globalX: Double
+		get() = parent?.localToGlobalX(x, y) ?: x;
+		set(value) = run {
+			x = parent?.globalToLocalX(
+				value,
+				globalY
+			) ?: value
+		}
+	var globalY: Double
+		get() = parent?.localToGlobalY(x, y) ?: y;
+		set(value) = run { y = parent?.globalToLocalY(globalX, value) ?: value }
 
 	fun setSize(width: Double, height: Double) = _setSize(width, true, height, true)
 
@@ -116,8 +166,16 @@ open class View(val views: Views) : Renderable, Updatable, Extra by Extra.Mixin(
 	private val _colorTransform = ColorTransform()
 	private var _globalColorTransform = ColorTransform()
 
-	var colorMul: Int get() = _colorTransform.colorMul; set(v) = run { _colorTransform.colorMul = v; invalidateColorTransform() }
-	var colorAdd: Int get() = _colorTransform.colorAdd; set(v) = run { _colorTransform.colorAdd = v; invalidateColorTransform() }
+	var colorMul: Int
+		get() = _colorTransform.colorMul;
+		set(v) = run {
+			_colorTransform.colorMul = v; invalidateColorTransform()
+		}
+	var colorAdd: Int
+		get() = _colorTransform.colorAdd;
+		set(v) = run {
+			_colorTransform.colorAdd = v; invalidateColorTransform()
+		}
 	var alpha: Double get() = _colorTransform.mA; set(v) = run { _colorTransform.mA = v;invalidateColorTransform() }
 	var colorTransform: ColorTransform get() = _colorTransform; set(v) = run { _colorTransform.copyFrom(v); invalidateColorTransform() }
 
@@ -218,7 +276,8 @@ open class View(val views: Views) : Renderable, Updatable, Extra by Extra.Mixin(
 			return _componentsIt
 		}
 
-	inline fun <reified T : Component> getOrCreateComponent(noinline gen: (View) -> T): T = getOrCreateComponent(T::class, gen)
+	inline fun <reified T : Component> getOrCreateComponent(noinline gen: (View) -> T): T =
+		getOrCreateComponent(T::class, gen)
 
 	fun removeComponent(c: Component): Unit = run { components?.remove(c) }
 	//fun removeComponents(c: KClass<out Component>) = run { components?.removeAll { it.javaClass.isSubtypeOf(c) } }
@@ -381,7 +440,14 @@ open class View(val views: Views) : Renderable, Updatable, Extra by Extra.Mixin(
 		return if (bounds.contains(x, y)) this else null
 	}
 
-	protected fun checkGlobalBounds(x: Double, y: Double, sLeft: Double, sTop: Double, sRight: Double, sBottom: Double): Boolean {
+	protected fun checkGlobalBounds(
+		x: Double,
+		y: Double,
+		sLeft: Double,
+		sTop: Double,
+		sRight: Double,
+		sBottom: Double
+	): Boolean {
 		val lx = globalToLocalX(x, y)
 		val ly = globalToLocalY(x, y)
 		return lx >= sLeft && ly >= sTop && lx < sRight && ly < sBottom
@@ -477,7 +543,8 @@ open class View(val views: Views) : Renderable, Updatable, Extra by Extra.Mixin(
 		out.setTo(0, 0, 0, 0)
 	}
 
-	open protected fun createInstance(): View = throw MustOverrideException("Must Override ${this::class}.createInstance()")
+	open protected fun createInstance(): View =
+		throw MustOverrideException("Must Override ${this::class}.createInstance()")
 
 	open fun copyPropsFrom(source: View) {
 		this.name = source.name

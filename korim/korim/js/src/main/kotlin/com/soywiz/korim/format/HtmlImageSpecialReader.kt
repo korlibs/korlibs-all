@@ -1,10 +1,7 @@
 package com.soywiz.korim.format
 
-import com.soywiz.korim.bitmap.NativeImage
-import com.soywiz.korio.vfs.LocalVfs
-import com.soywiz.korio.vfs.UrlVfs
-import com.soywiz.korio.vfs.Vfs
-import com.soywiz.korio.vfs.VfsSpecialReader
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korio.vfs.*
 
 class HtmlImageSpecialReader : VfsSpecialReader<NativeImage>(NativeImage::class) {
 	//override val available: Boolean = OS.isJs

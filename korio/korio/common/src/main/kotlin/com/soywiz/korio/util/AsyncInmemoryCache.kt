@@ -1,11 +1,9 @@
 package com.soywiz.korio.util
 
-import com.soywiz.klock.Klock
-import com.soywiz.korio.async.Promise
-import com.soywiz.korio.async.async
-import com.soywiz.korio.async.async2
-import com.soywiz.korio.time.TimeProvider
-import kotlin.reflect.KClass
+import com.soywiz.klock.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.time.*
+import kotlin.reflect.*
 
 class AsyncInmemoryCache {
 	data class Entry(val timestamp: Long, val data: Promise<Any?>)
@@ -28,7 +26,12 @@ class AsyncInmemoryCache {
 	//suspend fun <T : Any?> get(key: String, ttl: TimeSpan, gen: () -> Promise<T>) = await(getAsync(key, ttl, gen))
 }
 
-class AsyncInmemoryEntry<T : Any>(val clazz: KClass<T>, val cache: AsyncInmemoryCache, val key: String, val ttlMs: Int) {
+class AsyncInmemoryEntry<T : Any>(
+	val clazz: KClass<T>,
+	val cache: AsyncInmemoryCache,
+	val key: String,
+	val ttlMs: Int
+) {
 	//fun getAsync(gen: () -> Promise<T>): Promise<T> = async { cache.get(key, ttl, gen) }
 
 	suspend fun get(routine: suspend () -> T) = cache.get(key, ttlMs, routine)

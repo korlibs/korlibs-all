@@ -1,10 +1,11 @@
 package com.soywiz.korio.async
 
-import com.soywiz.korio.CancellationException
 import com.soywiz.korio.expectException
 import org.junit.Ignore
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.IllegalStateException
+import kotlin.String
+import kotlin.test.*
 
 class PromiseTest {
 	@Test

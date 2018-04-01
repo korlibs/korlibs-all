@@ -1,7 +1,7 @@
 package com.soywiz.korfl.abc
 
-import com.soywiz.kds.mapWhile
-import com.soywiz.korio.error.invalidOp
+import com.soywiz.kds.*
+import com.soywiz.korio.error.*
 import com.soywiz.korio.stream.*
 
 // http://wwwimages.adobe.com/content/dam/Adobe/en/devnet/actionscript/articles/avm2overview.pdf
@@ -200,18 +200,37 @@ class ABC {
 		}
 	}
 
-	data class ExceptionInfo(val from: Int, val to: Int, val target: Int, val type: AbstractMultiname, val variableName: AbstractMultiname)
+	data class ExceptionInfo(
+		val from: Int,
+		val to: Int,
+		val target: Int,
+		val type: AbstractMultiname,
+		val variableName: AbstractMultiname
+	)
 
 	interface Trait {
 		val name: AbstractMultiname
 	}
 
-	data class TraitSlot(override val name: AbstractMultiname, val slotIndex: Int, val type: AbstractMultiname, val value: Any?) : Trait
+	data class TraitSlot(
+		override val name: AbstractMultiname,
+		val slotIndex: Int,
+		val type: AbstractMultiname,
+		val value: Any?
+	) : Trait
+
 	data class TraitMethod(override val name: AbstractMultiname, val dispIndex: Int, val methodIndex: Int) : Trait
 	data class TraitClass(override val name: AbstractMultiname, val slotIndex: Int, val classIndex: Int) : Trait
 	data class TraitFunction(override val name: AbstractMultiname, val slotIndex: Int, val functionIndex: Int) : Trait
 
-	data class InstanceInfo(val name: ABCQName, val base: AbstractMultiname, val interfaces: List<AbstractMultiname>, val instanceInitializer: MethodDesc, val traits: List<Trait>)
+	data class InstanceInfo(
+		val name: ABCQName,
+		val base: AbstractMultiname,
+		val interfaces: List<AbstractMultiname>,
+		val instanceInitializer: MethodDesc,
+		val traits: List<Trait>
+	)
+
 	data class ClassInfo(val initializer: MethodDesc, val traits: List<Trait>)
 
 	class TypeInfo(val abc: ABC, val instanceInfo: InstanceInfo, val classInfo: ClassInfo) {

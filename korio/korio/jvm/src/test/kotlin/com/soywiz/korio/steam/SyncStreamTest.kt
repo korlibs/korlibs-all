@@ -1,10 +1,10 @@
 package com.soywiz.korio.steam
 
-import com.soywiz.kmem.ByteArrayBuffer
-import com.soywiz.korio.async.syncTest
+import com.soywiz.kmem.*
+import com.soywiz.korio.async.*
 import com.soywiz.korio.stream.*
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class SyncStreamTest {
 	@Test
@@ -65,7 +65,29 @@ class SyncStreamTest {
 
 	@Test
 	fun testSVL() {
-		val values = listOf(Int.MIN_VALUE, -2131231, -91234, -1985, -256, -255, -128, -127, -33, -1, 0, 1, 33, 127, 128, 255, 256, 1985, 91234, 2131231, Int.MAX_VALUE)
+		val values = listOf(
+			Int.MIN_VALUE,
+			-2131231,
+			-91234,
+			-1985,
+			-256,
+			-255,
+			-128,
+			-127,
+			-33,
+			-1,
+			0,
+			1,
+			33,
+			127,
+			128,
+			255,
+			256,
+			1985,
+			91234,
+			2131231,
+			Int.MAX_VALUE
+		)
 		val out = MemorySyncStream()
 		for (v in values) out.writeS_VL(v)
 		out.position = 0

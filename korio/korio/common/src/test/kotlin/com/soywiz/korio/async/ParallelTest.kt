@@ -1,6 +1,6 @@
 package com.soywiz.korio.async
 
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class ParallelTest {
 	@kotlin.test.Test

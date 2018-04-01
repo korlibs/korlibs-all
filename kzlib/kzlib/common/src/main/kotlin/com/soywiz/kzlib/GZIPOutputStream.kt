@@ -43,7 +43,7 @@ class GZIPOutputStream constructor(
 		}
 
 	constructor(out: OutputStream, size: Int = DeflaterOutputStream.DEFAULT_BUFSIZE, close_out: Boolean = true)
-		: this(out, Deflater(JZlib.Z_DEFAULT_COMPRESSION, 15 + 16), size, close_out) {
+			: this(out, Deflater(JZlib.Z_DEFAULT_COMPRESSION, 15 + 16), size, close_out) {
 		mydeflater = true
 	}
 

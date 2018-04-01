@@ -1,9 +1,9 @@
 package com.soywiz.korge.input
 
-import com.soywiz.kmem.arraycopy
-import com.soywiz.korinject.Singleton
-import com.soywiz.kds.Extra
-import com.soywiz.korma.geom.Point2d
+import com.soywiz.kds.*
+import com.soywiz.kmem.*
+import com.soywiz.korinject.*
+import com.soywiz.korma.geom.*
 
 @Singleton
 class Input : Extra by Extra.Mixin() {

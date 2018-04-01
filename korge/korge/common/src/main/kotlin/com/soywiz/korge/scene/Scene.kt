@@ -1,18 +1,13 @@
 package com.soywiz.korge.scene
 
-import com.soywiz.korge.resources.ResourcesRoot
-import com.soywiz.korge.time.TimeSpan
-import com.soywiz.korge.time.sleep
-import com.soywiz.korge.util.CancellableGroup
-import com.soywiz.korge.view.Container
-import com.soywiz.korge.view.Views
-import com.soywiz.korge.view.ViewsContainer
-import com.soywiz.korge.view.scaleView
-import com.soywiz.korinject.AsyncInjector
-import com.soywiz.korinject.InjectorAsyncDependency
-import com.soywiz.korio.async.CoroutineContextHolder
-import com.soywiz.korio.coroutine.CoroutineContext
-import com.soywiz.korma.geom.ISize
+import com.soywiz.korge.resources.*
+import com.soywiz.korge.time.*
+import com.soywiz.korge.util.*
+import com.soywiz.korge.view.*
+import com.soywiz.korinject.*
+import com.soywiz.korio.async.*
+import com.soywiz.korma.geom.*
+import kotlin.coroutines.experimental.*
 
 abstract class Scene : InjectorAsyncDependency, ViewsContainer, CoroutineContextHolder {
 	lateinit var injector: AsyncInjector
@@ -20,15 +15,15 @@ abstract class Scene : InjectorAsyncDependency, ViewsContainer, CoroutineContext
 	lateinit var sceneContainer: SceneContainer
 	lateinit var resourcesRoot: ResourcesRoot
 	//protected lateinit var bus: Bus
-	lateinit internal var _sceneViewContainer: Container; private set
+	internal lateinit var _sceneViewContainer: Container; private set
 	lateinit var sceneView: Container; private set
 	val root get() = _sceneViewContainer
 	protected val cancellables = CancellableGroup()
 	override val coroutineContext: CoroutineContext get() = views.coroutineContext
 
-	open protected fun createSceneView(): Container = views.container()
+	protected open fun createSceneView(): Container = views.container()
 
-	suspend override fun init(injector: AsyncInjector): Unit {
+	override suspend fun init(injector: AsyncInjector): Unit {
 		//this.injector = injector
 		//this.views = injector.get() // @TODO: Bug in Kotlin.JS (no suspension point!)
 		//this.sceneContainer = injector.get() // @TODO: Bug in Kotlin.JS (no suspension point!)
@@ -48,19 +43,19 @@ abstract class Scene : InjectorAsyncDependency, ViewsContainer, CoroutineContext
 		_sceneViewContainer += sceneView
 	}
 
-	suspend abstract fun sceneInit(sceneView: Container): Unit
+	abstract suspend fun sceneInit(sceneView: Container): Unit
 
-	suspend open fun sceneAfterInit() {
+	open suspend fun sceneAfterInit() {
 	}
 
-	suspend open fun sceneBeforeLeaving() {
+	open suspend fun sceneBeforeLeaving() {
 	}
 
-	suspend open fun sceneDestroy() {
+	open suspend fun sceneDestroy() {
 		cancellables.cancel()
 	}
 
-	suspend open fun sceneAfterDestroy() {
+	open suspend fun sceneAfterDestroy() {
 	}
 }
 
@@ -69,11 +64,16 @@ abstract class ScaledScene() : Scene() {
 	open val sceneScale: Double = 2.0
 	open val sceneFiltering: Boolean = false
 
-	override fun createSceneView(): Container = views.scaleView(sceneSize.width.toInt(), sceneSize.height.toInt(), scale = sceneScale, filtering = sceneFiltering)
+	override fun createSceneView(): Container = views.scaleView(
+		sceneSize.width.toInt(),
+		sceneSize.height.toInt(),
+		scale = sceneScale,
+		filtering = sceneFiltering
+	)
 }
 
 class EmptyScene : Scene() {
-	suspend override fun sceneInit(sceneView: Container) {
+	override suspend fun sceneInit(sceneView: Container) {
 	}
 }
 
@@ -85,26 +85,26 @@ abstract class LogScene : Scene() {
 		this.log += msg
 	}
 
-	suspend override fun init(injector: AsyncInjector) {
+	override suspend fun init(injector: AsyncInjector) {
 		super.init(injector)
 	}
 
-	suspend override fun sceneInit(sceneView: Container) {
+	override suspend fun sceneInit(sceneView: Container) {
 		log("$name.sceneInit")
 		super.sceneAfterInit()
 	}
 
-	suspend override fun sceneAfterInit() {
+	override suspend fun sceneAfterInit() {
 		log("$name.sceneAfterInit")
 		super.sceneAfterInit()
 	}
 
-	suspend override fun sceneDestroy() {
+	override suspend fun sceneDestroy() {
 		log("$name.sceneDestroy")
 		super.sceneDestroy()
 	}
 
-	suspend override fun sceneAfterDestroy() {
+	override suspend fun sceneAfterDestroy() {
 		log("$name.sceneAfterDestroy")
 		super.sceneAfterDestroy()
 	}

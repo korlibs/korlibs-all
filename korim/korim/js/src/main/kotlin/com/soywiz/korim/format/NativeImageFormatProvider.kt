@@ -1,22 +1,19 @@
 package com.soywiz.korim.format
 
-import com.soywiz.korim.bitmap.Bitmap
-import com.soywiz.korim.bitmap.Bitmap32
-import com.soywiz.korim.bitmap.NativeImage
-import com.soywiz.korim.bitmap.ensureNative
-import com.soywiz.korim.color.NamedColors
-import com.soywiz.korim.vector.Context2d
-import com.soywiz.korio.coroutine.korioSuspendCoroutine
-import com.soywiz.korio.util.OS
-import com.soywiz.korma.Matrix2d
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
+import com.soywiz.korim.vector.*
+import com.soywiz.korio.coroutine.*
+import com.soywiz.korio.util.*
+import com.soywiz.korma.*
 import org.w3c.dom.*
-import org.w3c.dom.url.URL
-import org.w3c.files.Blob
-import org.w3c.files.BlobPropertyBag
-import kotlin.browser.document
-import kotlin.math.ceil
+import org.w3c.dom.url.*
+import org.w3c.files.*
+import kotlin.browser.*
+import kotlin.math.*
 
-class CanvasNativeImage(val canvas: HTMLCanvasElement) : NativeImage(canvas.width.toInt(), canvas.height.toInt(), canvas, false) {
+class CanvasNativeImage(val canvas: HTMLCanvasElement) :
+	NativeImage(canvas.width.toInt(), canvas.height.toInt(), canvas, false) {
 	override val name: String = "CanvasNativeImage"
 
 	override fun toNonNativeBmp(): Bitmap {
@@ -189,7 +186,13 @@ class CanvasContext2dRenderer(private val canvas: HTMLCanvasElement) : Context2d
 		ctx.save()
 		try {
 			transform.run { ctx.setTransform(a, b, c, d, tx, ty) }
-			ctx.drawImage((image.ensureNative() as CanvasNativeImage).canvas, x.toDouble(), y.toDouble(), width.toDouble(), height.toDouble())
+			ctx.drawImage(
+				(image.ensureNative() as CanvasNativeImage).canvas,
+				x.toDouble(),
+				y.toDouble(),
+				width.toDouble(),
+				height.toDouble()
+			)
 		} finally {
 			ctx.restore()
 		}
@@ -228,7 +231,14 @@ class CanvasContext2dRenderer(private val canvas: HTMLCanvasElement) : Context2d
 		}
 	}
 
-	override fun renderText(state: Context2d.State, font: Context2d.Font, text: String, x: Double, y: Double, fill: Boolean) {
+	override fun renderText(
+		state: Context2d.State,
+		font: Context2d.Font,
+		text: String,
+		x: Double,
+		y: Double,
+		fill: Boolean
+	) {
 		keep {
 			setState(state, fill)
 

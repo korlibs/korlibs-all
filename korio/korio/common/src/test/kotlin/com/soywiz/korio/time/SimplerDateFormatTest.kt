@@ -1,7 +1,7 @@
 package com.soywiz.korio.time
 
-import com.soywiz.klock.SimplerDateFormat
-import kotlin.test.assertEquals
+import com.soywiz.klock.*
+import kotlin.test.*
 
 class SimplerDateFormatTest {
 	// Sun, 06 Nov 1994 08:49:37 GMT

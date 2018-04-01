@@ -1,9 +1,8 @@
 package com.soywiz.korma.algo
 
-import com.soywiz.kds.Array2
-import com.soywiz.kds.PriorityQueue
-import com.soywiz.korma.geom.PointInt
-import com.soywiz.korma.math.Math
+import com.soywiz.kds.*
+import com.soywiz.korma.geom.*
+import com.soywiz.korma.math.*
 
 object AStar {
 	fun find(
@@ -13,7 +12,16 @@ object AStar {
 		return find(board, x0, y0, x1, y1, { it }, findClosest, diagonals)
 	}
 
-	fun <T> find(board: Array2<T>, x0: Int, y0: Int, x1: Int, y1: Int, isBlocking: (v: T) -> Boolean, findClosest: Boolean = false, diagonals: Boolean = false): List<PointInt> {
+	fun <T> find(
+		board: Array2<T>,
+		x0: Int,
+		y0: Int,
+		x1: Int,
+		y1: Int,
+		isBlocking: (v: T) -> Boolean,
+		findClosest: Boolean = false,
+		diagonals: Boolean = false
+	): List<PointInt> {
 		val aboard = board.map2 { x, y, value -> ANode(PointInt(x, y), isBlocking(value)) }
 		val queue: PriorityQueue<ANode> = PriorityQueue { a, b -> a.weight - b.weight }
 

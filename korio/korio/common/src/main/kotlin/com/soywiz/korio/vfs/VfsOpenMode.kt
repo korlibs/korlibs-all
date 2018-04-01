@@ -1,6 +1,11 @@
 package com.soywiz.korio.vfs
 
-enum class VfsOpenMode(val cmode: String, val write: Boolean, val createIfNotExists: Boolean = false, val truncate: Boolean = false) {
+enum class VfsOpenMode(
+	val cmode: String,
+	val write: Boolean,
+	val createIfNotExists: Boolean = false,
+	val truncate: Boolean = false
+) {
 	READ("r", write = false),
 	WRITE("rw", write = true, createIfNotExists = true),
 	APPEND("a+", write = true, createIfNotExists = true),

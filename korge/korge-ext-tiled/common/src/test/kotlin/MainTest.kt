@@ -1,10 +1,10 @@
-import com.soywiz.korge.Korge
-import com.soywiz.korge.scene.Module
-import com.soywiz.korge.scene.Scene
-import com.soywiz.korge.view.Container
+import com.soywiz.korge.*
+import com.soywiz.korge.scene.*
+import com.soywiz.korge.view.*
 
 object MainTest {
-	@JvmStatic fun main(args: Array<String>) = Korge(object : Module() {
+	@JvmStatic
+	fun main(args: Array<String>) = Korge(object : Module() {
 		override val mainScene = TestMainScene::class.java
 	})
 }

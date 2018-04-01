@@ -1,7 +1,7 @@
 package com.soywiz.korge.ext.lipsync
 
-import com.soywiz.korge.plugin.KorgePlugin
-import com.soywiz.korge.view.Views
+import com.soywiz.korge.plugin.*
+import com.soywiz.korge.view.*
 
 object LipsyncPlugin : KorgePlugin() {
 	suspend override fun register(views: Views) {

@@ -1,10 +1,7 @@
 package com.soywiz.korio.crypto
 
-import com.soywiz.korio.lang.Charset
-import com.soywiz.korio.lang.Charsets
-import com.soywiz.korio.lang.toByteArray
-import com.soywiz.korio.stream.SyncInputStream
-import com.soywiz.korio.stream.openSync
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.stream.*
 
 abstract class SyncHash {
 	companion object {

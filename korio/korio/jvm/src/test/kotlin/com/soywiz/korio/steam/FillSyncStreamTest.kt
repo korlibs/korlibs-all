@@ -1,11 +1,8 @@
 package com.soywiz.korio.steam
 
-import com.soywiz.korio.stream.FillSyncStream
-import com.soywiz.korio.stream.readS16_be
-import com.soywiz.korio.stream.readS16_le
-import com.soywiz.korio.stream.readS8
+import com.soywiz.korio.stream.*
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class FillSyncStreamTest {
 	@Test

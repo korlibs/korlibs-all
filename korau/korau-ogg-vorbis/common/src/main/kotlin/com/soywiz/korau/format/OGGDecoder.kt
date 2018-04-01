@@ -1,23 +1,15 @@
 package com.soywiz.korau.format
 
-import com.soywiz.kds.LinkedList
-import com.soywiz.kmem.arraycopy
-import com.soywiz.korau.format.com.jcraft.jogg.Packet
-import com.soywiz.korau.format.com.jcraft.jogg.Page
-import com.soywiz.korau.format.com.jcraft.jogg.StreamState
-import com.soywiz.korau.format.com.jcraft.jogg.SyncState
-import com.soywiz.korau.format.com.jcraft.jorbis.Block
-import com.soywiz.korau.format.com.jcraft.jorbis.Comment
-import com.soywiz.korau.format.com.jcraft.jorbis.DspState
-import com.soywiz.korio.async.asyncGenerate
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korio.lang.Charsets
-import com.soywiz.korio.lang.printStackTrace
-import com.soywiz.korio.lang.toString
-import com.soywiz.korio.stream.AsyncStream
-import com.soywiz.korio.stream.buffered
-import com.soywiz.korio.util.clamp
-import kotlin.math.min
+import com.soywiz.kds.*
+import com.soywiz.kmem.*
+import com.soywiz.korau.format.com.jcraft.jogg.*
+import com.soywiz.korau.format.com.jcraft.jorbis.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.error.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.stream.*
+import com.soywiz.korio.util.*
+import kotlin.math.*
 
 object OGGDecoder : OggBase() {
 	val BUFSIZE = 4096 * 2
@@ -150,7 +142,8 @@ object OGGDecoder : OggBase() {
 									var ptr2 = i
 									val mono = _index[i]
 									for (j in 0 until bout) {
-										convbuffer[ptr2] = (pcmf!![i][mono + j] * 32767.0).toInt().clamp(-32768, 32767).toShort()
+										convbuffer[ptr2] =
+												(pcmf!![i][mono + j] * 32767.0).toInt().clamp(-32768, 32767).toShort()
 										ptr2 += vi.channels
 									}
 									i++

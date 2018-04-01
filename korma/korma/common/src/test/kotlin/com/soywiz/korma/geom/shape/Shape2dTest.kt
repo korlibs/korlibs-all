@@ -1,10 +1,8 @@
 package com.soywiz.korma.geom.shape
 
-import com.soywiz.korma.geom.Point2d
-import com.soywiz.korma.geom.Rectangle
-import com.soywiz.korma.geom.VectorPath
+import com.soywiz.korma.geom.*
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class Shape2dTest {
 	@Test
@@ -44,7 +42,16 @@ class Shape2dTest {
 
 	@Test
 	fun pathFind() {
-		assertEquals("[Vector2(10, 10), Vector2(90, 90)]", Rectangle(0, 0, 100, 100).toShape().pathFind(Point2d(10, 10), Point2d(90, 90)).toString())
-		assertEquals("[Vector2(10, 10), Vector2(100, 50), Vector2(120, 52)]", (Rectangle(0, 0, 100, 100).toShape() + Rectangle(100, 50, 50, 50).toShape()).pathFind(Point2d(10, 10), Point2d(120, 52)).toString())
+		assertEquals(
+			"[Vector2(10, 10), Vector2(90, 90)]",
+			Rectangle(0, 0, 100, 100).toShape().pathFind(Point2d(10, 10), Point2d(90, 90)).toString()
+		)
+		assertEquals(
+			"[Vector2(10, 10), Vector2(100, 50), Vector2(120, 52)]",
+			(Rectangle(0, 0, 100, 100).toShape() + Rectangle(100, 50, 50, 50).toShape()).pathFind(
+				Point2d(10, 10),
+				Point2d(120, 52)
+			).toString()
+		)
 	}
 }

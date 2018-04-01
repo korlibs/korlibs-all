@@ -1,6 +1,6 @@
 package com.soywiz.kds
 
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class PoolTest {
 	class Demo {

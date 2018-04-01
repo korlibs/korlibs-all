@@ -26,13 +26,13 @@
 
 package com.soywiz.korau.format.com.jcraft.jorbis
 
-import com.soywiz.korau.format.com.jcraft.jogg.Buffer
+import com.soywiz.korau.format.com.jcraft.jogg.*
 
 class Time0 : FuncTime() {
-    override fun pack(i: Any, opb: Buffer) {}
-    override fun unpack(vi: Info, opb: Buffer): Any = ""
-    override fun look(vd: DspState, mi: InfoMode, i: Any): Any = ""
-    override fun free_info(i: Any) = Unit
-    override fun free_look(i: Any) = Unit
-    override fun inverse(vb: Block, i: Any, `in`: FloatArray, out: FloatArray): Int = 0
+	override fun pack(i: Any, opb: Buffer) {}
+	override fun unpack(vi: Info, opb: Buffer): Any = ""
+	override fun look(vd: DspState, mi: InfoMode, i: Any): Any = ""
+	override fun free_info(i: Any) = Unit
+	override fun free_look(i: Any) = Unit
+	override fun inverse(vb: Block, i: Any, `in`: FloatArray, out: FloatArray): Int = 0
 }

@@ -1,7 +1,6 @@
 package com.soywiz.kds
 
-import kotlin.reflect.KProperty
-import kotlin.reflect.KProperty1
+import kotlin.reflect.*
 
 class Computed<K : Computed.WithParent<K>, T>(val prop: KProperty1<K, T?>, val default: () -> T) {
 	interface WithParent<T> {

@@ -1,13 +1,11 @@
 package com.soywiz.korge.view
 
-import com.soywiz.korge.render.Texture
-import com.soywiz.korge.tests.ViewsForTesting
-import com.soywiz.korim.color.Colors
-import com.soywiz.korma.geom.Rectangle
+import com.soywiz.korge.render.*
+import com.soywiz.korge.tests.*
+import com.soywiz.korim.color.*
+import com.soywiz.korma.geom.*
 import org.junit.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
+import kotlin.test.*
 
 class ViewsTest : ViewsForTesting() {
 	val tex = Texture(views.ag.createTexture(), 10, 10)

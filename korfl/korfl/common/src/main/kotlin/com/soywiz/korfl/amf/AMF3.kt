@@ -1,9 +1,15 @@
 package com.soywiz.korfl.amf
 
-import com.soywiz.klock.DateTime
-import com.soywiz.korio.lang.Undefined
-import com.soywiz.korio.serialization.xml.Xml
+import com.soywiz.klock.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.serialization.xml.*
 import com.soywiz.korio.stream.*
+import kotlin.collections.List
+import kotlin.collections.Map
+import kotlin.collections.arrayListOf
+import kotlin.collections.hashMapOf
+import kotlin.collections.map
+import kotlin.collections.set
 
 // http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/devnet/amf/pdf/amf-file-format-spec.pdf
 object AMF3 {

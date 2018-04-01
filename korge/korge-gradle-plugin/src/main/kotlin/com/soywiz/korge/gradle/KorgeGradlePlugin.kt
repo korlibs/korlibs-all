@@ -76,7 +76,8 @@ abstract class KorgeBaseResourcesTask : DefaultTask() {
 	abstract var processResources: String
 
 	@Suppress("unused")
-	@TaskAction open fun task() {
+	@TaskAction
+	open fun task() {
 		logger.info("KorgeResourcesTask ($this)")
 		for (processor in ResourceProcessor.processorsByExtension.values) {
 			logger.info("${processor.extensionLCs} -> $processor")
@@ -135,7 +136,14 @@ open class LambdaClosure<T, TR>(val lambda: (value: T) -> TR) : Closure<T>(Unit)
 	override fun getProperty(property: String): Any = "lambda"
 }
 
-inline fun <reified T : AbstractTask> Project.addTask(name: String, group: String = "", description: String = "", overwrite: Boolean = true, dependsOn: List<String> = listOf(), noinline configure: (T) -> Unit = {}): Task {
+inline fun <reified T : AbstractTask> Project.addTask(
+	name: String,
+	group: String = "",
+	description: String = "",
+	overwrite: Boolean = true,
+	dependsOn: List<String> = listOf(),
+	noinline configure: (T) -> Unit = {}
+): Task {
 	return project.task(mapOf(
 		"type" to T::class.java,
 		"group" to group,
@@ -143,7 +151,8 @@ inline fun <reified T : AbstractTask> Project.addTask(name: String, group: Strin
 		"overwrite" to overwrite
 	), name, LambdaClosure({ it: T ->
 		configure(it)
-	})).dependsOn(dependsOn)
+	})
+	).dependsOn(dependsOn)
 }
 
 inline fun ignoreErrors(action: () -> Unit) {

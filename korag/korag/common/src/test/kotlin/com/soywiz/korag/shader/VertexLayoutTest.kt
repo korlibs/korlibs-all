@@ -1,7 +1,7 @@
 package com.soywiz.korag.shader
 
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class VertexLayoutTest {
 	@Test

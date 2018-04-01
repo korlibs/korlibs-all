@@ -1,10 +1,9 @@
 package com.soywiz.korio.net.http
 
-import com.soywiz.korio.crypto.fromBase64
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korio.lang.Charsets
-import com.soywiz.korio.lang.toString
-import com.soywiz.korio.serialization.querystring.QueryString
+import com.soywiz.korio.crypto.*
+import com.soywiz.korio.error.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.serialization.querystring.*
 
 interface Http {
 	enum class Methods : Method {
@@ -38,7 +37,9 @@ interface Http {
 			fun values() = _values
 			val valuesMap = _values.map { it.name to it }.toMap()
 
-			operator fun get(name: String): Method = valuesMap.getOrElse(name.toUpperCase().trim()) { CustomMethod(name) }
+			operator fun get(name: String): Method =
+				valuesMap.getOrElse(name.toUpperCase().trim()) { CustomMethod(name) }
+
 			operator fun invoke(name: String): Method = this[name]
 		}
 	}
@@ -56,7 +57,12 @@ interface Http {
 		val headers: Http.Headers = Http.Headers()
 	) : com.soywiz.korio.IOException("$statusCode $statusText - $msg") {
 		companion object {
-			fun unauthorizedBasic(realm: String = "Realm", msg: String = "Unauthorized"): Nothing = throw Http.HttpException(401, msg = msg, headers = Http.Headers("WWW-Authenticate" to "Basic realm=\"$realm\""))
+			fun unauthorizedBasic(realm: String = "Realm", msg: String = "Unauthorized"): Nothing =
+				throw Http.HttpException(
+					401,
+					msg = msg,
+					headers = Http.Headers("WWW-Authenticate" to "Basic realm=\"$realm\"")
+				)
 			//fun unauthorizedDigest(realm: String = "My Domain", msg: String = "Unauthorized"): Nothing = throw Http.HttpException(401, msg = msg, headers = Http.Headers("WWW-Authenticate" to "Digest realm=\"$realm\""))
 		}
 	}
@@ -86,7 +92,10 @@ interface Http {
 		}
 
 		suspend fun checkBasic(realm: String = "Realm", check: suspend Auth.() -> Boolean) {
-			if (user.isEmpty() || !check(this)) Http.HttpException.unauthorizedBasic(realm = "Domain", msg = "Invalid auth")
+			if (user.isEmpty() || !check(this)) Http.HttpException.unauthorizedBasic(
+				realm = "Domain",
+				msg = "Invalid auth"
+			)
 		}
 	}
 
@@ -117,21 +126,29 @@ interface Http {
 		override fun iterator(): Iterator<Pair<String, String>> = items.iterator()
 
 		operator fun get(key: String): String? = getFirst(key)
-		fun getAll(key: String): List<String> = items.filter { it.first.equals(key, ignoreCase = true) }.map { it.second }
+		fun getAll(key: String): List<String> =
+			items.filter { it.first.equals(key, ignoreCase = true) }.map { it.second }
+
 		fun getFirst(key: String): String? = items.firstOrNull { it.first.equals(key, ignoreCase = true) }?.second
 
 		fun toListGrouped(): List<Pair<String, List<String>>> {
-			return this.items.groupBy { it.first.toLowerCase() }.map { it.value.first().first to it.value.map { it.second } }.sortedBy { it.first.toLowerCase() }
+			return this.items.groupBy { it.first.toLowerCase() }
+				.map { it.value.first().first to it.value.map { it.second } }.sortedBy { it.first.toLowerCase() }
 		}
 
-		fun withAppendedHeaders(newHeaders: List<Pair<String, String>>): Headers = Headers(this.items + newHeaders.toList())
+		fun withAppendedHeaders(newHeaders: List<Pair<String, String>>): Headers =
+			Headers(this.items + newHeaders.toList())
+
 		fun withReplaceHeaders(newHeaders: List<Pair<String, String>>): Headers {
 			val replaceKeys = newHeaders.map { it.first.toLowerCase() }.toSet()
 			return Headers(this.items.filter { it.first.toLowerCase() !in replaceKeys } + newHeaders.toList())
 		}
 
-		fun withAppendedHeaders(vararg newHeaders: Pair<String, String>): Headers = withAppendedHeaders(newHeaders.toList())
-		fun withReplaceHeaders(vararg newHeaders: Pair<String, String>): Headers = withReplaceHeaders(newHeaders.toList())
+		fun withAppendedHeaders(vararg newHeaders: Pair<String, String>): Headers =
+			withAppendedHeaders(newHeaders.toList())
+
+		fun withReplaceHeaders(vararg newHeaders: Pair<String, String>): Headers =
+			withReplaceHeaders(newHeaders.toList())
 
 		fun containsAll(other: Http.Headers): Boolean = other.items.all { this.contains(it) }
 
@@ -154,7 +171,8 @@ interface Http {
 		}
 	}
 
-	data class RedirectException(val code: Int = 307, val redirectUri: String) : Http.HttpException(code, HttpStatusMessage(code))
+	data class RedirectException(val code: Int = 307, val redirectUri: String) :
+		Http.HttpException(code, HttpStatusMessage(code))
 
 	companion object {
 		fun TemporalRedirect(uri: String) = RedirectException(code = 307, redirectUri = uri)

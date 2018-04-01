@@ -1,10 +1,11 @@
 package com.soywiz.korio.vfs
 
-import com.soywiz.kds.lmapOf
-import kotlin.reflect.KClass
+import com.soywiz.kds.*
+import kotlin.reflect.*
 
 abstract class VfsSpecialReader<T : Any>(val clazz: KClass<T>) {
-	open suspend fun readSpecial(vfs: Vfs, path: String): T = TODO("Not implemented VfsSpecialReader.readSpecial in ${this::class}")
+	open suspend fun readSpecial(vfs: Vfs, path: String): T =
+		TODO("Not implemented VfsSpecialReader.readSpecial in ${this::class}")
 }
 
 val vfsSpecialReadersMap = lmapOf<KClass<*>, VfsSpecialReader<*>>()

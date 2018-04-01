@@ -1,14 +1,15 @@
 package com.soywiz.korio.util
 
-import com.soywiz.kmem.UByteArray
-import com.soywiz.korio.KorioNative
-import com.soywiz.korio.crypto.Hex
-import com.soywiz.korio.error.invalidArg
-import com.soywiz.korio.lang.format
+import com.soywiz.kmem.*
+import com.soywiz.korio.*
+import com.soywiz.korio.crypto.*
+import com.soywiz.korio.error.*
+import com.soywiz.korio.lang.*
 
 class UUID(val data: UByteArray) {
 	companion object {
-		private val regex = Regex("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", RegexOption.IGNORE_CASE)
+		private val regex =
+			Regex("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", RegexOption.IGNORE_CASE)
 
 		private fun fix(data: UByteArray, version: Int, variant: Int): UByteArray {
 			data[6] = (data[6] and 0b0000_1111) or (version shl 4)

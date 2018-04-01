@@ -1,8 +1,8 @@
 package com.soywiz.korio.async
 
-import com.soywiz.kds.LinkedList
-import com.soywiz.korio.coroutine.currentThreadId
-import com.soywiz.korio.lang.Closeable
+import com.soywiz.kds.*
+import com.soywiz.korio.coroutine.*
+import com.soywiz.korio.lang.*
 
 class EventLoopFactoryTest : EventLoopFactory() {
 	override fun createEventLoop(): EventLoop = EventLoopTest()

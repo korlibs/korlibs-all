@@ -1,10 +1,8 @@
 package com.soywiz.korge.bus
 
-import com.soywiz.korinject.InjectedHandler
-import com.soywiz.korinject.Prototype
-import com.soywiz.korinject.Singleton
-import com.soywiz.korio.lang.Closeable
-import kotlin.reflect.KClass
+import com.soywiz.korinject.*
+import com.soywiz.korio.lang.*
+import kotlin.reflect.*
 
 @Prototype
 class Bus(

@@ -1,6 +1,6 @@
 package com.soywiz.korma.geom
 
-import com.soywiz.korma.geom.triangle.Constants
+import com.soywiz.korma.geom.triangle.*
 
 enum class Orientation(val value: Int) {
 	CW(+1), CCW(-1), COLLINEAR(0);

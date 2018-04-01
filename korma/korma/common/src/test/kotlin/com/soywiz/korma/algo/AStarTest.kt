@@ -1,9 +1,9 @@
 package com.soywiz.korma.algo
 
-import com.soywiz.kds.Array2
-import com.soywiz.korma.geom.PointInt
+import com.soywiz.kds.*
+import com.soywiz.korma.geom.*
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class AStarTest {
 	@Test
@@ -95,7 +95,14 @@ class AStarTest {
 
 	fun assertFind(input: String, expected: String, findClosest: Boolean = false) {
 		val input2 = map(input)
-		val points = AStar.find(input2.map, input2.start.x, input2.start.y, input2.end.x, input2.end.y, findClosest = findClosest)
+		val points = AStar.find(
+			input2.map,
+			input2.start.x,
+			input2.start.y,
+			input2.end.x,
+			input2.end.y,
+			findClosest = findClosest
+		)
 		val pointsMap = points.withIndex().map { it.value to it.index }.toMap()
 		val res = input2.map.map2 { x, y, c ->
 			pointsMap[PointInt(x, y)]?.let { xdigits[it] } ?: (if (c) '#' else '.')

@@ -1,7 +1,7 @@
 package com.soywiz.kmem
 
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class KmemTest {
 	@Test

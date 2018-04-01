@@ -1,17 +1,13 @@
 package com.soywiz.korim.format
 
-import com.soywiz.korim.awt.awtShowImage
-import com.soywiz.korim.bitmap.matchContents
-import com.soywiz.korio.async.syncTest
-import com.soywiz.korio.vfs.LocalVfs
-import com.soywiz.korio.vfs.ResourcesVfs
-import com.soywiz.korio.vfs.VfsFile
-import com.soywiz.korio.vfs.applicationVfs
-import org.junit.Before
+import com.soywiz.korim.awt.*
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.vfs.*
+import org.junit.*
 import org.junit.Ignore
 import org.junit.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class ImageFormats2Test {
 	val formats = ImageFormats().registerStandard().register(ICO)

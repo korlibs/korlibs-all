@@ -18,208 +18,214 @@ lateinit var nwindowConfig: WindowConfig
 var nlistener: KMLWindowListener? = null
 
 object KmlBaseNativeWin32 : KmlBaseNoEventLoop() {
-    override fun application(windowConfig: WindowConfig, listener: KMLWindowListener) {
-        var hwnd: HWND? = null
-        fatalExceptions {
-            nwindowConfig = windowConfig
-            nlistener = listener
+	override fun application(windowConfig: WindowConfig, listener: KMLWindowListener) {
+		var hwnd: HWND? = null
+		fatalExceptions {
+			nwindowConfig = windowConfig
+			nlistener = listener
 
-            memScoped {
-                // https://www.khronos.org/opengl/wiki/Creating_an_OpenGL_Context_(WGL)
+			memScoped {
+				// https://www.khronos.org/opengl/wiki/Creating_an_OpenGL_Context_(WGL)
 
-                val windowTitle = windowConfig.title
-                val windowWidth = windowConfig.width
-                val windowHeight = windowConfig.height
+				val windowTitle = windowConfig.title
+				val windowWidth = windowConfig.width
+				val windowHeight = windowConfig.height
 
-                val wc = alloc<WNDCLASSW>()
+				val wc = alloc<WNDCLASSW>()
 
-                val clazzName = "oglkotlinnative"
-                val clazzNamePtr = clazzName.wcstr.getPointer(this@memScoped)
-                wc.lpfnWndProc = staticCFunction(::WndProc)
-                wc.hInstance = null
-                wc.hbrBackground = COLOR_BACKGROUND.uncheckedCast()
-                wc.lpszClassName = clazzNamePtr
-                wc.style = CS_OWNDC;
-                if (RegisterClassW(wc.ptr).toInt() == 0) {
-                    return
-                }
+				val clazzName = "oglkotlinnative"
+				val clazzNamePtr = clazzName.wcstr.getPointer(this@memScoped)
+				wc.lpfnWndProc = staticCFunction(::WndProc)
+				wc.hInstance = null
+				wc.hbrBackground = COLOR_BACKGROUND.uncheckedCast()
+				wc.lpszClassName = clazzNamePtr
+				wc.style = CS_OWNDC;
+				if (RegisterClassW(wc.ptr).toInt() == 0) {
+					return
+				}
 
-                val screenWidth = GetSystemMetrics(SM_CXSCREEN)
-                val screenHeight = GetSystemMetrics(SM_CYSCREEN)
-                hwnd = CreateWindowExW(
-                        WS_EX_CLIENTEDGE,
-                        clazzName,
-                        windowTitle,
-                        WS_OVERLAPPEDWINDOW or WS_VISIBLE,
-                        kotlin.math.min(kotlin.math.max(0, (screenWidth - windowWidth) / 2), screenWidth - 16),
-                        kotlin.math.min(kotlin.math.max(0, (screenHeight - windowHeight) / 2), screenHeight - 16),
-                        windowWidth,
-                        windowHeight,
-                        null, null, null, null
-                )
-                println("ERROR: " + GetLastError())
+				val screenWidth = GetSystemMetrics(SM_CXSCREEN)
+				val screenHeight = GetSystemMetrics(SM_CYSCREEN)
+				hwnd = CreateWindowExW(
+					WS_EX_CLIENTEDGE,
+					clazzName,
+					windowTitle,
+					WS_OVERLAPPEDWINDOW or WS_VISIBLE,
+					kotlin.math.min(kotlin.math.max(0, (screenWidth - windowWidth) / 2), screenWidth - 16),
+					kotlin.math.min(kotlin.math.max(0, (screenHeight - windowHeight) / 2), screenHeight - 16),
+					windowWidth,
+					windowHeight,
+					null, null, null, null
+				)
+				println("ERROR: " + GetLastError())
 
-                ShowWindow(hwnd, SW_SHOWNORMAL)
+				ShowWindow(hwnd, SW_SHOWNORMAL)
 
-                //SetTimer(hwnd, 1, 1000 / 60, staticCFunction(::WndTimer))
-            }
+				//SetTimer(hwnd, 1, 1000 / 60, staticCFunction(::WndTimer))
+			}
 
-            //memScoped {
-            //    val msg = alloc<MSG>()
-            //    while (GetMessageW(msg.ptr, null, 0, 0) > 0) {
-            //        TranslateMessage(msg.ptr)
-            //        DispatchMessageW(msg.ptr)
-            //    }
-            //}
-            memScoped {
-                val msg = alloc<MSG>()
-                //var start = milliStamp()
-                var prev = kotlin.system.getTimeMillis()
-                while (true) {
-                    while (PeekMessageW(msg.ptr, null, 0, 0, PM_REMOVE) != 0) {
-                        TranslateMessage(msg.ptr)
-                        DispatchMessageW(msg.ptr)
-                    }
-                    //val now = milliStamp()
-                    //val elapsed = now - start
-                    //val sleepTime = kotlin.math.max(0L, (16 - elapsed)).toInt()
-                    //println("SLEEP: sleepTime=$sleepTime, start=$start, now=$now, elapsed=$elapsed")
-                    //start = now
-                    //Sleep(sleepTime)
-                    val now = kotlin.system.getTimeMillis()
-                    val elapsed = now - prev
-                    //println("$prev, $now, $elapsed")
-                    val sleepTime = kotlin.math.max(0L, (16 - elapsed)).toInt()
-                    prev = now
+			//memScoped {
+			//    val msg = alloc<MSG>()
+			//    while (GetMessageW(msg.ptr, null, 0, 0) > 0) {
+			//        TranslateMessage(msg.ptr)
+			//        DispatchMessageW(msg.ptr)
+			//    }
+			//}
+			memScoped {
+				val msg = alloc<MSG>()
+				//var start = milliStamp()
+				var prev = kotlin.system.getTimeMillis()
+				while (true) {
+					while (PeekMessageW(msg.ptr, null, 0, 0, PM_REMOVE) != 0) {
+						TranslateMessage(msg.ptr)
+						DispatchMessageW(msg.ptr)
+					}
+					//val now = milliStamp()
+					//val elapsed = now - start
+					//val sleepTime = kotlin.math.max(0L, (16 - elapsed)).toInt()
+					//println("SLEEP: sleepTime=$sleepTime, start=$start, now=$now, elapsed=$elapsed")
+					//start = now
+					//Sleep(sleepTime)
+					val now = kotlin.system.getTimeMillis()
+					val elapsed = now - prev
+					//println("$prev, $now, $elapsed")
+					val sleepTime = kotlin.math.max(0L, (16 - elapsed)).toInt()
+					prev = now
 
-                    Sleep(sleepTime)
-                    tryRender(hwnd)
+					Sleep(sleepTime)
+					tryRender(hwnd)
 
-                }
-            }
-        }
-    }
+				}
+			}
+		}
+	}
 
-    override fun currentTimeMillis(): Double = kotlin.system.getTimeMillis().toDouble()
+	override fun currentTimeMillis(): Double = kotlin.system.getTimeMillis().toDouble()
 
-    override fun sleep(time: Int) {
-        Sleep(time)
-    }
+	override fun sleep(time: Int) {
+		Sleep(time)
+	}
 
-    override fun pollEvents() {
-    }
+	override fun pollEvents() {
+	}
 
-    override suspend fun decodeImage(data: ByteArray): KmlNativeImageData {
-        return gdipKmlLoadImageFromByteArray(data)
-    }
+	override suspend fun decodeImage(data: ByteArray): KmlNativeImageData {
+		return gdipKmlLoadImageFromByteArray(data)
+	}
 
-    override suspend fun loadFileBytes(path: String, range: LongRange?): ByteArray {
-        return loadFileBytesSync(path, range)
-    }
+	override suspend fun loadFileBytes(path: String, range: LongRange?): ByteArray {
+		return loadFileBytesSync(path, range)
+	}
 
-    override suspend fun writeFileBytes(path: String, data: ByteArray, offset: Long?): Unit {
-        TODO("KmlBase.writeFileBytes")
-    }
+	override suspend fun writeFileBytes(path: String, data: ByteArray, offset: Long?): Unit {
+		TODO("KmlBase.writeFileBytes")
+	}
 }
 
 fun milliStamp() = (QueryPerformanceCounter() * 1000L) / QueryPerformanceFrequency()
 
 fun QueryPerformanceCounter(): Long {
-    return memScoped {
-        val li = alloc<LARGE_INTEGER>()
-        QueryPerformanceCounter(li.ptr)
-        li.QuadPart
-    }
+	return memScoped {
+		val li = alloc<LARGE_INTEGER>()
+		QueryPerformanceCounter(li.ptr)
+		li.QuadPart
+	}
 }
 
 fun QueryPerformanceFrequency(): Long {
-    return memScoped {
-        val li = alloc<LARGE_INTEGER>()
-        QueryPerformanceFrequency(li.ptr)
-        li.QuadPart
-    }
+	return memScoped {
+		val li = alloc<LARGE_INTEGER>()
+		QueryPerformanceFrequency(li.ptr)
+		li.QuadPart
+	}
 }
 
 
 var glRenderContext: HGLRC? = null
 
 fun renderFunction() {
-    if (!isInitialized) {
-        println("RENDER_NOT_INITIALIZED")
-        return
-    }
-    //println("RENDER")
+	if (!isInitialized) {
+		println("RENDER_NOT_INITIALIZED")
+		return
+	}
+	//println("RENDER")
 
-    fatalExceptions {
-        nlistener?.render(glNative)
-    }
+	fatalExceptions {
+		nlistener?.render(glNative)
+	}
 
-    //glClearColor(0.2f, 0.4f, 0.6f, 1.0f)
-    //glClear(GL_COLOR_BUFFER_BIT)
+	//glClearColor(0.2f, 0.4f, 0.6f, 1.0f)
+	//glClear(GL_COLOR_BUFFER_BIT)
 }
 
 fun resized(width: Int, height: Int) {
-    println("RESIZED: $width, $height")
-    if (!isInitialized) {
-        println("RESIZED_NOT_INITIALIZED")
-        return
-    }
+	println("RESIZED: $width, $height")
+	if (!isInitialized) {
+		println("RESIZED_NOT_INITIALIZED")
+		return
+	}
 
-    fatalExceptions {
-        glViewport(0, 0, width, height)
-        nlistener?.resized(width, height)
-    }
+	fatalExceptions {
+		glViewport(0, 0, width, height)
+		nlistener?.resized(width, height)
+	}
 }
 
 fun mouseMove(x: Int, y: Int) {
-    //println("MOUSE_MOVE: $x, $y")
-    fatalExceptions {
-        nlistener?.mouseUpdateMove(x, y)
-    }
-    SetCursor(ARROW_CURSOR)
+	//println("MOUSE_MOVE: $x, $y")
+	fatalExceptions {
+		nlistener?.mouseUpdateMove(x, y)
+	}
+	SetCursor(ARROW_CURSOR)
 }
 
 fun mouseButton(button: Int, pressed: Boolean) {
-    //println("MOUSE_BUTTON: $button, $pressed")
-    fatalExceptions {
-        nlistener?.mouseUpdateButton(button, pressed)
-    }
+	//println("MOUSE_BUTTON: $button, $pressed")
+	fatalExceptions {
+		nlistener?.mouseUpdateButton(button, pressed)
+	}
 }
 
 fun keyUpdate(key: Int, pressed: Boolean) {
-    // VK_LEFT
-    val ikey = KEYS[key] ?: Key.UNKNOWN
-    //println("KEY_UPDATE: $key($ikey), $pressed")
-    fatalExceptions {
-        nlistener?.keyUpdate(ikey, pressed)
-    }
+	// VK_LEFT
+	val ikey = KEYS[key] ?: Key.UNKNOWN
+	//println("KEY_UPDATE: $key($ikey), $pressed")
+	fatalExceptions {
+		nlistener?.keyUpdate(ikey, pressed)
+	}
 }
 
 fun tryRender(hWnd: HWND?) {
-    if (glRenderContext != null) {
-        val hDC = GetDC(hWnd)
-        wglMakeCurrent(hDC, glRenderContext)
-        renderFunction()
-        SwapBuffers(hDC)
-    }
+	if (glRenderContext != null) {
+		val hDC = GetDC(hWnd)
+		wglMakeCurrent(hDC, glRenderContext)
+		renderFunction()
+		SwapBuffers(hDC)
+	}
 }
 
 var isInitialized = false
 
 fun initialized() {
-    if (isInitialized) return
-    isInitialized = true
-    println("INITIALIZING")
-    fatalExceptions {
-        KmlBaseNativeWin32.runBlocking {
-            nlistener?.init(glNative)
-            Unit
-        }
-    }
+	if (isInitialized) return
+	isInitialized = true
+	println("INITIALIZING")
+	fatalExceptions {
+		KmlBaseNativeWin32.runBlocking {
+			nlistener?.init(glNative)
+			Unit
+		}
+	}
 }
+
 //val ARROW_CURSOR by lazy { LoadCursorA(null, 32512.uncheckedCast<CPointer<ByteVar>>().uncheckedCast()) }
 val USER32_DLL by lazy { LoadLibraryA("User32.dll") }
-val LoadCursorAFunc by lazy { GetProcAddress(USER32_DLL, "LoadCursorA").uncheckedCast<CPointer<CFunction<Function2<Int, Int, HCURSOR?>>>>() }
+val LoadCursorAFunc by lazy {
+	GetProcAddress(
+		USER32_DLL,
+		"LoadCursorA"
+	).uncheckedCast<CPointer<CFunction<Function2<Int, Int, HCURSOR?>>>>()
+}
 //val ARROW_CURSOR by lazy { LoadCursorA(null, 32512.uncheckedCast<CPointer<ByteVar>>().uncheckedCast()) }
 val ARROW_CURSOR by lazy { LoadCursorAFunc(0, 32512) }
 
@@ -230,82 +236,83 @@ val ARROW_CURSOR by lazy { LoadCursorAFunc(0, 32512) }
 //}
 
 inline fun <T> fatalExceptions(callback: () -> T): T {
-    try {
-        return callback()
-    } catch (e: Throwable) {
-        e.printStackTrace()
-        kotlin.system.exitProcess(-1)
-        throw e
-    }
+	try {
+		return callback()
+	} catch (e: Throwable) {
+		e.printStackTrace()
+		kotlin.system.exitProcess(-1)
+		throw e
+	}
 }
 
 @Suppress("UNUSED_PARAMETER")
 fun WndProc(hWnd: HWND?, message: UINT, wParam: WPARAM, lParam: LPARAM): LRESULT {
-    //println("WndProc: $hWnd, $message, $wParam, $lParam")
-    when (message) {
-        WM_CREATE -> {
-            memScoped {
-                val pfd = alloc<PIXELFORMATDESCRIPTOR>()
-                pfd.nSize = PIXELFORMATDESCRIPTOR.size.toShort()
-                pfd.nVersion = 1
-                pfd.dwFlags = PFD_DRAW_TO_WINDOW or PFD_SUPPORT_OPENGL or PFD_DOUBLEBUFFER
-                pfd.iPixelType = PFD_TYPE_RGBA.toByte()
-                pfd.cColorBits = 32
-                pfd.cDepthBits = 24
-                pfd.cStencilBits = 8
-                pfd.iLayerType = PFD_MAIN_PLANE.toByte()
-                val hDC = GetDC(hWnd)
-                val letWindowsChooseThisPixelFormat = ChoosePixelFormat(hDC, pfd.ptr)
+	//println("WndProc: $hWnd, $message, $wParam, $lParam")
+	when (message) {
+		WM_CREATE -> {
+			memScoped {
+				val pfd = alloc<PIXELFORMATDESCRIPTOR>()
+				pfd.nSize = PIXELFORMATDESCRIPTOR.size.toShort()
+				pfd.nVersion = 1
+				pfd.dwFlags = PFD_DRAW_TO_WINDOW or PFD_SUPPORT_OPENGL or PFD_DOUBLEBUFFER
+				pfd.iPixelType = PFD_TYPE_RGBA.toByte()
+				pfd.cColorBits = 32
+				pfd.cDepthBits = 24
+				pfd.cStencilBits = 8
+				pfd.iLayerType = PFD_MAIN_PLANE.toByte()
+				val hDC = GetDC(hWnd)
+				val letWindowsChooseThisPixelFormat = ChoosePixelFormat(hDC, pfd.ptr)
 
-                SetPixelFormat(hDC, letWindowsChooseThisPixelFormat, pfd.ptr)
-                glRenderContext = wglCreateContext(hDC)
-                wglMakeCurrent(hDC, glRenderContext)
+				SetPixelFormat(hDC, letWindowsChooseThisPixelFormat, pfd.ptr)
+				glRenderContext = wglCreateContext(hDC)
+				wglMakeCurrent(hDC, glRenderContext)
 
-                val wglSwapIntervalEXT= wglGetProcAddressAny("wglSwapIntervalEXT").uncheckedCast<CPointer<CFunction<Function1<Int, Int>>>?>()
+				val wglSwapIntervalEXT =
+					wglGetProcAddressAny("wglSwapIntervalEXT").uncheckedCast<CPointer<CFunction<Function1<Int, Int>>>?>()
 
-                println("wglSwapIntervalEXT: $wglSwapIntervalEXT")
-                wglSwapIntervalEXT?.invoke(0)
+				println("wglSwapIntervalEXT: $wglSwapIntervalEXT")
+				wglSwapIntervalEXT?.invoke(0)
 
-                println("GL_CONTEXT: $glRenderContext")
-                initialized()
-            }
-        }
-        WM_SIZE -> {
-            var width = 0
-            var height = 0
-            memScoped {
-                val rect = alloc<RECT>()
-                GetClientRect(hWnd, rect.ptr)
-                width = rect.right - rect.left
-                height = rect.bottom - rect.top
-            }
-            //val width = (lParam.toInt() ushr 0) and 0xFFFF
-            //val height = (lParam.toInt() ushr 16) and 0xFFFF
-            resized(width, height)
-            tryRender(hWnd)
-        }
-        WM_QUIT -> {
-            kotlin.system.exitProcess(0)
-        }
-        WM_MOUSEMOVE -> {
-            val x = (lParam.toInt() ushr 0) and 0xFFFF
-            val y = (lParam.toInt() ushr 16) and 0xFFFF
-            mouseMove(x, y)
-        }
-        WM_LBUTTONDOWN -> mouseButton(0, true)
-        WM_MBUTTONDOWN -> mouseButton(1, true)
-        WM_RBUTTONDOWN -> mouseButton(2, true)
-        WM_LBUTTONUP -> mouseButton(0, false)
-        WM_MBUTTONUP -> mouseButton(1, false)
-        WM_RBUTTONUP -> mouseButton(2, false)
-        WM_KEYDOWN -> keyUpdate(wParam.toInt(), true)
-        WM_KEYUP -> keyUpdate(wParam.toInt(), false)
+				println("GL_CONTEXT: $glRenderContext")
+				initialized()
+			}
+		}
+		WM_SIZE -> {
+			var width = 0
+			var height = 0
+			memScoped {
+				val rect = alloc<RECT>()
+				GetClientRect(hWnd, rect.ptr)
+				width = rect.right - rect.left
+				height = rect.bottom - rect.top
+			}
+			//val width = (lParam.toInt() ushr 0) and 0xFFFF
+			//val height = (lParam.toInt() ushr 16) and 0xFFFF
+			resized(width, height)
+			tryRender(hWnd)
+		}
+		WM_QUIT -> {
+			kotlin.system.exitProcess(0)
+		}
+		WM_MOUSEMOVE -> {
+			val x = (lParam.toInt() ushr 0) and 0xFFFF
+			val y = (lParam.toInt() ushr 16) and 0xFFFF
+			mouseMove(x, y)
+		}
+		WM_LBUTTONDOWN -> mouseButton(0, true)
+		WM_MBUTTONDOWN -> mouseButton(1, true)
+		WM_RBUTTONDOWN -> mouseButton(2, true)
+		WM_LBUTTONUP -> mouseButton(0, false)
+		WM_MBUTTONUP -> mouseButton(1, false)
+		WM_RBUTTONUP -> mouseButton(2, false)
+		WM_KEYDOWN -> keyUpdate(wParam.toInt(), true)
+		WM_KEYUP -> keyUpdate(wParam.toInt(), false)
 
-        WM_CLOSE -> {
-            kotlin.system.exitProcess(0)
-        }
-    }
-    return DefWindowProcW(hWnd, message, wParam, lParam)
+		WM_CLOSE -> {
+			kotlin.system.exitProcess(0)
+		}
+	}
+	return DefWindowProcW(hWnd, message, wParam, lParam)
 }
 
 
@@ -503,196 +510,196 @@ const val VK_XBUTTON1 = 0x05
 const val VK_XBUTTON2 = 0x06
 
 val KEYS = mapOf(
-        VK_ABNT_C1 to Key.UNKNOWN,
-        VK_ABNT_C2 to Key.UNKNOWN,
-        VK_ADD to Key.UNKNOWN,
-        VK_ATTN to Key.UNKNOWN,
-        VK_BACK to Key.UNKNOWN,
-        VK_CANCEL to Key.UNKNOWN,
-        VK_CLEAR to Key.UNKNOWN,
-        VK_CRSEL to Key.UNKNOWN,
-        VK_DECIMAL to Key.UNKNOWN,
-        VK_DIVIDE to Key.UNKNOWN,
-        VK_EREOF to Key.UNKNOWN,
-        VK_ESCAPE to Key.ESCAPE,
-        VK_EXECUTE to Key.UNKNOWN,
-        VK_EXSEL to Key.UNKNOWN,
-        VK_ICO_CLEAR to Key.UNKNOWN,
-        VK_ICO_HELP to Key.UNKNOWN,
-        VK_KEY_0 to Key.N0,
-        VK_KEY_1 to Key.N1,
-        VK_KEY_2 to Key.N2,
-        VK_KEY_3 to Key.N3,
-        VK_KEY_4 to Key.N4,
-        VK_KEY_5 to Key.N5,
-        VK_KEY_6 to Key.N6,
-        VK_KEY_7 to Key.N7,
-        VK_KEY_8 to Key.N8,
-        VK_KEY_9 to Key.N9,
-        VK_KEY_A to Key.A,
-        VK_KEY_B to Key.B,
-        VK_KEY_C to Key.C,
-        VK_KEY_D to Key.D,
-        VK_KEY_E to Key.E,
-        VK_KEY_F to Key.F,
-        VK_KEY_G to Key.G,
-        VK_KEY_H to Key.H,
-        VK_KEY_I to Key.I,
-        VK_KEY_J to Key.J,
-        VK_KEY_K to Key.K,
-        VK_KEY_L to Key.L,
-        VK_KEY_M to Key.M,
-        VK_KEY_N to Key.N,
-        VK_KEY_O to Key.O,
-        VK_KEY_P to Key.P,
-        VK_KEY_Q to Key.Q,
-        VK_KEY_R to Key.R,
-        VK_KEY_S to Key.S,
-        VK_KEY_T to Key.T,
-        VK_KEY_U to Key.U,
-        VK_KEY_V to Key.V,
-        VK_KEY_W to Key.W,
-        VK_KEY_X to Key.X,
-        VK_KEY_Y to Key.Y,
-        VK_KEY_Z to Key.Z,
-        VK_MULTIPLY to Key.UNKNOWN,
-        VK_NONAME to Key.UNKNOWN,
-        VK_NUMPAD0 to Key.N0,
-        VK_NUMPAD1 to Key.N1,
-        VK_NUMPAD2 to Key.N2,
-        VK_NUMPAD3 to Key.N3,
-        VK_NUMPAD4 to Key.N4,
-        VK_NUMPAD5 to Key.N5,
-        VK_NUMPAD6 to Key.N6,
-        VK_NUMPAD7 to Key.N7,
-        VK_NUMPAD8 to Key.N8,
-        VK_NUMPAD9 to Key.N9,
-        VK_OEM_1 to Key.UNKNOWN,
-        VK_OEM_102 to Key.UNKNOWN,
-        VK_OEM_2 to Key.UNKNOWN,
-        VK_OEM_3 to Key.UNKNOWN,
-        VK_OEM_4 to Key.UNKNOWN,
-        VK_OEM_5 to Key.UNKNOWN,
-        VK_OEM_6 to Key.UNKNOWN,
-        VK_OEM_7 to Key.UNKNOWN,
-        VK_OEM_8 to Key.UNKNOWN,
-        VK_OEM_ATTN to Key.UNKNOWN,
-        VK_OEM_AUTO to Key.UNKNOWN,
-        VK_OEM_AX to Key.UNKNOWN,
-        VK_OEM_BACKTAB to Key.UNKNOWN,
-        VK_OEM_CLEAR to Key.UNKNOWN,
-        VK_OEM_COMMA to Key.UNKNOWN,
-        VK_OEM_COPY to Key.UNKNOWN,
-        VK_OEM_CUSEL to Key.UNKNOWN,
-        VK_OEM_ENLW to Key.UNKNOWN,
-        VK_OEM_FINISH to Key.UNKNOWN,
-        VK_OEM_FJ_LOYA to Key.UNKNOWN,
-        VK_OEM_FJ_MASSHOU to Key.UNKNOWN,
-        VK_OEM_FJ_ROYA to Key.UNKNOWN,
-        VK_OEM_FJ_TOUROKU to Key.UNKNOWN,
-        VK_OEM_JUMP to Key.UNKNOWN,
-        VK_OEM_MINUS to Key.UNKNOWN,
-        VK_OEM_PA1 to Key.UNKNOWN,
-        VK_OEM_PA2 to Key.UNKNOWN,
-        VK_OEM_PA3 to Key.UNKNOWN,
-        VK_OEM_PERIOD to Key.UNKNOWN,
-        VK_OEM_PLUS to Key.UNKNOWN,
-        VK_OEM_RESET to Key.UNKNOWN,
-        VK_OEM_WSCTRL to Key.UNKNOWN,
-        VK_PA1 to Key.UNKNOWN,
-        VK_PACKET to Key.UNKNOWN,
-        VK_PLAY to Key.UNKNOWN,
-        VK_PROCESSKEY to Key.UNKNOWN,
-        VK_RETURN to Key.ENTER,
-        VK_SELECT to Key.UNKNOWN,
-        VK_SEPARATOR to Key.UNKNOWN,
-        VK_SPACE to Key.SPACE,
-        VK_SUBTRACT to Key.UNKNOWN,
-        VK_TAB to Key.TAB,
-        VK_ZOOM to Key.UNKNOWN,
-        VK__none_ to Key.UNKNOWN,
-        VK_ACCEPT to Key.UNKNOWN,
-        VK_APPS to Key.UNKNOWN,
-        VK_BROWSER_BACK to Key.UNKNOWN,
-        VK_BROWSER_FAVORITES to Key.UNKNOWN,
-        VK_BROWSER_FORWARD to Key.UNKNOWN,
-        VK_BROWSER_HOME to Key.UNKNOWN,
-        VK_BROWSER_REFRESH to Key.UNKNOWN,
-        VK_BROWSER_SEARCH to Key.UNKNOWN,
-        VK_BROWSER_STOP to Key.UNKNOWN,
-        VK_CAPITAL to Key.UNKNOWN,
-        VK_CONVERT to Key.UNKNOWN,
-        VK_DELETE to Key.DELETE,
-        VK_DOWN to Key.DOWN,
-        VK_END to Key.END,
-        VK_F1 to Key.F1,
-        VK_F2 to Key.F2,
-        VK_F3 to Key.F3,
-        VK_F4 to Key.F4,
-        VK_F5 to Key.F5,
-        VK_F6 to Key.F6,
-        VK_F7 to Key.F7,
-        VK_F8 to Key.F8,
-        VK_F9 to Key.F9,
-        VK_F10 to Key.F10,
-        VK_F11 to Key.F11,
-        VK_F12 to Key.F12,
-        VK_F13 to Key.F13,
-        VK_F14 to Key.F14,
-        VK_F15 to Key.F15,
-        VK_F16 to Key.F16,
-        VK_F17 to Key.F17,
-        VK_F18 to Key.F18,
-        VK_F19 to Key.F19,
-        VK_F20 to Key.F20,
-        VK_F21 to Key.F21,
-        VK_F22 to Key.F22,
-        VK_F23 to Key.F23,
-        VK_F24 to Key.F24,
-        VK_FINAL to Key.UNKNOWN,
-        VK_HELP to Key.UNKNOWN,
-        VK_HOME to Key.HOME,
-        VK_ICO_00 to Key.UNKNOWN,
-        VK_INSERT to Key.INSERT,
-        VK_JUNJA to Key.UNKNOWN,
-        VK_KANA to Key.UNKNOWN,
-        VK_KANJI to Key.UNKNOWN,
-        VK_LAUNCH_APP1 to Key.UNKNOWN,
-        VK_LAUNCH_APP2 to Key.UNKNOWN,
-        VK_LAUNCH_MAIL to Key.UNKNOWN,
-        VK_LAUNCH_MEDIA_SELECT to Key.UNKNOWN,
-        VK_LBUTTON to Key.UNKNOWN,
-        VK_LCONTROL to Key.LEFT_CONTROL,
-        VK_LEFT to Key.LEFT,
-        VK_LMENU to Key.UNKNOWN,
-        VK_LSHIFT to Key.LEFT_SHIFT,
-        VK_LWIN to Key.LEFT_SUPER,
-        VK_MBUTTON to Key.UNKNOWN,
-        VK_MEDIA_NEXT_TRACK to Key.UNKNOWN,
-        VK_MEDIA_PLAY_PAUSE to Key.UNKNOWN,
-        VK_MEDIA_PREV_TRACK to Key.UNKNOWN,
-        VK_MEDIA_STOP to Key.UNKNOWN,
-        VK_MODECHANGE to Key.UNKNOWN,
-        VK_NEXT to Key.UNKNOWN,
-        VK_NONCONVERT to Key.UNKNOWN,
-        VK_NUMLOCK to Key.UNKNOWN,
-        VK_OEM_FJ_JISHO to Key.UNKNOWN,
-        VK_PAUSE to Key.PAUSE,
-        VK_PRINT to Key.PRINT_SCREEN,
-        VK_PRIOR to Key.UNKNOWN,
-        VK_RBUTTON to Key.UNKNOWN,
-        VK_RCONTROL to Key.RIGHT_CONTROL,
-        VK_RIGHT to Key.RIGHT,
-        VK_RMENU to Key.UNKNOWN,
-        VK_RSHIFT to Key.RIGHT_SHIFT,
-        VK_RWIN to Key.RIGHT_SUPER,
-        VK_SCROLL to Key.SCROLL_LOCK,
-        VK_SLEEP to Key.UNKNOWN,
-        VK_SNAPSHOT to Key.UNKNOWN,
-        VK_UP to Key.UP,
-        VK_VOLUME_DOWN to Key.UNKNOWN,
-        VK_VOLUME_MUTE to Key.UNKNOWN,
-        VK_VOLUME_UP to Key.UNKNOWN,
-        VK_XBUTTON1 to Key.UNKNOWN,
-        VK_XBUTTON2 to Key.UNKNOWN
+	VK_ABNT_C1 to Key.UNKNOWN,
+	VK_ABNT_C2 to Key.UNKNOWN,
+	VK_ADD to Key.UNKNOWN,
+	VK_ATTN to Key.UNKNOWN,
+	VK_BACK to Key.UNKNOWN,
+	VK_CANCEL to Key.UNKNOWN,
+	VK_CLEAR to Key.UNKNOWN,
+	VK_CRSEL to Key.UNKNOWN,
+	VK_DECIMAL to Key.UNKNOWN,
+	VK_DIVIDE to Key.UNKNOWN,
+	VK_EREOF to Key.UNKNOWN,
+	VK_ESCAPE to Key.ESCAPE,
+	VK_EXECUTE to Key.UNKNOWN,
+	VK_EXSEL to Key.UNKNOWN,
+	VK_ICO_CLEAR to Key.UNKNOWN,
+	VK_ICO_HELP to Key.UNKNOWN,
+	VK_KEY_0 to Key.N0,
+	VK_KEY_1 to Key.N1,
+	VK_KEY_2 to Key.N2,
+	VK_KEY_3 to Key.N3,
+	VK_KEY_4 to Key.N4,
+	VK_KEY_5 to Key.N5,
+	VK_KEY_6 to Key.N6,
+	VK_KEY_7 to Key.N7,
+	VK_KEY_8 to Key.N8,
+	VK_KEY_9 to Key.N9,
+	VK_KEY_A to Key.A,
+	VK_KEY_B to Key.B,
+	VK_KEY_C to Key.C,
+	VK_KEY_D to Key.D,
+	VK_KEY_E to Key.E,
+	VK_KEY_F to Key.F,
+	VK_KEY_G to Key.G,
+	VK_KEY_H to Key.H,
+	VK_KEY_I to Key.I,
+	VK_KEY_J to Key.J,
+	VK_KEY_K to Key.K,
+	VK_KEY_L to Key.L,
+	VK_KEY_M to Key.M,
+	VK_KEY_N to Key.N,
+	VK_KEY_O to Key.O,
+	VK_KEY_P to Key.P,
+	VK_KEY_Q to Key.Q,
+	VK_KEY_R to Key.R,
+	VK_KEY_S to Key.S,
+	VK_KEY_T to Key.T,
+	VK_KEY_U to Key.U,
+	VK_KEY_V to Key.V,
+	VK_KEY_W to Key.W,
+	VK_KEY_X to Key.X,
+	VK_KEY_Y to Key.Y,
+	VK_KEY_Z to Key.Z,
+	VK_MULTIPLY to Key.UNKNOWN,
+	VK_NONAME to Key.UNKNOWN,
+	VK_NUMPAD0 to Key.N0,
+	VK_NUMPAD1 to Key.N1,
+	VK_NUMPAD2 to Key.N2,
+	VK_NUMPAD3 to Key.N3,
+	VK_NUMPAD4 to Key.N4,
+	VK_NUMPAD5 to Key.N5,
+	VK_NUMPAD6 to Key.N6,
+	VK_NUMPAD7 to Key.N7,
+	VK_NUMPAD8 to Key.N8,
+	VK_NUMPAD9 to Key.N9,
+	VK_OEM_1 to Key.UNKNOWN,
+	VK_OEM_102 to Key.UNKNOWN,
+	VK_OEM_2 to Key.UNKNOWN,
+	VK_OEM_3 to Key.UNKNOWN,
+	VK_OEM_4 to Key.UNKNOWN,
+	VK_OEM_5 to Key.UNKNOWN,
+	VK_OEM_6 to Key.UNKNOWN,
+	VK_OEM_7 to Key.UNKNOWN,
+	VK_OEM_8 to Key.UNKNOWN,
+	VK_OEM_ATTN to Key.UNKNOWN,
+	VK_OEM_AUTO to Key.UNKNOWN,
+	VK_OEM_AX to Key.UNKNOWN,
+	VK_OEM_BACKTAB to Key.UNKNOWN,
+	VK_OEM_CLEAR to Key.UNKNOWN,
+	VK_OEM_COMMA to Key.UNKNOWN,
+	VK_OEM_COPY to Key.UNKNOWN,
+	VK_OEM_CUSEL to Key.UNKNOWN,
+	VK_OEM_ENLW to Key.UNKNOWN,
+	VK_OEM_FINISH to Key.UNKNOWN,
+	VK_OEM_FJ_LOYA to Key.UNKNOWN,
+	VK_OEM_FJ_MASSHOU to Key.UNKNOWN,
+	VK_OEM_FJ_ROYA to Key.UNKNOWN,
+	VK_OEM_FJ_TOUROKU to Key.UNKNOWN,
+	VK_OEM_JUMP to Key.UNKNOWN,
+	VK_OEM_MINUS to Key.UNKNOWN,
+	VK_OEM_PA1 to Key.UNKNOWN,
+	VK_OEM_PA2 to Key.UNKNOWN,
+	VK_OEM_PA3 to Key.UNKNOWN,
+	VK_OEM_PERIOD to Key.UNKNOWN,
+	VK_OEM_PLUS to Key.UNKNOWN,
+	VK_OEM_RESET to Key.UNKNOWN,
+	VK_OEM_WSCTRL to Key.UNKNOWN,
+	VK_PA1 to Key.UNKNOWN,
+	VK_PACKET to Key.UNKNOWN,
+	VK_PLAY to Key.UNKNOWN,
+	VK_PROCESSKEY to Key.UNKNOWN,
+	VK_RETURN to Key.ENTER,
+	VK_SELECT to Key.UNKNOWN,
+	VK_SEPARATOR to Key.UNKNOWN,
+	VK_SPACE to Key.SPACE,
+	VK_SUBTRACT to Key.UNKNOWN,
+	VK_TAB to Key.TAB,
+	VK_ZOOM to Key.UNKNOWN,
+	VK__none_ to Key.UNKNOWN,
+	VK_ACCEPT to Key.UNKNOWN,
+	VK_APPS to Key.UNKNOWN,
+	VK_BROWSER_BACK to Key.UNKNOWN,
+	VK_BROWSER_FAVORITES to Key.UNKNOWN,
+	VK_BROWSER_FORWARD to Key.UNKNOWN,
+	VK_BROWSER_HOME to Key.UNKNOWN,
+	VK_BROWSER_REFRESH to Key.UNKNOWN,
+	VK_BROWSER_SEARCH to Key.UNKNOWN,
+	VK_BROWSER_STOP to Key.UNKNOWN,
+	VK_CAPITAL to Key.UNKNOWN,
+	VK_CONVERT to Key.UNKNOWN,
+	VK_DELETE to Key.DELETE,
+	VK_DOWN to Key.DOWN,
+	VK_END to Key.END,
+	VK_F1 to Key.F1,
+	VK_F2 to Key.F2,
+	VK_F3 to Key.F3,
+	VK_F4 to Key.F4,
+	VK_F5 to Key.F5,
+	VK_F6 to Key.F6,
+	VK_F7 to Key.F7,
+	VK_F8 to Key.F8,
+	VK_F9 to Key.F9,
+	VK_F10 to Key.F10,
+	VK_F11 to Key.F11,
+	VK_F12 to Key.F12,
+	VK_F13 to Key.F13,
+	VK_F14 to Key.F14,
+	VK_F15 to Key.F15,
+	VK_F16 to Key.F16,
+	VK_F17 to Key.F17,
+	VK_F18 to Key.F18,
+	VK_F19 to Key.F19,
+	VK_F20 to Key.F20,
+	VK_F21 to Key.F21,
+	VK_F22 to Key.F22,
+	VK_F23 to Key.F23,
+	VK_F24 to Key.F24,
+	VK_FINAL to Key.UNKNOWN,
+	VK_HELP to Key.UNKNOWN,
+	VK_HOME to Key.HOME,
+	VK_ICO_00 to Key.UNKNOWN,
+	VK_INSERT to Key.INSERT,
+	VK_JUNJA to Key.UNKNOWN,
+	VK_KANA to Key.UNKNOWN,
+	VK_KANJI to Key.UNKNOWN,
+	VK_LAUNCH_APP1 to Key.UNKNOWN,
+	VK_LAUNCH_APP2 to Key.UNKNOWN,
+	VK_LAUNCH_MAIL to Key.UNKNOWN,
+	VK_LAUNCH_MEDIA_SELECT to Key.UNKNOWN,
+	VK_LBUTTON to Key.UNKNOWN,
+	VK_LCONTROL to Key.LEFT_CONTROL,
+	VK_LEFT to Key.LEFT,
+	VK_LMENU to Key.UNKNOWN,
+	VK_LSHIFT to Key.LEFT_SHIFT,
+	VK_LWIN to Key.LEFT_SUPER,
+	VK_MBUTTON to Key.UNKNOWN,
+	VK_MEDIA_NEXT_TRACK to Key.UNKNOWN,
+	VK_MEDIA_PLAY_PAUSE to Key.UNKNOWN,
+	VK_MEDIA_PREV_TRACK to Key.UNKNOWN,
+	VK_MEDIA_STOP to Key.UNKNOWN,
+	VK_MODECHANGE to Key.UNKNOWN,
+	VK_NEXT to Key.UNKNOWN,
+	VK_NONCONVERT to Key.UNKNOWN,
+	VK_NUMLOCK to Key.UNKNOWN,
+	VK_OEM_FJ_JISHO to Key.UNKNOWN,
+	VK_PAUSE to Key.PAUSE,
+	VK_PRINT to Key.PRINT_SCREEN,
+	VK_PRIOR to Key.UNKNOWN,
+	VK_RBUTTON to Key.UNKNOWN,
+	VK_RCONTROL to Key.RIGHT_CONTROL,
+	VK_RIGHT to Key.RIGHT,
+	VK_RMENU to Key.UNKNOWN,
+	VK_RSHIFT to Key.RIGHT_SHIFT,
+	VK_RWIN to Key.RIGHT_SUPER,
+	VK_SCROLL to Key.SCROLL_LOCK,
+	VK_SLEEP to Key.UNKNOWN,
+	VK_SNAPSHOT to Key.UNKNOWN,
+	VK_UP to Key.UP,
+	VK_VOLUME_DOWN to Key.UNKNOWN,
+	VK_VOLUME_MUTE to Key.UNKNOWN,
+	VK_VOLUME_UP to Key.UNKNOWN,
+	VK_XBUTTON1 to Key.UNKNOWN,
+	VK_XBUTTON2 to Key.UNKNOWN
 )

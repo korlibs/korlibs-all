@@ -1,8 +1,6 @@
 package com.soywiz.korim.format
 
-import com.soywiz.korio.stream.SyncStream
-import com.soywiz.korio.stream.readAll
-import com.soywiz.korio.stream.writeBytes
+import com.soywiz.korio.stream.*
 
 object JPEG : ImageFormat("jpg", "jpeg") {
 	override fun decodeHeader(s: SyncStream, props: ImageDecodingProps): ImageInfo? = try {

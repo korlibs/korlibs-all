@@ -1,6 +1,6 @@
 package com.soywiz.korge.ext.spriter.com.brashmonkey.spriter
 
-import com.soywiz.korio.JvmOverloads
+import com.soywiz.korio.*
 
 /**
  * Represents an entity of a Spriter SCML file.
@@ -8,7 +8,13 @@ import com.soywiz.korio.JvmOverloads
  * [.characterMaps] and [.objectInfos] may be empty.
  * @author Trixt0r
  */
-class Entity internal constructor(val id: Int, val name: String, animations: Int, characterMaps: Int, objectInfos: Int) {
+class Entity internal constructor(
+	val id: Int,
+	val name: String,
+	animations: Int,
+	characterMaps: Int,
+	objectInfos: Int
+) {
 	private val animations: Array<Animation>
 	private var animationPointer = 0
 	private val namedAnimations: HashMap<String, Animation>
@@ -181,12 +187,23 @@ class Entity internal constructor(val id: Int, val name: String, animations: Int
 	 * If the type is a Sprite it holds a list of frames. Otherwise it has a [.size] for debug drawing purposes.
 	 * @author Trixt0r
 	 */
-	class ObjectInfo @JvmOverloads internal constructor(val name: String, val type: ObjectType, val size: Dimension, val frames: ArrayList<FileReference> = ArrayList<FileReference>()) {
+	class ObjectInfo @JvmOverloads internal constructor(
+		val name: String,
+		val type: ObjectType,
+		val size: Dimension,
+		val frames: ArrayList<FileReference> = ArrayList<FileReference>()
+	) {
 		companion object {
 			val DUMMY = ObjectInfo("", ObjectType.Bone, Dimension(0f, 0f))
 		}
 
-		internal constructor(name: String, type: ObjectType, frames: ArrayList<FileReference>) : this(name, type, Dimension(0f, 0f), frames) {}
+		internal constructor(name: String, type: ObjectType, frames: ArrayList<FileReference>) : this(
+			name,
+			type,
+			Dimension(0f, 0f),
+			frames
+		) {
+		}
 
 		override fun toString(): String {
 			return "$name: $type, size: $size|frames:\n$frames"
@@ -199,7 +216,11 @@ class Entity internal constructor(val id: Int, val name: String, animations: Int
 	 * It holds an [CharacterMap.id] and a [CharacterMap.name].
 	 * @author Trixt0r
 	 */
-	class CharacterMap(val id: Int, val name: String, private val map: HashMap<FileReference, FileReference> = hashMapOf()) : MutableMap<FileReference, FileReference> by map {
+	class CharacterMap(
+		val id: Int,
+		val name: String,
+		private val map: HashMap<FileReference, FileReference> = hashMapOf()
+	) : MutableMap<FileReference, FileReference> by map {
 		companion object {
 			val DUMMY = CharacterMap(0, "")
 		}

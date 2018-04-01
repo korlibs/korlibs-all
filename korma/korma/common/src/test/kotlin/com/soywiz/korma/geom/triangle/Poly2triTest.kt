@@ -1,15 +1,11 @@
 package com.soywiz.korma.geom.triangle
 
-import com.soywiz.korma.assertEqualsDouble
-import com.soywiz.kds.PriorityQueue
-import com.soywiz.korma.geom.Orientation
-import com.soywiz.korma.geom.Point2d
+import com.soywiz.kds.*
+import com.soywiz.korma.*
+import com.soywiz.korma.geom.*
 import org.junit.Test
-import kotlin.math.sqrt
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertNotEquals
-import kotlin.test.assertTrue
+import kotlin.math.*
+import kotlin.test.*
 
 class EdgeTest {
 	private var p1: Point2d = Point2d(0, 0)
@@ -57,7 +53,13 @@ class OrientationTest {
 	@Test
 	fun testOrientationCollinear(): Unit {
 		assertEquals(Orientation.Companion.orient2d(Point2d(0, 0), Point2d(1, 1), Point2d(2, 2)), Orientation.COLLINEAR)
-		assertFalse(Orientation.Companion.orient2d(Point2d(-1, 0), Point2d(0, 0), Point2d(+1, 0)) != Orientation.COLLINEAR)
+		assertFalse(
+			Orientation.Companion.orient2d(
+				Point2d(-1, 0),
+				Point2d(0, 0),
+				Point2d(+1, 0)
+			) != Orientation.COLLINEAR
+		)
 	}
 
 	@Test
@@ -385,9 +387,15 @@ class SweepContextTest {
 
 	@Test
 	fun testInitTriangulation(): Unit {
-		assertEquals("[Vector2(0, 0), Vector2(0, 100), Vector2(100, 100), Vector2(100, 0), Vector2(10, 10), Vector2(10, 90), Vector2(90, 90), Vector2(90, 10)]", this.sweepContext.points.toString())
+		assertEquals(
+			"[Vector2(0, 0), Vector2(0, 100), Vector2(100, 100), Vector2(100, 0), Vector2(10, 10), Vector2(10, 90), Vector2(90, 90), Vector2(90, 10)]",
+			this.sweepContext.points.toString()
+		)
 		this.sweepContext.initTriangulation()
-		assertEquals("[Vector2(0, 0), Vector2(100, 0), Vector2(10, 10), Vector2(90, 10), Vector2(10, 90), Vector2(90, 90), Vector2(0, 100), Vector2(100, 100)]", this.sweepContext.points.toString())
+		assertEquals(
+			"[Vector2(0, 0), Vector2(100, 0), Vector2(10, 10), Vector2(90, 10), Vector2(10, 90), Vector2(90, 90), Vector2(0, 100), Vector2(100, 100)]",
+			this.sweepContext.points.toString()
+		)
 	}
 }
 
@@ -407,7 +415,10 @@ class SweepTest {
 		//Edge.traceList(this.sweepContext.edge_list);
 		this.sweep.triangulate()
 		assertEquals(2, this.sweepContext.triangles.size)
-		assertEquals("[Triangle(Vector2(0, 100), Vector2(100, 0), Vector2(100, 100)), Triangle(Vector2(0, 100), Vector2(0, 0), Vector2(100, 0))]", this.sweepContext.triangles.toString())
+		assertEquals(
+			"[Triangle(Vector2(0, 100), Vector2(100, 0), Vector2(100, 100)), Triangle(Vector2(0, 100), Vector2(0, 0), Vector2(100, 0))]",
+			this.sweepContext.triangles.toString()
+		)
 	}
 
 	@Test
@@ -415,7 +426,10 @@ class SweepTest {
 		this.sweepContext.addHole(holePoints)
 		this.sweep.triangulate()
 		assertEquals(8, this.sweepContext.triangles.size)
-		assertEquals("[Triangle(Vector2(0, 100), Vector2(10, 90), Vector2(100, 100)), Triangle(Vector2(10, 90), Vector2(90, 90), Vector2(100, 100)), Triangle(Vector2(90, 90), Vector2(100, 0), Vector2(100, 100)), Triangle(Vector2(90, 90), Vector2(90, 10), Vector2(100, 0)), Triangle(Vector2(90, 10), Vector2(10, 10), Vector2(100, 0)), Triangle(Vector2(10, 10), Vector2(0, 0), Vector2(100, 0)), Triangle(Vector2(0, 0), Vector2(10, 10), Vector2(10, 90)), Triangle(Vector2(0, 100), Vector2(0, 0), Vector2(10, 90))]", this.sweepContext.triangles.toString())
+		assertEquals(
+			"[Triangle(Vector2(0, 100), Vector2(10, 90), Vector2(100, 100)), Triangle(Vector2(10, 90), Vector2(90, 90), Vector2(100, 100)), Triangle(Vector2(90, 90), Vector2(100, 0), Vector2(100, 100)), Triangle(Vector2(90, 90), Vector2(90, 10), Vector2(100, 0)), Triangle(Vector2(90, 10), Vector2(10, 10), Vector2(100, 0)), Triangle(Vector2(10, 10), Vector2(0, 0), Vector2(100, 0)), Triangle(Vector2(0, 0), Vector2(10, 10), Vector2(10, 90)), Triangle(Vector2(0, 100), Vector2(0, 0), Vector2(10, 90))]",
+			this.sweepContext.triangles.toString()
+		)
 	}
 }
 

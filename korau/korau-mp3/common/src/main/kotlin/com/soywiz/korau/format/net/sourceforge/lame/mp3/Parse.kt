@@ -23,10 +23,11 @@
 
 package com.soywiz.korau.format.net.sourceforge.lame.mp3
 
-import com.soywiz.korio.JvmField
+import com.soywiz.korio.*
 
 class Parse {
-    @JvmField var layer: Int = -1;
-    //public int silent;
-    val mp3InputData = MP3Data()
+	@JvmField
+	var layer: Int = -1;
+	//public int silent;
+	val mp3InputData = MP3Data()
 }

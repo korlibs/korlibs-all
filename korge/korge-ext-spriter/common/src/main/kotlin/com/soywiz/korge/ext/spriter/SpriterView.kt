@@ -1,21 +1,22 @@
 package com.soywiz.korge.ext.spriter
 
 import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.*
-import com.soywiz.korge.render.RenderContext
-import com.soywiz.korge.time.TimeSpan
-import com.soywiz.korge.tween.Easing
-import com.soywiz.korge.tween.Easings
-import com.soywiz.korge.tween.get
-import com.soywiz.korge.tween.tween
-import com.soywiz.korge.view.View
-import com.soywiz.korge.view.Views
-import com.soywiz.korio.async.Signal
-import com.soywiz.korio.async.waitOne
-import com.soywiz.korio.math.toRadians
-import com.soywiz.korma.Matrix2d
-import kotlin.math.PI
+import com.soywiz.korge.render.*
+import com.soywiz.korge.time.*
+import com.soywiz.korge.tween.*
+import com.soywiz.korge.view.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.math.*
+import com.soywiz.korma.*
+import kotlin.math.*
 
-class SpriterView(views: Views, private val library: SpriterLibrary, private val entity: Entity, private var initialAnimationName1: String, private var initialAnimationName2: String) : View(views) {
+class SpriterView(
+	views: Views,
+	private val library: SpriterLibrary,
+	private val entity: Entity,
+	private var initialAnimationName1: String,
+	private var initialAnimationName2: String
+) : View(views) {
 	private val player = PlayerTweener(entity).apply {
 		firstPlayer.setAnimation(initialAnimationName1)
 		secondPlayer.setAnimation(initialAnimationName2)
@@ -127,7 +128,17 @@ class SpriterView(views: Views, private val library: SpriterLibrary, private val
 			//if (ttex.rotated) {
 			//	batch.addQuad(tex, -px.toFloat(), -py.toFloat(), tex.height.toFloat(), tex.width.toFloat(), t2, rotated = true)
 			//} else {
-			batch.drawQuad(tex, -px.toFloat(), -py.toFloat(), tex.width.toFloat(), tex.height.toFloat(), t2, colorMul = colorMul, colorAdd = colorAdd, rotated = false)
+			batch.drawQuad(
+				tex,
+				-px.toFloat(),
+				-py.toFloat(),
+				tex.width.toFloat(),
+				tex.height.toFloat(),
+				t2,
+				colorMul = colorMul,
+				colorAdd = colorAdd,
+				rotated = false
+			)
 			//}
 		}
 	}

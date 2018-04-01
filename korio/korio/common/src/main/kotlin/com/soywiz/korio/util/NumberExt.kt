@@ -3,11 +3,8 @@
 package com.soywiz.korio.util
 
 import com.soywiz.kmem.*
-import com.soywiz.korio.crypto.Hex
-import kotlin.math.abs
-import kotlin.math.ceil
-import kotlin.math.floor
-import kotlin.math.round
+import com.soywiz.korio.crypto.*
+import kotlin.math.*
 
 fun Int.nextAlignedTo(align: Int) = when {
 	align == 0 -> this
@@ -38,7 +35,8 @@ fun Long.toIntClamp(min: Int = Int.MIN_VALUE, max: Int = Int.MAX_VALUE): Int {
 
 fun Long.toUintClamp(min: Int = 0, max: Int = Int.MAX_VALUE) = this.toIntClamp(0, Int.MAX_VALUE)
 
-fun String.toNumber(): Number = this.toIntOrNull() as Number? ?: this.toLongOrNull() as Number? ?: this.toDoubleOrNull() as Number? ?: 0
+fun String.toNumber(): Number =
+	this.toIntOrNull() as Number? ?: this.toLongOrNull() as Number? ?: this.toDoubleOrNull() as Number? ?: 0
 
 val Float.niceStr: String get() = if (this.toLong().toFloat() == this) "${this.toLong()}" else "$this"
 val Double.niceStr: String get() = if (this.toLong().toDouble() == this) "${this.toLong()}" else "$this"
@@ -48,7 +46,8 @@ fun Double.convertRange(srcMin: Double, srcMax: Double, dstMin: Double, dstMax: 
 	return (dstMin + (dstMax - dstMin) * ratio)
 }
 
-fun Double.convertRangeClamped(srcMin: Double, srcMax: Double, dstMin: Double, dstMax: Double): Double = convertRange(srcMin, srcMax, dstMin, dstMax).clamp(dstMin, dstMax)
+fun Double.convertRangeClamped(srcMin: Double, srcMax: Double, dstMin: Double, dstMax: Double): Double =
+	convertRange(srcMin, srcMax, dstMin, dstMax).clamp(dstMin, dstMax)
 
 fun Long.convertRange(srcMin: Long, srcMax: Long, dstMin: Long, dstMax: Long): Long {
 	val ratio = (this - srcMin).toDouble() / (srcMax - srcMin).toDouble()
@@ -103,7 +102,7 @@ fun Int.toStringUnsigned(radix: Int): String {
 	} else {
 		var out = ""
 		while (temp != 0) {
-			val digit = temp urem  radix
+			val digit = temp urem radix
 			temp = temp udiv radix
 			out += Hex.DIGITS_UPPER[digit]
 		}
@@ -259,11 +258,11 @@ object BitUtils {
 	fun seh(x: Int): Int = (x shl 16) shr 16
 	fun wsbh(v: Int): Int = ((v and 0xFF00FF00.toInt()) ushr 8) or ((v and 0x00FF00FF) shl 8)
 	fun wsbw(v: Int): Int = (
-		((v and 0xFF000000.toInt()) ushr 24) or
-			((v and 0x00FF0000) ushr 8) or
-			((v and 0x0000FF00) shl 8) or
-			((v and 0x000000FF) shl 24)
-		)
+			((v and 0xFF000000.toInt()) ushr 24) or
+					((v and 0x00FF0000) ushr 8) or
+					((v and 0x0000FF00) shl 8) or
+					((v and 0x000000FF) shl 24)
+			)
 }
 
 fun Int.compareToUnsigned(that: Int) = IntEx.compareUnsigned(this, that)
@@ -277,6 +276,7 @@ infix inline fun Int.ult(that: Int) = (this xor (-0x80000000)) < (that xor (-0x8
 
 //infix fun Int.ult(that: Int) = IntEx.compareUnsigned(this, that) < 0
 infix fun Int.ule(that: Int) = IntEx.compareUnsigned(this, that) <= 0
+
 infix fun Int.ugt(that: Int) = IntEx.compareUnsigned(this, that) > 0
 infix fun Int.uge(that: Int) = IntEx.compareUnsigned(this, that) >= 0
 

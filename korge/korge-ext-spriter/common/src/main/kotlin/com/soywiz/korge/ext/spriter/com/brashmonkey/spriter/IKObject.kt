@@ -16,7 +16,7 @@ class IKObject
  * *
  * @param iterations the number of iterations.
  */
-(x: Float, y: Float, length: Int, iterations: Int) : Point(x, y) {
+	(x: Float, y: Float, length: Int, iterations: Int) : Point(x, y) {
 
 	/**
 	 * Returns the current set chain length.

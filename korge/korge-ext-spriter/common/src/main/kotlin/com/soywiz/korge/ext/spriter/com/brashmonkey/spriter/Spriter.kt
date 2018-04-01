@@ -1,13 +1,11 @@
 package com.soywiz.korge.ext.spriter.com.brashmonkey.spriter
 
-import com.soywiz.kmem.arraycopy
-import com.soywiz.korio.FileNotFoundException
-import com.soywiz.korio.JvmOverloads
-import com.soywiz.korio.lang.printStackTrace
-import com.soywiz.korio.stream.SyncStream
-import com.soywiz.korio.vfs.LocalVfs
-import com.soywiz.korio.vfs.VfsFile
-import kotlin.reflect.KClass
+import com.soywiz.kmem.*
+import com.soywiz.korio.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.stream.*
+import com.soywiz.korio.vfs.*
+import kotlin.reflect.*
 
 /**
  * A utility class for managing multiple [Loader] and [Player] instances.
@@ -42,7 +40,13 @@ object Spriter {
 	fun setLoaderDependencies(vararg loaderDependencies: Any) {
 		if (loaderDependencies == null) return
 		Spriter.loaderDependencies = arrayOfNulls<Any>(loaderDependencies.size + 1)
-		arraycopy((loaderDependencies as Array<Any>), 0, Spriter.loaderDependencies as Array<Any>, 1, loaderDependencies.size)
+		arraycopy(
+			(loaderDependencies as Array<Any>),
+			0,
+			Spriter.loaderDependencies as Array<Any>,
+			1,
+			loaderDependencies.size
+		)
 		loaderTypes = arrayOfNulls<KClass<*>>(loaderDependencies.size + 1)
 		loaderTypes[0] = Data::class
 		for (i in loaderDependencies.indices)
@@ -57,7 +61,13 @@ object Spriter {
 		if (drawerDependencies == null) return
 		Spriter.drawerDependencies = arrayOfNulls<Any>(drawerDependencies.size + 1)
 		Spriter.drawerDependencies[0] = null
-		arraycopy((drawerDependencies as Array<Any>), 0, Spriter.drawerDependencies as Array<Any>, 1, drawerDependencies.size)
+		arraycopy(
+			(drawerDependencies as Array<Any>),
+			0,
+			Spriter.drawerDependencies as Array<Any>,
+			1,
+			drawerDependencies.size
+		)
 		drawerTypes = arrayOfNulls<KClass<*>>(drawerDependencies.size + 1)
 		drawerTypes[0] = Loader::class
 		for (i in drawerDependencies.indices)
@@ -141,7 +151,8 @@ object Spriter {
 	 * *
 	 * @throws SpriterException if the given SCML file was not loaded yet
 	 */
-	@JvmOverloads fun newPlayer(scmlFile: String, entityIndex: Int, playerFactory: (Entity) -> Player = { Player(it) }): Player? {
+	@JvmOverloads
+	fun newPlayer(scmlFile: String, entityIndex: Int, playerFactory: (Entity) -> Player = { Player(it) }): Player? {
 		if (!loadedData.containsKey(scmlFile)) throw SpriterException("You have to load \"$scmlFile\" before using it!")
 		try {
 			val player = playerFactory(loadedData[scmlFile]!!.getEntity(entityIndex))

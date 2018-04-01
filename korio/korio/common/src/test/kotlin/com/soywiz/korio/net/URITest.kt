@@ -1,7 +1,7 @@
 package com.soywiz.korio.net
 
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class URITest {
 	data class UriInfo(val uri: String, val componentString: String, val isAbsolute: Boolean, val isOpaque: Boolean)
@@ -10,18 +10,73 @@ class URITest {
 		UriInfo("", componentString = "URI(path=)", isAbsolute = false, isOpaque = false),
 		UriInfo("hello", componentString = "URI(path=hello)", isAbsolute = false, isOpaque = false),
 		UriInfo("/hello", componentString = "URI(path=/hello)", isAbsolute = false, isOpaque = false),
-		UriInfo("/hello?world", componentString = "URI(path=/hello, query=world)", isAbsolute = false, isOpaque = false),
-		UriInfo("/hello?world?world", componentString = "URI(path=/hello, query=world?world)", isAbsolute = false, isOpaque = false),
+		UriInfo(
+			"/hello?world",
+			componentString = "URI(path=/hello, query=world)",
+			isAbsolute = false,
+			isOpaque = false
+		),
+		UriInfo(
+			"/hello?world?world",
+			componentString = "URI(path=/hello, query=world?world)",
+			isAbsolute = false,
+			isOpaque = false
+		),
 		UriInfo("http://", componentString = "URI(scheme=http, path=)", isAbsolute = true, isOpaque = false),
-		UriInfo("http://hello", componentString = "URI(scheme=http, host=hello, path=)", isAbsolute = true, isOpaque = false),
-		UriInfo("http://hello/", componentString = "URI(scheme=http, host=hello, path=/)", isAbsolute = true, isOpaque = false),
-		UriInfo("http://user:pass@hello", componentString = "URI(scheme=http, userInfo=user:pass, host=hello, path=)", isAbsolute = true, isOpaque = false),
-		UriInfo("http://user:pass@hello/path", componentString = "URI(scheme=http, userInfo=user:pass, host=hello, path=/path)", isAbsolute = true, isOpaque = false),
-		UriInfo("http://user:pass@hello/path?query", componentString = "URI(scheme=http, userInfo=user:pass, host=hello, path=/path, query=query)", isAbsolute = true, isOpaque = false),
-		UriInfo("http://hello/path", componentString = "URI(scheme=http, host=hello, path=/path)", isAbsolute = true, isOpaque = false),
-		UriInfo("http://hello?query", componentString = "URI(scheme=http, host=hello, path=, query=query)", isAbsolute = true, isOpaque = false),
-		UriInfo("mailto:demo@host.com", componentString = "URI(scheme=mailto, userInfo=demo, host=host.com, path=)", isAbsolute = true, isOpaque = true),
-		UriInfo("http://hello?query#hash", componentString = "URI(scheme=http, host=hello, path=, query=query, fragment=hash)", isAbsolute = true, isOpaque = false)
+		UriInfo(
+			"http://hello",
+			componentString = "URI(scheme=http, host=hello, path=)",
+			isAbsolute = true,
+			isOpaque = false
+		),
+		UriInfo(
+			"http://hello/",
+			componentString = "URI(scheme=http, host=hello, path=/)",
+			isAbsolute = true,
+			isOpaque = false
+		),
+		UriInfo(
+			"http://user:pass@hello",
+			componentString = "URI(scheme=http, userInfo=user:pass, host=hello, path=)",
+			isAbsolute = true,
+			isOpaque = false
+		),
+		UriInfo(
+			"http://user:pass@hello/path",
+			componentString = "URI(scheme=http, userInfo=user:pass, host=hello, path=/path)",
+			isAbsolute = true,
+			isOpaque = false
+		),
+		UriInfo(
+			"http://user:pass@hello/path?query",
+			componentString = "URI(scheme=http, userInfo=user:pass, host=hello, path=/path, query=query)",
+			isAbsolute = true,
+			isOpaque = false
+		),
+		UriInfo(
+			"http://hello/path",
+			componentString = "URI(scheme=http, host=hello, path=/path)",
+			isAbsolute = true,
+			isOpaque = false
+		),
+		UriInfo(
+			"http://hello?query",
+			componentString = "URI(scheme=http, host=hello, path=, query=query)",
+			isAbsolute = true,
+			isOpaque = false
+		),
+		UriInfo(
+			"mailto:demo@host.com",
+			componentString = "URI(scheme=mailto, userInfo=demo, host=host.com, path=)",
+			isAbsolute = true,
+			isOpaque = true
+		),
+		UriInfo(
+			"http://hello?query#hash",
+			componentString = "URI(scheme=http, host=hello, path=, query=query, fragment=hash)",
+			isAbsolute = true,
+			isOpaque = false
+		)
 	)
 
 	@Test

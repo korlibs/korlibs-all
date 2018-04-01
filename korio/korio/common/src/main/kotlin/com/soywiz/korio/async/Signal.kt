@@ -2,7 +2,7 @@
 
 package com.soywiz.korio.async
 
-import com.soywiz.korio.lang.Closeable
+import com.soywiz.korio.lang.*
 
 class Signal<T>(val onRegister: () -> Unit = {}) { //: AsyncSequence<T> {
 	inner class Node(val once: Boolean, val item: (T) -> Unit) : Closeable {

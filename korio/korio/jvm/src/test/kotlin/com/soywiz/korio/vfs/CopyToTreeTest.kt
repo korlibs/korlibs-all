@@ -1,20 +1,20 @@
 package com.soywiz.korio.vfs
 
-import com.soywiz.kds.lmapOf
-import com.soywiz.korio.async.map
-import com.soywiz.korio.async.syncTest
-import com.soywiz.korio.async.toList
-import com.soywiz.korio.stream.openAsync
+import com.soywiz.kds.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.stream.*
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class CopyToTreeTest {
 	@Test
 	fun name() = syncTest {
-		val mem = MemoryVfs(lmapOf(
-			"root.txt" to "hello".toByteArray().openAsync(),
-			"hello/world.txt" to "hello".toByteArray().openAsync()
-		))
+		val mem = MemoryVfs(
+			lmapOf(
+				"root.txt" to "hello".toByteArray().openAsync(),
+				"hello/world.txt" to "hello".toByteArray().openAsync()
+			)
+		)
 		val out = MemoryVfs()
 		mem.copyToTree(out)
 		assertEquals(

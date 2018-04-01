@@ -1,6 +1,6 @@
 package com.soywiz.dynarek
 
-import com.soywiz.dynarek.js.generateJsBody
+import com.soywiz.dynarek.js.*
 
 @JsName("Function")
 external class JsFunction(vararg args: dynamic)

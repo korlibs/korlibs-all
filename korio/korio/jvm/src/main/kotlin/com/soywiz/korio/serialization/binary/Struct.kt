@@ -1,18 +1,12 @@
 package com.soywiz.korio.serialization.binary
 
-import com.soywiz.kds.lmapOf
+import com.soywiz.kds.*
 import com.soywiz.kmem.*
-import com.soywiz.korio.lang.Charset
-import com.soywiz.korio.lang.toByteArray
-import com.soywiz.korio.lang.toString
-import com.soywiz.korio.stream.AsyncStream
-import com.soywiz.korio.stream.SyncStream
-import com.soywiz.korio.stream.readBytes
-import com.soywiz.korio.stream.writeBytes
-import com.soywiz.korio.util.ClassFactory
-import com.soywiz.korio.util.indexOfElse
-import java.lang.reflect.Field
-import java.nio.ByteOrder
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.stream.*
+import com.soywiz.korio.util.*
+import java.lang.reflect.*
+import java.nio.*
 
 interface Struct {
 	sealed class Type(val size: Int) {
@@ -34,15 +28,27 @@ interface Struct {
 
 }
 
-@Target(AnnotationTarget.FIELD, AnnotationTarget.CLASS) annotation class LE
-@Target(AnnotationTarget.FIELD, AnnotationTarget.CLASS) annotation class BE
+@Target(AnnotationTarget.FIELD, AnnotationTarget.CLASS)
+annotation class LE
+
+@Target(AnnotationTarget.FIELD, AnnotationTarget.CLASS)
+annotation class BE
 
 annotation class Size(val size: Int)
-@Target(AnnotationTarget.FIELD) annotation class Offset(val offset: Int)
-@Target(AnnotationTarget.FIELD) annotation class Count(val count: Int)
-@Target(AnnotationTarget.FIELD) annotation class DynamicCount(val fieldname: String)
-@Target(AnnotationTarget.FIELD) annotation class Encoding(val name: String)
-@Target(AnnotationTarget.FIELD) annotation class Order(val order: Int)
+@Target(AnnotationTarget.FIELD)
+annotation class Offset(val offset: Int)
+
+@Target(AnnotationTarget.FIELD)
+annotation class Count(val count: Int)
+
+@Target(AnnotationTarget.FIELD)
+annotation class DynamicCount(val fieldname: String)
+
+@Target(AnnotationTarget.FIELD)
+annotation class Encoding(val name: String)
+
+@Target(AnnotationTarget.FIELD)
+annotation class Order(val order: Int)
 //@Target(AnnotationTarget.FIELD) annotation class U1
 //@Target(AnnotationTarget.FIELD) annotation class U2
 //@Target(AnnotationTarget.FIELD) annotation class U4
@@ -56,7 +62,8 @@ class StructReflect<T>(val clazz: Class<T>) {
 	)
 
 	val cf = ClassFactory(clazz)
-	val constructor = clazz.declaredConstructors.firstOrNull() ?: throw IllegalArgumentException("Class $clazz doesn't have constructors")
+	val constructor = clazz.declaredConstructors.firstOrNull()
+			?: throw IllegalArgumentException("Class $clazz doesn't have constructors")
 	val fields = clazz.declaredFields
 	val globalBo = if (clazz.getAnnotation(LE::class.java) != null) {
 		ByteOrder.LITTLE_ENDIAN
@@ -121,7 +128,7 @@ class StructReflect<T>(val clazz: Class<T>) {
 	val specifiedSize = clazz.getAnnotation(Size::class.java)?.size
 	val calculatedSize = fieldsWithAnnotation.map { it.offset + it.type.size }.max()
 	val size = specifiedSize ?: calculatedSize ?: fieldsWithAnnotation.map { it.offset + it.type.size }.max()
-		?: throw IllegalArgumentException("Empty struct $clazz or without @Offset")
+	?: throw IllegalArgumentException("Empty struct $clazz or without @Offset")
 
 	@Suppress("UNCHECKED_CAST")
 	fun create(): T = cf.createDummy()
@@ -161,14 +168,24 @@ fun ByteArray.readStructElement(offset: Int, type: Struct.Type, littleEndian: Bo
 			val count = type.count
 			when (elementType) {
 				Struct.Type.S1 -> readByteArray(offset, count)
-				Struct.Type.S2 -> if (littleEndian) readShortArray_le(offset, count) else readShortArray_be(offset, count)
+				Struct.Type.S2 -> if (littleEndian) readShortArray_le(offset, count) else readShortArray_be(
+					offset,
+					count
+				)
 				Struct.Type.S4 -> if (littleEndian) readIntArray_le(offset, count) else readIntArray_be(offset, count)
 				Struct.Type.S8 -> if (littleEndian) readLongArray_le(offset, count) else readLongArray_be(offset, count)
-				Struct.Type.F4 -> if (littleEndian) readFloatArray_le(offset, count) else readFloatArray_be(offset, count)
-				Struct.Type.F8 -> if (littleEndian) readDoubleArray_le(offset, count) else readDoubleArray_be(offset, count)
+				Struct.Type.F4 -> if (littleEndian) readFloatArray_le(offset, count) else readFloatArray_be(
+					offset,
+					count
+				)
+				Struct.Type.F8 -> if (littleEndian) readDoubleArray_le(offset, count) else readDoubleArray_be(
+					offset,
+					count
+				)
 				else -> {
 
-					val al = (0 until count).map { readStructElement(offset + elementSize * it, elementType, littleEndian) }
+					val al =
+						(0 until count).map { readStructElement(offset + elementSize * it, elementType, littleEndian) }
 					val out = java.lang.reflect.Array.newInstance(al.first()::class.java, al.size)
 					for (n in 0 until count) java.lang.reflect.Array.set(out, n, al[n])
 					out

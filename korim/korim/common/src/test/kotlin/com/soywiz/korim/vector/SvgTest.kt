@@ -1,15 +1,12 @@
 package com.soywiz.korim.vector
 
-import com.soywiz.korim.format.PNG
-import com.soywiz.korim.format.writeTo
-import com.soywiz.korim.vector.format.SVG
-import com.soywiz.korio.async.syncTest
-import com.soywiz.korio.vfs.LocalVfs
-import org.junit.Test
+import com.soywiz.korim.vector.format.*
+import com.soywiz.korio.async.*
+import org.junit.*
 
 class SvgTest {
 	@Test
-		//@Ignore
+	//@Ignore
 	fun name() = syncTest {
 		val logo = SVG(SAMPLE_LOGO)
 		val img = logo.render().toBmp32()

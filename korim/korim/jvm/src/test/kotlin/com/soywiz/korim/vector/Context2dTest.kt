@@ -1,16 +1,13 @@
 package com.soywiz.korim.vector
 
-import com.soywiz.korim.bitmap.Bitmap32
-import com.soywiz.korim.bitmap.NativeImage
-import com.soywiz.korim.color.Colors
-import com.soywiz.korim.format.readBitmap
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
+import com.soywiz.korim.format.*
 import com.soywiz.korim.vector.format.SVG
-import com.soywiz.korio.async.syncTest
-import com.soywiz.korio.vfs.ResourcesVfs
-import org.junit.Assert
+import com.soywiz.korio.async.*
+import com.soywiz.korio.vfs.*
 import org.junit.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class Context2dTest {
 	init {
@@ -100,7 +97,8 @@ class Context2dTest {
 			</svg>
 		""")
 		*/
-		val svg = SVG("""
+		val svg = SVG(
+			"""
 			<svg height="400" width="450">
 			  <path id="lineAB" d="M 100 350 l 150 -300" stroke="red" stroke-width="3" fill="none" />
 			  <path id="lineBC" d="M 250 50 l 150 300" stroke="red" stroke-width="3" fill="none" />
@@ -120,7 +118,8 @@ class Context2dTest {
 			  </g>
 			  Sorry, your browser does not support inline SVG.
 			</svg>
-		""")
+		"""
+		)
 
 		ctx.draw(svg)
 

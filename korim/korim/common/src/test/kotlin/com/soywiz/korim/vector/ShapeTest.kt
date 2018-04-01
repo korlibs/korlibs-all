@@ -1,10 +1,9 @@
 package com.soywiz.korim.vector
 
-import com.soywiz.korim.bitmap.Bitmap32
-import com.soywiz.korim.color.Colors
-import com.soywiz.korma.Matrix2d
-import kotlin.test.Ignore
-import kotlin.test.assertEquals
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
+import com.soywiz.korma.*
+import kotlin.test.*
 
 class ShapeTest {
 	//@kotlin.test.Test

@@ -1,7 +1,6 @@
 package com.soywiz.korge.component.list
 
-import com.soywiz.korge.view.Container
-import com.soywiz.korge.view.View
+import com.soywiz.korge.view.*
 
 class GridViewList(
 	val row0: View,

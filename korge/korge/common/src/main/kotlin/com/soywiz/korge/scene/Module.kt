@@ -1,12 +1,11 @@
 package com.soywiz.korge.scene
 
-import com.soywiz.korge.plugin.KorgePlugin
-import com.soywiz.korge.view.Renderable
-import com.soywiz.korim.color.Colors
-import com.soywiz.korim.vector.Context2d
-import com.soywiz.korinject.AsyncInjector
-import com.soywiz.korma.geom.SizeInt
-import kotlin.reflect.KClass
+import com.soywiz.korge.plugin.*
+import com.soywiz.korim.color.*
+import com.soywiz.korim.vector.*
+import com.soywiz.korinject.*
+import com.soywiz.korma.geom.*
+import kotlin.reflect.*
 
 open class Module {
 	open val bgcolor: Int = Colors.BLACK

@@ -1,8 +1,11 @@
 package com.soywiz.korge.time
 
-import com.soywiz.korge.component.Component
-import com.soywiz.korge.view.View
-import com.soywiz.korio.coroutine.korioSuspendCoroutine
+import com.soywiz.korge.component.*
+import com.soywiz.korge.view.*
+import com.soywiz.korio.coroutine.*
+import kotlin.collections.arrayListOf
+import kotlin.collections.minusAssign
+import kotlin.collections.plusAssign
 
 class TimerComponents(view: View) : Component(view) {
 	private val timers = arrayListOf<(Int) -> Unit>()

@@ -1,12 +1,9 @@
 package com.soywiz.korge.view
 
-import com.soywiz.korge.time.TimeSpan
-import com.soywiz.korge.tween.Easing
-import com.soywiz.korge.tween.V2
-import com.soywiz.korge.tween.get
-import com.soywiz.korge.tween.tween
-import com.soywiz.korma.Matrix2d
-import com.soywiz.korma.geom.Rectangle
+import com.soywiz.korge.time.*
+import com.soywiz.korge.tween.*
+import com.soywiz.korma.*
+import com.soywiz.korma.geom.*
 
 class Camera(views: Views) : Container(views) {
 	override var width: Double = views.virtualWidth.toDouble()
@@ -29,13 +26,25 @@ class Camera(views: Views) : Container(views) {
 		return mat
 	}
 
-	fun getLocalMatrixFittingView(view: View?): Matrix2d = getLocalMatrixFittingGlobalRect((view ?: views.stage).globalBounds)
+	fun getLocalMatrixFittingView(view: View?): Matrix2d =
+		getLocalMatrixFittingGlobalRect((view ?: views.stage).globalBounds)
 
 	fun setTo(view: View?) = run { this.localMatrix = getLocalMatrixFittingView(view) }
 	fun setTo(rect: Rectangle) = run { this.localMatrix = getLocalMatrixFittingGlobalRect(rect) }
 
-	suspend fun tweenTo(view: View?, vararg vs: V2<*>, time: TimeSpan, easing: Easing = Easing.LINEAR) = this.tween(this::localMatrix[this.localMatrix.clone(), getLocalMatrixFittingView(view)], *vs, time = time, easing = easing)
-	suspend fun tweenTo(rect: Rectangle, vararg vs: V2<*>, time: TimeSpan, easing: Easing = Easing.LINEAR) = this.tween(this::localMatrix[this.localMatrix.clone(), getLocalMatrixFittingGlobalRect(rect)], *vs, time = time, easing = easing)
+	suspend fun tweenTo(view: View?, vararg vs: V2<*>, time: TimeSpan, easing: Easing = Easing.LINEAR) = this.tween(
+		this::localMatrix[this.localMatrix.clone(), getLocalMatrixFittingView(view)],
+		*vs,
+		time = time,
+		easing = easing
+	)
+
+	suspend fun tweenTo(rect: Rectangle, vararg vs: V2<*>, time: TimeSpan, easing: Easing = Easing.LINEAR) = this.tween(
+		this::localMatrix[this.localMatrix.clone(), getLocalMatrixFittingGlobalRect(rect)],
+		*vs,
+		time = time,
+		easing = easing
+	)
 }
 
 fun Views.camera() = Camera(this)

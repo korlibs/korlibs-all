@@ -1,8 +1,7 @@
 package com.soywiz.korim.format
 
-import com.soywiz.korim.bitmap.Bitmap
-import com.soywiz.korim.vector.Context2d
-import com.soywiz.korim.vector.render
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.vector.*
 
 suspend fun Bitmap.showImageAndWaitExt() = showImageAndWait(this)
 suspend fun ImageData.showImagesAndWaitExt() = showImagesAndWait(this)

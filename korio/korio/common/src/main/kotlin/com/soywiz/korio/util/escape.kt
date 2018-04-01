@@ -1,6 +1,6 @@
 package com.soywiz.korio.util
 
-import com.soywiz.korio.lang.format
+import com.soywiz.korio.lang.*
 
 fun String.escape(): String {
 	val out = StringBuilder()

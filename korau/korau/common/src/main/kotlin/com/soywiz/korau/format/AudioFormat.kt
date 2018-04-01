@@ -2,11 +2,10 @@
 
 package com.soywiz.korau.format
 
-import com.soywiz.kds.Extra
-import com.soywiz.korio.lang.printStackTrace
+import com.soywiz.kds.*
+import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korio.vfs.PathInfo
-import com.soywiz.korio.vfs.VfsFile
+import com.soywiz.korio.vfs.*
 
 open class AudioFormat(vararg exts: String) {
 	val extensions = exts.map { it.toLowerCase().trim() }.toSet()
@@ -24,7 +23,11 @@ open class AudioFormat(vararg exts: String) {
 	suspend fun decode(data: AsyncStream): AudioData? = decodeStream(data)?.toData()
 	suspend open fun encode(data: AudioData, out: AsyncOutputStream, filename: String): Unit = TODO()
 
-	suspend fun encodeToByteArray(data: AudioData, filename: String = "out.wav", format: AudioFormat = this): ByteArray {
+	suspend fun encodeToByteArray(
+		data: AudioData,
+		filename: String = "out.wav",
+		format: AudioFormat = this
+	): ByteArray {
 		val out = MemorySyncStream()
 		format.encode(data, out.toAsync(), filename)
 		return out.toByteArray()
@@ -64,11 +67,13 @@ class AudioFormats : AudioFormat() {
 
 	suspend override fun encode(data: AudioData, out: AsyncOutputStream, filename: String) {
 		val ext = PathInfo(filename).extensionLC
-		val format = formats.firstOrNull { ext in it.extensions } ?: throw UnsupportedOperationException("Don't know how to generate file for extension '$ext'")
+		val format = formats.firstOrNull { ext in it.extensions }
+				?: throw UnsupportedOperationException("Don't know how to generate file for extension '$ext'")
 		return format.encode(data, out, filename)
 	}
 }
 
-suspend fun VfsFile.readSoundInfo(formats: AudioFormats = defaultAudioFormats) = this.openUse2 { formats.tryReadInfo(this) }
+suspend fun VfsFile.readSoundInfo(formats: AudioFormats = defaultAudioFormats) =
+	this.openUse2 { formats.tryReadInfo(this) }
 
 fun AudioFormats.registerStandard(): AudioFormats = this.apply { register(WAV, OGG, MP3) }

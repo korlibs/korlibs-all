@@ -1,8 +1,7 @@
 package com.soywiz.korau.sound
 
-import com.soywiz.korau.HtmlNativeSoundProvider
-import com.soywiz.korau.HtmlNativeSoundSpecialReader
-import com.soywiz.korio.vfs.register
+import com.soywiz.korau.*
+import com.soywiz.korio.vfs.*
 
 actual object NativeNativeSoundProvider {
 	actual val instance: NativeSoundProvider by lazy { HtmlNativeSoundProvider() }

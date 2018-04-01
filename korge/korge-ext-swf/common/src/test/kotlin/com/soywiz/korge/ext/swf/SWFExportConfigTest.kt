@@ -1,9 +1,8 @@
 package com.soywiz.korge.ext.swf
 
-import com.soywiz.korim.vector.Context2d
-import com.soywiz.korio.serialization.yaml.Yaml
-import org.junit.Assert
-import org.junit.Test
+import com.soywiz.korim.vector.*
+import com.soywiz.korio.serialization.yaml.*
+import org.junit.*
 
 class SWFExportConfigTest {
 	@Test

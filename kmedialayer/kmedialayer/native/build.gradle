@@ -5,53 +5,53 @@ def includeIphone = false
 //konan.targets = ['iphone', 'iphone_sim', 'macbook', 'linux', 'raspberrypi', 'android_arm32', 'android_arm64', 'wasm32']
 
 if (includeIphone) {
-    konan.targets = ['iphone', 'macbook', 'mingw']
+	konan.targets = ['iphone', 'macbook', 'mingw']
 } else {
-    konan.targets = ['macbook', 'mingw']
+	konan.targets = ['macbook', 'mingw']
 }
 
 konanArtifacts {
-    program('kmedialayer-native') {
-        enableMultiplatform true
-        enableOptimizations true
+	program('kmedialayer-native') {
+		enableMultiplatform true
+		enableOptimizations true
 
-        srcDir "src/main/kotlin"
+		srcDir "src/main/kotlin"
 
-        target 'macbook', {
-            srcDir "src/main/kotlin_macos"
-        }
+		target 'macbook', {
+			srcDir "src/main/kotlin_macos"
+		}
 
-        target 'mingw', {
-            srcDir "src/main/kotlin_mingw"
-        }
+		target 'mingw', {
+			srcDir "src/main/kotlin_mingw"
+		}
 
-        target 'linux', {
-            linkerOpts '-L/usr/lib/x86_64-linux-gnu -lSDL2 -lSDL2_image'
-        }
+		target 'linux', {
+			linkerOpts '-L/usr/lib/x86_64-linux-gnu -lSDL2 -lSDL2_image'
+		}
 
-        target 'raspberrypi', {
-            linkerOpts '-lSDL2 -lSDL2_image'
-        }
-    }
+		target 'raspberrypi', {
+			linkerOpts '-lSDL2 -lSDL2_image'
+		}
+	}
 }
 
 compileKonan {
-    doLast {
-        konanArtifacts['kmedialayer-native'].forEach() { task ->
-            copy {
-                from 'src/main/resources'
-                into task.artifact.parentFile
-            }
-            copy {
-                from '../common/src/main/resources'
-                into task.artifact.parentFile
-            }
-        }
-    }
+	doLast {
+		konanArtifacts['kmedialayer-native'].forEach() { task ->
+			copy {
+				from 'src/main/resources'
+				into task.artifact.parentFile
+			}
+			copy {
+				from '../common/src/main/resources'
+				into task.artifact.parentFile
+			}
+		}
+	}
 }
 
 dependencies {
-    expectedBy project(':kmedialayer-common')
+	expectedBy project(':kmedialayer-common')
 }
 
 //test.dependsOn(run)

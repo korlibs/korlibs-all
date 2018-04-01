@@ -1,12 +1,13 @@
 package com.soywiz.kds
 
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class Array2Test {
 	@Test
 	fun name() {
-		val map = Array2.fromString(Tiles.MAPPING, -1, """
+		val map = Array2.fromString(
+			Tiles.MAPPING, -1, """
 			:    #####
 			:    #   #
 			:    #$  #
@@ -18,7 +19,8 @@ class Array2Test {
 			:##### ### #@##  ..#
 			:    #     #########
 			:    #######
-		""")
+		"""
+		)
 
 
 		val output = map.toString(Tiles.REV_MAPPING, margin = ":")

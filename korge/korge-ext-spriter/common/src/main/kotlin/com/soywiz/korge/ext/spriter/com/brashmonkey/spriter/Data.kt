@@ -8,7 +8,15 @@ package com.soywiz.korge.ext.spriter.com.brashmonkey.spriter
  * and getFolder().
  * @author Trixt0r
  */
-class Data(val scmlVersion: String, val generator: String, val generatorVersion: String, val pixelMode: PixelMode, folders: Int, entities: Int, val atlases: List<String>) {
+class Data(
+	val scmlVersion: String,
+	val generator: String,
+	val generatorVersion: String,
+	val pixelMode: PixelMode,
+	folders: Int,
+	entities: Int,
+	val atlases: List<String>
+) {
 
 	/**
 	 * Represents the rendering mode stored in the spriter data root.
@@ -75,9 +83,9 @@ class Data(val scmlVersion: String, val generator: String, val generatorVersion:
 	 */
 	override fun toString(): String {
 		var toReturn = "" + this::class +
-			"|[Version: " + scmlVersion +
-			", Generator: " + generator +
-			" (" + generatorVersion + ")]"
+				"|[Version: " + scmlVersion +
+				", Generator: " + generator +
+				" (" + generatorVersion + ")]"
 		for (folder in folders)
 			toReturn += "\n" + folder
 		for (entity in entities)

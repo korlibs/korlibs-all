@@ -1,36 +1,27 @@
 package com.soywiz.korio
 
-import com.soywiz.kmem.arraycopy
+import com.soywiz.kds.*
+import com.soywiz.kmem.*
 import com.soywiz.korio.async.*
-import com.soywiz.korio.crypto.Hex
-import com.soywiz.kds.LinkedList
-import com.soywiz.kds.lmapOf
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korio.lang.Closeable
-import com.soywiz.korio.net.AsyncClient
-import com.soywiz.korio.net.AsyncServer
-import com.soywiz.korio.net.AsyncSocketFactory
-import com.soywiz.korio.net.http.Http
-import com.soywiz.korio.net.http.HttpClient
-import com.soywiz.korio.net.http.HttpFactory
-import com.soywiz.korio.net.http.HttpServer
-import com.soywiz.korio.net.ws.WebSocketClient
-import com.soywiz.korio.net.ws.WebSocketClientFactory
-import com.soywiz.korio.stream.AsyncStream
-import com.soywiz.korio.stream.openAsync
-import com.soywiz.korio.stream.readAll
-import com.soywiz.korio.util.OS
+import com.soywiz.korio.crypto.*
+import com.soywiz.korio.error.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.net.*
+import com.soywiz.korio.net.http.*
+import com.soywiz.korio.net.ws.*
+import com.soywiz.korio.stream.*
+import com.soywiz.korio.util.*
 import com.soywiz.korio.vfs.*
 import com.soywiz.kzlib.*
 import org.khronos.webgl.*
+import org.khronos.webgl.set
 import org.w3c.dom.*
-import org.w3c.xhr.ARRAYBUFFER
-import org.w3c.xhr.XMLHttpRequest
-import org.w3c.xhr.XMLHttpRequestResponseType
-import kotlin.browser.window
-import kotlin.coroutines.experimental.suspendCoroutine
-import kotlin.math.min
-import kotlin.reflect.KClass
+import org.w3c.xhr.*
+import kotlin.browser.*
+import kotlin.collections.set
+import kotlin.coroutines.experimental.*
+import kotlin.math.*
+import kotlin.reflect.*
 
 actual annotation class Synchronized
 actual annotation class JvmField
@@ -38,7 +29,11 @@ actual annotation class JvmStatic
 actual annotation class JvmOverloads
 actual annotation class Transient
 
-actual annotation class Language actual constructor(actual val value: String, actual val prefix: String = "", actual val suffix: String = "")
+actual annotation class Language actual constructor(
+	actual val value: String,
+	actual val prefix: String = "",
+	actual val suffix: String = ""
+)
 
 actual open class IOException actual constructor(msg: String) : Exception(msg)
 actual open class EOFException actual constructor(msg: String) : IOException(msg)
@@ -120,7 +115,8 @@ actual object KorioNative {
 	actual val asyncSocketFactory: AsyncSocketFactory by lazy {
 		object : AsyncSocketFactory() {
 			suspend override fun createClient(): AsyncClient = NodeJsAsyncClient()
-			suspend override fun createServer(port: Int, host: String, backlog: Int): AsyncServer = NodeJsAsyncServer().init(port, host, backlog)
+			suspend override fun createServer(port: Int, host: String, backlog: Int): AsyncServer =
+				NodeJsAsyncServer().init(port, host, backlog)
 		}
 	}
 
@@ -194,9 +190,11 @@ actual object KorioNative {
 		actual fun deflate(data: ByteArray, level: Int): ByteArray {
 			when {
 				OS.isNodejs -> {
-					return zlib.deflateSync(data.toNodeJsBuffer(), jsObject(
-						"level" to level
-					)).unsafeCast<NodeJsBuffer>().toByteArray()
+					return zlib.deflateSync(
+						data.toNodeJsBuffer(), jsObject(
+							"level" to level
+						)
+					).unsafeCast<NodeJsBuffer>().toByteArray()
 				}
 				else -> {
 					val o = ByteArrayOutputStream()
@@ -218,7 +216,8 @@ actual object KorioNative {
 		val hash = require("crypto").createHash(hname)
 
 		// @TODO: Optimize this!
-		actual suspend fun update(data: ByteArray, offset: Int, size: Int): Unit = update(data.copyOfRange(offset, offset + size))
+		actual suspend fun update(data: ByteArray, offset: Int, size: Int): Unit =
+			update(data.copyOfRange(offset, offset + size))
 
 		suspend fun update(data: ByteArray): Unit = hash.update(data)
 		// @TODO: Optimize: Can return ByteArray directly?
@@ -233,7 +232,9 @@ actual object KorioNative {
 			else -> invalidOp("Unsupported hmac '$name'")
 		}
 		val hmac = require("crypto").createHmac(hname, key)
-		actual suspend fun update(data: ByteArray, offset: Int, size: Int): Unit = update(data.copyOfRange(offset, offset + size))
+		actual suspend fun update(data: ByteArray, offset: Int, size: Int): Unit =
+			update(data.copyOfRange(offset, offset + size))
+
 		suspend fun update(data: ByteArray): Unit = hmac.update(data)
 		actual suspend fun finalize(): ByteArray = Hex.decode(hmac.digest("hex"))
 	}
@@ -509,7 +510,12 @@ fun jsToObjectMap(obj: dynamic): Map<String, Any?>? {
 
 
 class HttpClientBrowserJs : HttpClient() {
-	suspend override fun requestInternal(method: Http.Method, url: String, headers: Http.Headers, content: AsyncStream?): Response = Promise.create { deferred ->
+	suspend override fun requestInternal(
+		method: Http.Method,
+		url: String,
+		headers: Http.Headers,
+		content: AsyncStream?
+	): Response = Promise.create { deferred ->
 		val xhr = XMLHttpRequest()
 		xhr.open(method.name, url, true)
 		xhr.responseType = XMLHttpRequestResponseType.ARRAYBUFFER
@@ -519,12 +525,14 @@ class HttpClientBrowserJs : HttpClient() {
 			val out = ByteArray(u8array.length)
 			for (n in out.indices) out[n] = u8array[n]
 			//js("debugger;")
-			deferred.resolve(Response(
-				status = xhr.status.toInt(),
-				statusText = xhr.statusText,
-				headers = Http.Headers(xhr.getAllResponseHeaders()),
-				content = out.openAsync()
-			))
+			deferred.resolve(
+				Response(
+					status = xhr.status.toInt(),
+					statusText = xhr.statusText,
+					headers = Http.Headers(xhr.getAllResponseHeaders()),
+					content = out.openAsync()
+				)
+			)
 		}
 
 		xhr.onerror = { e ->
@@ -552,10 +560,17 @@ class HttpClientBrowserJs : HttpClient() {
 
 
 class JsWebSocketClientFactory : WebSocketClientFactory() {
-	override suspend fun create(url: String, protocols: List<String>?, origin: String?, wskey: String?, debug: Boolean): WebSocketClient = JsWebSocketClient(url, protocols, DEBUG = debug).apply { init() }
+	override suspend fun create(
+		url: String,
+		protocols: List<String>?,
+		origin: String?,
+		wskey: String?,
+		debug: Boolean
+	): WebSocketClient = JsWebSocketClient(url, protocols, DEBUG = debug).apply { init() }
 }
 
-class JsWebSocketClient(url: String, protocols: List<String>?, val DEBUG: Boolean) : WebSocketClient(url, protocols, true) {
+class JsWebSocketClient(url: String, protocols: List<String>?, val DEBUG: Boolean) :
+	WebSocketClient(url, protocols, true) {
 	val jsws = if (protocols != null) {
 		WebSocket(url, arrayOf(*protocols.toTypedArray()))
 	} else {
@@ -613,7 +628,8 @@ class JsWebSocketClient(url: String, protocols: List<String>?, val DEBUG: Boolea
 }
 
 data class JsStat(val size: Double, var isDirectory: Boolean = false) {
-	fun toStat(path: String, vfs: Vfs): VfsStat = vfs.createExistsStat(path, isDirectory = isDirectory, size = size.toLong())
+	fun toStat(path: String, vfs: Vfs): VfsStat =
+		vfs.createExistsStat(path, isDirectory = isDirectory, size = size.toLong())
 }
 
 class CRC32 {
@@ -757,7 +773,9 @@ class KZlibInflater(private var nowrap: Boolean = false) {
 	val totalIn: Int get() = bytesRead.toInt()
 	val totalOut: Int get() = bytesWritten.toInt()
 	fun setInput(b: ByteArray, off: Int = 0, len: Int = b.size) = run { inf!!.setInput(b, off, len, true) }
-	fun setDictionary(b: ByteArray, off: Int = 0, len: Int = b.size) = run { inf!!.setDictionary(b, off, len); needDict = false }
+	fun setDictionary(b: ByteArray, off: Int = 0, len: Int = b.size) =
+		run { inf!!.setDictionary(b, off, len); needDict = false }
+
 	fun needsInput(): Boolean = remaining <= 0
 	fun needsDictionary(): Boolean = needDict
 	fun finished(): Boolean = inf!!.finished()

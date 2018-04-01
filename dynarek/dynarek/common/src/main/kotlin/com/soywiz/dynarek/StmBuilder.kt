@@ -43,7 +43,8 @@ class StmBuilder<TRet : Any, T0 : Any, T1 : Any>(val ret: KClass<TRet>, val t0: 
 	infix fun DExpr<Int>.gt(that: DExpr<Int>) = DBinopIntBool(this, Compop.GT, that)
 	infix fun DExpr<Int>.lt(that: DExpr<Int>) = DBinopIntBool(this, Compop.LT, that)
 
-	inline operator fun <reified T : Any, TR> DExpr<T>.get(prop: KMutableProperty1<T, TR>): DFieldAccess<T, TR> = DFieldAccess(T::class, this, prop)
+	inline operator fun <reified T : Any, TR> DExpr<T>.get(prop: KMutableProperty1<T, TR>): DFieldAccess<T, TR> =
+		DFieldAccess(T::class, this, prop)
 
 	//inline operator fun <reified T : Any, TR> DExpr<T>.get(func: KFunction1<T, TR>): DInstanceMethod1<T, TR> = DInstanceMethod1(T::class, this, func)
 
@@ -53,9 +54,19 @@ class StmBuilder<TRet : Any, T0 : Any, T1 : Any>(val ret: KClass<TRet>, val t0: 
 
 	fun <T> STM(expr: DExpr<T>) = stms.add(DStmExpr(expr))
 
-	inline operator fun <reified TThis : Any, TR : Any> KFunction1<TThis, TR>.invoke(p0: DExpr<TThis>): DExpr<TR> = DExprInvoke1<TThis, TR>(TThis::class, this, p0)
-	inline operator fun <reified TThis : Any, T1 : Any, TR : Any> KFunction2<TThis, T1, TR>.invoke(p0: DExpr<TThis>, p1: DExpr<T1>): DExpr<TR> = DExprInvoke2<TThis, T1, TR>(TThis::class, this, p0, p1)
-	inline operator fun <reified TThis : Any, T1 : Any, T2 : Any, TR : Any> KFunction3<TThis, T1, T2, TR>.invoke(p0: DExpr<TThis>, p1: DExpr<T1>, p2: DExpr<T2>): DExpr<TR> = DExprInvoke3<TThis, T1, T2, TR>(TThis::class, this, p0, p1, p2)
+	inline operator fun <reified TThis : Any, TR : Any> KFunction1<TThis, TR>.invoke(p0: DExpr<TThis>): DExpr<TR> =
+		DExprInvoke1<TThis, TR>(TThis::class, this, p0)
+
+	inline operator fun <reified TThis : Any, T1 : Any, TR : Any> KFunction2<TThis, T1, TR>.invoke(
+		p0: DExpr<TThis>,
+		p1: DExpr<T1>
+	): DExpr<TR> = DExprInvoke2<TThis, T1, TR>(TThis::class, this, p0, p1)
+
+	inline operator fun <reified TThis : Any, T1 : Any, T2 : Any, TR : Any> KFunction3<TThis, T1, T2, TR>.invoke(
+		p0: DExpr<TThis>,
+		p1: DExpr<T1>,
+		p2: DExpr<T2>
+	): DExpr<TR> = DExprInvoke3<TThis, T1, T2, TR>(TThis::class, this, p0, p1, p2)
 
 	fun (StmBuilder<TRet, T0, T1>.() -> Unit).build(): DStm {
 		val builder = createBuilder()

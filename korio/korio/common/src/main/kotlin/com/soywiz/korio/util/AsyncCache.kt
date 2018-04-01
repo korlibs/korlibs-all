@@ -1,8 +1,6 @@
 package com.soywiz.korio.util
 
-import com.soywiz.korio.async.Promise
-import com.soywiz.korio.async.async2
-import com.soywiz.korio.async.spawn
+import com.soywiz.korio.async.*
 
 class AsyncCache {
 	@PublishedApi

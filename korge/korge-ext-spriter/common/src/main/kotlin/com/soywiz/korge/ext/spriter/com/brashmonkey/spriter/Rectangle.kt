@@ -1,8 +1,7 @@
 package com.soywiz.korge.ext.spriter.com.brashmonkey.spriter
 
-import com.soywiz.korio.JvmStatic
-import kotlin.math.max
-import kotlin.math.min
+import com.soywiz.korio.*
+import kotlin.math.*
 
 /**
  * Represents a 2D rectangle with left, top, right and bottom bounds.
@@ -115,7 +114,7 @@ data class Rectangle(var left: Float = 0f, var top: Float = 0f, var right: Float
 		@JvmStatic
 		fun areIntersecting(rect1: Rectangle, rect2: Rectangle): Boolean {
 			return rect1.isInside(rect2.left, rect2.top) || rect1.isInside(rect2.right, rect2.top)
-				|| rect1.isInside(rect2.left, rect2.bottom) || rect1.isInside(rect2.right, rect2.bottom)
+					|| rect1.isInside(rect2.left, rect2.bottom) || rect1.isInside(rect2.right, rect2.bottom)
 		}
 
 		/**

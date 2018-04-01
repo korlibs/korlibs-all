@@ -1,10 +1,8 @@
 package com.soywiz.korim.color
 
-import com.soywiz.korio.Transient
+import com.soywiz.korio.*
 import com.soywiz.korio.util.clamp
-import com.soywiz.korma.interpolation.Interpolable
-import com.soywiz.korma.interpolation.MutableInterpolable
-import com.soywiz.korma.interpolation.interpolate
+import com.soywiz.korma.interpolation.*
 import com.soywiz.korma.numeric.niceStr
 
 data class ColorTransform(
@@ -35,9 +33,11 @@ data class ColorTransform(
 		ratio.interpolate(l.aA, r.aA)
 	)
 
-	override fun interpolateWith(other: ColorTransform, ratio: Double): ColorTransform = ColorTransform().setToInterpolated(this, other, ratio)
+	override fun interpolateWith(other: ColorTransform, ratio: Double): ColorTransform =
+		ColorTransform().setToInterpolated(this, other, ratio)
 
-	@Transient private var dirty = true
+	@Transient
+	private var dirty = true
 
 	private var _colorMul: Int = 0
 	private var _colorAdd: Int = 0
@@ -50,7 +50,11 @@ data class ColorTransform(
 		}
 	}
 
-	private fun packAdd(r: Int, g: Int, b: Int, a: Int) = (packAddComponent(r) shl 0) or (packAddComponent(g) shl 8) or (packAddComponent(b) shl 16) or (packAddComponent(a) shl 24)
+	private fun packAdd(r: Int, g: Int, b: Int, a: Int) =
+		(packAddComponent(r) shl 0) or (packAddComponent(g) shl 8) or (packAddComponent(b) shl 16) or (packAddComponent(
+			a
+		) shl 24)
+
 	private fun packAddComponent(v: Int) = (0x7f + (v shr 1)).clamp(0, 0xFF)
 	private fun unpackAddComponent(v: Int): Int = (v - 0x7F) * 2
 
@@ -168,11 +172,14 @@ data class ColorTransform(
 		l.aA + r.aA
 	)
 
-	override fun toString(): String = "ColorTransform(*[${mR.niceStr}, ${mG.niceStr}, ${mB.niceStr}, ${mA.niceStr}]+[$aR, $aG, $aB, $aA])"
+	override fun toString(): String =
+		"ColorTransform(*[${mR.niceStr}, ${mG.niceStr}, ${mB.niceStr}, ${mA.niceStr}]+[$aR, $aG, $aB, $aA])"
 
-	fun isIdentity(): Boolean = (mR == 1.0) && (mG == 1.0) && (mB == 1.0) && (mA == 1.0) && (aR == 0) && (aG == 0) && (aB == 0) && (aA == 0)
+	fun isIdentity(): Boolean =
+		(mR == 1.0) && (mG == 1.0) && (mB == 1.0) && (mA == 1.0) && (aR == 0) && (aG == 0) && (aB == 0) && (aA == 0)
 
-	fun hasJustAlpha(): Boolean = (mR == 1.0) && (mG == 1.0) && (mB == 1.0) && (aR == 0) && (aG == 0) && (aB == 0) && (aA == 0)
+	fun hasJustAlpha(): Boolean =
+		(mR == 1.0) && (mG == 1.0) && (mB == 1.0) && (aR == 0) && (aG == 0) && (aB == 0) && (aA == 0)
 
 	fun setToIdentity() = setTo(1.0, 1.0, 1.0, 1.0, 0, 0, 0, 0)
 
@@ -185,4 +192,22 @@ data class ColorTransform(
 	}
 }
 
-inline fun ColorTransform(mR: Number, mG: Number, mB: Number, mA: Number, aR: Number, aG: Number, aB: Number, aA: Number) = ColorTransform(mR.toDouble(), mG.toDouble(), mB.toDouble(), mA.toDouble(), aR.toInt(), aG.toInt(), aB.toInt(), aA.toInt())
+inline fun ColorTransform(
+	mR: Number,
+	mG: Number,
+	mB: Number,
+	mA: Number,
+	aR: Number,
+	aG: Number,
+	aB: Number,
+	aA: Number
+) = ColorTransform(
+	mR.toDouble(),
+	mG.toDouble(),
+	mB.toDouble(),
+	mA.toDouble(),
+	aR.toInt(),
+	aG.toInt(),
+	aB.toInt(),
+	aA.toInt()
+)

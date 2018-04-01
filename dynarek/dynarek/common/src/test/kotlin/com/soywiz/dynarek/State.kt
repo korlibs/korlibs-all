@@ -4,9 +4,12 @@ data class State(
 	@JvmField var a: Int = 0,
 	@JvmField var b: Int = 0
 ) {
-	@JvmField var f0: Float = 0f
-	@JvmField var f1: Float = 0f
-	@JvmField var f2: Float = 0f
+	@JvmField
+	var f0: Float = 0f
+	@JvmField
+	var f1: Float = 0f
+	@JvmField
+	var f2: Float = 0f
 
 	// Do not have @JvmField to use setter/getter
 	var c: Int = 0
@@ -14,7 +17,7 @@ data class State(
 	private var _d: Int = 0
 
 	// Custom setter/getter
-	var d: Int get() = _d; set(value) = run { _d = value}
+	var d: Int get() = _d; set(value) = run { _d = value }
 
 	val logList = arrayListOf<Int>()
 

@@ -1,8 +1,6 @@
 package com.soywiz.korma.geom
 
-import com.soywiz.korma.IVector2
-import com.soywiz.korma.Vector2
-import com.soywiz.korma.distanceTo
+import com.soywiz.korma.*
 
 typealias IPoint2d = IVector2
 typealias Point2d = Vector2

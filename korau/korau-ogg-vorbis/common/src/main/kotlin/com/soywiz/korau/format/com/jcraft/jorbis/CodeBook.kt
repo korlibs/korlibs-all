@@ -26,8 +26,8 @@
 
 package com.soywiz.korau.format.com.jcraft.jorbis
 
-import com.soywiz.korau.format.com.jcraft.jogg.Buffer
-import com.soywiz.korio.Synchronized
+import com.soywiz.korau.format.com.jcraft.jogg.*
+import com.soywiz.korio.*
 
 class CodeBook {
 	var dim: Int = 0

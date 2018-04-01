@@ -26,30 +26,30 @@
 
 package com.soywiz.korau.format.com.jcraft.jorbis
 
-import com.soywiz.korau.format.com.jcraft.jogg.Buffer
+import com.soywiz.korau.format.com.jcraft.jogg.*
 
 abstract class FuncFloor {
 
-    abstract fun pack(i: Any, opb: Buffer)
+	abstract fun pack(i: Any, opb: Buffer)
 
-    abstract fun unpack(vi: Info, opb: Buffer): Any?
+	abstract fun unpack(vi: Info, opb: Buffer): Any?
 
-    abstract fun look(vd: DspState, mi: InfoMode, i: Any): Any
+	abstract fun look(vd: DspState, mi: InfoMode, i: Any): Any
 
-    abstract fun free_info(i: Any)
+	abstract fun free_info(i: Any)
 
-    abstract fun free_look(i: Any)
+	abstract fun free_look(i: Any)
 
-    abstract fun free_state(vs: Any)
+	abstract fun free_state(vs: Any)
 
-    abstract fun forward(vb: Block, i: Any, `in`: FloatArray, out: FloatArray, vs: Any): Int
+	abstract fun forward(vb: Block, i: Any, `in`: FloatArray, out: FloatArray, vs: Any): Int
 
-    abstract fun inverse1(vb: Block, i: Any, memo: Any?): Any?
+	abstract fun inverse1(vb: Block, i: Any, memo: Any?): Any?
 
-    abstract fun inverse2(vb: Block, i: Any, memo: Any?, out: FloatArray): Int
+	abstract fun inverse2(vb: Block, i: Any, memo: Any?, out: FloatArray): Int
 
-    companion object {
+	companion object {
 
-        var floor_P = arrayOf(Floor0(), Floor1())
-    }
+		var floor_P = arrayOf(Floor0(), Floor1())
+	}
 }

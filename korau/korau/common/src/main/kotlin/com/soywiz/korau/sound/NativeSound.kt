@@ -1,10 +1,8 @@
 package com.soywiz.korau.sound
 
-import com.soywiz.korau.format.AudioFormats
-import com.soywiz.korau.format.AudioStream
-import com.soywiz.korau.format.defaultAudioFormats
-import com.soywiz.korinject.AsyncDependency
-import com.soywiz.korio.vfs.VfsFile
+import com.soywiz.korau.format.*
+import com.soywiz.korinject.*
+import com.soywiz.korio.vfs.*
 
 expect object NativeNativeSoundProvider {
 	val instance: NativeSoundProvider
@@ -21,7 +19,10 @@ open class NativeSoundProvider : AsyncDependency {
 
 	open suspend fun createSound(file: VfsFile): NativeSound = createSound(file.read())
 
-	suspend open fun createSound(data: com.soywiz.korau.format.AudioData, formats: AudioFormats = defaultAudioFormats): NativeSound {
+	suspend open fun createSound(
+		data: com.soywiz.korau.format.AudioData,
+		formats: AudioFormats = defaultAudioFormats
+	): NativeSound {
 		return createSound(formats.encodeToByteArray(data))
 	}
 

@@ -3,7 +3,10 @@ package com.soywiz.korge.intellij.editor
 import com.intellij.openapi.fileEditor.FileEditorPolicy
 
 class KorgeHiddenFileEditorProvider : KorgeBaseFileEditorProvider() {
-	override fun accept(project: com.intellij.openapi.project.Project, virtualFile: com.intellij.openapi.vfs.VirtualFile): Boolean {
+	override fun accept(
+		project: com.intellij.openapi.project.Project,
+		virtualFile: com.intellij.openapi.vfs.VirtualFile
+	): Boolean {
 		val name = virtualFile.name
 		return when {
 			name.endsWith(".swf", ignoreCase = true) -> true

@@ -1,13 +1,10 @@
 package com.soywiz.korag.log
 
-import com.soywiz.kmem.FastMemory
-import com.soywiz.korag.AG
-import com.soywiz.korag.shader.Program
-import com.soywiz.korag.shader.Uniform
-import com.soywiz.korag.shader.VarType
-import com.soywiz.korag.shader.VertexLayout
-import com.soywiz.korim.bitmap.Bitmap32
-import com.soywiz.korio.lang.printStackTrace
+import com.soywiz.kmem.*
+import com.soywiz.korag.*
+import com.soywiz.korag.shader.*
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korio.lang.*
 
 open class LogAG(
 	width: Int = 640,
@@ -27,7 +24,15 @@ open class LogAG(
 
 	fun getLogAsString(): String = log.joinToString("\n")
 
-	override fun clear(color: Int, depth: Float, stencil: Int, clearColor: Boolean, clearDepth: Boolean, clearStencil: Boolean) = log("clear($color, $depth, $stencil, $clearColor, $clearDepth, $clearStencil)")
+	override fun clear(
+		color: Int,
+		depth: Float,
+		stencil: Int,
+		clearColor: Boolean,
+		clearDepth: Boolean,
+		clearStencil: Boolean
+	) = log("clear($color, $depth, $stencil, $clearColor, $clearDepth, $clearStencil)")
+
 	override var backWidth: Int = width; set(value) = run { field = value; log("backWidth = $value") }
 	override var backHeight: Int = height; set(value) = run { field = value; log("backHeight = $value") }
 
@@ -69,9 +74,12 @@ open class LogAG(
 	private var bufferId = 0
 	private var renderBufferId = 0
 
-	override fun createTexture(premultiplied: Boolean): Texture = LogTexture(textureId++, premultiplied).apply { log("createTexture():$id") }
+	override fun createTexture(premultiplied: Boolean): Texture =
+		LogTexture(textureId++, premultiplied).apply { log("createTexture():$id") }
 
-	override fun createBuffer(kind: Buffer.Kind): Buffer = LogBuffer(bufferId++, kind).apply { log("createBuffer($kind):$id") }
+	override fun createBuffer(kind: Buffer.Kind): Buffer =
+		LogBuffer(bufferId++, kind).apply { log("createBuffer($kind):$id") }
+
 	override fun draw(
 		vertices: Buffer,
 		program: Program,
@@ -116,7 +124,9 @@ open class LogAG(
 						VarType.Int1 -> "int(" + vertexMem.getInt32(o + 0) + ")"
 						VarType.Float1 -> "float(" + vertexMem.getFloat32(o + 0) + ")"
 						VarType.Float2 -> "vec2(" + vertexMem.getFloat32(o + 0) + "," + vertexMem.getFloat32(o + 4) + ")"
-						VarType.Float3 -> "vec3(" + vertexMem.getFloat32(o + 0) + "," + vertexMem.getFloat32(o + 4) + "," + vertexMem.getFloat32(o + 8) + ")"
+						VarType.Float3 -> "vec3(" + vertexMem.getFloat32(o + 0) + "," + vertexMem.getFloat32(o + 4) + "," + vertexMem.getFloat32(
+							o + 8
+						) + ")"
 						VarType.Byte4 -> "byte4(" + vertexMem.getInt32(o + 0) + ")"
 						else -> "Unsupported(${attribute.type})"
 					}
@@ -132,7 +142,9 @@ open class LogAG(
 	}
 
 	override fun disposeTemporalPerFrameStuff() = log("disposeTemporalPerFrameStuff()")
-	override fun createRenderBuffer(): RenderBuffer = LogRenderBuffer(renderBufferId++).apply { log("createRenderBuffer():$id") }
+	override fun createRenderBuffer(): RenderBuffer =
+		LogRenderBuffer(renderBufferId++).apply { log("createRenderBuffer():$id") }
+
 	override fun flipInternal() = log("flipInternal()")
 	override fun readColor(bitmap: Bitmap32) = log("$this.readBitmap($bitmap)")
 	override fun readDepth(width: Int, height: Int, out: FloatArray) = log("$this.readDepth($width, $height, $out)")

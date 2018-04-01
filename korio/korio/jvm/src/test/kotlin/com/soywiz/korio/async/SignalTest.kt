@@ -1,8 +1,8 @@
 package com.soywiz.korio.async
 
 import org.junit.Test
-import java.util.concurrent.CancellationException
-import kotlin.test.assertEquals
+import java.util.concurrent.*
+import kotlin.test.*
 
 class SignalTest {
 	@Test

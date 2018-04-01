@@ -23,7 +23,10 @@ class KorgeModuleWizardStep : ModuleBuilder() {
 		return ModuleType.EMPTY
 	}
 
-	override fun createWizardSteps(wizardContext: WizardContext, modulesProvider: ModulesProvider): Array<ModuleWizardStep> {
+	override fun createWizardSteps(
+		wizardContext: WizardContext,
+		modulesProvider: ModulesProvider
+	): Array<ModuleWizardStep> {
 		return arrayOf(object : ModuleWizardStep() {
 			override fun getComponent(): JComponent {
 				return JLabel("Put your content here")

@@ -1,11 +1,10 @@
 package com.soywiz.korge.atlas
 
-import com.soywiz.korge.TestAssertVfs
-import com.soywiz.korio.async.syncTest
-import com.soywiz.korma.geom.Rectangle
-import com.soywiz.korma.geom.Size
+import com.soywiz.korge.*
+import com.soywiz.korio.async.*
+import com.soywiz.korma.geom.*
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class AtlasInfoTest {
 	@Test

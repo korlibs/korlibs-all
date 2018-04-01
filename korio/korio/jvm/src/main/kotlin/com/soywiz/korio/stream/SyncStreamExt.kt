@@ -1,8 +1,6 @@
 package com.soywiz.korio.stream
 
-import java.io.File
-import java.io.InputStream
-import java.io.RandomAccessFile
+import java.io.*
 
 class FileSyncStreamBase(val file: java.io.File, val mode: String = "r") : SyncStreamBase() {
 	val ra = RandomAccessFile(file, mode)

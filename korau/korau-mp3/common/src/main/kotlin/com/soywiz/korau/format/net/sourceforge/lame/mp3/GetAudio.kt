@@ -23,15 +23,20 @@
 
 package com.soywiz.korau.format.net.sourceforge.lame.mp3
 
-import com.soywiz.kmem.fill
-import com.soywiz.kmem.toUnsigned
-import com.soywiz.korau.format.net.sourceforge.lame.mpg.MPGLib
+import com.soywiz.kmem.*
+import com.soywiz.korau.format.net.sourceforge.lame.mpg.*
 import com.soywiz.korio.IOException
 import com.soywiz.korio.lang.printStackTrace
-import com.soywiz.korio.stream.AsyncStream
-import com.soywiz.korio.stream.readExact
-import com.soywiz.korio.stream.skip
+import com.soywiz.korio.stream.*
+import kotlin.Array
+import kotlin.Boolean
+import kotlin.ByteArray
+import kotlin.FloatArray
+import kotlin.Int
+import kotlin.RuntimeException
+import kotlin.charArrayOf
 import kotlin.experimental.and
+import kotlin.run
 
 class GetAudio(internal var parse: Parse, internal var mpg: MPGLib) {
 
@@ -52,7 +57,11 @@ class GetAudio(internal var parse: Parse, internal var mpg: MPGLib) {
 		return get_audio_common(gfp, null, buffer)
 	}
 
-	suspend private fun get_audio_common(gfp: LameGlobalFlags, buffer: Array<FloatArray>?, buffer16: Array<FloatArray>): Int {
+	suspend private fun get_audio_common(
+		gfp: LameGlobalFlags,
+		buffer: Array<FloatArray>?,
+		buffer16: Array<FloatArray>
+	): Int {
 		val num_channels = gfp.inNumChannels
 		val buf_tmp16 = Array(2) { FloatArray(1152) }
 		val samples_read: Int
@@ -84,7 +93,11 @@ class GetAudio(internal var parse: Parse, internal var mpg: MPGLib) {
 		return samples_read
 	}
 
-	suspend internal fun read_samples_mp3(gfp: LameGlobalFlags, musicin: AsyncStream, mpg123pcm: Array<FloatArray>): Int {
+	suspend internal fun read_samples_mp3(
+		gfp: LameGlobalFlags,
+		musicin: AsyncStream,
+		mpg123pcm: Array<FloatArray>
+	): Int {
 		val out: Int
 
 		out = lame_decode_fromfile(musicin, mpg123pcm[0], mpg123pcm[1], parse.mp3InputData)
@@ -277,7 +290,12 @@ class GetAudio(internal var parse: Parse, internal var mpg: MPGLib) {
 		return 0
 	}
 
-	suspend private fun lame_decode_fromfile(fd: AsyncStream, pcm_l: FloatArray, pcm_r: FloatArray, mp3data: MP3Data): Int {
+	suspend private fun lame_decode_fromfile(
+		fd: AsyncStream,
+		pcm_l: FloatArray,
+		pcm_r: FloatArray,
+		mp3data: MP3Data
+	): Int {
 		var len = 0
 		val buf = ByteArray(1024)
 
@@ -318,6 +336,23 @@ class GetAudio(internal var parse: Parse, internal var mpg: MPGLib) {
 	}
 
 	companion object {
-		private val abl2 = charArrayOf(0.toChar(), 7.toChar(), 7.toChar(), 7.toChar(), 0.toChar(), 7.toChar(), 0.toChar(), 0.toChar(), 0.toChar(), 0.toChar(), 0.toChar(), 8.toChar(), 8.toChar(), 8.toChar(), 8.toChar(), 8.toChar())
+		private val abl2 = charArrayOf(
+			0.toChar(),
+			7.toChar(),
+			7.toChar(),
+			7.toChar(),
+			0.toChar(),
+			7.toChar(),
+			0.toChar(),
+			0.toChar(),
+			0.toChar(),
+			0.toChar(),
+			0.toChar(),
+			8.toChar(),
+			8.toChar(),
+			8.toChar(),
+			8.toChar(),
+			8.toChar()
+		)
 	}
 }

@@ -1,21 +1,16 @@
 package com.soywiz.korio.vfs
 
-import com.soywiz.kds.lmapOf
-import com.soywiz.klock.DateTime
-import com.soywiz.kmem.getBits
-import com.soywiz.kmem.indexOf
-import com.soywiz.kmem.toUInt
-import com.soywiz.korio.async.SuspendingSequence
-import com.soywiz.korio.async.asyncGenerate
-import com.soywiz.korio.async.executeInWorker
-import com.soywiz.korio.compression.Inflater
+import com.soywiz.kds.*
+import com.soywiz.klock.*
+import com.soywiz.kmem.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.compression.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korio.util.AsyncCloseable
-import com.soywiz.korio.util.toIntClamp
+import com.soywiz.korio.util.*
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.set
-import kotlin.math.max
+import kotlin.math.*
 
 suspend fun ZipVfs(s: AsyncStream, zipFile: VfsFile? = null): VfsFile = ZipVfs(s, zipFile, caseSensitive = true)
 
@@ -40,21 +35,27 @@ suspend fun ZipVfs(s: AsyncStream, zipFile: VfsFile? = null, caseSensitive: Bool
 	fun String.normalizeName() = if (caseSensitive) this.trim('/') else this.trim('/').toLowerCase()
 
 	class ZipEntry(
-			val path: String,
-			val compressionMethod: Int,
-			val isDirectory: Boolean,
-			val time: DosFileDateTime,
-			val offset: Int,
-			val inode: Long,
-			val headerEntry: AsyncStream,
-			val compressedSize: Long,
-			val uncompressedSize: Long
+		val path: String,
+		val compressionMethod: Int,
+		val isDirectory: Boolean,
+		val time: DosFileDateTime,
+		val offset: Int,
+		val inode: Long,
+		val headerEntry: AsyncStream,
+		val compressedSize: Long,
+		val uncompressedSize: Long
 	)
 
 	fun ZipEntry?.toStat(file: VfsFile): VfsStat {
 		val vfs = file.vfs
 		return if (this != null) {
-			vfs.createExistsStat(file.path, isDirectory = isDirectory, size = uncompressedSize, inode = inode, createTime = this.time.utcTimestamp)
+			vfs.createExistsStat(
+				file.path,
+				isDirectory = isDirectory,
+				size = uncompressedSize,
+				inode = inode,
+				createTime = this.time.utcTimestamp
+			)
 		} else {
 			vfs.createNonExistsStat(file.path)
 		}
@@ -107,15 +108,15 @@ suspend fun ZipVfs(s: AsyncStream, zipFile: VfsFile? = null, caseSensitive: Bool
 
 				val folder = filesPerFolder.getOrPut(baseFolder) { lmapOf() }
 				val entry = ZipEntry(
-						path = name,
-						compressionMethod = compressionMethod,
-						isDirectory = isDirectory,
-						time = DosFileDateTime(fileTime, fileDate),
-						inode = n.toLong(),
-						offset = headerOffset,
-						headerEntry = s.sliceWithStart(headerOffset.toUInt()),
-						compressedSize = compressedSize.toUInt(),
-						uncompressedSize = uncompressedSize.toUInt()
+					path = name,
+					compressionMethod = compressionMethod,
+					isDirectory = isDirectory,
+					time = DosFileDateTime(fileTime, fileDate),
+					inode = n.toLong(),
+					offset = headerOffset,
+					headerEntry = s.sliceWithStart(headerOffset.toUInt()),
+					compressedSize = compressedSize.toUInt(),
+					uncompressedSize = uncompressedSize.toUInt()
 				)
 				val components = listOf("") + PathInfo(normalizedName).getFullComponents()
 				for (m in 1 until components.size) {
@@ -123,7 +124,17 @@ suspend fun ZipVfs(s: AsyncStream, zipFile: VfsFile? = null, caseSensitive: Bool
 					val c = components[m]
 					if (c !in files) {
 						val folder2 = filesPerFolder.getOrPut(f) { lmapOf() }
-						val entry2 = ZipEntry(path = c, compressionMethod = 0, isDirectory = true, time = DosFileDateTime(0, 0), inode = 0L, offset = 0, headerEntry = byteArrayOf().openAsync(), compressedSize = 0L, uncompressedSize = 0L)
+						val entry2 = ZipEntry(
+							path = c,
+							compressionMethod = 0,
+							isDirectory = true,
+							time = DosFileDateTime(0, 0),
+							inode = 0L,
+							offset = 0,
+							headerEntry = byteArrayOf().openAsync(),
+							compressedSize = 0L,
+							uncompressedSize = 0L
+						)
 						folder2[PathInfo(c).basename] = entry2
 						files[c] = entry2
 					}
@@ -133,7 +144,17 @@ suspend fun ZipVfs(s: AsyncStream, zipFile: VfsFile? = null, caseSensitive: Bool
 				files[normalizedName] = entry
 			}
 		}
-		files[""] = ZipEntry(path = "", compressionMethod = 0, isDirectory = true, time = DosFileDateTime(0, 0), inode = 0L, offset = 0, headerEntry = byteArrayOf().openAsync(), compressedSize = 0L, uncompressedSize = 0L)
+		files[""] = ZipEntry(
+			path = "",
+			compressionMethod = 0,
+			isDirectory = true,
+			time = DosFileDateTime(0, 0),
+			inode = 0L,
+			offset = 0,
+			headerEntry = byteArrayOf().openAsync(),
+			compressedSize = 0L,
+			uncompressedSize = 0L
+		)
 		Unit
 	}
 
@@ -209,11 +230,14 @@ private class DosFileDateTime(var dosTime: Int, var dosDate: Int) {
 }
 
 suspend fun VfsFile.openAsZip() = ZipVfs(this.open(VfsOpenMode.READ), this)
-suspend fun VfsFile.openAsZip(caseSensitive: Boolean) = ZipVfs(this.open(VfsOpenMode.READ), this, caseSensitive = caseSensitive)
+suspend fun VfsFile.openAsZip(caseSensitive: Boolean) =
+	ZipVfs(this.open(VfsOpenMode.READ), this, caseSensitive = caseSensitive)
+
 suspend fun AsyncStream.openAsZip() = ZipVfs(this)
 suspend fun AsyncStream.openAsZip(caseSensitive: Boolean) = ZipVfs(this, caseSensitive = caseSensitive)
 
-class InflateAsyncStream(val base: AsyncStream, val inflater: Inflater, val uncompressedSize: Long? = null) : AsyncInputStream, AsyncLengthStream, AsyncCloseable {
+class InflateAsyncStream(val base: AsyncStream, val inflater: Inflater, val uncompressedSize: Long? = null) :
+	AsyncInputStream, AsyncLengthStream, AsyncCloseable {
 	suspend override fun read(buffer: ByteArray, offset: Int, len: Int): Int {
 		if (inflater.needsInput()) {
 			inflater.setInput(base.readBytes(1024))

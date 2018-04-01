@@ -1,27 +1,17 @@
 package com.soywiz.korio
 
 import com.soywiz.korio.async.*
-import com.soywiz.korio.coroutine.eventLoop
-import com.soywiz.korio.net.AsyncSocketFactory
-import com.soywiz.korio.net.JvmAsyncSocketFactory
-import com.soywiz.korio.net.http.HttpClient
-import com.soywiz.korio.net.http.HttpClientJvm
-import com.soywiz.korio.net.http.HttpFactory
-import com.soywiz.korio.net.http.HttpServer
-import com.soywiz.korio.net.ws.WebSocketClientFactory
-import com.soywiz.korio.vfs.LocalVfsJvm
-import com.soywiz.korio.vfs.MemoryVfs
-import com.soywiz.korio.vfs.ResourcesVfsProviderJvm
-import com.soywiz.korio.vfs.VfsFile
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.security.MessageDigest
-import java.security.SecureRandom
+import com.soywiz.korio.coroutine.*
+import com.soywiz.korio.net.*
+import com.soywiz.korio.net.http.*
+import com.soywiz.korio.net.ws.*
+import com.soywiz.korio.vfs.*
+import java.io.*
+import java.security.*
 import java.util.zip.*
-import javax.crypto.Mac
-import javax.crypto.spec.SecretKeySpec
-import kotlin.reflect.KClass
+import javax.crypto.*
+import javax.crypto.spec.*
+import kotlin.reflect.*
 
 
 actual typealias Synchronized = kotlin.jvm.Synchronized
@@ -144,13 +134,17 @@ actual object KorioNative {
 	actual class SimplerMessageDigest actual constructor(name: String) {
 		val md = MessageDigest.getInstance(name)
 
-		actual suspend fun update(data: ByteArray, offset: Int, size: Int) = executeInWorker { md.update(data, offset, size) }
+		actual suspend fun update(data: ByteArray, offset: Int, size: Int) =
+			executeInWorker { md.update(data, offset, size) }
+
 		actual suspend fun digest(): ByteArray = executeInWorker { md.digest() }
 	}
 
 	actual class SimplerMac actual constructor(name: String, key: ByteArray) {
 		val mac = Mac.getInstance(name).apply { init(SecretKeySpec(key, name)) }
-		actual suspend fun update(data: ByteArray, offset: Int, size: Int) = executeInWorker { mac.update(data, offset, size) }
+		actual suspend fun update(data: ByteArray, offset: Int, size: Int) =
+			executeInWorker { mac.update(data, offset, size) }
+
 		actual suspend fun finalize(): ByteArray = executeInWorker { mac.doFinal() }
 	}
 

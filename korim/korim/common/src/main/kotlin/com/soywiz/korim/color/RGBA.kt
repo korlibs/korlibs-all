@@ -1,8 +1,8 @@
 package com.soywiz.korim.color
 
-import com.soywiz.korio.JvmStatic
-import com.soywiz.korio.lang.format
-import com.soywiz.korio.util.clamp
+import com.soywiz.korio.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.util.*
 
 object RGBA : ColorFormat32() {
 	//private inline val R_SHIFT: Int get() = 0
@@ -15,7 +15,10 @@ object RGBA : ColorFormat32() {
 	override fun getB(v: Int): Int = getFastB(v)
 	override fun getA(v: Int): Int = getFastA(v)
 
-	override fun pack(r: Int, g: Int, b: Int, a: Int) = ((ColorFormat.clamp0_FF(r)) shl 0) or ((ColorFormat.clamp0_FF(g)) shl 8) or ((ColorFormat.clamp0_FF(b)) shl 16) or ((ColorFormat.clamp0_FF(a)) shl 24)
+	override fun pack(r: Int, g: Int, b: Int, a: Int) =
+		((ColorFormat.clamp0_FF(r)) shl 0) or ((ColorFormat.clamp0_FF(g)) shl 8) or ((ColorFormat.clamp0_FF(b)) shl 16) or ((ColorFormat.clamp0_FF(
+			a
+		)) shl 24)
 
 	@JvmStatic
 	fun getFastR(v: Int): Int = (v ushr 0) and 0xFF
@@ -94,7 +97,8 @@ object RGBA : ColorFormat32() {
 	//}
 
 	@JvmStatic
-	fun mutliplyByAlpha(v: Int, alpha: Double): Int = RGBA.pack(getFastR(v), getFastG(v), getFastB(v), (getFastA(v) * alpha).toInt())
+	fun mutliplyByAlpha(v: Int, alpha: Double): Int =
+		RGBA.pack(getFastR(v), getFastG(v), getFastB(v), (getFastA(v) * alpha).toInt())
 
 	@JvmStatic
 	fun depremultiply(v: Int): Int = depremultiplyFast(v)
@@ -106,7 +110,12 @@ object RGBA : ColorFormat32() {
 			return Colors.TRANSPARENT_WHITE
 		} else {
 			val ialpha = 1.0 / alpha
-			return pack((getFastR(v) * ialpha).toInt(), (getFastG(v) * ialpha).toInt(), (getFastB(v) * ialpha).toInt(), getFastA(v))
+			return pack(
+				(getFastR(v) * ialpha).toInt(),
+				(getFastG(v) * ialpha).toInt(),
+				(getFastB(v) * ialpha).toInt(),
+				getFastA(v)
+			)
 		}
 	}
 
@@ -158,7 +167,8 @@ object RGBA : ColorFormat32() {
 	fun packFast(r: Int, g: Int, b: Int, a: Int) = (r shl 0) or (g shl 8) or (b shl 16) or (a shl 24)
 
 	@JvmStatic
-	fun packfFast(r: Float, g: Float, b: Float, a: Float): Int = ((r * 0xFF).toInt() shl 0) or ((g * 0xFF).toInt() shl 8) or ((b * 0xFF).toInt() shl 16) or ((a * 0xFF).toInt() shl 24)
+	fun packfFast(r: Float, g: Float, b: Float, a: Float): Int =
+		((r * 0xFF).toInt() shl 0) or ((g * 0xFF).toInt() shl 8) or ((b * 0xFF).toInt() shl 16) or ((a * 0xFF).toInt() shl 24)
 
 	@JvmStatic
 	fun packRGB_A(rgb: Int, a: Int): Int = (rgb and 0xFFFFFF) or (a shl 24)
@@ -170,9 +180,9 @@ object RGBA : ColorFormat32() {
 	fun blendRGB(c1: Int, c2: Int, factor256: Int): Int {
 		val f1 = 256 - factor256
 		return ((
-			((((c1 and 0xFF00FF) * f1) + ((c2 and 0xFF00FF) * factor256)) and 0xFF00FF00.toInt())
-				or
-				((((c1 and 0x00FF00) * f1) + ((c2 and 0x00FF00) * factor256)) and 0x00FF0000))) ushr 8
+				((((c1 and 0xFF00FF) * f1) + ((c2 and 0xFF00FF) * factor256)) and 0xFF00FF00.toInt())
+						or
+						((((c1 and 0x00FF00) * f1) + ((c2 and 0x00FF00) * factor256)) and 0x00FF0000))) ushr 8
 	}
 
 	@Deprecated("", ReplaceWith("blendRGB(c1, c2, factor)", "com.soywiz.korim.color.RGBA.blendRGB"))
@@ -193,13 +203,17 @@ object RGBA : ColorFormat32() {
 		return packRGB_A(RGB, A)
 	}
 
-	@JvmStatic operator fun invoke(r: Int, g: Int, b: Int, a: Int) = pack(r, g, b, a)
+	@JvmStatic
+	operator fun invoke(r: Int, g: Int, b: Int, a: Int) = pack(r, g, b, a)
 
 	@JvmStatic
 	fun rgbaToBgra(v: Int) = ((v shl 16) and 0x00FF0000) or ((v shr 16) and 0x000000FF) or (v and 0xFF00FF00.toInt())
 
-	@JvmStatic private fun d2i(v: Double): Int = (ColorFormat.clampf01(v.toFloat()) * 255).toInt()
-	@JvmStatic private fun f2i(v: Float): Int = (ColorFormat.clampf01(v) * 255).toInt()
+	@JvmStatic
+	private fun d2i(v: Double): Int = (ColorFormat.clampf01(v.toFloat()) * 255).toInt()
+
+	@JvmStatic
+	private fun f2i(v: Float): Int = (ColorFormat.clampf01(v) * 255).toInt()
 
 	@JvmStatic
 	fun packf(r: Double, g: Double, b: Double, a: Double): Int = packFast(d2i(r), d2i(g), d2i(b), d2i(a))

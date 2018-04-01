@@ -1,6 +1,6 @@
 package com.soywiz.korinject
 
-import kotlin.reflect.KClass
+import kotlin.reflect.*
 
 //import kotlin.reflect.KClass
 
@@ -28,7 +28,8 @@ class PrototypeAsyncObjectProvider<T>(val generator: suspend AsyncInjector.() ->
 	override fun toString(): String = "PrototypeAsyncObjectProvider()"
 }
 
-class FactoryAsyncObjectProvider<T>(val generator: suspend AsyncInjector.() -> AsyncFactory<T>) : AsyncObjectProvider<T> {
+class FactoryAsyncObjectProvider<T>(val generator: suspend AsyncInjector.() -> AsyncFactory<T>) :
+	AsyncObjectProvider<T> {
 	override suspend fun get(injector: AsyncInjector): T = injector.created(generator(injector).create())
 	override fun toString(): String = "FactoryAsyncObjectProvider()"
 }
@@ -53,11 +54,14 @@ class AsyncInjector(val parent: AsyncInjector? = null, val level: Int = 0) {
 	suspend inline fun <reified T : Any> get(): T = get<T>(T::class)
 	suspend inline fun <reified T : Any> getOrNull(): T? = getOrNull<T>(T::class)
 	inline fun <reified T : Any> mapInstance(instance: T): AsyncInjector = mapInstance(T::class, instance)
-	inline fun <reified T : Any> mapFactory(noinline gen: suspend AsyncInjector.() -> AsyncFactory<T>) = mapFactory(T::class, gen)
+	inline fun <reified T : Any> mapFactory(noinline gen: suspend AsyncInjector.() -> AsyncFactory<T>) =
+		mapFactory(T::class, gen)
+
 	inline fun <reified T : Any> mapSingleton(noinline gen: suspend AsyncInjector.() -> T) = mapSingleton(T::class, gen)
 	inline fun <reified T : Any> mapPrototype(noinline gen: suspend AsyncInjector.() -> T) = mapPrototype(T::class, gen)
 
-	var fallbackProvider: (suspend (clazz: kotlin.reflect.KClass<*>, ctx: RequestContext) -> AsyncObjectProvider<*>)? = null
+	var fallbackProvider: (suspend (clazz: kotlin.reflect.KClass<*>, ctx: RequestContext) -> AsyncObjectProvider<*>)? =
+		null
 	val providersByClass = LinkedHashMap<kotlin.reflect.KClass<*>, AsyncObjectProvider<*>>()
 
 	val root: AsyncInjector = parent?.root ?: this
@@ -85,9 +89,10 @@ class AsyncInjector(val parent: AsyncInjector? = null, val level: Int = 0) {
 		providersByClass[clazz] = InstanceAsyncObjectProvider<T>(instance as T)
 	}
 
-	fun <T : Any> mapFactory(clazz: KClass<T>, gen: suspend AsyncInjector.() -> AsyncFactory<T>): AsyncInjector = this.apply {
-		providersByClass[clazz] = FactoryAsyncObjectProvider<T>(gen)
-	}
+	fun <T : Any> mapFactory(clazz: KClass<T>, gen: suspend AsyncInjector.() -> AsyncFactory<T>): AsyncInjector =
+		this.apply {
+			providersByClass[clazz] = FactoryAsyncObjectProvider<T>(gen)
+		}
 
 	fun <T : Any> mapSingleton(clazz: KClass<T>, gen: suspend AsyncInjector.() -> T): AsyncInjector = this.apply {
 		providersByClass[clazz] = SingletonAsyncObjectProvider<T>(gen)
@@ -103,17 +108,22 @@ class AsyncInjector(val parent: AsyncInjector? = null, val level: Int = 0) {
 
 	data class RequestContext(val initialClazz: KClass<*>)
 
-	suspend fun <T : Any> getProviderOrNull(clazz: KClass<T>, ctx: RequestContext = RequestContext(clazz)): AsyncObjectProvider<T>? = (
-		providersByClass[clazz]
-			?: parent?.getProviderOrNull<T>(clazz, ctx)
-			?: nearestFallbackProvider?.invoke(clazz, ctx)
-		) as? AsyncObjectProvider<T>?
+	suspend fun <T : Any> getProviderOrNull(
+		clazz: KClass<T>,
+		ctx: RequestContext = RequestContext(clazz)
+	): AsyncObjectProvider<T>? = (
+			providersByClass[clazz]
+					?: parent?.getProviderOrNull<T>(clazz, ctx)
+					?: nearestFallbackProvider?.invoke(clazz, ctx)
+			) as? AsyncObjectProvider<T>?
 
-	suspend fun <T : Any> getProvider(clazz: KClass<T>, ctx: RequestContext = RequestContext(clazz)): AsyncObjectProvider<T> =
-		getProviderOrNull<T>(clazz, ctx) ?:
-			throw AsyncInjector.NotMappedException(
-				clazz, ctx.initialClazz, ctx, "Class '$clazz' doesn't have constructors $ctx"
-			)
+	suspend fun <T : Any> getProvider(
+		clazz: KClass<T>,
+		ctx: RequestContext = RequestContext(clazz)
+	): AsyncObjectProvider<T> =
+		getProviderOrNull<T>(clazz, ctx) ?: throw AsyncInjector.NotMappedException(
+			clazz, ctx.initialClazz, ctx, "Class '$clazz' doesn't have constructors $ctx"
+		)
 
 	@Suppress("UNCHECKED_CAST")
 	suspend fun <T : Any> getOrNull(clazz: KClass<T>, ctx: RequestContext = RequestContext(clazz)): T? {

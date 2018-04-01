@@ -1,12 +1,9 @@
 package com.soywiz.korge.component.docking
 
 import com.soywiz.korge.input.*
-import com.soywiz.korge.time.milliseconds
-import com.soywiz.korge.tween.Easings
-import com.soywiz.korge.tween.get
-import com.soywiz.korge.tween.tween
-import com.soywiz.korge.view.View
-import com.soywiz.korge.view.get
+import com.soywiz.korge.time.*
+import com.soywiz.korge.tween.*
+import com.soywiz.korge.view.*
 
 class JellyButton(val view: View?, var targetScale: Double = 1.5) {
 	val hitTest = view["hitTest"] ?: view

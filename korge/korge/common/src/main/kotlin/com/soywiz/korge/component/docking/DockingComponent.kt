@@ -1,10 +1,8 @@
 package com.soywiz.korge.component.docking
 
-import com.soywiz.korge.component.Component
-import com.soywiz.korge.event.addEventListener
-import com.soywiz.korge.view.StageResizedEvent
-import com.soywiz.korge.view.View
-import com.soywiz.korma.geom.Anchor
+import com.soywiz.korge.component.*
+import com.soywiz.korge.view.*
+import com.soywiz.korma.geom.*
 
 class DockingComponent(view: View, var anchor: Anchor) : Component(view) {
 	//private val bounds = Rectangle()

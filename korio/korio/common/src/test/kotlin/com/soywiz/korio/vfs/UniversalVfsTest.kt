@@ -1,10 +1,9 @@
 package com.soywiz.korio.vfs
 
-import com.soywiz.korio.async.syncTest
-import com.soywiz.korio.net.http.LogHttpClient
+import com.soywiz.korio.async.*
+import com.soywiz.korio.net.http.*
 import org.junit.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class UniversalVfsTest {
 	@Test

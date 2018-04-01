@@ -1,9 +1,7 @@
 package com.soywiz.korge.ui
 
-import com.soywiz.korge.resources.getPath
-import com.soywiz.korinject.AsyncInjector
-import com.soywiz.korinject.InjectorAsyncDependency
-import com.soywiz.korinject.Singleton
+import com.soywiz.korge.resources.*
+import com.soywiz.korinject.*
 
 @Singleton
 class UIFactory : InjectorAsyncDependency {

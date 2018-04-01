@@ -8,7 +8,7 @@ class PriorityQueue<T>(
 	private var reversed: Boolean = false
 ) : MutableCollection<T> {
 	constructor(reversed: Boolean = false, compare: (T, T) -> Int)
-		: this(Comparator(compare), reversed)
+			: this(Comparator(compare), reversed)
 
 	private var dirtyList = ArrayList<T>()
 

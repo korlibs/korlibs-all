@@ -50,7 +50,7 @@ constructor(
 		}
 
 	constructor(i: InputStream, size: Int = InflaterInputStream.DEFAULT_BUFSIZE, close_in: Boolean = true)
-		: this(i, Inflater(15 + 16), size, close_in) {
+			: this(i, Inflater(15 + 16), size, close_in) {
 		myinflater = true
 	}
 

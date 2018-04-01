@@ -11,7 +11,9 @@ import kotlin.math.sign
  * A time line holds an [.id], a [.name] and at least one [Key].
  * @author Trixt0r
  */
-class Timeline internal constructor(@JvmField val id: Int, @JvmField val name: String, @JvmField val objectInfo: ObjectInfo, keys: Int) {
+class Timeline internal constructor(
+	@JvmField val id: Int, @JvmField val name: String, @JvmField val objectInfo: ObjectInfo, keys: Int
+) {
 
 	@JvmField
 	val keys: Array<Key> = Array<Key>(keys) { Key.DUMMY }
@@ -72,7 +74,11 @@ class Timeline internal constructor(@JvmField val id: Int, @JvmField val name: S
 		 * Bones are the only objects which can be used as a parent for other tweenable objects.
 		 * @author Trixt0r
 		 */
-		open class Bone @JvmOverloads constructor(position: Point = Point(), scale: Point = Point(1f, 1f), pivot: Point = Point(0f, 1f), @JvmField var _angle: Float = 0f) {
+		open class Bone @JvmOverloads constructor(
+			position: Point = Point(),
+			scale: Point = Point(1f, 1f),
+			pivot: Point = Point(0f, 1f), @JvmField var _angle: Float = 0f
+		) {
 			@JvmField
 			val position: Point = Point(position)
 			@JvmField
@@ -112,7 +118,15 @@ class Timeline internal constructor(@JvmField val id: Int, @JvmField val name: S
 			 * *
 			 * @param pivotY the new pivot in y direction
 			 */
-			operator fun set(x: Float, y: Float, angle: Float, scaleX: Float, scaleY: Float, pivotX: Float, pivotY: Float) {
+			operator fun set(
+				x: Float,
+				y: Float,
+				angle: Float,
+				scaleX: Float,
+				scaleY: Float,
+				pivotX: Float,
+				pivotY: Float
+			) {
 				this._angle = angle
 				this.position.set(x, y)
 				this.scale.set(scaleX, scaleY)
@@ -168,9 +182,25 @@ class Timeline internal constructor(@JvmField val id: Int, @JvmField val name: S
 		 * A file has the same properties as a bone with an alpha and file extension.
 		 * @author Trixt0r
 		 */
-		class Object @JvmOverloads constructor(position: Point = Point(), scale: Point = Point(1f, 1f), pivot: Point = Point(0f, 1f), angle: Float = 0f, @JvmField var alpha: Float = 1f, @JvmField val ref: FileReference = FileReference(-1, -1)) : Bone(position, scale, pivot, angle) {
+		class Object @JvmOverloads constructor(
+			position: Point = Point(),
+			scale: Point = Point(1f, 1f),
+			pivot: Point = Point(0f, 1f),
+			angle: Float = 0f, @JvmField var alpha: Float = 1f, @JvmField val ref: FileReference = FileReference(
+				-1,
+				-1
+			)
+		) : Bone(position, scale, pivot, angle) {
 
-			constructor(`object`: Object) : this(`object`.position.copy(), `object`.scale.copy(), `object`.pivot.copy(), `object`._angle, `object`.alpha, `object`.ref) {}
+			constructor(`object`: Object) : this(
+				`object`.position.copy(),
+				`object`.scale.copy(),
+				`object`.pivot.copy(),
+				`object`._angle,
+				`object`.alpha,
+				`object`.ref
+			) {
+			}
 
 			/**
 			 * Sets the values of this object to the values of the given object.
@@ -202,7 +232,18 @@ class Timeline internal constructor(@JvmField val id: Int, @JvmField val name: S
 			 * *
 			 * @param file the new file index
 			 */
-			operator fun set(x: Float, y: Float, angle: Float, scaleX: Float, scaleY: Float, pivotX: Float, pivotY: Float, alpha: Float, folder: Int, file: Int) {
+			operator fun set(
+				x: Float,
+				y: Float,
+				angle: Float,
+				scaleX: Float,
+				scaleY: Float,
+				pivotX: Float,
+				pivotY: Float,
+				alpha: Float,
+				folder: Int,
+				file: Int
+			) {
 				super.set(x, y, angle, scaleX, scaleY, pivotX, pivotY)
 				this.alpha = alpha
 				this.ref.folder = folder
@@ -223,8 +264,16 @@ class Timeline internal constructor(@JvmField val id: Int, @JvmField val name: S
 			 * *
 			 * @param fileRef the new file reference
 			 */
-			operator fun set(position: Point, angle: Float, scale: Point, pivot: Point, alpha: Float, fileRef: FileReference) {
-				this[position.x, position.y, angle, scale.x, scale.y, pivot.x, pivot.y, alpha, fileRef.folder] = fileRef.file
+			operator fun set(
+				position: Point,
+				angle: Float,
+				scale: Point,
+				pivot: Point,
+				alpha: Float,
+				fileRef: FileReference
+			) {
+				this[position.x, position.y, angle, scale.x, scale.y, pivot.x, pivot.y, alpha, fileRef.folder] =
+						fileRef.file
 			}
 
 			override fun toString(): String {

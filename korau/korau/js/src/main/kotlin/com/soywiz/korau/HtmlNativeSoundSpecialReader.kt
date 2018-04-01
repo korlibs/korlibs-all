@@ -1,10 +1,7 @@
 package com.soywiz.korau
 
-import com.soywiz.korau.sound.NativeSound
-import com.soywiz.korio.vfs.LocalVfs
-import com.soywiz.korio.vfs.UrlVfs
-import com.soywiz.korio.vfs.Vfs
-import com.soywiz.korio.vfs.VfsSpecialReader
+import com.soywiz.korau.sound.*
+import com.soywiz.korio.vfs.*
 
 class HtmlNativeSoundSpecialReader : VfsSpecialReader<NativeSound>(NativeSound::class) {
 	suspend override fun readSpecial(vfs: Vfs, path: String): NativeSound = when (vfs) {

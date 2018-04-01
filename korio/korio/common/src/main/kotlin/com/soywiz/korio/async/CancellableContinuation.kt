@@ -1,21 +1,19 @@
 package com.soywiz.korio.async
 
-import com.soywiz.korio.coroutine.AbstractCoroutineContextElement
-import com.soywiz.korio.coroutine.Continuation
-import com.soywiz.korio.coroutine.CoroutineContext
-import com.soywiz.korio.coroutine.CoroutineContextKey
-import com.soywiz.kds.LinkedList
-import com.soywiz.korio.util.Cancellable
+import com.soywiz.kds.*
+import com.soywiz.korio.util.*
+import kotlin.coroutines.experimental.*
 
 //inline suspend fun <T> suspendCancellableCoroutine(crossinline block: (CancellableContinuation<T>) -> Unit): T = suspendCoroutineOrReturn { c ->
-inline suspend fun <T> suspendCancellableCoroutine(crossinline block: (CancellableContinuation<T>) -> Unit): T = suspendCoroutineEL { c ->
-	//inline suspend fun <T> suspendCancellableCoroutine(crossinline block: (Continuation<T>) -> Unit): T = suspendCoroutineEL { c ->
-	//block(c)
-	block(CancellableContinuation(c))
-}
+inline suspend fun <T> suspendCancellableCoroutine(crossinline block: (CancellableContinuation<T>) -> Unit): T =
+	suspendCoroutineEL { c ->
+		//inline suspend fun <T> suspendCancellableCoroutine(crossinline block: (Continuation<T>) -> Unit): T = suspendCoroutineEL { c ->
+		//block(c)
+		block(CancellableContinuation(c))
+	}
 
 class CoroutineCancelContext : AbstractCoroutineContextElement(CoroutineCancelContext.Key) {
-	companion object Key : CoroutineContextKey<CoroutineCancelContext>
+	companion object Key : CoroutineContext.Key<CoroutineCancelContext>
 
 	private val handlers = LinkedList<(Throwable) -> Unit>()
 	private var c: Throwable? = null
@@ -49,8 +47,10 @@ class CoroutineCancelContext : AbstractCoroutineContextElement(CoroutineCancelCo
 	override fun toString(): String = "CoroutineCancelSignal(${handlers.size})"
 }
 
-class CancellableContinuation<in T>(private val delegate: Continuation<T>) : Continuation<T>, Cancellable, Cancellable.Listener {
-	override val context: CoroutineContext = if (delegate.context[CoroutineCancelContext.Key] != null) delegate.context else CoroutineCancelContext() + delegate.context
+class CancellableContinuation<in T>(private val delegate: Continuation<T>) : Continuation<T>, Cancellable,
+	Cancellable.Listener {
+	override val context: CoroutineContext =
+		if (delegate.context[CoroutineCancelContext.Key] != null) delegate.context else CoroutineCancelContext() + delegate.context
 	val cancelContext = context[CoroutineCancelContext.Key]!!
 
 	private val cancells = arrayListOf<(Throwable) -> Unit>()

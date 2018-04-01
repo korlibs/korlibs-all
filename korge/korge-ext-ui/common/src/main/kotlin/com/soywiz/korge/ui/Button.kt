@@ -1,17 +1,19 @@
 package com.soywiz.korge.ui
 
-import com.soywiz.korge.html.Html
+import com.soywiz.korge.html.*
 import com.soywiz.korge.input.*
 import com.soywiz.korge.view.*
-import com.soywiz.korim.color.Colors
-import com.soywiz.korio.util.redirectField
+import com.soywiz.korim.color.*
+import com.soywiz.korio.util.*
 
-class Button(factory: UIFactory, skin: UISkin = factory.skin, initialText: String = "Label") : Widget(factory, skin), IText, IHtml {
+class Button(factory: UIFactory, skin: UISkin = factory.skin, initialText: String = "Label") : Widget(factory, skin),
+	IText, IHtml {
 	override fun createInstance(): View = Button(factory, skin, text)
 
 	var over = false
 	var down = false
-	private val bgView = views.ninePatch(skin.buttonOut, width, height, 0.25, 0.25, 0.25, 0.25).apply { this@Button += this }
+	private val bgView =
+		views.ninePatch(skin.buttonOut, width, height, 0.25, 0.25, 0.25, 0.25).apply { this@Button += this }
 	private val textView = views.text(initialText).apply { this@Button += this }
 
 	override var text: String by redirectField(textView::text)

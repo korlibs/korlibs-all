@@ -1,7 +1,6 @@
 package com.soywiz.korim.format
 
-import com.soywiz.korim.bitmap.Bitmap
-import com.soywiz.korim.bitmap.NativeImage
+import com.soywiz.korim.bitmap.*
 
 expect object NativeImageFormatProvider {
 	suspend fun decode(data: ByteArray): NativeImage

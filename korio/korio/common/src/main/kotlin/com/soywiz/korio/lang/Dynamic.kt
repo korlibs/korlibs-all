@@ -1,6 +1,6 @@
 package com.soywiz.korio.lang
 
-import com.soywiz.korio.serialization.Mapper
+import com.soywiz.korio.serialization.*
 
 object Dynamic {
 	fun set(obj: Any?, key: Any?, value: Any?): Unit = when (obj) {
@@ -57,13 +57,14 @@ object Dynamic {
 	fun toBool(obj: Any?): Boolean = when (obj) {
 		is Boolean -> obj
 		is String -> when (obj.toLowerCase()) {
-			//"1", "true", "ok", "yes" -> true
+		//"1", "true", "ok", "yes" -> true
 			"", "0", "false", "ko", "no" -> false
-			//else -> false
+		//else -> false
 			else -> true
 		}
 		else -> toInt(obj) != 0
 	}
+
 	fun toByte(obj: Any?): Byte = toNumber(obj).toByte()
 	fun toChar(obj: Any?): Char = when {
 		(obj is String) && (obj.length == 1) -> obj.first()

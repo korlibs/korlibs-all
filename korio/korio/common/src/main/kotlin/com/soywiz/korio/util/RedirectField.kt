@@ -1,8 +1,6 @@
 package com.soywiz.korio.util
 
-import kotlin.reflect.KMutableProperty0
-import kotlin.reflect.KProperty
-import kotlin.reflect.KProperty0
+import kotlin.reflect.*
 
 class RedirectField<V>(val redirect: KProperty0<V>) {
 	inline operator fun getValue(thisRef: Any, property: KProperty<*>): V {

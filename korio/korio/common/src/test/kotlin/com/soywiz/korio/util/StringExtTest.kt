@@ -1,6 +1,6 @@
 package com.soywiz.korio.util
 
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class StringExtTest {
 	@kotlin.test.Test

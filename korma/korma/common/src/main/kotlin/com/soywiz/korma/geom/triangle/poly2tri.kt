@@ -1,11 +1,8 @@
 package com.soywiz.korma.geom.triangle
 
-import com.soywiz.korma.Vector2
-import com.soywiz.korma.geom.Orientation
-import com.soywiz.korma.geom.Point2d
-import com.soywiz.korma.math.Math
-import kotlin.math.PI
-import kotlin.math.atan2
+import com.soywiz.korma.*
+import com.soywiz.korma.geom.*
+import kotlin.math.*
 
 class AdvancingFront(
 	var head: Node,
@@ -139,7 +136,8 @@ class Edge(
 	fun hasPoint(point: Point2d): Boolean = (p == point) || (q == point)
 
 	companion object {
-		fun getUniquePointsFromEdges(edges: ArrayList<Edge>): List<Point2d> = edges.flatMap { listOf(it.p, it.q) }.distinct()
+		fun getUniquePointsFromEdges(edges: ArrayList<Edge>): List<Point2d> =
+			edges.flatMap { listOf(it.p, it.q) }.distinct()
 
 		fun traceList(edges: ArrayList<Edge>): Unit {
 			val pointsList = Companion.getUniquePointsFromEdges(edges)
@@ -195,7 +193,8 @@ class Node(
 			val ay: Double = next.point.y - this.point.y
 			val bx: Double = prev.point.x - this.point.x
 			val by: Double = prev.point.y - this.point.y
-			return atan2(ax * by - ay * bx,
+			return atan2(
+				ax * by - ay * bx,
 				ax * bx + ay * by
 			)
 		}
@@ -203,7 +202,8 @@ class Node(
 	val basinAngle: Double
 		get() {
 			val nextNext = this.next?.next ?: throw IllegalStateException("Not enough vertices")
-			return atan2(this.point.y - nextNext.point.y, // ay
+			return atan2(
+				this.point.y - nextNext.point.y, // ay
 				this.point.x - nextNext.point.x  // ax
 			)
 		}
@@ -302,7 +302,12 @@ class Sweep(
 		if (o1 == o2) {
 			// Need to decide if we are rotating CW or CCW to get to a triangle
 			// that will cross edge
-			edgeEventByPoints(ep, eq, if (o1 == Orientation.CW) triangle.neighborCCW(point)!! else triangle.neighborCW(point)!!, point)
+			edgeEventByPoints(
+				ep,
+				eq,
+				if (o1 == Orientation.CW) triangle.neighborCCW(point)!! else triangle.neighborCW(point)!!,
+				point
+			)
 		} else {
 			// This triangle crosses constraint so lets flippin start!
 			flipEdgeEvent(ep, eq, triangle, point)
@@ -452,7 +457,12 @@ class Sweep(
 	fun fillBasin(node: Node): Unit {
 		val context = this.context
 		val basin = context.basin
-		basin.left_node = if (Orientation.orient2d(node.point, node.next!!.point, node.next!!.next!!.point) == Orientation.CCW) node.next!!.next else node.next
+		basin.left_node = if (Orientation.orient2d(
+				node.point,
+				node.next!!.point,
+				node.next!!.next!!.point
+			) == Orientation.CCW
+		) node.next!!.next else node.next
 
 		// Find the bottom and right node
 		basin.bottom_node = basin.left_node
@@ -567,7 +577,12 @@ class Sweep(
 
 	fun fillRightConvexEdgeEvent(edge: Edge, node: Node): Unit {
 		// Next concave or convex?
-		if (Orientation.orient2d(node.next!!.point, node.next!!.next!!.point, node.next!!.next!!.next!!.point) == Orientation.CCW) {
+		if (Orientation.orient2d(
+				node.next!!.point,
+				node.next!!.next!!.point,
+				node.next!!.next!!.next!!.point
+			) == Orientation.CCW
+		) {
 			// Concave
 			this.fillRightConcaveEdgeEvent(edge, node.next!!)
 		} else {
@@ -610,7 +625,12 @@ class Sweep(
 
 	fun fillLeftConvexEdgeEvent(edge: Edge, node: Node): Unit {
 		// Next concave or convex?
-		if (Orientation.orient2d(node.prev!!.point, node.prev!!.prev!!.point, node.prev!!.prev!!.prev!!.point) == Orientation.CW) {
+		if (Orientation.orient2d(
+				node.prev!!.point,
+				node.prev!!.prev!!.point,
+				node.prev!!.prev!!.prev!!.point
+			) == Orientation.CW
+		) {
 			// Concave
 			this.fillLeftConcaveEdgeEvent(edge, node.prev!!)
 		} else {
@@ -704,7 +724,8 @@ class Sweep(
 	}
 
 	fun flipScanEdgeEvent(ep: Point2d, eq: Point2d, flip_triangle: Triangle, t: Triangle, p: Point2d): Unit {
-		val ot = t.neighborAcross(p) ?: throw Error("[BUG:FIXME] FLIP failed due to missing triangle") // If we want to integrate the fillEdgeEvent do it here With current implementation we should never get here
+		val ot = t.neighborAcross(p)
+				?: throw Error("[BUG:FIXME] FLIP failed due to missing triangle") // If we want to integrate the fillEdgeEvent do it here With current implementation we should never get here
 
 		val op = ot.oppositePoint(t, p)
 

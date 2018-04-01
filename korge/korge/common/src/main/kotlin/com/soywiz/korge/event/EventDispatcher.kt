@@ -1,9 +1,9 @@
 package com.soywiz.korge.event
 
-import com.soywiz.korio.async.go
-import com.soywiz.korio.coroutine.getCoroutineContext
-import com.soywiz.korio.util.Cancellable
-import kotlin.reflect.KClass
+import com.soywiz.korio.async.*
+import com.soywiz.korio.coroutine.*
+import com.soywiz.korio.util.*
+import kotlin.reflect.*
 
 //interface Cancellable
 
@@ -35,7 +35,9 @@ interface EventDispatcher {
 
 interface Event
 
-inline fun <reified T : Any> EventDispatcher.addEventListener(noinline handler: (T) -> Unit): Cancellable = this.addEventListener(T::class, handler)
+inline fun <reified T : Any> EventDispatcher.addEventListener(noinline handler: (T) -> Unit): Cancellable =
+	this.addEventListener(T::class, handler)
+
 inline suspend fun <reified T : Any> EventDispatcher.addEventListenerSuspend(noinline handler: suspend (T) -> Unit): Cancellable {
 	val context = getCoroutineContext()
 	return this.addEventListener(T::class) { event ->

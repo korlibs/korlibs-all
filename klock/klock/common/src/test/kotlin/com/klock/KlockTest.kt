@@ -1,6 +1,6 @@
 package com.klock
 
-import com.soywiz.klock.Klock
+import com.soywiz.klock.*
 import kotlin.test.*
 
 class KlockTest {

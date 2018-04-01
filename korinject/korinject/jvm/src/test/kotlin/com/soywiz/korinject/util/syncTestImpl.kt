@@ -1,9 +1,6 @@
 package com.soywiz.korinject.util
 
-import kotlin.coroutines.experimental.Continuation
-import kotlin.coroutines.experimental.CoroutineContext
-import kotlin.coroutines.experimental.EmptyCoroutineContext
-import kotlin.coroutines.experimental.startCoroutine
+import kotlin.coroutines.experimental.*
 
 actual fun syncTestImpl(ignoreJs: Boolean, block: suspend () -> Unit) {
 	var e: Throwable? = null

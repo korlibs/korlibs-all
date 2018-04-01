@@ -1,6 +1,6 @@
 package com.soywiz.klock
 
-import kotlin.math.abs
+import kotlin.math.*
 
 enum class DayOfWeek(val index: Int) {
 	Sunday(0), Monday(1), Tuesday(2), Wednesday(3), Thursday(4), Friday(5), Saturday(6);
@@ -130,9 +130,10 @@ interface DateTime : Comparable<DateTime> {
 		delta.totalMonths,
 		delta.totalMilliseconds
 	)
-    operator fun plus(delta: TimeSpan): DateTime = addMilliseconds(delta.milliseconds.toDouble())
+
+	operator fun plus(delta: TimeSpan): DateTime = addMilliseconds(delta.milliseconds.toDouble())
 	operator fun minus(delta: TimeDistance): DateTime = this + -delta
-    operator fun minus(delta: TimeSpan): DateTime = addMilliseconds(-delta.milliseconds.toDouble())
+	operator fun minus(delta: TimeSpan): DateTime = addMilliseconds(-delta.milliseconds.toDouble())
 	fun toString(format: String): String = toString(SimplerDateFormat(format))
 	fun toString(format: SimplerDateFormat): String = format.format(this)
 
@@ -141,8 +142,22 @@ interface DateTime : Comparable<DateTime> {
 		internal val EPOCH_INTERNAL_MILLIS by lazy { EPOCH.internalMillis }
 
 		// Can produce errors on invalid dates
-		operator fun invoke(year: Int, month: Int, day: Int, hour: Int = 0, minute: Int = 0, second: Int = 0, milliseconds: Int = 0): DateTime {
-			return UtcDateTime(UtcDateTime.dateToMillis(year, month, day) + UtcDateTime.timeToMillis(hour, minute, second) + milliseconds, true)
+		operator fun invoke(
+			year: Int,
+			month: Int,
+			day: Int,
+			hour: Int = 0,
+			minute: Int = 0,
+			second: Int = 0,
+			milliseconds: Int = 0
+		): DateTime {
+			return UtcDateTime(
+				UtcDateTime.dateToMillis(year, month, day) + UtcDateTime.timeToMillis(
+					hour,
+					minute,
+					second
+				) + milliseconds, true
+			)
 		}
 
 		operator fun invoke(time: Long) = fromUnix(time)
@@ -158,7 +173,15 @@ interface DateTime : Comparable<DateTime> {
 		fun nowLocal() = fromUnix(nowUnix()).toLocal()
 
 		// Can't produce errors on invalid dates and tries to adjust it to a valid date.
-		fun createClamped(year: Int, month: Int, day: Int, hour: Int = 0, minute: Int = 0, second: Int = 0, milliseconds: Int = 0): DateTime {
+		fun createClamped(
+			year: Int,
+			month: Int,
+			day: Int,
+			hour: Int = 0,
+			minute: Int = 0,
+			second: Int = 0,
+			milliseconds: Int = 0
+		): DateTime {
 			val clampedMonth = month.clamp(1, 12)
 			return createUnchecked(
 				year = year,
@@ -172,7 +195,15 @@ interface DateTime : Comparable<DateTime> {
 		}
 
 		// Can't produce errors on invalid dates and tries to adjust it to a valid date.
-		fun createAdjusted(year: Int, month: Int, day: Int, hour: Int = 0, minute: Int = 0, second: Int = 0, milliseconds: Int = 0): DateTime {
+		fun createAdjusted(
+			year: Int,
+			month: Int,
+			day: Int,
+			hour: Int = 0,
+			minute: Int = 0,
+			second: Int = 0,
+			milliseconds: Int = 0
+		): DateTime {
 			var dy = year
 			var dm = month
 			var dd = day
@@ -200,8 +231,22 @@ interface DateTime : Comparable<DateTime> {
 		}
 
 		// Can't produce errors on invalid dates
-		fun createUnchecked(year: Int, month: Int, day: Int, hour: Int = 0, minute: Int = 0, second: Int = 0, milliseconds: Int = 0): DateTime {
-			return UtcDateTime(UtcDateTime.dateToMillisUnchecked(year, month, day) + UtcDateTime.timeToMillisUnchecked(hour, minute, second) + milliseconds, true)
+		fun createUnchecked(
+			year: Int,
+			month: Int,
+			day: Int,
+			hour: Int = 0,
+			minute: Int = 0,
+			second: Int = 0,
+			milliseconds: Int = 0
+		): DateTime {
+			return UtcDateTime(
+				UtcDateTime.dateToMillisUnchecked(year, month, day) + UtcDateTime.timeToMillisUnchecked(
+					hour,
+					minute,
+					second
+				) + milliseconds, true
+			)
 		}
 
 		fun isLeapYear(year: Int): Boolean = Year.isLeap(year)
@@ -237,7 +282,8 @@ class OffsetDateTime private constructor(
 	override fun toString(): String = SimplerDateFormat.DEFAULT_FORMAT.format(this)
 }
 
-class UtcDateTime internal constructor(internal val internalMillis: Long, @Suppress("UNUSED_PARAMETER") dummy: Boolean) : DateTime {
+class UtcDateTime internal constructor(internal val internalMillis: Long, @Suppress("UNUSED_PARAMETER") dummy: Boolean) :
+	DateTime {
 	companion object {
 		private const val DATE_PART_YEAR = 0
 		private const val DATE_PART_DAY_OF_YEAR = 1
@@ -258,7 +304,11 @@ class UtcDateTime internal constructor(internal val internalMillis: Long, @Suppr
 		internal fun dateToMillis(year: Int, month: Int, day: Int): Long {
 			//Year.checked(year)
 			Month.check(month)
-			if (day !in 1..Month.days(month, year)) throw DateException("Day $day not valid for year=$year and month=$month")
+			if (day !in 1..Month.days(
+					month,
+					year
+				)
+			) throw DateException("Day $day not valid for year=$year and month=$month")
 			return dateToMillisUnchecked(year, month, day)
 		}
 
@@ -315,7 +365,7 @@ class UtcDateTime internal constructor(internal val internalMillis: Long, @Suppr
 			var day = this.dayOfMonth
 			val i = month - 1 + deltaMonths
 
-            if (i >= 0) {
+			if (i >= 0) {
 				month = i % 12 + 1
 				year += i / 12
 			} else {
@@ -326,7 +376,10 @@ class UtcDateTime internal constructor(internal val internalMillis: Long, @Suppr
 			val days = Month.days(month, year)
 			if (day > days) day = days
 
-			UtcDateTime(dateToMillisUnchecked(year, month, day) + (internalMillis % MILLIS_PER_DAY) + deltaMilliseconds, true)
+			UtcDateTime(
+				dateToMillisUnchecked(year, month, day) + (internalMillis % MILLIS_PER_DAY) + deltaMilliseconds,
+				true
+			)
 		}
 	}
 
@@ -336,7 +389,15 @@ class UtcDateTime internal constructor(internal val internalMillis: Long, @Suppr
 	override fun toString(): String = SimplerDateFormat.DEFAULT_FORMAT.format(this)
 }
 
-data class TimeDistance(val years: Int = 0, val months: Int = 0, val days: Double = 0.0, val hours: Double = 0.0, val minutes: Double = 0.0, val seconds: Double = 0.0, val milliseconds: Double = 0.0) : Comparable<TimeDistance> {
+data class TimeDistance(
+	val years: Int = 0,
+	val months: Int = 0,
+	val days: Double = 0.0,
+	val hours: Double = 0.0,
+	val minutes: Double = 0.0,
+	val seconds: Double = 0.0,
+	val milliseconds: Double = 0.0
+) : Comparable<TimeDistance> {
 	operator fun unaryMinus() = TimeDistance(-years, -months, -days, -hours, -minutes, -seconds, -milliseconds)
 
 	operator fun minus(other: TimeDistance) = this + -other
@@ -388,7 +449,8 @@ data class TimeSpan private constructor(val ms: Int) : Comparable<TimeSpan> {
 
 	companion object {
 		val ZERO = TimeSpan(0)
-		@PublishedApi internal fun fromMilliseconds(ms: Int) = when (ms) {
+		@PublishedApi
+		internal fun fromMilliseconds(ms: Int) = when (ms) {
 			0 -> ZERO
 			else -> TimeSpan(ms)
 		}
@@ -427,7 +489,8 @@ data class TimeSpan private constructor(val ms: Int) : Comparable<TimeSpan> {
 	operator fun times(scale: Int): TimeSpan = TimeSpan(this.ms * scale)
 	operator fun times(scale: Double): TimeSpan = TimeSpan((this.ms * scale).toInt())
 
-	fun toTimeString(components: Int = 3, addMilliseconds: Boolean = false): String = toTimeString(milliseconds, components, addMilliseconds)
+	fun toTimeString(components: Int = 3, addMilliseconds: Boolean = false): String =
+		toTimeString(milliseconds, components, addMilliseconds)
 }
 
 inline val Number.milliseconds get() = TimeSpan.fromMilliseconds(this.toInt())

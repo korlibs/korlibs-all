@@ -1,9 +1,9 @@
 package com.soywiz.korio.ds
 
-import com.soywiz.korio.stream.ByteArrayBuilder
-import com.soywiz.korio.util.toHexStringLower
+import com.soywiz.korio.stream.*
+import com.soywiz.korio.util.*
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class ByteArrayBuilderTest {
 	@Test

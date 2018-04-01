@@ -1,11 +1,11 @@
 package com.soywiz.korfl.abc
 
-import com.soywiz.kds.lmapOf
-import com.soywiz.korfl.amf.AMF0
-import com.soywiz.korio.stream.openSync
-import com.soywiz.korio.util.fromHexChunks
+import com.soywiz.kds.*
+import com.soywiz.korfl.amf.*
+import com.soywiz.korio.stream.*
+import com.soywiz.korio.util.*
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class AMFTest {
 	@Test

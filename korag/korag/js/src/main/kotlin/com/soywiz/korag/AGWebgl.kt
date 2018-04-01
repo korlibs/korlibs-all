@@ -1,24 +1,19 @@
 package com.soywiz.korag
 
-import com.soywiz.kmem.FastMemory
+import com.soywiz.kmem.*
 import com.soywiz.korag.shader.*
-import com.soywiz.korag.shader.gl.toGlSlString
-import com.soywiz.korim.bitmap.Bitmap
-import com.soywiz.korim.bitmap.Bitmap32
-import com.soywiz.korim.bitmap.Bitmap8
-import com.soywiz.korim.color.RGBA
-import com.soywiz.korim.format.CanvasNativeImage
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korio.lang.Closeable
-import com.soywiz.korio.lang.Console
-import com.soywiz.korio.lang.printStackTrace
-import com.soywiz.korio.util.Once
-import com.soywiz.korma.Matrix4
+import com.soywiz.korag.shader.gl.*
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
+import com.soywiz.korim.format.*
+import com.soywiz.korio.error.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.util.*
+import com.soywiz.korma.*
 import org.khronos.webgl.*
-import org.w3c.dom.HTMLCanvasElement
-import org.w3c.dom.events.KeyboardEvent
-import kotlin.browser.document
-import kotlin.browser.window
+import org.w3c.dom.*
+import org.w3c.dom.events.*
+import kotlin.browser.*
 import org.khronos.webgl.WebGLRenderingContext as GL
 
 actual object AGFactoryFactory {
@@ -115,7 +110,14 @@ class AGWebgl : AG(), AGContainer {
 		// https://gist.github.com/mattdesl/9995467
 	}
 
-	override fun clear(color: Int, depth: Float, stencil: Int, clearColor: Boolean, clearDepth: Boolean, clearStencil: Boolean) {
+	override fun clear(
+		color: Int,
+		depth: Float,
+		stencil: Int,
+		clearColor: Boolean,
+		clearDepth: Boolean,
+		clearStencil: Boolean
+	) {
 		var bits = 0
 		gl.disable(GL.SCISSOR_TEST)
 		if (clearColor) {
@@ -196,7 +198,8 @@ class AGWebgl : AG(), AGContainer {
 		}
 
 		fun uniformLocation(uniform: Uniform): WebGLUniformLocation? {
-			val location = uniformLocations.getOrPut(uniform) { MyUniformLocation(gl.getUniformLocation(program, uniform.name)) }
+			val location =
+				uniformLocations.getOrPut(uniform) { MyUniformLocation(gl.getUniformLocation(program, uniform.name)) }
 			return location?.location
 		}
 	}
@@ -231,7 +234,8 @@ class AGWebgl : AG(), AGContainer {
 					val height = bmp.height
 					val rgba = bmp is Bitmap32
 					val Bpp = if (rgba) 4 else 1
-					val data: dynamic = (bmp as? Bitmap32)?.data ?: ((bmp as? Bitmap8)?.data ?: ByteArray(width * height * Bpp))
+					val data: dynamic =
+						(bmp as? Bitmap32)?.data ?: ((bmp as? Bitmap8)?.data ?: ByteArray(width * height * Bpp))
 					val rdata = Uint8Array(data.buffer, 0, width * height * Bpp)
 					val type = if (rgba) GL.RGBA else GL.LUMINANCE
 					gl.pixelStorei(GL.UNPACK_PREMULTIPLY_ALPHA_WEBGL, if (premultiplied xor bmp.premult) 1 else 0)
@@ -479,7 +483,12 @@ class AGWebgl : AG(), AGContainer {
 		} else {
 			gl.enable(GL.BLEND)
 			gl.blendEquationSeparate(blending.eqRGB.toGl(), blending.eqA.toGl())
-			gl.blendFuncSeparate(blending.srcRGB.toGl(), blending.dstRGB.toGl(), blending.srcA.toGl(), blending.dstA.toGl())
+			gl.blendFuncSeparate(
+				blending.srcRGB.toGl(),
+				blending.dstRGB.toGl(),
+				blending.srcA.toGl(),
+				blending.dstA.toGl()
+			)
 		}
 
 		gl.depthMask(renderState.depthMask)
@@ -500,7 +509,11 @@ class AGWebgl : AG(), AGContainer {
 		if (stencil.enabled) {
 			gl.enable(GL.STENCIL_TEST)
 			gl.stencilFunc(stencil.compareMode.toGl(), stencil.referenceValue, stencil.readMask)
-			gl.stencilOp(stencil.actionOnDepthFail.toGl(), stencil.actionOnDepthPassStencilFail.toGl(), stencil.actionOnBothPass.toGl())
+			gl.stencilOp(
+				stencil.actionOnDepthFail.toGl(),
+				stencil.actionOnDepthPassStencilFail.toGl(),
+				stencil.actionOnBothPass.toGl()
+			)
 			gl.stencilMask(stencil.writeMask)
 		} else {
 			gl.disable(GL.STENCIL_TEST)
@@ -583,7 +596,8 @@ class AGWebgl : AG(), AGContainer {
 	inline fun <T> checkErrors(callback: () -> T): T {
 		val res = callback()
 		if (checkErrors) {
-			val error = gl.getError() // @TODO: Kotlin.JS bug? Generates WebGLRenderingContext$Companion!! Just for this because of the inline.
+			val error =
+				gl.getError() // @TODO: Kotlin.JS bug? Generates WebGLRenderingContext$Companion!! Just for this because of the inline.
 			//if (error != GL.NO_ERROR) {
 			if (error != 0) {
 				Console.error("OpenGL error: $error")
@@ -596,7 +610,15 @@ class AGWebgl : AG(), AGContainer {
 	}
 
 	override fun readColor(bitmap: Bitmap32) {
-		gl.readPixels(0, 0, bitmap.width, bitmap.height, GL.RGBA, GL.UNSIGNED_BYTE, Uint8Array(bitmap.data.unsafeCast<Int32Array>().buffer))
+		gl.readPixels(
+			0,
+			0,
+			bitmap.width,
+			bitmap.height,
+			GL.RGBA,
+			GL.UNSIGNED_BYTE,
+			Uint8Array(bitmap.data.unsafeCast<Int32Array>().buffer)
+		)
 	}
 
 	override fun readDepth(width: Int, height: Int, out: FloatArray) {

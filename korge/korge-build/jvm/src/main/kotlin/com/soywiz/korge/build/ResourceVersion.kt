@@ -30,7 +30,8 @@ data class ResourceVersion(val name: String, val loaderVersion: Int, val sha1: S
 		suspend fun fromFile(file: VfsFile, loaderVersion: Int): ResourceVersion {
 			val configFile = file.appendExtension("config")
 			val hash = file.readBytes().hash(AsyncHash.SHA1).toHexStringLower()
-			val configHash = if (configFile.exists()) configFile.readBytes().hash(AsyncHash.SHA1).toHexStringLower() else ""
+			val configHash =
+				if (configFile.exists()) configFile.readBytes().hash(AsyncHash.SHA1).toHexStringLower() else ""
 			return ResourceVersion(file.basename, loaderVersion, hash, configHash)
 		}
 

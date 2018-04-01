@@ -1,9 +1,8 @@
 package com.soywiz.korge.ext.spriter.com.brashmonkey.spriter
 
-import com.soywiz.korio.JvmStatic
-import com.soywiz.korio.math.toDegrees
-import kotlin.math.atan2
-import kotlin.math.pow
+import com.soywiz.korio.*
+import com.soywiz.korio.math.*
+import kotlin.math.*
 
 /**
  * A utility class which provides methods to calculate Spriter specific issues,
@@ -234,7 +233,8 @@ object Calculator {
 				table[i] = kotlin.math.sin(((i + 0.5f) / SIN_COUNT * radFull).toDouble()).toFloat()
 			var i = 0
 			while (i < 360) {
-				table[(i * degToIndex).toInt() and SIN_MASK] = kotlin.math.sin((i * degreesToRadians).toDouble()).toFloat()
+				table[(i * degToIndex).toInt() and SIN_MASK] =
+						kotlin.math.sin((i * degreesToRadians).toDouble()).toFloat()
 				i += 90
 			}
 		}

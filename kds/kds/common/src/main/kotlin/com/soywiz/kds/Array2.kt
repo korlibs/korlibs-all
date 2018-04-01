@@ -4,7 +4,8 @@ package com.soywiz.kds
 data class Array2<T>(val width: Int, val height: Int, val data: Array<T>) : Iterable<T> {
 	companion object {
 		//inline operator fun <reified T> invoke(width: Int, height: Int, gen: () -> T) = Array2(width, height, Array(width * height) { gen() })
-		inline operator fun <reified T> invoke(width: Int, height: Int, gen: (n: Int) -> T) = Array2(width, height, Array(width * height) { gen(it) })
+		inline operator fun <reified T> invoke(width: Int, height: Int, gen: (n: Int) -> T) =
+			Array2(width, height, Array(width * height) { gen(it) })
 
 		//inline operator fun <reified T> invoke(width: Int, height: Int, gen: (x: Int, y: Int) -> T) = Array2(width, height, Array(width * height) { gen(it % width, it / width) })
 		inline operator fun <reified T> invoke(rows: List<List<T>>): Array2<T> {
@@ -14,7 +15,11 @@ data class Array2<T>(val width: Int, val height: Int, val data: Array<T>) : Iter
 			return Array2(width, height) { anyCell }.apply { set(rows) }
 		}
 
-		inline operator fun <reified T> invoke(map: String, marginChar: Char = '\u0000', gen: (char: Char, x: Int, y: Int) -> T): Array2<T> {
+		inline operator fun <reified T> invoke(
+			map: String,
+			marginChar: Char = '\u0000',
+			gen: (char: Char, x: Int, y: Int) -> T
+		): Array2<T> {
 			val lines = map.lines()
 				.map {
 					val res = it.trim()
@@ -39,7 +44,12 @@ data class Array2<T>(val width: Int, val height: Int, val data: Array<T>) : Iter
 			return invoke(map) { c, x, y -> transform[c] ?: default }
 		}
 
-		inline fun <reified T> fromString(maps: Map<Char, T>, default: T, code: String, marginChar: Char = '\u0000'): Array2<T> {
+		inline fun <reified T> fromString(
+			maps: Map<Char, T>,
+			default: T,
+			code: String,
+			marginChar: Char = '\u0000'
+		): Array2<T> {
 			return invoke(code, marginChar = marginChar) { c, x, y -> maps[c] ?: default }
 		}
 	}
@@ -55,7 +65,9 @@ data class Array2<T>(val width: Int, val height: Int, val data: Array<T>) : Iter
 	}
 
 	override fun equals(other: Any?): Boolean {
-		return (other is Array2<*>) && this.width == other.width && this.height == other.height && this.data.contentEquals(other.data)
+		return (other is Array2<*>) && this.width == other.width && this.height == other.height && this.data.contentEquals(
+			other.data
+		)
 	}
 
 	override fun hashCode(): Int = width + height + data.hashCode()
@@ -119,7 +131,8 @@ data class Array2<T>(val width: Int, val height: Int, val data: Array<T>) : Iter
 		}
 	}
 
-	fun toString(margin: String = "", charMap: (T) -> Char): String = toStringList(charMap, margin = margin).joinToString("\n")
+	fun toString(margin: String = "", charMap: (T) -> Char): String =
+		toStringList(charMap, margin = margin).joinToString("\n")
 
 	fun toString(map: Map<T, Char>, margin: String = ""): String = toString(margin = margin) { map[it] ?: ' ' }
 }

@@ -1,16 +1,12 @@
 package com.soywiz.korge.ext.spriter
 
-import com.soywiz.korge.atlas.readAtlas
-import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.Data
-import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.SCMLReader
-import com.soywiz.korge.render.TransformedTexture
-import com.soywiz.korge.render.readTexture
-import com.soywiz.korge.resources.Path
-import com.soywiz.korge.resources.ResourcesRoot
-import com.soywiz.korge.view.Views
-import com.soywiz.korinject.AsyncFactory
-import com.soywiz.korinject.AsyncFactoryClass
-import com.soywiz.korio.vfs.VfsFile
+import com.soywiz.korge.atlas.*
+import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.*
+import com.soywiz.korge.render.*
+import com.soywiz.korge.resources.*
+import com.soywiz.korge.view.*
+import com.soywiz.korinject.*
+import com.soywiz.korio.vfs.*
 import kotlin.collections.set
 
 //e: java.lang.UnsupportedOperationException: Class literal annotation arguments are not yet supported: Factory
@@ -18,9 +14,19 @@ import kotlin.collections.set
 class SpriterLibrary(val views: Views, val data: Data, val atlas: Map<String, TransformedTexture>) {
 	val entityNames = data.entities.map { it.name }
 
-	fun create(entityName: String, animationName1: String? = null, animationName2: String? = animationName1): SpriterView {
+	fun create(
+		entityName: String,
+		animationName1: String? = null,
+		animationName2: String? = animationName1
+	): SpriterView {
 		val entity = data.getEntity(entityName)
-		return SpriterView(views, this, entity!!, animationName1 ?: entity.getAnimation(0).name, animationName2 ?: entity.getAnimation(0).name)
+		return SpriterView(
+			views,
+			this,
+			entity!!,
+			animationName1 ?: entity.getAnimation(0).name,
+			animationName2 ?: entity.getAnimation(0).name
+		)
 	}
 
 	class Loader(

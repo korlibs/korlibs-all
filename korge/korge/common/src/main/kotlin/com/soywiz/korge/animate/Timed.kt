@@ -1,10 +1,8 @@
 package com.soywiz.korge.animate
 
-import com.soywiz.korio.util.clamp
-import com.soywiz.kds.IntArrayList
-import com.soywiz.kds.binarySearch
-import kotlin.math.max
-import kotlin.math.min
+import com.soywiz.kds.*
+import com.soywiz.korio.util.*
+import kotlin.math.*
 
 open class Timed<T>(initialCapacity: Int = 7) {
 	val times = IntArrayList(initialCapacity)
@@ -43,7 +41,7 @@ open class Timed<T>(initialCapacity: Int = 7) {
 
 	fun getRangeValues(startTime: Int, endTime: Int, out: ArrayList<T> = arrayListOf()): List<T> {
 		val range = getRangeIndices(startTime, endTime)
-		for (n in range.startIndex .. range.endIndex) {
+		for (n in range.startIndex..range.endIndex) {
 			out += objects[n]
 		}
 		return out
@@ -67,7 +65,12 @@ open class Timed<T>(initialCapacity: Int = 7) {
 		return out
 	}
 
-	inline fun forEachInRange(startTime: Int, endTime: Int, maxCalls: Int = Int.MAX_VALUE, callback: (index: Int, time: Int, left: T) -> Unit) {
+	inline fun forEachInRange(
+		startTime: Int,
+		endTime: Int,
+		maxCalls: Int = Int.MAX_VALUE,
+		callback: (index: Int, time: Int, left: T) -> Unit
+	) {
 		val startIndex = (findNearIndex(startTime) - 1).clamp(0, size - 1)
 		val endIndex = (findNearIndex(endTime) + 1).clamp(0, size - 1)
 		var totalCalls = 0

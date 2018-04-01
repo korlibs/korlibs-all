@@ -1,9 +1,9 @@
 package com.soywiz.korma.geom
 
-import com.soywiz.korma.Vector2
+import com.soywiz.korma.*
 import org.junit.Test
-import kotlin.math.sqrt
-import kotlin.test.assertEquals
+import kotlin.math.*
+import kotlin.test.*
 
 class Vector2Test {
 	@Test

@@ -1,12 +1,11 @@
 package com.soywiz.korte
 
-import com.soywiz.korio.lang.toByteArray
-import com.soywiz.korio.reflect.Mapper2
-import com.soywiz.korio.reflect.ObjectMapper2
-import com.soywiz.korio.stream.openAsync
-import com.soywiz.korio.text.AsyncTextWriterContainer
-import com.soywiz.korio.util.Extra
-import com.soywiz.korio.vfs.MemoryVfs
+import com.soywiz.kds.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.serialization.*
+import com.soywiz.korio.stream.*
+import com.soywiz.korio.text.*
+import com.soywiz.korio.vfs.*
 import kotlin.collections.set
 
 class Template internal constructor(
@@ -29,10 +28,12 @@ class Template internal constructor(
 		if (frontMatter != null) {
 			val layout = frontMatter?.get("layout")
 			if (layout != null) {
-				rootNode = DefaultBlocks.BlockGroup(listOf(
-					DefaultBlocks.BlockCapture("content", rootNode),
-					DefaultBlocks.BlockExtends(ExprNode.LIT(layout))
-				))
+				rootNode = DefaultBlocks.BlockGroup(
+					listOf(
+						DefaultBlocks.BlockCapture("content", rootNode),
+						DefaultBlocks.BlockExtends(ExprNode.LIT(layout))
+					)
+				)
 			}
 		}
 		return this
@@ -42,7 +43,7 @@ class Template internal constructor(
 		val templates: Templates get() = template.templates
 	}
 
-	class Scope(val map: Any?, val mapper: ObjectMapper2, val parent: Template.Scope? = null) {
+	class Scope(val map: Any?, val mapper: ObjectMapper, val parent: Template.Scope? = null) {
 		// operator
 		suspend fun get(key: Any?): Any? = map.dynamicGet(key, mapper) ?: parent?.get(key)
 
@@ -95,18 +96,23 @@ class Template internal constructor(
 		var parent: TemplateEvalContext? = null
 		val root: TemplateEvalContext get() = parent?.root ?: this
 
-		fun getBlockOrNull(name: String): BlockInTemplateEval? = template.blocks[name]?.let { BlockInTemplateEval(name, it, this@TemplateEvalContext) } ?: parent?.getBlockOrNull(name)
-		fun getBlock(name: String): BlockInTemplateEval = getBlockOrNull(name) ?: BlockInTemplateEval(name, DefaultBlocks.BlockText(""), this)
+		fun getBlockOrNull(name: String): BlockInTemplateEval? =
+			template.blocks[name]?.let { BlockInTemplateEval(name, it, this@TemplateEvalContext) }
+					?: parent?.getBlockOrNull(name)
 
-		class WithArgs(val context: TemplateEvalContext, val args: Any?, val mapper: ObjectMapper2) : AsyncTextWriterContainer {
+		fun getBlock(name: String): BlockInTemplateEval =
+			getBlockOrNull(name) ?: BlockInTemplateEval(name, DefaultBlocks.BlockText(""), this)
+
+		class WithArgs(val context: TemplateEvalContext, val args: Any?, val mapper: ObjectMapper) :
+			AsyncTextWriterContainer {
 			suspend override fun write(writer: suspend (String) -> Unit) {
 				context.exec2(args, mapper, writer)
 			}
 		}
 
-		fun withArgs(args: Any?, mapper: ObjectMapper2 = Mapper2) = WithArgs(this, args, mapper)
+		fun withArgs(args: Any?, mapper: ObjectMapper = Mapper) = WithArgs(this, args, mapper)
 
-		suspend fun exec2(args: Any?, mapper: ObjectMapper2, writer: suspend (String) -> Unit): Template.EvalContext {
+		suspend fun exec2(args: Any?, mapper: ObjectMapper, writer: suspend (String) -> Unit): Template.EvalContext {
 			val scope = Scope(args, mapper)
 			if (template.frontMatter != null) for ((k, v) in template.frontMatter!!) scope.set(k, v)
 			val context = Template.EvalContext(this, scope, template.config, mapper = mapper, write = writer)
@@ -114,7 +120,7 @@ class Template internal constructor(
 			return context
 		}
 
-		suspend fun exec(args: Any?, mapper: ObjectMapper2 = Mapper2): ExecResult {
+		suspend fun exec(args: Any?, mapper: ObjectMapper = Mapper): ExecResult {
 			val str = StringBuilder()
 			val scope = Scope(args, mapper)
 			if (template.frontMatter != null) for ((k, v) in template.frontMatter!!) scope.set(k, v)
@@ -123,10 +129,12 @@ class Template internal constructor(
 			return ExecResult(context, str.toString())
 		}
 
-		suspend fun exec(vararg args: Pair<String, Any?>, mapper: ObjectMapper2 = Mapper2): ExecResult = exec(hashMapOf(*args), mapper)
+		suspend fun exec(vararg args: Pair<String, Any?>, mapper: ObjectMapper = Mapper): ExecResult =
+			exec(hashMapOf(*args), mapper)
 
-		operator suspend fun invoke(args: Any?, mapper: ObjectMapper2 = Mapper2): String = exec(args, mapper).str
-		operator suspend fun invoke(vararg args: Pair<String, Any?>, mapper: ObjectMapper2 = Mapper2): String = exec(hashMapOf(*args), mapper).str
+		operator suspend fun invoke(args: Any?, mapper: ObjectMapper = Mapper): String = exec(args, mapper).str
+		operator suspend fun invoke(vararg args: Pair<String, Any?>, mapper: ObjectMapper = Mapper): String =
+			exec(hashMapOf(*args), mapper).str
 
 		suspend fun eval(context: Template.EvalContext) {
 			try {
@@ -144,7 +152,7 @@ class Template internal constructor(
 		var currentTemplate: TemplateEvalContext,
 		var scope: Template.Scope,
 		val config: TemplateConfig,
-		val mapper: ObjectMapper2,
+		val mapper: ObjectMapper,
 		var write: suspend (str: String) -> Unit
 	) {
 		val leafTemplate: TemplateEvalContext = currentTemplate
@@ -195,19 +203,25 @@ class Template internal constructor(
 	//suspend operator fun invoke(vararg args: Pair<String, Any?>, mapper: ObjectMapper2 = Mapper2): String = Template.TemplateEvalContext(this).invoke(*args, mapper = mapper)
 
 	suspend fun createEvalContext() = Template.TemplateEvalContext(this)
-	suspend operator fun invoke(hashMap: Any?, mapper: ObjectMapper2 = Mapper2): String = createEvalContext().invoke(hashMap, mapper = mapper)
-	suspend operator fun invoke(vararg args: Pair<String, Any?>, mapper: ObjectMapper2 = Mapper2): String = createEvalContext().invoke(*args, mapper = mapper)
+	suspend operator fun invoke(hashMap: Any?, mapper: ObjectMapper = Mapper): String =
+		createEvalContext().invoke(hashMap, mapper = mapper)
 
-	suspend fun prender(vararg args: Pair<String, Any?>, mapper: ObjectMapper2 = Mapper2): AsyncTextWriterContainer {
+	suspend operator fun invoke(vararg args: Pair<String, Any?>, mapper: ObjectMapper = Mapper): String =
+		createEvalContext().invoke(*args, mapper = mapper)
+
+	suspend fun prender(vararg args: Pair<String, Any?>, mapper: ObjectMapper = Mapper): AsyncTextWriterContainer {
 		return createEvalContext().withArgs(HashMap(args.toMap()), mapper)
 	}
 
-	suspend fun prender(args: Map<String, Any?>, mapper: ObjectMapper2 = Mapper2): AsyncTextWriterContainer {
+	suspend fun prender(args: Map<String, Any?>, mapper: ObjectMapper = Mapper): AsyncTextWriterContainer {
 		return createEvalContext().withArgs(args, mapper)
 	}
 
 }
 
 suspend fun Template(template: String, config: TemplateConfig = TemplateConfig()): Template {
-	return Templates(MemoryVfs(mapOf("template" to template.toByteArray(config.charset).openAsync())), config = config).get("template")
+	return Templates(
+		MemoryVfs(mapOf("template" to template.toByteArray(config.charset).openAsync())),
+		config = config
+	).get("template")
 }

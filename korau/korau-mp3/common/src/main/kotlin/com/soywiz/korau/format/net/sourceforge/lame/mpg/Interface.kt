@@ -26,11 +26,10 @@
  */
 package com.soywiz.korau.format.net.sourceforge.lame.mpg
 
-import com.soywiz.kmem.arraycopy
-import com.soywiz.kmem.toUnsigned
-import com.soywiz.korau.format.net.sourceforge.lame.mp3.VBRTag
+import com.soywiz.kmem.*
+import com.soywiz.korau.format.net.sourceforge.lame.mp3.*
 import com.soywiz.korau.format.net.sourceforge.lame.mpg.MPGLib.*
-import com.soywiz.korio.lang.Console
+import com.soywiz.korio.lang.*
 
 class Interface(private val vbr: VBRTag) {
 	companion object {
@@ -108,7 +107,8 @@ class Interface(private val vbr: VBRTag) {
 			remove_buf(mp)
 			if (null == mp.list[0]) {
 				throw RuntimeException(
-					"hip: Fatal error! tried to read past mp buffer")
+					"hip: Fatal error! tried to read past mp buffer"
+				)
 			}
 			pos = mp.list[0].pos
 		}
@@ -282,7 +282,7 @@ class Interface(private val vbr: VBRTag) {
 					else
 						sampling_frequency = ((head shr 10 and 0x3) + lsf * 3).toInt()
 					h = stereo == fr.stereo && lsf == fr.lsf
-						&& mpeg25 == fr.mpeg25 && sampling_frequency == fr.sampling_frequency
+							&& mpeg25 == fr.mpeg25 && sampling_frequency == fr.sampling_frequency
 				}
 
 				if (h) {
@@ -294,8 +294,10 @@ class Interface(private val vbr: VBRTag) {
 		return -1
 	}
 
-	internal fun decodeMP3_clipchoice(mp: mpstr_tag, `in`: ByteArray?, inPos: Int, isize: Int,
-									  out: FloatArray, done: ProcessedBytes, synth: ISynth): Int {
+	internal fun decodeMP3_clipchoice(
+		mp: mpstr_tag, `in`: ByteArray?, inPos: Int, isize: Int,
+		out: FloatArray, done: ProcessedBytes, synth: ISynth
+	): Int {
 		var i: Int
 		var iret: Int
 		var bits: Int
@@ -550,8 +552,10 @@ class Interface(private val vbr: VBRTag) {
 		return iret
 	}
 
-	fun decodeMP3(mp: mpstr_tag, `in`: ByteArray, bufferPos: Int, isize: Int,
-				  out: FloatArray, osize: Int, done: ProcessedBytes): Int {
+	fun decodeMP3(
+		mp: mpstr_tag, `in`: ByteArray, bufferPos: Int, isize: Int,
+		out: FloatArray, osize: Int, done: ProcessedBytes
+	): Int {
 		if (osize < 2304) {
 			Console.error("hip: Insufficient memory for decoding buffer $osize")
 			return MPGLib.MP3_ERR
@@ -560,13 +564,17 @@ class Interface(private val vbr: VBRTag) {
 		/* passing pointers to the functions which clip the samples */
 		val synth = object : ISynth {
 
-			override fun synth_1to1_mono_ptr(mp: mpstr_tag, `in`: FloatArray, inPos: Int,
-											 out: FloatArray, p: ProcessedBytes): Int {
+			override fun synth_1to1_mono_ptr(
+				mp: mpstr_tag, `in`: FloatArray, inPos: Int,
+				out: FloatArray, p: ProcessedBytes
+			): Int {
 				return decode.synth1to1mono(mp, `in`, inPos, out, p)
 			}
 
-			override fun synth_1to1_ptr(mp: mpstr_tag, `in`: FloatArray, inPos: Int,
-										i: Int, out: FloatArray, p: ProcessedBytes): Int {
+			override fun synth_1to1_ptr(
+				mp: mpstr_tag, `in`: FloatArray, inPos: Int,
+				i: Int, out: FloatArray, p: ProcessedBytes
+			): Int {
 				return decode.synth_1to1(mp, `in`, inPos, i, out, p)
 			}
 
@@ -574,8 +582,10 @@ class Interface(private val vbr: VBRTag) {
 		return decodeMP3_clipchoice(mp, `in`, bufferPos, isize, out, done, synth)
 	}
 
-	fun decodeMP3_unclipped(mp: mpstr_tag, `in`: ByteArray, bufferPos: Int,
-							isize: Int, out: FloatArray, osize: Int, done: ProcessedBytes): Int {
+	fun decodeMP3_unclipped(
+		mp: mpstr_tag, `in`: ByteArray, bufferPos: Int,
+		isize: Int, out: FloatArray, osize: Int, done: ProcessedBytes
+	): Int {
 		/*
 		 * we forbid input with more than 1152 samples per channel for output in
 		 * unclipped mode
@@ -587,14 +597,18 @@ class Interface(private val vbr: VBRTag) {
 
 		val synth = object : ISynth {
 
-			override fun synth_1to1_mono_ptr(mp: mpstr_tag, `in`: FloatArray, inPos: Int,
-											 out: FloatArray, p: ProcessedBytes): Int {
+			override fun synth_1to1_mono_ptr(
+				mp: mpstr_tag, `in`: FloatArray, inPos: Int,
+				out: FloatArray, p: ProcessedBytes
+			): Int {
 				decode.synth1to1monoUnclipped(mp, `in`, inPos, out, p)
 				return 0
 			}
 
-			override fun synth_1to1_ptr(mp: mpstr_tag, `in`: FloatArray, inPos: Int,
-										i: Int, out: FloatArray, p: ProcessedBytes): Int {
+			override fun synth_1to1_ptr(
+				mp: mpstr_tag, `in`: FloatArray, inPos: Int,
+				i: Int, out: FloatArray, p: ProcessedBytes
+			): Int {
 				decode.synth_1to1_unclipped(mp, `in`, inPos, i, out, p)
 				return 0
 			}

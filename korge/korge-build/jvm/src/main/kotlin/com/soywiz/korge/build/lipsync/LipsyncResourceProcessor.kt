@@ -21,7 +21,7 @@ object LipsyncResourceProcessor : ResourceProcessor("voice.wav", "voice.mp3", "v
 		println(processWav(LocalVfs["c:/temp/simple.wav"]))
 		println("DONE")
 	}
-	
+
 	override val version: Int = 0
 	override val outputExtension: String = "lipsync"
 
@@ -34,8 +34,16 @@ object LipsyncResourceProcessor : ResourceProcessor("voice.wav", "voice.mp3", "v
 
 	val config by lazy {
 		when {
-			OS.isMac -> Config(URL("https://github.com/soywiz/korge-tools/releases/download/binaries/rhubarb-lip-sync-1.4.2-osx.zip"), "rhubarb-lip-sync-1.4.2-osx", "rhubarb")
-			else -> Config(URL("https://github.com/soywiz/korge-tools/releases/download/binaries/rhubarb-lip-sync-1.4.2-win32.zip"), "rhubarb-lip-sync-1.4.2-win32", "rhubarb.exe")
+			OS.isMac -> Config(
+				URL("https://github.com/soywiz/korge-tools/releases/download/binaries/rhubarb-lip-sync-1.4.2-osx.zip"),
+				"rhubarb-lip-sync-1.4.2-osx",
+				"rhubarb"
+			)
+			else -> Config(
+				URL("https://github.com/soywiz/korge-tools/releases/download/binaries/rhubarb-lip-sync-1.4.2-win32.zip"),
+				"rhubarb-lip-sync-1.4.2-win32",
+				"rhubarb.exe"
+			)
 		}
 	}
 
@@ -93,7 +101,8 @@ object LipsyncResourceProcessor : ResourceProcessor("voice.wav", "voice.mp3", "v
 
 	data class RhubarbFile(val metadata: Metadata, val mouthCues: List<MouthCue>) {
 		val totalTime: Double by lazy { mouthCues.map { it.end }.max() ?: 0.0 }
-		fun findCue(time: Double): MouthCue? = mouthCues.getOrNull(mouthCues.binarySearch { if (time < it.start) +1 else if (time >= it.end) -1 else 0 })
+		fun findCue(time: Double): MouthCue? =
+			mouthCues.getOrNull(mouthCues.binarySearch { if (time < it.start) +1 else if (time >= it.end) -1 else 0 })
 
 		fun toLipString(): String {
 			var out = ""

@@ -26,9 +26,9 @@
 
 package com.soywiz.korau.format.com.jcraft.jorbis
 
-import com.soywiz.kmem.arraycopy
-import com.soywiz.korio.error.invalidOp
-import kotlin.math.sin
+import com.soywiz.kmem.*
+import com.soywiz.korio.error.*
+import kotlin.math.*
 
 class DspState() {
 

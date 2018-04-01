@@ -1,10 +1,9 @@
 package com.soywiz.korim.format
 
-import com.soywiz.korim.bitmap.matchContents
-import com.soywiz.korio.async.syncTest
-import com.soywiz.korio.vfs.ResourcesVfs
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korio.async.*
 import org.junit.Test
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class PSDTest {
 	val formats = ImageFormats().registerStandard().register(PSD)

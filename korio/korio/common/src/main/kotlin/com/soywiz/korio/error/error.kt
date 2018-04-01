@@ -1,6 +1,6 @@
 package com.soywiz.korio.error
 
-import com.soywiz.korio.lang.printStackTrace
+import com.soywiz.korio.lang.*
 
 class InvalidOperationException(str: String = "Invalid Operation") : Exception(str)
 class OutOfBoundsException(index: Int = -1, str: String = "Out Of Bounds") : Exception(str)

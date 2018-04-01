@@ -1,10 +1,7 @@
 package com.soywiz.korge.ext.tiled
 
-import com.soywiz.korge.render.RenderContext
-import com.soywiz.korge.view.Container
-import com.soywiz.korge.view.Views
-import com.soywiz.korge.view.tiles.TileMap
-import com.soywiz.korma.Matrix2d
+import com.soywiz.korge.view.*
+import com.soywiz.korge.view.tiles.*
 
 class TiledMapView(views: Views, val tiledMap: TiledMap) : Container(views) {
 	init {

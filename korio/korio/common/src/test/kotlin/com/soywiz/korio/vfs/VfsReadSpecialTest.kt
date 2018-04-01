@@ -1,10 +1,10 @@
 package com.soywiz.korio.vfs
 
-import com.soywiz.korio.async.syncTest
-import com.soywiz.kds.lmapOf
-import com.soywiz.korio.util.expectException
+import com.soywiz.kds.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.util.*
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class VfsReadSpecialTest {
 	data class MySpecialClass(val vfs: Vfs, val path: String)

@@ -1,13 +1,12 @@
 package com.soywiz.korge.ui
 
-import com.soywiz.korge.html.Html
-import com.soywiz.korge.view.IHtml
-import com.soywiz.korge.view.IText
-import com.soywiz.korge.view.text
-import com.soywiz.korim.color.Colors
-import com.soywiz.korio.util.redirectField
+import com.soywiz.korge.html.*
+import com.soywiz.korge.view.*
+import com.soywiz.korim.color.*
+import com.soywiz.korio.util.*
 
-class Label(factory: UIFactory, skin: UISkin = factory.skin, initialText: String = "Label") : Widget(factory, skin), IText, IHtml {
+class Label(factory: UIFactory, skin: UISkin = factory.skin, initialText: String = "Label") : Widget(factory, skin),
+	IText, IHtml {
 	val textView = views.text(initialText).apply { this@Label += this }
 
 	override var text: String by redirectField(textView::text)

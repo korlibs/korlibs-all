@@ -1,15 +1,17 @@
 package com.soywiz.korinject
 
-import java.lang.reflect.Field
-import java.lang.reflect.Method
-import java.lang.reflect.Modifier
-import kotlin.reflect.KClass
+import java.lang.reflect.*
+import kotlin.reflect.*
 
 fun AsyncInjector.jvmAutomapping(): AsyncInjector = this.apply {
 	this.fallbackProvider = { kclazz, ctx -> fallback(this, kclazz, ctx) }
 }
 
-private suspend fun fallback(injector: AsyncInjector, kclazz: KClass<*>, ctx: AsyncInjector.RequestContext): AsyncObjectProvider<*> {
+private suspend fun fallback(
+	injector: AsyncInjector,
+	kclazz: KClass<*>,
+	ctx: AsyncInjector.RequestContext
+): AsyncObjectProvider<*> {
 	val clazz = (kclazz as kotlin.reflect.KClass<*>).java
 
 	val isPrototype = clazz.getAnnotation(Prototype::class.java) != null
@@ -24,7 +26,8 @@ private suspend fun fallback(injector: AsyncInjector, kclazz: KClass<*>, ctx: As
 			val loaderClass = clazz.getAnnotation(AsyncFactoryClass::class.java)
 			val actualClass = loaderClass?.clazz?.java ?: clazz
 			if (actualClass.isInterface || Modifier.isAbstract(actualClass.modifiers)) throw IllegalArgumentException("Can't instantiate abstract or interface: $actualClass in $ctx")
-			val constructor = actualClass.declaredConstructors.firstOrNull() ?: throw IllegalArgumentException("No available constructor for $clazz")
+			val constructor = actualClass.declaredConstructors.firstOrNull()
+					?: throw IllegalArgumentException("No available constructor for $clazz")
 			val out = arrayListOf<Any?>()
 			val allInstances = arrayListOf<Any?>()
 
@@ -46,7 +49,13 @@ private suspend fun fallback(injector: AsyncInjector, kclazz: KClass<*>, ctx: As
 				if (isOptional) {
 					out.add(if (i.has(paramType.kotlin)) i.getOrNull(paramType.kotlin, ctx) else null)
 				} else {
-					out.add(i.getOrNull(paramType.kotlin, ctx) ?: throw AsyncInjector.NotMappedException(paramType.kotlin, actualClass.kotlin, ctx))
+					out.add(
+						i.getOrNull(paramType.kotlin, ctx) ?: throw AsyncInjector.NotMappedException(
+							paramType.kotlin,
+							actualClass.kotlin,
+							ctx
+						)
+					)
 				}
 			}
 			allInstances.addAll(out)
@@ -110,4 +119,5 @@ private suspend fun fallback(injector: AsyncInjector, kclazz: KClass<*>, ctx: As
 	}
 }
 
-private val Class<*>.allDeclaredFields: List<Field> get() = this.declaredFields.toList() + (this.superclass?.allDeclaredFields?.toList() ?: listOf<Field>())
+private val Class<*>.allDeclaredFields: List<Field>
+	get() = this.declaredFields.toList() + (this.superclass?.allDeclaredFields?.toList() ?: listOf<Field>())

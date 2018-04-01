@@ -1,7 +1,5 @@
 package com.soywiz.korio.crypto
 
-import com.soywiz.korio.util.substr
-
 object Hex {
 	val DIGITS = "0123456789ABCDEF"
 	val DIGITS_UPPER = DIGITS.toUpperCase()

@@ -1,7 +1,7 @@
 package com.soywiz.korio.lang
 
-import com.soywiz.korio.math.reinterpretAsInt
-import kotlin.math.pow
+import com.soywiz.korio.math.*
+import kotlin.math.*
 
 class Float16(val bits: Int) {
 	constructor(value: Double) : this(doubleToIntBits(value))

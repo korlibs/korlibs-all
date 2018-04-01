@@ -1,11 +1,13 @@
 package com.soywiz.korma
 
-class Matrix4(val data: FloatArray = floatArrayOf(
-	1f, 0f, 0f, 0f,
-	0f, 1f, 0f, 0f,
-	0f, 0f, 1f, 0f,
-	0f, 0f, 0f, 1f
-)) {
+class Matrix4(
+	val data: FloatArray = floatArrayOf(
+		1f, 0f, 0f, 0f,
+		0f, 1f, 0f, 0f,
+		0f, 0f, 1f, 0f,
+		0f, 0f, 0f, 1f
+	)
+) {
 	operator fun get(x: Int, y: Int) = data[y * 4 + x]
 
 	companion object {

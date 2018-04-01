@@ -1,14 +1,12 @@
 package com.soywiz.korge.scene
 
-import com.soywiz.korge.resources.ResourcesRoot
-import com.soywiz.korge.tests.ViewsForTesting
-import com.soywiz.korge.time.milliseconds
-import com.soywiz.korge.view.Container
-import com.soywiz.korge.view.get
-import com.soywiz.korim.color.Colors
+import com.soywiz.korge.resources.*
+import com.soywiz.korge.tests.*
+import com.soywiz.korge.time.*
+import com.soywiz.korge.view.*
+import com.soywiz.korim.color.*
 import org.junit.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
+import kotlin.test.*
 
 class SceneContainerTest : ViewsForTesting() {
 	data class SceneInfo(val name: String)

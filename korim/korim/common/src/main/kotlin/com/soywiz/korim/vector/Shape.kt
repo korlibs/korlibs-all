@@ -1,14 +1,11 @@
 package com.soywiz.korim.vector
 
-import com.soywiz.korim.bitmap.toUri
-import com.soywiz.korim.color.RGBA
-import com.soywiz.korio.serialization.xml.Xml
-import com.soywiz.korio.util.niceStr
-import com.soywiz.korio.util.substr
-import com.soywiz.korma.Matrix2d
-import com.soywiz.korma.geom.BoundsBuilder
-import com.soywiz.korma.geom.Rectangle
-import com.soywiz.korma.geom.VectorPath
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
+import com.soywiz.korio.serialization.xml.*
+import com.soywiz.korio.util.*
+import com.soywiz.korma.*
+import com.soywiz.korma.geom.*
 
 /*
 <svg width="80px" height="30px" viewBox="0 0 80 30"
@@ -45,7 +42,12 @@ class SvgBuilder(val bounds: Rectangle, val scale: Double) {
 			),
 			listOf(
 				Xml.Tag("defs", mapOf(), defs)
-				, Xml.Tag("g", mapOf("transform" to Matrix2d().translate(-bounds.x, -bounds.y).scale(scale, scale).toSvg()), nodes)
+				,
+				Xml.Tag(
+					"g",
+					mapOf("transform" to Matrix2d().translate(-bounds.x, -bounds.y).scale(scale, scale).toSvg()),
+					nodes
+				)
 			) //+ nodes
 		)
 	}
@@ -134,10 +136,12 @@ interface StyledShape : Shape {
 	}
 
 	override fun buildSvg(svg: SvgBuilder) {
-		svg.nodes += Xml.Tag("path", mapOf(
-			//"d" to path.toSvgPathString(svg.scale, svg.tx, svg.ty)
-			"d" to path.toSvgPathString()
-		) + getSvgXmlAttributes(svg), listOf())
+		svg.nodes += Xml.Tag(
+			"path", mapOf(
+				//"d" to path.toSvgPathString(svg.scale, svg.tx, svg.ty)
+				"d" to path.toSvgPathString()
+			) + getSvgXmlAttributes(svg), listOf()
+		)
 	}
 
 	fun getSvgXmlAttributes(svg: SvgBuilder): Map<String, String> = mapOf(
@@ -190,7 +194,8 @@ fun Context2d.Paint.toSvg(svg: SvgBuilder): String {
 				is Context2d.Gradient -> {
 					when (this.kind) {
 						Context2d.Gradient.Kind.LINEAR -> {
-							svg.defs += Xml.Tag("linearGradient",
+							svg.defs += Xml.Tag(
+								"linearGradient",
 								mapOf(
 									"id" to "def$id",
 									"x1" to "$x0", "y1" to "$y0",
@@ -201,7 +206,8 @@ fun Context2d.Paint.toSvg(svg: SvgBuilder): String {
 							)
 						}
 						Context2d.Gradient.Kind.RADIAL -> {
-							svg.defs += Xml.Tag("radialGradient",
+							svg.defs += Xml.Tag(
+								"radialGradient",
 								mapOf(
 									"id" to "def$id",
 									"cx" to "$x0", "cy" to "$y0",
@@ -223,22 +229,25 @@ fun Context2d.Paint.toSvg(svg: SvgBuilder): String {
 			//</pattern>
 
 
-			svg.defs += Xml.Tag("pattern", mapOf(
-				"id" to "def$id",
-				"patternUnits" to "userSpaceOnUse",
-				"width" to "${bitmap.width}",
-				"height" to "${bitmap.height}",
-				"patternTransform" to transform.toSvg()
-			), listOf(
-				Xml.Tag("image",
-					mapOf(
-						"xlink:href" to bitmap.toUri(),
-						"width" to "${bitmap.width}",
-						"height" to "${bitmap.height}"
-					),
-					listOf<Xml>()
+			svg.defs += Xml.Tag(
+				"pattern", mapOf(
+					"id" to "def$id",
+					"patternUnits" to "userSpaceOnUse",
+					"width" to "${bitmap.width}",
+					"height" to "${bitmap.height}",
+					"patternTransform" to transform.toSvg()
+				), listOf(
+					Xml.Tag(
+						"image",
+						mapOf(
+							"xlink:href" to bitmap.toUri(),
+							"width" to "${bitmap.width}",
+							"height" to "${bitmap.height}"
+						),
+						listOf<Xml>()
+					)
 				)
-			))
+			)
 			return "url(#def$id)"
 		}
 		is Context2d.Color -> {

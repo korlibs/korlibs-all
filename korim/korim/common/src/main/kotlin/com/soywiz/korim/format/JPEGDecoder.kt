@@ -1,11 +1,11 @@
 package com.soywiz.korim.format
 
-import com.soywiz.kmem.UByteArray
-import com.soywiz.korim.bitmap.Bitmap32
-import com.soywiz.korim.color.RGBA
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korio.util.toString
-import kotlin.math.ceil
+import com.soywiz.kmem.*
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
+import com.soywiz.korio.error.*
+import com.soywiz.korio.util.*
+import kotlin.math.*
 
 // https://github.com/eugeneware/jpeg-js/blob/652bfced3ead53808285b1b5fa9c0b589d00bbf0/lib/decoder.js
 
@@ -324,7 +324,13 @@ class JPEGDecoder {
 			}
 		}
 
-		fun decodeMcu(component: FrameComponent, decode: (FrameComponent, IntArray) -> Unit, mcu: Int, row: Int, col: Int) {
+		fun decodeMcu(
+			component: FrameComponent,
+			decode: (FrameComponent, IntArray) -> Unit,
+			mcu: Int,
+			row: Int,
+			col: Int
+		) {
 			val mcuRow = (mcu / mcusPerLine) or 0
 			val mcuCol = mcu % mcusPerLine
 			val blockRow = mcuRow * component.v + row
@@ -448,7 +454,8 @@ class JPEGDecoder {
 				// check for all-zero AC coefficients
 				if (p[1 + row] == 0 && p[2 + row] == 0 && p[3 + row] == 0 &&
 					p[4 + row] == 0 && p[5 + row] == 0 && p[6 + row] == 0 &&
-					p[7 + row] == 0) {
+					p[7 + row] == 0
+				) {
 					t = (dctSqrt2 * p[0 + row] + 512) shr 10
 					p[0 + row] = t
 					p[1 + row] = t
@@ -515,7 +522,8 @@ class JPEGDecoder {
 				// check for all-zero AC coefficients
 				if (p[1 * 8 + col] == 0 && p[2 * 8 + col] == 0 && p[3 * 8 + col] == 0 &&
 					p[4 * 8 + col] == 0 && p[5 * 8 + col] == 0 && p[6 * 8 + col] == 0 &&
-					p[7 * 8 + col] == 0) {
+					p[7 * 8 + col] == 0
+				) {
 					t = (dctSqrt2 * dataIn[col + 0] + 8192) shr 14
 					p[0 * 8 + col] = t
 					p[1 * 8 + col] = t
@@ -664,8 +672,10 @@ class JPEGDecoder {
 			val mcusPerLine = mceil(frame.samplesPerLine.toFloat() / 8f / maxH.toFloat())
 			val mcusPerColumn = mceil(frame.scanLines.toFloat() / 8f / maxV.toFloat())
 			for (component in frame.components) {
-				val blocksPerLine = mceil(mceil(frame.samplesPerLine.toFloat() / 8f) * component.h.toFloat() / maxH.toFloat())
-				val blocksPerColumn = mceil(mceil(frame.scanLines.toFloat() / 8f) * component.v.toFloat() / maxV.toFloat())
+				val blocksPerLine =
+					mceil(mceil(frame.samplesPerLine.toFloat() / 8f) * component.h.toFloat() / maxH.toFloat())
+				val blocksPerColumn =
+					mceil(mceil(frame.scanLines.toFloat() / 8f) * component.v.toFloat() / maxV.toFloat())
 				val blocksPerLineForMcu = mcusPerLine * component.h
 				val blocksPerColumnForMcu = mcusPerColumn * component.v
 				val blocks = arrayListOf<ArrayList<IntArray>>()
@@ -710,7 +720,8 @@ class JPEGDecoder {
 
 					if (fileMarker == 0xFFE0) {
 						if (appData[0] == 0x4A && appData[1] == 0x46 && appData[2] == 0x49 &&
-							appData[3] == 0x46 && appData[4] == 0) { // 'JFIF\x00'
+							appData[3] == 0x46 && appData[4] == 0
+						) { // 'JFIF\x00'
 							jfif = Jfif(
 								versionMajor = appData[5],
 								versionMinor = appData[6],
@@ -726,7 +737,8 @@ class JPEGDecoder {
 					// TODO APP1 - Exif
 					if (fileMarker == 0xFFEE) {
 						if (appData[0] == 0x41 && appData[1] == 0x64 && appData[2] == 0x6F &&
-							appData[3] == 0x62 && appData[4] == 0x65 && appData[5] == 0) { // 'Adobe\x00'
+							appData[3] == 0x62 && appData[4] == 0x65 && appData[5] == 0
+						) { // 'Adobe\x00'
 							adobe = Adobe(
 								version = appData[6],
 								flags0 = (appData[7] shl 8) or appData[8],
@@ -835,7 +847,8 @@ class JPEGDecoder {
 				}
 				else -> {
 					if (data[offset - 3] == 0xFF &&
-						data[offset - 2] >= 0xC0 && data[offset - 2] <= 0xFE) {
+						data[offset - 2] >= 0xC0 && data[offset - 2] <= 0xFE
+					) {
 						// could be incorrect encoding -- last 0xFF byte of the previous
 						// block was eaten by the encoder
 						offset -= 3
@@ -865,11 +878,13 @@ class JPEGDecoder {
 		this.components = arrayListOf()
 		for (i in 0 until frame.componentsOrder.size) {
 			val component = frame.components[frame.componentsOrder[i]]
-			this.components.add(Component(
-				lines = buildComponentData(frame, component),
-				scaleX = component.h.toFloat() / frame.maxH.toFloat(),
-				scaleY = component.v.toFloat() / frame.maxV.toFloat()
-			))
+			this.components.add(
+				Component(
+					lines = buildComponentData(frame, component),
+					scaleX = component.h.toFloat() / frame.maxH.toFloat(),
+					scaleY = component.v.toFloat() / frame.maxV.toFloat()
+				)
+			)
 		}
 	}
 
@@ -933,7 +948,8 @@ class JPEGDecoder {
 							val cb = component2Line[((x * component2.scaleX * scaleX).toInt())]
 							val cr = component3Line[((x * component3.scaleX * scaleX).toInt())]
 							data[offset++] = clampTo8bit((yy + 1.402f * (cr - 128f)).toInt())
-							data[offset++] = clampTo8bit((yy - 0.3441363f * (cb - 128f) - 0.71413636f * (cr - 128f)).toInt())
+							data[offset++] =
+									clampTo8bit((yy - 0.3441363f * (cb - 128f) - 0.71413636f * (cr - 128f)).toInt())
 							data[offset++] = clampTo8bit((yy + 1.772f * (cb - 128f)).toInt())
 						}
 					}

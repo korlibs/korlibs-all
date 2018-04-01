@@ -1,10 +1,9 @@
 package com.soywiz.korge.render
 
-import com.soywiz.kds.Extra
-import com.soywiz.kds.Pool
-import com.soywiz.korag.AG
-import com.soywiz.korim.color.Colors
-import com.soywiz.korma.Matrix2d
+import com.soywiz.kds.*
+import com.soywiz.korag.*
+import com.soywiz.korim.color.*
+import com.soywiz.korma.*
 
 class RenderContext2D(val batch: BatchBuilder2D) : Extra by Extra.Mixin() {
 	val mpool = Pool<Matrix2d> { Matrix2d() }
@@ -71,6 +70,15 @@ class RenderContext2D(val batch: BatchBuilder2D) : Extra by Extra.Mixin() {
 
 	fun imageScale(texture: Texture, x: Double, y: Double, scale: Double) {
 		//println(m)
-		batch.drawQuad(texture, x.toFloat(), y.toFloat(), (texture.width * scale).toFloat(), (texture.height * scale).toFloat(), m = m, colorMul = multiplyColor, blendFactors = blendFactors)
+		batch.drawQuad(
+			texture,
+			x.toFloat(),
+			y.toFloat(),
+			(texture.width * scale).toFloat(),
+			(texture.height * scale).toFloat(),
+			m = m,
+			colorMul = multiplyColor,
+			blendFactors = blendFactors
+		)
 	}
 }

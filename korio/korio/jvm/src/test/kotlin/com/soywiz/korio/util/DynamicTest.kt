@@ -1,9 +1,9 @@
 package com.soywiz.korio.util
 
-import com.soywiz.korio.async.syncTest
-import com.soywiz.kds.lmapOf
+import com.soywiz.kds.*
+import com.soywiz.korio.async.*
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class DynamicTest {
 	@Test

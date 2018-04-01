@@ -1,16 +1,14 @@
 package com.soywiz.korim.font.ttf
 
-import com.soywiz.korim.bitmap.NativeImage
-import com.soywiz.korim.color.Colors
-import com.soywiz.korim.format.showImageAndWait
-import com.soywiz.korio.async.syncTest
-import com.soywiz.korio.stream.openSync
-import com.soywiz.korio.vfs.ResourcesVfs
-import com.soywiz.korio.vfs.VfsFile
-import com.soywiz.korio.vfs.applicationVfs
-import org.junit.Before
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
+import com.soywiz.korim.format.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.stream.*
+import com.soywiz.korio.vfs.*
+import org.junit.*
 import org.junit.Test
-import kotlin.test.Ignore
+import kotlin.test.*
 
 class TtfFontTest {
 	lateinit var root: VfsFile
@@ -29,7 +27,15 @@ class TtfFontTest {
 		val font = TtfFont(root["Comfortaa-Regular.ttf"].readAll().openSync())
 		showImageAndWait(NativeImage(512, 128).apply {
 			getContext2d()
-				.fillText(font, "HELLO WORLD. This 0123 ñáéíóúç", size = 32.0, x = 0.0, y = 0.0, color = Colors.RED, origin = TtfFont.Origin.TOP)
+				.fillText(
+					font,
+					"HELLO WORLD. This 0123 ñáéíóúç",
+					size = 32.0,
+					x = 0.0,
+					y = 0.0,
+					color = Colors.RED,
+					origin = TtfFont.Origin.TOP
+				)
 		})
 	}
 }

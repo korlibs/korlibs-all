@@ -1,6 +1,6 @@
 package com.soywiz.kmem
 
-import kotlin.math.abs
+import kotlin.math.*
 
 
 private val formatRegex = Regex("%([-]?\\d+)?(\\w)")

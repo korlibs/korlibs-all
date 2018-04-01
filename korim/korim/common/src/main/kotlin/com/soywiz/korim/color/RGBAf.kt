@@ -1,6 +1,6 @@
 package com.soywiz.korim.color
 
-import com.soywiz.korio.util.niceStr
+import com.soywiz.korio.util.*
 
 class RGBAf(
 	private var _r: Float = 1f,
@@ -25,13 +25,14 @@ class RGBAf(
 	}
 
 	private var _rgba: Int = -1
-	val rgba: Int get() {
-		if (dirty) {
-			dirty = false
-			_rgba = RGBA.packfFast(_r, _g, _b, _a)
+	val rgba: Int
+		get() {
+			if (dirty) {
+				dirty = false
+				_rgba = RGBA.packfFast(_r, _g, _b, _a)
+			}
+			return _rgba
 		}
-		return _rgba
-	}
 
 	fun setTo(r: Float, g: Float, b: Float, a: Float) {
 		this._r = r
@@ -45,7 +46,12 @@ class RGBAf(
 	fun setToMultiply(that: RGBAf) = setToMultiply(that.r, that.g, that.b, that.a)
 	fun setToMultiply(r: Float, g: Float, b: Float, a: Float) = setTo(this.r * r, this.g * g, this.b * b, this.a * a)
 
-	fun toRGBA(): Int = RGBA.packFast((r * 255).toInt() and 0xFF, (g * 255).toInt() and 0xFF, (b * 255).toInt() and 0xFF, (a * 255).toInt() and 0xFF)
+	fun toRGBA(): Int = RGBA.packFast(
+		(r * 255).toInt() and 0xFF,
+		(g * 255).toInt() and 0xFF,
+		(b * 255).toInt() and 0xFF,
+		(a * 255).toInt() and 0xFF
+	)
 
 	fun setToIdentity() = setTo(1f, 1f, 1f, 1f)
 

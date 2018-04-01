@@ -1,6 +1,6 @@
 package com.soywiz.korge.service
 
-import com.soywiz.korinject.Singleton
+import com.soywiz.korinject.*
 
 @Singleton
 open class Store {

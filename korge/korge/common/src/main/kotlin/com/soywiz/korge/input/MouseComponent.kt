@@ -1,15 +1,14 @@
 package com.soywiz.korge.input
 
-import com.soywiz.korge.bitmapfont.drawText
-import com.soywiz.korge.component.Component
-import com.soywiz.korge.event.preventDefault
+import com.soywiz.kds.*
+import com.soywiz.korge.bitmapfont.*
+import com.soywiz.korge.component.*
+import com.soywiz.korge.event.*
 import com.soywiz.korge.view.*
-import com.soywiz.korim.color.RGBA
-import com.soywiz.korio.async.Signal
-import com.soywiz.korio.async.addSuspend
-import com.soywiz.kds.Extra
-import com.soywiz.korio.util.Once
-import com.soywiz.korma.geom.Point2d
+import com.soywiz.korim.color.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.util.*
+import com.soywiz.korma.geom.*
 
 class MouseComponent(view: View) : Component(view) {
 	val input = views.input
@@ -101,17 +100,33 @@ class MouseComponent(view: View) : Component(view) {
 				if (mouseHit != null) {
 					val bounds = mouseHit.getLocalBounds()
 					renderContext.batch.drawQuad(
-						views.whiteTexture, x = bounds.x.toFloat(), y = bounds.y.toFloat(), width = bounds.width.toFloat(), height = bounds.height.toFloat(), colorMul = RGBA(0xFF, 0, 0, 0x3F),
+						views.whiteTexture,
+						x = bounds.x.toFloat(),
+						y = bounds.y.toFloat(),
+						width = bounds.width.toFloat(),
+						height = bounds.height.toFloat(),
+						colorMul = RGBA(0xFF, 0, 0, 0x3F),
 						m = mouseHit.globalMatrix
 					)
-					renderContext.batch.drawText(defaultFont, 16.0, mouseHit.toString() + " : " + views.nativeMouseX + "," + views.nativeMouseY, x = 0, y = 0)
+					renderContext.batch.drawText(
+						defaultFont,
+						16.0,
+						mouseHit.toString() + " : " + views.nativeMouseX + "," + views.nativeMouseY,
+						x = 0,
+						y = 0
+					)
 				}
 
 				val mouseHitResultUsed = input.mouseHitResultUsed
 				if (mouseHitResultUsed != null) {
 					val bounds = mouseHitResultUsed.getLocalBounds()
 					renderContext.batch.drawQuad(
-						views.whiteTexture, x = bounds.x.toFloat(), y = bounds.y.toFloat(), width = bounds.width.toFloat(), height = bounds.height.toFloat(), colorMul = RGBA(0x00, 0, 0xFF, 0x3F),
+						views.whiteTexture,
+						x = bounds.x.toFloat(),
+						y = bounds.y.toFloat(),
+						width = bounds.width.toFloat(),
+						height = bounds.height.toFloat(),
+						colorMul = RGBA(0x00, 0, 0xFF, 0x3F),
 						m = mouseHitResultUsed.globalMatrix
 					)
 					renderContext.batch.drawText(defaultFont, 16.0, mouseHitResultUsed.toString(), x = 0, y = 16)
@@ -165,11 +180,26 @@ class MouseComponent(view: View) : Component(view) {
 
 val View.mouse by Extra.PropertyThis<View, MouseComponent> { this.getOrCreateComponent { MouseComponent(this) } }
 
-inline fun <T : View?> T?.onClick(noinline handler: suspend (MouseComponent) -> Unit) = this.apply { this?.mouse?.onClick?.addSuspend(this.views.coroutineContext, handler) }
-inline fun <T : View?> T?.onOver(noinline handler: suspend (MouseComponent) -> Unit) = this.apply { this?.mouse?.onOver?.addSuspend(this.views.coroutineContext, handler) }
-inline fun <T : View?> T?.onOut(noinline handler: suspend (MouseComponent) -> Unit) = this.apply { this?.mouse?.onOut?.addSuspend(this.views.coroutineContext, handler) }
-inline fun <T : View?> T?.onDown(noinline handler: suspend (MouseComponent) -> Unit) = this.apply { this?.mouse?.onDown?.addSuspend(this.views.coroutineContext, handler) }
-inline fun <T : View?> T?.onUp(noinline handler: suspend (MouseComponent) -> Unit) = this.apply { this?.mouse?.onUp?.addSuspend(this.views.coroutineContext, handler) }
-inline fun <T : View?> T?.onUpOutside(noinline handler: suspend (MouseComponent) -> Unit) = this.apply { this?.mouse?.onUpOutside?.addSuspend(this.views.coroutineContext, handler) }
-inline fun <T : View?> T?.onUpAnywhere(noinline handler: suspend (MouseComponent) -> Unit) = this.apply { this?.mouse?.onUpAnywhere?.addSuspend(this.views.coroutineContext, handler) }
-inline fun <T : View?> T?.onMove(noinline handler: suspend (MouseComponent) -> Unit) = this.apply { this?.mouse?.onMove?.addSuspend(this.views.coroutineContext, handler) }
+inline fun <T : View?> T?.onClick(noinline handler: suspend (MouseComponent) -> Unit) =
+	this.apply { this?.mouse?.onClick?.addSuspend(this.views.coroutineContext, handler) }
+
+inline fun <T : View?> T?.onOver(noinline handler: suspend (MouseComponent) -> Unit) =
+	this.apply { this?.mouse?.onOver?.addSuspend(this.views.coroutineContext, handler) }
+
+inline fun <T : View?> T?.onOut(noinline handler: suspend (MouseComponent) -> Unit) =
+	this.apply { this?.mouse?.onOut?.addSuspend(this.views.coroutineContext, handler) }
+
+inline fun <T : View?> T?.onDown(noinline handler: suspend (MouseComponent) -> Unit) =
+	this.apply { this?.mouse?.onDown?.addSuspend(this.views.coroutineContext, handler) }
+
+inline fun <T : View?> T?.onUp(noinline handler: suspend (MouseComponent) -> Unit) =
+	this.apply { this?.mouse?.onUp?.addSuspend(this.views.coroutineContext, handler) }
+
+inline fun <T : View?> T?.onUpOutside(noinline handler: suspend (MouseComponent) -> Unit) =
+	this.apply { this?.mouse?.onUpOutside?.addSuspend(this.views.coroutineContext, handler) }
+
+inline fun <T : View?> T?.onUpAnywhere(noinline handler: suspend (MouseComponent) -> Unit) =
+	this.apply { this?.mouse?.onUpAnywhere?.addSuspend(this.views.coroutineContext, handler) }
+
+inline fun <T : View?> T?.onMove(noinline handler: suspend (MouseComponent) -> Unit) =
+	this.apply { this?.mouse?.onMove?.addSuspend(this.views.coroutineContext, handler) }

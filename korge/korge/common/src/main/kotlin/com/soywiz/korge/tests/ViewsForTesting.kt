@@ -1,11 +1,8 @@
 package com.soywiz.korge.tests
 
-import com.soywiz.korge.time.TimeSpan
-import com.soywiz.korge.time.milliseconds
-import com.soywiz.korge.view.ViewsLog
-import com.soywiz.korge.view.updateLoop
-import com.soywiz.korio.async.EventLoopTest
-import com.soywiz.korio.async.sync
+import com.soywiz.korge.time.*
+import com.soywiz.korge.view.*
+import com.soywiz.korio.async.*
 
 open class ViewsForTesting {
 	val elt = EventLoopTest()

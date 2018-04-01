@@ -1,6 +1,6 @@
 package com.soywiz.korim.vector
 
-import com.soywiz.korim.bitmap.Bitmap32
+import com.soywiz.korim.bitmap.*
 
 class Bitmap32Context2d(val bmp: Bitmap32) : Context2d.Renderer() {
 	override val width: Int get() = bmp.width

@@ -1,6 +1,6 @@
 package com.soywiz.korfl.abc
 
-import com.soywiz.korio.error.invalidOp
+import com.soywiz.korio.error.*
 import com.soywiz.korio.stream.*
 
 class AbcConstantPool {

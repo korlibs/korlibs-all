@@ -1,6 +1,6 @@
 package com.soywiz.korge.util
 
-import com.soywiz.korio.lang.Dynamic
+import com.soywiz.korio.lang.*
 
 fun Dynamic.toBool2(obj: Any?): Boolean = when (obj) {
 	is Boolean -> obj

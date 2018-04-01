@@ -21,13 +21,19 @@ suspend fun androidShowImage(bitmap: Bitmap): Unit = korioSuspendCoroutine { c -
 				val settingsDialog = Dialog(ctx)
 				settingsDialog.window.requestFeature(Window.FEATURE_NO_TITLE)
 				val rlmain = LinearLayout(ctx)
-				val llp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT)
+				val llp = LinearLayout.LayoutParams(
+					LinearLayout.LayoutParams.FILL_PARENT,
+					LinearLayout.LayoutParams.FILL_PARENT
+				)
 				val ll1 = LinearLayout(ctx)
 
 				val iv = ImageView(ctx)
 				iv.setBackgroundColor(Colors.BLACK)
 				iv.setImageBitmap(androidBitmap)
-				val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)
+				val lp = LinearLayout.LayoutParams(
+					LinearLayout.LayoutParams.MATCH_PARENT,
+					LinearLayout.LayoutParams.MATCH_PARENT
+				)
 				iv.layoutParams = lp
 
 				ll1.addView(iv)

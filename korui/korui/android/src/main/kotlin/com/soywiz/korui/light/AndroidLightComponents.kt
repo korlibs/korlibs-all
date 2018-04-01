@@ -34,7 +34,8 @@ class AndroidLightComponents : LightComponents() {
 		val handle = when (type) {
 			LightType.FRAME -> {
 				val view = RootKoruiAbsoluteLayout(activity)
-				view.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT)
+				view.layoutParams =
+						ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT)
 				activity.setContentView(view)
 				view
 			}
@@ -222,7 +223,8 @@ interface ChildContainer {
 	val group: ViewGroup
 }
 
-class ScrollView2(context: Context, override val group: KoruiAbsoluteLayout = KoruiAbsoluteLayout(context)) : ScrollView(context), ChildContainer {
+class ScrollView2(context: Context, override val group: KoruiAbsoluteLayout = KoruiAbsoluteLayout(context)) :
+	ScrollView(context), ChildContainer {
 	init {
 		addView(group)
 	}

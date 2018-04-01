@@ -1,6 +1,6 @@
 package com.soywiz.kds
 
-import kotlin.reflect.KProperty
+import kotlin.reflect.*
 
 class WeakProperty<V>(val gen: () -> V) {
 	val map = WeakMap<Any, V>()

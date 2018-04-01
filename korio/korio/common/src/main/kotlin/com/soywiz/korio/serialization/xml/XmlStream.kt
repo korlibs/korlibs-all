@@ -1,7 +1,11 @@
 package com.soywiz.korio.serialization.xml
 
-import com.soywiz.kds.lmapOf
-import com.soywiz.korio.util.StrReader
+import com.soywiz.kds.*
+import com.soywiz.korio.util.*
+import kotlin.collections.Iterable
+import kotlin.collections.Iterator
+import kotlin.collections.Map
+import kotlin.collections.set
 
 object XmlStream {
 	fun parse(str: String): Iterable<Element> = parse(StrReader(str))
@@ -67,7 +71,11 @@ object XmlStream {
 							r.skipSpaces()
 							val attributes = lmapOf<String, String>()
 							while (r.peekChar() != '?' && r.peekChar() != '/' && r.peekChar() != '>') {
-								val key = r.matchIdentifier() ?: throw IllegalArgumentException("Malformed document or unsupported xml construct around ~${r.peek(10)}~ for name '$name'")
+								val key = r.matchIdentifier() ?: throw IllegalArgumentException(
+									"Malformed document or unsupported xml construct around ~${r.peek(
+										10
+									)}~ for name '$name'"
+								)
 								r.skipSpaces()
 								if (r.matchLit("=") != null) {
 									r.skipSpaces()

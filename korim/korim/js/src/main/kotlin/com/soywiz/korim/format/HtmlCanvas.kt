@@ -1,8 +1,8 @@
 package com.soywiz.korim.format
 
-import com.soywiz.korio.util.OS
-import org.w3c.dom.HTMLCanvasElement
-import kotlin.browser.document
+import com.soywiz.korio.util.*
+import org.w3c.dom.*
+import kotlin.browser.*
 
 object HtmlCanvas {
 

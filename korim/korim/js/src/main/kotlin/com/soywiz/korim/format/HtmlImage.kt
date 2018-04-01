@@ -1,15 +1,9 @@
 package com.soywiz.korim.format
 
-import com.soywiz.korim.bitmap.Bitmap
-import com.soywiz.korim.bitmap.Bitmap32
-import com.soywiz.korio.util.OS
-import org.khronos.webgl.Int8Array
-import org.khronos.webgl.Uint16Array
+import com.soywiz.korim.bitmap.*
 import org.khronos.webgl.get
 import org.khronos.webgl.set
-import org.w3c.dom.CanvasRenderingContext2D
-import org.w3c.dom.HTMLCanvasElement
-import kotlin.browser.document
+import org.w3c.dom.*
 
 object HtmlImage {
 	fun createHtmlCanvas(width: Int, height: Int): HTMLCanvasElement {
@@ -19,7 +13,12 @@ object HtmlImage {
 		return canvas
 	}
 
-	fun renderToHtmlCanvas(bmpData: IntArray, bmpWidth: Int, bmpHeight: Int, canvas: HTMLCanvasElement): HTMLCanvasElement {
+	fun renderToHtmlCanvas(
+		bmpData: IntArray,
+		bmpWidth: Int,
+		bmpHeight: Int,
+		canvas: HTMLCanvasElement
+	): HTMLCanvasElement {
 		val bmpDataData = bmpData
 		val pixelCount = bmpData.size
 		val ctx = canvas.getContext("2d").unsafeCast<CanvasRenderingContext2D>()

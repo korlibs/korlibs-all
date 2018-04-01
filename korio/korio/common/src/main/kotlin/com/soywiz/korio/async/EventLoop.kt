@@ -2,15 +2,14 @@
 
 package com.soywiz.korio.async
 
-import com.soywiz.klock.Klock
-import com.soywiz.korio.KorioNative
+import com.soywiz.klock.*
+import com.soywiz.korio.*
 import com.soywiz.korio.coroutine.*
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korio.lang.AtomicInteger
-import com.soywiz.korio.lang.Closeable
-import com.soywiz.korio.lang.printStackTrace
-import com.soywiz.korio.time.TimeProvider
-import com.soywiz.korio.util.clamp
+import com.soywiz.korio.error.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.time.*
+import com.soywiz.korio.util.*
+import kotlin.coroutines.experimental.*
 
 abstract class EventLoopFactory {
 	abstract fun createEventLoop(): EventLoop
@@ -114,8 +113,11 @@ abstract class EventLoop(val captureCloseables: Boolean) : Closeable {
 
 	fun queue(handler: () -> Unit): Unit = setImmediate(handler)
 
-	open fun <T> queueContinuation(continuation: Continuation<T>, result: T): Unit = queue { continuation.resume(result) }
-	open fun <T> queueContinuationException(continuation: Continuation<T>, result: Throwable): Unit = queue { continuation.resumeWithException(result) }
+	open fun <T> queueContinuation(continuation: Continuation<T>, result: T): Unit =
+		queue { continuation.resume(result) }
+
+	open fun <T> queueContinuationException(continuation: Continuation<T>, result: Throwable): Unit =
+		queue { continuation.resumeWithException(result) }
 
 	fun animationFrameLoop(callback: () -> Unit): Closeable {
 		var closeable: Closeable? = null
@@ -161,14 +163,15 @@ abstract class EventLoop(val captureCloseables: Boolean) : Closeable {
 	}
 }
 
-class EventLoopCoroutineContext(val eventLoop: EventLoop) : AbstractCoroutineContextElement(EventLoopCoroutineContext.Key) {
-	companion object Key : CoroutineContextKey<EventLoopCoroutineContext>
+class EventLoopCoroutineContext(val eventLoop: EventLoop) :
+	AbstractCoroutineContextElement(EventLoopCoroutineContext.Key) {
+	companion object Key : CoroutineContext.Key<EventLoopCoroutineContext>
 }
 
 val CoroutineContext.eventLoop: EventLoop
 	get() {
 		return this[EventLoopCoroutineContext.Key]?.eventLoop
-			?: invalidOp("No EventLoop associated to this CoroutineContext")
+				?: invalidOp("No EventLoop associated to this CoroutineContext")
 	}
 
 val Continuation<*>.eventLoop: EventLoop get() = this.context.eventLoop

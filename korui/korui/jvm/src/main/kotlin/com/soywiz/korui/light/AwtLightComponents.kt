@@ -1,31 +1,21 @@
 package com.soywiz.korui.light
 
-import com.soywiz.korag.AG
-import com.soywiz.korag.agFactory
-import com.soywiz.korim.awt.AwtNativeImage
-import com.soywiz.korim.awt.clone
-import com.soywiz.korim.awt.toAwt
-import com.soywiz.korim.awt.transferTo
+import com.soywiz.korag.*
+import com.soywiz.korim.awt.*
 import com.soywiz.korio.lang.Closeable
-import com.soywiz.korio.vfs.LocalVfs
-import com.soywiz.korio.vfs.VfsFile
+import com.soywiz.korio.vfs.*
 import java.awt.*
-import java.awt.datatransfer.DataFlavor
-import java.awt.datatransfer.UnsupportedFlavorException
+import java.awt.datatransfer.*
 import java.awt.dnd.*
 import java.awt.event.*
-import java.awt.image.BufferedImage
-import java.io.File
-import java.io.IOException
-import java.net.URI
-import java.util.concurrent.CancellationException
+import java.awt.image.*
+import java.io.*
+import java.net.*
+import java.util.concurrent.*
 import javax.swing.*
-import javax.swing.border.EmptyBorder
-import javax.swing.event.AncestorEvent
-import javax.swing.event.AncestorListener
-import javax.swing.event.DocumentEvent
-import javax.swing.event.DocumentListener
-import javax.swing.text.JTextComponent
+import javax.swing.border.*
+import javax.swing.event.*
+import javax.swing.text.*
 
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
 class AwtLightComponents : LightComponents() {
@@ -334,11 +324,8 @@ class AwtLightComponents : LightComponents() {
 				(c as? JCheckBox)?.isSelected ?: false
 			}
 			LightProperty.TEXT -> {
-				(c as? JLabel)?.text ?:
-					(c as? JScrollableTextArea)?.text ?:
-					(c as? JTextComponent)?.text ?:
-					(c as? AbstractButton)?.text ?:
-					(c as? Frame)?.title
+				(c as? JLabel)?.text ?: (c as? JScrollableTextArea)?.text ?: (c as? JTextComponent)?.text
+				?: (c as? AbstractButton)?.text ?: (c as? Frame)?.title
 			}
 			else -> super.getProperty(c, key)
 		} as T
@@ -353,7 +340,8 @@ class AwtLightComponents : LightComponents() {
 		jpf.addAncestorListener(RequestFocusListener())
 		jpf.text = initialValue
 		jpf.selectAll()
-		val result = JOptionPane.showConfirmDialog(null, arrayOf(JLabel(message), jpf), "Reply:", JOptionPane.OK_CANCEL_OPTION)
+		val result =
+			JOptionPane.showConfirmDialog(null, arrayOf(JLabel(message), jpf), "Reply:", JOptionPane.OK_CANCEL_OPTION)
 		if (result != JFileChooser.APPROVE_OPTION) throw CancellationException()
 		return jpf.text
 	}
@@ -408,7 +396,11 @@ class JScrollableTextArea(val textArea: JTextArea = JTextArea()) : JScrollPane(t
 		}
 }
 
-class JScrollPane2(override val childContainer: JPanel = JPanel().apply { layout = null }) : JScrollPane(childContainer, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER), ChildContainer {
+class JScrollPane2(override val childContainer: JPanel = JPanel().apply { layout = null }) : JScrollPane(
+	childContainer,
+	ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+	ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER
+), ChildContainer {
 	init {
 		isOpaque = false
 		val unitIncrement = 16
@@ -442,7 +434,10 @@ class JImage : JComponent() {
 	override fun paintComponent(g: Graphics) {
 		val g2 = (g as? Graphics2D)
 		if (image != null) {
-			g2?.setRenderingHint(RenderingHints.KEY_INTERPOLATION, if (smooth) RenderingHints.VALUE_INTERPOLATION_BILINEAR else RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR)
+			g2?.setRenderingHint(
+				RenderingHints.KEY_INTERPOLATION,
+				if (smooth) RenderingHints.VALUE_INTERPOLATION_BILINEAR else RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR
+			)
 			g.drawImage(image, 0, 0, width, height, null)
 		} else {
 			g.clearRect(0, 0, width, height)

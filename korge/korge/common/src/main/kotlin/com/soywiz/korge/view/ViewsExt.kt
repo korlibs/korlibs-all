@@ -3,6 +3,7 @@ package com.soywiz.korge.view
 fun View?.dump(emit: (String) -> Unit = ::println) {
 	if (this != null) this.views.dumpView(this, emit)
 }
+
 fun View?.dumpToString(): String {
 	if (this == null) return ""
 	val out = arrayListOf<String>()
@@ -32,22 +33,28 @@ fun View?.descendantsWithProp(prop: String, value: String? = null): List<View> {
 	}
 }
 
-fun View?.descendantsWithPropString(prop: String, value: String? = null): List<Pair<View, String>> = this.descendantsWithProp(prop, value).map { it to it.getPropString(prop) }
-fun View?.descendantsWithPropInt(prop: String, value: Int? = null): List<Pair<View, Int>> = this.descendantsWithProp(prop, if (value != null) "$value" else null).map { it to it.getPropInt(prop) }
-fun View?.descendantsWithPropDouble(prop: String, value: Double? = null): List<Pair<View, Int>> = this.descendantsWithProp(prop, if (value != null) "$value" else null).map { it to it.getPropInt(prop) }
+fun View?.descendantsWithPropString(prop: String, value: String? = null): List<Pair<View, String>> =
+	this.descendantsWithProp(prop, value).map { it to it.getPropString(prop) }
+
+fun View?.descendantsWithPropInt(prop: String, value: Int? = null): List<Pair<View, Int>> =
+	this.descendantsWithProp(prop, if (value != null) "$value" else null).map { it to it.getPropInt(prop) }
+
+fun View?.descendantsWithPropDouble(prop: String, value: Double? = null): List<Pair<View, Int>> =
+	this.descendantsWithProp(prop, if (value != null) "$value" else null).map { it to it.getPropInt(prop) }
 
 operator fun View?.get(name: String): View? = firstDescendantWith { it.name == name }
 
 @Deprecated("", ReplaceWith("this[name]", "com.soywiz.korge.view.get"))
-fun View?.firstDescendantWithName(name: String): View? =  this[name]
+fun View?.firstDescendantWithName(name: String): View? = this[name]
 
-val View?.allDescendantNames get(): List<String> {
-	val out = arrayListOf<String>()
-	foreachDescendant {
-		if (it.name != null) out += it.name!!
+val View?.allDescendantNames
+	get(): List<String> {
+		val out = arrayListOf<String>()
+		foreachDescendant {
+			if (it.name != null) out += it.name!!
+		}
+		return out
 	}
-	return out
-}
 
 fun View?.firstDescendantWith(check: (View) -> Boolean): View? {
 	if (this == null) return null

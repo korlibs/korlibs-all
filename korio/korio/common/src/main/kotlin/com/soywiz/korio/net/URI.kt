@@ -1,7 +1,6 @@
 package com.soywiz.korio.net
 
-import com.soywiz.korio.util.StrReader
-import com.soywiz.korio.util.nullIf
+import com.soywiz.korio.util.*
 
 data class URI private constructor(
 	val isOpaque: Boolean,
@@ -67,12 +66,28 @@ data class URI private constructor(
 					val (nonQuery, query) = nonFragment.split('?', limit = 2).run { first() to getOrNull(1) }
 					val (authority, path) = nonQuery.split('/', limit = 2).run { first() to getOrNull(1) }
 					val (host, userInfo) = authority.split('@', limit = 2).reversed().run { first() to getOrNull(1) }
-					URI(opaque = !isHierarchical, scheme = scheme, userInfo = userInfo, host = host.nullIf { isEmpty() }, path = if (path != null) "/$path" else "", query = query, fragment = fragment)
+					URI(
+						opaque = !isHierarchical,
+						scheme = scheme,
+						userInfo = userInfo,
+						host = host.nullIf { isEmpty() },
+						path = if (path != null) "/$path" else "",
+						query = query,
+						fragment = fragment
+					)
 				}
 				else -> {
 					val (nonFragment, fragment) = uri.split("#", limit = 2).run { first() to getOrNull(1) }
 					val (path, query) = nonFragment.split("?", limit = 2).run { first() to getOrNull(1) }
-					URI(opaque = false, scheme = null, userInfo = null, host = null, path = path, query = query, fragment = fragment)
+					URI(
+						opaque = false,
+						scheme = null,
+						userInfo = null,
+						host = null,
+						path = path,
+						query = query,
+						fragment = fragment
+					)
 				}
 			}
 		}
@@ -82,7 +97,15 @@ data class URI private constructor(
 		fun resolve(base: String, access: String): String = when {
 			isAbsolute(access) -> access
 			access.startsWith("/") -> URI(base).copy(path = access).fullUri
-			else -> URI(base).run { copy(path = "/" + com.soywiz.korio.vfs.VfsUtil.normalize(this.path.substringBeforeLast('/') + "/" + access).trimStart('/')).fullUri }
+			else -> URI(base).run {
+				copy(
+					path = "/" + com.soywiz.korio.vfs.VfsUtil.normalize(
+						this.path.substringBeforeLast(
+							'/'
+						) + "/" + access
+					).trimStart('/')
+				).fullUri
+			}
 		}
 	}
 }

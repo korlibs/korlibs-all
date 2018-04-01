@@ -151,8 +151,15 @@ class SVGBuilder {
 
 		val writer = BufferedWriter(FileWriter(filename))
 		try {
-			writer.write(String.format(SVG_HEADER, rec.right - rec.left + margin * 2, rec.bottom - rec.top + margin * 2, rec.right - rec.left + margin * 2,
-				rec.bottom - rec.top + margin * 2))
+			writer.write(
+				String.format(
+					SVG_HEADER,
+					rec.right - rec.left + margin * 2,
+					rec.bottom - rec.top + margin * 2,
+					rec.right - rec.left + margin * 2,
+					rec.bottom - rec.top + margin * 2
+				)
+			)
 
 			for (pi in PolyInfoList) {
 				writer.write(" <path d=\"")
@@ -166,15 +173,31 @@ class SVGBuilder {
 				}
 				writer.write(" z")
 
-				writer.write(String.format(SVG_PATH_FORMAT, Integer.toHexString(pi.si!!.brushClr.rgb and 0xffffff),
-					pi.si!!.brushClr.alpha.toFloat() / 255, if (pi.si!!.pft === PolyFillType.EVEN_ODD) "evenodd" else "nonzero",
-					Integer.toHexString(pi.si!!.penClr.rgb and 0xffffff), pi.si!!.penClr.alpha.toFloat() / 255, pi.si!!.penWidth))
+				writer.write(
+					String.format(
+						SVG_PATH_FORMAT,
+						Integer.toHexString(pi.si!!.brushClr.rgb and 0xffffff),
+						pi.si!!.brushClr.alpha.toFloat() / 255,
+						if (pi.si!!.pft === PolyFillType.EVEN_ODD) "evenodd" else "nonzero",
+						Integer.toHexString(pi.si!!.penClr.rgb and 0xffffff),
+						pi.si!!.penClr.alpha.toFloat() / 255,
+						pi.si!!.penWidth
+					)
+				)
 
 				if (pi.si!!.showCoords) {
 					writer.write(String.format("<g font-family=\"Verdana\" font-size=\"11\" fill=\"black\">%n%n"))
 
 					for ((x, y) in p) {
-						writer.write(String.format("<text x=\"%d\" y=\"%d\">%d,%d</text>\n", (x * scale + offsetX).toInt(), (y * scale + offsetY).toInt(), x, y))
+						writer.write(
+							String.format(
+								"<text x=\"%d\" y=\"%d\">%d,%d</text>\n",
+								(x * scale + offsetX).toInt(),
+								(y * scale + offsetY).toInt(),
+								x,
+								y
+							)
+						)
 
 					}
 					writer.write(String.format("%n"))
@@ -196,8 +219,10 @@ class SVGBuilder {
 	companion object {
 
 		////////////////////////////////////////////////
-		private val SVG_HEADER = "<?xml version=\"1.0\" standalone=\"no\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.0//EN\"\n\"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\">\n\n<svg width=\"%dpx\" height=\"%dpx\" viewBox=\"0 0 %d %d\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\">\n\n"
+		private val SVG_HEADER =
+			"<?xml version=\"1.0\" standalone=\"no\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.0//EN\"\n\"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\">\n\n<svg width=\"%dpx\" height=\"%dpx\" viewBox=\"0 0 %d %d\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\">\n\n"
 
-		private val SVG_PATH_FORMAT = "\"%n style=\"fill:#%s; fill-opacity:%.2f; fill-rule:%s; stroke:#%s; stroke-opacity:%.2f; stroke-width:%.2f;\"/>%n%n"
+		private val SVG_PATH_FORMAT =
+			"\"%n style=\"fill:#%s; fill-opacity:%.2f; fill-rule:%s; stroke:#%s; stroke-opacity:%.2f; stroke-width:%.2f;\"/>%n%n"
 	}
 }

@@ -1,9 +1,8 @@
 package com.soywiz.korge.service.storage
 
-import com.soywiz.korio.serialization.Mapper
-import com.soywiz.korio.serialization.json.Json
-import kotlin.reflect.KClass
-import kotlin.reflect.KProperty
+import com.soywiz.korio.serialization.*
+import com.soywiz.korio.serialization.json.*
+import kotlin.reflect.*
 
 class StorageItem<T : Any>(val storage: IStorage, val clazz: KClass<T>, val key: String, val gen: () -> T) {
 	var value: T

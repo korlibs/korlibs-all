@@ -1,9 +1,7 @@
 package com.soywiz.korge.ext.fla
 
-import com.soywiz.korio.serialization.xml.Xml
-import com.soywiz.korio.serialization.xml.readXml
-import com.soywiz.korio.vfs.VfsFile
-import com.soywiz.korio.vfs.openAsZip
+import com.soywiz.korio.serialization.xml.*
+import com.soywiz.korio.vfs.*
 
 object Fla {
 	suspend fun read(file: VfsFile) {

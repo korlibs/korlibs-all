@@ -1,14 +1,13 @@
 package com.soywiz.korge.bitmapfont
 
-import com.soywiz.korag.log.LogAG
-import com.soywiz.korge.TestAssertVfs
-import com.soywiz.korge.render.RenderContext
-import com.soywiz.korim.format.defaultImageFormats
-import com.soywiz.korim.format.registerStandard
-import com.soywiz.korio.async.syncTest
-import org.junit.Assert
+import com.soywiz.korag.log.*
+import com.soywiz.korge.*
+import com.soywiz.korge.render.*
+import com.soywiz.korim.format.*
+import com.soywiz.korio.async.*
+import org.junit.*
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class BitmapFontTest {
 	val ag = LogAG()

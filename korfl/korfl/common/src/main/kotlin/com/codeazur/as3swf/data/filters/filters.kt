@@ -1,8 +1,8 @@
 package com.codeazur.as3swf.data.filters
 
-import com.codeazur.as3swf.SWFData
-import com.codeazur.as3swf.utils.ColorUtils
-import kotlin.math.PI
+import com.codeazur.as3swf.*
+import com.codeazur.as3swf.utils.*
+import kotlin.math.*
 
 interface IFilter {
 	val id: Int
@@ -77,14 +77,14 @@ class FilterBevel(id: Int) : Filter(id) {
 
 	override fun toString(indent: Int): String {
 		var str: String = "[BevelFilter] " +
-			"ShadowColor: " + ColorUtils.rgbToString(shadowColor) + ", " +
-			"HighlightColor: " + ColorUtils.rgbToString(highlightColor) + ", " +
-			"BlurX: " + blurX + ", " +
-			"BlurY: " + blurY + ", " +
-			"Angle: " + angle + ", " +
-			"Distance: " + distance + ", " +
-			"Strength: " + strength + ", " +
-			"Passes: " + passes
+				"ShadowColor: " + ColorUtils.rgbToString(shadowColor) + ", " +
+				"HighlightColor: " + ColorUtils.rgbToString(highlightColor) + ", " +
+				"BlurX: " + blurX + ", " +
+				"BlurY: " + blurY + ", " +
+				"Angle: " + angle + ", " +
+				"Distance: " + distance + ", " +
+				"Strength: " + strength + ", " +
+				"Passes: " + passes
 		val flags = arrayListOf<String>()
 		if (innerShadow) flags.add("InnerShadow")
 		if (knockout) flags.add("Knockout")
@@ -139,10 +139,10 @@ class FilterColorMatrix(id: Int) : Filter(id) {
 	override fun toString(indent: Int): String {
 		val si = " ".repeat(indent + 2)
 		return "[ColorMatrixFilter]" +
-			"\n" + si + "[R] " + colorMatrix[0] + ", " + colorMatrix[1] + ", " + colorMatrix[2] + ", " + colorMatrix[3] + ", " + colorMatrix[4] +
-			"\n" + si + "[G] " + colorMatrix[5] + ", " + colorMatrix[6] + ", " + colorMatrix[7] + ", " + colorMatrix[8] + ", " + colorMatrix[9] +
-			"\n" + si + "[B] " + colorMatrix[10] + ", " + colorMatrix[11] + ", " + colorMatrix[12] + ", " + colorMatrix[13] + ", " + colorMatrix[14] +
-			"\n" + si + "[A] " + colorMatrix[15] + ", " + colorMatrix[16] + ", " + colorMatrix[17] + ", " + colorMatrix[18] + ", " + colorMatrix[19]
+				"\n" + si + "[R] " + colorMatrix[0] + ", " + colorMatrix[1] + ", " + colorMatrix[2] + ", " + colorMatrix[3] + ", " + colorMatrix[4] +
+				"\n" + si + "[G] " + colorMatrix[5] + ", " + colorMatrix[6] + ", " + colorMatrix[7] + ", " + colorMatrix[8] + ", " + colorMatrix[9] +
+				"\n" + si + "[B] " + colorMatrix[10] + ", " + colorMatrix[11] + ", " + colorMatrix[12] + ", " + colorMatrix[13] + ", " + colorMatrix[14] +
+				"\n" + si + "[A] " + colorMatrix[15] + ", " + colorMatrix[16] + ", " + colorMatrix[17] + ", " + colorMatrix[18] + ", " + colorMatrix[19]
 	}
 }
 
@@ -192,9 +192,9 @@ class FilterConvolution(id: Int) : Filter(id), IFilter {
 
 	override fun toString(indent: Int): String {
 		var str: String = "[ConvolutionFilter] " +
-			"DefaultColor: " + ColorUtils.rgbToString(defaultColor) + ", " +
-			"Divisor: " + divisor + ", " +
-			"Bias: " + bias
+				"DefaultColor: " + ColorUtils.rgbToString(defaultColor) + ", " +
+				"Divisor: " + divisor + ", " +
+				"Bias: " + bias
 		val flags = arrayListOf<String>()
 		if (clamp) flags.add("Clamp")
 		if (preserveAlpha) flags.add("PreserveAlpha")
@@ -253,13 +253,13 @@ class FilterDropShadow(id: Int) : Filter(id), IFilter {
 
 	override fun toString(indent: Int): String {
 		var str: String = "[DropShadowFilter] " +
-			"DropShadowColor: " + ColorUtils.rgbToString(dropShadowColor) + ", " +
-			"BlurX: " + blurX + ", " +
-			"BlurY: " + blurY + ", " +
-			"Angle: " + angle + ", " +
-			"Distance: " + distance + ", " +
-			"Strength: " + strength + ", " +
-			"Passes: " + passes
+				"DropShadowColor: " + ColorUtils.rgbToString(dropShadowColor) + ", " +
+				"BlurX: " + blurX + ", " +
+				"BlurY: " + blurY + ", " +
+				"Angle: " + angle + ", " +
+				"Distance: " + distance + ", " +
+				"Strength: " + strength + ", " +
+				"Passes: " + passes
 		val flags = arrayListOf<String>()
 		if (innerShadow) flags.add("InnerShadow")
 		if (knockout) flags.add("Knockout")
@@ -302,11 +302,11 @@ class FilterGlow(id: Int) : Filter(id), IFilter {
 
 	override fun toString(indent: Int): String {
 		var str: String = "[GlowFilter] " +
-			"GlowColor: " + ColorUtils.rgbToString(glowColor) + ", " +
-			"BlurX: " + blurX + ", " +
-			"BlurY: " + blurY + ", " +
-			"Strength: " + strength + ", " +
-			"Passes: " + passes
+				"GlowColor: " + ColorUtils.rgbToString(glowColor) + ", " +
+				"BlurX: " + blurX + ", " +
+				"BlurY: " + blurY + ", " +
+				"Strength: " + strength + ", " +
+				"Passes: " + passes
 		val flags = arrayListOf<String>()
 		if (innerGlow) flags.add("InnerGlow")
 		if (knockout) flags.add("Knockout")
@@ -418,7 +418,8 @@ open class FilterGradientGlow(id: Int) : Filter(id), IFilter {
 	}
 
 	override fun toString(indent: Int): String {
-		var str: String = "[$filterName] BlurX: $blurX, BlurY: $blurY, Angle: $angle, Distance: $distance, Strength: $strength, Passes: $passes"
+		var str: String =
+			"[$filterName] BlurX: $blurX, BlurY: $blurY, Angle: $angle, Distance: $distance, Strength: $strength, Passes: $passes"
 		val flags = arrayListOf<String>()
 		if (innerShadow) flags.add("InnerShadow")
 		if (knockout) flags.add("Knockout")

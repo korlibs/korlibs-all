@@ -1,6 +1,6 @@
 package com.soywiz.korge.ext.spriter.com.brashmonkey.spriter
 
-import kotlin.reflect.KClass
+import kotlin.reflect.*
 
 class Meta {
 

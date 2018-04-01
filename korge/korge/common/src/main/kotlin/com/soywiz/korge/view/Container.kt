@@ -1,11 +1,10 @@
 package com.soywiz.korge.view
 
-import com.soywiz.korge.render.RenderContext
-import com.soywiz.korma.Matrix2d
-import com.soywiz.korma.geom.BoundsBuilder
-import com.soywiz.korma.geom.Rectangle
-import com.soywiz.korma.numeric.niceStr
-import kotlin.reflect.KClass
+import com.soywiz.korge.render.*
+import com.soywiz.korma.*
+import com.soywiz.korma.geom.*
+import com.soywiz.korma.numeric.*
+import kotlin.reflect.*
 
 open class Container(views: Views) : View(views) {
 	val children = arrayListOf<View>()
@@ -117,7 +116,8 @@ open class Container(views: Views) : View(views) {
 	}
 }
 
-open class FixedSizeContainer(views: Views, override var width: Double = 100.0, override var height: Double = 100.0) : Container(views) {
+open class FixedSizeContainer(views: Views, override var width: Double = 100.0, override var height: Double = 100.0) :
+	Container(views) {
 	override fun getLocalBoundsInternal(out: Rectangle) {
 		out.setTo(0, 0, width, height)
 	}

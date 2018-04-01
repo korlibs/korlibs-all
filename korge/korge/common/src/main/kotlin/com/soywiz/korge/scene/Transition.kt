@@ -1,11 +1,9 @@
 package com.soywiz.korge.scene
 
-import com.soywiz.korge.render.RenderContext
-import com.soywiz.korge.tween.Easing
-import com.soywiz.korge.view.Container
-import com.soywiz.korge.view.View
-import com.soywiz.korge.view.Views
-import com.soywiz.korma.Matrix2d
+import com.soywiz.korge.render.*
+import com.soywiz.korge.tween.*
+import com.soywiz.korge.view.*
+import com.soywiz.korma.*
 
 class TransitionView(views: Views) : Container(views) {
 	var transition: Transition = AlphaTransition

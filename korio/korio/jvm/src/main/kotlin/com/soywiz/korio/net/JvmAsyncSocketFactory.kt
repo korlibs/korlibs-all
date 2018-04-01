@@ -1,20 +1,17 @@
 package com.soywiz.korio.net
 
 import com.soywiz.korio.async.*
-import com.soywiz.korio.coroutine.getCoroutineContext
-import com.soywiz.korio.coroutine.korioSuspendCoroutine
+import com.soywiz.korio.coroutine.*
 import com.soywiz.korio.lang.Closeable
-import java.io.IOException
-import java.net.InetSocketAddress
-import java.nio.ByteBuffer
-import java.nio.channels.AsynchronousChannelGroup
-import java.nio.channels.AsynchronousServerSocketChannel
-import java.nio.channels.AsynchronousSocketChannel
-import java.nio.channels.CompletionHandler
+import java.io.*
+import java.net.*
+import java.nio.*
+import java.nio.channels.*
 
 class JvmAsyncSocketFactory : AsyncSocketFactory() {
 	override suspend fun createClient(): AsyncClient = JvmAsyncClient()
-	override suspend fun createServer(port: Int, host: String, backlog: Int): AsyncServer = JvmAsyncServer(port, host, backlog).apply { init() }
+	override suspend fun createServer(port: Int, host: String, backlog: Int): AsyncServer =
+		JvmAsyncServer(port, host, backlog).apply { init() }
 }
 
 //private val newPool by lazy { Executors.newFixedThreadPool(1) }
@@ -27,7 +24,8 @@ class JvmAsyncClient(private var sc: AsynchronousSocketChannel? = null) : AsyncC
 	//suspend override fun connect(host: String, port: Int): Unit = suspendCoroutineEL { c ->
 	suspend override fun connect(host: String, port: Int): Unit = korioSuspendCoroutine { c ->
 		sc?.close()
-		sc = AsynchronousSocketChannel.open(AsynchronousChannelGroup.withThreadPool(EventLoopExecutorService(c.context.eventLoop)))
+		sc =
+				AsynchronousSocketChannel.open(AsynchronousChannelGroup.withThreadPool(EventLoopExecutorService(c.context.eventLoop)))
 		sc?.connect(InetSocketAddress(host, port), this, object : CompletionHandler<Void, AsyncClient> {
 			override fun completed(result: Void?, attachment: AsyncClient): Unit = run { c.resume(Unit) }
 			override fun failed(exc: Throwable, attachment: AsyncClient): Unit = run { c.resumeWithException(exc) }
@@ -89,7 +87,8 @@ class JvmAsyncClient(private var sc: AsynchronousSocketChannel? = null) : AsyncC
 	}
 }
 
-class JvmAsyncServer(override val requestPort: Int, override val host: String, override val backlog: Int = -1) : AsyncServer {
+class JvmAsyncServer(override val requestPort: Int, override val host: String, override val backlog: Int = -1) :
+	AsyncServer {
 	val ssc = AsynchronousServerSocketChannel.open()
 
 	suspend fun init(): Unit {

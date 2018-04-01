@@ -1,13 +1,13 @@
 package com.soywiz.korui.light
 
 
-import javax.swing.*
-import javax.swing.event.*
 import java.awt.*
+import java.awt.datatransfer.*
 import java.awt.event.*
 import java.io.*
 import java.net.*
-import java.awt.datatransfer.*
+import javax.swing.*
+import javax.swing.event.*
 
 /**
  * Demonstration of the top-level `TransferHandler`

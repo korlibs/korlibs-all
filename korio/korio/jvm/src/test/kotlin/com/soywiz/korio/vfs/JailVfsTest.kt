@@ -1,12 +1,10 @@
 package com.soywiz.korio.vfs
 
-import com.soywiz.korio.async.syncTest
-import com.soywiz.korio.async.toList
-import com.soywiz.korio.expectException
-import com.soywiz.korio.stream.openAsync
+import com.soywiz.korio.*
+import com.soywiz.korio.async.*
 import org.junit.Test
 import java.io.FileNotFoundException
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class JailVfsTest {
 	@Test

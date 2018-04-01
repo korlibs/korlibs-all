@@ -1,12 +1,11 @@
 package com.soywiz.korim.format
 
-import com.soywiz.korim.bitmap.Bitmap32
-import com.soywiz.korio.async.syncTest
-import com.soywiz.korio.vfs.ResourcesVfs
-import com.soywiz.korma.geom.Size
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.vfs.*
+import com.soywiz.korma.geom.*
 import org.junit.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class ImageFormatsNativeTest {
 	val formats = ImageFormats().registerStandard().register(ICO).register(SVG)

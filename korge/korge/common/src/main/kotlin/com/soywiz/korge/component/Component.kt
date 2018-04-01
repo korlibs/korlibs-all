@@ -1,11 +1,10 @@
 package com.soywiz.korge.component
 
-import com.soywiz.korge.event.addEventListener
-import com.soywiz.korge.view.View
-import com.soywiz.korge.view.Views
-import com.soywiz.korio.async.CoroutineContextHolder
-import com.soywiz.korio.coroutine.CoroutineContext
-import com.soywiz.korio.util.Cancellable
+import com.soywiz.korge.event.*
+import com.soywiz.korge.view.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.util.*
+import kotlin.coroutines.experimental.*
 
 open class Component(val view: View) : CoroutineContextHolder {
 	override val coroutineContext: CoroutineContext get() = view.views.coroutineContext

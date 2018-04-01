@@ -2,8 +2,9 @@
 
 package com.soywiz.korio.async
 
-import com.soywiz.kds.Extra
+import com.soywiz.kds.*
 import com.soywiz.korio.coroutine.*
+import kotlin.coroutines.experimental.*
 
 interface SuspendingSequenceBuilder<in T> {
 	suspend fun yield(value: T)
@@ -142,7 +143,8 @@ fun <T> asyncGenerate(
 	override fun iterator(): SuspendingIterator<T> = suspendingIterator(context, block)
 }
 
-suspend fun <T> asyncGenerate(block: suspend SuspendingSequenceBuilder<T>.() -> Unit): SuspendingSequence<T> = asyncGenerate(getCoroutineContext(), block)
+suspend fun <T> asyncGenerate(block: suspend SuspendingSequenceBuilder<T>.() -> Unit): SuspendingSequence<T> =
+	asyncGenerate(getCoroutineContext(), block)
 
 inline suspend fun <T, T2> SuspendingSequence<T>.map(crossinline transform: (T) -> T2) = asyncGenerate {
 	for (e in this@map) {

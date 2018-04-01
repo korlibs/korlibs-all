@@ -26,23 +26,23 @@
 
 package com.soywiz.korau.format.com.jcraft.jorbis
 
-import com.soywiz.korau.format.com.jcraft.jogg.Buffer
+import com.soywiz.korau.format.com.jcraft.jogg.*
 
 abstract class FuncTime {
 
-    abstract fun pack(i: Any, opb: Buffer)
+	abstract fun pack(i: Any, opb: Buffer)
 
-    abstract fun unpack(vi: Info, opb: Buffer): Any
+	abstract fun unpack(vi: Info, opb: Buffer): Any
 
-    abstract fun look(vd: DspState, vm: InfoMode, i: Any): Any
+	abstract fun look(vd: DspState, vm: InfoMode, i: Any): Any
 
-    abstract fun free_info(i: Any)
+	abstract fun free_info(i: Any)
 
-    abstract fun free_look(i: Any)
+	abstract fun free_look(i: Any)
 
-    abstract fun inverse(vb: Block, i: Any, `in`: FloatArray, out: FloatArray): Int
+	abstract fun inverse(vb: Block, i: Any, `in`: FloatArray, out: FloatArray): Int
 
-    companion object {
-        var time_P = arrayOf<FuncTime>(Time0())
-    }
+	companion object {
+		var time_P = arrayOf<FuncTime>(Time0())
+	}
 }

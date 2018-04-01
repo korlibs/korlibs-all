@@ -1,9 +1,7 @@
 package com.soywiz.korge.ext.spriter.com.brashmonkey.spriter
 
-import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.Mainline.Key.BoneRef
-import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.Mainline.Key.ObjectRef
-import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.Timeline.Key.Bone
-import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.Timeline.Key.Object
+import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.Mainline.Key.*
+import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.Timeline.Key.*
 
 /**
  * A tweened animation is responsible for updating itself based on two given animations.
@@ -18,12 +16,13 @@ class TweenedAnimation
  * Creates a tweened animation based on the given entity.
  * @param entity the entity animations have to be part of
  */
-(
+	(
 	/**
 	 * The entity the animations have be part of.
 	 * Animations of two different entities can not be tweened.
 	 */
-	val entity: Entity) : Animation(Mainline(0), -1, "__interpolatedAnimation__", 0, true, entity.animationWithMostTimelines.timelines()) {
+	val entity: Entity
+) : Animation(Mainline(0), -1, "__interpolatedAnimation__", 0, true, entity.animationWithMostTimelines.timelines()) {
 
 	/**
 	 * The weight of the interpolation. 0.5f is the default value.
@@ -68,7 +67,8 @@ class TweenedAnimation
 			timelineKey.active = false
 		if (base != null) {//TODO: Sprites not working properly because of different timeline naming
 			val currentAnim = if (onFirstMainLine()) firstAnimation else secondAnimation
-			val baseAnim = if (baseAnimation == null) if (onFirstMainLine()) firstAnimation else secondAnimation else baseAnimation
+			val baseAnim =
+				if (baseAnimation == null) if (onFirstMainLine()) firstAnimation else secondAnimation else baseAnimation
 			currentAnim!!
 			baseAnim!!
 			for (ref in currentKey.boneRefs) {
@@ -80,10 +80,12 @@ class TweenedAnimation
 				this.tweenedKeys[ref.timeline].active = key.active
 				this.tweenedKeys[ref.timeline].`object`()!!.set(key.`object`()!!)
 				this.unmappedTweenedKeys[ref.timeline].active = mappedKey.active
-				this.unmapTimelineObject(ref.timeline, false, if (ref.parent != null)
-					this.unmappedTweenedKeys[ref.parent.timeline].`object`() as Bone
-				else
-					root as Bone)
+				this.unmapTimelineObject(
+					ref.timeline, false, if (ref.parent != null)
+						this.unmappedTweenedKeys[ref.parent.timeline].`object`() as Bone
+					else
+						root as Bone
+				)
 			}
 			/*for(ObjectRef ref: baseAnim.currentKey.objectRefs){
 	        	Timeline timeline = baseAnim.getTimeline(ref.timeline);//getSimilarTimeline(ref, tempTimelines);
@@ -126,8 +128,12 @@ class TweenedAnimation
 		var bone1: Bone? = null
 		var bone2: Bone? = null
 		var tweenTarget: Bone? = null
-		val t1 = if (onFirstMainLine()) firstAnimation!!.getTimeline(ref.timeline) else firstAnimation!!.getSimilarTimeline(secondAnimation!!.getTimeline(ref.timeline))
-		val t2 = if (onFirstMainLine()) secondAnimation!!.getSimilarTimeline(t1!!) else secondAnimation!!.getTimeline(ref.timeline)
+		val t1 =
+			if (onFirstMainLine()) firstAnimation!!.getTimeline(ref.timeline) else firstAnimation!!.getSimilarTimeline(
+				secondAnimation!!.getTimeline(ref.timeline)
+			)
+		val t2 =
+			if (onFirstMainLine()) secondAnimation!!.getSimilarTimeline(t1!!) else secondAnimation!!.getTimeline(ref.timeline)
 		val targetTimeline = super.getTimeline(if (onFirstMainLine()) t1!!.id else t2!!.id)
 		if (t1 != null) bone1 = firstAnimation!!.tweenedKeys[t1.id].`object`()
 		if (t2 != null) bone2 = secondAnimation!!.tweenedKeys[t2.id].`object`()
@@ -147,10 +153,12 @@ class TweenedAnimation
 		}
 		//Transform the bone relative to the parent bone or the root
 		if (this.unmappedTweenedKeys[ref.timeline].active) {
-			this.unmapTimelineObject(targetTimeline.id, isObject, if (ref.parent != null)
-				this.unmappedTweenedKeys[ref.parent.timeline].`object`()!!
-			else
-				root)
+			this.unmapTimelineObject(
+				targetTimeline.id, isObject, if (ref.parent != null)
+					this.unmappedTweenedKeys[ref.parent.timeline].`object`()!!
+				else
+					root
+			)
 		}
 	}
 

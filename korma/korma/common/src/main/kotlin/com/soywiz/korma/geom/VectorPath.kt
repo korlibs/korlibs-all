@@ -1,11 +1,10 @@
 package com.soywiz.korma.geom
 
-import com.soywiz.kds.DoubleArrayList
-import com.soywiz.kds.IntArrayList
-import com.soywiz.korma.Vector2
-import com.soywiz.korma.geom.bezier.Bezier
-import com.soywiz.korma.geom.shape.HorizontalLine
-import com.soywiz.korma.math.Math
+import com.soywiz.kds.*
+import com.soywiz.korma.*
+import com.soywiz.korma.geom.bezier.*
+import com.soywiz.korma.geom.shape.*
+import com.soywiz.korma.math.*
 import kotlin.math.*
 
 open class VectorPath(
@@ -156,8 +155,17 @@ open class VectorPath(
 	fun rMoveTo(x: Double, y: Double) = moveTo(this.lastX + x, this.lastY + y)
 	fun rLineTo(x: Double, y: Double) = lineTo(this.lastX + x, this.lastY + y)
 
-	fun rQuadTo(cx: Double, cy: Double, ax: Double, ay: Double) = quadTo(this.lastX + cx, this.lastY + cy, this.lastX + ax, this.lastY + ay)
-	fun rCubicTo(cx1: Double, cy1: Double, cx2: Double, cy2: Double, ax: Double, ay: Double) = cubicTo(this.lastX + cx1, this.lastY + cy1, this.lastX + cx2, this.lastY + cy2, this.lastX + ax, this.lastY + ay)
+	fun rQuadTo(cx: Double, cy: Double, ax: Double, ay: Double) =
+		quadTo(this.lastX + cx, this.lastY + cy, this.lastX + ax, this.lastY + ay)
+
+	fun rCubicTo(cx1: Double, cy1: Double, cx2: Double, cy2: Double, ax: Double, ay: Double) = cubicTo(
+		this.lastX + cx1,
+		this.lastY + cy1,
+		this.lastX + cx2,
+		this.lastY + cy2,
+		this.lastX + ax,
+		this.lastY + ay
+	)
 
 	private fun ensureMoveTo(x: Double, y: Double) {
 		if (isEmpty()) {
@@ -176,9 +184,11 @@ open class VectorPath(
 
 	fun lineTo(x: Int, y: Int) = lineTo(x.toDouble(), y.toDouble())
 
-	fun quadTo(controlX: Int, controlY: Int, anchorX: Int, anchorY: Int) = quadTo(controlX.toDouble(), controlY.toDouble(), anchorX.toDouble(), anchorY.toDouble())
+	fun quadTo(controlX: Int, controlY: Int, anchorX: Int, anchorY: Int) =
+		quadTo(controlX.toDouble(), controlY.toDouble(), anchorX.toDouble(), anchorY.toDouble())
 
-	fun cubicTo(cx1: Int, cy1: Int, cx2: Int, cy2: Int, ax: Int, ay: Int) = cubicTo(cx1.toDouble(), cy1.toDouble(), cx2.toDouble(), cy2.toDouble(), ax.toDouble(), ay.toDouble())
+	fun cubicTo(cx1: Int, cy1: Int, cx2: Int, cy2: Int, ax: Int, ay: Int) =
+		cubicTo(cx1.toDouble(), cy1.toDouble(), cx2.toDouble(), cy2.toDouble(), ax.toDouble(), ay.toDouble())
 
 	fun quadTo(controlX: Double, controlY: Double, anchorX: Double, anchorY: Double) {
 		ensureMoveTo(controlX, controlY)
@@ -369,7 +379,18 @@ open class VectorPath(
 				intersections += HorizontalLine.interesectionsWithQuadBezier(testx, testy, x0, y0, x1, y1, x2, y2)
 			},
 			cubic = { x0, y0, x1, y1, x2, y2, x3, y3 ->
-				intersections += HorizontalLine.intersectionsWithCubicBezier(testx, testy, x0, y0, x1, y1, x2, y2, x3, y3)
+				intersections += HorizontalLine.intersectionsWithCubicBezier(
+					testx,
+					testy,
+					x0,
+					y0,
+					x1,
+					y1,
+					x2,
+					y2,
+					x3,
+					y3
+				)
 			},
 			close = {
 			}

@@ -1,30 +1,23 @@
 package com.codeazur.as3swf
 
 import com.codeazur.as3swf.data.*
-import com.codeazur.as3swf.data.actions.IAction
-import com.codeazur.as3swf.data.consts.SoundCompression
-import com.codeazur.as3swf.data.filters.IFilter
-import com.codeazur.as3swf.factories.ISWFTagFactory
-import com.codeazur.as3swf.factories.SWFActionFactory
-import com.codeazur.as3swf.factories.SWFFilterFactory
-import com.codeazur.as3swf.factories.SWFTagFactory
+import com.codeazur.as3swf.data.actions.*
+import com.codeazur.as3swf.data.consts.*
+import com.codeazur.as3swf.data.filters.*
+import com.codeazur.as3swf.factories.*
 import com.codeazur.as3swf.tags.*
-import com.codeazur.as3swf.timeline.Frame
-import com.codeazur.as3swf.timeline.Layer
-import com.codeazur.as3swf.timeline.Scene
-import com.codeazur.as3swf.utils.BitArray
-import com.codeazur.as3swf.utils.Endian
-import com.codeazur.as3swf.utils.FlashByteArray
-import com.codeazur.as3swf.utils.toFlash
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korio.lang.Float16
-import com.soywiz.korio.lang.String_fromIntArray
-import com.soywiz.korio.stream.readStringz
-import com.soywiz.kds.Extra
-import com.soywiz.korio.util.substr
-import com.soywiz.korio.util.toString
-import kotlin.math.max
-import kotlin.math.min
+import com.codeazur.as3swf.timeline.*
+import com.codeazur.as3swf.utils.*
+import com.soywiz.kds.*
+import com.soywiz.korio.error.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.stream.*
+import com.soywiz.korio.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.contains
+import kotlin.collections.hashMapOf
+import kotlin.collections.set
+import kotlin.math.*
 
 @Suppress("unused")
 open class SWF : SWFTimelineContainer(), Extra by Extra.Mixin() {
@@ -125,9 +118,9 @@ open class SWF : SWFTimelineContainer(), Extra by Extra.Mixin() {
 		val indent2 = " ".repeat(indent + 2)
 		val indent4 = " ".repeat(indent + 4)
 		var s: String = indent0 + "[SWF]\n" +
-			indent2 + "Header:\n" +
-			indent4 + "Version: " + version + "\n" +
-			indent4 + "Compression: "
+				indent2 + "Header:\n" +
+				indent4 + "Version: " + version + "\n" +
+				indent4 + "Compression: "
 		if (compressed) {
 			if (compressionMethod == COMPRESSION_METHOD_ZLIB) {
 				s += "ZLIB"
@@ -140,11 +133,11 @@ open class SWF : SWFTimelineContainer(), Extra by Extra.Mixin() {
 			s += "None"
 		}
 		return s + "\n" + indent4 + "FileLength: " + fileLength + "\n" +
-			indent4 + "FileLengthCompressed: " + fileLengthCompressed + "\n" +
-			indent4 + "FrameSize: " + frameSize.toStringSize() + "\n" +
-			indent4 + "FrameRate: " + frameRate + "\n" +
-			indent4 + "FrameCount: " + frameCount +
-			super.toString(indent, 0)
+				indent4 + "FileLengthCompressed: " + fileLengthCompressed + "\n" +
+				indent4 + "FrameSize: " + frameSize.toStringSize() + "\n" +
+				indent4 + "FrameRate: " + frameRate + "\n" +
+				indent4 + "FrameCount: " + frameCount +
+				super.toString(indent, 0)
 	}
 }
 
@@ -367,10 +360,16 @@ class SWFData : BitArray() {
 	fun readCXFORM(): SWFColorTransform = SWFColorTransform().apply { parse(this@SWFData) }
 	fun readCXFORMWITHALPHA(): SWFColorTransformWithAlpha = SWFColorTransformWithAlpha().apply { parse(this@SWFData) }
 	fun readSHAPE(unitDivisor: Double = 20.0): SWFShape = SWFShape(unitDivisor).apply { parse(this@SWFData) }
-	fun readSHAPEWITHSTYLE(level: Int = 1, unitDivisor: Double = 20.0): SWFShapeWithStyle = SWFShapeWithStyle(unitDivisor).apply { parse(this@SWFData, level) }
+	fun readSHAPEWITHSTYLE(level: Int = 1, unitDivisor: Double = 20.0): SWFShapeWithStyle =
+		SWFShapeWithStyle(unitDivisor).apply { parse(this@SWFData, level) }
+
 	fun readSTRAIGHTEDGERECORD(numBits: Int) = SWFShapeRecordStraightEdge(numBits).apply { parse(this@SWFData) }
-	fun readCURVEDEDGERECORD(numBits: Int): SWFShapeRecordCurvedEdge = SWFShapeRecordCurvedEdge(numBits).apply { parse(this@SWFData) }
-	fun readSTYLECHANGERECORD(states: Int, fillBits: Int, lineBits: Int, level: Int = 1): SWFShapeRecordStyleChange = SWFShapeRecordStyleChange(states, fillBits, lineBits).apply { parse(this@SWFData, level) }
+	fun readCURVEDEDGERECORD(numBits: Int): SWFShapeRecordCurvedEdge =
+		SWFShapeRecordCurvedEdge(numBits).apply { parse(this@SWFData) }
+
+	fun readSTYLECHANGERECORD(states: Int, fillBits: Int, lineBits: Int, level: Int = 1): SWFShapeRecordStyleChange =
+		SWFShapeRecordStyleChange(states, fillBits, lineBits).apply { parse(this@SWFData, level) }
+
 	fun readFILLSTYLE(level: Int = 1): SWFFillStyle = SWFFillStyle().apply { parse(this@SWFData, level) }
 	fun readLINESTYLE(level: Int = 1): SWFLineStyle = SWFLineStyle().apply { parse(this@SWFData, level) }
 	fun readLINESTYLE2(level: Int = 1): SWFLineStyle2 = SWFLineStyle2().apply { parse(this@SWFData, level) }
@@ -392,7 +391,12 @@ class SWFData : BitArray() {
 		return filter
 	}
 
-	fun readTEXTRECORD(glyphBits: Int, advanceBits: Int, previousRecord: SWFTextRecord? = null, level: Int = 1): SWFTextRecord? {
+	fun readTEXTRECORD(
+		glyphBits: Int,
+		advanceBits: Int,
+		previousRecord: SWFTextRecord? = null,
+		level: Int = 1
+	): SWFTextRecord? {
 		if (readUI8() == 0) {
 			return null
 		} else {
@@ -401,16 +405,22 @@ class SWFData : BitArray() {
 		}
 	}
 
-	fun readGLYPHENTRY(glyphBits: Int, advanceBits: Int): SWFGlyphEntry = SWFGlyphEntry().apply { parse(this@SWFData, glyphBits, advanceBits) }
+	fun readGLYPHENTRY(glyphBits: Int, advanceBits: Int): SWFGlyphEntry =
+		SWFGlyphEntry().apply { parse(this@SWFData, glyphBits, advanceBits) }
+
 	fun readZONERECORD(): SWFZoneRecord = SWFZoneRecord(this@SWFData)
 	fun readZONEDATA(): SWFZoneData = SWFZoneData(this@SWFData)
-	fun readKERNINGRECORD(wideCodes: Boolean): SWFKerningRecord = SWFKerningRecord().apply { parse(this@SWFData, wideCodes) }
+	fun readKERNINGRECORD(wideCodes: Boolean): SWFKerningRecord =
+		SWFKerningRecord().apply { parse(this@SWFData, wideCodes) }
+
 	fun readGRADIENT(level: Int = 1): SWFGradient = SWFGradient().apply { parse(this@SWFData, level) }
 	fun readFOCALGRADIENT(level: Int = 1): SWFFocalGradient = SWFFocalGradient().apply { parse(this@SWFData, level) }
 	fun readGRADIENTRECORD(level: Int = 1): SWFGradientRecord = SWFGradientRecord().apply { parse(this@SWFData, level) }
 	fun readMORPHFILLSTYLE(level: Int = 1) = SWFMorphFillStyle().apply { parse(this@SWFData, level) }
 	fun readMORPHLINESTYLE(level: Int = 1) = SWFMorphLineStyle().apply { parse(this@SWFData, level) }
-	fun readMORPHLINESTYLE2(level: Int = 1): SWFMorphLineStyle2 = SWFMorphLineStyle2().apply { parse(this@SWFData, level) }
+	fun readMORPHLINESTYLE2(level: Int = 1): SWFMorphLineStyle2 =
+		SWFMorphLineStyle2().apply { parse(this@SWFData, level) }
+
 	fun readMORPHGRADIENT(level: Int = 1) = SWFMorphGradient().apply { parse(this@SWFData, level) }
 	fun readMORPHFOCALGRADIENT(level: Int = 1) = SWFMorphFocalGradient().apply { parse(this@SWFData, level) }
 	fun readMORPHGRADIENTRECORD(): SWFMorphGradientRecord = SWFMorphGradientRecord().apply { parse(this@SWFData) }
@@ -627,16 +637,18 @@ open class SWFTimelineContainer {
 			//var eventDataPos = pos
 			//var eventDataBytes = if (excessBytes < 0) -excessBytes else excessBytes
 			if (rootTimelineContainer == this) {
-				println("WARNING: excess bytes: " + excessBytes + ", " +
-					"Tag: " + tag.name + ", " +
-					"Index: " + index
+				println(
+					"WARNING: excess bytes: " + excessBytes + ", " +
+							"Tag: " + tag.name + ", " +
+							"Index: " + index
 				)
 			} else {
 				//eventData.indexRoot = rootTimelineContainer.tags.length;
-				println("WARNING: excess bytes: " + excessBytes + ", " +
-					"Tag: " + tag.name + ", " +
-					"Index: " + index + ", " +
-					"IndexRoot: " + rootTimelineContainer.tags.size
+				println(
+					"WARNING: excess bytes: " + excessBytes + ", " +
+							"Tag: " + tag.name + ", " +
+							"Index: " + index + ", " +
+							"IndexRoot: " + rootTimelineContainer.tags.size
 				)
 			}
 			data.position = pos + tagHeader.tagLength
@@ -809,7 +821,7 @@ open class SWFTimelineContainer {
 				str += "\n" + " ".repeat(indent + 2) + "Layers:"
 				for (i in 0 until layers.size) {
 					str += "\n" + " ".repeat(indent + 4) +
-						"[" + i + "] " + layers[i].toString(indent + 4)
+							"[" + i + "] " + layers[i].toString(indent + 4)
 				}
 			}
 		}

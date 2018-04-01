@@ -26,7 +26,12 @@ object AtlasResourceProcessor : ResourceProcessor("atlas") {
 
 		val bitmaps = files.map { it to it.readBitmap() }
 
-		val packs = BinPacker.packSeveral(2 * 4096.0, 2 * 4096.0, bitmaps) { Size((it.second.width + 4).nextAlignedTo(4), (it.second.height + 4).nextAlignedTo(4)) }
+		val packs = BinPacker.packSeveral(2 * 4096.0, 2 * 4096.0, bitmaps) {
+			Size(
+				(it.second.width + 4).nextAlignedTo(4),
+				(it.second.height + 4).nextAlignedTo(4)
+			)
+		}
 		if (packs.size != 1) {
 			println("Atlas packer failed: ${packs.size}")
 		}
@@ -55,7 +60,14 @@ object AtlasResourceProcessor : ResourceProcessor("atlas") {
 					trimmed = false
 				)
 			}.toMap(),
-			meta = AtlasInfo.Meta(app = "korge", format = "RGBA8888", image = outputImageFile.basename, scale = 1.0, size = AtlasInfo.Size(out.width, out.height), version = Korge.VERSION)
+			meta = AtlasInfo.Meta(
+				app = "korge",
+				format = "RGBA8888",
+				image = outputImageFile.basename,
+				scale = 1.0,
+				size = AtlasInfo.Size(out.width, out.height),
+				version = Korge.VERSION
+			)
 		)
 
 		//showImageAndWait(out)

@@ -1,6 +1,6 @@
 package com.soywiz.korge.service.storage
 
-import com.soywiz.korio.error.KeyNotFoundException
+import com.soywiz.korio.error.*
 
 interface IStorage {
 	operator fun set(key: String, value: String): Unit
@@ -12,6 +12,7 @@ interface IStorage {
 operator fun IStorage.contains(key: String): Boolean {
 	return getOrNull(key) != null
 }
+
 operator fun IStorage.get(key: String): String {
 	return getOrNull(key) ?: throw KeyNotFoundException(key)
 }

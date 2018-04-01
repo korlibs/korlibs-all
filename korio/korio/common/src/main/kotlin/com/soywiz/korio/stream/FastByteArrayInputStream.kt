@@ -1,11 +1,8 @@
 package com.soywiz.korio.stream
 
 import com.soywiz.kmem.*
-import com.soywiz.korio.lang.Charset
-import com.soywiz.korio.lang.Charsets
-import com.soywiz.korio.lang.toString
-import com.soywiz.korio.util.indexOf
-import com.soywiz.korio.util.nextAlignedTo
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.util.*
 
 class FastByteArrayInputStream(val ba: ByteArray, var offset: Int = 0) {
 	val length: Int get() = ba.size

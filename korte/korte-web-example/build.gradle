@@ -6,24 +6,24 @@ apply plugin: 'jtransc'
 mainClassName = 'com.soywiz.korte.web.example.Example1Kt'
 
 dependencies {
-    compile project(":korte-web")
-    compile project(":korte-vertx")
-    compile "com.soywiz:korio-ext-web:$korVersion"
-    //compile "io.vertx:vertx-core:$vertxVersion"
+	compile project(":korte-web")
+	compile project(":korte-vertx")
+	compile "com.soywiz:korio-ext-web:$korVersion"
+	//compile "io.vertx:vertx-core:$vertxVersion"
 }
 
 configurations {
-    provided
+	provided
 }
 
 repositories {
-    mavenLocal()
-    jcenter()
-    mavenCentral()
+	mavenLocal()
+	jcenter()
+	mavenCentral()
 }
 
 jtransc {
-    minimizeNames = false
-    treeshaking = true
-    //treeshaking = false
+	minimizeNames = false
+	treeshaking = true
+	//treeshaking = false
 }

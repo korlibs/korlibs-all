@@ -31,22 +31,23 @@ fun Project.runBackgroundTaskWithProgress(callback: (ProgressIndicator) -> Unit)
 	sema.acquire()
 
 	val project = this
-	ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Title", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
-		override fun onCancel() {
-			println("Cancel")
-		}
-
-		override fun run(progressIndicator: ProgressIndicator) {
-			try {
-				callback(progressIndicator)
-			} catch (e: Throwable) {
-				e.printStackTrace()
-				error = e
-			} finally {
-				sema.release()
+	ProgressManager.getInstance()
+		.run(object : Task.Backgroundable(project, "Title", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+			override fun onCancel() {
+				println("Cancel")
 			}
-		}
-	})
+
+			override fun run(progressIndicator: ProgressIndicator) {
+				try {
+					callback(progressIndicator)
+				} catch (e: Throwable) {
+					e.printStackTrace()
+					error = e
+				} finally {
+					sema.release()
+				}
+			}
+		})
 
 	sema.acquire()
 

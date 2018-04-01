@@ -1,7 +1,7 @@
 package com.codeazur.as3swf.timeline
 
-import com.codeazur.as3swf.tags.TagPlaceObject
-import com.codeazur.as3swf.utils.FlashByteArray
+import com.codeazur.as3swf.tags.*
+import com.codeazur.as3swf.utils.*
 
 @Suppress("unused")
 class Frame(var frameNumber: Int = 0, var tagIndexStart: Int = 0) {
@@ -26,9 +26,10 @@ class Frame(var frameNumber: Int = 0, var tagIndexStart: Int = 0) {
 		return _objectsSortedByDepth!!
 	}
 
-	val tagCount: Int get() {
-		return tagIndexEnd - tagIndexStart + 1
-	}
+	val tagCount: Int
+		get() {
+			return tagIndexEnd - tagIndexStart + 1
+		}
 
 	fun placeObject(tagIndex: Int, tag: TagPlaceObject) {
 		val frameObject = objects[tag.depth]
@@ -73,8 +74,8 @@ class Frame(var frameNumber: Int = 0, var tagIndexStart: Int = 0) {
 
 	fun toString(indent: Int = 0): String {
 		var str: String = " ".repeat(indent) + "[" + frameNumber + "] " +
-			"Start: " + tagIndexStart + ", " +
-			"Length: " + tagCount
+				"Start: " + tagIndexStart + ", " +
+				"Length: " + tagCount
 		if (label != null && label != "") {
 			str += ", Label: " + label
 		}
@@ -101,8 +102,8 @@ data class FrameObject(
 
 	fun toString(indent: Int = 0): String {
 		var str: String = "\n" + " ".repeat(indent + 2) +
-			"Depth: " + depth + (if (layer > -1) " (Layer $layer)" else "") + ", " +
-			"CharacterId: " + characterId + ", "
+				"Depth: " + depth + (if (layer > -1) " (Layer $layer)" else "") + ", " +
+				"CharacterId: " + characterId + ", "
 		if (className != null) {
 			str += "ClassName: $className, "
 		}
@@ -215,5 +216,6 @@ class SoundStream {
 
 	var data = FlashByteArray(); protected set
 
-	override fun toString() = "[SoundStream] StartFrame: $startFrame, Frames: $numFrames, Samples: $numSamples, Bytes: ${data.length}"
+	override fun toString() =
+		"[SoundStream] StartFrame: $startFrame, Frames: $numFrames, Samples: $numSamples, Bytes: ${data.length}"
 }

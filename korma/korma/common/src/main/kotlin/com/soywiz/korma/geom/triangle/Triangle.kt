@@ -1,9 +1,7 @@
 package com.soywiz.korma.geom.triangle
 
-import com.soywiz.korma.geom.Orientation
-import com.soywiz.korma.geom.Point2d
-import com.soywiz.korma.math.Math
-import kotlin.math.abs
+import com.soywiz.korma.geom.*
+import kotlin.math.*
 
 data class Triangle(
 	var p1: Point2d,
@@ -32,7 +30,12 @@ data class Triangle(
 				//println("Fixed orientation");
 			}
 		}
-		if (checkOrientation && Orientation.orient2d(p3, p2, p1) != Orientation.CW) throw(Error("Triangle must defined with Orientation.CW"))
+		if (checkOrientation && Orientation.orient2d(
+				p3,
+				p2,
+				p1
+			) != Orientation.CW
+		) throw(Error("Triangle must defined with Orientation.CW"))
 		this.points[0] = p1
 		this.points[1] = p2
 		this.points[2] = p3
@@ -147,13 +150,20 @@ data class Triangle(
 	fun neighborCCW(p: Point2d): Triangle? = this.neighbors[getPointIndexOffset(p, CCW_OFFSET)]
 
 	fun getConstrainedEdgeCW(p: Point2d): Boolean = this.constrained_edge[getPointIndexOffset(p, CW_OFFSET)]
-	fun setConstrainedEdgeCW(p: Point2d, ce: Boolean): Boolean = ce.also { this.constrained_edge[getPointIndexOffset(p, CW_OFFSET)] = ce }
+	fun setConstrainedEdgeCW(p: Point2d, ce: Boolean): Boolean =
+		ce.also { this.constrained_edge[getPointIndexOffset(p, CW_OFFSET)] = ce }
+
 	fun getConstrainedEdgeCCW(p: Point2d): Boolean = this.constrained_edge[getPointIndexOffset(p, CCW_OFFSET)]
-	fun setConstrainedEdgeCCW(p: Point2d, ce: Boolean): Boolean = ce.also { this.constrained_edge[getPointIndexOffset(p, CCW_OFFSET)] = ce }
+	fun setConstrainedEdgeCCW(p: Point2d, ce: Boolean): Boolean =
+		ce.also { this.constrained_edge[getPointIndexOffset(p, CCW_OFFSET)] = ce }
+
 	fun getDelaunayEdgeCW(p: Point2d): Boolean = this.delaunay_edge[getPointIndexOffset(p, CW_OFFSET)]
-	fun setDelaunayEdgeCW(p: Point2d, e: Boolean): Boolean = e.also { this.delaunay_edge[getPointIndexOffset(p, CW_OFFSET)] = e }
+	fun setDelaunayEdgeCW(p: Point2d, e: Boolean): Boolean =
+		e.also { this.delaunay_edge[getPointIndexOffset(p, CW_OFFSET)] = e }
+
 	fun getDelaunayEdgeCCW(p: Point2d): Boolean = this.delaunay_edge[getPointIndexOffset(p, CCW_OFFSET)]
-	fun setDelaunayEdgeCCW(p: Point2d, e: Boolean): Boolean = e.also { this.delaunay_edge[getPointIndexOffset(p, CCW_OFFSET)] = e }
+	fun setDelaunayEdgeCCW(p: Point2d, e: Boolean): Boolean =
+		e.also { this.delaunay_edge[getPointIndexOffset(p, CCW_OFFSET)] = e }
 
 	/**
 	 * The neighbor across to given point.
@@ -263,7 +273,8 @@ data class Triangle(
 		this.delaunay_edge[2] = false
 	}
 
-	override fun equals(other: Any?): Boolean = (other is Triangle) && (this.p1 == other.p1) && (this.p2 == other.p2) && (this.p3 == other.p3)
+	override fun equals(other: Any?): Boolean =
+		(other is Triangle) && (this.p1 == other.p1) && (this.p2 == other.p2) && (this.p3 == other.p3)
 
 	fun pointInsideTriangle(pp: Point2d): Boolean {
 		val p1: Point2d = points[0]
@@ -381,7 +392,8 @@ data class Triangle(
 			t.markNeighborTriangle(ot)
 		}
 
-		fun getUniquePointsFromTriangles(triangles: ArrayList<Triangle>) = triangles.flatMap { it.points.toList() }.distinct()
+		fun getUniquePointsFromTriangles(triangles: ArrayList<Triangle>) =
+			triangles.flatMap { it.points.toList() }.distinct()
 
 		fun traceList(triangles: ArrayList<Triangle>): Unit {
 			val pointsList = Triangle.getUniquePointsFromTriangles(triangles)
@@ -392,10 +404,15 @@ data class Triangle(
 			println("Points:")
 			for (point in pointsList) println("  " + getPointName(point) + " = " + point)
 			println("Triangles:")
-			for (triangle in triangles) println("  Triangle(${getPointName(triangle.points[0])}, ${getPointName(triangle.points[1])}, ${getPointName(triangle.points[2])})")
+			for (triangle in triangles) println(
+				"  Triangle(${getPointName(triangle.points[0])}, ${getPointName(triangle.points[1])}, ${getPointName(
+					triangle.points[2]
+				)})"
+			)
 		}
 
-		private fun _product(p1: Point2d, p2: Point2d, p3: Point2d): Double = (p1.x - p3.x) * (p2.y - p3.y) - (p1.y - p3.y) * (p2.x - p3.x)
+		private fun _product(p1: Point2d, p2: Point2d, p3: Point2d): Double =
+			(p1.x - p3.x) * (p2.y - p3.y) - (p1.y - p3.y) * (p2.x - p3.x)
 
 		/**
 		 * <b>Requirement</b>:<br>

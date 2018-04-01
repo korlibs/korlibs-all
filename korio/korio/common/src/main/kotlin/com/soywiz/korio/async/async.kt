@@ -2,14 +2,16 @@
 
 package com.soywiz.korio.async
 
-import com.soywiz.korio.KorioNative
+import com.soywiz.korio.*
 import com.soywiz.korio.coroutine.*
-import com.soywiz.korio.lang.printStackTrace
-import com.soywiz.korio.util.OS
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.util.*
+import kotlin.coroutines.experimental.*
 
-inline suspend fun <T> suspendCoroutineEL(crossinline block: (Continuation<T>) -> Unit): T = _korioSuspendCoroutine { c ->
-	block(c.toEventLoop())
-}
+inline suspend fun <T> suspendCoroutineEL(crossinline block: (Continuation<T>) -> Unit): T =
+	_korioSuspendCoroutine { c ->
+		block(c.toEventLoop())
+	}
 
 fun <T> Continuation<T>.toEventLoop(): Continuation<T> {
 	val parent = this
@@ -18,6 +20,7 @@ fun <T> Continuation<T>.toEventLoop(): Continuation<T> {
 		override fun resume(value: T): Unit = run {
 			context.eventLoop.queueContinuation(parent, value)
 		}
+
 		override fun resumeWithException(exception: Throwable): Unit = run {
 			context.eventLoop.queueContinuationException(parent, ExceptionHook.hook(exception))
 		}
@@ -67,10 +70,15 @@ suspend fun <T> async2(task: suspend () -> T): Promise<T> = spawn { task() }
 suspend fun <T> async(task: suspend CoroutineContext.() -> T): Promise<T> = spawn { task(getCoroutineContext()) }
 suspend fun <T> go(task: suspend CoroutineContext.() -> T): Promise<T> = spawn { task(getCoroutineContext()) }
 
-fun <T> EventLoop.async(task: suspend CoroutineContext.() -> T): Promise<T> = spawn(this@async.coroutineContext) { task(this@async.coroutineContext) }
-fun <T> CoroutineContext.async(task: suspend CoroutineContext.() -> T): Promise<T> = spawn(this@async) { task(this@async) }
+fun <T> EventLoop.async(task: suspend CoroutineContext.() -> T): Promise<T> =
+	spawn(this@async.coroutineContext) { task(this@async.coroutineContext) }
 
-fun <T> EventLoop.go(task: suspend CoroutineContext.() -> T): Promise<T> = spawn(this@go.coroutineContext) { task(this@go.coroutineContext) }
+fun <T> CoroutineContext.async(task: suspend CoroutineContext.() -> T): Promise<T> =
+	spawn(this@async) { task(this@async) }
+
+fun <T> EventLoop.go(task: suspend CoroutineContext.() -> T): Promise<T> =
+	spawn(this@go.coroutineContext) { task(this@go.coroutineContext) }
+
 fun <T> CoroutineContext.go(task: suspend CoroutineContext.() -> T): Promise<T> = spawn(this@go) { task(this@go) }
 
 suspend fun <R, T> (suspend R.() -> T).await(receiver: R): T = korioSuspendCoroutine { c ->
@@ -97,11 +105,13 @@ class EmptyContinuation(override val context: CoroutineContext) : Continuation<A
 
 
 @Suppress("UNCHECKED_CAST")
-inline fun <T> spawnAndForget(context: CoroutineContext, noinline task: suspend () -> T): Unit = task.korioStartCoroutine(EmptyContinuation(context) as Continuation<T>)
+inline fun <T> spawnAndForget(context: CoroutineContext, noinline task: suspend () -> T): Unit =
+	task.korioStartCoroutine(EmptyContinuation(context) as Continuation<T>)
 
 suspend fun <T> spawnAndForget(task: suspend () -> T): Unit = spawnAndForget(getCoroutineContext(), task)
 
-inline fun <T> spawnAndForget(context: CoroutineContext, value: T, noinline task: suspend T.() -> Any): Unit = task.korioStartCoroutine(value, EmptyContinuation(context))
+inline fun <T> spawnAndForget(context: CoroutineContext, value: T, noinline task: suspend T.() -> Any): Unit =
+	task.korioStartCoroutine(value, EmptyContinuation(context))
 
 //fun syncTest(callback: suspend EventLoopTest.() -> Unit): Unit = TODO()
 

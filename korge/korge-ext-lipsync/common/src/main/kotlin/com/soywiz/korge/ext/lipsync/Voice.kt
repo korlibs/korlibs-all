@@ -1,21 +1,16 @@
 package com.soywiz.korge.ext.lipsync
 
-import com.soywiz.korau.sound.NativeSound
-import com.soywiz.korau.sound.readNativeSoundOptimized
-import com.soywiz.korge.animate.play
-import com.soywiz.korge.audio.soundSystem
-import com.soywiz.korge.component.Component
-import com.soywiz.korge.resources.Path
-import com.soywiz.korge.resources.ResourcesRoot
-import com.soywiz.korge.view.View
-import com.soywiz.korge.view.Views
-import com.soywiz.korio.async.go
-import com.soywiz.korio.async.suspendCancellableCoroutine
-import com.soywiz.korinject.AsyncFactory
-import com.soywiz.korinject.AsyncFactoryClass
-import com.soywiz.korio.util.Cancellable
-import com.soywiz.kds.Extra
-import com.soywiz.korio.vfs.VfsFile
+import com.soywiz.kds.*
+import com.soywiz.korau.sound.*
+import com.soywiz.korge.animate.*
+import com.soywiz.korge.audio.*
+import com.soywiz.korge.component.*
+import com.soywiz.korge.resources.*
+import com.soywiz.korge.view.*
+import com.soywiz.korinject.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.util.*
+import com.soywiz.korio.vfs.*
 
 class LipSync(val lipsync: String) {
 	val timeMs: Int get() = lipsync.length * 16

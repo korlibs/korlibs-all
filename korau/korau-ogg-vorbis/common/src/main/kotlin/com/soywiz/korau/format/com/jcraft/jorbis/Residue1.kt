@@ -28,17 +28,17 @@ package com.soywiz.korau.format.com.jcraft.jorbis
 
 internal class Residue1 : Residue0() {
 
-    override fun inverse(vb: Block, vl: Any, `in`: Array<FloatArray>, nonzero: IntArray, ch: Int): Int {
-        var used = 0
-        for (i in 0 until ch) {
-            if (nonzero[i] != 0) {
-                `in`[used++] = `in`[i]
-            }
-        }
-        if (used != 0) {
-            return Residue0._01inverse(vb, vl, `in`, used, 1)
-        } else {
-            return 0
-        }
-    }
+	override fun inverse(vb: Block, vl: Any, `in`: Array<FloatArray>, nonzero: IntArray, ch: Int): Int {
+		var used = 0
+		for (i in 0 until ch) {
+			if (nonzero[i] != 0) {
+				`in`[used++] = `in`[i]
+			}
+		}
+		if (used != 0) {
+			return Residue0._01inverse(vb, vl, `in`, used, 1)
+		} else {
+			return 0
+		}
+	}
 }

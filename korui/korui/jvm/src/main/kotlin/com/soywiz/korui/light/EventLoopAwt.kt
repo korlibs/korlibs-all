@@ -1,10 +1,8 @@
 package com.soywiz.korui.light
 
-import com.soywiz.korio.async.EventLoop
-import com.soywiz.korio.async.EventLoopFactory
-import com.soywiz.korio.lang.Closeable
-import javax.swing.SwingUtilities
-import javax.swing.Timer
+import com.soywiz.korio.async.*
+import com.soywiz.korio.lang.*
+import javax.swing.*
 
 class EventLoopFactoryAwt : EventLoopFactory() {
 	override fun createEventLoop(): EventLoop = EventLoopAwt()

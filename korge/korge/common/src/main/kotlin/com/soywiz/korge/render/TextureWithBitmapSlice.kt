@@ -1,8 +1,7 @@
 package com.soywiz.korge.render
 
-import com.soywiz.korim.bitmap.Bitmap
-import com.soywiz.korim.bitmap.BitmapSlice
-import com.soywiz.korma.geom.Rectangle
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korma.geom.*
 
 data class TextureWithBitmapSlice(
 	val texture: Texture,

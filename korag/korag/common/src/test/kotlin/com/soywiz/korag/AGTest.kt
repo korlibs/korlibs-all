@@ -1,8 +1,8 @@
 package com.soywiz.korag
 
-import com.soywiz.korag.software.AGFactorySoftware
-import com.soywiz.korio.async.syncTest
-import org.junit.Test
+import com.soywiz.korag.software.*
+import com.soywiz.korio.async.*
+import org.junit.*
 
 class AGTest {
 	@Test

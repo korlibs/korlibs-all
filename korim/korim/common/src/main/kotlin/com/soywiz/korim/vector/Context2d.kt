@@ -1,19 +1,12 @@
 package com.soywiz.korim.vector
 
-import com.soywiz.kds.LinkedList
-import com.soywiz.korim.bitmap.Bitmap
-import com.soywiz.korim.bitmap.NativeImage
-import com.soywiz.korim.bitmap.mipmap
-import com.soywiz.korim.color.Colors
-import com.soywiz.korio.util.redirectField
-import com.soywiz.korma.Matrix2d
-import com.soywiz.korma.Vector2
-import com.soywiz.kds.DoubleArrayList
-import com.soywiz.kds.IntArrayList
-import com.soywiz.korma.geom.Rectangle
-import kotlin.math.PI
-import kotlin.math.abs
-import kotlin.math.ceil
+import com.soywiz.kds.*
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
+import com.soywiz.korio.util.*
+import com.soywiz.korma.*
+import com.soywiz.korma.geom.*
+import kotlin.math.*
 
 class Context2d(val renderer: Renderer) {
 	val width: Int get() = renderer.width
@@ -40,8 +33,17 @@ class Context2d(val renderer: Renderer) {
 
 		open fun render(state: State, fill: Boolean): Unit = Unit
 		open fun renderText(state: State, font: Font, text: String, x: Double, y: Double, fill: Boolean): Unit = Unit
-		open fun getBounds(font: Font, text: String, out: TextMetrics): Unit = run { out.bounds.setTo(0.0, 0.0, 0.0, 0.0) }
-		open fun drawImage(image: Bitmap, x: Int, y: Int, width: Int = image.width, height: Int = image.height, transform: Matrix2d = Matrix2d()): Unit = Unit
+		open fun getBounds(font: Font, text: String, out: TextMetrics): Unit =
+			run { out.bounds.setTo(0.0, 0.0, 0.0, 0.0) }
+
+		open fun drawImage(
+			image: Bitmap,
+			x: Int,
+			y: Int,
+			width: Int = image.width,
+			height: Int = image.height,
+			transform: Matrix2d = Matrix2d()
+		): Unit = Unit
 	}
 
 	enum class VerticalAlign(val ratio: Double) {
@@ -137,15 +139,24 @@ class Context2d(val renderer: Renderer) {
 	fun rotate(angle: Double) = run { state.transform.prerotate(angle) }
 	fun translate(tx: Double, ty: Double) = run { state.transform.pretranslate(tx, ty) }
 	fun transform(m: Matrix2d) = run { state.transform.premultiply(m) }
-	fun transform(a: Double, b: Double, c: Double, d: Double, tx: Double, ty: Double) = run { state.transform.premultiply(a, b, c, d, tx, ty) }
+	fun transform(a: Double, b: Double, c: Double, d: Double, tx: Double, ty: Double) =
+		run { state.transform.premultiply(a, b, c, d, tx, ty) }
+
 	fun setTransform(m: Matrix2d) = run { state.transform.copyFrom(m) }
-	fun setTransform(a: Double, b: Double, c: Double, d: Double, tx: Double, ty: Double) = run { state.transform.setTo(a, b, c, d, tx, ty) }
+	fun setTransform(a: Double, b: Double, c: Double, d: Double, tx: Double, ty: Double) =
+		run { state.transform.setTo(a, b, c, d, tx, ty) }
+
 	fun shear(sx: Double, sy: Double) = transform(1.0, sy, sx, 1.0, 0.0, 0.0)
 	fun moveTo(x: Int, y: Int) = moveTo(x.toDouble(), y.toDouble())
 	fun lineTo(x: Int, y: Int) = lineTo(x.toDouble(), y.toDouble())
-	fun quadraticCurveTo(cx: Int, cy: Int, ax: Int, ay: Int) = quadraticCurveTo(cx.toDouble(), cy.toDouble(), ax.toDouble(), ay.toDouble())
-	fun bezierCurveTo(cx1: Int, cy1: Int, cx2: Int, cy2: Int, ax: Int, ay: Int) = bezierCurveTo(cx1.toDouble(), cy1.toDouble(), cx2.toDouble(), cy2.toDouble(), ax.toDouble(), ay.toDouble())
-	fun arcTo(x1: Int, y1: Int, x2: Int, y2: Int, radius: Int) = arcTo(x1.toDouble(), y1.toDouble(), x2.toDouble(), y2.toDouble(), radius.toDouble())
+	fun quadraticCurveTo(cx: Int, cy: Int, ax: Int, ay: Int) =
+		quadraticCurveTo(cx.toDouble(), cy.toDouble(), ax.toDouble(), ay.toDouble())
+
+	fun bezierCurveTo(cx1: Int, cy1: Int, cx2: Int, cy2: Int, ax: Int, ay: Int) =
+		bezierCurveTo(cx1.toDouble(), cy1.toDouble(), cx2.toDouble(), cy2.toDouble(), ax.toDouble(), ay.toDouble())
+
+	fun arcTo(x1: Int, y1: Int, x2: Int, y2: Int, radius: Int) =
+		arcTo(x1.toDouble(), y1.toDouble(), x2.toDouble(), y2.toDouble(), radius.toDouble())
 
 	fun moveTo(p: Vector2) = moveTo(p.x, p.y)
 	fun lineTo(p: Vector2) = lineTo(p.x, p.y)
@@ -153,9 +164,14 @@ class Context2d(val renderer: Renderer) {
 	fun bezierCurveTo(c1: Vector2, c2: Vector2, a: Vector2) = bezierCurveTo(c1.x, c1.y, c2.x, c2.y, a.x, a.y)
 	fun arcTo(p1: Vector2, p2: Vector2, radius: Double) = arcTo(p1.x, p1.y, p2.x, p2.y, radius)
 
-	fun rect(x: Int, y: Int, width: Int, height: Int) = rect(x.toDouble(), y.toDouble(), width.toDouble(), height.toDouble())
-	fun strokeRect(x: Int, y: Int, width: Int, height: Int) = strokeRect(x.toDouble(), y.toDouble(), width.toDouble(), height.toDouble())
-	fun fillRect(x: Int, y: Int, width: Int, height: Int) = fillRect(x.toDouble(), y.toDouble(), width.toDouble(), height.toDouble())
+	fun rect(x: Int, y: Int, width: Int, height: Int) =
+		rect(x.toDouble(), y.toDouble(), width.toDouble(), height.toDouble())
+
+	fun strokeRect(x: Int, y: Int, width: Int, height: Int) =
+		strokeRect(x.toDouble(), y.toDouble(), width.toDouble(), height.toDouble())
+
+	fun fillRect(x: Int, y: Int, width: Int, height: Int) =
+		fillRect(x.toDouble(), y.toDouble(), width.toDouble(), height.toDouble())
 
 	fun arc(x: Double, y: Double, r: Double, start: Double, end: Double) = run { state.path.arc(x, y, r, start, end) }
 	fun strokeDot(x: Double, y: Double) = run { beginPath(); moveTo(x, y); lineTo(x, y); stroke() }
@@ -177,17 +193,25 @@ class Context2d(val renderer: Renderer) {
 	fun rLineTo(x: Double, y: Double) = run { state.path.rLineTo(x, y) }
 	fun quadraticCurveTo(cx: Double, cy: Double, ax: Double, ay: Double) = run { state.path.quadTo(cx, cy, ax, ay) }
 	fun rQuadraticCurveTo(cx: Double, cy: Double, ax: Double, ay: Double) = run { state.path.rQuadTo(cx, cy, ax, ay) }
-	fun bezierCurveTo(cx1: Double, cy1: Double, cx2: Double, cy2: Double, x: Double, y: Double) = run { state.path.cubicTo(cx1, cy1, cx2, cy2, x, y) }
-	fun rBezierCurveTo(cx1: Double, cy1: Double, cx2: Double, cy2: Double, x: Double, y: Double) = run { state.path.rCubicTo(cx1, cy1, cx2, cy2, x, y) }
+	fun bezierCurveTo(cx1: Double, cy1: Double, cx2: Double, cy2: Double, x: Double, y: Double) =
+		run { state.path.cubicTo(cx1, cy1, cx2, cy2, x, y) }
+
+	fun rBezierCurveTo(cx1: Double, cy1: Double, cx2: Double, cy2: Double, x: Double, y: Double) =
+		run { state.path.rCubicTo(cx1, cy1, cx2, cy2, x, y) }
+
 	fun rect(x: Double, y: Double, width: Double, height: Double) = run { state.path.rect(x, y, width, height) }
-	fun roundRect(x: Double, y: Double, w: Double, h: Double, rx: Double, ry: Double = rx) = run { this.beginPath(); state.path.roundRect(x, y, w, h, rx, ry); this.closePath() }
+	fun roundRect(x: Double, y: Double, w: Double, h: Double, rx: Double, ry: Double = rx) =
+		run { this.beginPath(); state.path.roundRect(x, y, w, h, rx, ry); this.closePath() }
 
 	fun path(path: GraphicsPath) = run { this.state.path.write(path) }
 	fun draw(d: Drawable) = run { d.draw(this) }
 
-	fun strokeRect(x: Double, y: Double, width: Double, height: Double) = run { beginPath(); rect(x, y, width, height); stroke() }
+	fun strokeRect(x: Double, y: Double, width: Double, height: Double) =
+		run { beginPath(); rect(x, y, width, height); stroke() }
 
-	fun fillRect(x: Double, y: Double, width: Double, height: Double) = run { beginPath(); rect(x, y, width, height); fill() }
+	fun fillRect(x: Double, y: Double, width: Double, height: Double) =
+		run { beginPath(); rect(x, y, width, height); fill() }
+
 	fun beginPath() = run { state.path = GraphicsPath() }
 
 	fun getBounds(out: Rectangle = Rectangle()) = state.path.getBounds(out)
@@ -209,7 +233,10 @@ class Context2d(val renderer: Renderer) {
 	fun fillStroke() = run { fill(); stroke() }
 	fun clip() = run { state.clip = state.path }
 
-	fun drawShape(shape: Shape, rasterizerMethod: Context2d.ShapeRasterizerMethod = Context2d.ShapeRasterizerMethod.X4) {
+	fun drawShape(
+		shape: Shape,
+		rasterizerMethod: Context2d.ShapeRasterizerMethod = Context2d.ShapeRasterizerMethod.X4
+	) {
 		when (rasterizerMethod) {
 			Context2d.ShapeRasterizerMethod.NONE -> {
 				shape.draw(this)
@@ -241,20 +268,32 @@ class Context2d(val renderer: Renderer) {
 		}
 	}
 
-	fun createLinearGradient(x0: Double, y0: Double, x1: Double, y1: Double) = Gradient(Gradient.Kind.LINEAR, x0, y0, 0.0, x1, y1, 0.0)
-	fun createRadialGradient(x0: Double, y0: Double, r0: Double, x1: Double, y1: Double, r1: Double) = Gradient(Gradient.Kind.RADIAL, x0, y0, r0, x1, y1, r1)
+	fun createLinearGradient(x0: Double, y0: Double, x1: Double, y1: Double) =
+		Gradient(Gradient.Kind.LINEAR, x0, y0, 0.0, x1, y1, 0.0)
+
+	fun createRadialGradient(x0: Double, y0: Double, r0: Double, x1: Double, y1: Double, r1: Double) =
+		Gradient(Gradient.Kind.RADIAL, x0, y0, r0, x1, y1, r1)
+
 	fun createColor(color: Int) = Color(color)
-	fun createPattern(bitmap: Bitmap, repeat: Boolean = false, smooth: Boolean = true, transform: Matrix2d = Matrix2d()) = BitmapPaint(bitmap, transform, repeat, smooth)
+	fun createPattern(
+		bitmap: Bitmap,
+		repeat: Boolean = false,
+		smooth: Boolean = true,
+		transform: Matrix2d = Matrix2d()
+	) = BitmapPaint(bitmap, transform, repeat, smooth)
 
 	val none = None
 
 	data class Font(val name: String, val size: Double)
 	data class TextMetrics(val bounds: Rectangle = Rectangle())
 
-	fun getTextBounds(text: String, out: TextMetrics = TextMetrics()): TextMetrics = out.apply { renderer.getBounds(font, text, out) }
+	fun getTextBounds(text: String, out: TextMetrics = TextMetrics()): TextMetrics =
+		out.apply { renderer.getBounds(font, text, out) }
+
 	fun fillText(text: String, x: Double, y: Double): Unit = renderText(text, x, y, fill = true)
 	fun strokeText(text: String, x: Double, y: Double): Unit = renderText(text, x, y, fill = false)
-	fun renderText(text: String, x: Double, y: Double, fill: Boolean): Unit = run { renderer.renderText(state, font, text, x, y, fill) }
+	fun renderText(text: String, x: Double, y: Double, fill: Boolean): Unit =
+		run { renderer.renderText(state, font, text, x, y, fill) }
 
 	fun drawImage(image: Bitmap, x: Int, y: Int, width: Int = image.width, height: Int = image.height) {
 		if (true) {
@@ -265,7 +304,13 @@ class Context2d(val renderer: Renderer) {
 			lineTo(x, y + height)
 			//lineTo(x, y)
 			closePath()
-			fillStyle = createPattern(image, transform = Matrix2d().scale(width.toDouble() / image.width.toDouble(), height.toDouble() / image.height.toDouble()))
+			fillStyle = createPattern(
+				image,
+				transform = Matrix2d().scale(
+					width.toDouble() / image.width.toDouble(),
+					height.toDouble() / image.height.toDouble()
+				)
+			)
 			fill()
 		} else {
 			renderer.drawImage(image, x, y, width, height, state.transform)
@@ -339,7 +384,12 @@ class Context2d(val renderer: Renderer) {
 		}
 	}
 
-	class BitmapPaint(val bitmap: Bitmap, override val transform: Matrix2d, val repeat: Boolean = false, val smooth: Boolean = true) : TransformedPaint
+	class BitmapPaint(
+		val bitmap: Bitmap,
+		override val transform: Matrix2d,
+		val repeat: Boolean = false,
+		val smooth: Boolean = true
+	) : TransformedPaint
 
 	interface Drawable {
 		fun draw(c: Context2d)

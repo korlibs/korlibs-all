@@ -1,10 +1,9 @@
 package com.soywiz.korio.util
 
-import com.soywiz.kds.lmapOf
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korio.serialization.json.Json
-import kotlin.math.max
-import kotlin.math.min
+import com.soywiz.kds.*
+import com.soywiz.korio.error.*
+import com.soywiz.korio.serialization.json.*
+import kotlin.math.*
 
 class StrReader(val str: String, val file: String = "file", var pos: Int = 0) {
 	companion object {
@@ -43,7 +42,9 @@ class StrReader(val str: String, val file: String = "file", var pos: Int = 0) {
 	//inline fun skipWhile(check: (Char) -> Boolean) = run { while (check(this.peekChar())) this.skip(1) }
 	inline fun skipWhile(filter: (Char) -> Boolean) = run { while (hasMore && filter(this.peekChar())) this.readChar() }
 
-	inline fun skipUntil(filter: (Char) -> Boolean) = run { while (hasMore && !filter(this.peekChar())) this.readChar() }
+	inline fun skipUntil(filter: (Char) -> Boolean) =
+		run { while (hasMore && !filter(this.peekChar())) this.readChar() }
+
 	inline fun matchWhile(check: (Char) -> Boolean): String? = slice { skipWhile(check) }
 
 	fun readUntil(char: Char) = this.slice { skipUntil(char) }
@@ -74,7 +75,8 @@ class StrReader(val str: String, val file: String = "file", var pos: Int = 0) {
 		return lit
 	}
 
-	fun tryLitRange(lit: String): TRange? = if (substr(this.pos, lit.length) == lit) this.readRange(lit.length) else null
+	fun tryLitRange(lit: String): TRange? =
+		if (substr(this.pos, lit.length) == lit) this.readRange(lit.length) else null
 
 	fun matchLit(lit: String): String? = tryLit(lit)
 	fun matchLitRange(lit: String): TRange? = tryLitRange(lit)
@@ -134,9 +136,15 @@ class StrReader(val str: String, val file: String = "file", var pos: Int = 0) {
 		return false
 	}
 
-	class Literals(private val lits: Array<String>, private val map: MutableMap<String, Boolean>, val lengths: Array<Int>) {
+	class Literals(
+		private val lits: Array<String>,
+		private val map: MutableMap<String, Boolean>,
+		val lengths: Array<Int>
+	) {
 		companion object {
-			fun invoke(vararg lits: String): Literals = fromList(lits.toCollection(arrayListOf<String>()).toTypedArray())
+			fun invoke(vararg lits: String): Literals =
+				fromList(lits.toCollection(arrayListOf<String>()).toTypedArray())
+
 			//fun invoke(lits:Array<String>): Literals = fromList(lits)
 			fun fromList(lits: Array<String>): Literals {
 				val lengths = lits.map { it.length }.sorted().reversed().distinct().toTypedArray()
@@ -204,12 +212,14 @@ fun StrReader.readStringLit(reportErrors: Boolean = true): String {
 		val c = read()
 		if (c == '\\') {
 			val cc = read()
-			out.append(when (cc) {
-				'\\' -> '\\'; '/' -> '/'; '\'' -> '\''; '"' -> '"'
-				'b' -> '\b'; 'f' -> '\u000c'; 'n' -> '\n'; 'r' -> '\r'; 't' -> '\t'
-				'u' -> read(4).toInt(0x10).toChar()
-				else -> Json.invalidJson("Invalid char '$cc'")
-			})
+			out.append(
+				when (cc) {
+					'\\' -> '\\'; '/' -> '/'; '\'' -> '\''; '"' -> '"'
+					'b' -> '\b'; 'f' -> '\u000c'; 'n' -> '\n'; 'r' -> '\r'; 't' -> '\t'
+					'u' -> read(4).toInt(0x10).toChar()
+					else -> Json.invalidJson("Invalid char '$cc'")
+				}
+			)
 		} else if (c == quotec) {
 			closed = true
 			break

@@ -1,9 +1,8 @@
 package com.soywiz.korui.geom.len
 
-import com.soywiz.korio.util.clamp
-import com.soywiz.korma.geom.RectangleInt
-import kotlin.math.max
-import kotlin.math.min
+import com.soywiz.korio.util.*
+import com.soywiz.korma.geom.*
+import kotlin.math.*
 
 //sealed class Length : Comparable<Length> {
 
@@ -116,7 +115,14 @@ sealed class Length {
 	companion object {
 		val ZERO = PT(0.0)
 
-		fun calc(ctx: Context, default: Length, size: Length?, min: Length? = null, max: Length? = null, ignoreBounds: Boolean = false): Int {
+		fun calc(
+			ctx: Context,
+			default: Length,
+			size: Length?,
+			min: Length? = null,
+			max: Length? = null,
+			ignoreBounds: Boolean = false
+		): Int {
 			val sizeCalc = (size ?: default).calc(ctx)
 			val minCalc = min.calcMin(ctx, if (ignoreBounds) Int.MIN_VALUE else 0)
 			val maxCalc = max.calcMax(ctx, if (ignoreBounds) Int.MAX_VALUE else ctx.size)
@@ -144,14 +150,28 @@ fun Length?.calcMax(ctx: Length.Context, default: Int = ctx.size): Int = this?.c
 //operator fun Length?.minus(that: Length?): Length? = Length.Binop(this, that, "-") { a, b -> a - b }
 operator fun Length?.times(that: Double): Length? = Length.Scale(this, that)
 
-fun RectangleInt.setNewTo(ctx: Length.Context, bounds: RectangleInt, x: Length?, y: Length?, width: Length?, height: Length?) = this.setTo(
+fun RectangleInt.setNewTo(
+	ctx: Length.Context,
+	bounds: RectangleInt,
+	x: Length?,
+	y: Length?,
+	width: Length?,
+	height: Length?
+) = this.setTo(
 	x?.calc(ctx.setSize(bounds.width)) ?: bounds.x,
 	y?.calc(ctx.setSize(bounds.height)) ?: bounds.y,
 	width?.calc(ctx.setSize(bounds.width)) ?: bounds.width,
 	height?.calc(ctx.setSize(bounds.height)) ?: bounds.height
 )
 
-fun RectangleInt.setNewBoundsTo(ctx: Length.Context, bounds: RectangleInt, left: Length?, top: Length?, right: Length?, bottom: Length?) = this.setBoundsTo(
+fun RectangleInt.setNewBoundsTo(
+	ctx: Length.Context,
+	bounds: RectangleInt,
+	left: Length?,
+	top: Length?,
+	right: Length?,
+	bottom: Length?
+) = this.setBoundsTo(
 	left?.calc(ctx.setSize(bounds.width)) ?: bounds.left,
 	top?.calc(ctx.setSize(bounds.height)) ?: bounds.top,
 	right?.calc(ctx.setSize(bounds.width)) ?: bounds.right,

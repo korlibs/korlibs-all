@@ -1,7 +1,7 @@
 package com.soywiz.krypto
 
 import com.soywiz.kmem.*
-import kotlin.math.ceil
+import kotlin.math.*
 
 object SHA1 {
 	private class Uint32ArrayBigEndian(val bytes: UByteArray) {

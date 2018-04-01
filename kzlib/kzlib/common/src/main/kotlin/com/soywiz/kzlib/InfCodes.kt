@@ -58,9 +58,11 @@ internal class InfCodes(private val z: ZStream, private val s: InfBlocks) {
 	lateinit var dtree: IntArray          // distance tree
 	var dtree_index: Int = 0      // distance tree
 
-	fun init(bl: Int, bd: Int,
-			 tl: IntArray, tl_index: Int,
-			 td: IntArray, td_index: Int) {
+	fun init(
+		bl: Int, bd: Int,
+		tl: IntArray, tl_index: Int,
+		td: IntArray, td_index: Int
+	) {
 		mode = START
 		lbits = bl.toByte()
 		dbits = bd.toByte()
@@ -108,10 +110,12 @@ internal class InfCodes(private val z: ZStream, private val s: InfBlocks) {
 							z.total_in += p - z.next_in_index
 							z.next_in_index = p
 							s.write = q
-							r = inflate_fast(lbits.toInt(), dbits.toInt(),
+							r = inflate_fast(
+								lbits.toInt(), dbits.toInt(),
 								ltree, ltree_index,
 								dtree, dtree_index,
-								s, z)
+								s, z
+							)
 
 							p = z.next_in_index
 							n = z.avail_in
@@ -592,10 +596,12 @@ internal class InfCodes(private val z: ZStream, private val s: InfBlocks) {
 	// at least ten.  The ten bytes are six bytes for the longest length/
 	// distance pair plus four bytes for overloading the bit buffer.
 
-	fun inflate_fast(bl: Int, bd: Int,
-					 tl: IntArray, tl_index: Int,
-					 td: IntArray, td_index: Int,
-					 s: InfBlocks, z: ZStream): Int {
+	fun inflate_fast(
+		bl: Int, bd: Int,
+		tl: IntArray, tl_index: Int,
+		td: IntArray, td_index: Int,
+		s: InfBlocks, z: ZStream
+	): Int {
 		var t: Int                // temporary pointer
 		var tp: IntArray             // temporary pointer
 		var tp_index: Int         // temporary pointer
@@ -839,7 +845,25 @@ internal class InfCodes(private val z: ZStream, private val s: InfBlocks) {
 
 	companion object {
 
-		private val inflate_mask = intArrayOf(0x00000000, 0x00000001, 0x00000003, 0x00000007, 0x0000000f, 0x0000001f, 0x0000003f, 0x0000007f, 0x000000ff, 0x000001ff, 0x000003ff, 0x000007ff, 0x00000fff, 0x00001fff, 0x00003fff, 0x00007fff, 0x0000ffff)
+		private val inflate_mask = intArrayOf(
+			0x00000000,
+			0x00000001,
+			0x00000003,
+			0x00000007,
+			0x0000000f,
+			0x0000001f,
+			0x0000003f,
+			0x0000007f,
+			0x000000ff,
+			0x000001ff,
+			0x000003ff,
+			0x000007ff,
+			0x00000fff,
+			0x00001fff,
+			0x00003fff,
+			0x00007fff,
+			0x0000ffff
+		)
 
 		private val Z_OK = 0
 		private val Z_STREAM_END = 1

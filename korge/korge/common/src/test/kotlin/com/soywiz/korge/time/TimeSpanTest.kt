@@ -1,7 +1,7 @@
 package com.soywiz.korge.time
 
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class TimeSpanTest {
 	private val DELTA = 0.00001

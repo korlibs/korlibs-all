@@ -1,8 +1,8 @@
 package com.soywiz.korim.format
 
-import com.soywiz.korim.bitmap.Bitmap32
-import com.soywiz.korio.stream.ByteArrayBuilderSmall
-import kotlin.math.floor
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korio.stream.*
+import kotlin.math.*
 
 /*
   Copyright (c) 2008, Adobe Systems Incorporated
@@ -426,7 +426,13 @@ class JPEGEncoder(quality: Int = 50) {
 		writeByte(0) // Bf
 	}
 
-	private fun processDU(CDU: FloatArray, fdtbl: FloatArray, DC: Int, HTDC: Array<IntArray>, HTAC: Array<IntArray>): Int {
+	private fun processDU(
+		CDU: FloatArray,
+		fdtbl: FloatArray,
+		DC: Int,
+		HTDC: Array<IntArray>,
+		HTAC: Array<IntArray>
+	): Int {
 		@Suppress("LocalVariableName", "NAME_SHADOWING")
 		var dc = DC
 		val eob = HTAC[0x00]
@@ -482,11 +488,13 @@ class JPEGEncoder(quality: Int = 50) {
 	}
 
 	// image data object
-	fun encode(bmp: Bitmap32, quality: Int? = null): ByteArray = encode(JPEGEncoder.ImageData(
-		bmp.extractBytes(),
-		bmp.width,
-		bmp.height
-	), quality)
+	fun encode(bmp: Bitmap32, quality: Int? = null): ByteArray = encode(
+		JPEGEncoder.ImageData(
+			bmp.extractBytes(),
+			bmp.width,
+			bmp.height
+		), quality
+	)
 
 	private fun encode(image: ImageData, quality: Int? = null): ByteArray {
 		//var time_start = Klock.currentTimeMillis()
@@ -557,9 +565,12 @@ class JPEGEncoder(quality: Int = 50) {
 					*/
 
 					// use lookup table (slightly faster)
-					ydu[pos] = (((rgbYuvTable[(r + 0)] + rgbYuvTable[(g + 256)] + rgbYuvTable[(b + 512)]) shr 16) - 128).toFloat()
-					udu[pos] = (((rgbYuvTable[(r + 768)] + rgbYuvTable[(g + 1024)] + rgbYuvTable[(b + 1280)]) shr 16) - 128).toFloat()
-					vdu[pos] = (((rgbYuvTable[(r + 1280)] + rgbYuvTable[(g + 1536)] + rgbYuvTable[(b + 1792)]) shr 16) - 128).toFloat()
+					ydu[pos] =
+							(((rgbYuvTable[(r + 0)] + rgbYuvTable[(g + 256)] + rgbYuvTable[(b + 512)]) shr 16) - 128).toFloat()
+					udu[pos] =
+							(((rgbYuvTable[(r + 768)] + rgbYuvTable[(g + 1024)] + rgbYuvTable[(b + 1280)]) shr 16) - 128).toFloat()
+					vdu[pos] =
+							(((rgbYuvTable[(r + 1280)] + rgbYuvTable[(g + 1536)] + rgbYuvTable[(b + 1792)]) shr 16) - 128).toFloat()
 
 				}
 

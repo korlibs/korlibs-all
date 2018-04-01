@@ -1,19 +1,15 @@
 package com.soywiz.korio.vfs
 
-import com.soywiz.kds.lmapOf
+import com.soywiz.kds.*
 import com.soywiz.korio.async.*
-import com.soywiz.korio.coroutine.korioSuspendCoroutine
-import com.soywiz.korio.stream.AsyncStream
-import com.soywiz.korio.stream.AsyncStreamBase
-import com.soywiz.korio.stream.toAsyncStream
-import com.soywiz.korio.util.OS
-import com.soywiz.korio.util.isAliveJre7
+import com.soywiz.korio.coroutine.*
+import com.soywiz.korio.stream.*
+import com.soywiz.korio.util.*
 import java.io.*
-import java.nio.ByteBuffer
-import java.nio.channels.AsynchronousFileChannel
-import java.nio.channels.CompletionHandler
+import java.nio.*
+import java.nio.channels.*
 import java.nio.file.*
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.*
 
 class LocalVfsJvm : LocalVfs() {
 	val that = this
@@ -23,7 +19,12 @@ class LocalVfsJvm : LocalVfs() {
 	fun resolvePath(path: String) = Paths.get(resolve(path))
 	fun resolveFile(path: String) = File(resolve(path))
 
-	suspend override fun exec(path: String, cmdAndArgs: List<String>, env: Map<String, String>, handler: VfsProcessHandler): Int = executeInWorker {
+	suspend override fun exec(
+		path: String,
+		cmdAndArgs: List<String>,
+		env: Map<String, String>,
+		handler: VfsProcessHandler
+	): Int = executeInWorker {
 		val actualCmd = if (OS.isWindows) listOf("cmd", "/c") + cmdAndArgs else cmdAndArgs
 		val pb = ProcessBuilder(actualCmd)
 		pb.environment().putAll(lmapOf())
@@ -69,14 +70,33 @@ class LocalVfsJvm : LocalVfs() {
 	}
 
 	suspend override fun open(path: String, mode: VfsOpenMode): AsyncStream {
-		val channel = AsynchronousFileChannel.open(resolvePath(path), *when (mode) {
-			VfsOpenMode.READ -> arrayOf(StandardOpenOption.READ)
-			VfsOpenMode.WRITE -> arrayOf(StandardOpenOption.READ, StandardOpenOption.WRITE)
-			VfsOpenMode.APPEND -> arrayOf(StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.APPEND)
-			VfsOpenMode.CREATE -> arrayOf(StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.CREATE)
-			VfsOpenMode.CREATE_NEW -> arrayOf(StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW)
-			VfsOpenMode.CREATE_OR_TRUNCATE -> arrayOf(StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
-		})
+		val channel = AsynchronousFileChannel.open(
+			resolvePath(path), *when (mode) {
+				VfsOpenMode.READ -> arrayOf(StandardOpenOption.READ)
+				VfsOpenMode.WRITE -> arrayOf(StandardOpenOption.READ, StandardOpenOption.WRITE)
+				VfsOpenMode.APPEND -> arrayOf(
+					StandardOpenOption.READ,
+					StandardOpenOption.WRITE,
+					StandardOpenOption.APPEND
+				)
+				VfsOpenMode.CREATE -> arrayOf(
+					StandardOpenOption.READ,
+					StandardOpenOption.WRITE,
+					StandardOpenOption.CREATE
+				)
+				VfsOpenMode.CREATE_NEW -> arrayOf(
+					StandardOpenOption.READ,
+					StandardOpenOption.WRITE,
+					StandardOpenOption.CREATE_NEW
+				)
+				VfsOpenMode.CREATE_OR_TRUNCATE -> arrayOf(
+					StandardOpenOption.READ,
+					StandardOpenOption.WRITE,
+					StandardOpenOption.CREATE,
+					StandardOpenOption.TRUNCATE_EXISTING
+				)
+			}
+		)
 
 		return object : AsyncStreamBase() {
 			suspend override fun read(position: Long, buffer: ByteArray, offset: Int, len: Int): Int {
@@ -126,27 +146,40 @@ class LocalVfsJvm : LocalVfs() {
 		}
 	}
 
-	suspend override fun list(path: String): SuspendingSequence<VfsFile> = executeInWorker { (File(path).listFiles() ?: arrayOf()).map { that.file("$path/${it.name}") }.toAsync() }
-	suspend override fun mkdir(path: String, attributes: List<Attribute>): Boolean = executeInWorker { resolveFile(path).mkdirs() }
-	suspend override fun touch(path: String, time: Long, atime: Long): Unit = executeInWorker { resolveFile(path).setLastModified(time); Unit }
+	suspend override fun list(path: String): SuspendingSequence<VfsFile> =
+		executeInWorker { (File(path).listFiles() ?: arrayOf()).map { that.file("$path/${it.name}") }.toAsync() }
+
+	suspend override fun mkdir(path: String, attributes: List<Attribute>): Boolean =
+		executeInWorker { resolveFile(path).mkdirs() }
+
+	suspend override fun touch(path: String, time: Long, atime: Long): Unit =
+		executeInWorker { resolveFile(path).setLastModified(time); Unit }
+
 	suspend override fun delete(path: String): Boolean = executeInWorker { resolveFile(path).delete() }
 	suspend override fun rmdir(path: String): Boolean = executeInWorker { resolveFile(path).delete() }
-	suspend override fun rename(src: String, dst: String): Boolean = executeInWorker { resolveFile(src).renameTo(resolveFile(dst)) }
+	suspend override fun rename(src: String, dst: String): Boolean =
+		executeInWorker { resolveFile(src).renameTo(resolveFile(dst)) }
 
-	inline suspend fun <T> completionHandler(crossinline callback: (CompletionHandler<T, Unit>) -> Unit) = korioSuspendCoroutine<T> { c ->
-		val cevent = c.toEventLoop()
-		callback(object : CompletionHandler<T, Unit> {
-			override fun completed(result: T, attachment: Unit?) = cevent.resume(result)
-			override fun failed(exc: Throwable, attachment: Unit?) = cevent.resumeWithException(exc)
-		})
-	}
+	inline suspend fun <T> completionHandler(crossinline callback: (CompletionHandler<T, Unit>) -> Unit) =
+		korioSuspendCoroutine<T> { c ->
+			val cevent = c.toEventLoop()
+			callback(object : CompletionHandler<T, Unit> {
+				override fun completed(result: T, attachment: Unit?) = cevent.resume(result)
+				override fun failed(exc: Throwable, attachment: Unit?) = cevent.resumeWithException(exc)
+			})
+		}
 
 	suspend override fun watch(path: String, handler: (VfsFileEvent) -> Unit): com.soywiz.korio.lang.Closeable {
 		var running = true
 		val fs = FileSystems.getDefault()
 		val watcher = fs.newWatchService()
 
-		fs.getPath(path).register(watcher, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY)
+		fs.getPath(path).register(
+			watcher,
+			StandardWatchEventKinds.ENTRY_CREATE,
+			StandardWatchEventKinds.ENTRY_DELETE,
+			StandardWatchEventKinds.ENTRY_MODIFY
+		)
 
 		spawnAndForget {
 			while (running) {

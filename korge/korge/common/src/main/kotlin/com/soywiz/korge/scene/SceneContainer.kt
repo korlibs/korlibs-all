@@ -1,14 +1,11 @@
 package com.soywiz.korge.scene
 
-import com.soywiz.korge.time.TimeSpan
-import com.soywiz.korge.time.seconds
-import com.soywiz.korge.tween.get
-import com.soywiz.korge.tween.tween
-import com.soywiz.korge.view.Container
-import com.soywiz.korge.view.Views
-import com.soywiz.korinject.AsyncInjector
-import com.soywiz.korio.async.go
-import kotlin.reflect.KClass
+import com.soywiz.korge.time.*
+import com.soywiz.korge.tween.*
+import com.soywiz.korge.view.*
+import com.soywiz.korinject.*
+import com.soywiz.korio.async.*
+import kotlin.reflect.*
 
 class SceneContainer(views: Views) : Container(views) {
 	val transitionView = TransitionView(views)
@@ -18,8 +15,17 @@ class SceneContainer(views: Views) : Container(views) {
 		this += transitionView
 	}
 
-	suspend inline fun <reified T : Scene> changeTo(vararg injects: Any, time: TimeSpan = 0.seconds, transition: Transition = AlphaTransition) = changeTo(T::class, *injects, time = time, transition = transition)
-	suspend inline fun <reified T : Scene> pushTo(vararg injects: Any, time: TimeSpan = 0.seconds, transition: Transition = AlphaTransition) = pushTo(T::class, *injects, time = time, transition = transition)
+	suspend inline fun <reified T : Scene> changeTo(
+		vararg injects: Any,
+		time: TimeSpan = 0.seconds,
+		transition: Transition = AlphaTransition
+	) = changeTo(T::class, *injects, time = time, transition = transition)
+
+	suspend inline fun <reified T : Scene> pushTo(
+		vararg injects: Any,
+		time: TimeSpan = 0.seconds,
+		transition: Transition = AlphaTransition
+	) = pushTo(T::class, *injects, time = time, transition = transition)
 
 	private data class VisitEntry(val clazz: KClass<out Scene>, val injects: List<Any>)
 
@@ -47,24 +53,44 @@ class SceneContainer(views: Views) : Container(views) {
 		visitStack[visitPos] = entry
 	}
 
-	suspend fun <T : Scene> pushTo(clazz: KClass<T>, vararg injects: Any, time: TimeSpan = 0.seconds, transition: Transition = AlphaTransition): T {
+	suspend fun <T : Scene> pushTo(
+		clazz: KClass<T>,
+		vararg injects: Any,
+		time: TimeSpan = 0.seconds,
+		transition: Transition = AlphaTransition
+	): T {
 		visitPos++
 		setCurrent(VisitEntry(clazz, injects.toList()))
 		return _changeTo(clazz, *injects, time = time, transition = transition)
 	}
 
-	suspend fun <T : Scene> changeTo(clazz: KClass<T>, vararg injects: Any, time: TimeSpan = 0.seconds, transition: Transition = AlphaTransition): T {
+	suspend fun <T : Scene> changeTo(
+		clazz: KClass<T>,
+		vararg injects: Any,
+		time: TimeSpan = 0.seconds,
+		transition: Transition = AlphaTransition
+	): T {
 		setCurrent(VisitEntry(clazz, injects.toList()))
 		return _changeTo(clazz, *injects, time = time, transition = transition)
 	}
 
-	suspend private fun _changeTo(entry: VisitEntry, time: TimeSpan = 0.seconds, transition: Transition = AlphaTransition): Scene {
+	suspend private fun _changeTo(
+		entry: VisitEntry,
+		time: TimeSpan = 0.seconds,
+		transition: Transition = AlphaTransition
+	): Scene {
 		return _changeTo(entry.clazz, *entry.injects.toTypedArray(), time = time, transition = transition) as Scene
 	}
 
-	suspend private fun <T : Scene> _changeTo(clazz: KClass<T>, vararg injects: Any, time: TimeSpan = 0.seconds, transition: Transition = AlphaTransition): T {
+	suspend private fun <T : Scene> _changeTo(
+		clazz: KClass<T>,
+		vararg injects: Any,
+		time: TimeSpan = 0.seconds,
+		transition: Transition = AlphaTransition
+	): T {
 		val oldScene = currentScene
-		val sceneInjector: AsyncInjector = views.injector.child().mapInstance(SceneContainer::class, this@SceneContainer)
+		val sceneInjector: AsyncInjector =
+			views.injector.child().mapInstance(SceneContainer::class, this@SceneContainer)
 		for (inject in injects) sceneInjector.mapInstance(inject::class as KClass<Any>, inject)
 		val instance = sceneInjector.get(clazz)
 		currentScene = instance!!

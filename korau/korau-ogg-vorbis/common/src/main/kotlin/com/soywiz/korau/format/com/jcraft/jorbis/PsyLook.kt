@@ -27,15 +27,15 @@
 package com.soywiz.korau.format.com.jcraft.jorbis
 
 class PsyLook {
-    var n: Int = 0
-    var vi: PsyInfo? = null
+	var n: Int = 0
+	var vi: PsyInfo? = null
 
-    var tonecurves: Array<Array<FloatArray>> = arrayOf()
-    var peakatt: Array<FloatArray> = arrayOf()
-    var noisecurves: Array<Array<FloatArray>> = arrayOf()
+	var tonecurves: Array<Array<FloatArray>> = arrayOf()
+	var peakatt: Array<FloatArray> = arrayOf()
+	var noisecurves: Array<Array<FloatArray>> = arrayOf()
 
-    var ath: FloatArray? = null
-    var octave: IntArray? = null
+	var ath: FloatArray? = null
+	var octave: IntArray? = null
 
-    fun init(vi: PsyInfo, n: Int, rate: Int) {}
+	fun init(vi: PsyInfo, n: Int, rate: Int) {}
 }

@@ -1,30 +1,34 @@
 package com.soywiz.korim.awt
 
-import com.soywiz.korim.bitmap.Bitmap
-import com.soywiz.korim.bitmap.Bitmap32
-import com.soywiz.korim.color.RGBA
-import com.soywiz.korio.async.executeInWorker
-import com.soywiz.korio.coroutine.korioSuspendCoroutine
-import java.awt.BorderLayout
-import java.awt.event.WindowAdapter
-import java.awt.event.WindowEvent
-import java.awt.image.BufferedImage
-import java.awt.image.DataBufferInt
-import java.io.ByteArrayInputStream
-import java.io.File
-import java.io.FileInputStream
-import java.io.InputStream
-import javax.imageio.ImageIO
-import javax.swing.ImageIcon
-import javax.swing.JFrame
-import javax.swing.JLabel
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.coroutine.*
+import java.awt.*
+import java.awt.event.*
+import java.awt.image.*
+import java.io.*
+import javax.imageio.*
+import javax.swing.*
 
-fun Bitmap32.toAwt(out: BufferedImage = BufferedImage(width, height, if (this.premult) BufferedImage.TYPE_INT_ARGB_PRE else BufferedImage.TYPE_INT_ARGB)): BufferedImage {
+fun Bitmap32.toAwt(
+	out: BufferedImage = BufferedImage(
+		width,
+		height,
+		if (this.premult) BufferedImage.TYPE_INT_ARGB_PRE else BufferedImage.TYPE_INT_ARGB
+	)
+): BufferedImage {
 	transferTo(out)
 	return out
 }
 
-fun Bitmap.toAwt(out: BufferedImage = BufferedImage(width, height, if (this.premult) BufferedImage.TYPE_INT_ARGB_PRE else BufferedImage.TYPE_INT_ARGB)): BufferedImage = this.toBMP32().toAwt(out)
+fun Bitmap.toAwt(
+	out: BufferedImage = BufferedImage(
+		width,
+		height,
+		if (this.premult) BufferedImage.TYPE_INT_ARGB_PRE else BufferedImage.TYPE_INT_ARGB
+	)
+): BufferedImage = this.toBMP32().toAwt(out)
 
 suspend fun awtShowImageAndWait(image: Bitmap): Unit = awtShowImageAndWait(image.toBMP32().toAwt())
 
@@ -61,7 +65,10 @@ fun awtConvertImage(image: BufferedImage): BufferedImage {
 	return out
 }
 
-fun awtConvertImageIfRequired(image: BufferedImage): BufferedImage = if ((image.type == BufferedImage.TYPE_INT_ARGB_PRE) || (image.type == BufferedImage.TYPE_INT_ARGB)) image else awtConvertImage(image)
+fun awtConvertImageIfRequired(image: BufferedImage): BufferedImage =
+	if ((image.type == BufferedImage.TYPE_INT_ARGB_PRE) || (image.type == BufferedImage.TYPE_INT_ARGB)) image else awtConvertImage(
+		image
+	)
 
 fun Bitmap32.transferTo(out: BufferedImage): BufferedImage {
 	val ints = (out.raster.dataBuffer as DataBufferInt).data
@@ -112,7 +119,10 @@ fun ImageIOReadFormat(s: InputStream, type: Int = AWT_INTERNAL_IMAGE_TYPE): Buff
 }
 
 fun awtReadImage(data: ByteArray): BufferedImage = ImageIOReadFormat(ByteArrayInputStream(data))
-suspend fun awtReadImageInWorker(data: ByteArray): BufferedImage = executeInWorker { ImageIOReadFormat(ByteArrayInputStream(data)) }
-suspend fun awtReadImageInWorker(file: File): BufferedImage = executeInWorker { FileInputStream(file).use { ImageIOReadFormat(it) } }
+suspend fun awtReadImageInWorker(data: ByteArray): BufferedImage =
+	executeInWorker { ImageIOReadFormat(ByteArrayInputStream(data)) }
+
+suspend fun awtReadImageInWorker(file: File): BufferedImage =
+	executeInWorker { FileInputStream(file).use { ImageIOReadFormat(it) } }
 
 //var image = ImageIO.read(File("/Users/al/some-picture.jpg"))

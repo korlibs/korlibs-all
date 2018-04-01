@@ -1,8 +1,8 @@
 package com.soywiz.korio.serialization.json
 
-import com.soywiz.kds.lmapOf
-import com.soywiz.korio.serialization.ObjectMapper
-import kotlin.test.assertEquals
+import com.soywiz.kds.*
+import com.soywiz.korio.serialization.*
+import kotlin.test.*
 
 class JsonPrettyTest {
 	val mapper = ObjectMapper()
@@ -32,25 +32,30 @@ class JsonPrettyTest {
 
 	@kotlin.test.Test
 	fun encode2() {
-		assertEquals("""
+		assertEquals(
+			"""
 			|[
 			|	1,
 			|	2,
 			|	3
 			|]
-		""".trimMargin(), Json.encodePretty(listOf(1, 2, 3), mapper))
+		""".trimMargin(), Json.encodePretty(listOf(1, 2, 3), mapper)
+		)
 
-		assertEquals("""
+		assertEquals(
+			"""
 			|{
 			|	"a": 1,
 			|	"b": 2
 			|}
-		""".trimMargin(), Json.encodePretty(lmapOf("a" to 1, "b" to 2), mapper))
+		""".trimMargin(), Json.encodePretty(lmapOf("a" to 1, "b" to 2), mapper)
+		)
 	}
 
 	@kotlin.test.Test
 	fun encodeTyped() {
-		assertEquals("""
+		assertEquals(
+			"""
 			|{
 			|	"a": 1,
 			|	"b": "test"
@@ -61,7 +66,8 @@ class JsonPrettyTest {
 
 	@kotlin.test.Test
 	fun encodeMix() {
-		assertEquals("""
+		assertEquals(
+			"""
 				|{
 				|	"a": [
 				|		1,
@@ -80,15 +86,17 @@ class JsonPrettyTest {
 				|	}
 				|}
 			""".trimMargin(),
-			Json.stringifyPretty(lmapOf(
-				"a" to listOf(1, 2, 3, 4),
-				"b" to listOf(5, 6),
-				"c" to lmapOf(
-					"a" to true,
-					"b" to null,
-					"c" to "hello"
-				)
-			), mapper)
+			Json.stringifyPretty(
+				lmapOf(
+					"a" to listOf(1, 2, 3, 4),
+					"b" to listOf(5, 6),
+					"c" to lmapOf(
+						"a" to true,
+						"b" to null,
+						"c" to "hello"
+					)
+				), mapper
+			)
 		)
 	}
 }

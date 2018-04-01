@@ -1,6 +1,6 @@
 package com.soywiz.kmem
 
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class BitsTest {
 	@kotlin.test.Test

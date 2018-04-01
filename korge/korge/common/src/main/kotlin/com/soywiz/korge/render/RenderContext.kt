@@ -1,9 +1,9 @@
 package com.soywiz.korge.render
 
-import com.soywiz.korag.AG
-import com.soywiz.korim.bitmap.Bitmap32
-import com.soywiz.korio.lang.use
-import com.soywiz.kds.Extra
+import com.soywiz.kds.*
+import com.soywiz.korag.*
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korio.lang.*
 
 class RenderContext(
 	val ag: AG

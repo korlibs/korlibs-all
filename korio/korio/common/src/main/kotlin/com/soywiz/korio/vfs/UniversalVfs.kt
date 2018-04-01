@@ -1,7 +1,7 @@
 package com.soywiz.korio.vfs
 
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korio.net.URI
+import com.soywiz.korio.error.*
+import com.soywiz.korio.net.*
 
 object UniversalVfs {
 	@PublishedApi

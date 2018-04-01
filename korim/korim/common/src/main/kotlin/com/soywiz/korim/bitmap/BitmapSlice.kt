@@ -1,6 +1,6 @@
 package com.soywiz.korim.bitmap
 
-import com.soywiz.korma.geom.RectangleInt
+import com.soywiz.korma.geom.*
 
 class BitmapSlice<out T : Bitmap>(val bmp: T, val bounds: RectangleInt) {
 	fun extract(): T {

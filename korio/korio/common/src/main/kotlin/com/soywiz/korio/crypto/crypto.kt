@@ -1,6 +1,6 @@
 package com.soywiz.korio.crypto
 
-import com.soywiz.korio.KorioNative
+import com.soywiz.korio.*
 
 typealias SimplerMessageDigest = KorioNative.SimplerMessageDigest
 typealias SimplerMac = KorioNative.SimplerMac

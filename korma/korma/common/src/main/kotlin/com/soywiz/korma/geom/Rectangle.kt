@@ -1,10 +1,8 @@
 package com.soywiz.korma.geom
 
-import com.soywiz.korma.interpolation.Interpolable
-import com.soywiz.korma.interpolation.MutableInterpolable
-import com.soywiz.korma.interpolation.interpolate
-import com.soywiz.korma.math.Math
-import com.soywiz.korma.numeric.niceStr
+import com.soywiz.korma.interpolation.*
+import com.soywiz.korma.math.*
+import com.soywiz.korma.numeric.*
 
 interface IRectangle {
 	val x: Double
@@ -17,13 +15,23 @@ data class Rectangle(
 	override var x: Double = 0.0, override var y: Double = 0.0,
 	override var width: Double = 0.0, override var height: Double = 0.0
 ) : MutableInterpolable<Rectangle>, Interpolable<Rectangle>, IRectangle, Sizeable {
-	data class Immutable(override val x: Double, override val y: Double, override val width: Double, override val height: Double) : IRectangle {
+	data class Immutable(
+		override val x: Double,
+		override val y: Double,
+		override val width: Double,
+		override val height: Double
+	) : IRectangle {
 		fun toMutable() = Rectangle(x, y, width, height)
 	}
 
 	fun toImmutable() = Immutable(x, y, width, height)
 
-	constructor(x: Int, y: Int, width: Int, height: Int) : this(x.toDouble(), y.toDouble(), width.toDouble(), height.toDouble())
+	constructor(x: Int, y: Int, width: Int, height: Int) : this(
+		x.toDouble(),
+		y.toDouble(),
+		width.toDouble(),
+		height.toDouble()
+	)
 
 	val isEmpty: Boolean get() = area == 0.0
 	val isNotEmpty: Boolean get() = area != 0.0
@@ -35,7 +43,8 @@ data class Rectangle(
 
 	override val size: Size get() = Size(width, height)
 
-	inline fun setTo(x: Number, y: Number, width: Number, height: Number) = this.setTo(x.toDouble(), y.toDouble(), width.toDouble(), height.toDouble())
+	inline fun setTo(x: Number, y: Number, width: Number, height: Number) =
+		this.setTo(x.toDouble(), y.toDouble(), width.toDouble(), height.toDouble())
 
 	fun setTo(x: Double, y: Double, width: Double, height: Double) = this.apply {
 		this.x = x
@@ -46,7 +55,9 @@ data class Rectangle(
 
 	fun copyFrom(that: Rectangle) = setTo(that.x, that.y, that.width, that.height)
 
-	fun setBounds(left: Double, top: Double, right: Double, bottom: Double) = setTo(left, top, right - left, bottom - top)
+	fun setBounds(left: Double, top: Double, right: Double, bottom: Double) =
+		setTo(left, top, right - left, bottom - top)
+
 	fun setBounds(left: Int, top: Int, right: Int, bottom: Int) = setTo(left, top, right - left, bottom - top)
 
 	operator fun times(scale: Double) = Rectangle(x * scale, y * scale, width * scale, height * scale)
@@ -88,17 +99,24 @@ data class Rectangle(
 	)
 
 	//override fun toString(): String = "Rectangle([${left.niceStr}, ${top.niceStr}]-[${right.niceStr}, ${bottom.niceStr}])"
-	override fun toString(): String = "Rectangle(x=${x.niceStr}, y=${y.niceStr}, width=${width.niceStr}, height=${height.niceStr})"
+	override fun toString(): String =
+		"Rectangle(x=${x.niceStr}, y=${y.niceStr}, width=${width.niceStr}, height=${height.niceStr})"
 
 	fun toStringBounds(): String = "Rectangle([${left.niceStr},${top.niceStr}]-[${right.niceStr},${bottom.niceStr}])"
 
 	companion object {
-		fun fromBounds(left: Double, top: Double, right: Double, bottom: Double): Rectangle = Rectangle().setBounds(left, top, right, bottom)
-		fun fromBounds(left: Int, top: Int, right: Int, bottom: Int): Rectangle = Rectangle().setBounds(left, top, right, bottom)
-		fun isContainedIn(a: Rectangle, b: Rectangle): Boolean = a.x >= b.x && a.y >= b.y && a.x + a.width <= b.x + b.width && a.y + a.height <= b.y + b.height
+		fun fromBounds(left: Double, top: Double, right: Double, bottom: Double): Rectangle =
+			Rectangle().setBounds(left, top, right, bottom)
+
+		fun fromBounds(left: Int, top: Int, right: Int, bottom: Int): Rectangle =
+			Rectangle().setBounds(left, top, right, bottom)
+
+		fun isContainedIn(a: Rectangle, b: Rectangle): Boolean =
+			a.x >= b.x && a.y >= b.y && a.x + a.width <= b.x + b.width && a.y + a.height <= b.y + b.height
 	}
 
-	override fun interpolateWith(other: Rectangle, ratio: Double): Rectangle = Rectangle().setToInterpolated(this, other, ratio)
+	override fun interpolateWith(other: Rectangle, ratio: Double): Rectangle =
+		Rectangle().setToInterpolated(this, other, ratio)
 
 	override fun setToInterpolated(l: Rectangle, r: Rectangle, ratio: Double): Rectangle = this.setTo(
 		ratio.interpolate(l.x, r.x),
@@ -107,12 +125,15 @@ data class Rectangle(
 		ratio.interpolate(l.height, r.height)
 	)
 
-	fun getAnchoredPosition(anchor: Anchor, out: Point2d = Point2d()): Point2d = out.setTo(left + width * anchor.sx, top + height * anchor.sy)
+	fun getAnchoredPosition(anchor: Anchor, out: Point2d = Point2d()): Point2d =
+		out.setTo(left + width * anchor.sx, top + height * anchor.sy)
 
 	fun toInt() = RectangleInt(x, y, width, height)
 }
 
 // @TODO: Check if this avoid boxing!
-inline fun Rectangle(x: Number, y: Number, width: Number, height: Number) = Rectangle(x.toDouble(), y.toDouble(), width.toDouble(), height.toDouble())
+inline fun Rectangle(x: Number, y: Number, width: Number, height: Number) =
+	Rectangle(x.toDouble(), y.toDouble(), width.toDouble(), height.toDouble())
 
-inline fun IRectangle(x: Number, y: Number, width: Number, height: Number) = Rectangle.Immutable(x.toDouble(), y.toDouble(), width.toDouble(), height.toDouble())
+inline fun IRectangle(x: Number, y: Number, width: Number, height: Number) =
+	Rectangle.Immutable(x.toDouble(), y.toDouble(), width.toDouble(), height.toDouble())

@@ -1,13 +1,11 @@
 package com.soywiz.korio.async
 
-import com.soywiz.kds.Queue
-import com.soywiz.korio.CancellationException
-import com.soywiz.korio.coroutine.Continuation
-import com.soywiz.korio.coroutine.CoroutineContext
-import com.soywiz.korio.coroutine.korioSuspendCoroutine
-import com.soywiz.korio.lang.Console
-import com.soywiz.korio.lang.printStackTrace
-import com.soywiz.korio.util.Cancellable
+import com.soywiz.kds.*
+import com.soywiz.korio.*
+import com.soywiz.korio.coroutine.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.util.*
+import kotlin.coroutines.experimental.*
 
 class Promise<T : Any?> : Cancellable {
 	class Deferred<T : Any?> {
@@ -54,12 +52,16 @@ class Promise<T : Any?> : Cancellable {
 		if (!done) return
 		if (error != null) {
 			while (true) {
-				val handler = synchronized(rejectedHandlers) { if (rejectedHandlers.size != 0) rejectedHandlers.dequeue() else null } ?: break
+				val handler =
+					synchronized(rejectedHandlers) { if (rejectedHandlers.size != 0) rejectedHandlers.dequeue() else null }
+							?: break
 				handler(error ?: RuntimeException())
 			}
 		} else {
 			while (true) {
-				val handler = synchronized(resolvedHandlers) { if (resolvedHandlers.size != 0) resolvedHandlers.dequeue() else null } ?: break
+				val handler =
+					synchronized(resolvedHandlers) { if (resolvedHandlers.size != 0) resolvedHandlers.dequeue() else null }
+							?: break
 				handler(value as T)
 			}
 		}
@@ -90,8 +92,8 @@ class Promise<T : Any?> : Cancellable {
 
 	fun always(resolved: () -> Unit) {
 		then(
-				resolved = { resolved() },
-				rejected = { resolved() }
+			resolved = { resolved() },
+			rejected = { resolved() }
 		)
 	}
 
@@ -103,8 +105,8 @@ class Promise<T : Any?> : Cancellable {
 
 	fun then(c: Continuation<T>) {
 		this.then(
-				resolved = { c.resume(it) },
-				rejected = { c.resumeWithException(it) }
+			resolved = { c.resume(it) },
+			rejected = { c.resumeWithException(it) }
 		)
 	}
 

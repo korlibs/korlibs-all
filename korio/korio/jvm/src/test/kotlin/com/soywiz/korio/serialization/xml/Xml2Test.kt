@@ -1,9 +1,9 @@
 package com.soywiz.korio.serialization.xml
 
-import com.soywiz.korio.async.syncTest
-import com.soywiz.korio.vfs.ResourcesVfs
+import com.soywiz.korio.async.*
+import com.soywiz.korio.vfs.*
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class Xml2Test {
 	@Test

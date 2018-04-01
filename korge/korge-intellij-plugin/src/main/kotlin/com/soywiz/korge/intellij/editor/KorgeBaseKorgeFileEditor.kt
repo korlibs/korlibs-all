@@ -26,7 +26,12 @@ import javax.swing.JPanel
 
 data class KorgeFileToEdit(val file: VfsFile)
 
-open class KorgeBaseKorgeFileEditor(val project: Project, val virtualFile: VirtualFile, val module: Module, val _name: String) : FileEditor {
+open class KorgeBaseKorgeFileEditor(
+	val project: Project,
+	val virtualFile: VirtualFile,
+	val module: Module,
+	val _name: String
+) : FileEditor {
 	companion object {
 		var componentsCreated = 0
 	}
@@ -51,14 +56,21 @@ open class KorgeBaseKorgeFileEditor(val project: Project, val virtualFile: Virtu
 			//.mapSingleton { UISkin(get(), get()) }
 			//.mapSingleton { UIFactory() }
 			.mapPrototype { KorgeBaseFileEditorProvider.EditorModule.EditorScene(get(), get()) }
-			//.jvmAutomapping()
+		//.jvmAutomapping()
 
 		injector.mapInstance(KorgeFileToEdit(virtualFile.toVfs()))
 
 		ag.onReady.then {
 			EventLoop {
 				try {
-					Korge.test(Korge.Config(module, container = ag, injector = injector, trace = false, constructedViews = { views = it }))
+					Korge.test(
+						Korge.Config(
+							module,
+							container = ag,
+							injector = injector,
+							trace = false,
+							constructedViews = { views = it })
+					)
 				} finally {
 					if (disposed) dispose()
 				}

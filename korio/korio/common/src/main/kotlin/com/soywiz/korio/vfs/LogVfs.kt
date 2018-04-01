@@ -1,11 +1,8 @@
 package com.soywiz.korio.vfs
 
-import com.soywiz.korio.async.SuspendingSequence
-import com.soywiz.korio.lang.Closeable
-import com.soywiz.korio.stream.AsyncInputStream
-import com.soywiz.korio.stream.AsyncStream
-import com.soywiz.korio.stream.AsyncStreamBase
-import com.soywiz.korio.stream.toAsyncStream
+import com.soywiz.korio.async.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.stream.*
 
 class LogVfs(val parent: VfsFile) : Vfs.Proxy() {
 	val log = arrayListOf<String>()
@@ -13,7 +10,12 @@ class LogVfs(val parent: VfsFile) : Vfs.Proxy() {
 	val modifiedFiles = LinkedHashSet<String>()
 	suspend override fun access(path: String): VfsFile = parent[path]
 
-	suspend override fun exec(path: String, cmdAndArgs: List<String>, env: Map<String, String>, handler: VfsProcessHandler): Int {
+	suspend override fun exec(
+		path: String,
+		cmdAndArgs: List<String>,
+		env: Map<String, String>,
+		handler: VfsProcessHandler
+	): Int {
 		log += "exec($path, $cmdAndArgs, $env, $handler)"
 		return super.exec(path, cmdAndArgs, env, handler)
 	}

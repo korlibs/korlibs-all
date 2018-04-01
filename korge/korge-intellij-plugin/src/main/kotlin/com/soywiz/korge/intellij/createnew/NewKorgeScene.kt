@@ -12,9 +12,14 @@ class NewKorgeScene : CreateFileFromTemplateAction(
 	"Creates new Korge Scene in Kotlin",
 	KorgeIcons.KORGE
 ), DumbAware {
-	override fun getActionName(directory: PsiDirectory?, newName: String?, templateName: String?): String = "Korge Scene"
+	override fun getActionName(directory: PsiDirectory?, newName: String?, templateName: String?): String =
+		"Korge Scene"
 
-	override fun buildDialog(project: Project?, directory: PsiDirectory?, builder: CreateFileFromTemplateDialog.Builder?) {
+	override fun buildDialog(
+		project: Project?,
+		directory: PsiDirectory?,
+		builder: CreateFileFromTemplateDialog.Builder?
+	) {
 		builder?.setTitle("New Korge Scene")
 			?.addKind("Scene", KorgeIcons.KORGE, "KorgeScene")
 	}

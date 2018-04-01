@@ -3,7 +3,8 @@ package com.soywiz.kds
 class MapList<K, V>() : Iterable<Pair<K, List<V>>> {
 	override fun iterator(): Iterator<Pair<K, List<V>>> = map.entries.map { it.key to it.value }.iterator()
 
-	fun flatMapIterator(): Iterator<Pair<K, V>> = map.entries.flatMap { item -> item.value.map { item.key to it } }.iterator()
+	fun flatMapIterator(): Iterator<Pair<K, V>> =
+		map.entries.flatMap { item -> item.value.map { item.key to it } }.iterator()
 
 	constructor(items: List<Pair<K, V>>) : this() {
 		for ((k, v) in items) append(k, v)

@@ -183,7 +183,8 @@ internal class Inflate(private val z: ZStream) {
 						b = (this.need shr 8).toInt() and 0xff
 
 						if ((wrap and 1 == 0 ||  // check if zlib header allowed
-							((this.method shl 8) + b) % 31 != 0) && this.method and 0xf != Z_DEFLATED) {
+									((this.method shl 8) + b) % 31 != 0) && this.method and 0xf != Z_DEFLATED
+						) {
 							if (wrap == 4) {
 								z.next_in_index -= 2
 								z.avail_in += 2
@@ -404,9 +405,9 @@ internal class Inflate(private val z: ZStream) {
 
 						if (flags != 0) {  // gzip
 							this.need = this.need and -0x1000000 shr 24 or (
-								this.need and 0x00ff0000 shr 8) or (
-								this.need and 0x0000ff00 shl 8) or (
-								this.need and 0x0000ffff shl 24)
+									this.need and 0x00ff0000 shr 8) or (
+									this.need and 0x0000ff00 shl 8) or (
+									this.need and 0x0000ffff shl 24)
 						}
 
 						if (this.was.toInt() != this.need.toInt()) {
@@ -478,7 +479,8 @@ internal class Inflate(private val z: ZStream) {
 						z.total_in++
 						this.need += (z.next_in!![z.next_in_index++].toInt() and 0xff)
 						if (flags != 0) {
-							this.need = this.need and -0x1000000 shr 24 or (this.need and 0x00ff0000 shr 8) or (this.need and 0x0000ff00 shl 8) or (this.need and 0x0000ffff shl 24)
+							this.need = this.need and -0x1000000 shr 24 or (this.need and 0x00ff0000 shr 8) or
+									(this.need and 0x0000ff00 shl 8) or (this.need and 0x0000ffff shl 24)
 						}
 						if (this.was.toInt() != this.need.toInt()) {
 							z.msg = "incorrect data check"
@@ -533,7 +535,8 @@ internal class Inflate(private val z: ZStream) {
 						z.total_in++
 						this.need += z.next_in!![z.next_in_index++].toInt() and 0xff
 						if (flags != 0) {
-							this.need = this.need and -0x1000000 shr 24 or (this.need and 0x00ff0000 shr 8) or (this.need and 0x0000ff00 shl 8) or (this.need and 0x0000ffff shl 24)
+							this.need = this.need and -0x1000000 shr 24 or (this.need and 0x00ff0000 shr 8) or
+									(this.need and 0x0000ff00 shl 8) or (this.need and 0x0000ffff shl 24)
 						}
 						if (this.was.toInt() != this.need.toInt()) {
 							z.msg = "incorrect data check"
@@ -582,7 +585,8 @@ internal class Inflate(private val z: ZStream) {
 						z.total_in++
 						this.need += z.next_in!![z.next_in_index++].toInt() and 0xff
 						if (flags != 0) {
-							this.need = this.need and -0x1000000 shr 24 or (this.need and 0x00ff0000 shr 8) or (this.need and 0x0000ff00 shl 8) or (this.need and 0x0000ffff shl 24)
+							this.need = this.need and -0x1000000 shr 24 or (this.need and 0x00ff0000 shr 8) or
+									(this.need and 0x0000ff00 shl 8) or (this.need and 0x0000ffff shl 24)
 						}
 						if (this.was.toInt() != this.need.toInt()) {
 							z.msg = "incorrect data check"
@@ -625,7 +629,8 @@ internal class Inflate(private val z: ZStream) {
 						z.total_in++
 						this.need += z.next_in!![z.next_in_index++].toInt() and 0xff
 						if (flags != 0) {
-							this.need = this.need and -0x1000000 shr 24 or (this.need and 0x00ff0000 shr 8) or (this.need and 0x0000ff00 shl 8) or (this.need and 0x0000ffff shl 24)
+							this.need = this.need and -0x1000000 shr 24 or (this.need and 0x00ff0000 shr 8) or
+									(this.need and 0x0000ff00 shl 8) or (this.need and 0x0000ffff shl 24)
 						}
 						if (this.was.toInt() != this.need.toInt()) {
 							z.msg = "incorrect data check"

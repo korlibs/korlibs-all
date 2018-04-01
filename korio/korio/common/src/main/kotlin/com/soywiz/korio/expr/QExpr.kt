@@ -1,6 +1,6 @@
 package com.soywiz.korio.expr
 
-import kotlin.reflect.KProperty1
+import kotlin.reflect.*
 
 abstract class QExpr {
 	data class BINOP(val op: String, val key: String, val value: Any?) : QExpr()

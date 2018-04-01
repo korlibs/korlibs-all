@@ -152,7 +152,9 @@ class Indenter(private val actions: ArrayList<Action> = arrayListOf<Indenter.Act
 		return out.toString()
 	}
 
-	fun toString(markHandler: ((sb: StringBuilder, line: Int, data: Any) -> Unit)?): String = toString(markHandler = markHandler, doIndent = true)
+	fun toString(markHandler: ((sb: StringBuilder, line: Int, data: Any) -> Unit)?): String =
+		toString(markHandler = markHandler, doIndent = true)
+
 	fun toString(doIndent: Boolean = true, indentChunk: String = "\t"): String {
 		val out = toString(markHandler = null, doIndent = doIndent)
 		return if (indentChunk == "\t") out else out.replace("\t", indentChunk)

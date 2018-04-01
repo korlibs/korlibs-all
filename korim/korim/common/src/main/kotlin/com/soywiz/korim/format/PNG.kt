@@ -1,19 +1,13 @@
 package com.soywiz.korim.format
 
 import com.soywiz.kmem.*
-import com.soywiz.korim.bitmap.Bitmap
-import com.soywiz.korim.bitmap.Bitmap32
-import com.soywiz.korim.bitmap.Bitmap8
-import com.soywiz.korim.color.RGB
-import com.soywiz.korim.color.RGBA
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
 import com.soywiz.korio.KorioNative.SyncCompression
-import com.soywiz.korio.lang.toByteArray
+import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korio.util.convertRangeClamped
-import kotlin.math.abs
-import kotlin.math.ceil
-import kotlin.math.log2
-import kotlin.math.max
+import com.soywiz.korio.util.*
+import kotlin.math.*
 
 object PNG : ImageFormat("png") {
 	const val MAGIC1 = 0x89504E47.toInt()
@@ -282,7 +276,18 @@ object PNG : ImageFormat("png") {
 		val row32 = context.row32
 
 		val bmp = when {
-			header.bytes == 1 -> Bitmap8(width, height, palette = (0 until paletteCount).map { RGBA(rgbPalette[it * 3 + 0], rgbPalette[it * 3 + 1], rgbPalette[it * 3 + 2], aPalette[it]) }.toIntArray())
+			header.bytes == 1 -> Bitmap8(
+				width,
+				height,
+				palette = (0 until paletteCount).map {
+					RGBA(
+						rgbPalette[it * 3 + 0],
+						rgbPalette[it * 3 + 1],
+						rgbPalette[it * 3 + 2],
+						aPalette[it]
+					)
+				}.toIntArray()
+			)
 			else -> Bitmap32(width, height)
 		}
 		val bmp8 = bmp as? Bitmap8?

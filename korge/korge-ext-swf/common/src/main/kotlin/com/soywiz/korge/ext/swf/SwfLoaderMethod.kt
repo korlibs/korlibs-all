@@ -1,41 +1,55 @@
 package com.soywiz.korge.ext.swf
 
-import com.codeazur.as3swf.SWF
-import com.codeazur.as3swf.data.actions.ActionGotoFrame
-import com.codeazur.as3swf.data.actions.ActionPlay
-import com.codeazur.as3swf.data.actions.ActionStop
-import com.codeazur.as3swf.data.consts.BitmapFormat
-import com.codeazur.as3swf.exporters.ShapeExporter
-import com.codeazur.as3swf.exporters.ShapeExporterBoundsBuilder
+import com.codeazur.as3swf.*
+import com.codeazur.as3swf.data.actions.*
+import com.codeazur.as3swf.data.consts.*
+import com.codeazur.as3swf.exporters.*
 import com.codeazur.as3swf.tags.*
-import com.soywiz.kds.BitSet
-import com.soywiz.kmem.fill
+import com.soywiz.kds.*
+import com.soywiz.kmem.*
 import com.soywiz.korfl.abc.*
 import com.soywiz.korge.animate.*
-import com.soywiz.korge.render.TextureWithBitmapSlice
+import com.soywiz.korge.render.*
+import com.soywiz.korge.view.*
 import com.soywiz.korge.view.BlendMode
-import com.soywiz.korge.view.Views
-import com.soywiz.korim.bitmap.Bitmap
-import com.soywiz.korim.bitmap.Bitmap32
-import com.soywiz.korim.bitmap.Bitmap8
-import com.soywiz.korim.bitmap.BitmapChannel
-import com.soywiz.korim.color.BGRA
-import com.soywiz.korim.color.BGRA_5551
-import com.soywiz.korim.color.ColorTransform
-import com.soywiz.korim.format.readBitmap
-import com.soywiz.korim.vector.GraphicsPath
-import com.soywiz.korio.error.ignoreErrors
-import com.soywiz.korio.lang.printStackTrace
-import com.soywiz.korio.serialization.json.Json
-import com.soywiz.korio.stream.FastByteArrayInputStream
-import com.soywiz.korio.stream.openAsync
-import com.soywiz.korio.util.substr
-import com.soywiz.korma.Matrix2d
-import com.soywiz.korma.geom.BoundsBuilder
-import com.soywiz.korma.geom.Rectangle
-import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.min
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
+import com.soywiz.korim.format.*
+import com.soywiz.korim.vector.*
+import com.soywiz.korio.error.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.serialization.json.*
+import com.soywiz.korio.stream.*
+import com.soywiz.korio.util.*
+import com.soywiz.korma.*
+import com.soywiz.korma.geom.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashSet
+import kotlin.collections.Iterable
+import kotlin.collections.LinkedHashMap
+import kotlin.collections.LinkedHashSet
+import kotlin.collections.Map
+import kotlin.collections.arrayListOf
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.contains
+import kotlin.collections.filter
+import kotlin.collections.filterIsInstance
+import kotlin.collections.first
+import kotlin.collections.get
+import kotlin.collections.getOrPut
+import kotlin.collections.hashMapOf
+import kotlin.collections.hashSetOf
+import kotlin.collections.iterator
+import kotlin.collections.last
+import kotlin.collections.map
+import kotlin.collections.plusAssign
+import kotlin.collections.set
+import kotlin.collections.setOf
+import kotlin.collections.sorted
+import kotlin.collections.toIntArray
+import kotlin.collections.toMap
+import kotlin.math.*
 
 data class MinMaxDouble(
 	var count: Int = 0,
@@ -174,13 +188,24 @@ class SwfLoaderMethod(val views: Views, val config: SWFExportConfig) {
 			//println(swfTimeline.frames)
 			//println("## Symbol: ${symbol.name} : $symbol : ${swfTimeline.frames.size})")
 
-			data class Subtimeline(val index: Int, var totalFrames: Int = 0, var nextState: String? = null, var nextStatePlay: Boolean = true) {
+			data class Subtimeline(
+				val index: Int,
+				var totalFrames: Int = 0,
+				var nextState: String? = null,
+				var nextStatePlay: Boolean = true
+			) {
 				//val totalTime get() = getFrameTime(totalFrames - 1)
 				//val totalTime get() = getFrameTime(totalFrames)
 				val totalTime get() = getFrameTime(totalFrames)
 			}
 
-			data class FrameInfo(val subtimeline: Subtimeline, val frameInSubTimeline: Int, val stateName: String, val startSubtimeline: Boolean, val startNamedState: Boolean) {
+			data class FrameInfo(
+				val subtimeline: Subtimeline,
+				val frameInSubTimeline: Int,
+				val stateName: String,
+				val startSubtimeline: Boolean,
+				val startNamedState: Boolean
+			) {
 				val timeInSubTimeline = getFrameTime(frameInSubTimeline)
 			}
 
@@ -295,7 +320,8 @@ class SwfLoaderMethod(val views: Views, val config: SWFExportConfig) {
 				// States
 				if (info.startNamedState) {
 					currentSubTimeline.actions.add(info.timeInSubTimeline, AnEventAction(info.stateName))
-					symbol.states[info.stateName] = AnSymbolMovieClipState(info.stateName, currentSubTimeline, info.timeInSubTimeline)
+					symbol.states[info.stateName] =
+							AnSymbolMovieClipState(info.stateName, currentSubTimeline, info.timeInSubTimeline)
 				}
 
 				// Compute frame
@@ -429,7 +455,8 @@ class SwfLoaderMethod(val views: Views, val config: SWFExportConfig) {
 			val tag = morph.tagDefineMorphShape!!
 			val ratios = (morphShapeRatios[tag.characterId] ?: setOf<Double>()).sorted()
 			val MAX_RATIOS = 24
-			val aratios = if (ratios.size > MAX_RATIOS) (0 until MAX_RATIOS).map { it.toDouble() / (MAX_RATIOS - 1).toDouble() } else ratios
+			val aratios =
+				if (ratios.size > MAX_RATIOS) (0 until MAX_RATIOS).map { it.toDouble() / (MAX_RATIOS - 1).toDouble() } else ratios
 			for (ratio in aratios) {
 				val bb = ShapeExporterBoundsBuilder()
 				try {
@@ -454,11 +481,16 @@ class SwfLoaderMethod(val views: Views, val config: SWFExportConfig) {
 					minSide = config.minMorphShapeSide,
 					maxSide = config.maxMorphShapeSide
 				)
-				itemsInAtlas.put({ texture -> morph.texturesWithBitmap.add((ratio * 1000).toInt(), texture) }, rasterizer.imageWithScale)
+				itemsInAtlas.put(
+					{ texture -> morph.texturesWithBitmap.add((ratio * 1000).toInt(), texture) },
+					rasterizer.imageWithScale
+				)
 			}
 		}
 
-		for ((processor, texture) in itemsInAtlas.toAtlas(views, config.maxTextureSide, config.mipmaps)) processor(texture)
+		for ((processor, texture) in itemsInAtlas.toAtlas(views, config.maxTextureSide, config.mipmaps)) processor(
+			texture
+		)
 	}
 
 	fun findLimits(tags: Iterable<ITag>): AnSymbolLimits {
@@ -687,9 +719,14 @@ class SwfLoaderMethod(val views: Views, val config: SWFExportConfig) {
 									val components = uncompressedData.size / (it.bitmapWidth * it.bitmapHeight)
 									val colorFormat = BGRA
 									//fbmp = Bitmap32(it.bitmapWidth, it.bitmapHeight, colorFormat.decode(uncompressedData, littleEndian = false))
-									fbmp = Bitmap32(it.bitmapWidth, it.bitmapHeight, colorFormat.decode(uncompressedData, littleEndian = false))
+									fbmp = Bitmap32(
+										it.bitmapWidth,
+										it.bitmapHeight,
+										colorFormat.decode(uncompressedData, littleEndian = false)
+									)
 									if (!it.hasAlpha) {
-										for (n in 0 until fbmp.data.size) fbmp.data[n] = 0x00FFFFFF.inv() or (fbmp.data[n] and 0x00FFFFFF)
+										for (n in 0 until fbmp.data.size) fbmp.data[n] = 0x00FFFFFF.inv() or
+												(fbmp.data[n] and 0x00FFFFFF)
 									}
 								}
 								else -> Unit
@@ -702,9 +739,16 @@ class SwfLoaderMethod(val views: Views, val config: SWFExportConfig) {
 				}
 				is TagDefineShape -> {
 					val tag = it
-					val rasterizerRequest = SWFShapeRasterizerRequest(swf, tag.characterId, tag.shapeBounds.rect, { tag.export(it) }, config)
+					val rasterizerRequest = SWFShapeRasterizerRequest(
+						swf,
+						tag.characterId,
+						tag.shapeBounds.rect,
+						{ tag.export(it) },
+						config
+					)
 					//val rasterizer = LoggerShapeExporter(SWFShapeRasterizer(swf, debug, it))
-					val symbol = AnSymbolShape(it.characterId, null, rasterizerRequest.shapeBounds, null, rasterizerRequest.path)
+					val symbol =
+						AnSymbolShape(it.characterId, null, rasterizerRequest.shapeBounds, null, rasterizerRequest.path)
 					symbol.tagDefineShape = it
 					symbols += symbol
 					shapesToPopulate += symbol to rasterizerRequest

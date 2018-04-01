@@ -1,6 +1,6 @@
 package com.soywiz.korge.ext.spriter.com.brashmonkey.spriter
 
-import com.soywiz.korio.JvmField
+import com.soywiz.korio.*
 
 /**
  * A player tweener is responsible for tweening to [Player] instances.
@@ -65,7 +65,10 @@ class PlayerTweener(@JvmField var player1: Player, @JvmField var player2: Player
 		anim!!.setAnimations(firstPlayer!!._animation, secondPlayer!!._animation)
 		super.update()
 		if (baseBoneName != null) {
-			val index = if (anim!!.onFirstMainLine()) firstPlayer!!.getBoneIndex(baseBoneName!!) else secondPlayer!!.getBoneIndex(baseBoneName!!)
+			val index =
+				if (anim!!.onFirstMainLine()) firstPlayer!!.getBoneIndex(baseBoneName!!) else secondPlayer!!.getBoneIndex(
+					baseBoneName!!
+				)
 			if (index == -1) throw SpriterException("A bone with name \"$baseBoneName\" does no exist!")
 			anim!!.base = anim!!.currentKey.getBoneRef(index)
 			super.update()

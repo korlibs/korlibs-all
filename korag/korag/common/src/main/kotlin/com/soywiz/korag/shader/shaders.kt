@@ -2,9 +2,9 @@
 
 package com.soywiz.korag.shader
 
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korio.lang.Closeable
-import com.soywiz.korio.util.nextAlignedTo
+import com.soywiz.korio.error.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.util.*
 
 enum class VarKind(val bytesSize: Int) {
 	BYTE(1), UNSIGNED_BYTE(1), SHORT(2), UNSIGNED_SHORT(2), INT(4), FLOAT(4)
@@ -61,12 +61,23 @@ enum class VarType(val kind: VarKind, val elementCount: Int) {
 	val bytesSize: Int = kind.bytesSize * elementCount
 
 	companion object {
-		fun BYTE(count: Int) = when (count) { 0 -> VOID; 1 -> SByte1; 2 -> SByte2; 3 -> SByte3; 4 -> SByte4; else -> invalidOp; }
-		fun UBYTE(count: Int) = when (count) { 0 -> VOID; 1 -> UByte1; 2 -> UByte2; 3 -> UByte3; 4 -> UByte4; else -> invalidOp; }
-		fun SHORT(count: Int) = when (count) { 0 -> VOID; 1 -> SShort1; 2 -> SShort2; 3 -> SShort3; 4 -> SShort4; else -> invalidOp; }
-		fun USHORT(count: Int) = when (count) { 0 -> VOID; 1 -> UShort1; 2 -> UShort2; 3 -> UShort3; 4 -> UShort4; else -> invalidOp; }
-		fun INT(count: Int) = when (count) { 0 -> VOID; 1 -> SInt1; 2 -> SInt2; 3 -> SInt3; 4 -> SInt4; else -> invalidOp; }
-		fun FLOAT(count: Int) = when (count) { 0 -> VOID; 1 -> Float1; 2 -> Float2; 3 -> Float3; 4 -> Float4; else -> invalidOp; }
+		fun BYTE(count: Int) =
+			when (count) { 0 -> VOID; 1 -> SByte1; 2 -> SByte2; 3 -> SByte3; 4 -> SByte4; else -> invalidOp; }
+
+		fun UBYTE(count: Int) =
+			when (count) { 0 -> VOID; 1 -> UByte1; 2 -> UByte2; 3 -> UByte3; 4 -> UByte4; else -> invalidOp; }
+
+		fun SHORT(count: Int) =
+			when (count) { 0 -> VOID; 1 -> SShort1; 2 -> SShort2; 3 -> SShort3; 4 -> SShort4; else -> invalidOp; }
+
+		fun USHORT(count: Int) =
+			when (count) { 0 -> VOID; 1 -> UShort1; 2 -> UShort2; 3 -> UShort3; 4 -> UShort4; else -> invalidOp; }
+
+		fun INT(count: Int) =
+			when (count) { 0 -> VOID; 1 -> SInt1; 2 -> SInt2; 3 -> SInt3; 4 -> SInt4; else -> invalidOp; }
+
+		fun FLOAT(count: Int) =
+			when (count) { 0 -> VOID; 1 -> Float1; 2 -> Float2; 3 -> Float3; 4 -> Float4; else -> invalidOp; }
 	}
 
 }
@@ -86,7 +97,13 @@ open class Variable(val name: String, type: VarType) : Operand(type) {
 	var data: Any? = null
 }
 
-open class Attribute(name: String, type: VarType, val normalized: Boolean, val offset: Int? = null, val active: Boolean = true) : Variable(name, type) {
+open class Attribute(
+	name: String,
+	type: VarType,
+	val normalized: Boolean,
+	val offset: Int? = null,
+	val active: Boolean = true
+) : Variable(name, type) {
 	constructor(name: String, type: VarType, normalized: Boolean) : this(name, type, normalized, null, true)
 
 	fun inactived() = Attribute(name, type, normalized, offset = null, active = false)
@@ -101,6 +118,7 @@ open class Uniform(name: String, type: VarType) : Variable(name, type) {
 	companion object {
 		var lastUid = 0
 	}
+
 	val uid = lastUid++
 	override fun toString(): String = "Uniform($name)"
 }
@@ -120,7 +138,8 @@ class Program(val vertex: VertexShader, val fragment: FragmentShader, val name: 
 	override fun close() {
 	}
 
-	override fun toString(): String = "Program(name=$name, attributes=${attributes.map { it.name }}, uniforms=${uniforms.map { it.name }})"
+	override fun toString(): String =
+		"Program(name=$name, attributes=${attributes.map { it.name }}, uniforms=${uniforms.map { it.name }})"
 
 	class Binop(val left: Operand, val op: String, val right: Operand) : Operand(left.type)
 	class IntLiteral(val value: Int) : Operand(VarType.Int1)

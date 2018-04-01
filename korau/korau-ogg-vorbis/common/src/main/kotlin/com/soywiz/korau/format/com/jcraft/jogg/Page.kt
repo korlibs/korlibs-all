@@ -26,8 +26,7 @@
 
 package com.soywiz.korau.format.com.jcraft.jogg
 
-import com.soywiz.kmem.arraycopy
-import com.soywiz.kmem.toUnsigned
+import com.soywiz.kmem.*
 
 class Page {
 	var header_base: ByteArray = byteArrayOf()

@@ -15,10 +15,18 @@ import com.soywiz.korma.geom.VectorPath
 fun Bitmap.toAndroidBitmap(): android.graphics.Bitmap {
 	if (this is AndroidNativeImage) return this.androidBitmap
 	val bmp32 = this.toBMP32()
-	return android.graphics.Bitmap.createBitmap(bmp32.data, 0, bmp32.width, bmp32.width, bmp32.height, android.graphics.Bitmap.Config.ARGB_8888)
+	return android.graphics.Bitmap.createBitmap(
+		bmp32.data,
+		0,
+		bmp32.width,
+		bmp32.width,
+		bmp32.height,
+		android.graphics.Bitmap.Config.ARGB_8888
+	)
 }
 
-class AndroidNativeImage(val androidBitmap: android.graphics.Bitmap) : NativeImage(androidBitmap.width, androidBitmap.height, androidBitmap, premultiplied = false) {
+class AndroidNativeImage(val androidBitmap: android.graphics.Bitmap) :
+	NativeImage(androidBitmap.width, androidBitmap.height, androidBitmap, premultiplied = false) {
 	override val name: String = "AndroidNativeImage"
 
 	override fun toNonNativeBmp(): Bitmap {
@@ -34,12 +42,13 @@ class AndroidContext2dRenderer(val bmp: android.graphics.Bitmap) : Context2d.Ren
 	override val width: Int get() = bmp.width
 	override val height: Int get() = bmp.height
 	//val paint = TextPaint(TextPaint.ANTI_ALIAS_FLAG).apply {
-	val paint = Paint(Paint.DITHER_FLAG or Paint.FILTER_BITMAP_FLAG or TextPaint.ANTI_ALIAS_FLAG or TextPaint.SUBPIXEL_TEXT_FLAG).apply {
-		hinting = Paint.HINTING_ON
-		isAntiAlias = true
-		isFilterBitmap = true
-		isDither = true
-	}
+	val paint =
+		Paint(Paint.DITHER_FLAG or Paint.FILTER_BITMAP_FLAG or TextPaint.ANTI_ALIAS_FLAG or TextPaint.SUBPIXEL_TEXT_FLAG).apply {
+			hinting = Paint.HINTING_ON
+			isAntiAlias = true
+			isFilterBitmap = true
+			isDither = true
+		}
 	val canvas = Canvas(bmp)
 	val matrixValues = FloatArray(9)
 	var androidMatrix = android.graphics.Matrix()
@@ -57,7 +66,16 @@ class AndroidContext2dRenderer(val bmp: android.graphics.Bitmap) : Context2d.Ren
 			moveTo = { x, y -> out.moveTo(x.toFloat(), y.toFloat()) },
 			lineTo = { x, y -> out.lineTo(x.toFloat(), y.toFloat()) },
 			quadTo = { cx, cy, ax, ay -> out.quadTo(cx.toFloat(), cy.toFloat(), ax.toFloat(), ay.toFloat()) },
-			cubicTo = { cx1, cy1, cx2, cy2, ax, ay -> out.cubicTo(cx1.toFloat(), cy1.toFloat(), cx2.toFloat(), cy2.toFloat(), ax.toFloat(), ay.toFloat()) },
+			cubicTo = { cx1, cy1, cx2, cy2, ax, ay ->
+				out.cubicTo(
+					cx1.toFloat(),
+					cy1.toFloat(),
+					cx2.toFloat(),
+					cy2.toFloat(),
+					ax.toFloat(),
+					ay.toFloat()
+				)
+			},
 			close = { out.close() }
 		)
 		//kotlin.io.println("/Path")
@@ -140,7 +158,14 @@ class AndroidContext2dRenderer(val bmp: android.graphics.Bitmap) : Context2d.Ren
 		}
 	}
 
-	override fun renderText(state: Context2d.State, font: Context2d.Font, text: String, x: Double, y: Double, fill: Boolean) {
+	override fun renderText(
+		state: Context2d.State,
+		font: Context2d.Font,
+		text: String,
+		x: Double,
+		y: Double,
+		fill: Boolean
+	) {
 		val metrics = Context2d.TextMetrics()
 		val bounds = metrics.bounds
 		paint.typeface = Typeface.create(font.name, Typeface.NORMAL)

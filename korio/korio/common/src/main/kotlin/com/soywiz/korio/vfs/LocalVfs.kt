@@ -1,6 +1,6 @@
 package com.soywiz.korio.vfs
 
-import com.soywiz.korio.KorioNative
+import com.soywiz.korio.*
 
 abstract class LocalVfs : Vfs() {
 	companion object {
@@ -19,6 +19,7 @@ val tempVfs: VfsFile by lazy { KorioNative.tempVfs() }
 
 // Deprecated
 fun RootLocalVfs(): VfsFile = rootLocalVfs
+
 fun ApplicationVfs(): VfsFile = applicationVfs
 fun CacheVfs(): VfsFile = cacheVfs
 fun ExternalStorageVfs(): VfsFile = externalStorageVfs

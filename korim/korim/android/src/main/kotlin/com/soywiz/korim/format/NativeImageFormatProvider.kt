@@ -7,7 +7,8 @@ import com.soywiz.korim.bitmap.Bitmap
 import com.soywiz.korim.bitmap.NativeImage
 
 actual object NativeImageFormatProvider {
-	actual suspend fun decode(data: ByteArray): NativeImage = AndroidNativeImage(BitmapFactory.decodeByteArray(data, 0, data.size))
+	actual suspend fun decode(data: ByteArray): NativeImage =
+		AndroidNativeImage(BitmapFactory.decodeByteArray(data, 0, data.size))
 
 	actual fun create(width: Int, height: Int): NativeImage {
 		val bmp = android.graphics.Bitmap.createBitmap(width, height, android.graphics.Bitmap.Config.ARGB_8888)

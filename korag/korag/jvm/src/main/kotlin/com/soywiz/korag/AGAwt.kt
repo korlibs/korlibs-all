@@ -1,27 +1,21 @@
 package com.soywiz.korag
 
-import com.jogamp.newt.opengl.GLWindow
+import com.jogamp.newt.opengl.*
 import com.jogamp.opengl.*
-import com.jogamp.opengl.awt.GLCanvas
-import com.soywiz.kmem.FastMemory
+import com.jogamp.opengl.awt.*
+import com.soywiz.kmem.*
 import com.soywiz.korag.shader.*
-import com.soywiz.korag.shader.gl.toNewGlslString
-import com.soywiz.korim.awt.AwtNativeImage
-import com.soywiz.korim.bitmap.Bitmap
-import com.soywiz.korim.bitmap.Bitmap32
-import com.soywiz.korim.bitmap.Bitmap8
-import com.soywiz.korim.bitmap.NativeImage
-import com.soywiz.korim.color.RGBA
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korio.error.unsupported
-import com.soywiz.korio.util.Once
-import com.soywiz.korma.Matrix4
+import com.soywiz.korag.shader.gl.*
+import com.soywiz.korim.awt.*
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
+import com.soywiz.korio.error.*
+import com.soywiz.korio.util.*
+import com.soywiz.korma.*
 import java.awt.event.*
-import java.awt.image.DataBufferInt
-import java.io.Closeable
-import java.nio.ByteBuffer
-import java.nio.FloatBuffer
-import java.nio.IntBuffer
+import java.awt.image.*
+import java.io.*
+import java.nio.*
 
 actual object AGFactoryFactory {
 	actual fun create(): AGFactory = AGFactoryAwt
@@ -107,15 +101,42 @@ abstract class AGAwtBase : AG() {
 			checkErrors { gl.glBindTexture(GL.GL_TEXTURE_2D, wtex.tex) }
 			checkErrors { gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR) }
 			checkErrors { gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR) }
-			checkErrors { gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGBA, width, height, 0, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, null) }
+			checkErrors {
+				gl.glTexImage2D(
+					GL.GL_TEXTURE_2D,
+					0,
+					GL.GL_RGBA,
+					width,
+					height,
+					0,
+					GL.GL_RGBA,
+					GL.GL_UNSIGNED_BYTE,
+					null
+				)
+			}
 			checkErrors { gl.glBindTexture(GL.GL_TEXTURE_2D, 0) }
 
 			checkErrors { gl.glBindRenderbuffer(GL.GL_RENDERBUFFER, renderbufferDepth[0]) }
 			checkErrors { gl.glRenderbufferStorage(GL.GL_RENDERBUFFER, GL.GL_DEPTH_COMPONENT16, width, height) }
 
 			checkErrors { gl.glBindFramebuffer(GL.GL_FRAMEBUFFER, framebuffer[0]) }
-			checkErrors { gl.glFramebufferTexture2D(GL.GL_FRAMEBUFFER, GL.GL_COLOR_ATTACHMENT0, GL.GL_TEXTURE_2D, wtex.tex, 0) }
-			checkErrors { gl.glFramebufferRenderbuffer(GL.GL_FRAMEBUFFER, GL.GL_DEPTH_ATTACHMENT, GL.GL_RENDERBUFFER, renderbufferDepth[0]) }
+			checkErrors {
+				gl.glFramebufferTexture2D(
+					GL.GL_FRAMEBUFFER,
+					GL.GL_COLOR_ATTACHMENT0,
+					GL.GL_TEXTURE_2D,
+					wtex.tex,
+					0
+				)
+			}
+			checkErrors {
+				gl.glFramebufferRenderbuffer(
+					GL.GL_FRAMEBUFFER,
+					GL.GL_DEPTH_ATTACHMENT,
+					GL.GL_RENDERBUFFER,
+					renderbufferDepth[0]
+				)
+			}
 			setViewport(0, 0, width, height)
 		}
 
@@ -217,7 +238,16 @@ abstract class AGAwtBase : AG() {
 				val elementCount = att.type.elementCount
 				if (loc >= 0) {
 					checkErrors { gl.glEnableVertexAttribArray(loc) }
-					checkErrors { gl.glVertexAttribPointer(loc, elementCount, glElementType, att.normalized, totalSize, off.toLong()) }
+					checkErrors {
+						gl.glVertexAttribPointer(
+							loc,
+							elementCount,
+							glElementType,
+							att.normalized,
+							totalSize,
+							off.toLong()
+						)
+					}
 				}
 			}
 		}
@@ -259,7 +289,14 @@ abstract class AGAwtBase : AG() {
 		if (blending.enabled) {
 			checkErrors { gl.glEnable(GL2.GL_BLEND) }
 			checkErrors { gl.glBlendEquationSeparate(blending.eqRGB.toGl(), blending.eqA.toGl()) }
-			checkErrors { gl.glBlendFuncSeparate(blending.srcRGB.toGl(), blending.dstRGB.toGl(), blending.srcA.toGl(), blending.dstA.toGl()) }
+			checkErrors {
+				gl.glBlendFuncSeparate(
+					blending.srcRGB.toGl(),
+					blending.dstRGB.toGl(),
+					blending.srcA.toGl(),
+					blending.dstA.toGl()
+				)
+			}
 		} else {
 			checkErrors { gl.glDisable(GL2.GL_BLEND) }
 		}
@@ -285,7 +322,13 @@ abstract class AGAwtBase : AG() {
 		if (stencil.enabled) {
 			checkErrors { gl.glEnable(GL2.GL_STENCIL_TEST) }
 			checkErrors { gl.glStencilFunc(stencil.compareMode.toGl(), stencil.referenceValue, stencil.readMask) }
-			checkErrors { gl.glStencilOp(stencil.actionOnDepthFail.toGl(), stencil.actionOnDepthPassStencilFail.toGl(), stencil.actionOnBothPass.toGl()) }
+			checkErrors {
+				gl.glStencilOp(
+					stencil.actionOnDepthFail.toGl(),
+					stencil.actionOnDepthPassStencilFail.toGl(),
+					stencil.actionOnBothPass.toGl()
+				)
+			}
 			checkErrors { gl.glStencilMask(stencil.writeMask) }
 		} else {
 			checkErrors { gl.glDisable(GL2.GL_STENCIL_TEST) }
@@ -347,8 +390,14 @@ abstract class AGAwtBase : AG() {
 
 				println("GL_SHADING_LANGUAGE_VERSION: $glslVersionInt : $glslVersionString")
 
-				fragmentShaderId = createShader(GL2.GL_FRAGMENT_SHADER, program.fragment.toNewGlslString(gles = false, version = glslVersionInt))
-				vertexShaderId = createShader(GL2.GL_VERTEX_SHADER, program.vertex.toNewGlslString(gles = false, version = glslVersionInt))
+				fragmentShaderId = createShader(
+					GL2.GL_FRAGMENT_SHADER,
+					program.fragment.toNewGlslString(gles = false, version = glslVersionInt)
+				)
+				vertexShaderId = createShader(
+					GL2.GL_VERTEX_SHADER,
+					program.vertex.toNewGlslString(gles = false, version = glslVersionInt)
+				)
 				checkErrors { gl.glAttachShader(id, fragmentShaderId) }
 				checkErrors { gl.glAttachShader(id, vertexShaderId) }
 				checkErrors { gl.glLinkProgram(id) }
@@ -393,7 +442,14 @@ abstract class AGAwtBase : AG() {
 		}
 	}
 
-	override fun clear(color: Int, depth: Float, stencil: Int, clearColor: Boolean, clearDepth: Boolean, clearStencil: Boolean) {
+	override fun clear(
+		color: Int,
+		depth: Float,
+		stencil: Int,
+		clearColor: Boolean,
+		clearDepth: Boolean,
+		clearStencil: Boolean
+	) {
 		//println("CLEAR: $color, $depth")
 		var bits = 0
 		checkErrors { gl.glDisable(GL.GL_SCISSOR_TEST) }
@@ -496,7 +552,8 @@ abstract class AGAwtBase : AG() {
 					return mem.buffer.buffer
 				}
 				is Bitmap32 -> {
-					val abmp: Bitmap32 = if (premultiplied) bmp.premultipliedIfRequired() else bmp.depremultipliedIfRequired()
+					val abmp: Bitmap32 =
+						if (premultiplied) bmp.premultipliedIfRequired() else bmp.depremultipliedIfRequired()
 					//println("BMP: Bitmap32")
 					//val abmp: Bitmap32 = bmp
 					val mem = FastMemory.alloc(abmp.area * 4)
@@ -519,7 +576,17 @@ abstract class AGAwtBase : AG() {
 			val buffer = createBufferForBitmap(bmp)
 			if (buffer != null) {
 				checkErrors {
-					gl.glTexImage2D(GL2.GL_TEXTURE_2D, 0, type, source.width, source.height, 0, type, GL2.GL_UNSIGNED_BYTE, buffer)
+					gl.glTexImage2D(
+						GL2.GL_TEXTURE_2D,
+						0,
+						type,
+						source.width,
+						source.height,
+						0,
+						type,
+						GL2.GL_UNSIGNED_BYTE,
+						buffer
+					)
 				}
 			}
 			//println(buffer)
@@ -753,7 +820,17 @@ class AGAwt : AGAwtBase(), AGContainer {
 	}
 
 	override fun readColor(bitmap: Bitmap32): Unit {
-		checkErrors { gl.glReadPixels(0, 0, bitmap.width, bitmap.height, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, IntBuffer.wrap(bitmap.data)) }
+		checkErrors {
+			gl.glReadPixels(
+				0,
+				0,
+				bitmap.width,
+				bitmap.height,
+				GL.GL_RGBA,
+				GL.GL_UNSIGNED_BYTE,
+				IntBuffer.wrap(bitmap.data)
+			)
+		}
 	}
 
 	override fun readDepth(width: Int, height: Int, out: FloatArray): Unit {

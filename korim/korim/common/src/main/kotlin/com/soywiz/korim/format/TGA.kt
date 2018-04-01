@@ -1,9 +1,7 @@
 package com.soywiz.korim.format
 
-import com.soywiz.korim.bitmap.Bitmap32
-import com.soywiz.korim.bitmap.Bitmap8
-import com.soywiz.korim.color.RGB
-import com.soywiz.korim.color.RGBA
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
 import com.soywiz.korio.stream.*
 
 object TGA : ImageFormat("tga") {

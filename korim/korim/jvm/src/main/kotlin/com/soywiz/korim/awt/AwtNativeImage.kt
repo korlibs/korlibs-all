@@ -1,27 +1,25 @@
 package com.soywiz.korim.awt
 
-import com.soywiz.klogger.Logger
-import com.soywiz.korim.bitmap.Bitmap
-import com.soywiz.korim.bitmap.NativeImage
-import com.soywiz.korim.bitmap.ensureNative
-import com.soywiz.korim.color.Colors
-import com.soywiz.korim.color.RGBA
-import com.soywiz.korim.vector.Context2d
-import com.soywiz.korim.vector.GraphicsPath
-import com.soywiz.korma.Matrix2d
-import com.soywiz.korma.geom.VectorPath
+import com.soywiz.klogger.*
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
+import com.soywiz.korim.vector.*
+import com.soywiz.korma.*
+import com.soywiz.korma.geom.*
 import java.awt.*
-import java.awt.RenderingHints.KEY_ANTIALIASING
-import java.awt.font.TextLayout
-import java.awt.geom.AffineTransform
-import java.awt.geom.Point2D
-import java.awt.geom.Rectangle2D
-import java.awt.image.BufferedImage
-import java.awt.image.ColorModel
+import java.awt.Rectangle
+import java.awt.RenderingHints.*
+import java.awt.font.*
+import java.awt.geom.*
+import java.awt.image.*
 
 const val AWT_INTERNAL_IMAGE_TYPE = BufferedImage.TYPE_INT_ARGB_PRE
 
-fun BufferedImage.clone(width: Int = this.width, height: Int = this.height, type: Int = AWT_INTERNAL_IMAGE_TYPE): BufferedImage {
+fun BufferedImage.clone(
+	width: Int = this.width,
+	height: Int = this.height,
+	type: Int = AWT_INTERNAL_IMAGE_TYPE
+): BufferedImage {
 	val out = BufferedImage(width, height, type)
 	//println("BufferedImage.clone:${this.type} -> ${out.type}")
 	val g = out.createGraphics(false)
@@ -39,7 +37,8 @@ fun BufferedImage.clone(width: Int = this.width, height: Int = this.height, type
 //	override fun mipmap(bmp: Bitmap, levels: Int): NativeImage = bmp.toBMP32().mipmap(levels).ensureNative()
 //}
 
-class AwtNativeImage(val awtImage: BufferedImage) : NativeImage(awtImage.width, awtImage.height, awtImage, awtImage.type == BufferedImage.TYPE_INT_ARGB_PRE) {
+class AwtNativeImage(val awtImage: BufferedImage) :
+	NativeImage(awtImage.width, awtImage.height, awtImage, awtImage.type == BufferedImage.TYPE_INT_ARGB_PRE) {
 	override val name: String = "AwtNativeImage"
 	override fun toNonNativeBmp(): Bitmap = awtImage.toBMP32()
 	override fun getContext2d(antialiasing: Boolean): Context2d = Context2d(AwtContext2dRender(awtImage, antialiasing))
@@ -47,27 +46,29 @@ class AwtNativeImage(val awtImage: BufferedImage) : NativeImage(awtImage.width, 
 
 //fun createRenderingHints(antialiasing: Boolean): RenderingHints = RenderingHints(mapOf<RenderingHints.Key, Any>())
 
-fun createRenderingHints(antialiasing: Boolean): RenderingHints = RenderingHints(if (antialiasing) {
-	mapOf(
-		KEY_ANTIALIASING to java.awt.RenderingHints.VALUE_ANTIALIAS_ON
-		, RenderingHints.KEY_RENDERING to RenderingHints.VALUE_RENDER_QUALITY
-		, RenderingHints.KEY_COLOR_RENDERING to RenderingHints.VALUE_COLOR_RENDER_QUALITY
-		, RenderingHints.KEY_INTERPOLATION to RenderingHints.VALUE_INTERPOLATION_BILINEAR
-		, RenderingHints.KEY_ALPHA_INTERPOLATION to RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY
-		, RenderingHints.KEY_TEXT_ANTIALIASING to RenderingHints.VALUE_TEXT_ANTIALIAS_ON
-		, RenderingHints.KEY_FRACTIONALMETRICS to RenderingHints.VALUE_FRACTIONALMETRICS_ON
-	)
-} else {
-	mapOf(
-		KEY_ANTIALIASING to java.awt.RenderingHints.VALUE_ANTIALIAS_OFF
-		, RenderingHints.KEY_RENDERING to RenderingHints.VALUE_RENDER_SPEED
-		, RenderingHints.KEY_COLOR_RENDERING to RenderingHints.VALUE_COLOR_RENDER_SPEED
-		, RenderingHints.KEY_INTERPOLATION to RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR
-		, RenderingHints.KEY_ALPHA_INTERPOLATION to RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED
-		, RenderingHints.KEY_TEXT_ANTIALIASING to RenderingHints.VALUE_TEXT_ANTIALIAS_OFF
-		, RenderingHints.KEY_FRACTIONALMETRICS to RenderingHints.VALUE_FRACTIONALMETRICS_OFF
-	)
-})
+fun createRenderingHints(antialiasing: Boolean): RenderingHints = RenderingHints(
+	if (antialiasing) {
+		mapOf(
+			KEY_ANTIALIASING to java.awt.RenderingHints.VALUE_ANTIALIAS_ON
+			, RenderingHints.KEY_RENDERING to RenderingHints.VALUE_RENDER_QUALITY
+			, RenderingHints.KEY_COLOR_RENDERING to RenderingHints.VALUE_COLOR_RENDER_QUALITY
+			, RenderingHints.KEY_INTERPOLATION to RenderingHints.VALUE_INTERPOLATION_BILINEAR
+			, RenderingHints.KEY_ALPHA_INTERPOLATION to RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY
+			, RenderingHints.KEY_TEXT_ANTIALIASING to RenderingHints.VALUE_TEXT_ANTIALIAS_ON
+			, RenderingHints.KEY_FRACTIONALMETRICS to RenderingHints.VALUE_FRACTIONALMETRICS_ON
+		)
+	} else {
+		mapOf(
+			KEY_ANTIALIASING to java.awt.RenderingHints.VALUE_ANTIALIAS_OFF
+			, RenderingHints.KEY_RENDERING to RenderingHints.VALUE_RENDER_SPEED
+			, RenderingHints.KEY_COLOR_RENDERING to RenderingHints.VALUE_COLOR_RENDER_SPEED
+			, RenderingHints.KEY_INTERPOLATION to RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR
+			, RenderingHints.KEY_ALPHA_INTERPOLATION to RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED
+			, RenderingHints.KEY_TEXT_ANTIALIASING to RenderingHints.VALUE_TEXT_ANTIALIAS_OFF
+			, RenderingHints.KEY_FRACTIONALMETRICS to RenderingHints.VALUE_FRACTIONALMETRICS_OFF
+		)
+	}
+)
 
 fun BufferedImage.createGraphics(antialiasing: Boolean): Graphics2D = this.createGraphics().apply {
 	addRenderingHints(createRenderingHints(antialiasing))
@@ -92,7 +93,8 @@ class AwtContext2dRender(val awtImage: BufferedImage, val antialiasing: Boolean 
 
 	fun GraphicsPath.toJava2dPaths(): List<java.awt.geom.Path2D.Double> {
 		if (this.isEmpty()) return listOf()
-		val winding = if (winding == VectorPath.Winding.EVEN_ODD) java.awt.geom.GeneralPath.WIND_EVEN_ODD else java.awt.geom.GeneralPath.WIND_NON_ZERO
+		val winding =
+			if (winding == VectorPath.Winding.EVEN_ODD) java.awt.geom.GeneralPath.WIND_EVEN_ODD else java.awt.geom.GeneralPath.WIND_NON_ZERO
 		//val winding = java.awt.geom.GeneralPath.WIND_NON_ZERO
 		//val winding = java.awt.geom.GeneralPath.WIND_EVEN_ODD
 		val polylines = arrayListOf<java.awt.geom.Path2D.Double>()
@@ -203,7 +205,8 @@ class AwtContext2dRender(val awtImage: BufferedImage, val antialiasing: Boolean 
 
 			when (this) {
 				is Context2d.Gradient -> {
-					val pairs = this.stops.map(Double::toFloat).zip(this.colors.map { convertColor(it) }).distinctBy { it.first }
+					val pairs = this.stops.map(Double::toFloat).zip(this.colors.map { convertColor(it) })
+						.distinctBy { it.first }
 					val stops = pairs.map { it.first }.toFloatArray()
 					val colors = pairs.map { it.second }.toTypedArray()
 					val defaultColor = colors.firstOrNull() ?: Color.PINK
@@ -250,7 +253,13 @@ class AwtContext2dRender(val awtImage: BufferedImage, val antialiasing: Boolean 
 						this.bitmap.toAwt(),
 						Rectangle2D.Double(0.0, 0.0, this.bitmap.width.toDouble(), this.bitmap.height.toDouble())
 					) {
-						override fun createContext(cm: ColorModel?, deviceBounds: Rectangle?, userBounds: Rectangle2D?, xform: AffineTransform?, hints: RenderingHints?): PaintContext {
+						override fun createContext(
+							cm: ColorModel?,
+							deviceBounds: Rectangle?,
+							userBounds: Rectangle2D?,
+							xform: AffineTransform?,
+							hints: RenderingHints?
+						): PaintContext {
 							val out = xform ?: AffineTransform()
 							out.concatenate(t1)
 							return super.createContext(cm, deviceBounds, userBounds, out, this@AwtContext2dRender.hints)
@@ -311,7 +320,10 @@ class AwtContext2dRender(val awtImage: BufferedImage, val antialiasing: Boolean 
 			g.paint = state.strokeStyle.toAwt(awtTransform)
 		}
 		val comp = AlphaComposite.SRC_OVER
-		g.composite = if (state.globalAlpha == 1.0) AlphaComposite.getInstance(comp) else AlphaComposite.getInstance(comp, state.globalAlpha.toFloat())
+		g.composite = if (state.globalAlpha == 1.0) AlphaComposite.getInstance(comp) else AlphaComposite.getInstance(
+			comp,
+			state.globalAlpha.toFloat()
+		)
 	}
 
 	override fun render(state: Context2d.State, fill: Boolean) {
@@ -330,7 +342,14 @@ class AwtContext2dRender(val awtImage: BufferedImage, val antialiasing: Boolean 
 		}
 	}
 
-	override fun renderText(state: Context2d.State, font: Context2d.Font, text: String, x: Double, y: Double, fill: Boolean) {
+	override fun renderText(
+		state: Context2d.State,
+		font: Context2d.Font,
+		text: String,
+		x: Double,
+		y: Double,
+		fill: Boolean
+	) {
 		if (text.isEmpty()) return
 		applyState(state, fill)
 		val frc = g.fontRenderContext

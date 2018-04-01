@@ -1,9 +1,9 @@
 package com.codeazur.as3swf
 
-import com.codeazur.as3swf.tags.TagFileAttributes
-import com.soywiz.korio.async.syncTest
-import com.soywiz.korio.vfs.ResourcesVfs
-import org.junit.Test
+import com.codeazur.as3swf.tags.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.vfs.*
+import org.junit.*
 
 class As3SwfTest {
 	@Test

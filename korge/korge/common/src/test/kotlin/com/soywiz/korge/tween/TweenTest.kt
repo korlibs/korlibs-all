@@ -1,11 +1,11 @@
 package com.soywiz.korge.tween
 
-import com.soywiz.korge.tests.ViewsForTesting
-import com.soywiz.korge.time.milliseconds
+import com.soywiz.korge.tests.*
+import com.soywiz.korge.time.*
 import com.soywiz.korge.tween.Easing
-import com.soywiz.korio.async.go
+import com.soywiz.korio.async.*
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class TweenTest : ViewsForTesting() {
 	@Test

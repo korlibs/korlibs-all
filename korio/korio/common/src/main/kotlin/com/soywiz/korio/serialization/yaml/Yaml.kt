@@ -1,14 +1,10 @@
 package com.soywiz.korio.serialization.yaml
 
-import com.soywiz.kds.LinkedList
-import com.soywiz.kds.ListReader
-import com.soywiz.kds.lmapOf
-import com.soywiz.korio.Language
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korio.serialization.ObjectMapper
-import com.soywiz.korio.util.StrReader
-import com.soywiz.korio.util.readStringLit
-import com.soywiz.korio.util.unquote
+import com.soywiz.kds.*
+import com.soywiz.korio.*
+import com.soywiz.korio.error.*
+import com.soywiz.korio.serialization.*
+import com.soywiz.korio.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.List
 import kotlin.collections.MutableMap
@@ -17,13 +13,16 @@ import kotlin.collections.isNotEmpty
 import kotlin.collections.last
 import kotlin.collections.plusAssign
 import kotlin.collections.set
-import kotlin.reflect.KClass
+import kotlin.reflect.*
 
 object Yaml {
 	fun decode(@Language("yaml") str: String) = read(ListReader(StrReader(str).tokenize()), level = 0)
-	inline fun <reified T : Any> decodeToType(@Language("yaml") s: String, mapper: ObjectMapper): T = decodeToType(s, T::class, mapper)
+	inline fun <reified T : Any> decodeToType(@Language("yaml") s: String, mapper: ObjectMapper): T =
+		decodeToType(s, T::class, mapper)
+
 	@Suppress("UNCHECKED_CAST")
-	fun <T : Any> decodeToType(@Language("yaml") s: String, clazz: KClass<T>, mapper: ObjectMapper): T = mapper.toTyped(clazz, decode(s))
+	fun <T : Any> decodeToType(@Language("yaml") s: String, clazz: KClass<T>, mapper: ObjectMapper): T =
+		mapper.toTyped(clazz, decode(s))
 
 	fun read(str: String) = read(ListReader(StrReader(str).tokenize()), level = 0)
 

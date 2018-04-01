@@ -1,19 +1,14 @@
 package com.soywiz.korio.vfs
 
-import com.soywiz.klock.Klock
-import com.soywiz.kmem.arraycopy
-import com.soywiz.korio.IOException
-import com.soywiz.korio.async.SuspendingSequence
-import com.soywiz.korio.async.toAsync
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korio.serialization.json.Json
-import com.soywiz.korio.stream.AsyncStream
-import com.soywiz.korio.stream.AsyncStreamBase
-import com.soywiz.korio.stream.toAsyncStream
-import com.soywiz.korio.util.fromHexString
-import com.soywiz.korio.util.hex
-import kotlin.math.max
-import kotlin.math.min
+import com.soywiz.klock.*
+import com.soywiz.kmem.*
+import com.soywiz.korio.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.error.*
+import com.soywiz.korio.serialization.json.*
+import com.soywiz.korio.stream.*
+import com.soywiz.korio.util.*
+import kotlin.math.*
 
 interface SimpleStorage {
 	suspend fun get(key: String): String?
@@ -43,20 +38,31 @@ private class StorageFiles(val storage: SimpleStorage) {
 		setEntryInfo(fileName, info.isFile, info.size, info.children, info.createdTime, info.modifiedTime)
 	}
 
-	suspend fun setEntryInfo(fileName: String, isFile: Boolean, size: Long, children: List<String>, createdTime: Long = 0L, modifiedTime: Long = 0L) {
+	suspend fun setEntryInfo(
+		fileName: String,
+		isFile: Boolean,
+		size: Long,
+		children: List<String>,
+		createdTime: Long = 0L,
+		modifiedTime: Long = 0L
+	) {
 		val oldEntry = getEntryInfo(fileName)
 
 		if (oldEntry != null) {
 			// @TODO: Prune old chunks/children!
 		}
 
-		storage.set(getStatsKey(fileName), Json.stringify(hashMapOf(
-			EntryInfo::isFile.name to isFile,
-			EntryInfo::size.name to size.toDouble(),
-			EntryInfo::children.name to children,
-			EntryInfo::createdTime.name to createdTime.toDouble(),
-			EntryInfo::modifiedTime.name to modifiedTime.toDouble()
-		)))
+		storage.set(
+			getStatsKey(fileName), Json.stringify(
+				hashMapOf(
+					EntryInfo::isFile.name to isFile,
+					EntryInfo::size.name to size.toDouble(),
+					EntryInfo::children.name to children,
+					EntryInfo::createdTime.name to createdTime.toDouble(),
+					EntryInfo::modifiedTime.name to modifiedTime.toDouble()
+				)
+			)
+		)
 	}
 
 	suspend fun hasEntryInfo(fileName: String): Boolean = getEntryInfo(fileName) != null
@@ -87,7 +93,8 @@ private class StorageFiles(val storage: SimpleStorage) {
 		storage.set(getChunkKey(fileName, chunk), data.hex)
 	}
 
-	suspend fun getFileChunk(fileName: String, chunk: Int): ByteArray? = storage.get(getChunkKey(fileName, chunk))?.fromHexString()
+	suspend fun getFileChunk(fileName: String, chunk: Int): ByteArray? =
+		storage.get(getChunkKey(fileName, chunk))?.fromHexString()
 
 	suspend fun writeData(fileName: String, position: Long, buffer: ByteArray, offset: Int, len: Int) {
 		var pending = len
@@ -157,7 +164,13 @@ class MapLikeStorageVfs(val storage: SimpleStorage) : Vfs() {
 		initOnce()
 		val npath = path.normalizePath()
 		val entry = files.getEntryInfo(npath) ?: return createNonExistsStat(path)
-		return createExistsStat(path, entry.isDirectory, entry.size, createTime = entry.createdTime, modifiedTime = entry.modifiedTime)
+		return createExistsStat(
+			path,
+			entry.isDirectory,
+			entry.size,
+			createTime = entry.createdTime,
+			modifiedTime = entry.modifiedTime
+		)
 	}
 
 	suspend private fun ensureParentDirectory(nparent: String, npath: String): StorageFiles.EntryInfo {
@@ -199,7 +212,13 @@ class MapLikeStorageVfs(val storage: SimpleStorage) : Vfs() {
 		}
 
 		val now = Klock.currentTimeMillis()
-		var info = files.getEntryInfo(npath) ?: StorageFiles.EntryInfo(isFile = true, size = 0L, children = listOf(), createdTime = now, modifiedTime = now)
+		var info = files.getEntryInfo(npath) ?: StorageFiles.EntryInfo(
+			isFile = true,
+			size = 0L,
+			children = listOf(),
+			createdTime = now,
+			modifiedTime = now
+		)
 		if (info.isDirectory) throw IOException("Can't open a directory")
 
 		return object : AsyncStreamBase() {

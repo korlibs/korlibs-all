@@ -1,8 +1,6 @@
 package com.soywiz.korio.util
 
-import com.soywiz.korio.lang.Charset
-import com.soywiz.korio.lang.UTF8
-import com.soywiz.korio.lang.toString
+import com.soywiz.korio.lang.*
 
 fun ByteArray.readStringz(o: Int, size: Int, charset: Charset = UTF8): String {
 	var idx = o

@@ -1,11 +1,9 @@
 package com.soywiz.korma
 
-import com.soywiz.korma.interpolation.Interpolable
-import com.soywiz.korma.interpolation.MutableInterpolable
-import com.soywiz.korma.interpolation.interpolate
-import com.soywiz.korma.math.Math
-import com.soywiz.korma.numeric.niceStr
-import kotlin.math.acos
+import com.soywiz.korma.interpolation.*
+import com.soywiz.korma.math.*
+import com.soywiz.korma.numeric.*
+import kotlin.math.*
 
 interface IVector2 {
 	val x: Double
@@ -16,7 +14,8 @@ val IVector2.length: Double get() = Math.hypot(x, y)
 
 inline fun IVector2(x: Number, y: Number) = Vector2.Immutable(x.toDouble(), y.toDouble())
 
-data class Vector2(override var x: Double = 0.0, override var y: Double = x) : MutableInterpolable<Vector2>, Interpolable<Vector2>, IVector2 {
+data class Vector2(override var x: Double = 0.0, override var y: Double = x) : MutableInterpolable<Vector2>,
+	Interpolable<Vector2>, IVector2 {
 	data class Immutable(override val x: Double, override val y: Double) : IVector2 {
 		companion object {
 			val ZERO = Immutable(0.0, 0.0)
@@ -86,15 +85,19 @@ data class Vector2(override var x: Double = 0.0, override var y: Double = x) : M
 
 	override fun toString(): String = "Vector2(${x.niceStr}, ${y.niceStr})"
 
-	override fun interpolateWith(other: Vector2, ratio: Double): Vector2 = Vector2().setToInterpolated(this, other, ratio)
-	override fun setToInterpolated(l: Vector2, r: Vector2, ratio: Double): Vector2 = this.setTo(ratio.interpolate(l.x, r.x), ratio.interpolate(l.y, r.y))
+	override fun interpolateWith(other: Vector2, ratio: Double): Vector2 =
+		Vector2().setToInterpolated(this, other, ratio)
+
+	override fun setToInterpolated(l: Vector2, r: Vector2, ratio: Double): Vector2 =
+		this.setTo(ratio.interpolate(l.x, r.x), ratio.interpolate(l.y, r.y))
 
 	companion object {
 		fun middle(a: IVector2, b: IVector2): Vector2 = Vector2((a.x + b.x) * 0.5, (a.y + b.y) * 0.5)
 
 		fun angle(a: IVector2, b: IVector2): Double = acos((a * b) / (a.length * b.length))
 
-		fun angle(ax: Double, ay: Double, bx: Double, by: Double): Double = acos(((ax * bx) + (ay * by)) / (Math.hypot(ax, ay) * Math.hypot(bx, by)))
+		fun angle(ax: Double, ay: Double, bx: Double, by: Double): Double =
+			acos(((ax * bx) + (ay * by)) / (Math.hypot(ax, ay) * Math.hypot(bx, by)))
 
 		fun sortPoints(points: ArrayList<Vector2>): Unit {
 			points.sortWith(Comparator({ l, r -> cmpPoints(l, r) }))

@@ -1,13 +1,11 @@
 package com.soywiz.korio.net
 
 import com.soywiz.korio.async.*
-import com.soywiz.korio.stream.readString
-import com.soywiz.korio.stream.writeString
+import com.soywiz.korio.stream.*
 import org.junit.Ignore
 import org.junit.Test
 import java.util.*
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class AsyncClientServerTest {
 	companion object {

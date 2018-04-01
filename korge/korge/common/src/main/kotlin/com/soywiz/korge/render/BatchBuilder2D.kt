@@ -1,13 +1,11 @@
 package com.soywiz.korge.render
 
-import com.soywiz.kmem.FastMemory
-import com.soywiz.korag.AG
-import com.soywiz.korag.DefaultShaders
+import com.soywiz.kmem.*
+import com.soywiz.korag.*
 import com.soywiz.korag.shader.*
-import com.soywiz.korge.view.BlendMode
-import com.soywiz.korma.Matrix2d
-import com.soywiz.korma.Matrix4
-import com.soywiz.korma.geom.Point2d
+import com.soywiz.korge.view.*
+import com.soywiz.korma.*
+import com.soywiz.korma.geom.*
 
 class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 	var flipRenderTexture = true
@@ -46,7 +44,20 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 	// 0..1
 	// |  |
 	// 3..2
-	fun drawQuadFast(x0: Float, y0: Float, x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float, tex: Texture, colorMul: Int, colorAdd: Int, rotated: Boolean = false) {
+	fun drawQuadFast(
+		x0: Float,
+		y0: Float,
+		x1: Float,
+		y1: Float,
+		x2: Float,
+		y2: Float,
+		x3: Float,
+		y3: Float,
+		tex: Texture,
+		colorMul: Int,
+		colorAdd: Int,
+		rotated: Boolean = false
+	) {
 		ensure(6, 4)
 
 		addIndex(vertexCount + 0)
@@ -77,7 +88,8 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 		}
 	}
 
-	fun setStateFast(tex: Texture.Base, smoothing: Boolean, blendFactors: AG.Blending) = setStateFast(tex.base, smoothing, blendFactors)
+	fun setStateFast(tex: Texture.Base, smoothing: Boolean, blendFactors: AG.Blending) =
+		setStateFast(tex.base, smoothing, blendFactors)
 
 	fun setStateFast(tex: AG.Texture, smoothing: Boolean, blendFactors: AG.Blending) {
 		if (tex != currentTex || currentSmoothing != smoothing || currentBlendFactors != blendFactors) {
@@ -105,11 +117,17 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 
 	fun drawNinePatch(
 		tex: Texture,
-		x: Float = 0f, y: Float = 0f,
-		width: Float = tex.width.toFloat(), height: Float = tex.height.toFloat(),
+		x: Float = 0f,
+		y: Float = 0f,
+		width: Float = tex.width.toFloat(),
+		height: Float = tex.height.toFloat(),
 		posCuts: Array<Point2d>,
 		texCuts: Array<Point2d>,
-		m: Matrix2d = identity, filtering: Boolean = true, colorMul: Int = -1, colorAdd: Int = 0x7f7f7f7f, blendFactors: AG.Blending = BlendMode.NORMAL.factors
+		m: Matrix2d = identity,
+		filtering: Boolean = true,
+		colorMul: Int = -1,
+		colorAdd: Int = 0x7f7f7f7f,
+		blendFactors: AG.Blending = BlendMode.NORMAL.factors
 	) {
 		setStateFast(tex.base, filtering, blendFactors)
 
@@ -173,7 +191,19 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 		}
 	}
 
-	fun drawQuad(tex: Texture, x: Float = 0f, y: Float = 0f, width: Float = tex.width.toFloat(), height: Float = tex.height.toFloat(), m: Matrix2d = identity, filtering: Boolean = true, colorMul: Int = -1, colorAdd: Int = 0x7f7f7f7f, blendFactors: AG.Blending = BlendMode.NORMAL.factors, rotated: Boolean = false) {
+	fun drawQuad(
+		tex: Texture,
+		x: Float = 0f,
+		y: Float = 0f,
+		width: Float = tex.width.toFloat(),
+		height: Float = tex.height.toFloat(),
+		m: Matrix2d = identity,
+		filtering: Boolean = true,
+		colorMul: Int = -1,
+		colorAdd: Int = 0x7f7f7f7f,
+		blendFactors: AG.Blending = BlendMode.NORMAL.factors,
+		rotated: Boolean = false
+	) {
 		val x0 = x.toDouble()
 		val x1 = (x + width).toDouble()
 		val y0 = y.toDouble()
@@ -222,7 +252,15 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 				if (premultiplied) {
 					SET(t_Temp1["rgb"], t_Temp1["rgb"] / t_Temp1["a"])
 				}
-				SET(out, (t_Temp1["rgba"] * v_ColMul["rgba"]) + ((v_ColAdd["rgba"] - vec4(0.5f.lit, 0.5f.lit, 0.5f.lit, 0.5f.lit)) * 2f.lit))
+				SET(
+					out,
+					(t_Temp1["rgba"] * v_ColMul["rgba"]) + ((v_ColAdd["rgba"] - vec4(
+						0.5f.lit,
+						0.5f.lit,
+						0.5f.lit,
+						0.5f.lit
+					)) * 2f.lit)
+				)
 				//SET(out, t_Temp1)
 				// Required for shape masks:
 				if (premultiplied) {

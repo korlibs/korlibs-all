@@ -1,26 +1,30 @@
 package com.soywiz.korge.bitmapfont
 
-import com.soywiz.kds.IntMap
-import com.soywiz.korag.AG
-import com.soywiz.korge.plugin.KorgePlugin
-import com.soywiz.korge.render.BatchBuilder2D
-import com.soywiz.korge.render.Texture
-import com.soywiz.korge.render.ensurePowerOfTwo
-import com.soywiz.korge.render.readTexture
-import com.soywiz.korge.resources.Path
-import com.soywiz.korge.resources.ResourcesRoot
-import com.soywiz.korge.resources.VPath
-import com.soywiz.korge.view.BlendMode
-import com.soywiz.korge.view.Views
-import com.soywiz.korim.color.Colors
-import com.soywiz.korim.font.BitmapFontGenerator
-import com.soywiz.korinject.AsyncFactory
-import com.soywiz.korinject.Optional
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korio.serialization.xml.get
-import com.soywiz.korio.serialization.xml.readXml
-import com.soywiz.korio.vfs.VfsFile
-import com.soywiz.korma.Matrix2d
+import com.soywiz.kds.*
+import com.soywiz.korag.*
+import com.soywiz.korge.plugin.*
+import com.soywiz.korge.render.*
+import com.soywiz.korge.resources.*
+import com.soywiz.korge.view.*
+import com.soywiz.korim.color.*
+import com.soywiz.korim.font.*
+import com.soywiz.korinject.*
+import com.soywiz.korio.error.*
+import com.soywiz.korio.serialization.xml.*
+import com.soywiz.korio.vfs.*
+import com.soywiz.korma.*
+import kotlin.collections.Map
+import kotlin.collections.arrayListOf
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.first
+import kotlin.collections.firstOrNull
+import kotlin.collections.hashMapOf
+import kotlin.collections.iterator
+import kotlin.collections.map
+import kotlin.collections.plusAssign
+import kotlin.collections.set
+import kotlin.collections.toMap
 
 object BitmapFontPlugin : KorgePlugin() {
 	suspend override fun register(views: Views) {
@@ -72,7 +76,18 @@ class BitmapFont(
 	operator fun get(charCode: Int): Glyph = glyphs[charCode] ?: glyphs[32] ?: dummyGlyph
 	operator fun get(char: Char): Glyph = this[char.toInt()]
 
-	fun drawText(batch: BatchBuilder2D, textSize: Double, str: String, x: Int, y: Int, m: Matrix2d = Matrix2d(), colMul: Int = Colors.WHITE, colAdd: Int = 0x7f7f7f7f, blendMode: BlendMode = BlendMode.INHERIT, filtering: Boolean = true) {
+	fun drawText(
+		batch: BatchBuilder2D,
+		textSize: Double,
+		str: String,
+		x: Int,
+		y: Int,
+		m: Matrix2d = Matrix2d(),
+		colMul: Int = Colors.WHITE,
+		colAdd: Int = 0x7f7f7f7f,
+		blendMode: BlendMode = BlendMode.INHERIT,
+		filtering: Boolean = true
+	) {
 		val m2 = m.clone()
 		val scale = textSize / fontSize.toDouble()
 		m2.pretranslate(x.toDouble(), y.toDouble())
@@ -89,20 +104,45 @@ class BitmapFont(
 			val c2 = str.getOrElse(n + 1) { ' ' }.toInt()
 			val glyph = this[c1]
 			val tex = glyph.texture
-			batch.drawQuad(tex, (dx + glyph.xoffset).toFloat(), (dy + glyph.yoffset).toFloat(), m = m2, colorMul = colMul, colorAdd = colAdd, blendFactors = blendMode.factors, filtering = filtering)
+			batch.drawQuad(
+				tex,
+				(dx + glyph.xoffset).toFloat(),
+				(dy + glyph.yoffset).toFloat(),
+				m = m2,
+				colorMul = colMul,
+				colorAdd = colAdd,
+				blendFactors = blendMode.factors,
+				filtering = filtering
+			)
 			val kerningOffset = kernings[Kerning.buildKey(c1, c2)]?.amount ?: 0
 			dx += glyph.xadvance + kerningOffset
 		}
 	}
 
 	companion object {
-		operator fun invoke(ag: AG, fontName: String, fontSize: Int, chars: String = BitmapFontGenerator.LATIN_ALL, mipmaps: Boolean = true): BitmapFont {
+		operator fun invoke(
+			ag: AG,
+			fontName: String,
+			fontSize: Int,
+			chars: String = BitmapFontGenerator.LATIN_ALL,
+			mipmaps: Boolean = true
+		): BitmapFont {
 			return BitmapFontGenerator.generate(fontName, fontSize, chars).convert(ag, mipmaps = mipmaps)
 		}
 	}
 }
 
-fun BatchBuilder2D.drawText(font: BitmapFont, textSize: Double, str: String, x: Int, y: Int, m: Matrix2d = Matrix2d(), colMul: Int = Colors.WHITE, colAdd: Int = 0x7f7f7f7f, blendMode: BlendMode = BlendMode.INHERIT) {
+fun BatchBuilder2D.drawText(
+	font: BitmapFont,
+	textSize: Double,
+	str: String,
+	x: Int,
+	y: Int,
+	m: Matrix2d = Matrix2d(),
+	colMul: Int = Colors.WHITE,
+	colAdd: Int = 0x7f7f7f7f,
+	blendMode: BlendMode = BlendMode.INHERIT
+) {
 	font.drawText(this, textSize, str, x, y, m, colMul, colAdd, blendMode)
 }
 
@@ -170,13 +210,15 @@ class BitmapFontAsyncFactory(
 	} else if (vpath != null) {
 		resourcesRoot[vpath.path].readBitmapFont(ag)
 	} else if (descriptor != null) {
-		com.soywiz.korim.font.BitmapFontGenerator.generate(descriptor.face, descriptor.size, descriptor.chars).convert(ag)
+		com.soywiz.korim.font.BitmapFontGenerator.generate(descriptor.face, descriptor.size, descriptor.chars)
+			.convert(ag)
 	} else {
 		invalidOp("BitmapFont injection requires @Path or @FontDescriptor annotations")
 	}
 }
 
-fun com.soywiz.korim.font.BitmapFont.toKorge(views: Views, mipmaps: Boolean = true): BitmapFont = convert(views.ag, mipmaps)
+fun com.soywiz.korim.font.BitmapFont.toKorge(views: Views, mipmaps: Boolean = true): BitmapFont =
+	convert(views.ag, mipmaps)
 
 fun com.soywiz.korim.font.BitmapFont.convert(ag: AG, mipmaps: Boolean = true): BitmapFont {
 	val font = this

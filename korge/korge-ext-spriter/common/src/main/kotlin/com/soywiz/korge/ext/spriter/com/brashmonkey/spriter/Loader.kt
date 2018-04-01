@@ -1,6 +1,6 @@
 package com.soywiz.korge.ext.spriter.com.brashmonkey.spriter
 
-import com.soywiz.korio.vfs.VfsFile
+import com.soywiz.korio.vfs.*
 
 /**
  * A loader is responsible for loading all resources.
@@ -18,11 +18,12 @@ abstract class Loader<R>
  * Creates a loader with the given Spriter data.
  * @param data the generated Spriter data
  */
-(
+	(
 	/**
 	 * The current set data containing [Folder]s and [File]s.
 	 */
-	protected var data: Data?) {
+	protected var data: Data?
+) {
 
 	/**
 	 * Contains all loaded resources if not [.isDisposed].

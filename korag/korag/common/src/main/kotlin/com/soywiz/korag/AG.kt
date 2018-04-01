@@ -1,24 +1,17 @@
 package com.soywiz.korag
 
-import com.soywiz.kds.Extra
-import com.soywiz.kds.Pool
-import com.soywiz.kmem.FastMemory
-import com.soywiz.kmem.arraycopy
-import com.soywiz.korag.shader.Program
-import com.soywiz.korag.shader.Uniform
-import com.soywiz.korag.shader.VertexLayout
-import com.soywiz.korim.bitmap.Bitmap
-import com.soywiz.korim.bitmap.Bitmap32
-import com.soywiz.korim.color.Colors
-import com.soywiz.korio.async.Promise
-import com.soywiz.korio.async.Signal
-import com.soywiz.korio.async.async
-import com.soywiz.korio.coroutine.CoroutineContext
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korio.lang.Closeable
-import com.soywiz.korma.Matrix4
-import com.soywiz.korma.geom.Size
-import kotlin.coroutines.experimental.EmptyCoroutineContext
+import com.soywiz.kds.*
+import com.soywiz.kmem.*
+import com.soywiz.korag.shader.*
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.coroutine.*
+import com.soywiz.korio.error.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korma.*
+import com.soywiz.korma.geom.*
+import kotlin.coroutines.experimental.*
 
 val defaultFactory by lazy { AGFactoryFactory.create() }
 
@@ -150,16 +143,35 @@ abstract class AG : Extra by Extra.Mixin() {
 		ZERO;
 	}
 
-	data class Blending(val srcRGB: BlendFactor, val dstRGB: BlendFactor, val srcA: BlendFactor = srcRGB, val dstA: BlendFactor = dstRGB, val eqRGB: BlendEquation = BlendEquation.ADD, val eqA: BlendEquation = eqRGB) {
+	data class Blending(
+		val srcRGB: BlendFactor,
+		val dstRGB: BlendFactor,
+		val srcA: BlendFactor = srcRGB,
+		val dstA: BlendFactor = dstRGB,
+		val eqRGB: BlendEquation = BlendEquation.ADD,
+		val eqA: BlendEquation = eqRGB
+	) {
 
-		constructor(src: BlendFactor, dst: BlendFactor, eq: BlendEquation = BlendEquation.ADD) : this(src, dst, src, dst, eq, eq)
+		constructor(src: BlendFactor, dst: BlendFactor, eq: BlendEquation = BlendEquation.ADD) : this(
+			src,
+			dst,
+			src,
+			dst,
+			eq,
+			eq
+		)
 
 		val disabled: Boolean get() = srcRGB == BlendFactor.ONE && dstRGB == BlendFactor.ZERO && srcA == BlendFactor.ONE && dstA == BlendFactor.ZERO
 		val enabled: Boolean get() = !disabled
 
 		companion object {
 			val NONE = Blending(BlendFactor.ONE, BlendFactor.ZERO, BlendFactor.ONE, BlendFactor.ZERO)
-			val NORMAL = Blending(BlendFactor.SOURCE_ALPHA, BlendFactor.ONE_MINUS_SOURCE_ALPHA, BlendFactor.ONE, BlendFactor.ONE_MINUS_SOURCE_ALPHA)
+			val NORMAL = Blending(
+				BlendFactor.SOURCE_ALPHA,
+				BlendFactor.ONE_MINUS_SOURCE_ALPHA,
+				BlendFactor.ONE,
+				BlendFactor.ONE_MINUS_SOURCE_ALPHA
+			)
 
 			// http://www.learnopengles.com/tag/additive-blending/
 			//val REPLACE = Blending(BlendFactor.ONE, BlendFactor.ZERO, BlendFactor.ONE, BlendFactor.ZERO)
@@ -178,7 +190,12 @@ abstract class AG : Extra by Extra.Mixin() {
 		val height: Int
 	}
 
-	class SyncBitmapSource(override val rgba: Boolean, override val width: Int, override val height: Int, val gen: () -> Bitmap?) : BitmapSourceBase {
+	class SyncBitmapSource(
+		override val rgba: Boolean,
+		override val width: Int,
+		override val height: Int,
+		val gen: () -> Bitmap?
+	) : BitmapSourceBase {
 		companion object {
 			val NULL = SyncBitmapSource(true, 0, 0) { null }
 		}
@@ -186,7 +203,13 @@ abstract class AG : Extra by Extra.Mixin() {
 		override fun toString(): String = "SyncBitmapSource(rgba=$rgba, width=$width, height=$height)"
 	}
 
-	class AsyncBitmapSource(val coroutineContext: CoroutineContext, override val rgba: Boolean, override val width: Int, override val height: Int, val gen: suspend () -> Bitmap?) : BitmapSourceBase {
+	class AsyncBitmapSource(
+		val coroutineContext: CoroutineContext,
+		override val rgba: Boolean,
+		override val width: Int,
+		override val height: Int,
+		val gen: suspend () -> Bitmap?
+	) : BitmapSourceBase {
 		companion object {
 			val NULL = AsyncBitmapSource(EmptyCoroutineContext, true, 0, 0) { null }
 		}
@@ -210,7 +233,12 @@ abstract class AG : Extra by Extra.Mixin() {
 		}
 
 		fun upload(bmp: Bitmap?, mipmaps: Boolean = false): Texture {
-			return upload(if (bmp != null) SyncBitmapSource(rgba = bmp.bpp > 8, width = bmp.width, height = bmp.height) { bmp } else SyncBitmapSource.NULL, mipmaps)
+			return upload(
+				if (bmp != null) SyncBitmapSource(
+					rgba = bmp.bpp > 8,
+					width = bmp.width,
+					height = bmp.height
+				) { bmp } else SyncBitmapSource.NULL, mipmaps)
 		}
 
 		fun upload(source: BitmapSourceBase, mipmaps: Boolean = false): Texture = this.apply {
@@ -360,27 +388,33 @@ abstract class AG : Extra by Extra.Mixin() {
 
 	fun createTexture(): Texture = createTexture(premultiplied = true)
 	fun createTexture(bmp: Bitmap, mipmaps: Boolean = false): Texture = createTexture().upload(bmp, mipmaps)
-	fun createTexture(bmp: Bitmap, mipmaps: Boolean = false, premultiplied: Boolean = true): Texture = createTexture(premultiplied).upload(bmp, mipmaps)
+	fun createTexture(bmp: Bitmap, mipmaps: Boolean = false, premultiplied: Boolean = true): Texture =
+		createTexture(premultiplied).upload(bmp, mipmaps)
+
 	open fun createTexture(premultiplied: Boolean): Texture = Texture()
 	open fun createBuffer(kind: Buffer.Kind) = Buffer(kind)
 	fun createIndexBuffer() = createBuffer(Buffer.Kind.INDEX)
 	fun createVertexBuffer() = createBuffer(Buffer.Kind.VERTEX)
 
-	fun createIndexBuffer(data: ShortArray, offset: Int = 0, length: Int = data.size - offset) = createIndexBuffer().apply {
-		upload(data, offset, length)
-	}
+	fun createIndexBuffer(data: ShortArray, offset: Int = 0, length: Int = data.size - offset) =
+		createIndexBuffer().apply {
+			upload(data, offset, length)
+		}
 
-	fun createIndexBuffer(data: FastMemory, offset: Int = 0, length: Int = data.size - offset) = createIndexBuffer().apply {
-		upload(data, offset, length)
-	}
+	fun createIndexBuffer(data: FastMemory, offset: Int = 0, length: Int = data.size - offset) =
+		createIndexBuffer().apply {
+			upload(data, offset, length)
+		}
 
-	fun createVertexBuffer(data: FloatArray, offset: Int = 0, length: Int = data.size - offset) = createVertexBuffer().apply {
-		upload(data, offset, length)
-	}
+	fun createVertexBuffer(data: FloatArray, offset: Int = 0, length: Int = data.size - offset) =
+		createVertexBuffer().apply {
+			upload(data, offset, length)
+		}
 
-	fun createVertexBuffer(data: FastMemory, offset: Int = 0, length: Int = data.size - offset) = createVertexBuffer().apply {
-		upload(data, offset, length)
-	}
+	fun createVertexBuffer(data: FastMemory, offset: Int = 0, length: Int = data.size - offset) =
+		createVertexBuffer().apply {
+			upload(data, offset, length)
+		}
 
 	enum class StencilOp {
 		DECREMENT_SATURATE,
@@ -447,7 +481,20 @@ abstract class AG : Extra by Extra.Mixin() {
 		uniforms: Map<Uniform, Any> = mapOf(),
 		stencil: StencilState = dummyStencilState,
 		colorMask: ColorMaskState = dummyColorMaskState
-	) = draw(vertices, program, type, vertexLayout, vertexCount, indices, offset, blending, uniforms, stencil, colorMask, dummyRenderState)
+	) = draw(
+		vertices,
+		program,
+		type,
+		vertexLayout,
+		vertexCount,
+		indices,
+		offset,
+		blending,
+		uniforms,
+		stencil,
+		colorMask,
+		dummyRenderState
+	)
 
 	open fun draw(
 		vertices: Buffer,
@@ -506,7 +553,14 @@ abstract class AG : Extra by Extra.Mixin() {
 
 	protected open fun flipInternal() = Unit
 
-	open fun clear(color: Int = Colors.TRANSPARENT_BLACK, depth: Float = 0f, stencil: Int = 0, clearColor: Boolean = true, clearDepth: Boolean = true, clearStencil: Boolean = true) = Unit
+	open fun clear(
+		color: Int = Colors.TRANSPARENT_BLACK,
+		depth: Float = 0f,
+		stencil: Int = 0,
+		clearColor: Boolean = true,
+		clearDepth: Boolean = true,
+		clearStencil: Boolean = true
+	) = Unit
 
 	class RenderTexture(val tex: Texture, val width: Int, val height: Int, val closeAction: () -> Unit) : Closeable {
 		override fun close() {

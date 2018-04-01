@@ -1,11 +1,10 @@
 package com.soywiz.korim.bitmap
 
-import com.soywiz.kds.Extra
-import com.soywiz.korim.vector.Context2d
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korio.util.clamp
-import com.soywiz.korma.geom.Size
-import com.soywiz.korma.geom.Sizeable
+import com.soywiz.kds.*
+import com.soywiz.korim.vector.*
+import com.soywiz.korio.error.*
+import com.soywiz.korio.util.*
+import com.soywiz.korma.geom.*
 
 abstract class Bitmap(
 	val width: Int,
@@ -44,7 +43,8 @@ abstract class Bitmap(
 		}
 	}
 
-	open fun getContext2d(antialiasing: Boolean = true): Context2d = throw UnsupportedOperationException("Not implemented context2d on Bitmap, please use NativeImage instead")
+	open fun getContext2d(antialiasing: Boolean = true): Context2d =
+		throw UnsupportedOperationException("Not implemented context2d on Bitmap, please use NativeImage instead")
 
 	open fun createWithThisFormat(width: Int, height: Int): Bitmap = invalidOp("Unsupported createWithThisFormat")
 

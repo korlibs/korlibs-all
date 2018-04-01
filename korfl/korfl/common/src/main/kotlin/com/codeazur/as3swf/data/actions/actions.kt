@@ -1,7 +1,7 @@
 package com.codeazur.as3swf.data.actions
 
-import com.codeazur.as3swf.SWFData
-import com.soywiz.korio.util.toString
+import com.codeazur.as3swf.*
+import com.soywiz.korio.util.*
 
 open class Action(
 	override val code: Int,
@@ -35,7 +35,8 @@ open class Action(
 
 	override fun toString(indent: Int): String = "[Action] Code: ${code.toString(16)}, Length: $length"
 
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = "${toBytecodeLabel(indent)}unknown (0x${code.toString(16)})"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		"${toBytecodeLabel(indent)}unknown (0x${code.toString(16)})"
 
 	fun toBytecodeLabel(indent: Int): String {
 		return if (lbl != null) "$lbl:\n${" ".repeat(indent + 2)}" else " ".repeat(2)
@@ -151,7 +152,8 @@ class ActionGetURL(code: Int, length: Int, pos: Int) : Action(code, length, pos)
 	}
 
 	override fun toString(indent: Int): String = "[ActionGetURL] URL: $urlString, Target: $targetString"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = "${toBytecodeLabel(indent)}getURL \"$urlString\", \"$targetString\""
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		"${toBytecodeLabel(indent)}getURL \"$urlString\", \"$targetString\""
 }
 
 class ActionGotoFrame(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
@@ -162,7 +164,8 @@ class ActionGotoFrame(code: Int, length: Int, pos: Int) : Action(code, length, p
 	}
 
 	override fun toString(indent: Int): String = "[ActionGotoFrame] Frame: " + frame
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "gotoFrame " + frame
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "gotoFrame " + frame
 }
 
 class ActionGotoLabel(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
@@ -174,12 +177,14 @@ class ActionGotoLabel(code: Int, length: Int, pos: Int) : Action(code, length, p
 
 	override fun toString(indent: Int): String = "[ActionGotoLabel] Label: $label"
 
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = "${toBytecodeLabel(indent)}gotoLabel \"$label\""
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		"${toBytecodeLabel(indent)}gotoLabel \"$label\""
 }
 
 class ActionNextFrame(code: Int, length: Int, pos: Int) : Action(code, length, pos) {
 	override fun toString(indent: Int): String = "[ActionNextFrame]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "nextFrame"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "nextFrame"
 }
 
 class ActionPlay(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
@@ -189,7 +194,8 @@ class ActionPlay(code: Int, length: Int, pos: Int) : Action(code, length, pos), 
 
 class ActionPreviousFrame(code: Int, length: Int, pos: Int) : Action(code, length, pos) {
 	override fun toString(indent: Int): String = "[ActionPreviousFrame]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "previousFrame"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "previousFrame"
 }
 
 class ActionSetTarget(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
@@ -200,7 +206,8 @@ class ActionSetTarget(code: Int, length: Int, pos: Int) : Action(code, length, p
 	}
 
 	override fun toString(indent: Int): String = "[ActionSetTarget] TargetName: $targetName"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = "${toBytecodeLabel(indent)}setTarget \"$targetName\""
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		"${toBytecodeLabel(indent)}setTarget \"$targetName\""
 }
 
 class ActionStop(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
@@ -210,12 +217,14 @@ class ActionStop(code: Int, length: Int, pos: Int) : Action(code, length, pos), 
 
 class ActionStopSounds(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 	override fun toString(indent: Int): String = "[ActionStopSounds]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "stopSounds"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "stopSounds"
 }
 
 class ActionToggleQuality(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 	override fun toString(indent: Int): String = "[ActionToggleQuality]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "toggleQuality"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "toggleQuality"
 }
 
 class ActionWaitForFrame(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
@@ -228,7 +237,8 @@ class ActionWaitForFrame(code: Int, length: Int, pos: Int) : Action(code, length
 	}
 
 	override fun toString(indent: Int): String = "[ActionWaitForFrame] Frame: $frame, SkipCount: $skipCount"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "waitForFrame " + frame + (if (skipCount > 0) ", " + skipCount else "")
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "waitForFrame " + frame + (if (skipCount > 0) ", " + skipCount else "")
 }
 
 class ActionAdd(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
@@ -243,7 +253,8 @@ class ActionAnd(code: Int, length: Int, pos: Int) : Action(code, length, pos), I
 
 class ActionAsciiToChar(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 	override fun toString(indent: Int): String = "[ActionAsciiToChar]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "asciiToChar"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "asciiToChar"
 }
 
 class ActionCall(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
@@ -253,12 +264,14 @@ class ActionCall(code: Int, length: Int, pos: Int) : Action(code, length, pos), 
 
 class ActionCharToAscii(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 	override fun toString(indent: Int): String = "[ActionCharToAscii]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "charToAscii"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "charToAscii"
 }
 
 class ActionCloneSprite(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 	override fun toString(indent: Int): String = "[ActionCloneSprite]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "cloneSprite"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "cloneSprite"
 }
 
 class ActionDivide(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
@@ -278,7 +291,8 @@ class ActionEquals(code: Int, length: Int, pos: Int) : Action(code, length, pos)
 
 class ActionGetProperty(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 	override fun toString(indent: Int): String = "[ActionGetProperty]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "getProperty"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "getProperty"
 }
 
 class ActionGetTime(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
@@ -301,17 +315,17 @@ class ActionGetURL2(code: Int, length: Int, pos: Int) : Action(code, length, pos
 
 	override fun toString(indent: Int): String {
 		return "[ActionGetURL2] " +
-			"SendVarsMethod: " + sendVarsMethod + " (" + sendVarsMethodToString() + "), " +
-			"Reserved: " + reserved + ", " +
-			"LoadTargetFlag: " + loadTargetFlag + ", " +
-			"LoadVariablesFlag: " + loadVariablesFlag
+				"SendVarsMethod: " + sendVarsMethod + " (" + sendVarsMethodToString() + "), " +
+				"Reserved: " + reserved + ", " +
+				"LoadTargetFlag: " + loadTargetFlag + ", " +
+				"LoadVariablesFlag: " + loadVariablesFlag
 	}
 
 	override fun toBytecode(indent: Int, context: ActionExecutionContext): String {
 		return toBytecodeLabel(indent) +
-			"getUrl2 (method: " + sendVarsMethodToString() + ", target: " +
-			(if (!loadTargetFlag) "window" else "sprite") + ", variables: " +
-			(if (!loadVariablesFlag) "no" else "yes") + ")"
+				"getUrl2 (method: " + sendVarsMethodToString() + ", target: " +
+				(if (!loadTargetFlag) "window" else "sprite") + ", variables: " +
+				(if (!loadVariablesFlag) "no" else "yes") + ")"
 	}
 
 	fun sendVarsMethodToString(): String {
@@ -329,7 +343,8 @@ class ActionGetURL2(code: Int, length: Int, pos: Int) : Action(code, length, pos
 
 class ActionGetVariable(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 	override fun toString(indent: Int): String = "[ActionGetVariable]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "getVariable"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "getVariable"
 }
 
 class ActionGotoFrame2(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
@@ -354,9 +369,9 @@ class ActionGotoFrame2(code: Int, length: Int, pos: Int) : Action(code, length, 
 
 	override fun toBytecode(indent: Int, context: ActionExecutionContext): String {
 		return toBytecodeLabel(indent) + "gotoFrame2 (" +
-			(if (!playFlag) "gotoAndStop" else "gotoAndPlay") +
-			(if (sceneBiasFlag) ", sceneBias: " + sceneBias else "") +
-			")"
+				(if (!playFlag) "gotoAndStop" else "gotoAndPlay") +
+				(if (sceneBiasFlag) ", sceneBias: " + sceneBias else "") +
+				")"
 	}
 }
 
@@ -439,22 +454,26 @@ class ActionLess(code: Int, length: Int, pos: Int) : Action(code, length, pos), 
 
 class ActionMBAsciiToChar(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 	override fun toString(indent: Int): String = "[ActionMBAsciiToChar]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "mbAsciiToChar"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "mbAsciiToChar"
 }
 
 class ActionMBCharToAscii(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 	override fun toString(indent: Int): String = "[ActionMBCharToAscii]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "mbCharToAscii"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "mbCharToAscii"
 }
 
 class ActionMBStringExtract(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 	override fun toString(indent: Int): String = "[ActionMBStringExtract]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "mbStringExtract"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "mbStringExtract"
 }
 
 class ActionMBStringLength(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 	override fun toString(indent: Int): String = "[ActionMBStringLength]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "mbStringLength"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "mbStringLength"
 }
 
 class ActionMultiply(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
@@ -501,57 +520,68 @@ class ActionPush(code: Int, length: Int, pos: Int) : Action(code, length, pos), 
 
 class ActionRandomNumber(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 	override fun toString(indent: Int): String = "[ActionRandomNumber]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "randomNumber"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "randomNumber"
 }
 
 class ActionRemoveSprite(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 	override fun toString(indent: Int): String = "[ActionRemoveSprite]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "removeSprite"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "removeSprite"
 }
 
 class ActionSetProperty(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 	override fun toString(indent: Int): String = "[ActionSetProperty]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "setProperty"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "setProperty"
 }
 
 class ActionSetTarget2(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 	override fun toString(indent: Int): String = "[ActionSetTarget2]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "setTarget2"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "setTarget2"
 }
 
 class ActionSetVariable(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 	override fun toString(indent: Int): String = "[ActionSetVariable]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "setVariable"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "setVariable"
 }
 
 class ActionStartDrag(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 	override fun toString(indent: Int): String = "[ActionStartDrag]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "startDrag"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "startDrag"
 }
 
 class ActionStringAdd(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 	override fun toString(indent: Int): String = "[ActionStringAdd]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "stringAdd"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "stringAdd"
 }
 
 class ActionStringEquals(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 	override fun toString(indent: Int): String = "[ActionStringEquals]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "stringEquals"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "stringEquals"
 }
 
 class ActionStringExtract(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 	override fun toString(indent: Int): String = "[ActionStringExtract]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "stringExtract"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "stringExtract"
 }
 
 class ActionStringLength(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 	override fun toString(indent: Int): String = "[ActionStringLength]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "stringLength"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "stringLength"
 }
 
 class ActionStringLess(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 	override fun toString(indent: Int): String = "[ActionStringLess]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "stringLess"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "stringLess"
 }
 
 class ActionSubtract(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
@@ -561,7 +591,8 @@ class ActionSubtract(code: Int, length: Int, pos: Int) : Action(code, length, po
 
 class ActionToInteger(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 	override fun toString(indent: Int): String = "[ActionToInteger]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "toInteger"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "toInteger"
 }
 
 class ActionTrace(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
@@ -577,7 +608,8 @@ class ActionWaitForFrame2(code: Int, length: Int, pos: Int) : Action(code, lengt
 	}
 
 	override fun toString(indent: Int): String = "[ActionWaitForFrame2] SkipCount: " + skipCount
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "waitForFrame2 (" + skipCount + ")"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "waitForFrame2 (" + skipCount + ")"
 }
 
 class ActionAdd2(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
@@ -598,7 +630,8 @@ class ActionBitLShift(code: Int, length: Int, pos: Int) : Action(code, length, p
 
 
 	override fun toString(indent: Int): String = "[ActionBitLShift]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "bitLShift"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "bitLShift"
 }
 
 class ActionBitOr(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
@@ -612,14 +645,16 @@ class ActionBitRShift(code: Int, length: Int, pos: Int) : Action(code, length, p
 
 
 	override fun toString(indent: Int): String = "[ActionBitRShift]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "bitRShift"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "bitRShift"
 }
 
 class ActionBitURShift(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 
 
 	override fun toString(indent: Int): String = "[ActionBitURShift]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "bitURShift"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "bitURShift"
 }
 
 class ActionBitXor(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
@@ -633,14 +668,16 @@ class ActionCallFunction(code: Int, length: Int, pos: Int) : Action(code, length
 
 
 	override fun toString(indent: Int): String = "[ActionCallFunction]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "callFunction"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "callFunction"
 }
 
 class ActionCallMethod(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 
 
 	override fun toString(indent: Int): String = "[ActionCallMethod]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "callMethod"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "callMethod"
 }
 
 class ActionConstantPool(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
@@ -678,7 +715,8 @@ class ActionDecrement(code: Int, length: Int, pos: Int) : Action(code, length, p
 
 
 	override fun toString(indent: Int): String = "[ActionDecrement]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "decrement"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "decrement"
 }
 
 open class ActionDefineFunction(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
@@ -706,16 +744,18 @@ open class ActionDefineFunction(code: Int, length: Int, pos: Int) : Action(code,
 
 	override fun toString(indent: Int): String {
 		var str: String = "[ActionDefineFunction] " +
-			(if (functionName == null || functionName!!.isEmpty()) "<anonymous>" else functionName) +
-			"(" + functionParams.joinToString(", ") + ")"
-		for (i in 0 until functionBody.size) str += "\n" + " ".repeat(indent + 4) + "[" + i + "] " + functionBody[i].toString(indent + 4)
+				(if (functionName == null || functionName!!.isEmpty()) "<anonymous>" else functionName) +
+				"(" + functionParams.joinToString(", ") + ")"
+		for (i in 0 until functionBody.size) str += "\n" + " ".repeat(indent + 4) + "[" + i + "] " + functionBody[i].toString(
+			indent + 4
+		)
 		return str
 	}
 
 	override fun toBytecode(indent: Int, context: ActionExecutionContext): String {
 		var str: String = toBytecodeLabel(indent) + "defineFunction " +
-			(if (functionName == null || functionName!!.isEmpty()) "" else functionName) +
-			"(" + functionParams.joinToString(", ") + ") {"
+				(if (functionName == null || functionName!!.isEmpty()) "" else functionName) +
+				"(" + functionParams.joinToString(", ") + ") {"
 		val ctx = ActionExecutionContext(functionBody, ArrayList(context.cpool), labelCount)
 		for (i in 0 until functionBody.size) {
 			str += "\n" + " ".repeat(indent + 4) + functionBody[i].toBytecode(indent + 4, ctx)
@@ -732,14 +772,16 @@ class ActionDefineLocal(code: Int, length: Int, pos: Int) : Action(code, length,
 
 
 	override fun toString(indent: Int): String = "[ActionDefineLocal]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "defineLocal"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "defineLocal"
 }
 
 class ActionDefineLocal2(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 
 
 	override fun toString(indent: Int): String = "[ActionDefineLocal2]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "defineLocal2"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "defineLocal2"
 }
 
 class ActionDelete(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
@@ -760,7 +802,8 @@ class ActionEnumerate(code: Int, length: Int, pos: Int) : Action(code, length, p
 
 
 	override fun toString(indent: Int): String = "[ActionEnumerate]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "enumerate"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "enumerate"
 }
 
 class ActionEquals2(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
@@ -774,28 +817,32 @@ class ActionGetMember(code: Int, length: Int, pos: Int) : Action(code, length, p
 
 
 	override fun toString(indent: Int): String = "[ActionGetMember]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "getMember"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "getMember"
 }
 
 class ActionIncrement(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 
 
 	override fun toString(indent: Int): String = "[ActionIncrement]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "increment"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "increment"
 }
 
 class ActionInitArray(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 
 
 	override fun toString(indent: Int): String = "[ActionInitArray]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "initArray"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "initArray"
 }
 
 class ActionInitObject(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 
 
 	override fun toString(indent: Int): String = "[ActionInitObject]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "initObject"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "initObject"
 }
 
 class ActionLess2(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
@@ -816,21 +863,24 @@ class ActionNewMethod(code: Int, length: Int, pos: Int) : Action(code, length, p
 
 
 	override fun toString(indent: Int): String = "[ActionNewMethod]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "newMethod"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "newMethod"
 }
 
 class ActionNewObject(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 
 
 	override fun toString(indent: Int): String = "[ActionNewObject]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "newObject"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "newObject"
 }
 
 class ActionPushDuplicate(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 
 
 	override fun toString(indent: Int): String = "[ActionPushDuplicate]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "pushDuplicate"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "pushDuplicate"
 }
 
 class ActionReturn(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
@@ -844,7 +894,8 @@ class ActionSetMember(code: Int, length: Int, pos: Int) : Action(code, length, p
 
 
 	override fun toString(indent: Int): String = "[ActionSetMember]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "setMember"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "setMember"
 }
 
 class ActionStackSwap(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
@@ -869,14 +920,16 @@ class ActionStoreRegister(code: Int, length: Int, pos: Int) : Action(code, lengt
 	}
 
 	override fun toString(indent: Int): String = "[ActionStoreRegister] RegisterNumber: " + registerNumber
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "store $" + registerNumber
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "store $" + registerNumber
 }
 
 class ActionTargetPath(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 
 
 	override fun toString(indent: Int): String = "[ActionTargetPath]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "targetPath"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "targetPath"
 }
 
 class ActionToNumber(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
@@ -938,7 +991,8 @@ class ActionEnumerate2(code: Int, length: Int, pos: Int) : Action(code, length, 
 
 
 	override fun toString(indent: Int): String = "[ActionEnumerate2]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "enumerate2"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "enumerate2"
 }
 
 class ActionGreater(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
@@ -950,21 +1004,24 @@ class ActionInstanceOf(code: Int, length: Int, pos: Int) : Action(code, length, 
 
 
 	override fun toString(indent: Int): String = "[ActionInstanceOf]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "instanceOf"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "instanceOf"
 }
 
 class ActionStrictEquals(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 
 
 	override fun toString(indent: Int): String = "[ActionStrictEquals]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "strictEquals"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "strictEquals"
 }
 
 class ActionStringGreater(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
 
 
 	override fun toString(indent: Int): String = "[ActionStringGreater]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "stringGreater"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "stringGreater"
 }
 
 class ActionCastOp(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
@@ -1016,8 +1073,8 @@ class ActionDefineFunction2(code: Int, length: Int, pos: Int) : Action(code, len
 
 	override fun toString(indent: Int): String {
 		var str: String = "[ActionDefineFunction2] " +
-			(if (functionName == null || functionName!!.isEmpty()) "<anonymous>" else functionName) +
-			"(" + functionParams.joinToString(", ") + "), "
+				(if (functionName == null || functionName!!.isEmpty()) "<anonymous>" else functionName) +
+				"(" + functionParams.joinToString(", ") + "), "
 		val a = arrayListOf<String>()
 		if (preloadParent) a.add("preloadParent")
 		if (preloadRoot) a.add("preloadRoot")
@@ -1038,8 +1095,8 @@ class ActionDefineFunction2(code: Int, length: Int, pos: Int) : Action(code, len
 
 	override fun toBytecode(indent: Int, context: ActionExecutionContext): String {
 		var str: String = toBytecodeLabel(indent) + "defineFunction2 " +
-			(if (functionName == null || functionName!!.isEmpty()) "" else functionName) +
-			"(" + functionParams.joinToString(", ") + ") {"
+				(if (functionName == null || functionName!!.isEmpty()) "" else functionName) +
+				"(" + functionParams.joinToString(", ") + ") {"
 		val preload = arrayListOf<String>()
 		val suppress = arrayListOf<String>()
 		if (preloadParent) preload.add("parent")
@@ -1056,7 +1113,10 @@ class ActionDefineFunction2(code: Int, length: Int, pos: Int) : Action(code, len
 			str += "\n" + " ".repeat(indent + 4) + "// suppress: " + suppress.joinToString(", ")
 		}
 		val ctx = ActionExecutionContext(functionBody, ArrayList(context.cpool), labelCount)
-		for (i in 0 until functionBody.size) str += "\n" + " ".repeat(indent + 4) + functionBody[i].toBytecode(indent + 4, ctx)
+		for (i in 0 until functionBody.size) str += "\n" + " ".repeat(indent + 4) + functionBody[i].toBytecode(
+			indent + 4,
+			ctx
+		)
 		if (ctx.endLabel != null) str += "\n" + " ".repeat(indent + 4) + ctx.endLabel + ":"
 		str += "\n" + " ".repeat(indent + 2) + "}"
 		return str
@@ -1072,7 +1132,8 @@ class ActionImplementsOp(code: Int, length: Int, pos: Int) : Action(code, length
 
 
 	override fun toString(indent: Int): String = "[ActionImplementsOp]"
-	override fun toBytecode(indent: Int, context: ActionExecutionContext): String = toBytecodeLabel(indent) + "implementsOp"
+	override fun toBytecode(indent: Int, context: ActionExecutionContext): String =
+		toBytecodeLabel(indent) + "implementsOp"
 }
 
 class ActionThrow(code: Int, length: Int, pos: Int) : Action(code, length, pos), IAction {
@@ -1151,24 +1212,36 @@ open class ActionTry(code: Int, length: Int, pos: Int) : Action(code, length, po
 		var lf: String = ""
 		if (tryBody.size != 0) {
 			str += lf + " ".repeat(indent + 2) + "try {"
-			val contextTry: ActionExecutionContext = ActionExecutionContext(tryBody, ArrayList(context.cpool), labelCountTry)
-			for (i in 0 until tryBody.size) str += "\n" + " ".repeat(indent + 4) + tryBody[i].toBytecode(indent + 4, contextTry)
+			val contextTry: ActionExecutionContext =
+				ActionExecutionContext(tryBody, ArrayList(context.cpool), labelCountTry)
+			for (i in 0 until tryBody.size) str += "\n" + " ".repeat(indent + 4) + tryBody[i].toBytecode(
+				indent + 4,
+				contextTry
+			)
 			if (contextTry.endLabel != null) str += "\n" + " ".repeat(indent + 4) + contextTry.endLabel + ":"
 			str += "\n" + " ".repeat(indent + 2) + "}"
 			lf = "\n"
 		}
 		if (catchBody.size != 0) {
 			str += lf + " ".repeat(indent + 2) + "catch(" + (if (catchInRegisterFlag) "$" + catchRegister else catchName) + ") {"
-			val contextCatch: ActionExecutionContext = ActionExecutionContext(catchBody, ArrayList(context.cpool), labelCountCatch)
-			for (i in 0 until catchBody.size) str += "\n" + " ".repeat(indent + 4) + catchBody[i].toBytecode(indent + 4, contextCatch)
+			val contextCatch: ActionExecutionContext =
+				ActionExecutionContext(catchBody, ArrayList(context.cpool), labelCountCatch)
+			for (i in 0 until catchBody.size) str += "\n" + " ".repeat(indent + 4) + catchBody[i].toBytecode(
+				indent + 4,
+				contextCatch
+			)
 			if (contextCatch.endLabel != null) str += "\n" + " ".repeat(indent + 4) + contextCatch.endLabel + ":"
 			str += "\n" + " ".repeat(indent + 2) + "}"
 			lf = "\n"
 		}
 		if (finallyBody.size != 0) {
 			str += lf + " ".repeat(indent + 2) + "finally {"
-			val contextFinally: ActionExecutionContext = ActionExecutionContext(finallyBody, ArrayList(context.cpool), labelCountFinally)
-			for (i in 0 until finallyBody.size) str += "\n" + " ".repeat(indent + 4) + finallyBody[i].toBytecode(indent + 4, contextFinally)
+			val contextFinally: ActionExecutionContext =
+				ActionExecutionContext(finallyBody, ArrayList(context.cpool), labelCountFinally)
+			for (i in 0 until finallyBody.size) str += "\n" + " ".repeat(indent + 4) + finallyBody[i].toBytecode(
+				indent + 4,
+				contextFinally
+			)
 			if (contextFinally.endLabel != null) str += "\n" + " ".repeat(indent + 4) + contextFinally.endLabel + ":"
 			str += "\n" + " ".repeat(indent + 2) + "}"
 		}

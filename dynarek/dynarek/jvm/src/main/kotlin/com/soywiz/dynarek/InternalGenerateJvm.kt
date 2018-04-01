@@ -1,13 +1,9 @@
 package com.soywiz.dynarek
 
-import org.objectweb.asm.ClassWriter
-import org.objectweb.asm.Label
-import org.objectweb.asm.MethodVisitor
+import org.objectweb.asm.*
 import org.objectweb.asm.Opcodes.*
 import org.objectweb.asm.Type
-import java.lang.reflect.Field
-import java.lang.reflect.Method
-import java.lang.reflect.Modifier
+import java.lang.reflect.*
 
 class JvmGenerator(val log: Boolean) {
 	var dynarekLastId = 0
@@ -103,7 +99,9 @@ class JvmGenerator(val log: Boolean) {
 		visitIntInsn(opcode, v)
 	}
 
-	fun MethodVisitor._visitFieldInsn(opcode: Int, field: Field): Unit = _visitFieldInsn(opcode, field.declaringClass.internalName, field.name, field.type.internalName2)
+	fun MethodVisitor._visitFieldInsn(opcode: Int, field: Field): Unit =
+		_visitFieldInsn(opcode, field.declaringClass.internalName, field.name, field.type.internalName2)
+
 	fun MethodVisitor._visitTypeInsn(opcode: Int, type: Class<*>): Unit = _visitTypeInsn(opcode, type.internalName)
 
 	fun MethodVisitor._visitCastTo(type: Class<*>): Unit {
@@ -192,7 +190,8 @@ class JvmGenerator(val log: Boolean) {
 			val clazz = expr.clazz.java
 			val name = expr.name
 			for (arg in expr.args) visit(arg)
-			val method = clazz.declaredMethods.firstOrNull { it.name == name } ?: throw IllegalArgumentException("Can't find method $clazz.$name")
+			val method = clazz.declaredMethods.firstOrNull { it.name == name }
+					?: throw IllegalArgumentException("Can't find method $clazz.$name")
 
 			_visitMethodInsn(method, clazz)
 			if (method.returnType == Void.TYPE) {
@@ -324,7 +323,14 @@ class JvmGenerator(val log: Boolean) {
 		val className = "com/soywiz/dynarek/Generated$classId"
 		val refObj = "Ljava/lang/Object;"
 		val refObjArgs = (0 until nargs).map { refObj }.joinToString("")
-		cw.visit(V1_5, ACC_PUBLIC or ACC_FINAL, className, null, "java/lang/Object", arrayOf(interfaceClass.canonicalName.replace('.', '/')))
+		cw.visit(
+			V1_5,
+			ACC_PUBLIC or ACC_FINAL,
+			className,
+			null,
+			"java/lang/Object",
+			arrayOf(interfaceClass.canonicalName.replace('.', '/'))
+		)
 
 		val typedArgSignature = func.args.map { it.clazz.java.internalName2 }.joinToString("")
 		val typedRetSignature = func.ret.clazz.java.internalName2
@@ -341,7 +347,13 @@ class JvmGenerator(val log: Boolean) {
 			visitMethod(ACC_PUBLIC, "<init>", "()V", null, null).apply {
 				visitMaxs(2, 1)
 				visitVarInsn(ALOAD, 0) // push `this` to the operand stack
-				visitMethodInsn(INVOKESPECIAL, Type.getInternalName(Any::class.java), "<init>", "()V", false) // call the constructor of super class
+				visitMethodInsn(
+					INVOKESPECIAL,
+					Type.getInternalName(Any::class.java),
+					"<init>",
+					"()V",
+					false
+				) // call the constructor of super class
 				visitInsn(RETURN)
 				visitEnd()
 			}
@@ -384,7 +396,8 @@ class JvmGenerator(val log: Boolean) {
 		return gclazz.declaredConstructors.first().newInstance() as T
 	}
 
-	fun createDynamicClass(parent: ClassLoader, clazzName: String, b: ByteArray): Class<*> = OwnClassLoader(parent).defineClass(clazzName, b)
+	fun createDynamicClass(parent: ClassLoader, clazzName: String, b: ByteArray): Class<*> =
+		OwnClassLoader(parent).defineClass(clazzName, b)
 
 	private class OwnClassLoader(parent: ClassLoader) : ClassLoader(parent) {
 		fun defineClass(name: String, b: ByteArray): Class<*> = defineClass(name, b, 0, b.size)
@@ -392,4 +405,5 @@ class JvmGenerator(val log: Boolean) {
 }
 
 //fun <T> _generateDynarek(func: DFunction, interfaceClass: Class<T>): T = JvmGenerator(log = true)._generateDynarek(func, interfaceClass)
-fun <T> _generateDynarek(func: DFunction, interfaceClass: Class<T>): T = JvmGenerator(log = false)._generateDynarek(func, interfaceClass)
+fun <T> _generateDynarek(func: DFunction, interfaceClass: Class<T>): T =
+	JvmGenerator(log = false)._generateDynarek(func, interfaceClass)

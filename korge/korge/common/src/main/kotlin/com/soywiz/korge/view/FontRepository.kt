@@ -1,13 +1,12 @@
 package com.soywiz.korge.view
 
+import com.soywiz.korge.bitmapfont.*
 import com.soywiz.korge.bitmapfont.BitmapFont
-import com.soywiz.korge.bitmapfont.convert
-import com.soywiz.korge.html.Html
-import com.soywiz.korim.font.BitmapFontGenerator
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korma.geom.Rectangle
-import kotlin.math.max
-import kotlin.math.min
+import com.soywiz.korge.html.*
+import com.soywiz.korim.font.*
+import com.soywiz.korio.error.*
+import com.soywiz.korma.geom.*
+import kotlin.math.*
 
 class FontRepository(val views: Views) : Html.MetricsProvider {
 	val fonts = hashMapOf<String, BitmapFont>()
@@ -19,7 +18,10 @@ class FontRepository(val views: Views) : Html.MetricsProvider {
 	fun getBitmapFont(name: String, size: Int): BitmapFont {
 		val nameLC = name.toLowerCase()
 		if (nameLC !in fonts) {
-			registerFont(name, BitmapFontGenerator.generate(name, min(size, 32), BitmapFontGenerator.LATIN_ALL).convert(views.ag))
+			registerFont(
+				name,
+				BitmapFontGenerator.generate(name, min(size, 32), BitmapFontGenerator.LATIN_ALL).convert(views.ag)
+			)
 		}
 		return fonts[nameLC] ?: views.defaultFont
 	}

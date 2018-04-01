@@ -1,21 +1,14 @@
 package com.soywiz.korio.net.http
 
-import com.soywiz.klock.Klock
+import com.soywiz.klock.*
 import com.soywiz.korio.async.*
-import com.soywiz.korio.coroutine.currentThreadId
-import com.soywiz.korio.coroutine.eventLoop
-import com.soywiz.korio.coroutine.getCoroutineContext
-import com.soywiz.korio.error.ignoreErrors
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korio.stream.AsyncStream
-import com.soywiz.korio.stream.slice
-import com.soywiz.korio.stream.withLength
-import com.soywiz.korio.util.toUintClamp
-import java.net.BindException
-import java.net.HttpURLConnection
-import java.net.URL
-import java.security.SecureRandom
-import java.security.cert.X509Certificate
+import com.soywiz.korio.coroutine.*
+import com.soywiz.korio.error.*
+import com.soywiz.korio.stream.*
+import com.soywiz.korio.util.*
+import java.net.*
+import java.security.*
+import java.security.cert.*
 import javax.net.ssl.*
 
 
@@ -35,7 +28,12 @@ class HttpClientJvm : HttpClient() {
 		fun isServerTrusted(chain: Array<X509Certificate>): Boolean = true
 	}
 
-	suspend override fun requestInternal(method: Http.Method, url: String, headers: Http.Headers, content: AsyncStream?): Response {
+	suspend override fun requestInternal(
+		method: Http.Method,
+		url: String,
+		headers: Http.Headers,
+		content: AsyncStream?
+	): Response {
 		val result = executeInWorker {
 			val requestId = lastRequestId++
 			val id = "request[$clientId,$requestId]"
@@ -146,10 +144,10 @@ class HttpClientJvm : HttpClient() {
 
 			val acontent = produceConsumer.toAsyncInputStream()
 			Response(
-					status = con.responseCode,
-					statusText = con.responseMessage,
-					headers = pheaders,
-					content = if (length != null) acontent.withLength(length) else acontent
+				status = con.responseCode,
+				statusText = con.responseMessage,
+				headers = pheaders,
+				content = if (length != null) acontent.withLength(length) else acontent
 			)
 		}
 		return result

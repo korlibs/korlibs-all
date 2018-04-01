@@ -1,7 +1,7 @@
 package com.soywiz.korim.format
 
-import com.soywiz.kds.Extra
-import com.soywiz.korma.geom.Size
+import com.soywiz.kds.*
+import com.soywiz.korma.geom.*
 
 open class ImageInfo : Extra by Extra.Mixin() {
 	var width: Int = 0

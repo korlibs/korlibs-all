@@ -1,11 +1,8 @@
 package com.soywiz.korge.ui
 
-import com.soywiz.korge.plugin.KorgePlugin
-import com.soywiz.korge.resources.Path
-import com.soywiz.korge.resources.ResourcesRoot
-import com.soywiz.korge.resources.VPath
-import com.soywiz.korge.resources.getPath
-import com.soywiz.korge.view.Views
+import com.soywiz.korge.plugin.*
+import com.soywiz.korge.resources.*
+import com.soywiz.korge.view.*
 
 object UIPlugin : KorgePlugin() {
 	suspend override fun register(views: Views) {

@@ -1,6 +1,6 @@
 package com.soywiz.korge.ui
 
-import com.soywiz.korge.view.FixedSizeContainer
+import com.soywiz.korge.view.*
 
 abstract class Widget(val factory: UIFactory, val skin: UISkin = factory.skin) : FixedSizeContainer(factory.views) {
 	override var width: Double = 100.0

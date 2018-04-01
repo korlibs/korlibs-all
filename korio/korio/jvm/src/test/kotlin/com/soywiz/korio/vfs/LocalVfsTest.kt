@@ -1,12 +1,10 @@
 package com.soywiz.korio.vfs
 
-import com.soywiz.korio.async.sync
-import com.soywiz.korio.async.syncTest
-import com.soywiz.korio.stream.slice
-import org.junit.Assert
+import com.soywiz.korio.async.*
+import com.soywiz.korio.stream.*
 import org.junit.Test
-import java.io.File
-import kotlin.test.assertEquals
+import java.io.*
+import kotlin.test.*
 
 class LocalVfsTest {
 	val temp = TempVfs()
@@ -24,7 +22,10 @@ class LocalVfsTest {
 		assertEquals(true, temp["korio.temp2"].delete())
 		assertEquals(true, temp["korio.temp3"].delete())
 		assertEquals(false, temp["korio.temp3"].delete())
-		assertEquals(File(System.getProperty("java.io.tmpdir"), "korio.temp3").absolutePath.replace('\\', '/'), temp["korio.temp3"].absolutePath)
+		assertEquals(
+			File(System.getProperty("java.io.tmpdir"), "korio.temp3").absolutePath.replace('\\', '/'),
+			temp["korio.temp3"].absolutePath
+		)
 		assertEquals("1", temp.execToString(listOf("echo", "1")).trim())
 		//assertEquals("1", temp.execToString(listOf("pwd")).trim())
 		Unit

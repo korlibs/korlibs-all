@@ -1,14 +1,10 @@
 package com.soywiz.korma.geom.shape
 
-import com.soywiz.korma.geom.Point2d
-import com.soywiz.korma.geom.Rectangle
-import com.soywiz.korma.geom.VectorPath
-import com.soywiz.korma.geom.bezier.Bezier
+import com.soywiz.korma.geom.*
+import com.soywiz.korma.geom.bezier.*
 import com.soywiz.korma.geom.clipper.*
-import com.soywiz.korma.geom.triangle.Sweep
-import com.soywiz.korma.geom.triangle.SweepContext
-import com.soywiz.korma.geom.triangle.Triangle
-import com.soywiz.korma.math.Math
+import com.soywiz.korma.geom.triangle.*
+import com.soywiz.korma.math.*
 
 fun Path.toShape2d(): Shape2d {
 	if (this.size == 4) {
@@ -53,7 +49,9 @@ fun Shape2d.clipperOp(other: Shape2d, op: Clipper.ClipType): Shape2d {
 	return solution.toShape2d()
 }
 
-infix fun Shape2d.collidesWith(other: Shape2d): Boolean = this.clipperOp(other, Clipper.ClipType.INTERSECTION) != Shape2d.Empty
+infix fun Shape2d.collidesWith(other: Shape2d): Boolean =
+	this.clipperOp(other, Clipper.ClipType.INTERSECTION) != Shape2d.Empty
+
 infix fun Shape2d.intersection(other: Shape2d): Shape2d = this.clipperOp(other, Clipper.ClipType.INTERSECTION)
 infix fun Shape2d.union(other: Shape2d): Shape2d = this.clipperOp(other, Clipper.ClipType.UNION)
 infix fun Shape2d.xor(other: Shape2d): Shape2d = this.clipperOp(other, Clipper.ClipType.XOR)
@@ -65,7 +63,11 @@ operator fun Shape2d.minus(other: Shape2d): Shape2d = this.clipperOp(other, Clip
 fun Shape2d.extend(size: Double): Shape2d {
 	val clipper = ClipperOffset()
 	val solution = Paths()
-	clipper.addPaths(this.paths, Clipper.JoinType.MITER, if (this.closed) Clipper.EndType.CLOSED_POLYGON else Clipper.EndType.OPEN_ROUND)
+	clipper.addPaths(
+		this.paths,
+		Clipper.JoinType.MITER,
+		if (this.closed) Clipper.EndType.CLOSED_POLYGON else Clipper.EndType.OPEN_ROUND
+	)
 	clipper.execute(solution, size)
 	return solution.toShape2d()
 }

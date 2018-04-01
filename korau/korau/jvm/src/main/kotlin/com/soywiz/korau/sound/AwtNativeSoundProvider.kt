@@ -1,19 +1,14 @@
 package com.soywiz.korau.sound
 
-import com.soywiz.korau.AwtNativeSoundSpecialReader
-import com.soywiz.korau.format.AudioData
-import com.soywiz.korau.format.AudioStream
-import com.soywiz.korau.format.defaultAudioFormats
-import com.soywiz.korau.format.toWav
-import com.soywiz.korio.async.executeInNewThread
-import com.soywiz.korio.async.executeInWorker
-import com.soywiz.korio.async.spawn
-import com.soywiz.korio.async.suspendCancellableCoroutine
-import com.soywiz.korio.coroutine.Continuation
-import com.soywiz.korio.stream.openAsync
-import com.soywiz.korio.vfs.register
-import java.io.ByteArrayInputStream
+import com.soywiz.korau.*
+import com.soywiz.korau.format.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.stream.*
+import com.soywiz.korio.vfs.*
+import java.io.*
 import javax.sound.sampled.*
+import javax.sound.sampled.AudioFormat
+import kotlin.coroutines.experimental.*
 
 actual object NativeNativeSoundProvider {
 	actual val instance: NativeSoundProvider by lazy { AwtNativeSoundProvider() }
@@ -41,7 +36,13 @@ class AwtNativeSoundProvider : NativeSoundProvider() {
 
 	override suspend fun createSound(data: ByteArray): NativeSound {
 		try {
-			return AwtNativeSound((defaultAudioFormats.decode(data.openAsync()) ?: AudioData(44100, 2, shortArrayOf())).toWav()).init()
+			return AwtNativeSound(
+				(defaultAudioFormats.decode(data.openAsync()) ?: AudioData(
+					44100,
+					2,
+					shortArrayOf()
+				)).toWav()
+			).init()
 		} catch (e: Throwable) {
 			e.printStackTrace()
 			return AwtNativeSound(AudioData(44100, 2, shortArrayOf()).toWav()).init()

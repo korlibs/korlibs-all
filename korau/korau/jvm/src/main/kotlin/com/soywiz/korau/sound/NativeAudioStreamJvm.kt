@@ -1,15 +1,11 @@
 package com.soywiz.korau.sound
 
-import com.soywiz.kds.Queue
-import com.soywiz.klogger.Logger
-import com.soywiz.korio.async.eventLoop
-import com.soywiz.korio.coroutine.getCoroutineContext
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
-import javax.sound.sampled.AudioFormat
-import javax.sound.sampled.AudioSystem
-import javax.sound.sampled.DataLine
-import javax.sound.sampled.SourceDataLine
+import com.soywiz.kds.*
+import com.soywiz.klogger.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.coroutine.*
+import java.nio.*
+import javax.sound.sampled.*
 
 data class SampleBuffer(val timestamp: Long, val data: ShortArray)
 

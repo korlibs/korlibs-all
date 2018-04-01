@@ -8,9 +8,13 @@ interface IRectangleInt {
 }
 
 data class RectangleInt(val position: PositionInt, val size: SizeInt) : IRectangleInt {
-	constructor(x: Int = 0, y: Int = 0, width: Int = 0, height: Int = 0) : this(PositionInt(x, y), SizeInt(width, height))
+	constructor(x: Int = 0, y: Int = 0, width: Int = 0, height: Int = 0) : this(
+		PositionInt(x, y),
+		SizeInt(width, height)
+	)
 
-	data class Immutable(override val x: Int, override val y: Int, override val width: Int, override val height: Int) : IRectangleInt {
+	data class Immutable(override val x: Int, override val y: Int, override val width: Int, override val height: Int) :
+		IRectangleInt {
 		fun toMutable() = RectangleInt(x, y, width, height)
 	}
 
@@ -47,12 +51,16 @@ data class RectangleInt(val position: PositionInt, val size: SizeInt) : IRectang
 
 	fun setBoundsTo(left: Int, top: Int, right: Int, bottom: Int) = setTo(left, top, right - left, bottom - top)
 
-	fun anchoredIn(container: RectangleInt, anchor: Anchor, out: RectangleInt = RectangleInt()): RectangleInt = out.setTo(
-		((container.width - this.width) * anchor.sx).toInt(), ((container.height - this.height) * anchor.sy).toInt(),
-		width, height
-	)
+	fun anchoredIn(container: RectangleInt, anchor: Anchor, out: RectangleInt = RectangleInt()): RectangleInt =
+		out.setTo(
+			((container.width - this.width) * anchor.sx).toInt(),
+			((container.height - this.height) * anchor.sy).toInt(),
+			width,
+			height
+		)
 
-	fun getAnchorPosition(anchor: Anchor, out: PositionInt = PositionInt()): PositionInt = out.setTo((x + width * anchor.sx).toInt(), (y + height * anchor.sy).toInt())
+	fun getAnchorPosition(anchor: Anchor, out: PositionInt = PositionInt()): PositionInt =
+		out.setTo((x + width * anchor.sx).toInt(), (y + height * anchor.sy).toInt())
 
 	operator fun contains(v: SizeInt): Boolean = (v.width <= width) && (v.height <= height)
 
@@ -61,5 +69,8 @@ data class RectangleInt(val position: PositionInt, val size: SizeInt) : IRectang
 	override fun toString(): String = "IRectangle(x=$x, y=$y, width=$width, height=$height)"
 }
 
-inline fun RectangleInt(x: Number, y: Number, width: Number, height: Number) = RectangleInt(x.toInt(), y.toInt(), width.toInt(), height.toInt())
-inline fun IRectangleInt(x: Number, y: Number, width: Number, height: Number) = RectangleInt.Immutable(x.toInt(), y.toInt(), width.toInt(), height.toInt())
+inline fun RectangleInt(x: Number, y: Number, width: Number, height: Number) =
+	RectangleInt(x.toInt(), y.toInt(), width.toInt(), height.toInt())
+
+inline fun IRectangleInt(x: Number, y: Number, width: Number, height: Number) =
+	RectangleInt.Immutable(x.toInt(), y.toInt(), width.toInt(), height.toInt())

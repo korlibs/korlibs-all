@@ -1,24 +1,15 @@
 package com.soywiz.korge.audio
 
-import com.soywiz.korau.sound.NativeSound
-import com.soywiz.korau.sound.nativeSoundProvider
-import com.soywiz.korau.sound.readNativeSoundOptimized
-import com.soywiz.korau.sound.registerNativeSoundSpecialReader
-import com.soywiz.korge.plugin.KorgePlugin
-import com.soywiz.korge.resources.Path
-import com.soywiz.korge.resources.ResourcesRoot
-import com.soywiz.korge.resources.VPath
-import com.soywiz.korge.view.Views
-import com.soywiz.korio.async.Promise
-import com.soywiz.korio.async.go
-import com.soywiz.korinject.AsyncDependency
-import com.soywiz.korinject.AsyncFactory
-import com.soywiz.korinject.Prototype
-import com.soywiz.korinject.Singleton
-import com.soywiz.korio.time.TimeProvider
-import com.soywiz.kds.Extra
-import com.soywiz.korio.util.clamp
-import com.soywiz.korio.vfs.VfsFile
+import com.soywiz.kds.*
+import com.soywiz.korau.sound.*
+import com.soywiz.korge.plugin.*
+import com.soywiz.korge.resources.*
+import com.soywiz.korge.view.*
+import com.soywiz.korinject.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.time.*
+import com.soywiz.korio.util.*
+import com.soywiz.korio.vfs.*
 
 object SoundPlugin : KorgePlugin() {
 	init {

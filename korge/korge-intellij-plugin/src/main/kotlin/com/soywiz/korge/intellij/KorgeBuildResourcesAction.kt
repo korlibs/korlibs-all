@@ -42,7 +42,11 @@ class KorgeBuildResourcesAction : AnAction() {
 								// @TODO: Proper discovery of that folder
 								val extraOutputVirtual = genresourcesVirtual["../build/resources/main"]
 								println("Regenerating resources [1]")
-								ResourceProcessor.process(listOf(resourcesVirtual), genresourcesVirtual, extraOutputVirtual) { pi ->
+								ResourceProcessor.process(
+									listOf(resourcesVirtual),
+									genresourcesVirtual,
+									extraOutputVirtual
+								) { pi ->
 									progress.fraction = if (pi.fraction <= 0.0) 0.0001 else pi.fraction
 									progress.text = "Processing... ${pi.file}"
 								}

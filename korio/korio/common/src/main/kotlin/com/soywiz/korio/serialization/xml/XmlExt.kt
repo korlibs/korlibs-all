@@ -1,7 +1,7 @@
 package com.soywiz.korio.serialization.xml
 
-import com.soywiz.korio.Language
-import com.soywiz.korio.vfs.VfsFile
+import com.soywiz.korio.*
+import com.soywiz.korio.vfs.*
 
 fun Iterable<Xml>.str(name: String, defaultValue: String = ""): String = this.first().attributes[name] ?: defaultValue
 fun Iterable<Xml>.children(name: String): Iterable<Xml> = this.flatMap { it.children(name) }

@@ -1,11 +1,16 @@
 package com.soywiz.korio.serialization.xml
 
-import com.soywiz.kds.lmapOf
-import com.soywiz.kds.toCaseInsensitiveTreeMap
-import com.soywiz.korio.Language
-import com.soywiz.korio.util.Indenter
+import com.soywiz.kds.*
+import com.soywiz.korio.*
+import com.soywiz.korio.util.*
 
-data class Xml(val type: Type, val name: String, val attributes: Map<String, String>, val allChildren: List<Xml>, val content: String) {
+data class Xml(
+	val type: Type,
+	val name: String,
+	val attributes: Map<String, String>,
+	val allChildren: List<Xml>,
+	val content: String
+) {
 	val attributesLC = attributes.toCaseInsensitiveTreeMap()
 	val nameLC: String = name.toLowerCase().trim()
 	val descendants: Iterable<Xml> get() = allChildren.flatMap { it.descendants + it }
@@ -131,7 +136,9 @@ data class Xml(val type: Type, val name: String, val attributes: Map<String, Str
 	fun getDouble(name: String): Double? = this.attributesLC[name]?.toDouble()
 	fun getFloat(name: String): Float? = this.attributesLC[name]?.toFloat()
 
-	fun double(name: String, defaultValue: Double = 0.0): Double = this.attributesLC[name]?.toDoubleOrNull() ?: defaultValue
+	fun double(name: String, defaultValue: Double = 0.0): Double =
+		this.attributesLC[name]?.toDoubleOrNull() ?: defaultValue
+
 	fun float(name: String, defaultValue: Float = 0f): Float = this.attributesLC[name]?.toFloatOrNull() ?: defaultValue
 	fun int(name: String, defaultValue: Int = 0): Int = this.attributesLC[name]?.toIntOrNull() ?: defaultValue
 	fun long(name: String, defaultValue: Long = 0): Long = this.attributesLC[name]?.toLongOrNull() ?: defaultValue

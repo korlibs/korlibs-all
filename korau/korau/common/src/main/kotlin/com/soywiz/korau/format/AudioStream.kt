@@ -1,14 +1,13 @@
 package com.soywiz.korau.format
 
-import com.soywiz.kds.LinkedList
-import com.soywiz.kmem.arraycopy
-import com.soywiz.korau.sound.nativeSoundProvider
-import com.soywiz.korio.async.await
-import com.soywiz.korio.stream.AsyncStream
-import com.soywiz.korio.util.use
-import com.soywiz.korio.vfs.VfsFile
-import com.soywiz.korio.vfs.VfsOpenMode
-import kotlin.math.min
+import com.soywiz.kds.*
+import com.soywiz.kmem.*
+import com.soywiz.korau.sound.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.stream.*
+import com.soywiz.korio.util.*
+import com.soywiz.korio.vfs.*
+import kotlin.math.*
 
 open class AudioStream(
 	val rate: Int,
@@ -57,9 +56,19 @@ suspend fun AudioStream.play() = nativeSoundProvider.play(this)
 
 suspend fun VfsFile.readAudioStream(formats: AudioFormats = defaultAudioFormats) = formats.decodeStream(this.open())
 
-suspend fun VfsFile.writeAudio(data: AudioData, formats: AudioFormats = defaultAudioFormats) = this.openUse2(com.soywiz.korio.vfs.VfsOpenMode.CREATE_OR_TRUNCATE) { formats.encode(data, this, this@writeAudio.basename) }
+suspend fun VfsFile.writeAudio(data: AudioData, formats: AudioFormats = defaultAudioFormats) =
+	this.openUse2(com.soywiz.korio.vfs.VfsOpenMode.CREATE_OR_TRUNCATE) {
+		formats.encode(
+			data,
+			this,
+			this@writeAudio.basename
+		)
+	}
 
 // @TODO: Problem with Kotlin.JS
-suspend inline fun <T> VfsFile.openUse2(mode: VfsOpenMode = VfsOpenMode.READ, noinline callback: suspend AsyncStream.() -> T): T {
+suspend inline fun <T> VfsFile.openUse2(
+	mode: VfsOpenMode = VfsOpenMode.READ,
+	noinline callback: suspend AsyncStream.() -> T
+): T {
 	return open(mode).use { callback.await(this) }
 }

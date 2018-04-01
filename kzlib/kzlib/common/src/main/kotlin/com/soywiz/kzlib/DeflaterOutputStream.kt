@@ -50,9 +50,11 @@ open class DeflaterOutputStream(
 
 	val total_out: Long get() = deflater.total_out
 
-	constructor(out: OutputStream) : this(out,
+	constructor(out: OutputStream) : this(
+		out,
 		Deflater(JZlib.Z_DEFAULT_COMPRESSION),
-		DEFAULT_BUFSIZE, true) {
+		DEFAULT_BUFSIZE, true
+	) {
 		mydeflater = true
 	}
 

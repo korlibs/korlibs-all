@@ -26,9 +26,8 @@
 
 package com.soywiz.korau.format.com.jcraft.jorbis
 
-import com.soywiz.kmem.fill
-import com.soywiz.korau.format.com.jcraft.jogg.Buffer
-import com.soywiz.korau.format.com.jcraft.jogg.Packet
+import com.soywiz.kmem.*
+import com.soywiz.korau.format.com.jcraft.jogg.*
 
 class Block(var vd: DspState) {
 	var pcm = arrayOf<FloatArray>()

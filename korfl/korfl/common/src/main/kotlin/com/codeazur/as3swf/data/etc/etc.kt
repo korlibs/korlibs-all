@@ -1,11 +1,14 @@
 package com.codeazur.as3swf.data.etc
 
-import com.codeazur.as3swf.utils.FlashByteArray
-import com.soywiz.korma.geom.Point2d
-import kotlin.math.floor
+import com.codeazur.as3swf.utils.*
+import com.soywiz.korma.geom.*
+import kotlin.math.*
 
-class CurvedEdge(aFrom: Point2d, var control: Point2d, aTo: Point2d, aLineStyleIdx: Int = 0, aFillStyleIdx: Int = 0) : StraightEdge(aFrom, aTo, aLineStyleIdx, aFillStyleIdx), com.codeazur.as3swf.data.etc.IEdge {
-	override fun reverseWithNewFillStyle(newFillStyleIdx: Int) = CurvedEdge(to, control, from, lineStyleIdx, newFillStyleIdx)
+class CurvedEdge(aFrom: Point2d, var control: Point2d, aTo: Point2d, aLineStyleIdx: Int = 0, aFillStyleIdx: Int = 0) :
+	StraightEdge(aFrom, aTo, aLineStyleIdx, aFillStyleIdx), com.codeazur.as3swf.data.etc.IEdge {
+	override fun reverseWithNewFillStyle(newFillStyleIdx: Int) =
+		CurvedEdge(to, control, from, lineStyleIdx, newFillStyleIdx)
+
 	override fun toString(): String = "stroke:$lineStyleIdx, fill:$fillStyleIdx, start:$from, control:$control, end:$to"
 }
 
@@ -15,7 +18,9 @@ open class StraightEdge(
 	override var lineStyleIdx: Int = 0,
 	override var fillStyleIdx: Int = 0
 ) : IEdge {
-	override fun reverseWithNewFillStyle(newFillStyleIdx: Int): IEdge = StraightEdge(to, from, lineStyleIdx, newFillStyleIdx)
+	override fun reverseWithNewFillStyle(newFillStyleIdx: Int): IEdge =
+		StraightEdge(to, from, lineStyleIdx, newFillStyleIdx)
+
 	override fun toString() = "stroke:$lineStyleIdx, fill:$fillStyleIdx, start:$from, end:$to"
 }
 
@@ -85,29 +90,32 @@ open class MPEGFrame(
 
 	var samples: Int = 1152
 
-	val crc: Int get() {
-		_crc.position = 0
-		return _crc.readUnsignedShort()
-	}
-
-	val size: Int get() {
-		var ret: Int
-		if (layer == MPEGFrame.Companion.MPEG_LAYER_I) {
-			ret = floor((12000.0 * bitrate) / samplingrate).toInt()
-			if (padding) {
-				ret++
-			}
-			// one slot is 4 bytes long
-			ret = ret shl 2
-		} else {
-			ret = floor((if (version == MPEGFrame.Companion.MPEG_VERSION_1_0) 144000.0 else 72000.0) * bitrate / samplingrate).toInt()
-			if (padding) {
-				ret++
-			}
+	val crc: Int
+		get() {
+			_crc.position = 0
+			return _crc.readUnsignedShort()
 		}
-		// subtract header size and (if present) crc size
-		return ret - 4 - (if (hasCRC) 2 else 0)
-	}
+
+	val size: Int
+		get() {
+			var ret: Int
+			if (layer == MPEGFrame.Companion.MPEG_LAYER_I) {
+				ret = floor((12000.0 * bitrate) / samplingrate).toInt()
+				if (padding) {
+					ret++
+				}
+				// one slot is 4 bytes long
+				ret = ret shl 2
+			} else {
+				ret =
+						floor((if (version == MPEGFrame.Companion.MPEG_VERSION_1_0) 144000.0 else 72000.0) * bitrate / samplingrate).toInt()
+				if (padding) {
+					ret++
+				}
+			}
+			// subtract header size and (if present) crc size
+			return ret - 4 - (if (hasCRC) 2 else 0)
+		}
 
 	fun setHeaderByteAt(index: Int, value: Int): Unit {
 		when (index) {

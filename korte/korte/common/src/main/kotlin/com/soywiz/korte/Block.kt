@@ -1,15 +1,16 @@
 package com.soywiz.korte
 
-import com.soywiz.korio.async.await
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korio.serialization.yaml.Yaml
-import com.soywiz.korio.util.ListReader
+import com.soywiz.kds.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.error.*
+import com.soywiz.korio.serialization.yaml.*
 
 interface Block {
 	suspend fun eval(context: Template.EvalContext)
 
 	companion object {
-		fun group(children: List<Block>): Block = if (children.size == 1) children[0] else DefaultBlocks.BlockGroup(children)
+		fun group(children: List<Block>): Block =
+			if (children.size == 1) children[0] else DefaultBlocks.BlockGroup(children)
 
 		class Parse(val tokens: List<Token>, val parseContext: Template.ParseContext) {
 			val tr = ListReader(tokens)
@@ -57,11 +58,17 @@ interface Block {
 									children.clear()
 								}
 								else -> {
-									val newtag = parseContext.config.tags[it.name] ?: invalidOp("Can't find tag ${it.name} with content ${it.content}")
+									val newtag = parseContext.config.tags[it.name]
+											?: invalidOp("Can't find tag ${it.name} with content ${it.content}")
 									if (newtag.end != null) {
 										children += handle(newtag, it)
 									} else {
-										children += newtag.buildNode.await(Tag.BuildContext(parseContext, listOf(Tag.Part(it, DefaultBlocks.BlockText("")))))
+										children += newtag.buildNode.await(
+											Tag.BuildContext(
+												parseContext,
+												listOf(Tag.Part(it, DefaultBlocks.BlockText("")))
+											)
+										)
 									}
 								}
 							}

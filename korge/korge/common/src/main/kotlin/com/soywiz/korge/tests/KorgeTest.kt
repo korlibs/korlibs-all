@@ -1,23 +1,17 @@
 package com.soywiz.korge.tests
 
-import com.soywiz.korag.AG
-import com.soywiz.korag.AGContainer
-import com.soywiz.korag.AGInput
-import com.soywiz.korge.Korge
-import com.soywiz.korge.input.Input
-import com.soywiz.korge.input.mouse
-import com.soywiz.korge.plugin.KorgePlugins
-import com.soywiz.korge.scene.Module
-import com.soywiz.korge.scene.Scene
-import com.soywiz.korge.view.View
-import com.soywiz.korge.view.Views
-import com.soywiz.korio.async.EventLoopTest
-import com.soywiz.korio.async.sync
-import com.soywiz.korinject.AsyncInjector
-import com.soywiz.korio.time.TimeProvider
-import com.soywiz.korma.geom.Rectangle
-import kotlin.math.min
-import kotlin.reflect.KClass
+import com.soywiz.korag.*
+import com.soywiz.korge.*
+import com.soywiz.korge.input.*
+import com.soywiz.korge.plugin.*
+import com.soywiz.korge.scene.*
+import com.soywiz.korge.view.*
+import com.soywiz.korinject.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.time.*
+import com.soywiz.korma.geom.*
+import kotlin.math.*
+import kotlin.reflect.*
 
 @Suppress("unused")
 open class KorgeTest {
@@ -39,12 +33,24 @@ open class KorgeTest {
 	}
 
 	@Suppress("UNCHECKED_CAST")
-	fun <T : Scene> testScene(module: Module, sceneClass: KClass<T>, vararg injects: Any, callback: suspend T.() -> Unit) = syncTest {
+	fun <T : Scene> testScene(
+		module: Module,
+		sceneClass: KClass<T>,
+		vararg injects: Any,
+		callback: suspend T.() -> Unit
+	) = syncTest {
 		//disableNativeImageLoading {
-		val sc = Korge.test(Korge.Config(module, sceneClass = sceneClass, sceneInjects = injects.toList(), container = canvas, timeProvider = TimeProvider {
-			//println("Requested Time: $testTime")
-			testTime
-		}))
+		val sc = Korge.test(
+			Korge.Config(
+				module,
+				sceneClass = sceneClass,
+				sceneInjects = injects.toList(),
+				container = canvas,
+				timeProvider = TimeProvider {
+					//println("Requested Time: $testTime")
+					testTime
+				})
+		)
 		callback(sc.currentScene as T)
 		//}
 	}

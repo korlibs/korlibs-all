@@ -481,9 +481,11 @@ internal class InfBlocks(private val z: ZStream, var end: Int) {            // o
 							bl[0] = 9         // must be <= 9 for lookahead assumptions
 							bd[0] = 6         // must be <= 9 for lookahead assumptions
 							t = table
-							t = inftree.inflate_trees_dynamic(257 + (t and 0x1f),
+							t = inftree.inflate_trees_dynamic(
+								257 + (t and 0x1f),
 								1 + (t shr 5 and 0x1f),
-								blens!!, bl, bd, tli, tdi, hufts, z)
+								blens!!, bl, bd, tli, tdi, hufts, z
+							)
 
 							if (t != Z_OK) {
 								if (t == Z_DATA_ERROR) {
@@ -683,7 +685,17 @@ internal class InfBlocks(private val z: ZStream, var end: Int) {            // o
 							bl[0] = 9
 							bd[0] = 6
 							t = table
-							t = inftree.inflate_trees_dynamic(257 + (t and 0x1f), 1 + (t shr 5 and 0x1f), blens!!, bl, bd, tli, tdi, hufts, z)
+							t = inftree.inflate_trees_dynamic(
+								257 + (t and 0x1f),
+								1 + (t shr 5 and 0x1f),
+								blens!!,
+								bl,
+								bd,
+								tli,
+								tdi,
+								hufts,
+								z
+							)
 							if (t != Z_OK) {
 								if (t == Z_DATA_ERROR) {
 									blens = null
@@ -833,7 +845,17 @@ internal class InfBlocks(private val z: ZStream, var end: Int) {            // o
 							bl[0] = 9
 							bd[0] = 6
 							t = table
-							t = inftree.inflate_trees_dynamic(257 + (t and 0x1f), 1 + (t shr 5 and 0x1f), blens!!, bl, bd, tli, tdi, hufts, z)
+							t = inftree.inflate_trees_dynamic(
+								257 + (t and 0x1f),
+								1 + (t shr 5 and 0x1f),
+								blens!!,
+								bl,
+								bd,
+								tli,
+								tdi,
+								hufts,
+								z
+							)
 							if (t != Z_OK) {
 								if (t == Z_DATA_ERROR) {
 									blens = null
@@ -1093,11 +1115,30 @@ internal class InfBlocks(private val z: ZStream, var end: Int) {            // o
 		private val MANY = 1440
 
 		// And'ing with mask[n] masks the lower n bits
-		private val inflate_mask = intArrayOf(0x00000000, 0x00000001, 0x00000003, 0x00000007, 0x0000000f, 0x0000001f, 0x0000003f, 0x0000007f, 0x000000ff, 0x000001ff, 0x000003ff, 0x000007ff, 0x00000fff, 0x00001fff, 0x00003fff, 0x00007fff, 0x0000ffff)
+		private val inflate_mask = intArrayOf(
+			0x00000000,
+			0x00000001,
+			0x00000003,
+			0x00000007,
+			0x0000000f,
+			0x0000001f,
+			0x0000003f,
+			0x0000007f,
+			0x000000ff,
+			0x000001ff,
+			0x000003ff,
+			0x000007ff,
+			0x00000fff,
+			0x00001fff,
+			0x00003fff,
+			0x00007fff,
+			0x0000ffff
+		)
 
 		// Table for deflate from PKZIP's appnote.txt.
 		val border = intArrayOf(// Order of the bit length code lengths
-			16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15)
+			16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15
+		)
 
 		private val Z_OK = 0
 		private val Z_STREAM_END = 1

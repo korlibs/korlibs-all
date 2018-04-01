@@ -1,9 +1,6 @@
 package com.soywiz.korio.math
 
-import kotlin.math.ceil
-import kotlin.math.floor
-import kotlin.math.round
-import kotlin.math.sign
+import kotlin.math.*
 
 fun Float.reinterpretAsInt() = this.toBits()
 fun Int.reinterpretAsFloat() = Float.fromBits(this)

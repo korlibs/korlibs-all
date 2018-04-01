@@ -1,7 +1,7 @@
 package com.soywiz.korim.format
 
-import com.soywiz.kds.Extra
-import com.soywiz.korio.error.invalidOp
+import com.soywiz.kds.*
+import com.soywiz.korio.error.*
 import com.soywiz.korio.stream.*
 
 object DDS : ImageFormat("dds") {
@@ -55,6 +55,9 @@ object DDS : ImageFormat("dds") {
 			else -> invalidOp("Unsupported DDS FourCC '$fourcc'")
 		}
 		val bytes = s.readAll()
-		return subimageFormat.readImage(bytes.openSync(), ImageDecodingProps(filename = "image.$fourcc", width = h.width, height = h.height))
+		return subimageFormat.readImage(
+			bytes.openSync(),
+			ImageDecodingProps(filename = "image.$fourcc", width = h.width, height = h.height)
+		)
 	}
 }

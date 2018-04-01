@@ -195,11 +195,13 @@ class Deflate internal constructor(internal var strm: ZStream) {
 			return gheader!!
 		}
 
-	internal class Config(var good_length: Int // reduce lazy search above this match length
-						  , var max_lazy: Int    // do not perform lazy search above this match length
-						  ,
-						  var nice_length: Int // quit search above this match length
-						  , var max_chain: Int, var func: Int)
+	internal class Config(
+		var good_length: Int // reduce lazy search above this match length
+		, var max_lazy: Int    // do not perform lazy search above this match length
+		,
+		var nice_length: Int // quit search above this match length
+		, var max_chain: Int, var func: Int
+	)
 
 	init {
 		dyn_ltree = ShortArray(HEAP_SIZE * 2)
@@ -267,8 +269,9 @@ class Deflate internal constructor(internal var strm: ZStream) {
 	// exchanging a node with the smallest of its two sons if necessary, stopping
 	// when the heap property is re-established (each father smaller than its
 	// two sons).
-	internal fun pqdownheap(tree: ShortArray, // the tree to restore
-							k: Int          // node to move down
+	internal fun pqdownheap(
+		tree: ShortArray, // the tree to restore
+		k: Int          // node to move down
 	) {
 		var k = k
 		val v = heap[k]
@@ -292,8 +295,9 @@ class Deflate internal constructor(internal var strm: ZStream) {
 
 	// Scan a literal or distance tree to determine the frequencies of the codes
 	// in the bit length tree.
-	internal fun scan_tree(tree: ShortArray, // the tree to be scanned
-						   max_code: Int // and its largest code of non zero frequency
+	internal fun scan_tree(
+		tree: ShortArray, // the tree to be scanned
+		max_code: Int // and its largest code of non zero frequency
 	) {
 		var n: Int                     // iterates over all tree elements
 		var prevlen = -1          // last emitted length
@@ -391,8 +395,9 @@ class Deflate internal constructor(internal var strm: ZStream) {
 
 	// Send a literal or distance tree in compressed form, using the codes in
 	// bl_tree.
-	internal fun send_tree(tree: ShortArray, // the tree to be sent
-						   max_code: Int // and its largest code of non zero frequency
+	internal fun send_tree(
+		tree: ShortArray, // the tree to be sent
+		max_code: Int // and its largest code of non zero frequency
 	) {
 		var n: Int                     // iterates over all tree elements
 		var prevlen = -1          // last emitted length
@@ -518,8 +523,9 @@ class Deflate internal constructor(internal var strm: ZStream) {
 
 	// Save the match info and tally the frequency counts. Return true if
 	// the current block must be flushed.
-	internal fun _tr_tally(dist: Int, // distance of matched string
-						   lc: Int // match length-MIN_MATCH or unmatched char (if dist==0)
+	internal fun _tr_tally(
+		dist: Int, // distance of matched string
+		lc: Int // match length-MIN_MATCH or unmatched char (if dist==0)
 	): Boolean {
 		var dist = dist
 
@@ -570,7 +576,8 @@ class Deflate internal constructor(internal var strm: ZStream) {
 
 		if (last_lit != 0) {
 			do {
-				dist = pending_buf[d_buf + lx * 2].toInt() shl 8 and 0xff00 or (pending_buf[d_buf + lx * 2 + 1].toInt() and 0xff)
+				dist = pending_buf[d_buf + lx * 2].toInt() shl 8 and 0xff00 or
+						(pending_buf[d_buf + lx * 2 + 1].toInt() and 0xff)
 				lc = l_buf[lx].toInt() and 0xff
 				lx++
 
@@ -654,9 +661,10 @@ class Deflate internal constructor(internal var strm: ZStream) {
 
 	// Copy a stored block, storing first the length and its
 	// one's complement if requested.
-	internal fun copy_block(buf: Int, // the input data
-							len: Int, // its length
-							header: Boolean   // true if block header must be written
+	internal fun copy_block(
+		buf: Int, // the input data
+		len: Int, // its length
+		header: Boolean   // true if block header must be written
 	) {
 		val index = 0
 		bi_windup()      // align on byte boundary
@@ -675,9 +683,11 @@ class Deflate internal constructor(internal var strm: ZStream) {
 	}
 
 	internal fun flush_block_only(eof: Boolean) {
-		_tr_flush_block(if (block_start >= 0) block_start else -1,
+		_tr_flush_block(
+			if (block_start >= 0) block_start else -1,
 			strstart - block_start,
-			eof)
+			eof
+		)
 		block_start = strstart
 		strm.flush_pending()
 	}
@@ -740,9 +750,10 @@ class Deflate internal constructor(internal var strm: ZStream) {
 	}
 
 	// Send a stored block
-	internal fun _tr_stored_block(buf: Int, // input block
-								  stored_len: Int, // length of input block
-								  eof: Boolean     // true if this is the last block for a file
+	internal fun _tr_stored_block(
+		buf: Int, // input block
+		stored_len: Int, // length of input block
+		eof: Boolean     // true if this is the last block for a file
 	) {
 		send_bits((STORED_BLOCK shl 1) + if (eof) 1 else 0, 3)  // send block type
 		copy_block(buf, stored_len, true)          // with header
@@ -750,9 +761,10 @@ class Deflate internal constructor(internal var strm: ZStream) {
 
 	// Determine the best encoding for the current block: dynamic trees, static
 	// trees or store, and output the encoded block to the zip file.
-	internal fun _tr_flush_block(buf: Int, // input block, or NULL if too old
-								 stored_len: Int, // length of input block
-								 eof: Boolean     // true if this is the last block for a file
+	internal fun _tr_flush_block(
+		buf: Int, // input block, or NULL if too old
+		stored_len: Int, // length of input block
+		eof: Boolean     // true if this is the last block for a file
 	) {
 		var opt_lenb: Int
 		val static_lenb: Int// opt_len and static_len in bytes
@@ -955,7 +967,8 @@ class Deflate internal constructor(internal var strm: ZStream) {
 					do {
 						strstart++
 
-						ins_h = ins_h shl hash_shift xor (window[strstart + (MIN_MATCH - 1)].toInt() and 0xff) and hash_mask
+						ins_h = ins_h shl hash_shift xor (window[strstart + (MIN_MATCH - 1)].toInt() and 0xff) and
+								hash_mask
 						//	    prev[strstart&w_mask]=hash_head=head[ins_h];
 						hash_head = head!![ins_h].toInt() and 0xffff
 						prev!![strstart and w_mask] = head!![ins_h]
@@ -1038,7 +1051,8 @@ class Deflate internal constructor(internal var strm: ZStream) {
 			match_length = MIN_MATCH - 1
 
 			if (hash_head != 0 && prev_length < max_lazy_match &&
-				strstart - hash_head and 0xffff <= w_size - MIN_LOOKAHEAD) {
+				strstart - hash_head and 0xffff <= w_size - MIN_LOOKAHEAD
+			) {
 				// To simplify the code, we prevent matches with the string
 				// of window index 0 (in particular we have to avoid a match
 				// of the string with itself at the start of the input file).
@@ -1074,7 +1088,8 @@ class Deflate internal constructor(internal var strm: ZStream) {
 				prev_length -= 2
 				do {
 					if (++strstart <= max_insert) {
-						ins_h = ins_h shl hash_shift xor (window[strstart + (MIN_MATCH - 1)].toInt() and 0xff) and hash_mask
+						ins_h = ins_h shl hash_shift xor (window[strstart + (MIN_MATCH - 1)].toInt() and 0xff) and
+								hash_mask
 						//prev[strstart&w_mask]=hash_head=head[ins_h];
 						hash_head = head!![ins_h].toInt() and 0xffff
 						prev!![strstart and w_mask] = head!![ins_h]
@@ -1172,7 +1187,8 @@ class Deflate internal constructor(internal var strm: ZStream) {
 			if (window[match + best_len] != scan_end ||
 				window[match + best_len - 1] != scan_end1 ||
 				window[match] != window[scan] ||
-				window[++match] != window[scan + 1])
+				window[++match] != window[scan + 1]
+			)
 				continue
 
 			// The check at best_len-1 can be removed because it will be made
@@ -1194,7 +1210,8 @@ class Deflate internal constructor(internal var strm: ZStream) {
 				window[++scan] == window[++match] &&
 				window[++scan] == window[++match] &&
 				window[++scan] == window[++match] &&
-				scan < strend)
+				scan < strend
+			)
 
 			len = MAX_MATCH - (strend - scan).toInt()
 			scan = strend - MAX_MATCH
@@ -1214,17 +1231,23 @@ class Deflate internal constructor(internal var strm: ZStream) {
 	}
 
 	internal fun deflateInit(level: Int, bits: Int, memlevel: Int): Int {
-		return deflateInit(level, Z_DEFLATED, bits, memlevel,
-			Z_DEFAULT_STRATEGY)
+		return deflateInit(
+			level, Z_DEFLATED, bits, memlevel,
+			Z_DEFAULT_STRATEGY
+		)
 	}
 
 	internal fun deflateInit(level: Int, bits: Int = MAX_WBITS): Int {
-		return deflateInit(level, Z_DEFLATED, bits, DEF_MEM_LEVEL,
-			Z_DEFAULT_STRATEGY)
+		return deflateInit(
+			level, Z_DEFLATED, bits, DEF_MEM_LEVEL,
+			Z_DEFAULT_STRATEGY
+		)
 	}
 
-	private fun deflateInit(level: Int, method: Int, windowBits: Int,
-							memLevel: Int, strategy: Int): Int {
+	private fun deflateInit(
+		level: Int, method: Int, windowBits: Int,
+		memLevel: Int, strategy: Int
+	): Int {
 		var level = level
 		var windowBits = windowBits
 		var wrap = 1
@@ -1252,7 +1275,8 @@ class Deflate internal constructor(internal var strm: ZStream) {
 		if (memLevel < 1 || memLevel > MAX_MEM_LEVEL ||
 			method != Z_DEFLATED ||
 			windowBits < 9 || windowBits > 15 || level < 0 || level > 9 ||
-			strategy < 0 || strategy > Z_HUFFMAN_ONLY) {
+			strategy < 0 || strategy > Z_HUFFMAN_ONLY
+		) {
 			return Z_STREAM_ERROR
 		}
 
@@ -1335,7 +1359,8 @@ class Deflate internal constructor(internal var strm: ZStream) {
 			_level = 6
 		}
 		if (_level < 0 || _level > 9 ||
-			_strategy < 0 || _strategy > Z_HUFFMAN_ONLY) {
+			_strategy < 0 || _strategy > Z_HUFFMAN_ONLY
+		) {
 			return Z_STREAM_ERROR
 		}
 
@@ -1397,7 +1422,8 @@ class Deflate internal constructor(internal var strm: ZStream) {
 
 		if (strm.next_out == null ||
 			strm.next_in == null && strm.avail_in != 0 ||
-			status == FINISH_STATE && flush != Z_FINISH) {
+			status == FINISH_STATE && flush != Z_FINISH
+		) {
 			strm.msg = z_errmsg[Z_NEED_DICT - Z_STREAM_ERROR]
 			return Z_STREAM_ERROR
 		}
@@ -1455,7 +1481,8 @@ class Deflate internal constructor(internal var strm: ZStream) {
 			// flushes. For repeated and useless calls with Z_FINISH, we keep
 			// returning Z_STREAM_END instead of Z_BUFF_ERROR.
 		} else if (strm.avail_in == 0 && flush <= old_flush &&
-			flush != Z_FINISH) {
+			flush != Z_FINISH
+		) {
 			strm.msg = z_errmsg[Z_NEED_DICT - Z_BUF_ERROR]
 			return Z_BUF_ERROR
 		}
@@ -1468,7 +1495,8 @@ class Deflate internal constructor(internal var strm: ZStream) {
 
 		// Start a new block or continue the current one.
 		if (strm.avail_in != 0 || lookahead != 0 ||
-			flush != Z_NO_FLUSH && status != FINISH_STATE) {
+			flush != Z_NO_FLUSH && status != FINISH_STATE
+		) {
 			var bstate = -1
 			when (config_table[level].func) {
 				STORED -> bstate = deflate_stored(flush)
@@ -1617,7 +1645,8 @@ class Deflate internal constructor(internal var strm: ZStream) {
 
 		}
 
-		private val z_errmsg = arrayOf("need dictionary", // Z_NEED_DICT       2
+		private val z_errmsg = arrayOf(
+			"need dictionary", // Z_NEED_DICT       2
 			"stream end", // Z_STREAM_END      1
 			"", // Z_OK              0
 			"file error", // Z_ERRNO         (-1)
@@ -1626,7 +1655,8 @@ class Deflate internal constructor(internal var strm: ZStream) {
 			"insufficient memory", // Z_MEM_ERROR     (-4)
 			"buffer error", // Z_BUF_ERROR     (-5)
 			"incompatible version", // Z_VERSION_ERROR (-6)
-			"")
+			""
+		)
 
 		// block not completed, need more input or more output
 		private val NeedMore = 0

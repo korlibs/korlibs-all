@@ -1,17 +1,16 @@
 package com.soywiz.korma.geom
 
-import com.soywiz.korma.interpolation.Interpolable
-import com.soywiz.korma.interpolation.MutableInterpolable
-import com.soywiz.korma.interpolation.interpolate
-import com.soywiz.korma.math.Math
-import com.soywiz.korma.numeric.niceStr
+import com.soywiz.korma.interpolation.*
+import com.soywiz.korma.math.*
+import com.soywiz.korma.numeric.*
 
 interface ISize {
 	val width: Double
 	val height: Double
 }
 
-data class Size(override var width: Double, override var height: Double) : MutableInterpolable<Size>, Interpolable<Size>, Sizeable, ISize {
+data class Size(override var width: Double, override var height: Double) : MutableInterpolable<Size>,
+	Interpolable<Size>, Sizeable, ISize {
 	data class Immutable(override val width: Double, override val height: Double) : ISize
 
 	override val size: Size = this

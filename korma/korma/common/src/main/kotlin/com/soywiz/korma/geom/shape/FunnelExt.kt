@@ -1,10 +1,7 @@
 package com.soywiz.korma.geom.shape
 
-import com.soywiz.korma.geom.Point2d
-import com.soywiz.korma.geom.triangle.PathFind
-import com.soywiz.korma.geom.triangle.PathFindChannel
-import com.soywiz.korma.geom.triangle.SpatialMesh
-import com.soywiz.korma.geom.triangle.Triangle
+import com.soywiz.korma.geom.*
+import com.soywiz.korma.geom.triangle.*
 
 fun List<Triangle>.toSpatialMesh(): SpatialMesh = SpatialMesh.fromTriangles(this)
 fun List<Triangle>.pathFind(): PathFind = PathFind(this.toSpatialMesh())

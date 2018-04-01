@@ -1,10 +1,13 @@
 package com.soywiz.korio.async
 
 import com.soywiz.korio.KorioNative
-import com.soywiz.korio.coroutine.eventLoop
-import java.util.concurrent.Executor
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
+import java.util.concurrent.*
+import kotlin.Any
+import kotlin.Deprecated
+import kotlin.IllegalStateException
+import kotlin.Throwable
+import kotlin.Unit
+import kotlin.synchronized
 
 //var _workerLazyPool: ExecutorService? = null
 //val workerLazyPool: ExecutorService by lazy {

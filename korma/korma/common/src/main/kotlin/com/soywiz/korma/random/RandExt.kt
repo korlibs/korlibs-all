@@ -1,10 +1,7 @@
 package com.soywiz.korma.random
 
-import com.soywiz.korma.geom.Point2d
-import com.soywiz.korma.geom.Rectangle
-import com.soywiz.korma.interpolation.Interpolable
-import com.soywiz.korma.interpolation.interpolate
-import com.soywiz.korma.interpolation.interpolateAny
+import com.soywiz.korma.geom.*
+import com.soywiz.korma.interpolation.*
 
 fun Rand.nextInt(max: Int): Int {
 	return (nextInt() and 0x7FFFFFFF) % max
@@ -35,9 +32,11 @@ operator fun Rand.get(range: LongRange): Long = range.start + this.nextLong() % 
 
 operator fun <T> Rand.get(list: List<T>): T = list[this[list.indices]]
 
-operator fun Rand.get(rectangle: Rectangle): Point2d = Point2d(this[rectangle.left, rectangle.right], this[rectangle.top, rectangle.bottom])
+operator fun Rand.get(rectangle: Rectangle): Point2d =
+	Point2d(this[rectangle.left, rectangle.right], this[rectangle.top, rectangle.bottom])
 
-operator fun <T : Interpolable<T>> Rand.get(l: T, r: T): T = (this.nextInt(0x10001).toDouble() / 0x10000.toDouble()).interpolate(l, r)
+operator fun <T : Interpolable<T>> Rand.get(l: T, r: T): T =
+	(this.nextInt(0x10001).toDouble() / 0x10000.toDouble()).interpolate(l, r)
 
 operator fun <T : Comparable<T>> Rand.get(range: ClosedRange<T>): T {
 	return interpolateAny(range.start, range.endInclusive, (this.nextInt(0x10001).toDouble() / 0x10000.toDouble()))

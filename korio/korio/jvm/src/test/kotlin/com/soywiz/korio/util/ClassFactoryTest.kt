@@ -1,14 +1,15 @@
 package com.soywiz.korio.util
 
-import com.soywiz.korio.serialization.ObjectMapper
-import com.soywiz.korio.serialization.json.Json
+import com.soywiz.korio.serialization.*
+import com.soywiz.korio.serialization.json.*
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class ClassFactoryTest {
 	@Test
 	fun name() {
 		data class A(val a: Int, val b: String)
+
 		val mapper = ObjectMapper()
 		mapper.jvmFallback()
 		assertEquals(
@@ -22,6 +23,7 @@ class ClassFactoryTest {
 	fun name2() {
 		class B()
 		class A(val a: Array<B>, val b: IntArray)
+
 		val obj = A(arrayOf(B()), intArrayOf(1, 2, 3))
 
 		assertEquals(
@@ -29,10 +31,12 @@ class ClassFactoryTest {
 			JvmTyper.untype(obj)
 		)
 	}
+
 	@Suppress("unused")
 	@Test
 	fun name3() {
 		val mapper = ObjectMapper().jvmFallback()
+
 		class B()
 		class A(val a: Array<B>, val b: IntArray)
 		assertEquals(

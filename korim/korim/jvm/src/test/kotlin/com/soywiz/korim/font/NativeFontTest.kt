@@ -1,8 +1,7 @@
 package com.soywiz.korim.font
 
-import com.soywiz.korim.awt.awtShowImage
-import com.soywiz.korim.bitmap.Bitmap32
-import org.junit.Test
+import com.soywiz.korim.bitmap.*
+import org.junit.*
 
 class NativeFontTest {
 	@Test

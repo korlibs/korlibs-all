@@ -29,13 +29,12 @@
  */
 package com.soywiz.korau.format.net.sourceforge.lame.mpg
 
-import com.soywiz.kmem.fill
-import com.soywiz.korau.format.net.sourceforge.lame.mpg.Interface.ISynth
+import com.soywiz.kmem.*
+import com.soywiz.korau.format.net.sourceforge.lame.mpg.Interface.*
 import com.soywiz.korau.format.net.sourceforge.lame.mpg.MPG123.III_sideinfo
 import com.soywiz.korau.format.net.sourceforge.lame.mpg.MPG123.gr_info_s
-import com.soywiz.korau.format.net.sourceforge.lame.mpg.MPGLib.ProcessedBytes
-import com.soywiz.korau.format.net.sourceforge.lame.mpg.MPGLib.mpstr_tag
-import com.soywiz.korio.lang.Console
+import com.soywiz.korau.format.net.sourceforge.lame.mpg.MPGLib.*
+import com.soywiz.korio.lang.*
 import kotlin.math.*
 
 @Suppress("UNUSED_CHANGED_VALUE")
@@ -95,18 +94,22 @@ class Layer3(private val common: Common) {
 		}
 
 		for (i in 0 until 18) {
-			win[1][i] = (0.5 * sin(MPG123.M_PI / 72.0 * (2 * (i + 0) + 1).toDouble()) / cos(MPG123.M_PI * (2 * (i + 0) + 19).toDouble() / 72.0)).toFloat()
+			win[1][i] =
+					(0.5 * sin(MPG123.M_PI / 72.0 * (2 * (i + 0) + 1).toDouble()) / cos(MPG123.M_PI * (2 * (i + 0) + 19).toDouble() / 72.0)).toFloat()
 			win[0][i] = win[1][i]
-			win[3][i + 18] = (0.5 * sin(MPG123.M_PI / 72.0 * (2 * (i + 18) + 1).toDouble()) / cos(MPG123.M_PI * (2 * (i + 18) + 19).toDouble() / 72.0)).toFloat()
+			win[3][i + 18] =
+					(0.5 * sin(MPG123.M_PI / 72.0 * (2 * (i + 18) + 1).toDouble()) / cos(MPG123.M_PI * (2 * (i + 18) + 19).toDouble() / 72.0)).toFloat()
 			win[0][i + 18] = win[3][i + 18]
 		}
 		for (i in 0 until 6) {
 			win[1][i + 18] = (0.5 / cos(MPG123.M_PI * (2 * (i + 18) + 19).toDouble() / 72.0)).toFloat()
 			win[3][i + 12] = (0.5 / cos(MPG123.M_PI * (2 * (i + 12) + 19).toDouble() / 72.0)).toFloat()
-			win[1][i + 24] = (0.5 * sin(MPG123.M_PI / 24.0 * (2 * i + 13).toDouble()) / cos(MPG123.M_PI * (2 * (i + 24) + 19).toDouble() / 72.0)).toFloat()
+			win[1][i + 24] =
+					(0.5 * sin(MPG123.M_PI / 24.0 * (2 * i + 13).toDouble()) / cos(MPG123.M_PI * (2 * (i + 24) + 19).toDouble() / 72.0)).toFloat()
 			win[1][i + 30] = 0.0f
 			win[3][i] = 0.0f
-			win[3][i + 6] = (0.5 * sin(MPG123.M_PI / 24.0 * (2 * i + 1).toDouble()) / cos(MPG123.M_PI * (2 * (i + 6) + 19).toDouble() / 72.0)).toFloat()
+			win[3][i + 6] =
+					(0.5 * sin(MPG123.M_PI / 24.0 * (2 * i + 1).toDouble()) / cos(MPG123.M_PI * (2 * (i + 6) + 19).toDouble() / 72.0)).toFloat()
 		}
 
 		for (i in 0..8) COS9[i] = cos(MPG123.M_PI / 18.0 * i.toDouble()).toFloat()
@@ -117,7 +120,8 @@ class Layer3(private val common: Common) {
 		COS6_2 = cos(MPG123.M_PI / 6.0 * 2.toDouble()).toFloat()
 
 		for (i in 0 until 12) {
-			win[2][i] = (0.5 * sin(MPG123.M_PI / 24.0 * (2 * i + 1).toDouble()) / cos(MPG123.M_PI * (2 * i + 7).toDouble() / 24.0)).toFloat()
+			win[2][i] =
+					(0.5 * sin(MPG123.M_PI / 24.0 * (2 * i + 1).toDouble()) / cos(MPG123.M_PI * (2 * i + 7).toDouble() / 24.0)).toFloat()
 			for (j in 0..5) COS1[i][j] = cos(MPG123.M_PI / 24.0 * ((2 * i + 7) * (2 * j + 1)).toDouble()).toFloat()
 		}
 
@@ -249,7 +253,14 @@ class Layer3(private val common: Common) {
 		}
 	}
 
-	private fun III_get_side_info_1(mp: mpstr_tag, si: III_sideinfo, stereo: Int, ms_stereo: Int, sfreq: Int, single: Int) {
+	private fun III_get_side_info_1(
+		mp: mpstr_tag,
+		si: III_sideinfo,
+		stereo: Int,
+		ms_stereo: Int,
+		sfreq: Int,
+		single: Int
+	) {
 		var ch: Int
 		val powdiff = if (single == 3) 4 else 0
 
@@ -333,7 +344,14 @@ class Layer3(private val common: Common) {
 	/*
 	 * Side Info for MPEG 2.0 / LSF
 	 */
-	private fun III_get_side_info_2(mp: mpstr_tag, si: III_sideinfo, stereo: Int, ms_stereo: Int, sfreq: Int, single: Int) {
+	private fun III_get_side_info_2(
+		mp: mpstr_tag,
+		si: III_sideinfo,
+		stereo: Int,
+		ms_stereo: Int,
+		sfreq: Int,
+		single: Int
+	) {
 		val powdiff = if (single == 3) 4 else 0
 
 		si.main_data_begin = common.getbits(mp, 8)
@@ -544,7 +562,14 @@ class Layer3(private val common: Common) {
 		return numbits
 	}
 
-	private fun III_dequantize_sample(mp: mpstr_tag, xr: FloatArray, scf: IntArray, gr_infos: gr_info_s, sfreq: Int, part2bits: Int): Int {
+	private fun III_dequantize_sample(
+		mp: mpstr_tag,
+		xr: FloatArray,
+		scf: IntArray,
+		gr_infos: gr_info_s,
+		sfreq: Int,
+		part2bits: Int
+	): Int {
 		var scfPos = 0
 		val shift = 1 + gr_infos.scalefac_scale
 		var xrpnt = xr
@@ -865,7 +890,8 @@ class Layer3(private val common: Common) {
 						if (0 == mc) {
 							mc = m[mPos++]
 							cb = m[mPos++]
-							v = gr_infos.pow2gain[gr_infos.pow2gainPos + (scf[scfPos++] + pretab[pretabPos++] shl shift)]
+							v =
+									gr_infos.pow2gain[gr_infos.pow2gainPos + (scf[scfPos++] + pretab[pretabPos++] shl shift)]
 						}
 						mc--
 					}
@@ -913,7 +939,14 @@ class Layer3(private val common: Common) {
 		return 0
 	}
 
-	private fun III_i_stereo(xr_buf: Array<FloatArray>, scalefac: IntArray, gr_infos: gr_info_s, sfreq: Int, ms_stereo: Int, lsf: Int) {
+	private fun III_i_stereo(
+		xr_buf: Array<FloatArray>,
+		scalefac: IntArray,
+		gr_infos: gr_info_s,
+		sfreq: Int,
+		ms_stereo: Int,
+		lsf: Int
+	) {
 		val xr = xr_buf
 		val bi = bandInfo[sfreq]
 		val tabl1: FloatArray
@@ -1121,10 +1154,14 @@ class Layer3(private val common: Common) {
 				val tb66 = inn[inPos + 2 * 6 + 1] * c[6]
 
 				run {
-					val tmp1a = inn[inPos + 2 * 1 + 0] * c[1] + ta33 + inn[inPos + 2 * 5 + 0] * c[5] + inn[inPos + 2 * 7 + 0] * c[7]
-					val tmp1b = inn[inPos + 2 * 1 + 1] * c[1] + tb33 + inn[inPos + 2 * 5 + 1] * c[5] + inn[inPos + 2 * 7 + 1] * c[7]
-					val tmp2a = inn[inPos + 2 * 0 + 0] + inn[inPos + 2 * 2 + 0] * c[2] + inn[inPos + 2 * 4 + 0] * c[4] + ta66 + inn[inPos + 2 * 8 + 0] * c[8]
-					val tmp2b = inn[inPos + 2 * 0 + 1] + inn[inPos + 2 * 2 + 1] * c[2] + inn[inPos + 2 * 4 + 1] * c[4] + tb66 + inn[inPos + 2 * 8 + 1] * c[8]
+					val tmp1a =
+						inn[inPos + 2 * 1 + 0] * c[1] + ta33 + inn[inPos + 2 * 5 + 0] * c[5] + inn[inPos + 2 * 7 + 0] * c[7]
+					val tmp1b =
+						inn[inPos + 2 * 1 + 1] * c[1] + tb33 + inn[inPos + 2 * 5 + 1] * c[5] + inn[inPos + 2 * 7 + 1] * c[7]
+					val tmp2a =
+						inn[inPos + 2 * 0 + 0] + inn[inPos + 2 * 2 + 0] * c[2] + inn[inPos + 2 * 4 + 0] * c[4] + ta66 + inn[inPos + 2 * 8 + 0] * c[8]
+					val tmp2b =
+						inn[inPos + 2 * 0 + 1] + inn[inPos + 2 * 2 + 1] * c[2] + inn[inPos + 2 * 4 + 1] * c[4] + tb66 + inn[inPos + 2 * 8 + 1] * c[8]
 
 					// MACRO1(0);
 					run {
@@ -1153,8 +1190,10 @@ class Layer3(private val common: Common) {
 				run {
 					val tmp1a = (inn[inPos + 2 * 1 + 0] - inn[inPos + 2 * 5 + 0] - inn[inPos + 2 * 7 + 0]) * c[3]
 					val tmp1b = (inn[inPos + 2 * 1 + 1] - inn[inPos + 2 * 5 + 1] - inn[inPos + 2 * 7 + 1]) * c[3]
-					val tmp2a = (inn[inPos + 2 * 2 + 0] - inn[inPos + 2 * 4 + 0] - inn[inPos + 2 * 8 + 0]) * c[6] - inn[inPos + 2 * 6 + 0] + inn[inPos + 2 * 0 + 0]
-					val tmp2b = (inn[inPos + 2 * 2 + 1] - inn[inPos + 2 * 4 + 1] - inn[inPos + 2 * 8 + 1]) * c[6] - inn[inPos + 2 * 6 + 1] + inn[inPos + 2 * 0 + 1]
+					val tmp2a =
+						(inn[inPos + 2 * 2 + 0] - inn[inPos + 2 * 4 + 0] - inn[inPos + 2 * 8 + 0]) * c[6] - inn[inPos + 2 * 6 + 0] + inn[inPos + 2 * 0 + 0]
+					val tmp2b =
+						(inn[inPos + 2 * 2 + 1] - inn[inPos + 2 * 4 + 1] - inn[inPos + 2 * 8 + 1]) * c[6] - inn[inPos + 2 * 6 + 1] + inn[inPos + 2 * 0 + 1]
 
 					// MACRO1(1);
 					run {
@@ -1183,10 +1222,14 @@ class Layer3(private val common: Common) {
 				}
 
 				run {
-					val tmp1a = inn[inPos + 2 * 1 + 0] * c[5] - ta33 - inn[inPos + 2 * 5 + 0] * c[7] + inn[inPos + 2 * 7 + 0] * c[1]
-					val tmp1b = inn[inPos + 2 * 1 + 1] * c[5] - tb33 - inn[inPos + 2 * 5 + 1] * c[7] + inn[inPos + 2 * 7 + 1] * c[1]
-					val tmp2a = inn[inPos + 2 * 0 + 0] - inn[inPos + 2 * 2 + 0] * c[8] - inn[inPos + 2 * 4 + 0] * c[2] + ta66 + inn[inPos + 2 * 8 + 0] * c[4]
-					val tmp2b = inn[inPos + 2 * 0 + 1] - inn[inPos + 2 * 2 + 1] * c[8] - inn[inPos + 2 * 4 + 1] * c[2] + tb66 + inn[inPos + 2 * 8 + 1] * c[4]
+					val tmp1a =
+						inn[inPos + 2 * 1 + 0] * c[5] - ta33 - inn[inPos + 2 * 5 + 0] * c[7] + inn[inPos + 2 * 7 + 0] * c[1]
+					val tmp1b =
+						inn[inPos + 2 * 1 + 1] * c[5] - tb33 - inn[inPos + 2 * 5 + 1] * c[7] + inn[inPos + 2 * 7 + 1] * c[1]
+					val tmp2a =
+						inn[inPos + 2 * 0 + 0] - inn[inPos + 2 * 2 + 0] * c[8] - inn[inPos + 2 * 4 + 0] * c[2] + ta66 + inn[inPos + 2 * 8 + 0] * c[4]
+					val tmp2b =
+						inn[inPos + 2 * 0 + 1] - inn[inPos + 2 * 2 + 1] * c[8] - inn[inPos + 2 * 4 + 1] * c[2] + tb66 + inn[inPos + 2 * 8 + 1] * c[4]
 
 					// MACRO1(2);
 					run {
@@ -1213,10 +1256,14 @@ class Layer3(private val common: Common) {
 				}
 
 				run {
-					val tmp1a = inn[inPos + 2 * 1 + 0] * c[7] - ta33 + inn[inPos + 2 * 5 + 0] * c[1] - inn[inPos + 2 * 7 + 0] * c[5]
-					val tmp1b = inn[inPos + 2 * 1 + 1] * c[7] - tb33 + inn[inPos + 2 * 5 + 1] * c[1] - inn[inPos + 2 * 7 + 1] * c[5]
-					val tmp2a = inn[inPos + 2 * 0 + 0] - inn[inPos + 2 * 2 + 0] * c[4] + inn[inPos + 2 * 4 + 0] * c[8] + ta66 - inn[inPos + 2 * 8 + 0] * c[2]
-					val tmp2b = inn[inPos + 2 * 0 + 1] - inn[inPos + 2 * 2 + 1] * c[4] + inn[inPos + 2 * 4 + 1] * c[8] + tb66 - inn[inPos + 2 * 8 + 1] * c[2]
+					val tmp1a =
+						inn[inPos + 2 * 1 + 0] * c[7] - ta33 + inn[inPos + 2 * 5 + 0] * c[1] - inn[inPos + 2 * 7 + 0] * c[5]
+					val tmp1b =
+						inn[inPos + 2 * 1 + 1] * c[7] - tb33 + inn[inPos + 2 * 5 + 1] * c[1] - inn[inPos + 2 * 7 + 1] * c[5]
+					val tmp2a =
+						inn[inPos + 2 * 0 + 0] - inn[inPos + 2 * 2 + 0] * c[4] + inn[inPos + 2 * 4 + 0] * c[8] + ta66 - inn[inPos + 2 * 8 + 0] * c[2]
+					val tmp2b =
+						inn[inPos + 2 * 0 + 1] - inn[inPos + 2 * 2 + 1] * c[4] + inn[inPos + 2 * 4 + 1] * c[8] + tb66 - inn[inPos + 2 * 8 + 1] * c[2]
 
 					// MACRO1(3);
 					run {
@@ -1243,8 +1290,10 @@ class Layer3(private val common: Common) {
 				}
 
 				run {
-					var sum0 = inn[inPos + 2 * 0 + 0] - inn[inPos + 2 * 2 + 0] + inn[inPos + 2 * 4 + 0] - inn[inPos + 2 * 6 + 0] + inn[inPos + 2 * 8 + 0]
-					val sum1 = (inn[inPos + 2 * 0 + 1] - inn[inPos + 2 * 2 + 1] + inn[inPos + 2 * 4 + 1] - inn[inPos + 2 * 6 + 1] + inn[inPos + 2 * 8 + 1]) * tfcos36[4]
+					var sum0 =
+						inn[inPos + 2 * 0 + 0] - inn[inPos + 2 * 2 + 0] + inn[inPos + 2 * 4 + 0] - inn[inPos + 2 * 6 + 0] + inn[inPos + 2 * 8 + 0]
+					val sum1 =
+						(inn[inPos + 2 * 0 + 1] - inn[inPos + 2 * 2 + 1] + inn[inPos + 2 * 4 + 1] - inn[inPos + 2 * 6 + 1] + inn[inPos + 2 * 8 + 1]) * tfcos36[4]
 					// MACRO0(4)
 					run {
 						val tmp = sum0 + sum1
@@ -1501,7 +1550,17 @@ class Layer3(private val common: Common) {
 		if (gr_infos.mixed_block_flag != 0) {
 			sb = 2
 			dct36(fsIn, 0 * MPG123.SSLIMIT, rawout1, rawout1Pos, rawout2, rawout2Pos, win[0], tspnt, tspntPos + 0)
-			dct36(fsIn, 1 * MPG123.SSLIMIT, rawout1, rawout1Pos + 18, rawout2, rawout2Pos + 18, win1[0], tspnt, tspntPos + 1)
+			dct36(
+				fsIn,
+				1 * MPG123.SSLIMIT,
+				rawout1,
+				rawout1Pos + 18,
+				rawout2,
+				rawout2Pos + 18,
+				win1[0],
+				tspnt,
+				tspntPos + 1
+			)
 			rawout1Pos += 36
 			rawout2Pos += 36
 			tspntPos += 2
@@ -1511,7 +1570,17 @@ class Layer3(private val common: Common) {
 		if (bt == 2) {
 			while (sb < gr_infos.maxb) {
 				dct12(fsIn, sb * MPG123.SSLIMIT, rawout1, rawout1Pos, rawout2, rawout2Pos, win[2], tspnt, tspntPos + 0)
-				dct12(fsIn, (sb + 1) * MPG123.SSLIMIT, rawout1, rawout1Pos + 18, rawout2, rawout2Pos + 18, win1[2], tspnt, tspntPos + 1)
+				dct12(
+					fsIn,
+					(sb + 1) * MPG123.SSLIMIT,
+					rawout1,
+					rawout1Pos + 18,
+					rawout2,
+					rawout2Pos + 18,
+					win1[2],
+					tspnt,
+					tspntPos + 1
+				)
 				sb += 2
 				tspntPos += 2
 				rawout1Pos += 36
@@ -1520,7 +1589,17 @@ class Layer3(private val common: Common) {
 		} else {
 			while (sb < gr_infos.maxb) {
 				dct36(fsIn, sb * MPG123.SSLIMIT, rawout1, rawout1Pos, rawout2, rawout2Pos, win[bt], tspnt, tspntPos + 0)
-				dct36(fsIn, (sb + 1) * MPG123.SSLIMIT, rawout1, rawout1Pos + 18, rawout2, rawout2Pos + 18, win1[bt], tspnt, tspntPos + 1)
+				dct36(
+					fsIn,
+					(sb + 1) * MPG123.SSLIMIT,
+					rawout1,
+					rawout1Pos + 18,
+					rawout2,
+					rawout2Pos + 18,
+					win1[bt],
+					tspnt,
+					tspntPos + 1
+				)
 				sb += 2
 				tspntPos += 2
 				rawout1Pos += 36
@@ -1788,70 +1867,405 @@ class Layer3(private val common: Common) {
 	}
 
 	companion object {
-		private val slen = arrayOf(intArrayOf(0, 0, 0, 0, 3, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4), intArrayOf(0, 1, 2, 3, 0, 1, 2, 3, 1, 2, 3, 1, 2, 3, 2, 3))
-		private val stab = arrayOf(arrayOf(intArrayOf(6, 5, 5, 5), intArrayOf(6, 5, 7, 3), intArrayOf(11, 10, 0, 0), intArrayOf(7, 7, 7, 0), intArrayOf(6, 6, 6, 3), intArrayOf(8, 8, 5, 0)), arrayOf(intArrayOf(9, 9, 9, 9), intArrayOf(9, 9, 12, 6), intArrayOf(18, 18, 0, 0), intArrayOf(12, 12, 12, 0), intArrayOf(12, 9, 9, 6), intArrayOf(15, 12, 9, 0)), arrayOf(intArrayOf(6, 9, 9, 9), intArrayOf(6, 9, 12, 6), intArrayOf(15, 18, 0, 0), intArrayOf(6, 15, 12, 0), intArrayOf(6, 12, 9, 6), intArrayOf(6, 18, 9, 0)))
-		private val pretab1 = intArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 3, 3, 3, 2, 0) /* char enough ? */
+		private val slen = arrayOf(
+			intArrayOf(0, 0, 0, 0, 3, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4),
+			intArrayOf(0, 1, 2, 3, 0, 1, 2, 3, 1, 2, 3, 1, 2, 3, 2, 3)
+		)
+		private val stab = arrayOf(
+			arrayOf(
+				intArrayOf(6, 5, 5, 5),
+				intArrayOf(6, 5, 7, 3),
+				intArrayOf(11, 10, 0, 0),
+				intArrayOf(7, 7, 7, 0),
+				intArrayOf(6, 6, 6, 3),
+				intArrayOf(8, 8, 5, 0)
+			),
+			arrayOf(
+				intArrayOf(9, 9, 9, 9),
+				intArrayOf(9, 9, 12, 6),
+				intArrayOf(18, 18, 0, 0),
+				intArrayOf(12, 12, 12, 0),
+				intArrayOf(12, 9, 9, 6),
+				intArrayOf(15, 12, 9, 0)
+			),
+			arrayOf(
+				intArrayOf(6, 9, 9, 9),
+				intArrayOf(6, 9, 12, 6),
+				intArrayOf(15, 18, 0, 0),
+				intArrayOf(6, 15, 12, 0),
+				intArrayOf(6, 12, 9, 6),
+				intArrayOf(6, 18, 9, 0)
+			)
+		)
+		private val pretab1 =
+			intArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 3, 3, 3, 2, 0) /* char enough ? */
 		private val pretab2 = intArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 		private val bandInfo = arrayOf(
 
 			/* MPEG 1.0 */
 			bandInfoStruct(
-				shortArrayOf(0, 4, 8, 12, 16, 20, 24, 30, 36, 44, 52, 62, 74, 90, 110, 134, 162, 196, 238, 288, 342, 418, 576),
+				shortArrayOf(
+					0,
+					4,
+					8,
+					12,
+					16,
+					20,
+					24,
+					30,
+					36,
+					44,
+					52,
+					62,
+					74,
+					90,
+					110,
+					134,
+					162,
+					196,
+					238,
+					288,
+					342,
+					418,
+					576
+				),
 				shortArrayOf(4, 4, 4, 4, 4, 4, 6, 6, 8, 8, 10, 12, 16, 20, 24, 28, 34, 42, 50, 54, 76, 158),
-				shortArrayOf(0, (4 * 3).toShort(), (8 * 3).toShort(), (12 * 3).toShort(), (16 * 3).toShort(), (22 * 3).toShort(), (30 * 3).toShort(), (40 * 3).toShort(), (52 * 3).toShort(), (66 * 3).toShort(), (84 * 3).toShort(), (106 * 3).toShort(), (136 * 3).toShort(), (192 * 3).toShort()),
+				shortArrayOf(
+					0,
+					(4 * 3).toShort(),
+					(8 * 3).toShort(),
+					(12 * 3).toShort(),
+					(16 * 3).toShort(),
+					(22 * 3).toShort(),
+					(30 * 3).toShort(),
+					(40 * 3).toShort(),
+					(52 * 3).toShort(),
+					(66 * 3).toShort(),
+					(84 * 3).toShort(),
+					(106 * 3).toShort(),
+					(136 * 3).toShort(),
+					(192 * 3).toShort()
+				),
 				shortArrayOf(4, 4, 4, 4, 6, 8, 10, 12, 14, 18, 22, 30, 56)
 			),
 
 			bandInfoStruct(
-				shortArrayOf(0, 4, 8, 12, 16, 20, 24, 30, 36, 42, 50, 60, 72, 88, 106, 128, 156, 190, 230, 276, 330, 384, 576),
+				shortArrayOf(
+					0,
+					4,
+					8,
+					12,
+					16,
+					20,
+					24,
+					30,
+					36,
+					42,
+					50,
+					60,
+					72,
+					88,
+					106,
+					128,
+					156,
+					190,
+					230,
+					276,
+					330,
+					384,
+					576
+				),
 				shortArrayOf(4, 4, 4, 4, 4, 4, 6, 6, 6, 8, 10, 12, 16, 18, 22, 28, 34, 40, 46, 54, 54, 192),
-				shortArrayOf(0, (4 * 3).toShort(), (8 * 3).toShort(), (12 * 3).toShort(), (16 * 3).toShort(), (22 * 3).toShort(), (28 * 3).toShort(), (38 * 3).toShort(), (50 * 3).toShort(), (64 * 3).toShort(), (80 * 3).toShort(), (100 * 3).toShort(), (126 * 3).toShort(), (192 * 3).toShort()),
+				shortArrayOf(
+					0,
+					(4 * 3).toShort(),
+					(8 * 3).toShort(),
+					(12 * 3).toShort(),
+					(16 * 3).toShort(),
+					(22 * 3).toShort(),
+					(28 * 3).toShort(),
+					(38 * 3).toShort(),
+					(50 * 3).toShort(),
+					(64 * 3).toShort(),
+					(80 * 3).toShort(),
+					(100 * 3).toShort(),
+					(126 * 3).toShort(),
+					(192 * 3).toShort()
+				),
 				shortArrayOf(4, 4, 4, 4, 6, 6, 10, 12, 14, 16, 20, 26, 66)
 			),
 
 			bandInfoStruct(
-				shortArrayOf(0, 4, 8, 12, 16, 20, 24, 30, 36, 44, 54, 66, 82, 102, 126, 156, 194, 240, 296, 364, 448, 550, 576),
+				shortArrayOf(
+					0,
+					4,
+					8,
+					12,
+					16,
+					20,
+					24,
+					30,
+					36,
+					44,
+					54,
+					66,
+					82,
+					102,
+					126,
+					156,
+					194,
+					240,
+					296,
+					364,
+					448,
+					550,
+					576
+				),
 				shortArrayOf(4, 4, 4, 4, 4, 4, 6, 6, 8, 10, 12, 16, 20, 24, 30, 38, 46, 56, 68, 84, 102, 26),
-				shortArrayOf(0, (4 * 3).toShort(), (8 * 3).toShort(), (12 * 3).toShort(), (16 * 3).toShort(), (22 * 3).toShort(), (30 * 3).toShort(), (42 * 3).toShort(), (58 * 3).toShort(), (78 * 3).toShort(), (104 * 3).toShort(), (138 * 3).toShort(), (180 * 3).toShort(), (192 * 3).toShort()),
+				shortArrayOf(
+					0,
+					(4 * 3).toShort(),
+					(8 * 3).toShort(),
+					(12 * 3).toShort(),
+					(16 * 3).toShort(),
+					(22 * 3).toShort(),
+					(30 * 3).toShort(),
+					(42 * 3).toShort(),
+					(58 * 3).toShort(),
+					(78 * 3).toShort(),
+					(104 * 3).toShort(),
+					(138 * 3).toShort(),
+					(180 * 3).toShort(),
+					(192 * 3).toShort()
+				),
 				shortArrayOf(4, 4, 4, 4, 6, 8, 12, 16, 20, 26, 34, 42, 12)
 			),
 
 			/* MPEG 2.0 */
 			bandInfoStruct(
-				shortArrayOf(0, 6, 12, 18, 24, 30, 36, 44, 54, 66, 80, 96, 116, 140, 168, 200, 238, 284, 336, 396, 464, 522, 576),
+				shortArrayOf(
+					0,
+					6,
+					12,
+					18,
+					24,
+					30,
+					36,
+					44,
+					54,
+					66,
+					80,
+					96,
+					116,
+					140,
+					168,
+					200,
+					238,
+					284,
+					336,
+					396,
+					464,
+					522,
+					576
+				),
 				shortArrayOf(6, 6, 6, 6, 6, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32, 38, 46, 52, 60, 68, 58, 54),
-				shortArrayOf(0, (4 * 3).toShort(), (8 * 3).toShort(), (12 * 3).toShort(), (18 * 3).toShort(), (24 * 3).toShort(), (32 * 3).toShort(), (42 * 3).toShort(), (56 * 3).toShort(), (74 * 3).toShort(), (100 * 3).toShort(), (132 * 3).toShort(), (174 * 3).toShort(), (192 * 3).toShort()),
+				shortArrayOf(
+					0,
+					(4 * 3).toShort(),
+					(8 * 3).toShort(),
+					(12 * 3).toShort(),
+					(18 * 3).toShort(),
+					(24 * 3).toShort(),
+					(32 * 3).toShort(),
+					(42 * 3).toShort(),
+					(56 * 3).toShort(),
+					(74 * 3).toShort(),
+					(100 * 3).toShort(),
+					(132 * 3).toShort(),
+					(174 * 3).toShort(),
+					(192 * 3).toShort()
+				),
 				shortArrayOf(4, 4, 4, 6, 6, 8, 10, 14, 18, 26, 32, 42, 18)
 			),
 			/* docs: 332. mpg123: 330 */
 			bandInfoStruct(
-				shortArrayOf(0, 6, 12, 18, 24, 30, 36, 44, 54, 66, 80, 96, 114, 136, 162, 194, 232, 278, 332, 394, 464, 540, 576),
+				shortArrayOf(
+					0,
+					6,
+					12,
+					18,
+					24,
+					30,
+					36,
+					44,
+					54,
+					66,
+					80,
+					96,
+					114,
+					136,
+					162,
+					194,
+					232,
+					278,
+					332,
+					394,
+					464,
+					540,
+					576
+				),
 				shortArrayOf(6, 6, 6, 6, 6, 6, 8, 10, 12, 14, 16, 18, 22, 26, 32, 38, 46, 54, 62, 70, 76, 36),
-				shortArrayOf(0, (4 * 3).toShort(), (8 * 3).toShort(), (12 * 3).toShort(), (18 * 3).toShort(), (26 * 3).toShort(), (36 * 3).toShort(), (48 * 3).toShort(), (62 * 3).toShort(), (80 * 3).toShort(), (104 * 3).toShort(), (136 * 3).toShort(), (180 * 3).toShort(), (192 * 3).toShort()),
+				shortArrayOf(
+					0,
+					(4 * 3).toShort(),
+					(8 * 3).toShort(),
+					(12 * 3).toShort(),
+					(18 * 3).toShort(),
+					(26 * 3).toShort(),
+					(36 * 3).toShort(),
+					(48 * 3).toShort(),
+					(62 * 3).toShort(),
+					(80 * 3).toShort(),
+					(104 * 3).toShort(),
+					(136 * 3).toShort(),
+					(180 * 3).toShort(),
+					(192 * 3).toShort()
+				),
 				shortArrayOf(4, 4, 4, 6, 8, 10, 12, 14, 18, 24, 32, 44, 12)
 			),
 
 			bandInfoStruct(
-				shortArrayOf(0, 6, 12, 18, 24, 30, 36, 44, 54, 66, 80, 96, 116, 140, 168, 200, 238, 284, 336, 396, 464, 522, 576),
+				shortArrayOf(
+					0,
+					6,
+					12,
+					18,
+					24,
+					30,
+					36,
+					44,
+					54,
+					66,
+					80,
+					96,
+					116,
+					140,
+					168,
+					200,
+					238,
+					284,
+					336,
+					396,
+					464,
+					522,
+					576
+				),
 				shortArrayOf(6, 6, 6, 6, 6, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32, 38, 46, 52, 60, 68, 58, 54),
-				shortArrayOf(0, (4 * 3).toShort(), (8 * 3).toShort(), (12 * 3).toShort(), (18 * 3).toShort(), (26 * 3).toShort(), (36 * 3).toShort(), (48 * 3).toShort(), (62 * 3).toShort(), (80 * 3).toShort(), (104 * 3).toShort(), (134 * 3).toShort(), (174 * 3).toShort(), (192 * 3).toShort()),
+				shortArrayOf(
+					0,
+					(4 * 3).toShort(),
+					(8 * 3).toShort(),
+					(12 * 3).toShort(),
+					(18 * 3).toShort(),
+					(26 * 3).toShort(),
+					(36 * 3).toShort(),
+					(48 * 3).toShort(),
+					(62 * 3).toShort(),
+					(80 * 3).toShort(),
+					(104 * 3).toShort(),
+					(134 * 3).toShort(),
+					(174 * 3).toShort(),
+					(192 * 3).toShort()
+				),
 				shortArrayOf(4, 4, 4, 6, 8, 10, 12, 14, 18, 24, 30, 40, 18)
 			),
 			/* MPEG 2.5 */
 			bandInfoStruct(
-				shortArrayOf(0, 6, 12, 18, 24, 30, 36, 44, 54, 66, 80, 96, 116, 140, 168, 200, 238, 284, 336, 396, 464, 522, 576),
+				shortArrayOf(
+					0,
+					6,
+					12,
+					18,
+					24,
+					30,
+					36,
+					44,
+					54,
+					66,
+					80,
+					96,
+					116,
+					140,
+					168,
+					200,
+					238,
+					284,
+					336,
+					396,
+					464,
+					522,
+					576
+				),
 				shortArrayOf(6, 6, 6, 6, 6, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32, 38, 46, 52, 60, 68, 58, 54),
 				shortArrayOf(0, 12, 24, 36, 54, 78, 108, 144, 186, 240, 312, 402, 522, 576),
 				shortArrayOf(4, 4, 4, 6, 8, 10, 12, 14, 18, 24, 30, 40, 18)
 			),
 			bandInfoStruct(
-				shortArrayOf(0, 6, 12, 18, 24, 30, 36, 44, 54, 66, 80, 96, 116, 140, 168, 200, 238, 284, 336, 396, 464, 522, 576),
+				shortArrayOf(
+					0,
+					6,
+					12,
+					18,
+					24,
+					30,
+					36,
+					44,
+					54,
+					66,
+					80,
+					96,
+					116,
+					140,
+					168,
+					200,
+					238,
+					284,
+					336,
+					396,
+					464,
+					522,
+					576
+				),
 				shortArrayOf(6, 6, 6, 6, 6, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32, 38, 46, 52, 60, 68, 58, 54),
 				shortArrayOf(0, 12, 24, 36, 54, 78, 108, 144, 186, 240, 312, 402, 522, 576),
 				shortArrayOf(4, 4, 4, 6, 8, 10, 12, 14, 18, 24, 30, 40, 18)
 			),
 			bandInfoStruct(
-				shortArrayOf(0, 12, 24, 36, 48, 60, 72, 88, 108, 132, 160, 192, 232, 280, 336, 400, 476, 566, 568, 570, 572, 574, 576),
+				shortArrayOf(
+					0,
+					12,
+					24,
+					36,
+					48,
+					60,
+					72,
+					88,
+					108,
+					132,
+					160,
+					192,
+					232,
+					280,
+					336,
+					400,
+					476,
+					566,
+					568,
+					570,
+					572,
+					574,
+					576
+				),
 				shortArrayOf(12, 12, 12, 12, 12, 12, 16, 20, 24, 28, 32, 40, 48, 56, 64, 76, 90, 2, 2, 2, 2, 2),
 				shortArrayOf(0, 24, 48, 72, 108, 156, 216, 288, 372, 480, 486, 492, 498, 576),
 				shortArrayOf(8, 8, 8, 12, 16, 20, 24, 28, 36, 2, 2, 2, 26)

@@ -16,15 +16,32 @@ class FastMemory(val buffer: MemBuffer, val size: Int) {
 		operator fun invoke(buffer: MemBuffer, size: Int = buffer.size): FastMemory = FastMemory(buffer, size)
 		operator fun invoke(array: ByteArray): FastMemory = FastMemory(MemBufferWrap(array), array.size)
 
-		fun copy(src: FastMemory, srcPos: Int, dst: FastMemory, dstPos: Int, length: Int): Unit = arraycopy(src.buffer, srcPos, dst.buffer, dstPos, length)
-		fun copy(src: FastMemory, srcPos: Int, dst: ByteArray, dstPos: Int, length: Int): Unit = arraycopy(src.buffer, srcPos, dst, dstPos, length)
-		fun copy(src: ByteArray, srcPos: Int, dst: FastMemory, dstPos: Int, length: Int): Unit = arraycopy(src, srcPos, dst.buffer, dstPos, length)
-		fun copyAligned(src: FastMemory, srcPosAligned: Int, dst: ShortArray, dstPosAligned: Int, length: Int): Unit = arraycopy(src.buffer, srcPosAligned, dst, dstPosAligned, length)
-		fun copyAligned(src: ShortArray, srcPosAligned: Int, dst: FastMemory, dstPosAligned: Int, length: Int): Unit = arraycopy(src, srcPosAligned, dst.buffer, dstPosAligned, length)
-		fun copyAligned(src: FastMemory, srcPosAligned: Int, dst: IntArray, dstPosAligned: Int, length: Int): Unit = arraycopy(src.buffer, srcPosAligned, dst, dstPosAligned, length)
-		fun copyAligned(src: IntArray, srcPosAligned: Int, dst: FastMemory, dstPosAligned: Int, length: Int): Unit = arraycopy(src, srcPosAligned, dst.buffer, dstPosAligned, length)
-		fun copyAligned(src: FastMemory, srcPosAligned: Int, dst: FloatArray, dstPosAligned: Int, length: Int): Unit = arraycopy(src.buffer, srcPosAligned, dst, dstPosAligned, length)
-		fun copyAligned(src: FloatArray, srcPosAligned: Int, dst: FastMemory, dstPosAligned: Int, length: Int): Unit = arraycopy(src, srcPosAligned, dst.buffer, dstPosAligned, length)
+		fun copy(src: FastMemory, srcPos: Int, dst: FastMemory, dstPos: Int, length: Int): Unit =
+			arraycopy(src.buffer, srcPos, dst.buffer, dstPos, length)
+
+		fun copy(src: FastMemory, srcPos: Int, dst: ByteArray, dstPos: Int, length: Int): Unit =
+			arraycopy(src.buffer, srcPos, dst, dstPos, length)
+
+		fun copy(src: ByteArray, srcPos: Int, dst: FastMemory, dstPos: Int, length: Int): Unit =
+			arraycopy(src, srcPos, dst.buffer, dstPos, length)
+
+		fun copyAligned(src: FastMemory, srcPosAligned: Int, dst: ShortArray, dstPosAligned: Int, length: Int): Unit =
+			arraycopy(src.buffer, srcPosAligned, dst, dstPosAligned, length)
+
+		fun copyAligned(src: ShortArray, srcPosAligned: Int, dst: FastMemory, dstPosAligned: Int, length: Int): Unit =
+			arraycopy(src, srcPosAligned, dst.buffer, dstPosAligned, length)
+
+		fun copyAligned(src: FastMemory, srcPosAligned: Int, dst: IntArray, dstPosAligned: Int, length: Int): Unit =
+			arraycopy(src.buffer, srcPosAligned, dst, dstPosAligned, length)
+
+		fun copyAligned(src: IntArray, srcPosAligned: Int, dst: FastMemory, dstPosAligned: Int, length: Int): Unit =
+			arraycopy(src, srcPosAligned, dst.buffer, dstPosAligned, length)
+
+		fun copyAligned(src: FastMemory, srcPosAligned: Int, dst: FloatArray, dstPosAligned: Int, length: Int): Unit =
+			arraycopy(src.buffer, srcPosAligned, dst, dstPosAligned, length)
+
+		fun copyAligned(src: FloatArray, srcPosAligned: Int, dst: FastMemory, dstPosAligned: Int, length: Int): Unit =
+			arraycopy(src, srcPosAligned, dst.buffer, dstPosAligned, length)
 	}
 
 	operator fun get(index: Int): Int = i8[index].toInt() and 0xFF
@@ -46,13 +63,23 @@ class FastMemory(val buffer: MemBuffer, val size: Int) {
 
 	fun setArrayInt8(dstPos: Int, src: ByteArray, srcPos: Int, len: Int) = copy(src, srcPos, this, dstPos, len)
 	fun setAlignedArrayInt8(dstPos: Int, src: ByteArray, srcPos: Int, len: Int) = copy(src, srcPos, this, dstPos, len)
-	fun setAlignedArrayInt16(dstPos: Int, src: ShortArray, srcPos: Int, len: Int) = copyAligned(src, srcPos, this, dstPos, len)
-	fun setAlignedArrayInt32(dstPos: Int, src: IntArray, srcPos: Int, len: Int) = copyAligned(src, srcPos, this, dstPos, len)
-	fun setAlignedArrayFloat32(dstPos: Int, src: FloatArray, srcPos: Int, len: Int) = copyAligned(src, srcPos, this, dstPos, len)
+	fun setAlignedArrayInt16(dstPos: Int, src: ShortArray, srcPos: Int, len: Int) =
+		copyAligned(src, srcPos, this, dstPos, len)
+
+	fun setAlignedArrayInt32(dstPos: Int, src: IntArray, srcPos: Int, len: Int) =
+		copyAligned(src, srcPos, this, dstPos, len)
+
+	fun setAlignedArrayFloat32(dstPos: Int, src: FloatArray, srcPos: Int, len: Int) =
+		copyAligned(src, srcPos, this, dstPos, len)
 
 	fun getArrayInt8(srcPos: Int, dst: ByteArray, dstPos: Int, len: Int) = copy(this, srcPos, dst, dstPos, len)
 	fun getAlignedArrayInt8(srcPos: Int, dst: ByteArray, dstPos: Int, len: Int) = copy(this, srcPos, dst, dstPos, len)
-	fun getAlignedArrayInt16(srcPos: Int, dst: ShortArray, dstPos: Int, len: Int) = copyAligned(this, srcPos, dst, dstPos, len)
-	fun getAlignedArrayInt32(srcPos: Int, dst: IntArray, dstPos: Int, len: Int) = copyAligned(this, srcPos, dst, dstPos, len)
-	fun getAlignedArrayFloat32(srcPos: Int, dst: FloatArray, dstPos: Int, len: Int) = copyAligned(this, srcPos, dst, dstPos, len)
+	fun getAlignedArrayInt16(srcPos: Int, dst: ShortArray, dstPos: Int, len: Int) =
+		copyAligned(this, srcPos, dst, dstPos, len)
+
+	fun getAlignedArrayInt32(srcPos: Int, dst: IntArray, dstPos: Int, len: Int) =
+		copyAligned(this, srcPos, dst, dstPos, len)
+
+	fun getAlignedArrayFloat32(srcPos: Int, dst: FloatArray, dstPos: Int, len: Int) =
+		copyAligned(this, srcPos, dst, dstPos, len)
 }

@@ -1,8 +1,8 @@
 package com.soywiz.korio.vfs
 
-import com.soywiz.korio.async.syncTest
+import com.soywiz.korio.async.*
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class VfsFileTest {
 	@Test

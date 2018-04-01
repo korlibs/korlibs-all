@@ -1,6 +1,6 @@
 package com.soywiz.korge.service.storage
 
-import kotlin.browser.localStorage
+import kotlin.browser.*
 
 actual object NativeStorage : IStorage {
 	actual override fun set(key: String, value: String) {

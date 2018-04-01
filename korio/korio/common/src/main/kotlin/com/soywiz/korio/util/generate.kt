@@ -1,12 +1,7 @@
 package com.soywiz.korio.util
 
-import com.soywiz.korio.coroutine.Continuation
-import com.soywiz.korio.coroutine.CoroutineContext
-import com.soywiz.korio.coroutine.RestrictsSuspension
-import com.soywiz.korio.coroutine.getCoroutineContext
-import kotlin.coroutines.experimental.EmptyCoroutineContext
-import kotlin.coroutines.experimental.createCoroutine
-import kotlin.coroutines.experimental.suspendCoroutine
+import com.soywiz.korio.coroutine.*
+import kotlin.coroutines.experimental.*
 
 // From: https://github.com/Kotlin/kotlin-coroutines/blob/master/examples/generate.kt
 
@@ -36,7 +31,8 @@ fun <T> generate(block: suspend Generator<T>.() -> Unit): Iterable<T> {
 	}
 }
 
-private class GeneratorIterator<T>(override val context: CoroutineContext) : AbstractIterator<T>(), Generator<T>, Continuation<Unit> {
+private class GeneratorIterator<T>(override val context: CoroutineContext) : AbstractIterator<T>(), Generator<T>,
+	Continuation<Unit> {
 	lateinit var nextStep: Continuation<Unit>
 
 	// AbstractIterator implementation

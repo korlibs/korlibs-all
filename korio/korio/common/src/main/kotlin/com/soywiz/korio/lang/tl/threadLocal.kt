@@ -1,7 +1,7 @@
 package com.soywiz.korio.lang.tl
 
-import com.soywiz.korio.lang.ThreadLocal
-import kotlin.reflect.KProperty
+import com.soywiz.korio.lang.*
+import kotlin.reflect.*
 
 class threadLocal<T>(val gen: () -> T) {
 	val local = object : ThreadLocal<T>() {

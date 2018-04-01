@@ -1,13 +1,14 @@
 package com.soywiz.korim.font
 
-import com.soywiz.korim.bitmap.NativeImage
-import com.soywiz.korim.color.Colors
-import com.soywiz.korim.vector.Context2d
-import com.soywiz.korio.lang.String_fromIntArray
-import com.soywiz.korma.geom.RectangleInt
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
+import com.soywiz.korim.vector.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korma.geom.*
 
 object BitmapFontGenerator {
-	fun generate(fontName: String, fontSize: Int, chars: String): BitmapFont = generate(fontName, fontSize, chars.indices.map { chars[it].toInt() }.toIntArray())
+	fun generate(fontName: String, fontSize: Int, chars: String): BitmapFont =
+		generate(fontName, fontSize, chars.indices.map { chars[it].toInt() }.toIntArray())
 
 	val SPACE = " "
 	val UPPERCASE = ('A'..'Z').joinToString("")

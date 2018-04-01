@@ -2,20 +2,18 @@
 
 package com.soywiz.korio.vfs
 
-import com.soywiz.kds.lmapOf
+import com.soywiz.kds.*
 import com.soywiz.korio.async.*
-import com.soywiz.korio.coroutine.getCoroutineContext
-import com.soywiz.korio.error.ignoreErrors
+import com.soywiz.korio.coroutine.*
+import com.soywiz.korio.error.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korio.util.LONG_ZERO_TO_MAX_RANGE
-import com.soywiz.korio.util.toLongRange
-import com.soywiz.korio.util.use
-import kotlin.reflect.KClass
+import com.soywiz.korio.util.*
+import kotlin.reflect.*
 
 class VfsFile(
-		val vfs: Vfs,
-		path: String
+	val vfs: Vfs,
+	path: String
 ) : VfsNamed(path), AsyncInputOpenable, SuspendingSuspendSequence<VfsFile> {
 	val parent: VfsFile by lazy { VfsFile(vfs, pathInfo.folder) }
 	val root: VfsFile get() = vfs.root
@@ -24,18 +22,28 @@ class VfsFile(
 	operator fun get(path: String): VfsFile = VfsFile(vfs, VfsUtil.combine(this.path, path))
 
 	// @TODO: Kotlin suspend operator not supported yet!
-	suspend fun set(path: String, content: String): Unit = run { this[path].put(content.toByteArray(Charsets.UTF_8).openAsync()) }
+	suspend fun set(path: String, content: String): Unit =
+		run { this[path].put(content.toByteArray(Charsets.UTF_8).openAsync()) }
 
 	suspend fun set(path: String, content: ByteArray): Unit = run { this[path].put(content.openAsync()) }
 	suspend fun set(path: String, content: AsyncStream): Unit = run { this[path].writeStream(content) }
 	suspend fun set(path: String, content: VfsFile): Unit = run { this[path].writeFile(content) }
 
-	suspend fun put(content: AsyncInputStream, attributes: List<Vfs.Attribute> = listOf()): Long = vfs.put(path, content, attributes)
-	suspend fun put(content: AsyncInputStream, vararg attributes: Vfs.Attribute): Long = vfs.put(path, content, attributes.toList())
-	suspend fun write(data: ByteArray, vararg attributes: Vfs.Attribute): Long = vfs.put(path, data, attributes.toList())
+	suspend fun put(content: AsyncInputStream, attributes: List<Vfs.Attribute> = listOf()): Long =
+		vfs.put(path, content, attributes)
 
-	suspend fun writeBytes(data: ByteArray, vararg attributes: Vfs.Attribute): Long = vfs.put(path, data, attributes.toList())
-	suspend fun writeStream(src: AsyncStream, vararg attributes: Vfs.Attribute): Long = run { put(src, *attributes); src.getLength() }
+	suspend fun put(content: AsyncInputStream, vararg attributes: Vfs.Attribute): Long =
+		vfs.put(path, content, attributes.toList())
+
+	suspend fun write(data: ByteArray, vararg attributes: Vfs.Attribute): Long =
+		vfs.put(path, data, attributes.toList())
+
+	suspend fun writeBytes(data: ByteArray, vararg attributes: Vfs.Attribute): Long =
+		vfs.put(path, data, attributes.toList())
+
+	suspend fun writeStream(src: AsyncStream, vararg attributes: Vfs.Attribute): Long =
+		run { put(src, *attributes); src.getLength() }
+
 	suspend fun writeStream(src: AsyncInputStream, vararg attributes: Vfs.Attribute): Long = put(src, *attributes)
 	suspend fun writeFile(file: VfsFile, vararg attributes: Vfs.Attribute): Long = file.copyTo(this, *attributes)
 
@@ -46,8 +54,12 @@ class VfsFile(
 		return this.openInputStream().use { target.writeStream(this, *attributes) }
 	}
 
-	fun withExtension(ext: String): VfsFile = VfsFile(vfs, fullnameWithoutExtension + if (ext.isNotEmpty()) ".$ext" else "")
-	fun withCompoundExtension(ext: String): VfsFile = VfsFile(vfs, fullnameWithoutCompoundExtension + if (ext.isNotEmpty()) ".$ext" else "")
+	fun withExtension(ext: String): VfsFile =
+		VfsFile(vfs, fullnameWithoutExtension + if (ext.isNotEmpty()) ".$ext" else "")
+
+	fun withCompoundExtension(ext: String): VfsFile =
+		VfsFile(vfs, fullnameWithoutCompoundExtension + if (ext.isNotEmpty()) ".$ext" else "")
+
 	fun appendExtension(ext: String): VfsFile = VfsFile(vfs, fullname + ".$ext")
 
 	suspend fun open(mode: VfsOpenMode = VfsOpenMode.READ): AsyncStream = vfs.open(path, mode)
@@ -55,7 +67,10 @@ class VfsFile(
 
 	suspend override fun openRead(): AsyncStream = open(VfsOpenMode.READ)
 
-	suspend inline fun <T> openUse(mode: VfsOpenMode = VfsOpenMode.READ, noinline callback: suspend AsyncStream.() -> T): T {
+	suspend inline fun <T> openUse(
+		mode: VfsOpenMode = VfsOpenMode.READ,
+		noinline callback: suspend AsyncStream.() -> T
+	): T {
 		return open(mode).use { callback.await(this) }
 	}
 
@@ -71,11 +86,15 @@ class VfsFile(
 	suspend fun readBytes(): ByteArray = readAll()
 
 	suspend fun readString(charset: Charset = Charsets.UTF_8): String = read().toString(charset)
-	suspend fun writeString(data: String, vararg attributes: Vfs.Attribute): Unit = run { write(data.toByteArray(Charsets.UTF_8), *attributes) }
-	suspend fun writeString(data: String, charset: Charset, vararg attributes: Vfs.Attribute): Unit = run { write(data.toByteArray(charset), *attributes) }
+	suspend fun writeString(data: String, vararg attributes: Vfs.Attribute): Unit =
+		run { write(data.toByteArray(Charsets.UTF_8), *attributes) }
+
+	suspend fun writeString(data: String, charset: Charset, vararg attributes: Vfs.Attribute): Unit =
+		run { write(data.toByteArray(charset), *attributes) }
 
 	suspend fun readChunk(offset: Long, size: Int): ByteArray = vfs.readChunk(path, offset, size)
-	suspend fun writeChunk(data: ByteArray, offset: Long, resize: Boolean = false): Unit = vfs.writeChunk(path, data, offset, resize)
+	suspend fun writeChunk(data: ByteArray, offset: Long, resize: Boolean = false): Unit =
+		vfs.writeChunk(path, data, offset, resize)
 
 	suspend fun readAsSyncStream(): SyncStream = read().openSync()
 
@@ -100,7 +119,11 @@ class VfsFile(
 	@Deprecated("Use mkdir instead", ReplaceWith("mkdir(attributes)"))
 	suspend fun mkdirs(vararg attributes: Vfs.Attribute) = mkdir(attributes.toList())
 
-	suspend fun copyToTree(target: VfsFile, vararg attributes: Vfs.Attribute, notify: suspend (Pair<VfsFile, VfsFile>) -> Unit = {}): Unit {
+	suspend fun copyToTree(
+		target: VfsFile,
+		vararg attributes: Vfs.Attribute,
+		notify: suspend (Pair<VfsFile, VfsFile>) -> Unit = {}
+	): Unit {
 		notify(this to target)
 		if (this.isDirectory()) {
 			target.mkdir()
@@ -134,8 +157,19 @@ class VfsFile(
 		}
 	}
 
-	suspend fun exec(cmdAndArgs: List<String>, env: Map<String, String> = lmapOf(), handler: VfsProcessHandler = VfsProcessHandler()): Int = vfs.exec(path, cmdAndArgs, env, handler)
-	suspend fun execToString(cmdAndArgs: List<String>, env: Map<String, String> = lmapOf(), charset: Charset = Charsets.UTF_8, captureError: Boolean = false, throwOnError: Boolean = true): String {
+	suspend fun exec(
+		cmdAndArgs: List<String>,
+		env: Map<String, String> = lmapOf(),
+		handler: VfsProcessHandler = VfsProcessHandler()
+	): Int = vfs.exec(path, cmdAndArgs, env, handler)
+
+	suspend fun execToString(
+		cmdAndArgs: List<String>,
+		env: Map<String, String> = lmapOf(),
+		charset: Charset = Charsets.UTF_8,
+		captureError: Boolean = false,
+		throwOnError: Boolean = true
+	): String {
 		val out = ByteArrayBuilder()
 		val err = ByteArrayBuilder()
 
@@ -158,9 +192,14 @@ class VfsFile(
 		return outString
 	}
 
-	suspend fun execToString(vararg cmdAndArgs: String, charset: Charset = Charsets.UTF_8): String = execToString(cmdAndArgs.toList(), charset = charset)
+	suspend fun execToString(vararg cmdAndArgs: String, charset: Charset = Charsets.UTF_8): String =
+		execToString(cmdAndArgs.toList(), charset = charset)
 
-	suspend fun passthru(cmdAndArgs: List<String>, env: Map<String, String> = lmapOf(), charset: Charset = Charsets.UTF_8): Int {
+	suspend fun passthru(
+		cmdAndArgs: List<String>,
+		env: Map<String, String> = lmapOf(),
+		charset: Charset = Charsets.UTF_8
+	): Int {
 		return exec(cmdAndArgs.toList(), env, object : VfsProcessHandler() {
 			suspend override fun onOut(data: ByteArray) {
 				Console.out_print(data.toString(charset))
@@ -172,7 +211,11 @@ class VfsFile(
 		})
 	}
 
-	suspend fun passthru(vararg cmdAndArgs: String, env: Map<String, String> = lmapOf(), charset: Charset = Charsets.UTF_8): Int = passthru(cmdAndArgs.toList(), env, charset)
+	suspend fun passthru(
+		vararg cmdAndArgs: String,
+		env: Map<String, String> = lmapOf(),
+		charset: Charset = Charsets.UTF_8
+	): Int = passthru(cmdAndArgs.toList(), env, charset)
 
 	suspend fun watch(handler: suspend (VfsFileEvent) -> Unit): Closeable {
 		val cc = getCoroutineContext()

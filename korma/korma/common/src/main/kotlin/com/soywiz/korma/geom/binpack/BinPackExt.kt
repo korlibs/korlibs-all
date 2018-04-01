@@ -1,7 +1,6 @@
 package com.soywiz.korma.geom.binpack
 
-import com.soywiz.korma.geom.Rectangle
-import com.soywiz.korma.geom.Size
+import com.soywiz.korma.geom.*
 
 fun <T> BinPack.addBatch(items: Iterable<T>, getSize: (T) -> Size): List<Pair<T, Rectangle?>> {
 	val its = items.toList()

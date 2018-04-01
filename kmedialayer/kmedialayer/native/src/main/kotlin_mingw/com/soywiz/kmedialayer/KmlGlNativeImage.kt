@@ -8,18 +8,18 @@ import platform.windows.*
 
 var initializedGdiPlus = false
 fun initGdiPlusOnce() {
-    if (initializedGdiPlus) return
-    initializedGdiPlus = true
-    memScoped {
-        val ptoken = allocArray<ULONG_PTRVar>(1)
-        val si = alloc<GdiplusStartupInput>().apply {
-            GdiplusVersion = 1
-            DebugEventCallback = null
-            SuppressExternalCodecs = FALSE
-            SuppressBackgroundThread = FALSE
-        }
-        GdiplusStartup(ptoken, si.ptr, null)
-    }
+	if (initializedGdiPlus) return
+	initializedGdiPlus = true
+	memScoped {
+		val ptoken = allocArray<ULONG_PTRVar>(1)
+		val si = alloc<GdiplusStartupInput>().apply {
+			GdiplusVersion = 1
+			DebugEventCallback = null
+			SuppressExternalCodecs = FALSE
+			SuppressBackgroundThread = FALSE
+		}
+		GdiplusStartup(ptoken, si.ptr, null)
+	}
 }
 
 /*
@@ -179,103 +179,103 @@ fun gdipKmlLoadImageFromByteArray(data: ByteArray): KmlNativeNativeImageData {
 
 
 fun gdipKmlLoadImageFromByteArray(data: ByteArray): KmlNativeNativeImageData {
-    return memScoped {
-        val width = alloc<FloatVar>()
-        val height = alloc<FloatVar>()
-        val pimage = allocArray<COpaquePointerVar>(1)
+	return memScoped {
+		val width = alloc<FloatVar>()
+		val height = alloc<FloatVar>()
+		val pimage = allocArray<COpaquePointerVar>(1)
 
-        initGdiPlusOnce()
-        data.usePinned { datap ->
-            val pdata = datap.addressOf(0)
-            val pstream = SHCreateMemStream(pdata, data.size)!!
-            try {
-                if (GdipCreateBitmapFromStream(pstream, pimage) != 0) {
-                    throw RuntimeException("Can't load image from byte array")
-                }
-            } finally {
-                pstream.pointed.lpVtbl?.pointed?.Release?.invoke(pstream)
-            }
-        }
+		initGdiPlusOnce()
+		data.usePinned { datap ->
+			val pdata = datap.addressOf(0)
+			val pstream = SHCreateMemStream(pdata, data.size)!!
+			try {
+				if (GdipCreateBitmapFromStream(pstream, pimage) != 0) {
+					throw RuntimeException("Can't load image from byte array")
+				}
+			} finally {
+				pstream.pointed.lpVtbl?.pointed?.Release?.invoke(pstream)
+			}
+		}
 
-        GdipGetImageDimension(pimage[0], width.ptr, height.ptr)
+		GdipGetImageDimension(pimage[0], width.ptr, height.ptr)
 
-        val rect = alloc<GpRect>().apply {
-            X = 0
-            Y = 0
-            Width = width.value.toInt()
-            Height = height.value.toInt()
-        }
-        val bmpData = alloc<BitmapData>()
-        if (GdipBitmapLockBits(pimage[0], rect.ptr, ImageLockModeRead, PixelFormat32bppARGB, bmpData.ptr) != 0) {
-            throw RuntimeException("Can't lock image")
-        }
+		val rect = alloc<GpRect>().apply {
+			X = 0
+			Y = 0
+			Width = width.value.toInt()
+			Height = height.value.toInt()
+		}
+		val bmpData = alloc<BitmapData>()
+		if (GdipBitmapLockBits(pimage[0], rect.ptr, ImageLockModeRead, PixelFormat32bppARGB, bmpData.ptr) != 0) {
+			throw RuntimeException("Can't lock image")
+		}
 
-        val out = IntArray(bmpData.Width * bmpData.Height)
-        var n = 0
-        for (y in 0 until bmpData.Height) {
-            val p = (bmpData.Scan0.toLong() + (bmpData.Stride * y)).toCPointer<IntVar>()
-            for (x in 0 until bmpData.Width) {
-                out[n] = p!![x]
-                n++
-            }
-        }
+		val out = IntArray(bmpData.Width * bmpData.Height)
+		var n = 0
+		for (y in 0 until bmpData.Height) {
+			val p = (bmpData.Scan0.toLong() + (bmpData.Stride * y)).toCPointer<IntVar>()
+			for (x in 0 until bmpData.Width) {
+				out[n] = p!![x]
+				n++
+			}
+		}
 
-        GdipBitmapUnlockBits(pimage[0], bmpData.ptr)
-        GdipDisposeImage(pimage[0])
+		GdipBitmapUnlockBits(pimage[0], bmpData.ptr)
+		GdipDisposeImage(pimage[0])
 
-        //println(out.toList())
-        KmlNativeNativeImageData(width.value.toInt(), height.value.toInt(), out)
-    }
+		//println(out.toList())
+		KmlNativeNativeImageData(width.value.toInt(), height.value.toInt(), out)
+	}
 }
 
 fun gdipKmlLoadImage(imageName: String): KmlNativeNativeImageData {
-    return memScoped {
-        val pimage = allocArray<COpaquePointerVar>(1)
-        val width = alloc<FloatVar>()
-        val height = alloc<FloatVar>()
+	return memScoped {
+		val pimage = allocArray<COpaquePointerVar>(1)
+		val width = alloc<FloatVar>()
+		val height = alloc<FloatVar>()
 
-        println("Loading image $imageName...")
+		println("Loading image $imageName...")
 
-        initGdiPlusOnce()
-        val res = GdipCreateBitmapFromFile(imageName.wcstr, pimage)
-        if (res != 0) {
-            throw RuntimeException("Can't find image $imageName")
-        }
+		initGdiPlusOnce()
+		val res = GdipCreateBitmapFromFile(imageName.wcstr, pimage)
+		if (res != 0) {
+			throw RuntimeException("Can't find image $imageName")
+		}
 
-        GdipGetImageDimension(pimage[0], width.ptr, height.ptr)
-        val iwidth = width.value.toInt()
-        val iheight = height.value.toInt()
+		GdipGetImageDimension(pimage[0], width.ptr, height.ptr)
+		val iwidth = width.value.toInt()
+		val iheight = height.value.toInt()
 
-        val rect = alloc<GpRect>().apply {
-            X = 0
-            Y = 0
-            Width = iwidth
-            Height = iheight
-        }
-        val bmpData = alloc<BitmapData>()
-        val res2 = GdipBitmapLockBits(pimage[0], rect.ptr, ImageLockModeRead, PixelFormat32bppARGB, bmpData.ptr)
-        //println("res2: $res2")
-        //println(bmpData.Width)
-        //println(bmpData.Height)
-        //println(bmpData.Stride)
-        //println(bmpData.Scan0)
-        val out = IntArray(bmpData.Width * bmpData.Height)
-        var n = 0
-        for (y in 0 until bmpData.Height) {
-            val p = (bmpData.Scan0.toLong() + (bmpData.Stride * y)).toCPointer<IntVar>()
-            for (x in 0 until bmpData.Width) {
-                out[n] = p!![x]
-                n++
-            }
-        }
+		val rect = alloc<GpRect>().apply {
+			X = 0
+			Y = 0
+			Width = iwidth
+			Height = iheight
+		}
+		val bmpData = alloc<BitmapData>()
+		val res2 = GdipBitmapLockBits(pimage[0], rect.ptr, ImageLockModeRead, PixelFormat32bppARGB, bmpData.ptr)
+		//println("res2: $res2")
+		//println(bmpData.Width)
+		//println(bmpData.Height)
+		//println(bmpData.Stride)
+		//println(bmpData.Scan0)
+		val out = IntArray(bmpData.Width * bmpData.Height)
+		var n = 0
+		for (y in 0 until bmpData.Height) {
+			val p = (bmpData.Scan0.toLong() + (bmpData.Stride * y)).toCPointer<IntVar>()
+			for (x in 0 until bmpData.Width) {
+				out[n] = p!![x]
+				n++
+			}
+		}
 
-        GdipBitmapUnlockBits(pimage[0], bmpData.ptr)
-        GdipDisposeImage(pimage[0])
+		GdipBitmapUnlockBits(pimage[0], bmpData.ptr)
+		GdipDisposeImage(pimage[0])
 
-        //println(out.toList())
+		//println(out.toList())
 
-        println("Loaded image $imageName ($iwidth, $iheight)")
+		println("Loaded image $imageName ($iwidth, $iheight)")
 
-        KmlNativeNativeImageData(iwidth, iheight, out)
-    }
+		KmlNativeNativeImageData(iwidth, iheight, out)
+	}
 }

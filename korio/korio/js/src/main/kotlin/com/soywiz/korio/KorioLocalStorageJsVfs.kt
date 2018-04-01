@@ -1,10 +1,8 @@
 package com.soywiz.korio
 
-import com.soywiz.korio.vfs.MapLikeStorageVfs
-import com.soywiz.korio.vfs.SimpleStorage
-import org.w3c.dom.get
-import org.w3c.dom.set
-import kotlin.browser.localStorage
+import com.soywiz.korio.vfs.*
+import org.w3c.dom.*
+import kotlin.browser.*
 
 val jsLocalStorageVfs by lazy {
 	MapLikeStorageVfs(object : SimpleStorage {

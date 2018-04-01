@@ -1,14 +1,10 @@
 package com.soywiz.korio.util
 
-import com.soywiz.korio.async.invokeSuspend
-import com.soywiz.kds.lmapOf
-import com.soywiz.korio.error.ignoreErrors
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korio.error.noImpl
+import com.soywiz.kds.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.error.*
+import java.lang.reflect.*
 import java.lang.reflect.Array
-import java.lang.reflect.Modifier
-import java.lang.reflect.ParameterizedType
-import java.lang.reflect.Type
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -20,7 +16,8 @@ object Dynamic {
 		if (clazz == java.util.Map::class.java) return mapOf<Any?, Any?>() as T
 		if (clazz == java.lang.Iterable::class.java) return listOf<Any?>() as T
 
-		val constructor = clazz.declaredConstructors.firstOrNull() ?: invalidOp("Can't find constructor for class '$clazz'")
+		val constructor =
+			clazz.declaredConstructors.firstOrNull() ?: invalidOp("Can't find constructor for class '$clazz'")
 		val args = constructor.parameterTypes.map {
 			dynamicCast(null, it)
 		}
@@ -252,7 +249,10 @@ object Dynamic {
 		if (target.isAssignableFrom(java.lang.Float::class.java)) return str.toFloat() as T
 		if (target.isAssignableFrom(java.lang.Double::class.java)) return str.toDouble() as T
 		if (target.isAssignableFrom(java.lang.String::class.java)) return (if (value == null) "" else str) as T
-		if (target.isEnum) return if (value != null) java.lang.Enum.valueOf<AnyEnum>(target as Class<AnyEnum>, str) as T else target.enumConstants.first()
+		if (target.isEnum) return if (value != null) java.lang.Enum.valueOf<AnyEnum>(
+			target as Class<AnyEnum>,
+			str
+		) as T else target.enumConstants.first()
 		if (value is Map<*, *>) {
 			val map = value as Map<Any?, *>
 			val resultClass = target as Class<Any>
@@ -458,7 +458,9 @@ object Dynamic {
 		suspend fun Any?.dynamicGet(key: Any?) = Dynamic.accessAny(this, key)
 		suspend fun Any?.dynamicSet(key: Any?, value: Any?) = Dynamic.setAny(this, key, value)
 		suspend fun Any?.dynamicCall(vararg args: Any?) = Dynamic.callAny(this, args.toList())
-		suspend fun Any?.dynamicCallMethod(methodName: Any?, vararg args: Any?) = Dynamic.callAny(this, methodName, args.toList())
+		suspend fun Any?.dynamicCallMethod(methodName: Any?, vararg args: Any?) =
+			Dynamic.callAny(this, methodName, args.toList())
+
 		suspend fun Any?.dynamicCastTo(target: Class<*>) = Dynamic.dynamicCast(this, target)
 	}
 
@@ -481,7 +483,8 @@ object Dynamic {
 		return list.toList()
 	}
 
-	inline fun <reified T> getInstanceTypedFields(source: Any): List<T> = getTypedFields(source.javaClass, source, T::class.java)
+	inline fun <reified T> getInstanceTypedFields(source: Any): List<T> =
+		getTypedFields(source.javaClass, source, T::class.java)
 
 	inline fun <reified T> getStaticTypedFields(source: Class<*>): List<T> = getTypedFields(source, null, T::class.java)
 }

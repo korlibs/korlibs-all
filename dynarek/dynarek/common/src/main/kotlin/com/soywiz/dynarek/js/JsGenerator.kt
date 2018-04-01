@@ -74,7 +74,7 @@ class JsGenerator(val func: DFunction, val log: Boolean = false) {
 	fun generate(strict: Boolean): String {
 		val sb = StringBuilder()
 		if (strict
-			) sb.append("\"use strict\";")
+		) sb.append("\"use strict\";")
 		for (local in locals) {
 			sb.append("var ${local.name} = ${local.initialValue.str};")
 		}

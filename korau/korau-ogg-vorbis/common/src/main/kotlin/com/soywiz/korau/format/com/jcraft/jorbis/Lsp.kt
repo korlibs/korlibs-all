@@ -38,70 +38,79 @@ package com.soywiz.korau.format.com.jcraft.jorbis
 
 internal object Lsp {
 
-    val M_PI = 3.1415926539.toFloat()
+	val M_PI = 3.1415926539.toFloat()
 
-    fun lsp_to_curve(curve: FloatArray, map: IntArray, n: Int, ln: Int, lsp: FloatArray, m: Int, amp: Float, ampoffset: Float) {
-        var i: Int
-        val wdel = M_PI / ln
-        i = 0
-        while (i < m) {
-            lsp[i] = Lookup.coslook(lsp[i])
-            i++
-        }
-        val m2 = m / 2 * 2
+	fun lsp_to_curve(
+		curve: FloatArray,
+		map: IntArray,
+		n: Int,
+		ln: Int,
+		lsp: FloatArray,
+		m: Int,
+		amp: Float,
+		ampoffset: Float
+	) {
+		var i: Int
+		val wdel = M_PI / ln
+		i = 0
+		while (i < m) {
+			lsp[i] = Lookup.coslook(lsp[i])
+			i++
+		}
+		val m2 = m / 2 * 2
 
-        i = 0
-        while (i < n) {
-            val k = map[i]
-            var p = .7071067812f
-            var q = .7071067812f
-            val w = Lookup.coslook(wdel * k)
+		i = 0
+		while (i < n) {
+			val k = map[i]
+			var p = .7071067812f
+			var q = .7071067812f
+			val w = Lookup.coslook(wdel * k)
 
-            var j = 0
-            while (j < m2) {
-                q *= lsp[j] - w
-                p *= lsp[j + 1] - w
-                j += 2
-            }
+			var j = 0
+			while (j < m2) {
+				q *= lsp[j] - w
+				p *= lsp[j + 1] - w
+				j += 2
+			}
 
-            if (m and 1 != 0) {
-                /* odd order filter; slightly assymetric */
-                /* the last coefficient */
-                q *= lsp[m - 1] - w
-                q *= q
-                p *= p * (1f - w * w)
-            } else {
-                /* even order filter; still symmetric */
-                q *= q * (1f + w)
-                p *= p * (1f - w)
-            }
+			if (m and 1 != 0) {
+				/* odd order filter; slightly assymetric */
+				/* the last coefficient */
+				q *= lsp[m - 1] - w
+				q *= q
+				p *= p * (1f - w * w)
+			} else {
+				/* even order filter; still symmetric */
+				q *= q * (1f + w)
+				p *= p * (1f - w)
+			}
 
-            //  q=frexp(p+q,&qexp);
-            q = p + q
-            var hx = q.toBits()
-            var ix = 0x7fffffff and hx
-            var qexp = 0
+			//  q=frexp(p+q,&qexp);
+			q = p + q
+			var hx = q.toBits()
+			var ix = 0x7fffffff and hx
+			var qexp = 0
 
-            if (ix >= 0x7f800000 || ix == 0) {
-                // 0,inf,nan
-            } else {
-                if (ix < 0x00800000) { // subnormal
-                    q *= 3.3554432000e+07f // 0x4c000000
-                    hx = q.toBits()
-                    ix = 0x7fffffff and hx
-                    qexp = -25
-                }
-                qexp += ix.ushr(23) - 126
-                hx = hx and 0x807fffff.toInt() or 0x3f000000
-                q = Float.fromBits(hx)
-            }
+			if (ix >= 0x7f800000 || ix == 0) {
+				// 0,inf,nan
+			} else {
+				if (ix < 0x00800000) { // subnormal
+					q *= 3.3554432000e+07f // 0x4c000000
+					hx = q.toBits()
+					ix = 0x7fffffff and hx
+					qexp = -25
+				}
+				qexp += ix.ushr(23) - 126
+				hx = hx and 0x807fffff.toInt() or 0x3f000000
+				q = Float.fromBits(hx)
+			}
 
-            q = Lookup.fromdBlook(amp * Lookup.invsqlook(q) * Lookup.invsq2explook(qexp + m) - ampoffset)
+			q = Lookup.fromdBlook(amp * Lookup.invsqlook(q) * Lookup.invsq2explook(qexp + m) - ampoffset)
 
-            do {
-                curve[i++] *= q
-            } while (i < n && map[i] == k)
+			do {
+				curve[i++] *= q
+			} while (i < n && map[i] == k)
 
-        }
-    }
+		}
+	}
 }

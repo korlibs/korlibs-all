@@ -1,14 +1,14 @@
 apply plugin: 'kotlin-platform-jvm'
 
 dependencies {
-    expectedBy project(":korau-mp3-common")
+	expectedBy project(":korau-mp3-common")
 
-    compile project(":korau")
+	compile project(":korau")
 
 	compile project(":korio")
 	compile project(":korma")
 }
 
 sourceSets {
-    test.resources.srcDirs += [ '../common/src/test/resources' ] // @TODO: @BUG: Hack. No common resources are copied
+	test.resources.srcDirs += ['../common/src/test/resources'] // @TODO: @BUG: Hack. No common resources are copied
 }

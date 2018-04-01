@@ -1,10 +1,8 @@
 package com.soywiz.korim.font
 
-import com.soywiz.korim.bitmap.Bitmap32
-import com.soywiz.korim.bitmap.BitmapSlice
-import com.soywiz.korim.bitmap.slice
-import com.soywiz.korim.color.Colors
-import com.soywiz.korma.geom.RectangleInt
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
+import com.soywiz.korma.geom.*
 
 class BitmapFont(
 	val atlas: Bitmap32,

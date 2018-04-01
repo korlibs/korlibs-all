@@ -1,11 +1,9 @@
 package com.soywiz.korau
 
-import com.soywiz.korau.format.AudioFormats
-import com.soywiz.korau.format.readAudioData
-import com.soywiz.korau.format.registerStandard
-import com.soywiz.korio.async.syncTest
-import com.soywiz.korio.vfs.ResourcesVfs
-import org.junit.Test
+import com.soywiz.korau.format.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.vfs.*
+import org.junit.*
 
 class KorauTest {
 	val formats = AudioFormats().registerStandard()

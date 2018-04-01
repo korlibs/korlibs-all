@@ -1,8 +1,8 @@
 package com.soywiz.kds.specialized
 
-import com.soywiz.kds.IntArrayList
+import com.soywiz.kds.*
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class IntArrayListTest {
 	@Test

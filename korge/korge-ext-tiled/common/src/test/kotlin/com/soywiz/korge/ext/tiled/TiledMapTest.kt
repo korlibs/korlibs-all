@@ -1,10 +1,9 @@
 package com.soywiz.korge.ext.tiled
 
-import com.soywiz.korge.resources.Path
-import com.soywiz.korge.tests.ViewsForTesting
-import com.soywiz.korim.format.disableNativeImageLoading
-import org.junit.Assert
-import org.junit.Test
+import com.soywiz.korge.resources.*
+import com.soywiz.korge.tests.*
+import com.soywiz.korim.format.*
+import org.junit.*
 
 class TiledMapTest : ViewsForTesting() {
 	@Test

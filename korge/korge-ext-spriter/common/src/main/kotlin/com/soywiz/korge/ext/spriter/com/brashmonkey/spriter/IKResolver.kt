@@ -1,7 +1,7 @@
 package com.soywiz.korge.ext.spriter.com.brashmonkey.spriter
 
-import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.Mainline.Key.BoneRef
-import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.Timeline.Key.Bone
+import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.Mainline.Key.*
+import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.Timeline.Key.*
 
 /**
  * A IKResolver is responsible for resolving previously set constraints.
@@ -13,7 +13,7 @@ abstract class IKResolver
 /**
  * Creates a resolver with a default tolerance of 5f.
  */
-(var player: Player) {
+	(var player: Player) {
 
 	/**
 	 * Resolves the inverse kinematics constraint with a specific algtorithm

@@ -1,6 +1,6 @@
 package com.soywiz.korio.lang
 
-import com.soywiz.korio.KorioNative
+import com.soywiz.korio.*
 
 object Console {
 	fun error(msg: Any?) = KorioNative.error(msg)

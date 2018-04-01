@@ -1,6 +1,6 @@
 package com.soywiz.korio.vfs
 
-import com.soywiz.korio.KorioNative
+import com.soywiz.korio.*
 
 object VfsUtil {
 	fun parts(path: String): List<String> = path.split('/')
@@ -24,9 +24,11 @@ object VfsUtil {
 		}
 	}
 
-	fun combine(base: String, access: String): String = if (isAbsolute(access)) normalize(access) else normalize(base + "/" + access)
+	fun combine(base: String, access: String): String =
+		if (isAbsolute(access)) normalize(access) else normalize(base + "/" + access)
 
-	fun lightCombine(base: String, access: String): String = if (base.isNotEmpty()) base.trimEnd('/') + "/" + access.trim('/') else "$access"
+	fun lightCombine(base: String, access: String): String =
+		if (base.isNotEmpty()) base.trimEnd('/') + "/" + access.trim('/') else "$access"
 
 	fun isAbsolute(base: String): Boolean {
 		if (base.isEmpty()) return false

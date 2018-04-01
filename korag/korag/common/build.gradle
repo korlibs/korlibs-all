@@ -1,5 +1,5 @@
 apply plugin: 'kotlin-platform-common'
 
 dependencies {
-    compile project(":korim-common")
+	compile project(":korim-common")
 }

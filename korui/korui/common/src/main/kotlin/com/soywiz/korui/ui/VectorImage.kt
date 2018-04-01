@@ -1,16 +1,19 @@
 package com.soywiz.korui.ui
 
-import com.soywiz.korim.bitmap.NativeImage
-import com.soywiz.korim.vector.Context2d
-import com.soywiz.korui.Application
-import com.soywiz.korui.geom.len.pt
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.vector.*
+import com.soywiz.korui.*
+import com.soywiz.korui.geom.len.*
 
 suspend fun Container.vectorImage(vector: Context2d.SizedDrawable) = add(VectorImage(this.app).apply {
 	setVector(vector, vector.width, vector.height)
 })
 
 
-suspend inline fun Container.vectorImage(vector: Context2d.SizedDrawable, crossinline callback: VectorImage.() -> Unit) = add(VectorImage(this.app).apply {
+suspend inline fun Container.vectorImage(
+	vector: Context2d.SizedDrawable,
+	crossinline callback: VectorImage.() -> Unit
+) = add(VectorImage(this.app).apply {
 	setVector(vector, vector.width, vector.height)
 	callback(this)
 })

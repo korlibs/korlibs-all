@@ -5,21 +5,21 @@ import com.soywiz.kmedialayer.scene.*
 import com.soywiz.kmedialayer.scene.util.*
 
 interface KeyEvents {
-    val up: Signal<Key>
-    val down: Signal<Key>
-    fun up(key: Key, callback: View.() -> Unit)
-    fun down(key: Key, callback: View.() -> Unit)
+	val up: Signal<Key>
+	val down: Signal<Key>
+	fun up(key: Key, callback: View.() -> Unit)
+	fun down(key: Key, callback: View.() -> Unit)
 }
 
 class KeyEventsComponent(override val view: View) : KeyComponent, KeyEvents {
-    override val up = Signal<Key>()
-    override val down = Signal<Key>()
+	override val up = Signal<Key>()
+	override val down = Signal<Key>()
 
-    override fun up(key: Key, callback: View.() -> Unit): Unit = run { up { if (it == key) callback(view) } }
-    override fun down(key: Key, callback: View.() -> Unit): Unit = run { down { if (it == key) callback(view) } }
+	override fun up(key: Key, callback: View.() -> Unit): Unit = run { up { if (it == key) callback(view) } }
+	override fun down(key: Key, callback: View.() -> Unit): Unit = run { down { if (it == key) callback(view) } }
 
-    override fun onKeyUp(key: Key) = up(key)
-    override fun onKeyDown(key: Key) = down(key)
+	override fun onKeyUp(key: Key) = up(key)
+	override fun onKeyDown(key: Key) = down(key)
 }
 
 operator fun KeyEvents.invoke(callback: KeyEvents.() -> Unit) = this.apply(callback)

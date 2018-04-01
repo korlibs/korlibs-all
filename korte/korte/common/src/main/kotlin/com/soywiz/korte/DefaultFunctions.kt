@@ -1,6 +1,6 @@
 package com.soywiz.korte
 
-import com.soywiz.korio.util.umod
+import com.soywiz.kds.*
 
 @Suppress("unused")
 object DefaultFunctions {

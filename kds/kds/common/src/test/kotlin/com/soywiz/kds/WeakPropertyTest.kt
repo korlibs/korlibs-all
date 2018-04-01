@@ -1,10 +1,11 @@
 package com.soywiz.kds
 
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class WeakPropertyTest {
 	class C
+
 	var C.prop by WeakProperty { 0 }
 
 	@Test

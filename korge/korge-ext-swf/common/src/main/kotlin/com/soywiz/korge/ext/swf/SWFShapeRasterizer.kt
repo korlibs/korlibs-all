@@ -1,28 +1,18 @@
 package com.soywiz.korge.ext.swf
 
-import com.codeazur.as3swf.SWF
-import com.codeazur.as3swf.data.GradientType
-import com.codeazur.as3swf.data.SWFColorTransform
-import com.codeazur.as3swf.data.consts.GradientInterpolationMode
-import com.codeazur.as3swf.data.consts.GradientSpreadMode
-import com.codeazur.as3swf.data.consts.LineCapsStyle
-import com.codeazur.as3swf.exporters.LoggerShapeExporter
-import com.codeazur.as3swf.exporters.ShapeExporter
-import com.soywiz.kds.DoubleArrayList
-import com.soywiz.kds.IntArrayList
-import com.soywiz.kmem.extract8
-import com.soywiz.korim.bitmap.Bitmap32
-import com.soywiz.korim.bitmap.NativeImage
-import com.soywiz.korim.color.ColorTransform
-import com.soywiz.korim.color.Colors
-import com.soywiz.korim.color.RGBA
+import com.codeazur.as3swf.*
+import com.codeazur.as3swf.data.*
+import com.codeazur.as3swf.data.consts.*
+import com.codeazur.as3swf.exporters.*
+import com.soywiz.kds.*
+import com.soywiz.kmem.*
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
 import com.soywiz.korim.vector.*
-import com.soywiz.korio.util.clamp
-import com.soywiz.korio.util.toIntCeil
-import com.soywiz.korma.Matrix2d
-import com.soywiz.korma.geom.Rectangle
-import kotlin.math.max
-import kotlin.math.min
+import com.soywiz.korio.util.*
+import com.soywiz.korma.*
+import com.soywiz.korma.geom.*
+import kotlin.math.*
 
 /**
  * @TODO: Line ScaleMode not supported right now.
@@ -57,7 +47,10 @@ class SWFShapeRasterizer(
 	val limitBoundsWidth = desiredBoundsWidth.clamp(minSide, maxSide)
 	val limitBoundsHeight = desiredBoundsHeight.clamp(minSide, maxSide)
 
-	val actualScale = min(limitBoundsWidth.toDouble() / realBoundsWidth.toDouble(), limitBoundsHeight.toDouble() / realBoundsHeight.toDouble())
+	val actualScale = min(
+		limitBoundsWidth.toDouble() / realBoundsWidth.toDouble(),
+		limitBoundsHeight.toDouble() / realBoundsHeight.toDouble()
+	)
 
 	//val actualScale = 0.5
 
@@ -136,7 +129,16 @@ class SWFShapeRasterizer(
 		fillStyle = Context2d.Color(decodeSWFColor(color, alpha))
 	}
 
-	private fun createGradientPaint(type: GradientType, colors: List<Int>, alphas: List<Double>, ratios: List<Int>, matrix: Matrix2d, spreadMethod: GradientSpreadMode, interpolationMethod: GradientInterpolationMode, focalPointRatio: Double): Context2d.Gradient {
+	private fun createGradientPaint(
+		type: GradientType,
+		colors: List<Int>,
+		alphas: List<Double>,
+		ratios: List<Int>,
+		matrix: Matrix2d,
+		spreadMethod: GradientSpreadMode,
+		interpolationMethod: GradientInterpolationMode,
+		focalPointRatio: Double
+	): Context2d.Gradient {
 		val aratios = DoubleArrayList(ratios.map { it.toDouble() / 255.0 }.toDoubleArray())
 		val acolors = IntArrayList(colors.zip(alphas).map { decodeSWFColor(it.first, it.second) }.toIntArray())
 
@@ -158,15 +160,59 @@ class SWFShapeRasterizer(
 		}
 
 		return when (type) {
-			GradientType.LINEAR -> Context2d.Gradient(Context2d.Gradient.Kind.LINEAR, -1.0, 0.0, 0.0, +1.0, 0.0, 0.0, aratios, acolors, spreadMethod.toCtx(), m2, imethod)
-			GradientType.RADIAL -> Context2d.Gradient(Context2d.Gradient.Kind.RADIAL, focalPointRatio, 0.0, 0.0, 0.0, 0.0, 1.0, aratios, acolors, spreadMethod.toCtx(), m2, imethod)
+			GradientType.LINEAR -> Context2d.Gradient(
+				Context2d.Gradient.Kind.LINEAR,
+				-1.0,
+				0.0,
+				0.0,
+				+1.0,
+				0.0,
+				0.0,
+				aratios,
+				acolors,
+				spreadMethod.toCtx(),
+				m2,
+				imethod
+			)
+			GradientType.RADIAL -> Context2d.Gradient(
+				Context2d.Gradient.Kind.RADIAL,
+				focalPointRatio,
+				0.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0,
+				aratios,
+				acolors,
+				spreadMethod.toCtx(),
+				m2,
+				imethod
+			)
 		}
 	}
 
-	override fun beginGradientFill(type: GradientType, colors: List<Int>, alphas: List<Double>, ratios: List<Int>, matrix: Matrix2d, spreadMethod: GradientSpreadMode, interpolationMethod: GradientInterpolationMode, focalPointRatio: Double) {
+	override fun beginGradientFill(
+		type: GradientType,
+		colors: List<Int>,
+		alphas: List<Double>,
+		ratios: List<Int>,
+		matrix: Matrix2d,
+		spreadMethod: GradientSpreadMode,
+		interpolationMethod: GradientInterpolationMode,
+		focalPointRatio: Double
+	) {
 		flush()
 		drawingFill = true
-		fillStyle = createGradientPaint(type, colors, alphas, ratios, matrix, spreadMethod, interpolationMethod, focalPointRatio)
+		fillStyle = createGradientPaint(
+			type,
+			colors,
+			alphas,
+			ratios,
+			matrix,
+			spreadMethod,
+			interpolationMethod,
+			focalPointRatio
+		)
 	}
 
 	override fun beginBitmapFill(bitmapId: Int, matrix: Matrix2d, repeat: Boolean, smooth: Boolean) {
@@ -190,7 +236,19 @@ class SWFShapeRasterizer(
 
 	private fun __flushStroke() {
 		if (apath.isEmpty()) return
-		shapes += PolylineShape(apath, null, strokeStyle, Matrix2d().prescale(1.0 / 20.0, 1.0 / 20.0), lineWidth, true, Context2d.ScaleMode.NORMAL, lineCap, lineCap, "joints", miterLimit)
+		shapes += PolylineShape(
+			apath,
+			null,
+			strokeStyle,
+			Matrix2d().prescale(1.0 / 20.0, 1.0 / 20.0),
+			lineWidth,
+			true,
+			Context2d.ScaleMode.NORMAL,
+			lineCap,
+			lineCap,
+			"joints",
+			miterLimit
+		)
 		apath = GraphicsPath()
 	}
 
@@ -208,7 +266,17 @@ class SWFShapeRasterizer(
 	private var lineCap: Context2d.LineCap = Context2d.LineCap.ROUND
 	private var strokeStyle: Context2d.Paint = Context2d.Color(Colors.BLACK)
 
-	override fun lineStyle(thickness: Double, color: Int, alpha: Double, pixelHinting: Boolean, scaleMode: Context2d.ScaleMode, startCaps: LineCapsStyle, endCaps: LineCapsStyle, joints: String?, miterLimit: Double) {
+	override fun lineStyle(
+		thickness: Double,
+		color: Int,
+		alpha: Double,
+		pixelHinting: Boolean,
+		scaleMode: Context2d.ScaleMode,
+		startCaps: LineCapsStyle,
+		endCaps: LineCapsStyle,
+		joints: String?,
+		miterLimit: Double
+	) {
 		flush()
 		this.drawingFill = false
 		//println("pixelHinting: $pixelHinting, scaleMode: $scaleMode, miterLimit=$miterLimit")
@@ -223,10 +291,28 @@ class SWFShapeRasterizer(
 		}
 	}
 
-	override fun lineGradientStyle(type: GradientType, colors: List<Int>, alphas: List<Double>, ratios: List<Int>, matrix: Matrix2d, spreadMethod: GradientSpreadMode, interpolationMethod: GradientInterpolationMode, focalPointRatio: Double) {
+	override fun lineGradientStyle(
+		type: GradientType,
+		colors: List<Int>,
+		alphas: List<Double>,
+		ratios: List<Int>,
+		matrix: Matrix2d,
+		spreadMethod: GradientSpreadMode,
+		interpolationMethod: GradientInterpolationMode,
+		focalPointRatio: Double
+	) {
 		flush()
 		drawingFill = false
-		strokeStyle = createGradientPaint(type, colors, alphas, ratios, matrix, spreadMethod, interpolationMethod, focalPointRatio)
+		strokeStyle = createGradientPaint(
+			type,
+			colors,
+			alphas,
+			ratios,
+			matrix,
+			spreadMethod,
+			interpolationMethod,
+			focalPointRatio
+		)
 	}
 
 	private fun Double.fix() = (this * 20).toInt().toDouble()
@@ -255,4 +341,5 @@ class SWFShapeRasterizer(
 
 fun SWFColorTransform.toColorTransform() = ColorTransform(rMult, gMult, bMult, aMult, rAdd, gAdd, bAdd, aAdd)
 
-fun decodeSWFColor(color: Int, alpha: Double = 1.0) = RGBA.pack(color.extract8(16), color.extract8(8), color.extract8(0), (alpha * 255).toInt())
+fun decodeSWFColor(color: Int, alpha: Double = 1.0) =
+	RGBA.pack(color.extract8(16), color.extract8(8), color.extract8(0), (alpha * 255).toInt())

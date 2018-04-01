@@ -1,9 +1,7 @@
 package com.soywiz.korge.render
 
-import com.soywiz.korag.log.LogAG
-import org.junit.Assert
-import org.junit.Test
-import kotlin.test.assertEquals
+import com.soywiz.korag.log.*
+import org.junit.*
 
 class BatchBuilderTest {
 	val ag = LogAG(16, 16)

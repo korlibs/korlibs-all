@@ -342,7 +342,8 @@ class ClipperDialog : JFrame() {
 		bRefreshAction.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_N)
 
 		bRefresh!!.action = bRefreshAction
-		bRefresh!!.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_N, 0), "Refresh")
+		bRefresh!!.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+			.put(KeyStroke.getKeyStroke(KeyEvent.VK_N, 0), "Refresh")
 		bRefresh!!.actionMap.put("Refresh", bRefreshAction)
 
 		//
@@ -438,7 +439,14 @@ class ClipperDialog : JFrame() {
 	companion object {
 
 		@Throws(IOException::class)
-		@JvmOverloads internal fun loadFromFile(filename: String, ppg: Paths, dec_places: Int, xOffset: Long = 0, yOffset: Long = 0): Boolean {
+		@JvmOverloads
+		internal fun loadFromFile(
+			filename: String,
+			ppg: Paths,
+			dec_places: Int,
+			xOffset: Long = 0,
+			yOffset: Long = 0
+		): Boolean {
 			val scaling = Math.pow(10.0, dec_places.toDouble())
 
 			ppg.clear()
@@ -506,7 +514,8 @@ class ClipperDialog : JFrame() {
 			}
 		}
 
-		@JvmStatic fun main(args: Array<String>) {
+		@JvmStatic
+		fun main(args: Array<String>) {
 			ClipperDialog().isVisible = true
 		}
 

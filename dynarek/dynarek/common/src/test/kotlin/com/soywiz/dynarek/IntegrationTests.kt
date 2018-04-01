@@ -1,7 +1,7 @@
 package com.soywiz.dynarek
 
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class IntegrationTests {
 	@Test

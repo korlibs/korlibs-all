@@ -1,7 +1,6 @@
 package com.soywiz.korim.bitmap
 
-import com.soywiz.korim.color.ColorFormat
-import com.soywiz.korim.color.RGBA_4444
+import com.soywiz.korim.color.*
 
 class Bitmap16(
 	width: Int,
@@ -10,7 +9,8 @@ class Bitmap16(
 	val format: ColorFormat = RGBA_4444,
 	premult: Boolean = false
 ) : Bitmap(width, height, 16, premult) {
-	override fun createWithThisFormat(width: Int, height: Int): Bitmap = Bitmap16(width, height, format = format, premult = premult)
+	override fun createWithThisFormat(width: Int, height: Int): Bitmap =
+		Bitmap16(width, height, format = format, premult = premult)
 
 	operator override fun set(x: Int, y: Int, color: Int) = Unit.apply { data[index(x, y)] = color.toShort() }
 	operator override fun get(x: Int, y: Int): Int = data[index(x, y)].toInt() and 0xFFFF

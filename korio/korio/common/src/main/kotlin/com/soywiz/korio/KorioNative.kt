@@ -1,20 +1,14 @@
 package com.soywiz.korio
 
 import com.soywiz.korio.async.*
-import com.soywiz.korio.lang.Console
-import com.soywiz.korio.lang.UTF8
-import com.soywiz.korio.lang.toByteArray
-import com.soywiz.korio.lang.toString
-import com.soywiz.korio.net.AsyncSocketFactory
-import com.soywiz.korio.net.http.Http
-import com.soywiz.korio.net.http.HttpFactory
-import com.soywiz.korio.net.http.HttpServer
-import com.soywiz.korio.net.ws.WebSocketClientFactory
-import com.soywiz.korio.stream.readBytesUpToFirst
-import com.soywiz.korio.stream.toBuffered
-import com.soywiz.korio.vfs.VfsFile
-import kotlin.math.min
-import kotlin.reflect.KClass
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.net.*
+import com.soywiz.korio.net.http.*
+import com.soywiz.korio.net.ws.*
+import com.soywiz.korio.stream.*
+import com.soywiz.korio.vfs.*
+import kotlin.math.*
+import kotlin.reflect.*
 
 expect annotation class Synchronized()
 expect annotation class JvmField()
@@ -163,7 +157,8 @@ object KorioNativeDefaults {
 						//val fline = cb.readBufferedUntil('\n'.toByte()).toString(UTF8).trim()
 						val fline = cb.readUntil('\n'.toByte(), limit = LimitRequestFieldSize).toString(UTF8).trim()
 						//println("fline: $fline")
-						val match = HeaderRegex.matchEntire(fline) ?: throw IllegalStateException("Not a valid request '$fline'")
+						val match = HeaderRegex.matchEntire(fline)
+								?: throw IllegalStateException("Not a valid request '$fline'")
 						val method = match.groupValues[1]
 						val url = match.groupValues[2]
 						val httpVersion = match.groupValues[3]
@@ -187,7 +182,9 @@ object KorioNativeDefaults {
 
 						spawnAndForget {
 							handler(object : HttpServer.Request(Http.Method(method), url, headers) {
-								suspend override fun _handler(handler: (ByteArray) -> Unit) = run { bodyHandler = handler }
+								suspend override fun _handler(handler: (ByteArray) -> Unit) =
+									run { bodyHandler = handler }
+
 								suspend override fun _endHandler(handler: () -> Unit) = run { endHandler = handler }
 
 								override suspend fun _sendHeader(code: Int, message: String, headers: Http.Headers) {

@@ -1,11 +1,9 @@
 package com.soywiz.korma.math
 
-import com.soywiz.korma.Vector2
-import com.soywiz.korma.geom.PointInt
-import com.soywiz.korma.interpolation.Interpolable
-import kotlin.math.abs
-import kotlin.math.log
-import kotlin.math.pow
+import com.soywiz.korma.*
+import com.soywiz.korma.geom.*
+import com.soywiz.korma.interpolation.*
+import kotlin.math.*
 
 object Math {
 	@Deprecated("", ReplaceWith("kotlin.math.round(v)", "kotlin"))
@@ -64,8 +62,11 @@ object Math {
 
 	fun clamp(v: Long, min: Long, max: Long): Long = if (v < min) min else if (v > max) max else v
 	fun clamp(v: Int, min: Int, max: Int): Int = if (v < min) min else if (v > max) max else v
-	fun clamp(value: Double, min: Double, max: Double): Double = if (value < min) min else if (value > max) max else value
-	fun clampSpecial(value: Double, min: Double, max: Double): Double = if (max >= min) clamp(value, min, max) else value
+	fun clamp(value: Double, min: Double, max: Double): Double =
+		if (value < min) min else if (value > max) max else value
+
+	fun clampSpecial(value: Double, min: Double, max: Double): Double =
+		if (max >= min) clamp(value, min, max) else value
 
 	fun clamp(value: Float, min: Float, max: Float): Float = if (value < min) min else if (value > max) max else value
 	fun clampInt(value: Int, min: Int, max: Int): Int = if (value < min) min else if (value > max) max else value
@@ -95,7 +96,8 @@ object Math {
 
 	fun between(value: Double, min: Double, max: Double): Boolean = (value >= min) && (value <= max)
 
-	fun convertRange(value: Double, minSrc: Double, maxSrc: Double, minDst: Double, maxDst: Double): Double = (((value - minSrc) / (maxSrc - minSrc)) * (maxDst - minDst)) + minDst
+	fun convertRange(value: Double, minSrc: Double, maxSrc: Double, minDst: Double, maxDst: Double): Double =
+		(((value - minSrc) / (maxSrc - minSrc)) * (maxDst - minDst)) + minDst
 
 	fun sign(x: Double): Int = if (x < 0) -1 else if (x > 0) +1 else 0
 	fun signNonZeroM1(x: Double): Int = if (x <= 0) -1 else +1
@@ -115,7 +117,9 @@ object Math {
 
 	fun isEquivalent(a: Double, b: Double, epsilon: Double = 0.0001): Boolean = (a - epsilon < b) && (a + epsilon > b)
 	fun packUintFast(r: Int, g: Int, b: Int, a: Int): Int = (a shl 24) or (b shl 16) or (g shl 8) or (r shl 0)
-	fun pack4fUint(r: Double, g: Double, b: Double, a: Double): Int = packUintFast(clampf255(r), clampf255(g), clampf255(b), clampf255(a))
+	fun pack4fUint(r: Double, g: Double, b: Double, a: Double): Int =
+		packUintFast(clampf255(r), clampf255(g), clampf255(b), clampf255(a))
+
 	fun log2(v: Int): Int = log(v.toDouble(), base = 2.0).toInt()
 
 	fun distanceXY(x1: Double, y1: Double, x2: Double, y2: Double): Double = hypot(x1 - x2, y1 - y2);

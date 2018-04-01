@@ -1,8 +1,6 @@
 package com.soywiz.korio.net.http
 
-import com.soywiz.klock.DateTime
-import com.soywiz.klock.Klock
-import com.soywiz.klock.SimplerDateFormat
+import com.soywiz.klock.*
 
 //Sun, 06 Nov 1994 08:49:37 GMT  ; RFC 822, updated by RFC 1123
 //Sunday, 06-Nov-94 08:49:37 GMT ; RFC 850, obsoleted by RFC 1036

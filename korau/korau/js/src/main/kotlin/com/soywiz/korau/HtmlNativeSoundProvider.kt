@@ -1,15 +1,13 @@
 package com.soywiz.korau
 
-import com.soywiz.korau.sound.NativeSound
-import com.soywiz.korau.sound.NativeSoundProvider
-import com.soywiz.korinject.AsyncDependency
-import com.soywiz.korio.async.suspendCancellableCoroutine
-import org.w3c.dom.HTMLAudioElement
-import org.w3c.dom.events.Event
-import org.w3c.dom.url.URL
-import org.w3c.files.Blob
-import org.w3c.files.BlobPropertyBag
-import kotlin.browser.document
+import com.soywiz.korau.sound.*
+import com.soywiz.korinject.*
+import com.soywiz.korio.async.*
+import org.w3c.dom.*
+import org.w3c.dom.events.*
+import org.w3c.dom.url.*
+import org.w3c.files.*
+import kotlin.browser.*
 
 object HtmlNativeSoundProviderImpl {
 	suspend fun createSound(data: ByteArray): NativeSound {

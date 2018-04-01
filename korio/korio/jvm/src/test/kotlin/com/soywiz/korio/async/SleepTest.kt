@@ -1,7 +1,7 @@
 package com.soywiz.korio.async
 
 import org.junit.Test
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class SleepTest {
 	@Test

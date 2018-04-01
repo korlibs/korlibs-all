@@ -1,9 +1,8 @@
 package com.soywiz.korim.format
 
-import com.soywiz.korim.bitmap.matchContents
-import com.soywiz.korio.async.syncTest
-import com.soywiz.korio.vfs.ResourcesVfs
-import kotlin.test.assertTrue
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korio.async.*
+import kotlin.test.*
 
 class DDSTest {
 	val formats = ImageFormats().registerStandard().register(DDS)

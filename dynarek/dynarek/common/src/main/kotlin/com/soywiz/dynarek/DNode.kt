@@ -43,23 +43,39 @@ interface DExprInvoke<TThis : Any, TR : Any> : DExpr<TR> {
 	val args: List<DExpr<*>>
 }
 
-data class DExprInvoke1<TThis : Any, TR : Any>(override val clazz: KClass<TThis>, val func: KFunction1<TThis, TR>, val p0: DExpr<TThis>) : DExprInvoke<TThis, TR> {
+data class DExprInvoke1<TThis : Any, TR : Any>(
+	override val clazz: KClass<TThis>,
+	val func: KFunction1<TThis, TR>,
+	val p0: DExpr<TThis>
+) : DExprInvoke<TThis, TR> {
 	override val name = func.name
 	override val args = listOf(p0)
 }
 
-data class DExprInvoke2<TThis : Any, T1 : Any, TR : Any>(override val clazz: KClass<TThis>, val func: KFunction2<TThis, T1, TR>, val p0: DExpr<TThis>, val p1: DExpr<T1>) : DExprInvoke<TThis, TR> {
+data class DExprInvoke2<TThis : Any, T1 : Any, TR : Any>(
+	override val clazz: KClass<TThis>,
+	val func: KFunction2<TThis, T1, TR>,
+	val p0: DExpr<TThis>,
+	val p1: DExpr<T1>
+) : DExprInvoke<TThis, TR> {
 	override val name = func.name
 	override val args = listOf(p0, p1)
 }
 
-data class DExprInvoke3<TThis : Any, T1 : Any, T2 : Any, TR : Any>(override val clazz: KClass<TThis>, val func: KFunction3<TThis, T1, T2, TR>, val p0: DExpr<TThis>, val p1: DExpr<T1>, val p2: DExpr<T2>) : DExprInvoke<TThis, TR> {
+data class DExprInvoke3<TThis : Any, T1 : Any, T2 : Any, TR : Any>(
+	override val clazz: KClass<TThis>,
+	val func: KFunction3<TThis, T1, T2, TR>,
+	val p0: DExpr<TThis>,
+	val p1: DExpr<T1>,
+	val p2: DExpr<T2>
+) : DExprInvoke<TThis, TR> {
 	override val name = func.name
 	override val args = listOf(p0, p1, p2)
 }
 
 interface DRef<T> : DExpr<T>
-data class DFieldAccess<T : Any, TR>(val clazz: KClass<T>, val obj: DExpr<T>, val prop: KMutableProperty1<T, TR>) : DRef<TR>
+data class DFieldAccess<T : Any, TR>(val clazz: KClass<T>, val obj: DExpr<T>, val prop: KMutableProperty1<T, TR>) :
+	DRef<TR>
 //data class DInstanceMethod1<T : Any, TR>(val clazz: KClass<T>, val obj: DExpr<T>, val prop: KFunction1<T, TR>)
 
 interface DStm : DNode

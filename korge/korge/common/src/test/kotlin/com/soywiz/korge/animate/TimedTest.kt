@@ -1,7 +1,7 @@
 package com.soywiz.korge.animate
 
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class TimedTest {
 	val tostr = fun(index: Int, left: String?, right: String?, ratio: Double) = "$index,$left,$right,$ratio"

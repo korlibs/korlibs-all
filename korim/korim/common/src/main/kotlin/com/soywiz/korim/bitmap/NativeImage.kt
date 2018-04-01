@@ -1,13 +1,12 @@
 package com.soywiz.korim.bitmap
 
-import com.soywiz.korim.format.ImageEncodingProps
-import com.soywiz.korim.format.PNG
-import com.soywiz.korim.format.nativeImageFormatProvider
-import com.soywiz.korim.vector.Context2d
-import com.soywiz.korio.crypto.Base64
-import com.soywiz.korio.lang.printStackTrace
+import com.soywiz.korim.format.*
+import com.soywiz.korim.vector.*
+import com.soywiz.korio.crypto.*
+import com.soywiz.korio.lang.*
 
-abstract class NativeImage(width: Int, height: Int, val data: Any?, premultiplied: Boolean) : Bitmap(width, height, 32, premultiplied) {
+abstract class NativeImage(width: Int, height: Int, val data: Any?, premultiplied: Boolean) :
+	Bitmap(width, height, 32, premultiplied) {
 	open val name: String = "NativeImage"
 	abstract fun toNonNativeBmp(): Bitmap
 	override fun swapRows(y0: Int, y1: Int) = throw UnsupportedOperationException()
@@ -26,7 +25,13 @@ fun Bitmap.toUri(): String {
 
 fun NativeImage(width: Int, height: Int) = nativeImageFormatProvider.create(width, height)
 
-fun NativeImage(width: Int, height: Int, d: Context2d.Drawable, scaleX: Double = 1.0, scaleY: Double = scaleX): NativeImage {
+fun NativeImage(
+	width: Int,
+	height: Int,
+	d: Context2d.Drawable,
+	scaleX: Double = 1.0,
+	scaleY: Double = scaleX
+): NativeImage {
 	val bmp = NativeImage(width, height)
 	try {
 		val ctx = bmp.getContext2d()

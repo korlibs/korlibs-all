@@ -1,6 +1,6 @@
 package com.soywiz.korma.random
 
-import com.soywiz.korma.math.Math
+import com.soywiz.korma.math.*
 
 class MtRand private constructor(dummy: Boolean) : Rand {
 	companion object {

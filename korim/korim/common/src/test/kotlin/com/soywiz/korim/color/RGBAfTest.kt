@@ -1,6 +1,6 @@
 package com.soywiz.korim.color
 
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class RGBAfTest {
 	@kotlin.test.Test

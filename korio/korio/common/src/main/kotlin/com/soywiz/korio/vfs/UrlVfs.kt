@@ -1,17 +1,16 @@
 package com.soywiz.korio.vfs
 
-import com.soywiz.kds.lmapOf
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korio.net.URI
-import com.soywiz.korio.net.http.Http
-import com.soywiz.korio.net.http.HttpClient
-import com.soywiz.korio.net.http.createHttpClient
+import com.soywiz.kds.*
+import com.soywiz.korio.error.*
+import com.soywiz.korio.net.*
+import com.soywiz.korio.net.http.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korio.util.LONG_ZERO_TO_MAX_RANGE
+import com.soywiz.korio.util.*
 
 fun UrlVfs(url: String): VfsFile = UrlVfs(URI(url))
 fun UrlVfs(url: String, client: HttpClient): VfsFile = UrlVfs(URI(url), client)
-fun UrlVfs(url: URI, client: HttpClient = createHttpClient()): VfsFile = UrlVfs(url.copy(path = "", query = null).fullUri, Unit, client)[url.path]
+fun UrlVfs(url: URI, client: HttpClient = createHttpClient()): VfsFile =
+	UrlVfs(url.copy(path = "", query = null).fullUri, Unit, client)[url.path]
 
 class UrlVfs(val url: String, val dummy: Unit, val client: HttpClient = createHttpClient()) : Vfs() {
 	override val absolutePath: String = url
@@ -83,10 +82,12 @@ class UrlVfs(val url: String, val dummy: Unit, val client: HttpClient = createHt
 		val hheaders = headers?.headers ?: Http.Headers()
 		val contentLength = content.getLength()
 
-		client.request(Http.Method.PUT, getFullUrl(path), hheaders.withReplaceHeaders(
-			"content-length" to "$contentLength",
-			"content-type" to mimeType.mime
-		), content)
+		client.request(
+			Http.Method.PUT, getFullUrl(path), hheaders.withReplaceHeaders(
+				"content-length" to "$contentLength",
+				"content-type" to mimeType.mime
+			), content
+		)
 
 		return content.getLength()
 	}
@@ -95,7 +96,12 @@ class UrlVfs(val url: String, val dummy: Unit, val client: HttpClient = createHt
 		val result = client.request(Http.Method.HEAD, getFullUrl(path))
 
 		return if (result.success) {
-			createExistsStat(path, isDirectory = true, size = result.headers["content-length"]?.toLongOrNull() ?: 0L, extraInfo = result)
+			createExistsStat(
+				path,
+				isDirectory = true,
+				size = result.headers["content-length"]?.toLongOrNull() ?: 0L,
+				extraInfo = result
+			)
 		} else {
 			createNonExistsStat(path, extraInfo = result)
 		}

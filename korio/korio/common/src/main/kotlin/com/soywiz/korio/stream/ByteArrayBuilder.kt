@@ -1,9 +1,8 @@
 package com.soywiz.korio.stream
 
-import com.soywiz.kmem.arraycopy
-import com.soywiz.korio.lang.Charset
-import com.soywiz.korio.lang.toString
-import kotlin.math.max
+import com.soywiz.kmem.*
+import com.soywiz.korio.lang.*
+import kotlin.math.*
 
 //@Deprecated("", replaceWith = ReplaceWith("ByteArrayBuilder"))
 //typealias OptByteBuffer = ByteArrayBuilder

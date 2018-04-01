@@ -1,11 +1,11 @@
 package com.soywiz.korge.component.list
 
-import com.soywiz.korge.tests.ViewsForTesting
-import com.soywiz.korge.view.get
-import com.soywiz.korim.color.Colors
-import com.soywiz.korma.geom.Rectangle
+import com.soywiz.korge.tests.*
+import com.soywiz.korge.view.*
+import com.soywiz.korim.color.*
+import com.soywiz.korma.geom.*
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class GridViewListTest : ViewsForTesting() {
 	@Test
@@ -18,7 +18,8 @@ class GridViewListTest : ViewsForTesting() {
 		val row1 = rowTemplate.clone().apply { setXY(0, 20); name = "row1" }
 		views.stage.addChild(row0)
 		views.stage.addChild(row1)
-		val gridView = GridViewList(views.stage["row0"]!!, views.stage["row1"]!!, { it["cell0"]!! to it["cell1"]!! }, 3, 3)
+		val gridView =
+			GridViewList(views.stage["row0"]!!, views.stage["row1"]!!, { it["cell0"]!! to it["cell1"]!! }, 3, 3)
 		val cell = gridView[2, 2]
 		assertEquals(9, gridView.length)
 		assertEquals(Rectangle(40, 40, 10, 10), cell?.globalBounds)

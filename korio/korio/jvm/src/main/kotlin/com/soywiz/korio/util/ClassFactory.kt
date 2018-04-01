@@ -1,12 +1,11 @@
 package com.soywiz.korio.util
 
-import com.soywiz.kds.toLinkedMap
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korio.serialization.ObjectMapper
-import java.lang.reflect.Constructor
-import java.lang.reflect.Modifier
+import com.soywiz.kds.*
+import com.soywiz.korio.error.*
+import com.soywiz.korio.serialization.*
+import java.lang.reflect.*
 import java.util.*
-import kotlin.reflect.KClass
+import kotlin.reflect.*
 
 // @TODO: This should use ASM library to create a class per class to be as fast as possible
 class ClassFactory<T> private constructor(iclazz: Class<out T>, internal: kotlin.Boolean) {
@@ -23,7 +22,8 @@ class ClassFactory<T> private constructor(iclazz: Class<out T>, internal: kotlin
 	companion object {
 		val cache = LinkedHashMap<Class<*>, ClassFactory<*>>()
 		@Suppress("UNCHECKED_CAST")
-		operator fun <T> get(clazz: Class<out T>): ClassFactory<T> = cache.getOrPut(clazz) { ClassFactory(clazz, true) } as ClassFactory<T>
+		operator fun <T> get(clazz: Class<out T>): ClassFactory<T> =
+			cache.getOrPut(clazz) { ClassFactory(clazz, true) } as ClassFactory<T>
 
 		fun <T : Any> getForInstance(obj: T): ClassFactory<T> = get(obj.javaClass)
 
@@ -49,7 +49,8 @@ class ClassFactory<T> private constructor(iclazz: Class<out T>, internal: kotlin
 		}
 	}
 
-	val constructor = clazz.declaredConstructors.sortedBy { it.parameterTypes.size }.firstOrNull() ?: invalidOp("Can't find constructor for $clazz")
+	val constructor = clazz.declaredConstructors.sortedBy { it.parameterTypes.size }.firstOrNull()
+			?: invalidOp("Can't find constructor for $clazz")
 	val dummyArgs = createDummyArgs(constructor)
 	val fields = clazz.declaredFields
 		.filter { !Modifier.isTransient(it.modifiers) && !Modifier.isStatic(it.modifiers) }

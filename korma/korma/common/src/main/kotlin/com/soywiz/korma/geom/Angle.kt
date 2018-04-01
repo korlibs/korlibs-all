@@ -1,6 +1,6 @@
 package com.soywiz.korma.geom
 
-import kotlin.math.PI
+import kotlin.math.*
 
 object Angle {
 	fun cos01(ratio: Double) = kotlin.math.cos(PI * 2.0 * ratio)

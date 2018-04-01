@@ -1,36 +1,27 @@
 package com.soywiz.korge
 
 import com.soywiz.klock.Klock
-import com.soywiz.klogger.Logger
-import com.soywiz.korag.AG
-import com.soywiz.korag.AGContainer
-import com.soywiz.korag.AGInput
-import com.soywiz.korge.input.Input
-import com.soywiz.korge.input.Keys
-import com.soywiz.korge.plugin.KorgePlugins
-import com.soywiz.korge.plugin.defaultKorgePlugins
-import com.soywiz.korge.resources.ResourcesRoot
+import com.soywiz.klogger.*
+import com.soywiz.korag.*
+import com.soywiz.korge.input.*
+import com.soywiz.korge.plugin.*
+import com.soywiz.korge.resources.*
 import com.soywiz.korge.scene.*
 import com.soywiz.korge.time.seconds
 import com.soywiz.korge.view.*
-import com.soywiz.korim.NativeImageSpecialReader
-import com.soywiz.korim.format.readBitmap
-import com.soywiz.korim.vector.render
-import com.soywiz.korinject.AsyncInjector
-import com.soywiz.korio.async.EventLoop
-import com.soywiz.korio.async.Promise
-import com.soywiz.korio.async.go
-import com.soywiz.korio.lang.Console
-import com.soywiz.korio.lang.printStackTrace
-import com.soywiz.korio.time.TimeProvider
-import com.soywiz.korio.vfs.ResourcesVfs
-import com.soywiz.korio.vfs.register
-import com.soywiz.korma.geom.Point2d
-import com.soywiz.korui.CanvasApplicationEx
-import com.soywiz.korui.KoruiEventLoop
-import com.soywiz.korui.ui.Frame
-import kotlin.math.min
-import kotlin.reflect.KClass
+import com.soywiz.korim.*
+import com.soywiz.korim.format.*
+import com.soywiz.korim.vector.*
+import com.soywiz.korinject.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.time.*
+import com.soywiz.korio.vfs.*
+import com.soywiz.korma.geom.*
+import com.soywiz.korui.*
+import com.soywiz.korui.ui.*
+import kotlin.math.*
+import kotlin.reflect.*
 
 object Korge {
 	val VERSION = KORGE_VERSION
@@ -203,7 +194,10 @@ object Korge {
 			//println("Render($lastTime -> $currentTime): $delta")
 			lastTime = currentTime
 			views.update(adelta)
-			views.render(clear = config.module.clearEachFrame && views.clearEachFrame, clearColor = config.module.bgcolor)
+			views.render(
+				clear = config.module.clearEachFrame && views.clearEachFrame,
+				clearColor = config.module.bgcolor
+			)
 
 			//println("Dumping views:")
 			//views.dump()
@@ -247,10 +241,20 @@ object Korge {
 		constructedViews: (Views) -> Unit = {},
 		eventLoop: EventLoop = KoruiEventLoop.instance
 	) = EventLoop.main(eventLoop) {
-		test(Config(
-			module = module, args = args, container = container, sceneClass = sceneClass, sceneInjects = sceneInjects, injector = injector,
-			timeProvider = timeProvider, debug = debug, trace = trace, constructedViews = constructedViews
-		))
+		test(
+			Config(
+				module = module,
+				args = args,
+				container = container,
+				sceneClass = sceneClass,
+				sceneInjects = sceneInjects,
+				injector = injector,
+				timeProvider = timeProvider,
+				debug = debug,
+				trace = trace,
+				constructedViews = constructedViews
+			)
+		)
 	}
 
 	data class Config(
@@ -292,7 +296,12 @@ object Korge {
 				e.printStackTrace()
 				null
 			}
-			CanvasApplicationEx(config.module.title, config.module.windowSize.width, config.module.windowSize.height, icon) { container, frame ->
+			CanvasApplicationEx(
+				config.module.title,
+				config.module.windowSize.width,
+				config.module.windowSize.height,
+				icon
+			) { container, frame ->
 				go {
 					done.resolve(setupCanvas(config.copy(container = container, frame = frame)))
 				}

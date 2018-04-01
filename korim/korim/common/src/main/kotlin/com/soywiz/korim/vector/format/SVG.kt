@@ -1,23 +1,15 @@
 package com.soywiz.korim.vector.format
 
-import com.soywiz.kds.ListReader
-import com.soywiz.kds.mapWhile
-import com.soywiz.klogger.Logger
-import com.soywiz.korim.color.NamedColors
-import com.soywiz.korim.color.RGBA
-import com.soywiz.korim.vector.Context2d
-import com.soywiz.korim.vector.GraphicsPath
-import com.soywiz.korim.vector.toSvgPathString
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korio.lang.printStackTrace
-import com.soywiz.korio.serialization.xml.Xml
-import com.soywiz.korio.serialization.xml.allChildren
-import com.soywiz.korio.serialization.xml.isComment
+import com.soywiz.kds.*
+import com.soywiz.klogger.*
+import com.soywiz.korim.color.*
+import com.soywiz.korim.vector.*
+import com.soywiz.korio.error.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.serialization.xml.*
 import com.soywiz.korio.util.*
-import com.soywiz.korma.Matrix2d
-import com.soywiz.korma.geom.Point2d
-import com.soywiz.korma.geom.Rectangle
-import com.soywiz.korma.geom.VectorPath
+import com.soywiz.korma.*
+import com.soywiz.korma.geom.*
 import kotlin.collections.set
 
 class SVG(val root: Xml) : Context2d.SizedDrawable {
@@ -295,10 +287,34 @@ class SVG(val root: Xml) : Context2d.SizedDrawable {
 						'h' -> while (isNextNumber()) rLineToH(readNumber())
 						'V' -> while (isNextNumber()) lineToV(readNumber())
 						'v' -> while (isNextNumber()) rLineToV(readNumber())
-						'Q' -> while (isNextNumber()) quadraticCurveTo(readNumber(), readNumber(), readNumber(), readNumber())
-						'q' -> while (isNextNumber()) rQuadraticCurveTo(readNumber(), readNumber(), readNumber(), readNumber())
-						'C' -> while (isNextNumber()) bezierCurveTo(readNumber(), readNumber(), readNumber(), readNumber(), readNumber(), readNumber())
-						'c' -> while (isNextNumber()) rBezierCurveTo(readNumber(), readNumber(), readNumber(), readNumber(), readNumber(), readNumber())
+						'Q' -> while (isNextNumber()) quadraticCurveTo(
+							readNumber(),
+							readNumber(),
+							readNumber(),
+							readNumber()
+						)
+						'q' -> while (isNextNumber()) rQuadraticCurveTo(
+							readNumber(),
+							readNumber(),
+							readNumber(),
+							readNumber()
+						)
+						'C' -> while (isNextNumber()) bezierCurveTo(
+							readNumber(),
+							readNumber(),
+							readNumber(),
+							readNumber(),
+							readNumber(),
+							readNumber()
+						)
+						'c' -> while (isNextNumber()) rBezierCurveTo(
+							readNumber(),
+							readNumber(),
+							readNumber(),
+							readNumber(),
+							readNumber(),
+							readNumber()
+						)
 						'Z' -> closePath()
 						'z' -> closePath()
 						else -> TODO("Unsupported command '$cmd' : Parsed: '${state.path.toSvgPathString()}', Original: '$d'")

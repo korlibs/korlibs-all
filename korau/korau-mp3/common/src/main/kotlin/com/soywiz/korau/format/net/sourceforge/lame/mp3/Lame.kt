@@ -27,14 +27,13 @@
 
 package com.soywiz.korau.format.net.sourceforge.lame.mp3
 
-import com.soywiz.korau.format.net.sourceforge.lame.mpg.Interface
-import com.soywiz.korau.format.net.sourceforge.lame.mpg.MPGLib
+import com.soywiz.korau.format.net.sourceforge.lame.mpg.*
 
 class Lame {
-    val flags = LameGlobalFlags()
-    val vbr = VBRTag()
-    val parser = Parse()
-    val intf = Interface(vbr)
-    val mpg = MPGLib(intf)
-    val audio = GetAudio(parser, mpg)
+	val flags = LameGlobalFlags()
+	val vbr = VBRTag()
+	val parser = Parse()
+	val intf = Interface(vbr)
+	val mpg = MPGLib(intf)
+	val audio = GetAudio(parser, mpg)
 }

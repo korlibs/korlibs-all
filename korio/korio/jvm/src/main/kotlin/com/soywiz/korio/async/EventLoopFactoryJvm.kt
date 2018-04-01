@@ -1,10 +1,11 @@
 package com.soywiz.korio.async
 
-import com.soywiz.kds.Pool
-import com.soywiz.korio.lang.Closeable
-import com.soywiz.korio.util.compareToChain
-import java.util.*
-import kotlin.coroutines.experimental.Continuation
+import com.soywiz.kds.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.util.*
+import java.util.LinkedList
+import java.util.PriorityQueue
+import kotlin.coroutines.experimental.*
 
 
 class EventLoopFactoryJvmAndCSharp : EventLoopFactory() {
@@ -87,14 +88,18 @@ class EventLoopJvmAndCSharp : EventLoop(captureCloseables = false) {
 			val startTime = System.currentTimeMillis()
 			while (true) {
 				val currentTime = System.currentTimeMillis()
-				val item = synchronized(lock) { if (timedTasks.isNotEmpty() && currentTime >= timedTasks.peek().time) timedTasks.remove() else null } ?: break
+				val item =
+					synchronized(lock) { if (timedTasks.isNotEmpty() && currentTime >= timedTasks.peek().time) timedTasks.remove() else null }
+							?: break
 				item.callback()
 			}
 			while (true) {
 				if ((System.currentTimeMillis() - startTime) >= 50) {
 					continue@timer
 				}
-				val task = synchronized(lock) { if (immediateTasks.isNotEmpty()) immediateTasks.removeFirst() else null } ?: break
+				val task =
+					synchronized(lock) { if (immediateTasks.isNotEmpty()) immediateTasks.removeFirst() else null }
+							?: break
 				if (task.callback != null) {
 					task.callback?.invoke()
 				} else if (task.continuation != null) {

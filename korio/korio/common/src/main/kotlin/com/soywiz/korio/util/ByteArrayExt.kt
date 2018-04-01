@@ -1,10 +1,8 @@
 package com.soywiz.korio.util
 
-import com.soywiz.kmem.arraycopy
-import com.soywiz.kmem.toUnsigned
-import com.soywiz.korio.crypto.Hex
-import com.soywiz.korio.lang.Charsets
-import com.soywiz.korio.lang.toString
+import com.soywiz.kmem.*
+import com.soywiz.korio.crypto.*
+import com.soywiz.korio.lang.*
 
 operator fun ByteArray.set(o: Int, v: Int) = run { this[o] = v.toByte() }
 operator fun ByteArray.set(o: Int, v: Long) = run { this[o] = v.toByte() }

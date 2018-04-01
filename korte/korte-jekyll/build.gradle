@@ -6,22 +6,22 @@ apply plugin: 'jtransc'
 mainClassName = "com.soywiz.korte.jekyll.KorteJekyll"
 
 dependencies {
-    compile "com.soywiz:korio:$korVersion"
-    //compile "io.vertx:vertx-core:$vertxVersion"
+	compile "com.soywiz:korio:$korVersion"
+	//compile "io.vertx:vertx-core:$vertxVersion"
 }
 
 configurations {
-    provided
+	provided
 }
 
 repositories {
-    mavenLocal()
-    jcenter()
-    mavenCentral()
+	mavenLocal()
+	jcenter()
+	mavenCentral()
 }
 
 jtransc {
-    minimizeNames = false
-    treeshaking = true
-    //treeshaking = false
+	minimizeNames = false
+	treeshaking = true
+	//treeshaking = false
 }

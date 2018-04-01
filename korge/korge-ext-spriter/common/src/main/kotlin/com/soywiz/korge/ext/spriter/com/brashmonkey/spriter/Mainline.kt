@@ -1,7 +1,7 @@
 package com.soywiz.korge.ext.spriter.com.brashmonkey.spriter
 
-import com.soywiz.korio.JvmField
-import kotlin.math.sign
+import com.soywiz.korio.*
+import kotlin.math.*
 
 /**
  * Represents a mainline in a Spriter SCML file.
@@ -68,8 +68,10 @@ class Mainline(keys: Int) {
 	 * @author Trixt0r
 	 */
 	class Key(val id: Int, val time: Int, val curve: Curve, boneRefs: Int, objectRefs: Int) {
-		@JvmField val boneRefs: Array<BoneRef>
-		@JvmField val objectRefs: Array<ObjectRef>
+		@JvmField
+		val boneRefs: Array<BoneRef>
+		@JvmField
+		val objectRefs: Array<ObjectRef>
 		private var bonePointer = 0
 		private var objectPointer = 0
 
@@ -197,7 +199,8 @@ class Mainline(keys: Int) {
 		 * which indicates when the object has to be drawn.
 		 * @author Trixt0r
 		 */
-		class ObjectRef(id: Int, timeline: Int, key: Int, parent: BoneRef?, val zIndex: Int) : BoneRef(id, timeline, key, parent), Comparable<ObjectRef> {
+		class ObjectRef(id: Int, timeline: Int, key: Int, parent: BoneRef?, val zIndex: Int) :
+			BoneRef(id, timeline, key, parent), Comparable<ObjectRef> {
 			companion object {
 				val DUMMY = ObjectRef(0, 0, 0, null, 0)
 			}

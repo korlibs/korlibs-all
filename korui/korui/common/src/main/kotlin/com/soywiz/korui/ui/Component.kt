@@ -2,25 +2,18 @@
 
 package com.soywiz.korui.ui
 
-import com.soywiz.kds.Extra
-import com.soywiz.korag.AG
-import com.soywiz.korag.AGContainer
-import com.soywiz.korag.AGInput
-import com.soywiz.korim.bitmap.Bitmap
-import com.soywiz.korio.async.await
-import com.soywiz.korio.async.execAndForget
-import com.soywiz.korio.lang.Closeable
-import com.soywiz.korio.vfs.VfsFile
-import com.soywiz.korma.geom.Anchor
-import com.soywiz.korma.geom.RectangleInt
-import com.soywiz.korma.geom.ScaleMode
-import com.soywiz.korui.Application
-import com.soywiz.korui.geom.len.Length
-import com.soywiz.korui.geom.len.pt
+import com.soywiz.kds.*
+import com.soywiz.korag.*
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.vfs.*
+import com.soywiz.korma.geom.*
+import com.soywiz.korui.*
+import com.soywiz.korui.geom.len.*
 import com.soywiz.korui.light.*
-import com.soywiz.korui.style.Style
-import com.soywiz.korui.style.Styled
-import kotlin.reflect.KProperty
+import com.soywiz.korui.style.*
+import kotlin.reflect.*
 
 open class Component(val app: Application, val type: LightType) : Styled, Extra by Extra.Mixin() {
 	val coroutineContext = app.coroutineContext

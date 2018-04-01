@@ -1,6 +1,6 @@
 package com.soywiz.korio.compression
 
-import com.soywiz.korio.KorioNative
+import com.soywiz.korio.*
 
 object Compression {
 	suspend fun uncompressGzip(data: ByteArray): ByteArray = KorioNative.uncompressGzip(data)

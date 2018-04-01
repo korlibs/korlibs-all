@@ -1,11 +1,10 @@
 package com.soywiz.korge.service
 
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korinject.AsyncInjector
-import com.soywiz.korinject.Singleton
-import com.soywiz.korio.vfs.VfsFile
-import com.soywiz.korui.light.defaultLight
-import com.soywiz.korui.ui.Frame
+import com.soywiz.korinject.*
+import com.soywiz.korio.error.*
+import com.soywiz.korio.vfs.*
+import com.soywiz.korui.light.*
+import com.soywiz.korui.ui.*
 
 @Singleton
 open class Browser(val injector: AsyncInjector) {

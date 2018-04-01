@@ -1,28 +1,33 @@
 package com.soywiz.korge.ext.tiled
 
-import com.soywiz.kmem.readIntArray_le
-import com.soywiz.korge.render.Texture
-import com.soywiz.korge.resources.Path
-import com.soywiz.korge.resources.ResourcesRoot
-import com.soywiz.korge.view.Views
-import com.soywiz.korge.view.texture
-import com.soywiz.korge.view.tiles.TileSet
-import com.soywiz.korim.bitmap.Bitmap
-import com.soywiz.korim.bitmap.Bitmap32
-import com.soywiz.korim.color.Colors
-import com.soywiz.korim.color.NamedColors
-import com.soywiz.korim.color.RGBA
-import com.soywiz.korim.format.readBitmapOptimized
-import com.soywiz.korinject.AsyncFactory
-import com.soywiz.korio.compression.uncompressGzip
-import com.soywiz.korio.compression.uncompressZlib
-import com.soywiz.korio.crypto.Base64
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korio.serialization.xml.readXml
-import com.soywiz.korio.vfs.VfsFile
-import com.soywiz.korma.geom.IRectangleInt
-import com.soywiz.korma.geom.Point2d
-import kotlin.math.max
+import com.soywiz.kmem.*
+import com.soywiz.korge.render.*
+import com.soywiz.korge.resources.*
+import com.soywiz.korge.view.*
+import com.soywiz.korge.view.tiles.*
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
+import com.soywiz.korim.format.*
+import com.soywiz.korinject.*
+import com.soywiz.korio.compression.*
+import com.soywiz.korio.crypto.*
+import com.soywiz.korio.error.*
+import com.soywiz.korio.serialization.xml.*
+import com.soywiz.korio.vfs.*
+import com.soywiz.korma.geom.*
+import kotlin.collections.Iterable
+import kotlin.collections.List
+import kotlin.collections.arrayListOf
+import kotlin.collections.filterIsInstance
+import kotlin.collections.firstOrNull
+import kotlin.collections.hashMapOf
+import kotlin.collections.listOf
+import kotlin.collections.map
+import kotlin.collections.plusAssign
+import kotlin.collections.set
+import kotlin.collections.toIntArray
+import kotlin.collections.toList
+import kotlin.math.*
 
 //e: java.lang.UnsupportedOperationException: Class literal annotation arguments are not yet supported: Factory
 //@AsyncFactoryClass(TiledMapFactory::class)
@@ -215,9 +220,17 @@ suspend fun VfsFile.readTiledMap(views: Views): TiledMap {
 								"ellipse" -> TiledMap.Layer.Objects.Ellipse(bounds)
 								"polyline", "polygon" -> {
 									val pointsStr = kind!!.str("points")
-									val points = pointsStr.split(spaces).map { val parts = it.split(',').map { it.trim().toDoubleOrNull() ?: 0.0 }; Point2d(parts[0], parts[1]) }
+									val points = pointsStr.split(spaces).map {
+										val parts = it.split(',').map { it.trim().toDoubleOrNull() ?: 0.0 }; Point2d(
+										parts[0],
+										parts[1]
+									)
+									}
 
-									if (kindType == "polyline") TiledMap.Layer.Objects.Polyline(bounds, points) else TiledMap.Layer.Objects.Polygon(bounds, points)
+									if (kindType == "polyline") TiledMap.Layer.Objects.Polyline(
+										bounds,
+										points
+									) else TiledMap.Layer.Objects.Polygon(bounds, points)
 								}
 								else -> invalidOp("Invalid object kind $kindType")
 							}

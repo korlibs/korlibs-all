@@ -1,15 +1,14 @@
 package com.soywiz.korge.atlas
 
-import com.soywiz.korge.resources.Path
-import com.soywiz.korge.resources.ResourcesRoot
-import com.soywiz.korge.util.toBool2
-import com.soywiz.korge.view.Views
-import com.soywiz.korio.Language
-import com.soywiz.korinject.AsyncFactory
-import com.soywiz.korio.lang.Dynamic
-import com.soywiz.korio.serialization.Mapper
-import com.soywiz.korio.serialization.json.Json
-import com.soywiz.korma.geom.Rectangle
+import com.soywiz.korge.resources.*
+import com.soywiz.korge.util.*
+import com.soywiz.korge.view.*
+import com.soywiz.korinject.*
+import com.soywiz.korio.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.serialization.*
+import com.soywiz.korio.serialization.json.*
+import com.soywiz.korma.geom.*
 
 //e: java.lang.UnsupportedOperationException: Class literal annotation arguments are not yet supported: Factory
 //@AsyncFactoryClass(AtlasInfo.Factory::class)
@@ -25,12 +24,31 @@ data class AtlasInfo(
 		val size get() = com.soywiz.korma.geom.Size(w, h)
 	}
 
-	data class Meta(val app: String, val format: String, val image: String, val scale: Double, val size: Size, val version: String)
-	data class Entry(val frame: Rect, val rotated: Boolean, val sourceSize: Size, val spriteSourceSize: Rect, val trimmed: Boolean) {
+	data class Meta(
+		val app: String,
+		val format: String,
+		val image: String,
+		val scale: Double,
+		val size: Size,
+		val version: String
+	)
+
+	data class Entry(
+		val frame: Rect,
+		val rotated: Boolean,
+		val sourceSize: Size,
+		val spriteSourceSize: Rect,
+		val trimmed: Boolean
+	) {
 		fun applyRotation() = if (rotated) {
 			this.copy(
 				frame = frame.copy(w = frame.h, h = frame.w),
-				spriteSourceSize = spriteSourceSize.copy(x = spriteSourceSize.y, y = spriteSourceSize.x, w = spriteSourceSize.h, h = spriteSourceSize.w)
+				spriteSourceSize = spriteSourceSize.copy(
+					x = spriteSourceSize.y,
+					y = spriteSourceSize.x,
+					w = spriteSourceSize.h,
+					h = spriteSourceSize.w
+				)
 			)
 		} else {
 			this

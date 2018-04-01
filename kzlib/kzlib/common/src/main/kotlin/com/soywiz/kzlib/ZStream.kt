@@ -172,14 +172,17 @@ open class ZStream constructor(var adler: Checksum = Adler32()) {
 		if (dstate!!.pending_buf.size <= dstate!!.pending_out ||
 			next_out!!.size <= next_out_index ||
 			dstate!!.pending_buf.size < dstate!!.pending_out + len ||
-			next_out!!.size < next_out_index + len) {
+			next_out!!.size < next_out_index + len
+		) {
 			//System.out.println(dstate.pending_buf.length+", "+dstate.pending_out+
 			//		 ", "+next_out.length+", "+next_out_index+", "+len);
 			//System.out.println("avail_out="+avail_out);
 		}
 
-		arraycopy(dstate!!.pending_buf, dstate!!.pending_out,
-			next_out!!, next_out_index, len)
+		arraycopy(
+			dstate!!.pending_buf, dstate!!.pending_out,
+			next_out!!, next_out_index, len
+		)
 
 		next_out_index += len
 		dstate!!.pending_out += len

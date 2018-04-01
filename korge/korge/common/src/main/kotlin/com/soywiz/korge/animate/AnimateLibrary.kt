@@ -1,30 +1,22 @@
 package com.soywiz.korge.animate
 
-import com.soywiz.korau.format.AudioData
-import com.soywiz.korau.sound.NativeSound
-import com.soywiz.korau.sound.nativeSoundProvider
-import com.soywiz.korge.animate.serialization.AniFile
-import com.soywiz.korge.animate.serialization.readAni
-import com.soywiz.korge.plugin.KorgePlugin
-import com.soywiz.korge.render.Texture
-import com.soywiz.korge.render.TextureWithBitmapSlice
-import com.soywiz.korge.resources.Path
-import com.soywiz.korge.resources.ResourcesRoot
-import com.soywiz.korge.resources.VPath
+import com.soywiz.kds.*
+import com.soywiz.korau.format.*
+import com.soywiz.korau.sound.*
+import com.soywiz.korge.animate.serialization.*
+import com.soywiz.korge.plugin.*
+import com.soywiz.korge.render.*
+import com.soywiz.korge.resources.*
 import com.soywiz.korge.view.*
-import com.soywiz.korim.bitmap.Bitmap
-import com.soywiz.korim.color.ColorTransform
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korinject.AsyncFactory
-import com.soywiz.korinject.AsyncFactoryClass
-import com.soywiz.korinject.AsyncInjector
-import com.soywiz.korio.stream.FastByteArrayInputStream
-import com.soywiz.korio.util.AsyncCacheItem
-import com.soywiz.kds.Extra
-import com.soywiz.korma.Matrix2d
-import com.soywiz.korma.geom.Rectangle
-import com.soywiz.korma.geom.VectorPath
-import com.soywiz.korma.interpolation.interpolate
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
+import com.soywiz.korinject.*
+import com.soywiz.korio.error.*
+import com.soywiz.korio.stream.*
+import com.soywiz.korio.util.*
+import com.soywiz.korma.*
+import com.soywiz.korma.geom.*
+import com.soywiz.korma.interpolation.*
 import kotlin.collections.set
 
 open class AnSymbol(
@@ -38,7 +30,8 @@ open class AnSymbol(
 
 object AnSymbolEmpty : AnSymbol(-1, "")
 
-class AnSymbolSound(id: Int, name: String?, private var inputSound: NativeSound?, val dataBytes: ByteArray?) : AnSymbol(id, name) {
+class AnSymbolSound(id: Int, name: String?, private var inputSound: NativeSound?, val dataBytes: ByteArray?) :
+	AnSymbol(id, name) {
 	private val nativeSoundCache = AsyncCacheItem<NativeSound>()
 	suspend fun getNativeSound(): NativeSound = nativeSoundCache {
 		if (inputSound == null) {
@@ -57,14 +50,27 @@ class AnTextFieldSymbol(id: Int, name: String?, val initialHtml: String, val bou
 	override fun create(library: AnLibrary): AnElement = AnTextField(library, this)
 }
 
-open class AnSymbolBaseShape(id: Int, name: String?, var bounds: Rectangle, val path: VectorPath? = null) : AnSymbol(id, name) {
+open class AnSymbolBaseShape(id: Int, name: String?, var bounds: Rectangle, val path: VectorPath? = null) :
+	AnSymbol(id, name) {
 }
 
-class AnSymbolShape(id: Int, name: String?, bounds: Rectangle, var textureWithBitmap: TextureWithBitmapSlice?, path: VectorPath? = null) : AnSymbolBaseShape(id, name, bounds, path) {
+class AnSymbolShape(
+	id: Int,
+	name: String?,
+	bounds: Rectangle,
+	var textureWithBitmap: TextureWithBitmapSlice?,
+	path: VectorPath? = null
+) : AnSymbolBaseShape(id, name, bounds, path) {
 	override fun create(library: AnLibrary): AnElement = AnShape(library, this)
 }
 
-class AnSymbolMorphShape(id: Int, name: String?, bounds: Rectangle, var texturesWithBitmap: Timed<TextureWithBitmapSlice> = Timed(), path: VectorPath? = null) : AnSymbolBaseShape(id, name, bounds, path) {
+class AnSymbolMorphShape(
+	id: Int,
+	name: String?,
+	bounds: Rectangle,
+	var texturesWithBitmap: Timed<TextureWithBitmapSlice> = Timed(),
+	path: VectorPath? = null
+) : AnSymbolBaseShape(id, name, bounds, path) {
 	override fun create(library: AnLibrary): AnElement = AnMorphShape(library, this)
 }
 
@@ -271,7 +277,12 @@ val Views.animateLibraryLoaders by Extra.Property {
 	arrayListOf<KorgeFileLoaderTester<AnLibrary>>(
 		KorgeFileLoaderTester("core/ani") { s, injector ->
 			when {
-				(s.readString(8) == AniFile.MAGIC) -> KorgeFileLoader("ani") { content, views -> this.readAni(views, content = content) }
+				(s.readString(8) == AniFile.MAGIC) -> KorgeFileLoader("ani") { content, views ->
+					this.readAni(
+						views,
+						content = content
+					)
+				}
 				else -> null
 			}
 		}

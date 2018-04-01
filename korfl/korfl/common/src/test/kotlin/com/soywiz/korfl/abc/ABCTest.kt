@@ -1,8 +1,8 @@
 package com.soywiz.korfl.abc
 
-import com.soywiz.korio.stream.openSync
-import com.soywiz.korio.util.fromHexChunks
-import org.junit.Test
+import com.soywiz.korio.stream.*
+import com.soywiz.korio.util.*
+import org.junit.*
 
 class ABCTest {
 	@Test

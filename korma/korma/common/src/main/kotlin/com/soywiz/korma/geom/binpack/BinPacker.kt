@@ -1,13 +1,12 @@
 package com.soywiz.korma.geom.binpack
 
-import com.soywiz.korma.geom.Rectangle
-import com.soywiz.korma.geom.Size
-import com.soywiz.korma.geom.Sizeable
+import com.soywiz.korma.geom.*
 
 class BinPacker(val width: Double, val height: Double, val algo: BinPack = MaxRects(width, height)) {
 	val allocated = arrayListOf<Rectangle>()
 
-	fun add(width: Double, height: Double): Rectangle = addOrNull(width, height) ?: throw IllegalStateException("Size '${this.width}x${this.height}' doesn't fit in '${this.width}x${this.height}'")
+	fun add(width: Double, height: Double): Rectangle = addOrNull(width, height)
+			?: throw IllegalStateException("Size '${this.width}x${this.height}' doesn't fit in '${this.width}x${this.height}'")
 
 	fun addOrNull(width: Double, height: Double): Rectangle? {
 		val rect = algo.add(width, height) ?: return null
@@ -15,7 +14,9 @@ class BinPacker(val width: Double, val height: Double, val algo: BinPack = MaxRe
 		return rect
 	}
 
-	fun <T> addBatch(items: Iterable<T>, getSize: (T) -> Size): List<Pair<T, Rectangle?>> = algo.addBatch(items, getSize)
+	fun <T> addBatch(items: Iterable<T>, getSize: (T) -> Size): List<Pair<T, Rectangle?>> =
+		algo.addBatch(items, getSize)
+
 	fun addBatch(items: Iterable<Size>): List<Rectangle?> = algo.addBatch(items) { it }.map { it.second }
 
 	class Result<T>(val maxWidth: Double, val maxHeight: Double, val items: List<Pair<T, Rectangle>>) {
@@ -26,18 +27,28 @@ class BinPacker(val width: Double, val height: Double, val algo: BinPack = MaxRe
 	}
 
 	companion object {
-		fun <T> pack(width: Double, height: Double, items: Iterable<T>, getSize: (T) -> Size) = BinPacker(width, height).addBatch(items, getSize)
+		fun <T> pack(width: Double, height: Double, items: Iterable<T>, getSize: (T) -> Size) =
+			BinPacker(width, height).addBatch(items, getSize)
 
-		inline fun <T : Sizeable> packSeveral(maxWidth: Number, maxHeight: Number, items: Iterable<T>): List<Result<T>> = packSeveral(maxWidth.toDouble(), maxHeight.toDouble(), items) { it.size }
+		inline fun <T : Sizeable> packSeveral(
+			maxWidth: Number,
+			maxHeight: Number,
+			items: Iterable<T>
+		): List<Result<T>> = packSeveral(maxWidth.toDouble(), maxHeight.toDouble(), items) { it.size }
 
-		fun <T> packSeveral(maxWidth: Double, maxHeight: Double, items: Iterable<T>, getSize: (T) -> Size): List<Result<T>> {
+		fun <T> packSeveral(
+			maxWidth: Double,
+			maxHeight: Double,
+			items: Iterable<T>,
+			getSize: (T) -> Size
+		): List<Result<T>> {
 			var currentBinPacker = BinPacker(maxWidth, maxHeight)
 			var currentPairs = arrayListOf<Pair<T, Rectangle>>()
 			val sortedItems = items.sortedByDescending { getSize(it).area }
 			if (sortedItems.any {
-				val size = getSize(it)
-				size.width > maxWidth || size.height > maxHeight
-			}) throw IllegalArgumentException("Item is bigger than max size")
+					val size = getSize(it)
+					size.width > maxWidth || size.height > maxHeight
+				}) throw IllegalArgumentException("Item is bigger than max size")
 
 			val out = arrayListOf<Result<T>>()
 

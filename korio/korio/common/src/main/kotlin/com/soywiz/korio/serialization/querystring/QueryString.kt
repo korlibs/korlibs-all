@@ -1,11 +1,9 @@
 package com.soywiz.korio.serialization.querystring
 
-import com.soywiz.kds.lmapOf
-import com.soywiz.korio.lang.Charset
-import com.soywiz.korio.lang.toByteArray
-import com.soywiz.korio.lang.toString
-import com.soywiz.korio.stream.ByteArrayBuilder
-import com.soywiz.korio.util.substr
+import com.soywiz.kds.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.stream.*
+import com.soywiz.korio.util.*
 
 object QueryString {
 	fun decode(str: CharSequence): Map<String, List<String>> {

@@ -1,6 +1,6 @@
 package com.klock
 
-import com.soywiz.klock.SimplerDateFormat
+import com.soywiz.klock.*
 import kotlin.test.*
 
 class SimplerDateFormatTest {

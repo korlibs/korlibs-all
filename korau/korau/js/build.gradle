@@ -1,7 +1,7 @@
 apply plugin: 'kotlin-platform-js'
 
 dependencies {
-    expectedBy project(":korau-common")
+	expectedBy project(":korau-common")
 
 	compile project(":klogger-js")
 	compile project(":korio-js")
@@ -9,5 +9,5 @@ dependencies {
 }
 
 sourceSets {
-    test.resources.srcDirs += [ '../common/src/test/resources' ] // @TODO: @BUG: Hack. No common resources are copied
+	test.resources.srcDirs += ['../common/src/test/resources'] // @TODO: @BUG: Hack. No common resources are copied
 }

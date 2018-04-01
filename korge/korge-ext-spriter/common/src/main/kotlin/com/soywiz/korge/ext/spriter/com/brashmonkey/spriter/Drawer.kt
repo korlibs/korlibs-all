@@ -1,15 +1,10 @@
 package com.soywiz.korge.ext.spriter.com.brashmonkey.spriter
 
-import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.Entity.CharacterMap
-import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.Entity.ObjectInfo
-import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.Entity.ObjectType
-import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.Timeline.Key.Bone
-import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.Timeline.Key.Object
-import com.soywiz.korio.JvmField
-import com.soywiz.korio.JvmOverloads
-import com.soywiz.korio.math.toRadians
-import kotlin.math.cos
-import kotlin.math.sin
+import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.Entity.*
+import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.Timeline.Key.*
+import com.soywiz.korio.*
+import com.soywiz.korio.math.*
+import kotlin.math.*
 
 /**
  * A Drawer is responsible for drawing a [Player].
@@ -28,7 +23,7 @@ abstract class Drawer<R>
  * Creates a new drawer based on the given loader.
  * @param loader the loader containing resources
  */
-(@JvmField var loader: Loader<*>) {
+	(@JvmField var loader: Loader<*>) {
 
 	/**
 	 * The radius of a point for debug drawing purposes.
@@ -116,7 +111,8 @@ abstract class Drawer<R>
 	 * *
 	 * @param it the iterator iterating over the bones to draw
 	 */
-	@JvmOverloads fun drawBoneBoxes(player: Player, it: Iterator<Bone> = player.boneIterator()) {
+	@JvmOverloads
+	fun drawBoneBoxes(player: Player, it: Iterator<Bone> = player.boneIterator()) {
 		while (it.hasNext()) {
 			val bone = it.next()
 			this.drawBox(player.getBox(bone))
@@ -129,7 +125,8 @@ abstract class Drawer<R>
 	 * *
 	 * @param it the iterator iterating over the object to draw
 	 */
-	@JvmOverloads fun drawObjectBoxes(player: Player, it: Iterator<Object> = player.objectIterator()) {
+	@JvmOverloads
+	fun drawObjectBoxes(player: Player, it: Iterator<Object> = player.objectIterator()) {
 		while (it.hasNext()) {
 			val bone = it.next()
 			this.drawBox(player.getBox(bone))
@@ -142,7 +139,8 @@ abstract class Drawer<R>
 	 * *
 	 * @param it the iterator iterating over the points to draw
 	 */
-	@JvmOverloads fun drawPoints(player: Player, it: Iterator<Object> = player.objectIterator()) {
+	@JvmOverloads
+	fun drawPoints(player: Player, it: Iterator<Object> = player.objectIterator()) {
 		while (it.hasNext()) {
 			val point = it.next()
 			if (player.getObjectInfoFor(point).type == ObjectType.Point) {

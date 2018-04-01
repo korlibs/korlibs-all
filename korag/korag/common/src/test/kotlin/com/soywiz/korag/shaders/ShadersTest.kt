@@ -1,10 +1,10 @@
 package com.soywiz.korag.shaders
 
-import com.soywiz.korag.DefaultShaders
-import com.soywiz.korag.shader.VertexShader
-import com.soywiz.korag.shader.gl.toGlSlString
+import com.soywiz.korag.*
+import com.soywiz.korag.shader.*
+import com.soywiz.korag.shader.gl.*
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class ShadersTest {
 	@Test

@@ -64,14 +64,20 @@ abstract class ResourceProcessor(vararg extensions: String) {
 	companion object {
 		val processorsByExtension: Map<String, ResourceProcessor> by lazy {
 			try {
-				defaultResourceProcessors.processors.flatMap { processor -> processor.extensionLCs.map { it to processor } }.toMap()
+				defaultResourceProcessors.processors.flatMap { processor -> processor.extensionLCs.map { it to processor } }
+					.toMap()
 			} catch (e: Throwable) {
 				e.printStackTrace()
 				mapOf<String, ResourceProcessor>()
 			}
 		}
 
-		suspend fun process(inputFiles: List<VfsFile>, outputVfs: VfsFile, extraOutVfs: VfsFile? = null, progressHandler: (ProgressReport) -> Unit = {}) {
+		suspend fun process(
+			inputFiles: List<VfsFile>,
+			outputVfs: VfsFile,
+			extraOutVfs: VfsFile? = null,
+			progressHandler: (ProgressReport) -> Unit = {}
+		) {
 			val outputVfsJail = outputVfs.jail()
 			val extraOutVfsJail = extraOutVfs?.jail()
 			println("Processing: $inputFiles to $outputVfsJail")
@@ -84,7 +90,9 @@ abstract class ResourceProcessor(vararg extensions: String) {
 			for (inputFile in inputFiles) {
 				val inputVfs = inputFile.jail()
 				for (file in inputVfs.listRecursive()) {
-					val processor = processorsByExtension[file.compoundExtensionLC] ?: processorsByExtension[file.extensionLC] ?: continue
+					val processor =
+						processorsByExtension[file.compoundExtensionLC] ?: processorsByExtension[file.extensionLC]
+						?: continue
 					val fileInput = file
 					val folderOutput = outputVfsJail[file.path].parent
 					ignoreErrors { folderOutput.ensureParents() }

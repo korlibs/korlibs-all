@@ -24,32 +24,32 @@ package com.soywiz.korau.format.net.sourceforge.lame.mp3
  * used by the frame analyzer
  */
 class PlottingData {
-    var mpg123xr = Array(2) { Array(2) { DoubleArray(576) } }
-    var sfb = Array(2) { Array(2) { DoubleArray(SBMAX_l) } }
-    var sfb_s = Array(2) { Array(2) { DoubleArray(3 * SBMAX_s) } }
-    var qss = Array(2) { IntArray(2) }
-    var big_values = Array(2) { IntArray(2) }
-    var sub_gain = Array(2) { Array(2) { IntArray(3) } }
-    var scalefac_scale = Array(2) { IntArray(2) }
-    var preflag = Array(2) { IntArray(2) }
-    var mpg123blocktype = Array(2) { IntArray(2) }
-    var mixed = Array(2) { IntArray(2) }
-    var mainbits = Array(2) { IntArray(2) }
-    var sfbits = Array(2) { IntArray(2) }
-    var stereo: Int = 0
-    var js: Int = 0
-    var ms_stereo: Int = 0
-    var i_stereo: Int = 0
-    var emph: Int = 0
-    var bitrate: Int = 0
-    var sampfreq: Int = 0
-    var maindata: Int = 0
-    var crc: Int = 0
-    var padding: Int = 0
-    var scfsi = IntArray(2)
+	var mpg123xr = Array(2) { Array(2) { DoubleArray(576) } }
+	var sfb = Array(2) { Array(2) { DoubleArray(SBMAX_l) } }
+	var sfb_s = Array(2) { Array(2) { DoubleArray(3 * SBMAX_s) } }
+	var qss = Array(2) { IntArray(2) }
+	var big_values = Array(2) { IntArray(2) }
+	var sub_gain = Array(2) { Array(2) { IntArray(3) } }
+	var scalefac_scale = Array(2) { IntArray(2) }
+	var preflag = Array(2) { IntArray(2) }
+	var mpg123blocktype = Array(2) { IntArray(2) }
+	var mixed = Array(2) { IntArray(2) }
+	var mainbits = Array(2) { IntArray(2) }
+	var sfbits = Array(2) { IntArray(2) }
+	var stereo: Int = 0
+	var js: Int = 0
+	var ms_stereo: Int = 0
+	var i_stereo: Int = 0
+	var emph: Int = 0
+	var bitrate: Int = 0
+	var sampfreq: Int = 0
+	var maindata: Int = 0
+	var crc: Int = 0
+	var padding: Int = 0
+	var scfsi = IntArray(2)
 
-    companion object {
-        val SBMAX_l = 22
-        val SBMAX_s = 13
-    }
+	companion object {
+		val SBMAX_l = 22
+		val SBMAX_s = 13
+	}
 }

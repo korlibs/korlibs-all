@@ -1,6 +1,6 @@
 package com.soywiz.korio.lang
 
-import com.soywiz.korio.vfs.VfsUtil
+import com.soywiz.korio.vfs.*
 
 @Deprecated("Use com.soywiz.korio.net.URI instead")
 data class URL private constructor(

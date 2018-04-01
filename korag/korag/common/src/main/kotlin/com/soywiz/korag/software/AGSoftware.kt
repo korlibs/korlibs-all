@@ -1,8 +1,6 @@
 package com.soywiz.korag.software
 
-import com.soywiz.korag.AG
-import com.soywiz.korag.AGFactory
-import com.soywiz.korag.AGWindow
+import com.soywiz.korag.*
 
 class AGFactorySoftware() : AGFactory {
 	override val supportsNativeFrame: Boolean = false

@@ -46,7 +46,8 @@ class IdeaAdaptorVfs(val file: VirtualFile) : Vfs() {
 		return current
 	}
 
-	private fun accessSure(path: String): VirtualFile = access(path) ?: throw FileNotFoundException("$absolutePath/$path")
+	private fun accessSure(path: String): VirtualFile =
+		access(path) ?: throw FileNotFoundException("$absolutePath/$path")
 
 	suspend override fun delete(path: String): Boolean {
 		return super.delete(path)
@@ -56,7 +57,12 @@ class IdeaAdaptorVfs(val file: VirtualFile) : Vfs() {
 		return super.exec(path, cmdAndArgs, handler)
 	}
 
-	suspend override fun exec(path: String, cmdAndArgs: List<String>, env: Map<String, String>, handler: VfsProcessHandler): Int {
+	suspend override fun exec(
+		path: String,
+		cmdAndArgs: List<String>,
+		env: Map<String, String>,
+		handler: VfsProcessHandler
+	): Int {
 		return super.exec(path, cmdAndArgs, env, handler)
 	}
 

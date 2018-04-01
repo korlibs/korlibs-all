@@ -1,7 +1,7 @@
 package com.soywiz.korio.vfs
 
 import com.soywiz.korio.KorioNative.syncTest
-import org.junit.Test
+import org.junit.*
 
 class CommonResourcesVfsTest {
 	@Test

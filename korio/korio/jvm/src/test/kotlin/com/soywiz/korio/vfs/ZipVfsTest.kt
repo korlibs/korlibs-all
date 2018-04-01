@@ -1,14 +1,12 @@
 package com.soywiz.korio.vfs
 
-import com.soywiz.klock.SimplerDateFormat
-import com.soywiz.korio.async.syncTest
-import com.soywiz.korio.async.toList
-import com.soywiz.korio.serialization.xml.readXml
-import com.soywiz.korio.stream.openAsync
-import com.soywiz.korio.stream.readAvailable
+import com.soywiz.klock.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.serialization.xml.*
+import com.soywiz.korio.stream.*
 import org.junit.Ignore
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
 class ZipVfsTest {
@@ -69,7 +67,8 @@ class ZipVfsTest {
 	fun testZipCompressed() = syncTest {
 		val helloZip = ResourcesVfs["compressedHello.zip"].openAsZip()
 
-		val contents = "HELLO HELLO HELLO HELLO HELLO HELLO HELLO HELLO HELLO HELLO HELLO HELLO HELLO HELLO HELLO HELLO WORLD!"
+		val contents =
+			"HELLO HELLO HELLO HELLO HELLO HELLO HELLO HELLO HELLO HELLO HELLO HELLO HELLO HELLO HELLO HELLO WORLD!"
 
 		assertEquals(
 			contents,

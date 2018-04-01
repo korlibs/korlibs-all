@@ -1,6 +1,6 @@
 package com.soywiz.korim.format
 
-import com.soywiz.kds.Extra
+import com.soywiz.kds.*
 
 open class ImageData(
 	val frames: List<ImageFrame>

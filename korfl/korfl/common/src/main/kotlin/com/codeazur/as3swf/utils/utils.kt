@@ -1,21 +1,14 @@
 package com.codeazur.as3swf.utils
 
-import com.codeazur.as3swf.data.SWFMatrix
-import com.soywiz.korfl.amf.AMF3
-import com.soywiz.korio.async.executeInWorker
-import com.soywiz.korio.compression.SyncCompression
-import com.soywiz.korio.lang.Charsets
-import com.soywiz.korio.lang.format
-import com.soywiz.korio.lang.toString
-import com.soywiz.korio.math.reinterpretAsDouble
-import com.soywiz.korio.math.reinterpretAsFloat
-import com.soywiz.korio.math.reinterpretAsInt
-import com.soywiz.korio.math.reinterpretAsLong
+import com.codeazur.as3swf.data.*
+import com.soywiz.korfl.amf.*
+import com.soywiz.korio.KorioNative.SyncCompression
+import com.soywiz.korio.async.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.math.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korio.util.toString
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.round
+import com.soywiz.korio.util.*
+import kotlin.math.*
 
 object ColorUtils {
 	fun alpha(color: Int): Double = (color ushr 24).toDouble() / 255
@@ -166,8 +159,11 @@ open class FlashByteArray() {
 	fun uncompress(method: String = "zlib") = replaceBytes(_uncompress(cloneToNewByteArray(), method))
 	fun compress(method: String = "zlib"): Unit = replaceBytes(_compress(cloneToNewByteArray(), method))
 
-	suspend fun uncompressInWorker(method: String = "zlib") = replaceBytes(executeInWorker { _uncompress(cloneToNewByteArray(), method) })
-	suspend fun compressInWorker(method: String = "zlib"): Unit = replaceBytes(executeInWorker { _compress(cloneToNewByteArray(), method) })
+	suspend fun uncompressInWorker(method: String = "zlib") =
+		replaceBytes(executeInWorker { _uncompress(cloneToNewByteArray(), method) })
+
+	suspend fun compressInWorker(method: String = "zlib"): Unit =
+		replaceBytes(executeInWorker { _compress(cloneToNewByteArray(), method) })
 
 	fun readBytes(len: Int) = data.readBytes(len)
 

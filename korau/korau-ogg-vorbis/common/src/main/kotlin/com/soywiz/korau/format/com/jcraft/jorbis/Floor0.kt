@@ -26,10 +26,9 @@
 
 package com.soywiz.korau.format.com.jcraft.jorbis
 
-import com.soywiz.kmem.fill
-import com.soywiz.korau.format.com.jcraft.jogg.Buffer
-import kotlin.math.atan
-import kotlin.math.floor
+import com.soywiz.kmem.*
+import com.soywiz.korau.format.com.jcraft.jogg.*
+import kotlin.math.*
 
 class Floor0 : FuncFloor() {
 	override fun pack(i: Any, opb: Buffer) {
@@ -89,7 +88,8 @@ class Floor0 : FuncFloor() {
 		// accurate
 		look.linearmap = IntArray(look.n)
 		for (j in 0 until look.n) {
-			var `val` = floor((toBARK((info.rate / 2.0 / look.n * j).toFloat()) * scale).toDouble()).toInt() // bark numbers represent band edges
+			var `val` =
+				floor((toBARK((info.rate / 2.0 / look.n * j).toFloat()) * scale).toDouble()).toInt() // bark numbers represent band edges
 			if (`val` >= look.ln) {
 				`val` = look.ln // guard against the approximation
 			}
@@ -278,6 +278,7 @@ class Floor0 : FuncFloor() {
 	}
 
 	companion object {
-		fun toBARK(f: Float): Float = (13.1 * atan(.00074 * f) + 2.24 * atan(f.toDouble() * f.toDouble() * 1.85e-8) + 1e-4 * f).toFloat()
+		fun toBARK(f: Float): Float =
+			(13.1 * atan(.00074 * f) + 2.24 * atan(f.toDouble() * f.toDouble() * 1.85e-8) + 1e-4 * f).toFloat()
 	}
 }

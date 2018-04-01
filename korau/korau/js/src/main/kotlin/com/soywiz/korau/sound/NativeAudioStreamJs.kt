@@ -1,18 +1,20 @@
 package com.soywiz.korau.sound
 
-import com.soywiz.kds.Queue
-import com.soywiz.klogger.Logger
-import com.soywiz.korio.async.eventLoop
-import com.soywiz.korio.coroutine.getCoroutineContext
-import org.khronos.webgl.Float32Array
-import org.khronos.webgl.Int16Array
-import org.khronos.webgl.get
-import org.khronos.webgl.set
-import org.w3c.dom.events.Event
-import kotlin.browser.document
+import com.soywiz.kds.*
+import com.soywiz.klogger.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.coroutine.*
+import org.khronos.webgl.*
+import org.w3c.dom.events.*
+import kotlin.browser.*
 
 external class AudioContext {
-	fun createScriptProcessor(bufferSize: Int, numberOfInputChannels: Int, numberOfOutputChannels: Int): ScriptProcessorNode
+	fun createScriptProcessor(
+		bufferSize: Int,
+		numberOfInputChannels: Int,
+		numberOfOutputChannels: Int
+	): ScriptProcessorNode
+
 	val destination: AudioDestinationNode
 }
 
@@ -36,6 +38,7 @@ external interface AudioNode {
 	fun connect(destination: AudioNode, output: Int? = definedExternally, input: Int? = definedExternally): AudioNode
 	//fun connect(destination: AudioParam, output: Int?): Unit
 	fun disconnect(output: Int? = definedExternally): Unit
+
 	fun disconnect(destination: AudioNode, output: Int? = definedExternally, input: Int? = definedExternally): Unit
 	//fun disconnect(destination: AudioParam, output: Int?): Unit
 }

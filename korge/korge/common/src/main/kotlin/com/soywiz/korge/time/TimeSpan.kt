@@ -1,7 +1,6 @@
 package com.soywiz.korge.time
 
-import com.soywiz.korma.interpolation.Interpolable
-import com.soywiz.korma.interpolation.interpolate
+import com.soywiz.korma.interpolation.*
 
 @Suppress("DataClassPrivateConstructor")
 @Deprecated("Use klock instead", ReplaceWith("com.soywiz.klock.TimeSpan"))
@@ -11,7 +10,8 @@ data class TimeSpan private constructor(val ms: Int) : Comparable<TimeSpan>, Int
 
 	companion object {
 		val ZERO = TimeSpan(0)
-		@PublishedApi internal fun fromMilliseconds(ms: Int) = when (ms) {
+		@PublishedApi
+		internal fun fromMilliseconds(ms: Int) = when (ms) {
 			0 -> ZERO
 			else -> TimeSpan(ms)
 		}
@@ -24,13 +24,15 @@ data class TimeSpan private constructor(val ms: Int) : Comparable<TimeSpan>, Int
 	operator fun times(scale: Int): TimeSpan = TimeSpan(this.ms * scale)
 	operator fun times(scale: Double): TimeSpan = TimeSpan((this.ms * scale).toInt())
 
-	override fun interpolateWith(other: TimeSpan, ratio: Double): TimeSpan = TimeSpan(ratio.interpolate(this.ms, other.ms))
+	override fun interpolateWith(other: TimeSpan, ratio: Double): TimeSpan =
+		TimeSpan(ratio.interpolate(this.ms, other.ms))
 }
 
 
-
 @Deprecated("Use klock instead", ReplaceWith("com.soywiz.klock.milliseconds"))
-inline val Number.milliseconds get() = TimeSpan.fromMilliseconds(this.toInt())
+inline val Number.milliseconds
+	get() = TimeSpan.fromMilliseconds(this.toInt())
 
 @Deprecated("Use klock instead", ReplaceWith("com.soywiz.klock.seconds"))
-inline val Number.seconds get() = TimeSpan.fromMilliseconds((this.toDouble() * 1000.0).toInt())
+inline val Number.seconds
+	get() = TimeSpan.fromMilliseconds((this.toDouble() * 1000.0).toInt())

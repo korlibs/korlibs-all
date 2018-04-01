@@ -27,11 +27,11 @@
 package com.soywiz.korau.format.com.jcraft.jogg
 
 class Packet {
-    var packet_base: ByteArray = byteArrayOf()
-    var packet: Int = 0
-    var bytes: Int = 0
-    var b_o_s: Int = 0
-    var e_o_s: Int = 0
-    var granulepos: Long = 0
-    var packetno: Long = 0
+	var packet_base: ByteArray = byteArrayOf()
+	var packet: Int = 0
+	var bytes: Int = 0
+	var b_o_s: Int = 0
+	var e_o_s: Int = 0
+	var granulepos: Long = 0
+	var packetno: Long = 0
 }

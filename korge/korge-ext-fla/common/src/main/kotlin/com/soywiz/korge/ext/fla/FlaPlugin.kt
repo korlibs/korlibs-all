@@ -1,7 +1,7 @@
 package com.soywiz.korge.ext.fla
 
-import com.soywiz.korge.plugin.KorgePlugin
-import com.soywiz.korge.view.Views
+import com.soywiz.korge.plugin.*
+import com.soywiz.korge.view.*
 
 class FlaPlugin : KorgePlugin() {
 	suspend override fun register(views: Views) {

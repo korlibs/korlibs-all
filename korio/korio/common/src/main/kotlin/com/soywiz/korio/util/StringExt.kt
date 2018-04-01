@@ -1,10 +1,7 @@
 package com.soywiz.korio.util
 
-import com.soywiz.korio.stream.ByteArrayBuilder
-import com.soywiz.korio.lang.Charset
-import com.soywiz.korio.lang.Charsets
-import com.soywiz.korio.lang.format
-import com.soywiz.korio.lang.toByteArray
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.stream.*
 
 fun String.toBytez(len: Int, charset: Charset = Charsets.UTF_8): ByteArray {
 	val out = ByteArrayBuilder()

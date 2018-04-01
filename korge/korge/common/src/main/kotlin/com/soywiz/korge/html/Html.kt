@@ -59,14 +59,23 @@ object Html {
 		val computedKerning by Computed(Format::kerning) { 0 }
 		val computedAlign by Computed(Format::align) { Alignment.LEFT }
 
-		fun consolidate(): Format = Format(parent = null, color = computedColor, face = computedFace, size = computedSize, letterSpacing = computedLetterSpacing, kerning = computedKerning, align = computedAlign)
+		fun consolidate(): Format = Format(
+			parent = null,
+			color = computedColor,
+			face = computedFace,
+			size = computedSize,
+			letterSpacing = computedLetterSpacing,
+			kerning = computedKerning,
+			align = computedAlign
+		)
 	}
 
 	interface MetricsProvider {
 		fun getBounds(text: String, format: Format, out: Rectangle): Unit
 
 		object Identity : MetricsProvider {
-			override fun getBounds(text: String, format: Format, out: Rectangle): Unit = run { out.setTo(0, 0, text.length, 1) }
+			override fun getBounds(text: String, format: Format, out: Rectangle): Unit =
+				run { out.setTo(0, 0, text.length, 1) }
 		}
 	}
 

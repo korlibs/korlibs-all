@@ -27,13 +27,10 @@
 
 package com.soywiz.korau.format.com.jcraft.jorbis
 
-import com.soywiz.kmem.arraycopy
-import com.soywiz.korau.format.com.jcraft.jogg.Packet
-import com.soywiz.korau.format.com.jcraft.jogg.Page
-import com.soywiz.korau.format.com.jcraft.jogg.StreamState
-import com.soywiz.korau.format.com.jcraft.jogg.SyncState
-import com.soywiz.korio.math.rint
-import com.soywiz.korio.stream.SyncStream
+import com.soywiz.kmem.*
+import com.soywiz.korau.format.com.jcraft.jogg.*
+import com.soywiz.korio.math.*
+import com.soywiz.korio.stream.*
 
 class VorbisFile {
 	var datasource: SyncStream? = null
@@ -595,7 +592,8 @@ class VorbisFile {
 	}
 
 	//@Throws(JOrbisException::class)
-	fun open_callbacks(`is`: SyncStream, initial: ByteArray?, ibytes: Int//, callbacks callbacks
+	fun open_callbacks(
+		`is`: SyncStream, initial: ByteArray?, ibytes: Int//, callbacks callbacks
 	): Int {
 		val ret: Int
 		datasource = `is`
@@ -1112,8 +1110,10 @@ class VorbisFile {
 	//
 	// *section) set to the logical bitstream number
 
-	fun read(buffer: ByteArray, length: Int, bigendianp: Int, word: Int, sgned: Int,
-			 bitstream: IntArray?): Int {
+	fun read(
+		buffer: ByteArray, length: Int, bigendianp: Int, word: Int, sgned: Int,
+		bitstream: IntArray?
+	): Int {
 		val host_endian = host_is_big_endian()
 		var index = 0
 

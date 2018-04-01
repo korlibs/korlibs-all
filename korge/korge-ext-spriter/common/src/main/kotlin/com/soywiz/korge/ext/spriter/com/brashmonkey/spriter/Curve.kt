@@ -14,11 +14,13 @@ class Curve
  * *
  * @param subCurve the sub curve. Can be `null`
  */
-constructor(type: Type = Curve.Type.Linear,
-						  /**
-						   * The sub curve of this curve, which can be `null`.
-						   */
-						  var subCurve: Curve? = null) {
+constructor(
+	type: Type = Curve.Type.Linear,
+	/**
+	 * The sub curve of this curve, which can be `null`.
+	 */
+	var subCurve: Curve? = null
+) {
 
 	/**
 	 * Represents a curve type in a Spriter SCML file.
@@ -72,16 +74,46 @@ constructor(type: Type = Curve.Type.Linear,
 			Type.Instant -> return a
 			Type.Linear -> return Interpolator.linear(a, b, t)
 			Type.Quadratic -> return Interpolator.quadratic(a, Interpolator.linear(a, b, constraints.c1), b, t)
-			Type.Cubic -> return Interpolator.cubic(a, Interpolator.linear(a, b, constraints.c1), Interpolator.linear(a, b, constraints.c2), b, t)
-			Type.Quartic -> return Interpolator.quartic(a, Interpolator.linear(a, b, constraints.c1), Interpolator.linear(a, b, constraints.c2), Interpolator.linear(a, b, constraints.c3), b, t)
-			Type.Quintic -> return Interpolator.quintic(a, Interpolator.linear(a, b, constraints.c1), Interpolator.linear(a, b, constraints.c2), Interpolator.linear(a, b, constraints.c3), Interpolator.linear(a, b, constraints.c4), b, t)
+			Type.Cubic -> return Interpolator.cubic(
+				a,
+				Interpolator.linear(a, b, constraints.c1),
+				Interpolator.linear(a, b, constraints.c2),
+				b,
+				t
+			)
+			Type.Quartic -> return Interpolator.quartic(
+				a,
+				Interpolator.linear(a, b, constraints.c1),
+				Interpolator.linear(a, b, constraints.c2),
+				Interpolator.linear(a, b, constraints.c3),
+				b,
+				t
+			)
+			Type.Quintic -> return Interpolator.quintic(
+				a,
+				Interpolator.linear(a, b, constraints.c1),
+				Interpolator.linear(a, b, constraints.c2),
+				Interpolator.linear(a, b, constraints.c3),
+				Interpolator.linear(a, b, constraints.c4),
+				b,
+				t
+			)
 			Type.Bezier -> {
-				var cubicSolution = Calculator.solveCubic(3f * (constraints.c1 - constraints.c3) + 1f, 3f * (constraints.c3 - 2f * constraints.c1), 3f * constraints.c1, -t)
+				var cubicSolution = Calculator.solveCubic(
+					3f * (constraints.c1 - constraints.c3) + 1f,
+					3f * (constraints.c3 - 2f * constraints.c1),
+					3f * constraints.c1,
+					-t
+				)
 				if (cubicSolution == Calculator.NO_SOLUTION)
 					cubicSolution = lastCubicSolution
 				else
 					lastCubicSolution = cubicSolution
-				return Interpolator.linear(a, b, Interpolator.bezier(cubicSolution, 0f, constraints.c2, constraints.c4, 1f))
+				return Interpolator.linear(
+					a,
+					b,
+					Interpolator.bezier(cubicSolution, 0f, constraints.c2, constraints.c4, 1f)
+				)
 			}
 			else -> return Interpolator.linear(a, b, t)
 		}
@@ -143,17 +175,52 @@ constructor(type: Type = Curve.Type.Linear,
 		when (this.type) {
 			Type.Instant -> return a
 			Type.Linear -> return Interpolator.linearAngle(a, b, t)
-			Type.Quadratic -> return Interpolator.quadraticAngle(a, Interpolator.linearAngle(a, b, constraints.c1), b, t)
-			Type.Cubic -> return Interpolator.cubicAngle(a, Interpolator.linearAngle(a, b, constraints.c1), Interpolator.linearAngle(a, b, constraints.c2), b, t)
-			Type.Quartic -> return Interpolator.quarticAngle(a, Interpolator.linearAngle(a, b, constraints.c1), Interpolator.linearAngle(a, b, constraints.c2), Interpolator.linearAngle(a, b, constraints.c3), b, t)
-			Type.Quintic -> return Interpolator.quinticAngle(a, Interpolator.linearAngle(a, b, constraints.c1), Interpolator.linearAngle(a, b, constraints.c2), Interpolator.linearAngle(a, b, constraints.c3), Interpolator.linearAngle(a, b, constraints.c4), b, t)
+			Type.Quadratic -> return Interpolator.quadraticAngle(
+				a,
+				Interpolator.linearAngle(a, b, constraints.c1),
+				b,
+				t
+			)
+			Type.Cubic -> return Interpolator.cubicAngle(
+				a,
+				Interpolator.linearAngle(a, b, constraints.c1),
+				Interpolator.linearAngle(a, b, constraints.c2),
+				b,
+				t
+			)
+			Type.Quartic -> return Interpolator.quarticAngle(
+				a,
+				Interpolator.linearAngle(a, b, constraints.c1),
+				Interpolator.linearAngle(a, b, constraints.c2),
+				Interpolator.linearAngle(a, b, constraints.c3),
+				b,
+				t
+			)
+			Type.Quintic -> return Interpolator.quinticAngle(
+				a,
+				Interpolator.linearAngle(a, b, constraints.c1),
+				Interpolator.linearAngle(a, b, constraints.c2),
+				Interpolator.linearAngle(a, b, constraints.c3),
+				Interpolator.linearAngle(a, b, constraints.c4),
+				b,
+				t
+			)
 			Type.Bezier -> {
-				var cubicSolution = Calculator.solveCubic(3f * (constraints.c1 - constraints.c3) + 1f, 3f * (constraints.c3 - 2f * constraints.c1), 3f * constraints.c1, -t)
+				var cubicSolution = Calculator.solveCubic(
+					3f * (constraints.c1 - constraints.c3) + 1f,
+					3f * (constraints.c3 - 2f * constraints.c1),
+					3f * constraints.c1,
+					-t
+				)
 				if (cubicSolution == Calculator.NO_SOLUTION)
 					cubicSolution = lastCubicSolution
 				else
 					lastCubicSolution = cubicSolution
-				return Interpolator.linearAngle(a, b, Interpolator.bezier(cubicSolution, 0f, constraints.c2, constraints.c4, 1f))
+				return Interpolator.linearAngle(
+					a,
+					b,
+					Interpolator.bezier(cubicSolution, 0f, constraints.c2, constraints.c4, 1f)
+				)
 			}
 			else -> return Interpolator.linearAngle(a, b, t)
 		}

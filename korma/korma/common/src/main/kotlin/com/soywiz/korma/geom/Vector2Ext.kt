@@ -1,6 +1,6 @@
 package com.soywiz.korma.geom
 
-import com.soywiz.korma.Vector2
+import com.soywiz.korma.*
 
 fun Iterable<Vector2>.bounds(out: Rectangle = Rectangle()): Rectangle = out.setBounds(
 	left = this.map { it.x }.min() ?: 0.0,

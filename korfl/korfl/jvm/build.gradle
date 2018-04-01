@@ -9,6 +9,6 @@ dependencies {
 }
 
 sourceSets {
-	main.resources.srcDirs = [ '../common/src/main/resources', '../common/src/generated/resources' ]
+	main.resources.srcDirs = ['../common/src/main/resources', '../common/src/generated/resources']
 }
 

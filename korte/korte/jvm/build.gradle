@@ -2,8 +2,8 @@ apply plugin: 'kotlin-platform-jvm'
 
 dependencies {
 	expectedBy project(":korte-common")
-    testImplementation project(":korte-common")
+	testImplementation project(":korte-common")
 
-    compile project(":korio")
+	compile project(":korio")
 }
 

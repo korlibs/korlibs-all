@@ -26,10 +26,10 @@
 
 package com.soywiz.korau.format.com.jcraft.jorbis
 
-import com.soywiz.korau.format.com.jcraft.jogg.Buffer
-import com.soywiz.korio.Synchronized
-import com.soywiz.korio.math.rint
-import kotlin.math.pow
+import com.soywiz.korau.format.com.jcraft.jogg.*
+import com.soywiz.korio.*
+import com.soywiz.korio.math.*
+import kotlin.math.*
 
 internal open class Residue0 : FuncResidue() {
 	override fun pack(vr: Any, opb: Buffer) {
@@ -208,8 +208,10 @@ internal open class Residue0 : FuncResidue() {
 
 		// re-using partword
 		@Synchronized
-		fun _01inverse(vb: Block, vl: Any, `in`: Array<FloatArray>, ch: Int,
-					   decodepart: Int): Int {
+		fun _01inverse(
+			vb: Block, vl: Any, `in`: Array<FloatArray>, ch: Int,
+			decodepart: Int
+		): Int {
 			var i: Int
 			var j: Int
 			var k: Int
@@ -273,13 +275,19 @@ internal open class Residue0 : FuncResidue() {
 								val stagebook = look.fullbooks!![look.partbooks!![index][s]]
 								if (stagebook != null) {
 									if (decodepart == 0) {
-										if (stagebook.decodevs_add(`in`[j], offset, vb.opb,
-											samples_per_partition) == -1) {
+										if (stagebook.decodevs_add(
+												`in`[j], offset, vb.opb,
+												samples_per_partition
+											) == -1
+										) {
 											return 0
 										}
 									} else if (decodepart == 1) {
-										if (stagebook.decodev_add(`in`[j], offset, vb.opb,
-											samples_per_partition) == -1) {
+										if (stagebook.decodev_add(
+												`in`[j], offset, vb.opb,
+												samples_per_partition
+											) == -1
+										) {
 											return 0
 										}
 									}
@@ -345,8 +353,11 @@ internal open class Residue0 : FuncResidue() {
 						if (info.secondstages[index] and (1 shl s) != 0) {
 							val stagebook = look.fullbooks!![look.partbooks!![index][s]]
 							if (stagebook != null) {
-								if (stagebook.decodevv_add(`in`, offset, ch, vb.opb,
-									samples_per_partition) == -1) {
+								if (stagebook.decodevv_add(
+										`in`, offset, ch, vb.opb,
+										samples_per_partition
+									) == -1
+								) {
 									return 0
 								}
 							}

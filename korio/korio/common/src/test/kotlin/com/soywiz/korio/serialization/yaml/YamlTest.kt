@@ -1,8 +1,8 @@
 package com.soywiz.korio.serialization.yaml
 
-import com.soywiz.kds.lmapOf
-import com.soywiz.korio.serialization.ObjectMapper
-import kotlin.test.assertEquals
+import com.soywiz.kds.*
+import com.soywiz.korio.serialization.*
+import kotlin.test.*
 
 // http://nodeca.github.io/js-yaml/
 class YamlTest {
@@ -23,11 +23,13 @@ class YamlTest {
 	fun name() {
 		assertEquals(
 			listOf(1, 2, 3),
-			Yaml.read("""
+			Yaml.read(
+				"""
 			- 1
 			- 2
 			- 3
-			""".trimIndent())
+			""".trimIndent()
+			)
 		)
 	}
 
@@ -35,11 +37,13 @@ class YamlTest {
 	fun name2() {
 		assertEquals(
 			lmapOf("hr" to 65, "avg" to 0.278, "rbi" to 147),
-			Yaml.read("""
+			Yaml.read(
+				"""
 				hr:  65    # Home runs
 				avg: 0.278 # Batting average
 				rbi: 147   # Runs Batted In
-			""".trimIndent())
+			""".trimIndent()
+			)
 		)
 	}
 
@@ -55,12 +59,14 @@ class YamlTest {
 	fun name4() {
 		assertEquals(
 			listOf(lmapOf("a" to 1), lmapOf("a" to 2)),
-			Yaml.read("""
+			Yaml.read(
+				"""
 				|-
 				|	a: 1
 				|-
 				|	a: 2
-			""".trimMargin())
+			""".trimMargin()
+			)
 		)
 	}
 
@@ -79,7 +85,8 @@ class YamlTest {
 					"avg" to 0.288
 				)
 			),
-			Yaml.read("""
+			Yaml.read(
+				"""
 				|-
 				|  name: Mark McGwire
 				|  hr:   65
@@ -88,7 +95,8 @@ class YamlTest {
 				| name: Sammy Sosa
 				| hr:   63
 				| avg:  0.288
-			""".trimMargin())
+			""".trimMargin()
+			)
 		)
 	}
 
@@ -99,7 +107,8 @@ class YamlTest {
 				"hr" to listOf("Mark McGwire", "Sammy Sosa"),
 				"rbi" to listOf("Sammy Sosa", "Ken Griffey")
 			),
-			Yaml.read("""
+			Yaml.read(
+				"""
 				|hr: # 1998 hr ranking
 				|  - Mark McGwire
 				|  - Sammy Sosa
@@ -107,7 +116,8 @@ class YamlTest {
 				|  # 1998 rbi ranking
 				|  - Sammy Sosa
 				|  - Ken Griffey
-			""".trimMargin())
+			""".trimMargin()
+			)
 		)
 	}
 
@@ -119,12 +129,14 @@ class YamlTest {
 				"booleans" to listOf(true, false),
 				"string" to "012345"
 			),
-			Yaml.read("""
+			Yaml.read(
+				"""
 				|null:
 				|booleans: [ true, false ]
 				|string: '012345'
 
-			""".trimMargin())
+			""".trimMargin()
+			)
 		)
 	}
 
@@ -138,9 +150,11 @@ class YamlTest {
 
 		assertEquals(
 			ClassWithEnum(a = MyEnum.WORLD),
-			Yaml.decodeToType<ClassWithEnum>("""
+			Yaml.decodeToType<ClassWithEnum>(
+				"""
 				|a: WORLD
-			""".trimMargin(), mapper)
+			""".trimMargin(), mapper
+			)
 		)
 	}
 

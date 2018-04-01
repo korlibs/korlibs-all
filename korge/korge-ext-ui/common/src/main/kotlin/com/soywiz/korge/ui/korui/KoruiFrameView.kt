@@ -1,12 +1,9 @@
 package com.soywiz.korge.ui.korui
 
-import com.soywiz.korge.ui.UIFactory
-import com.soywiz.korge.ui.UISkin
-import com.soywiz.korge.ui.Widget
-import com.soywiz.korge.view.View
-import com.soywiz.korui.Application
-import com.soywiz.korui.frame
-import com.soywiz.korui.ui.Frame
+import com.soywiz.korge.ui.*
+import com.soywiz.korge.view.*
+import com.soywiz.korui.*
+import com.soywiz.korui.ui.*
 
 class KoruiFrameView(factory: UIFactory, skin: UISkin = factory.skin) : Widget(factory) {
 	lateinit var frame: Frame

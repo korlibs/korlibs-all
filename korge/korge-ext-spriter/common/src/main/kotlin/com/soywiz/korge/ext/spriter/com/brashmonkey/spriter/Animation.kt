@@ -13,7 +13,10 @@ import com.soywiz.korio.JvmField
  * Furthermore it holds an [.id], a [.length], a [.name] and whether it is [.looping] or not.
  * @author Trixt0r
  */
-open class Animation(@JvmField val mainline: Mainline, @JvmField val id: Int, @JvmField val name: String, @JvmField val length: Int, @JvmField val looping: Boolean, timelines: Int) {
+open class Animation(
+	@JvmField val mainline: Mainline, @JvmField val id: Int, @JvmField val name: String, @JvmField val length: Int, @JvmField val looping: Boolean,
+	timelines: Int
+) {
 	companion object {
 		val DUMMY = Animation(Mainline.Companion.DUMMY, 0, "", 0, false, 0)
 	}
@@ -64,7 +67,8 @@ open class Animation(@JvmField val mainline: Mainline, @JvmField val id: Int, @J
 	}
 
 	override fun toString(): String {
-		var toReturn = "" + this::class + "|[id: " + id + ", " + name + ", duration: " + length + ", is looping: " + looping
+		var toReturn =
+			"" + this::class + "|[id: " + id + ", " + name + ", duration: " + length + ", is looping: " + looping
 		toReturn += "Mainline:\n"
 		toReturn += mainline
 		toReturn += "Timelines\n"
@@ -128,10 +132,12 @@ open class Animation(@JvmField val mainline: Mainline, @JvmField val id: Int, @J
 		else
 			this.tweenBone(bone1 as Bone, bone2 as Bone, tweenTarget as Bone, t, key.curve, key.spin)
 		this.unmappedTweenedKeys[ref.timeline].active = true
-		this.unmapTimelineObject(ref.timeline, isObject, if (ref.parent != null)
-			this.unmappedTweenedKeys[ref.parent.timeline].`object`() as Bone
-		else
-			root)
+		this.unmapTimelineObject(
+			ref.timeline, isObject, if (ref.parent != null)
+				this.unmappedTweenedKeys[ref.parent.timeline].`object`() as Bone
+			else
+				root
+		)
 	}
 
 	fun unmapTimelineObject(timeline: Int, isObject: Boolean, root: Bone) {

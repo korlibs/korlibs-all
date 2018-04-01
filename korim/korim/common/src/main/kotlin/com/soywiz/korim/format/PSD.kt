@@ -1,9 +1,9 @@
 package com.soywiz.korim.format
 
-import com.soywiz.kmem.toUnsigned
-import com.soywiz.korim.bitmap.Bitmap32
-import com.soywiz.korim.color.RGBA
-import com.soywiz.korio.error.invalidOp
+import com.soywiz.kmem.*
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
+import com.soywiz.korio.error.*
 import com.soywiz.korio.stream.*
 
 // https://www.adobe.com/devnet-apps/photoshop/fileformatashtml/

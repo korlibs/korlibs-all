@@ -1,10 +1,10 @@
 package com.soywiz.korau.format
 
-import com.soywiz.kmem.arraycopy
-import com.soywiz.korau.sound.nativeSoundProvider
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korio.vfs.VfsFile
-import kotlin.math.min
+import com.soywiz.kmem.*
+import com.soywiz.korau.sound.*
+import com.soywiz.korio.error.*
+import com.soywiz.korio.vfs.*
+import kotlin.math.*
 
 class AudioData(
 	val rate: Int,
@@ -34,4 +34,5 @@ suspend fun AudioData.toNativeSound() = nativeSoundProvider.createSound(this)
 
 suspend fun AudioData.play() = this.toNativeSound().play()
 
-suspend fun VfsFile.readAudioData(formats: AudioFormats = defaultAudioFormats) = this.openUse2 { formats.decode(this) ?: invalidOp("Can't decode audio file ${this@readAudioData}") }
+suspend fun VfsFile.readAudioData(formats: AudioFormats = defaultAudioFormats) =
+	this.openUse2 { formats.decode(this) ?: invalidOp("Can't decode audio file ${this@readAudioData}") }

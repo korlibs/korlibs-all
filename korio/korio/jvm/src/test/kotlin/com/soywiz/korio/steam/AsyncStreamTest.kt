@@ -1,10 +1,9 @@
 package com.soywiz.korio.steam
 
-import com.soywiz.korio.async.syncTest
+import com.soywiz.korio.async.*
 import com.soywiz.korio.stream.*
 import org.junit.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class AsyncStreamTest {
 	@Test

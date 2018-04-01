@@ -1,8 +1,8 @@
 package com.soywiz.korio.serialization.json
 
-import com.soywiz.kds.lmapOf
-import com.soywiz.korio.serialization.ObjectMapper
-import kotlin.test.assertEquals
+import com.soywiz.kds.*
+import com.soywiz.korio.serialization.*
+import kotlin.test.*
 
 class JsonTest {
 	enum class MyEnum { DEMO, HELLO, WORLD }
@@ -177,7 +177,10 @@ class JsonTest {
 		mapper.registerType { Demo(it["v"].toDynamicMap().map { it.key.toString() to it.value.gen<V>() }.toMap()) }
 
 		//assertEquals(Demo(lmapOf("z" to V(1, 2))), Json.decodeToType<Demo>("""{"v":{"z":{"a":1,"b":2}}}""", mapper))
-		assertEquals(Demo(lmapOf("z" to V(1, 2))), Json.decodeToType(Demo::class, """{"v":{"z":{"a":1,"b":2}}}""", mapper))
+		assertEquals(
+			Demo(lmapOf("z" to V(1, 2))),
+			Json.decodeToType(Demo::class, """{"v":{"z":{"a":1,"b":2}}}""", mapper)
+		)
 	}
 
 	@kotlin.test.Test
@@ -188,6 +191,9 @@ class JsonTest {
 		mapper.registerUntype<V> { lmapOf("a" to it.a.gen(), "b" to it.b.gen()) }
 		mapper.registerUntype<Demo> { lmapOf("v" to it.v.gen()) }
 
-		assertEquals("""{"v":{"z1":{"a":1,"b":2},"z2":{"a":1,"b":2}}}""", Json.encode(Demo(lmapOf("z1" to V(1, 2), "z2" to V(1, 2))), mapper))
+		assertEquals(
+			"""{"v":{"z1":{"a":1,"b":2},"z2":{"a":1,"b":2}}}""",
+			Json.encode(Demo(lmapOf("z1" to V(1, 2), "z2" to V(1, 2))), mapper)
+		)
 	}
 }

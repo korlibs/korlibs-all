@@ -1,7 +1,6 @@
 package com.klock
 
-import com.soywiz.klock.DateTime
-import com.soywiz.klock.SimplerDateFormat
+import com.soywiz.klock.*
 import kotlin.test.*
 
 class DateTimeTest {
@@ -30,10 +29,19 @@ class DateTimeTest {
 
 	@kotlin.test.Test
 	fun testCreatedAdjusted() {
-		assertEquals("Thu, 18 Jan 2018 23:58:45 UTC", HttpDate.format(DateTime.createAdjusted(2017, 13, 18, 23, 58, 45)))
+		assertEquals(
+			"Thu, 18 Jan 2018 23:58:45 UTC",
+			HttpDate.format(DateTime.createAdjusted(2017, 13, 18, 23, 58, 45))
+		)
 		assertEquals("Mon, 18 Sep 2017 23:58:45 UTC", HttpDate.format(DateTime.createAdjusted(2017, 9, 18, 23, 58, 45)))
-		assertEquals("Mon, 01 Jan 2018 00:00:01 UTC", HttpDate.format(DateTime.createAdjusted(2017, 12, 31, 23, 59, 61)))
-		assertEquals("Thu, 21 Mar 2024 19:32:20 UTC", HttpDate.format(DateTime.createAdjusted(2017, 12, 31, 23, 59, 200_000_000)))
+		assertEquals(
+			"Mon, 01 Jan 2018 00:00:01 UTC",
+			HttpDate.format(DateTime.createAdjusted(2017, 12, 31, 23, 59, 61))
+		)
+		assertEquals(
+			"Thu, 21 Mar 2024 19:32:20 UTC",
+			HttpDate.format(DateTime.createAdjusted(2017, 12, 31, 23, 59, 200_000_000))
+		)
 	}
 
 	@kotlin.test.Test

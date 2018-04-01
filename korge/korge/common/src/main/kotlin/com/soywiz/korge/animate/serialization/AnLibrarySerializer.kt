@@ -1,20 +1,17 @@
 package com.soywiz.korge.animate.serialization
 
-import com.soywiz.kmem.insert
+import com.soywiz.kmem.*
 import com.soywiz.korge.animate.*
-import com.soywiz.korge.view.BlendMode
-import com.soywiz.korim.bitmap.Bitmap
-import com.soywiz.korim.color.ColorTransform
-import com.soywiz.korim.format.ImageEncodingProps
-import com.soywiz.korim.format.PNG
-import com.soywiz.korim.format.writeBitmap
-import com.soywiz.korio.serialization.json.Json
+import com.soywiz.korge.view.*
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
+import com.soywiz.korim.format.*
+import com.soywiz.korio.serialization.json.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korio.util.clamp
-import com.soywiz.korio.vfs.VfsFile
-import com.soywiz.korma.Matrix2d
-import com.soywiz.korma.geom.IRectangleInt
-import com.soywiz.korma.geom.Rectangle
+import com.soywiz.korio.util.*
+import com.soywiz.korio.vfs.*
+import com.soywiz.korma.*
+import com.soywiz.korma.geom.*
 
 suspend fun AnLibrary.writeTo(file: VfsFile, config: AnLibrarySerializer.Config = AnLibrarySerializer.Config()) {
 	//println("writeTo")
@@ -44,8 +41,11 @@ object AnLibrarySerializer {
 		val smoothInterpolation: Boolean = true
 	)
 
-	suspend fun gen(library: AnLibrary, config: Config = Config(), externalWriters: ExternalWriters): ByteArray = MemorySyncStreamToByteArray { write(this, library, config, externalWriters) }
-	suspend fun write(s: SyncStream, library: AnLibrary, config: Config = Config(), externalWriters: ExternalWriters) = s.writeLibrary(library, config, externalWriters)
+	suspend fun gen(library: AnLibrary, config: Config = Config(), externalWriters: ExternalWriters): ByteArray =
+		MemorySyncStreamToByteArray { write(this, library, config, externalWriters) }
+
+	suspend fun write(s: SyncStream, library: AnLibrary, config: Config = Config(), externalWriters: ExternalWriters) =
+		s.writeLibrary(library, config, externalWriters)
 
 	private fun SyncStream.writeRect(r: Rectangle) {
 		writeS_VL((r.x * 20).toInt())
@@ -67,9 +67,10 @@ object AnLibrarySerializer {
 		writeU_VL(lib.msPerFrame)
 		writeU_VL(lib.width)
 		writeU_VL(lib.height)
-		writeU_VL(0
-			.insert(config.mipmaps, 0)
-			.insert(!config.smoothInterpolation, 1)
+		writeU_VL(
+			0
+				.insert(config.mipmaps, 0)
+				.insert(!config.smoothInterpolation, 1)
 		)
 		// Allocate Strings
 		val strings = OptimizedStringAllocator()
@@ -119,7 +120,8 @@ object AnLibrarySerializer {
 			externalWriters.writeAtlas(index, atlas)
 		}
 
-		val soundsToId = lib.symbolsById.filterIsInstance<AnSymbolSound>().withIndex().map { it.value to it.index }.toMap()
+		val soundsToId =
+			lib.symbolsById.filterIsInstance<AnSymbolSound>().withIndex().map { it.value to it.index }.toMap()
 
 		writeU_VL(soundsToId.size)
 		for ((sound, index) in soundsToId) {
@@ -191,8 +193,9 @@ object AnLibrarySerializer {
 
 					val hasNinePatchRect = (symbol.ninePatch != null)
 
-					write8(0
-						.insert(hasNinePatchRect, 0)
+					write8(
+						0
+							.insert(hasNinePatchRect, 0)
 					)
 
 					val limits = symbol.limits
@@ -219,8 +222,9 @@ object AnLibrarySerializer {
 					for (ss in symbolStates) {
 						//writeU_VL(strings[ss.name])
 						writeU_VL(ss.totalTime)
-						write8(0
-							.insert(ss.nextStatePlay, 0)
+						write8(
+							0
+								.insert(ss.nextStatePlay, 0)
 						)
 						writeU_VL(strings[ss.nextState])
 
@@ -275,15 +279,15 @@ object AnLibrarySerializer {
 								val hasColorTransform = ct != lastColorTransform
 								val hasBlendMode = frame.blendMode != lastBlendMode
 								val hasAlpha = (
-									(ct.mR == lastColorTransform.mR) &&
-										(ct.mG == lastColorTransform.mG) &&
-										(ct.mB == lastColorTransform.mB) &&
-										(ct.mA != lastColorTransform.mA) &&
-										(ct.aR == lastColorTransform.aR) &&
-										(ct.aG == lastColorTransform.aG) &&
-										(ct.aB == lastColorTransform.aB) &&
-										(ct.aA == lastColorTransform.aA)
-									)
+										(ct.mR == lastColorTransform.mR) &&
+												(ct.mG == lastColorTransform.mG) &&
+												(ct.mB == lastColorTransform.mB) &&
+												(ct.mA != lastColorTransform.mA) &&
+												(ct.aR == lastColorTransform.aR) &&
+												(ct.aG == lastColorTransform.aG) &&
+												(ct.aB == lastColorTransform.aB) &&
+												(ct.aA == lastColorTransform.aA)
+										)
 
 
 								val hasClipDepth = frame.clipDepth != lastClipDepth
@@ -291,15 +295,16 @@ object AnLibrarySerializer {
 
 								val hasMatrix = m != lastMatrix
 
-								write8(0
-									.insert(hasUid, 0)
-									.insert(hasName, 1)
-									.insert(hasColorTransform, 2)
-									.insert(hasMatrix, 3)
-									.insert(hasClipDepth, 4)
-									.insert(hasRatio, 5)
-									.insert(hasAlpha, 6)
-									.insert(hasBlendMode, 7)
+								write8(
+									0
+										.insert(hasUid, 0)
+										.insert(hasName, 1)
+										.insert(hasColorTransform, 2)
+										.insert(hasMatrix, 3)
+										.insert(hasClipDepth, 4)
+										.insert(hasRatio, 5)
+										.insert(hasAlpha, 6)
+										.insert(hasBlendMode, 7)
 								)
 								if (hasUid) writeU_VL(frame.uid)
 								if (hasClipDepth) write16_le(frame.clipDepth)
@@ -318,15 +323,16 @@ object AnLibrarySerializer {
 									val hasAB = ct.aB != lastColorTransform.aB
 									val hasAA = ct.aA != lastColorTransform.aA
 
-									write8(0
-										.insert(hasMR, 0)
-										.insert(hasMG, 1)
-										.insert(hasMB, 2)
-										.insert(hasMA, 3)
-										.insert(hasAR, 4)
-										.insert(hasAG, 5)
-										.insert(hasAB, 6)
-										.insert(hasAA, 7)
+									write8(
+										0
+											.insert(hasMR, 0)
+											.insert(hasMG, 1)
+											.insert(hasMB, 2)
+											.insert(hasMA, 3)
+											.insert(hasAR, 4)
+											.insert(hasAG, 5)
+											.insert(hasAB, 6)
+											.insert(hasAA, 7)
 									)
 
 									if (hasMR) write8((ct.mR.clamp(0.0, 1.0) * 255.0).toInt())
@@ -347,13 +353,14 @@ object AnLibrarySerializer {
 									val hasMatrixTX = m.tx != lastMatrix.tx
 									val hasMatrixTY = m.ty != lastMatrix.ty
 
-									write8(0
-										.insert(hasMatrixA, 0)
-										.insert(hasMatrixB, 1)
-										.insert(hasMatrixC, 2)
-										.insert(hasMatrixD, 3)
-										.insert(hasMatrixTX, 4)
-										.insert(hasMatrixTY, 5)
+									write8(
+										0
+											.insert(hasMatrixA, 0)
+											.insert(hasMatrixB, 1)
+											.insert(hasMatrixC, 2)
+											.insert(hasMatrixD, 3)
+											.insert(hasMatrixTX, 4)
+											.insert(hasMatrixTY, 5)
 									)
 
 									if (hasMatrixA) writeS_VL((m.a * 16384).toInt())

@@ -1,24 +1,23 @@
 package com.codeazur.as3swf.tags
 
-import com.codeazur.as3swf.SWFData
+import com.codeazur.as3swf.*
 import com.codeazur.as3swf.data.*
-import com.codeazur.as3swf.data.actions.Action
-import com.codeazur.as3swf.data.actions.ActionExecutionContext
-import com.codeazur.as3swf.data.actions.IAction
+import com.codeazur.as3swf.data.actions.*
 import com.codeazur.as3swf.data.consts.*
-import com.codeazur.as3swf.data.etc.MPEGFrame
-import com.codeazur.as3swf.data.filters.IFilter
-import com.codeazur.as3swf.exporters.ShapeExporter
-import com.codeazur.as3swf.utils.ColorUtils
-import com.codeazur.as3swf.utils.FlashByteArray
-import com.codeazur.as3swf.utils.toFlash
-import com.soywiz.klock.DateTime
-import com.soywiz.korfl.abc.ABC
-import com.soywiz.korio.lang.format
-import com.soywiz.korio.stream.openSync
-import com.soywiz.korio.stream.readBytes
-import com.soywiz.korio.util.nextAlignedTo
-import com.soywiz.korio.util.toString
+import com.codeazur.as3swf.data.etc.*
+import com.codeazur.as3swf.data.filters.*
+import com.codeazur.as3swf.exporters.*
+import com.codeazur.as3swf.utils.*
+import com.soywiz.klock.*
+import com.soywiz.korfl.abc.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.stream.*
+import com.soywiz.korio.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.arrayListOf
+import kotlin.collections.hashMapOf
+import kotlin.collections.set
+import kotlin.collections.sortedBy
 
 interface ITag {
 	val type: Int
@@ -43,7 +42,8 @@ interface IDisplayListTag : ITag
 
 class Tag {
 	companion object {
-		fun toStringCommon(type: Int, name: String, indent: Int = 0): String = " ".repeat(indent) + "[" + "%02d".format(type) + ":" + name + "] "
+		fun toStringCommon(type: Int, name: String, indent: Int = 0): String =
+			" ".repeat(indent) + "[" + "%02d".format(type) + ":" + name + "] "
 	}
 }
 
@@ -75,11 +75,11 @@ class TagCSMTextSettings : _BaseTag() {
 
 	override fun toString(indent: Int, flags: Int): String {
 		return Tag.toStringCommon(type, name, indent) +
-			"TextID: " + textId + ", " +
-			"UseFlashType: " + useFlashType + ", " +
-			"GridFit: " + gridFit + ", " +
-			"Thickness: " + thickness + ", " +
-			"Sharpness: " + sharpness
+				"TextID: " + textId + ", " +
+				"UseFlashType: " + useFlashType + ", " +
+				"GridFit: " + gridFit + ", " +
+				"Thickness: " + thickness + ", " +
+				"Sharpness: " + sharpness
 	}
 }
 
@@ -134,7 +134,8 @@ class TagDefineBinaryData : _BaseTag(), IDefinitionTag {
 	override val version = 9
 	override val level = 1
 
-	override fun toString(indent: Int, flags: Int): String = Tag.toStringCommon(type, name, indent) + "ID: " + characterId + ", " + "Length: " + binaryData.size
+	override fun toString(indent: Int, flags: Int): String =
+		Tag.toStringCommon(type, name, indent) + "ID: " + characterId + ", " + "Length: " + binaryData.size
 }
 
 open class TagDefineBits : _BaseTag(), IDefinitionTag {
@@ -159,7 +160,11 @@ open class TagDefineBits : _BaseTag(), IDefinitionTag {
 	override val level = 1
 
 	override fun toString(indent: Int, flags: Int): String {
-		return Tag.toStringCommon(type, name, indent) + "ID: " + characterId + ", " + "BitmapLength: " + bitmapData.length
+		return Tag.toStringCommon(
+			type,
+			name,
+			indent
+		) + "ID: " + characterId + ", " + "BitmapLength: " + bitmapData.length
 	}
 }
 
@@ -186,9 +191,9 @@ open class TagDefineBitsJPEG2 : TagDefineBits(), IDefinitionTag {
 
 	override fun toString(indent: Int, flags: Int): String {
 		val str: String = Tag.toStringCommon(type, name, indent) +
-			"ID: " + characterId + ", " +
-			"Type: " + BitmapType.toString(bitmapType) + ", " +
-			"BitmapLength: " + bitmapData.length
+				"ID: " + characterId + ", " +
+				"Type: " + BitmapType.toString(bitmapType) + ", " +
+				"BitmapLength: " + bitmapData.length
 		return str
 	}
 }
@@ -224,11 +229,11 @@ open class TagDefineBitsJPEG3 : TagDefineBitsJPEG2(), IDefinitionTag {
 
 	override fun toString(indent: Int, flags: Int): String {
 		val str: String = Tag.toStringCommon(type, name, indent) +
-			"ID: " + characterId + ", " +
-			"Type: " + BitmapType.toString(bitmapType) + ", " +
-			"HasAlphaData: " + (bitmapAlphaData.length > 0) + ", " +
-			(if (bitmapAlphaData.length > 0) "BitmapAlphaLength: " + bitmapAlphaData.length + ", " else "") +
-			"BitmapLength: " + bitmapData.length
+				"ID: " + characterId + ", " +
+				"Type: " + BitmapType.toString(bitmapType) + ", " +
+				"HasAlphaData: " + (bitmapAlphaData.length > 0) + ", " +
+				(if (bitmapAlphaData.length > 0) "BitmapAlphaLength: " + bitmapAlphaData.length + ", " else "") +
+				"BitmapLength: " + bitmapData.length
 		return str
 	}
 }
@@ -265,12 +270,12 @@ class TagDefineBitsJPEG4 : TagDefineBitsJPEG3(), IDefinitionTag {
 
 	override fun toString(indent: Int, flags: Int): String {
 		val str: String = Tag.toStringCommon(type, name, indent) +
-			"ID: " + characterId + ", " +
-			"Type: " + BitmapType.toString(bitmapType) + ", " +
-			"DeblockParam: " + deblockParam + ", " +
-			"HasAlphaData: " + (bitmapAlphaData.length > 0) + ", " +
-			(if (bitmapAlphaData.length > 0) "BitmapAlphaLength: " + bitmapAlphaData.length + ", " else "") +
-			"BitmapLength: " + bitmapData.length
+				"ID: " + characterId + ", " +
+				"Type: " + BitmapType.toString(bitmapType) + ", " +
+				"DeblockParam: " + deblockParam + ", " +
+				"HasAlphaData: " + (bitmapAlphaData.length > 0) + ", " +
+				(if (bitmapAlphaData.length > 0) "BitmapAlphaLength: " + bitmapAlphaData.length + ", " else "") +
+				"BitmapLength: " + bitmapData.length
 		return str
 	}
 }
@@ -326,7 +331,11 @@ open class TagDefineBitsLossless : _BaseTag(), IDefinitionTag {
 	override val version = 2
 	override val level = 1
 
-	override fun toString(indent: Int, flags: Int) = "${Tag.toStringCommon(type, name, indent)}ID: $characterId, Format: $bitmapFormat, Size: ($bitmapWidth,$bitmapHeight)"
+	override fun toString(indent: Int, flags: Int) = "${Tag.toStringCommon(
+		type,
+		name,
+		indent
+	)}ID: $characterId, Format: $bitmapFormat, Size: ($bitmapWidth,$bitmapHeight)"
 }
 
 class TagDefineBitsLossless2 : TagDefineBitsLossless(), IDefinitionTag {
@@ -340,7 +349,11 @@ class TagDefineBitsLossless2 : TagDefineBitsLossless(), IDefinitionTag {
 	override val version = 3
 	override val level = 2
 
-	override fun toString(indent: Int, flags: Int): String = "${Tag.toStringCommon(type, name, indent)}ID: $characterId, Format: $bitmapFormat, Size: ($bitmapWidth,$bitmapHeight)"
+	override fun toString(indent: Int, flags: Int): String = "${Tag.toStringCommon(
+		type,
+		name,
+		indent
+	)}ID: $characterId, Format: $bitmapFormat, Size: ($bitmapWidth,$bitmapHeight)"
 }
 
 class TagDefineButton : _BaseTag(), IDefinitionTag {
@@ -408,7 +421,7 @@ class TagDefineButton : _BaseTag(), IDefinitionTag {
 
 	override fun toString(indent: Int, flags: Int): String {
 		var str: String = Tag.toStringCommon(type, name, indent) +
-			"ID: " + characterId
+				"ID: " + characterId
 		if (characters.size > 0) {
 			str += "\n" + " ".repeat(indent + 2) + "Characters:"
 			for (i in 0 until characters.size) {
@@ -498,7 +511,7 @@ open class TagDefineButton2 : _BaseTag(), IDefinitionTag {
 
 	override fun toString(indent: Int, flags: Int): String {
 		var str: String = Tag.toStringCommon(type, name, indent) +
-			"ID: " + characterId + ", TrackAsMenu: " + trackAsMenu
+				"ID: " + characterId + ", TrackAsMenu: " + trackAsMenu
 		if (characters.size > 0) {
 			str += "\n" + " ".repeat(indent + 2) + "Characters:"
 			for (i in 0 until characters.size) {
@@ -536,8 +549,8 @@ class TagDefineButtonCxform : _BaseTag(), IDefinitionTag {
 
 	override fun toString(indent: Int, flags: Int): String {
 		val str: String = Tag.toStringCommon(type, name, indent) +
-			"ID: " + characterId + ", " +
-			"ColorTransform: " + buttonColorTransform
+				"ID: " + characterId + ", " +
+				"ColorTransform: " + buttonColorTransform
 		return str
 	}
 }
@@ -577,8 +590,8 @@ class TagDefineButtonSound : _BaseTag(), IDefinitionTag {
 
 	override fun toString(indent: Int, flags: Int): String {
 		val str: String = Tag.toStringCommon(type, name, indent) +
-			"ButtonID: " + characterId + ", " +
-			"ButtonSoundChars: " + buttonSoundChar0 + "," + buttonSoundChar1 + "," + buttonSoundChar2 + "," + buttonSoundChar3
+				"ButtonID: " + characterId + ", " +
+				"ButtonSoundChars: " + buttonSoundChar0 + "," + buttonSoundChar1 + "," + buttonSoundChar2 + "," + buttonSoundChar3
 		return str
 	}
 }
@@ -668,10 +681,10 @@ class TagDefineEditText : _BaseTag(), IDefinitionTag {
 
 	override fun toString(indent: Int, flags: Int): String {
 		val str: String = Tag.toStringCommon(type, name, indent) +
-			"ID: " + characterId + ", " +
-			(if (hasText && initialText!!.isNotEmpty()) "Text: " + initialText + ", " else "") +
-			(if (variableName!!.isNotEmpty()) "VariableName: " + variableName + ", " else "") +
-			"Bounds: " + bounds
+				"ID: " + characterId + ", " +
+				(if (hasText && initialText!!.isNotEmpty()) "Text: " + initialText + ", " else "") +
+				(if (variableName!!.isNotEmpty()) "VariableName: " + variableName + ", " else "") +
+				"Bounds: " + bounds
 		return str
 	}
 }
@@ -711,8 +724,8 @@ open class TagDefineFont : _BaseTag(), IDefinitionTag {
 
 	override fun toString(indent: Int, flags: Int): String {
 		val str: String = Tag.toStringCommon(type, name, indent) +
-			"ID: " + characterId + ", " +
-			"Glyphs: " + glyphShapeTable.size
+				"ID: " + characterId + ", " +
+				"Glyphs: " + glyphShapeTable.size
 		return str + toStringCommon(indent)
 	}
 
@@ -801,11 +814,11 @@ open class TagDefineFont2 : TagDefineFont(), IDefinitionTag {
 
 	override fun toString(indent: Int, flags: Int): String {
 		val str: String = Tag.toStringCommon(type, name, indent) +
-			"ID: " + characterId + ", " +
-			"FontName: " + fontName + ", " +
-			"Italic: " + italic + ", " +
-			"Bold: " + bold + ", " +
-			"Glyphs: " + glyphShapeTable.size
+				"ID: " + characterId + ", " +
+				"FontName: " + fontName + ", " +
+				"Italic: " + italic + ", " +
+				"Bold: " + bold + ", " +
+				"Glyphs: " + glyphShapeTable.size
 		return str + toStringCommon(indent)
 	}
 
@@ -876,11 +889,11 @@ class TagDefineFont3 : TagDefineFont2(), IDefinitionTag {
 
 	override fun toString(indent: Int, flags: Int): String {
 		val str: String = Tag.toStringCommon(type, name, indent) +
-			"ID: " + characterId + ", " +
-			"FontName: " + fontName + ", " +
-			"Italic: " + italic + ", " +
-			"Bold: " + bold + ", " +
-			"Glyphs: " + glyphShapeTable.size
+				"ID: " + characterId + ", " +
+				"FontName: " + fontName + ", " +
+				"Italic: " + italic + ", " +
+				"Bold: " + bold + ", " +
+				"Glyphs: " + glyphShapeTable.size
 		return str + toStringCommon(indent)
 	}
 }
@@ -919,11 +932,11 @@ class TagDefineFont4 : _BaseTag(), IDefinitionTag {
 
 	override fun toString(indent: Int, flags: Int): String {
 		val str: String = Tag.toStringCommon(type, name, indent) +
-			"ID: " + characterId + ", " +
-			"FontName: " + fontName + ", " +
-			"HasFontData: " + hasFontData + ", " +
-			"Italic: " + italic + ", " +
-			"Bold: " + bold
+				"ID: " + characterId + ", " +
+				"FontName: " + fontName + ", " +
+				"HasFontData: " + hasFontData + ", " +
+				"Italic: " + italic + ", " +
+				"Bold: " + bold
 		return str
 	}
 }
@@ -954,9 +967,9 @@ class TagDefineFontAlignZones : _BaseTag(), ITag {
 
 	override fun toString(indent: Int, flags: Int): String {
 		var str: String = Tag.toStringCommon(type, name, indent) +
-			"FontID: " + fontId + ", " +
-			"CSMTableHint: " + CSMTableHint.toString(csmTableHint) + ", " +
-			"Records: " + _zoneTable.size
+				"FontID: " + fontId + ", " +
+				"CSMTableHint: " + CSMTableHint.toString(csmTableHint) + ", " +
+				"Records: " + _zoneTable.size
 		for (i in 0 until _zoneTable.size) {
 			str += "\n" + " ".repeat(indent + 2) + "[" + i + "] " + _zoneTable[i].toString()
 		}
@@ -1019,11 +1032,11 @@ open class TagDefineFontInfo : _BaseTag(), ITag {
 
 	override fun toString(indent: Int, flags: Int): String {
 		return Tag.toStringCommon(type, name, indent) +
-			"FontID: " + fontId + ", " +
-			"FontName: " + fontName + ", " +
-			"Italic: " + italic + ", " +
-			"Bold: " + bold + ", " +
-			"Codes: " + _codeTable.size
+				"FontID: " + fontId + ", " +
+				"FontName: " + fontName + ", " +
+				"Italic: " + italic + ", " +
+				"Bold: " + bold + ", " +
+				"Codes: " + _codeTable.size
 	}
 }
 
@@ -1044,12 +1057,12 @@ class TagDefineFontInfo2 : TagDefineFontInfo(), ITag {
 
 	override fun toString(indent: Int, flags: Int): String {
 		return Tag.toStringCommon(type, name, indent) +
-			"FontID: " + fontId + ", " +
-			"FontName: " + fontName + ", " +
-			"Italic: " + italic + ", " +
-			"Bold: " + bold + ", " +
-			"LanguageCode: " + langCode + ", " +
-			"Codes: " + _codeTable.size
+				"FontID: " + fontId + ", " +
+				"FontName: " + fontName + ", " +
+				"Italic: " + italic + ", " +
+				"Bold: " + bold + ", " +
+				"LanguageCode: " + langCode + ", " +
+				"Codes: " + _codeTable.size
 	}
 }
 
@@ -1075,9 +1088,9 @@ class TagDefineFontName : _BaseTag(), ITag {
 
 	override fun toString(indent: Int, flags: Int): String {
 		return Tag.toStringCommon(type, name, indent) +
-			"FontID: " + fontId + ", " +
-			"Name: " + fontName + ", " +
-			"Copyright: " + fontCopyright
+				"FontID: " + fontId + ", " +
+				"Name: " + fontName + ", " +
+				"Copyright: " + fontCopyright
 	}
 }
 
@@ -1321,8 +1334,8 @@ class TagDefineScalingGrid : _BaseTag(), IDefinitionTag {
 
 	override fun toString(indent: Int, flags: Int): String {
 		return Tag.toStringCommon(type, name, indent) +
-			"CharacterID: " + characterId + ", " +
-			"Splitter: " + splitter
+				"CharacterID: " + characterId + ", " +
+				"Splitter: " + splitter
 	}
 }
 
@@ -1394,7 +1407,8 @@ open class TagDefineShape : _BaseTag(), IDefinitionTag {
 	override val level = 1
 
 	override fun toString(indent: Int, flags: Int): String {
-		var str: String = Tag.toStringCommon(type, name, indent) + "ID: " + characterId + ", " + "Bounds: " + shapeBounds
+		var str: String =
+			Tag.toStringCommon(type, name, indent) + "ID: " + characterId + ", " + "Bounds: " + shapeBounds
 		str += shapes.toString(indent + 2)
 		return str
 	}
@@ -1411,7 +1425,8 @@ open class TagDefineShape2 : TagDefineShape(), IDefinitionTag {
 	override val level = 2
 
 	override fun toString(indent: Int, flags: Int): String {
-		var str: String = Tag.toStringCommon(type, name, indent) + "ID: " + characterId + ", " + "Bounds: " + shapeBounds
+		var str: String =
+			Tag.toStringCommon(type, name, indent) + "ID: " + characterId + ", " + "Bounds: " + shapeBounds
 		str += shapes.toString(indent + 2)
 		return str
 	}
@@ -1428,7 +1443,8 @@ open class TagDefineShape3 : TagDefineShape2(), IDefinitionTag {
 	override val level = 3
 
 	override fun toString(indent: Int, flags: Int): String {
-		var str: String = Tag.toStringCommon(type, name, indent) + "ID: " + characterId + ", " + "Bounds: " + shapeBounds
+		var str: String =
+			Tag.toStringCommon(type, name, indent) + "ID: " + characterId + ", " + "Bounds: " + shapeBounds
 		str += shapes.toString(indent + 2)
 		return str
 	}
@@ -1503,12 +1519,12 @@ class TagDefineSound : _BaseTag(), IDefinitionTag {
 
 	override fun toString(indent: Int, flags: Int): String {
 		val str: String = Tag.toStringCommon(type, name, indent) +
-			"SoundID: " + characterId + ", " +
-			"Format: " + SoundCompression.toString(soundFormat) + ", " +
-			"Rate: " + SoundRate.toString(soundRate) + ", " +
-			"Size: " + SoundSize.toString(soundSize) + ", " +
-			"Type: " + SoundType.toString(soundType) + ", " +
-			"Samples: " + soundSampleCount
+				"SoundID: " + characterId + ", " +
+				"Format: " + SoundCompression.toString(soundFormat) + ", " +
+				"Rate: " + SoundRate.toString(soundRate) + ", " +
+				"Size: " + SoundSize.toString(soundSize) + ", " +
+				"Type: " + SoundType.toString(soundType) + ", " +
+				"Samples: " + soundSampleCount
 		return str
 	}
 
@@ -1527,9 +1543,9 @@ class TagDefineSound : _BaseTag(), IDefinitionTag {
 				"id3v2" -> {
 					if (mp3[i] == 0x49 && mp3[i + 1] == 0x44 && mp3[i + 2] == 0x33) {
 						i += 10 + ((mp3[i + 6] shl 21)
-							or (mp3[i + 7] shl 14)
-							or (mp3[i + 8] shl 7)
-							or mp3[i + 9])
+								or (mp3[i + 7] shl 14)
+								or (mp3[i + 8] shl 7)
+								or mp3[i + 9])
 					}
 					beginIdx = i
 					state = "sync"
@@ -1610,7 +1626,11 @@ class TagDefineSprite : com.codeazur.as3swf.SWFTimelineContainer(), IDefinitionT
 	override val version = 3
 	override val level = 1
 
-	override fun toString(indent: Int, flags: Int): String = "${Tag.toStringCommon(type, name, indent)}ID: $characterId, FrameCount: $frameCount${super.toString(indent, flags)}"
+	override fun toString(indent: Int, flags: Int): String =
+		"${Tag.toStringCommon(type, name, indent)}ID: $characterId, FrameCount: $frameCount${super.toString(
+			indent,
+			flags
+		)}"
 }
 
 open class TagDefineText : _BaseTag(), IDefinitionTag {
@@ -1646,16 +1666,16 @@ open class TagDefineText : _BaseTag(), IDefinitionTag {
 
 	override fun toString(indent: Int, flags: Int): String {
 		var str: String = Tag.toStringCommon(type, name, indent) +
-			"ID: " + characterId + ", " +
-			"Bounds: " + textBounds + ", " +
-			"Matrix: " + textMatrix
+				"ID: " + characterId + ", " +
+				"Bounds: " + textBounds + ", " +
+				"Matrix: " + textMatrix
 		if (records.size > 0) {
 			str += "\n" + " ".repeat(indent + 2) + "TextRecords:"
 			for (i in 0 until records.size) {
 				str += "\n" +
-					" ".repeat(indent + 4) +
-					"[" + i + "] " +
-					records[i].toString(indent + 4)
+						" ".repeat(indent + 4) +
+						"[" + i + "] " +
+						records[i].toString(indent + 4)
 			}
 		}
 		return str
@@ -1674,9 +1694,9 @@ class TagDefineText2 : TagDefineText(), IDefinitionTag {
 
 	override fun toString(indent: Int, flags: Int): String {
 		var str: String = Tag.toStringCommon(type, name, indent) +
-			"ID: " + characterId + ", " +
-			"Bounds: " + textBounds + ", " +
-			"Matrix: " + textMatrix
+				"ID: " + characterId + ", " +
+				"Bounds: " + textBounds + ", " +
+				"Matrix: " + textMatrix
 		if (records.size > 0) {
 			str += "\n" + " ".repeat(indent + 2) + "TextRecords:"
 			for (i in 0 until records.size) {
@@ -1719,13 +1739,13 @@ class TagDefineVideoStream : _BaseTag(), IDefinitionTag {
 
 	override fun toString(indent: Int, flags: Int): String {
 		return Tag.toStringCommon(type, name, indent) +
-			"ID: " + characterId + ", " +
-			"Frames: " + numFrames + ", " +
-			"Width: " + width + ", " +
-			"Height: " + height + ", " +
-			"Deblocking: " + VideoDeblockingType.toString(deblocking) + ", " +
-			"Smoothing: " + smoothing + ", " +
-			"Codec: " + VideoCodecID.toString(codecId)
+				"ID: " + characterId + ", " +
+				"Frames: " + numFrames + ", " +
+				"Width: " + width + ", " +
+				"Height: " + height + ", " +
+				"Deblocking: " + VideoDeblockingType.toString(deblocking) + ", " +
+				"Smoothing: " + smoothing + ", " +
+				"Codec: " + VideoCodecID.toString(codecId)
 	}
 }
 
@@ -1779,9 +1799,9 @@ class TagDoABC : _BaseTag(), ITag {
 
 	override fun toString(indent: Int, flags: Int): String {
 		return Tag.toStringCommon(type, name, indent) +
-			"Lazy: " + lazyInitializeFlag + ", " +
-			(if (abcName.isNotEmpty()) "Name: $abcName, " else "") +
-			"Length: " + bytes.length
+				"Lazy: " + lazyInitializeFlag + ", " +
+				(if (abcName.isNotEmpty()) "Name: $abcName, " else "") +
+				"Length: " + bytes.length
 	}
 }
 
@@ -1811,7 +1831,7 @@ class TagDoABCDeprecated : _BaseTag(), ITag {
 
 	override fun toString(indent: Int, flags: Int): String {
 		return Tag.toStringCommon(type, name, indent) +
-			"Length: " + bytes.length
+				"Length: " + bytes.length
 	}
 }
 
@@ -1878,8 +1898,8 @@ class TagDoInitAction : TagDoAction(), ITag {
 
 	override fun toString(indent: Int, flags: Int): String {
 		var str: String = Tag.toStringCommon(type, name, indent) +
-			"SpriteID: " + spriteId + ", " +
-			"Records: " + actions.size
+				"SpriteID: " + spriteId + ", " +
+				"Records: " + actions.size
 		if ((flags and com.codeazur.as3swf.SWF.TOSTRING_FLAG_AVM1_BYTECODE) == 0) {
 			for (i in 0 until actions.size) {
 				str += "\n" + " ".repeat(indent + 2) + "[" + i + "] " + actions[i].toString(indent + 2)
@@ -1943,8 +1963,8 @@ class TagEnableDebugger2 : TagEnableDebugger(), ITag {
 
 	override fun toString(indent: Int, flags: Int): String {
 		return Tag.toStringCommon(type, name, indent) +
-			"Password: " + (if (password.length == 0) "null" else password.readUTF()) + ", " +
-			"Reserved: 0x" + reserved.toString(16)
+				"Password: " + (if (password.length == 0) "null" else password.readUTF()) + ", " +
+				"Reserved: 0x" + reserved.toString(16)
 	}
 }
 
@@ -2049,11 +2069,11 @@ class TagFileAttributes : _BaseTag(), ITag {
 
 	override fun toString(indent: Int, flags: Int): String {
 		return Tag.toStringCommon(type, name, indent) +
-			"AS3: " + actionscript3 + ", " +
-			"HasMetadata: " + hasMetadata + ", " +
-			"UseDirectBlit: " + useDirectBlit + ", " +
-			"UseGPU: " + useGPU + ", " +
-			"UseNetwork: " + useNetwork
+				"AS3: " + actionscript3 + ", " +
+				"HasMetadata: " + hasMetadata + ", " +
+				"UseDirectBlit: " + useDirectBlit + ", " +
+				"UseGPU: " + useGPU + ", " +
+				"UseNetwork: " + useNetwork
 	}
 
 	override fun toString() = toString(0, 0)
@@ -2214,7 +2234,7 @@ class TagNameCharacter : _BaseTag(), ITag {
 
 	override fun toString(indent: Int, flags: Int): String {
 		var str: String = Tag.toStringCommon(type, name, indent) +
-			"ID: " + characterId
+				"ID: " + characterId
 		if (binaryData.length > 0) {
 			binaryData.position = 0
 			str += ", Name: " + binaryData.readUTFBytes(binaryData.length - 1)
@@ -2289,7 +2309,7 @@ open class TagPlaceObject : _BaseTag(), IDisplayListTag {
 
 	override fun toString(indent: Int, flags: Int): String {
 		var str: String = Tag.toStringCommon(type, name, indent) +
-			"Depth: " + depth
+				"Depth: " + depth
 		if (hasCharacter) {
 			str += ", CharacterID: " + characterId
 		}
@@ -2355,7 +2375,10 @@ open class TagPlaceObject2 : TagPlaceObject(), IDisplayListTag {
 		if (hasRatio) str += ", Ratio: " + ratio
 		if (hasName) str += ", Name: " + instanceName
 		if (hasClipDepth) str += ", ClipDepth: " + clipDepth
-		if (hasClipActions && clipActions != null) str += "\n" + " ".repeat(indent + 2) + clipActions!!.toString(indent + 2, flags)
+		if (hasClipActions && clipActions != null) str += "\n" + " ".repeat(indent + 2) + clipActions!!.toString(
+			indent + 2,
+			flags
+		)
 		return str
 	}
 }
@@ -2494,10 +2517,10 @@ class TagProductInfo : _BaseTag(), ITag {
 
 	override fun toString(indent: Int, flags: Int): String {
 		return Tag.toStringCommon(type, name, indent) +
-			"ProductID: " + productId + ", " +
-			"Edition: " + edition + ", " +
-			"Version: " + majorVersion + "." + minorVersion + " r" + build + ", " +
-			"CompileDate: " + compileDate.toString()
+				"ProductID: " + productId + ", " +
+				"Edition: " + edition + ", " +
+				"Version: " + majorVersion + "." + minorVersion + " r" + build + ", " +
+				"CompileDate: " + compileDate.toString()
 	}
 }
 
@@ -2563,8 +2586,8 @@ open class TagRemoveObject : _BaseTag(), IDisplayListTag {
 
 	override fun toString(indent: Int, flags: Int): String {
 		return Tag.toStringCommon(type, name, indent) +
-			"CharacterID: " + characterId + ", " +
-			"Depth: " + depth
+				"CharacterID: " + characterId + ", " +
+				"Depth: " + depth
 	}
 }
 
@@ -2584,7 +2607,7 @@ class TagRemoveObject2 : TagRemoveObject(), IDisplayListTag {
 
 	override fun toString(indent: Int, flags: Int): String {
 		return Tag.toStringCommon(type, name, indent) +
-			"Depth: " + depth
+				"Depth: " + depth
 	}
 }
 
@@ -2608,8 +2631,8 @@ class TagScriptLimits : _BaseTag(), ITag {
 
 	override fun toString(indent: Int, flags: Int): String {
 		return Tag.toStringCommon(type, name, indent) +
-			"MaxRecursionDepth: " + maxRecursionDepth + ", " +
-			"ScriptTimeoutSeconds: " + scriptTimeoutSeconds
+				"MaxRecursionDepth: " + maxRecursionDepth + ", " +
+				"ScriptTimeoutSeconds: " + scriptTimeoutSeconds
 	}
 }
 
@@ -2658,7 +2681,8 @@ class TagSetTabIndex : _BaseTag(), ITag {
 	override val version = 7
 	override val level = 1
 
-	override fun toString(indent: Int, flags: Int): String = Tag.toStringCommon(type, name, indent) + "Depth: " + depth + ", " + "TabIndex: " + tabIndex
+	override fun toString(indent: Int, flags: Int): String =
+		Tag.toStringCommon(type, name, indent) + "Depth: " + depth + ", " + "TabIndex: " + tabIndex
 }
 
 class TagShowFrame : _BaseTag(), IDisplayListTag {
@@ -2694,7 +2718,8 @@ class TagSoundStreamBlock : _BaseTag(), ITag {
 	override val version = 1
 	override val level = 1
 
-	override fun toString(indent: Int, flags: Int): String = Tag.toStringCommon(type, name, indent) + "Length: " + soundData.length
+	override fun toString(indent: Int, flags: Int): String =
+		Tag.toStringCommon(type, name, indent) + "Length: " + soundData.length
 }
 
 open class TagSoundStreamHead : _BaseTag(), ITag {
@@ -2734,9 +2759,9 @@ open class TagSoundStreamHead : _BaseTag(), ITag {
 		var str: String = Tag.toStringCommon(type, name, indent)
 		if (streamSoundSampleCount > 0) {
 			str += "Format: " + SoundCompression.toString(streamSoundCompression) + ", " +
-				"Rate: " + SoundRate.toString(streamSoundRate) + ", " +
-				"Size: " + SoundSize.toString(streamSoundSize) + ", " +
-				"Type: " + SoundType.toString(streamSoundType) + ", "
+					"Rate: " + SoundRate.toString(streamSoundRate) + ", " +
+					"Size: " + SoundSize.toString(streamSoundSize) + ", " +
+					"Type: " + SoundType.toString(streamSoundType) + ", "
 		}
 		str += "Samples: $streamSoundSampleCount, "
 		str += "LatencySeek: " + latencySeek
@@ -2758,9 +2783,9 @@ class TagSoundStreamHead2 : TagSoundStreamHead(), ITag {
 		var str: String = Tag.toStringCommon(type, name, indent)
 		if (streamSoundSampleCount > 0) {
 			str += "Format: " + SoundCompression.toString(streamSoundCompression) + ", " +
-				"Rate: " + SoundRate.toString(streamSoundRate) + ", " +
-				"Size: " + SoundSize.toString(streamSoundSize) + ", " +
-				"Type: " + SoundType.toString(streamSoundType) + ", "
+					"Rate: " + SoundRate.toString(streamSoundRate) + ", " +
+					"Size: " + SoundSize.toString(streamSoundSize) + ", " +
+					"Type: " + SoundType.toString(streamSoundType) + ", "
 		}
 		str += "Samples: " + streamSoundSampleCount
 		return str
@@ -2786,7 +2811,8 @@ class TagStartSound : _BaseTag(), ITag {
 	override val level = 1
 
 	override fun toString(indent: Int, flags: Int): String {
-		val str: String = Tag.toStringCommon(type, name, indent) + "SoundID: " + soundId + ", " + "SoundInfo: " + soundInfo
+		val str: String =
+			Tag.toStringCommon(type, name, indent) + "SoundID: " + soundId + ", " + "SoundInfo: " + soundInfo
 		return str
 	}
 }
@@ -2809,7 +2835,8 @@ class TagStartSound2 : _BaseTag(), ITag {
 	override val version = 9
 	override val level = 2
 
-	override fun toString(indent: Int, flags: Int): String = Tag.toStringCommon(type, name, indent) + "SoundClassName: " + soundClassName + ", " + "SoundInfo: " + soundInfo
+	override fun toString(indent: Int, flags: Int): String =
+		Tag.toStringCommon(type, name, indent) + "SoundClassName: " + soundClassName + ", " + "SoundInfo: " + soundInfo
 }
 
 class TagSymbolClass : _BaseTag(), ITag {

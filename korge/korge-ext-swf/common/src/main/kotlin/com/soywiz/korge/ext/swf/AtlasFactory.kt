@@ -1,17 +1,19 @@
 package com.soywiz.korge.ext.swf
 
-import com.soywiz.korge.render.TextureWithBitmapSlice
-import com.soywiz.korge.view.Views
-import com.soywiz.korge.view.texture
-import com.soywiz.korim.bitmap.Bitmap
-import com.soywiz.korim.bitmap.Bitmap32
-import com.soywiz.korim.bitmap.slice
-import com.soywiz.kds.Extra
+import com.soywiz.kds.*
+import com.soywiz.korge.render.*
+import com.soywiz.korge.view.*
+import com.soywiz.korim.bitmap.*
 import com.soywiz.korio.util.nextAlignedTo
-import com.soywiz.korma.geom.Rectangle
-import com.soywiz.korma.geom.Size
-import com.soywiz.korma.geom.binpack.BinPacker
+import com.soywiz.korma.geom.*
+import com.soywiz.korma.geom.binpack.*
 import com.soywiz.korma.numeric.nextPowerOfTwo
+import kotlin.collections.Map
+import kotlin.collections.firstOrNull
+import kotlin.collections.hashMapOf
+import kotlin.collections.mapValues
+import kotlin.collections.set
+import kotlin.collections.toList
 
 data class BitmapWithScale(val bitmap: Bitmap, val scale: Double, val bounds: Rectangle) : Extra by Extra.Mixin() {
 	val width: Int = bitmap.width
@@ -27,10 +29,18 @@ suspend fun List<BitmapWithScale>.toAtlas(views: Views, mipmaps: Boolean): List<
 */
 
 
-suspend fun <T> Map<T, BitmapWithScale>.toAtlas(views: Views, maxTextureSide:Int, mipmaps: Boolean): Map<T, TextureWithBitmapSlice> {
+suspend fun <T> Map<T, BitmapWithScale>.toAtlas(
+	views: Views,
+	maxTextureSide: Int,
+	mipmaps: Boolean
+): Map<T, TextureWithBitmapSlice> {
 	//val packs = BinPacker.packSeveral(2048.0, 2048.0, this) { Size(it.width + 4, it.height + 4) }
 	val values = this.values.toList()
-	val packs = BinPacker.packSeveral(maxTextureSide.toDouble(), maxTextureSide.toDouble(), values) { Size((it.width + 4).nextAlignedTo(4), (it.height + 4).nextAlignedTo(4)) }
+	val packs = BinPacker.packSeveral(
+		maxTextureSide.toDouble(),
+		maxTextureSide.toDouble(),
+		values
+	) { Size((it.width + 4).nextAlignedTo(4), (it.height + 4).nextAlignedTo(4)) }
 	val bitmapsToTextures = hashMapOf<BitmapWithScale, TextureWithBitmapSlice>()
 	val premult = this.values.firstOrNull()?.bitmap?.premult ?: true
 	for (pack in packs) {

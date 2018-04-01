@@ -26,9 +26,8 @@
 
 package com.soywiz.korau.format.com.jcraft.jogg
 
-import com.soywiz.kmem.arraycopy
-import com.soywiz.kmem.toUnsigned
-import com.soywiz.korio.lang.toByteArray
+import com.soywiz.kmem.*
+import com.soywiz.korio.lang.*
 
 class StreamState {
 	var body_storage: Int = 16 * 1024
@@ -368,7 +367,8 @@ class StreamState {
 		if (e_o_s != 0 && lacing_fill != 0 || /* 'were done, now flush' case */
 			body_fill - body_returned > 4096 || /* 'page nominal size' case */
 			lacing_fill >= 255 || /* 'segment table full' case */
-			lacing_fill != 0 && b_o_s == 0) { /* 'initial header page' case */
+			lacing_fill != 0 && b_o_s == 0
+		) { /* 'initial header page' case */
 			return flush(og)
 		}
 		return 0

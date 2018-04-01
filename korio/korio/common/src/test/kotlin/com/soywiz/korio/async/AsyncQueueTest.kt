@@ -1,7 +1,6 @@
 package com.soywiz.korio.async
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class AsyncQueueTest {
 	@Test

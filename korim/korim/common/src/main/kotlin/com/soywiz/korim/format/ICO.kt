@@ -1,11 +1,7 @@
 package com.soywiz.korim.format
 
-import com.soywiz.korim.bitmap.Bitmap
-import com.soywiz.korim.bitmap.Bitmap32
-import com.soywiz.korim.bitmap.Bitmap4
-import com.soywiz.korim.bitmap.Bitmap8
-import com.soywiz.korim.color.BGRA
-import com.soywiz.korim.color.RGBA
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
 import com.soywiz.korio.stream.*
 
 object ICO : ImageFormat("ico") {
@@ -41,7 +37,10 @@ object ICO : ImageFormat("ico") {
 
 		fun readBitmap(e: DirEntry, s: SyncStream): Bitmap {
 			val tryPNGHead = s.slice().readU32_be()
-			if (tryPNGHead == 0x89_50_4E_47L) return PNG.decode(s.slice(), props.copy(filename = "${props.filename}.png"))
+			if (tryPNGHead == 0x89_50_4E_47L) return PNG.decode(
+				s.slice(),
+				props.copy(filename = "${props.filename}.png")
+			)
 			val headerSize = s.readS32_le()
 			val width = s.readS32_le()
 			val height = s.readS32_le()

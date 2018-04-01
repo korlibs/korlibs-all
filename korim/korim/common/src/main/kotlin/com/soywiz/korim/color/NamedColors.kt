@@ -1,7 +1,7 @@
 package com.soywiz.korim.color
 
-import com.soywiz.korio.lang.format
-import com.soywiz.korio.util.substr
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.util.*
 
 object NamedColors {
 	val colorsByName = mapOf(
@@ -45,6 +45,8 @@ object NamedColors {
 		}
 	}
 
-	fun toHtmlString(color: Int) = "RGBA(" + RGBA.getR(color) + "," + RGBA.getG(color) + "," + RGBA.getB(color) + "," + RGBA.getAf(color) + ")"
+	fun toHtmlString(color: Int) =
+		"RGBA(" + RGBA.getR(color) + "," + RGBA.getG(color) + "," + RGBA.getB(color) + "," + RGBA.getAf(color) + ")"
+
 	fun toHtmlStringSimple(color: Int) = "#%02x%02x%02x".format(RGBA.getR(color), RGBA.getG(color), RGBA.getB(color))
 }

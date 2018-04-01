@@ -1,6 +1,6 @@
 package com.soywiz.korma.geom.binpack
 
-import com.soywiz.korma.geom.Rectangle
+import com.soywiz.korma.geom.*
 
 class MaxRects(
 	override var maxWidth: Double,

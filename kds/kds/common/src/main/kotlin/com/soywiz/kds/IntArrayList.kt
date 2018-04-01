@@ -1,7 +1,7 @@
 package com.soywiz.kds
 
-import com.soywiz.kmem.arraycopy
-import kotlin.math.max
+import com.soywiz.kmem.*
+import kotlin.math.*
 
 class IntArrayList(capacity: Int = 7) : Collection<Int> {
 	var data: IntArray = IntArray(capacity); private set

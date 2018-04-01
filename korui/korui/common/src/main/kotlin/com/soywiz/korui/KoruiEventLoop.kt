@@ -1,6 +1,6 @@
 package com.soywiz.korui
 
-import com.soywiz.korio.async.EventLoop
+import com.soywiz.korio.async.*
 
 expect object KoruiEventLoop {
 	val instance: EventLoop

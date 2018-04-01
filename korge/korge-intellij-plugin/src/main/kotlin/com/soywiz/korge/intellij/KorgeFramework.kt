@@ -25,7 +25,11 @@ class KorgeFramework : FrameworkTypeEx("korge") {
 
 			override fun createConfigurable(model: FrameworkSupportModel): FrameworkSupportInModuleConfigurable {
 				return object : FrameworkSupportInModuleConfigurable() {
-					override fun addSupport(module: Module, rootModel: ModifiableRootModel, modifiableModelsProvider: ModifiableModelsProvider) {
+					override fun addSupport(
+						module: Module,
+						rootModel: ModifiableRootModel,
+						modifiableModelsProvider: ModifiableModelsProvider
+					) {
 					}
 
 					override fun createComponent(): JComponent? {

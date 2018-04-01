@@ -1,8 +1,8 @@
 package com.soywiz.korma.geom.triangle
 
-import com.soywiz.kds.PriorityQueue
-import com.soywiz.korma.geom.Point2d
-import com.soywiz.korma.math.Math
+import com.soywiz.kds.*
+import com.soywiz.korma.geom.*
+import com.soywiz.korma.math.*
 
 data class FunnelPortal(var left: Point2d, var right: Point2d)
 
@@ -343,7 +343,8 @@ class SpatialMesh() {
 				H = 0
 			)
 			mapTriangleToSpatialNode[triangle] = sn
-			sn.neighbors = arrayOf(if (triangle.constrained_edge[0]) null else getNodeFromTriangle(triangle.neighbors[0]),
+			sn.neighbors = arrayOf(
+				if (triangle.constrained_edge[0]) null else getNodeFromTriangle(triangle.neighbors[0]),
 				if (triangle.constrained_edge[1]) null else getNodeFromTriangle(triangle.neighbors[1]),
 				if (triangle.constrained_edge[2]) null else getNodeFromTriangle(triangle.neighbors[2])
 			)

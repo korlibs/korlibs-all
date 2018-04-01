@@ -76,9 +76,12 @@ class SCMLReader {
 			.map { it.getString("name") ?: "" }
 
 		data = Data(
-			root.getString("scml_version") ?: "", root.getString("generator") ?: "", root.getString("generator_version") ?: "",
+			root.getString("scml_version") ?: "",
+			root.getString("generator") ?: "",
+			root.getString("generator_version") ?: "",
 			Data.PixelMode[root.getInt("pixel_mode") ?: 0],
-			folders.size, entities.size,
+			folders.size,
+			entities.size,
 			atlases
 		)
 		loadFolders(folders)
@@ -109,9 +112,11 @@ class SCMLReader {
 	protected fun loadFiles(files: List<Xml>, folder: Folder) {
 		for (j in files.indices) {
 			val f = files[j]
-			val file = File(f.getInt("id") ?: 0, f.getString("name") ?: "",
+			val file = File(
+				f.getInt("id") ?: 0, f.getString("name") ?: "",
 				Dimension((f.getInt("width") ?: 0).toFloat(), (f.getInt("height") ?: 0).toFloat()),
-				Point((f.getDouble("pivot_x") ?: 0.0).toFloat(), (f.getDouble("pivot_y") ?: 1.0).toFloat()))
+				Point((f.getDouble("pivot_x") ?: 0.0).toFloat(), (f.getDouble("pivot_y") ?: 1.0).toFloat())
+			)
 
 			folder.addFile(file)
 		}
@@ -127,7 +132,8 @@ class SCMLReader {
 			val infos = e.children("obj_info").toList()
 			val charMaps = e.children("character_map").toList()
 			val animations = e.children("animation").toList()
-			val entity = Entity(e.getInt("id") ?: 0, e.getString("name") ?: "", animations.size, charMaps.size, infos.size)
+			val entity =
+				Entity(e.getInt("id") ?: 0, e.getString("name") ?: "", animations.size, charMaps.size, infos.size)
 			data.addEntity(entity)
 			loadObjectInfos(infos, entity)
 			loadCharacterMaps(charMaps, entity)
@@ -144,9 +150,11 @@ class SCMLReader {
 	protected fun loadObjectInfos(infos: List<Xml>, entity: Entity) {
 		for (i in infos.indices) {
 			val info = infos[i]
-			val objInfo = ObjectInfo(info.get("name", "info" + i),
+			val objInfo = ObjectInfo(
+				info.get("name", "info" + i),
 				ObjectType.Companion.getObjectInfoFor(info.get("type", "")),
-				Dimension(info.getFloat("w", 0f), info.getFloat("h", 0f)))
+				Dimension(info.getFloat("w", 0f), info.getFloat("h", 0f))
+			)
 			entity.addInfo(objInfo)
 			val frames = info.getChildByName("frames") ?: continue
 			val frameIndices = frames.getChildrenByName("i")
@@ -175,8 +183,10 @@ class SCMLReader {
 				val mapping = mappings[i1]
 				val folder = mapping.getInt("folder", 0)
 				val file = mapping.getInt("file", 0)
-				charMap.put(FileReference(folder, file),
-					FileReference(mapping.getInt("target_folder", folder), mapping.getInt("target_file", file)))
+				charMap.put(
+					FileReference(folder, file),
+					FileReference(mapping.getInt("target_folder", folder), mapping.getInt("target_file", file))
+				)
 			}
 		}
 	}
@@ -193,9 +203,11 @@ class SCMLReader {
 			val timelines = a.getChildrenByName("timeline")
 			val mainline = a.getChildByName("mainline")
 			val mainlineKeys = mainline!!.getChildrenByName("key")!!
-			val animation = Animation(Mainline(mainlineKeys.size),
+			val animation = Animation(
+				Mainline(mainlineKeys.size),
 				a.getInt("id", 0), a.get("name", ""), a.getInt("length", 0),
-				a.getBoolean("looping", true), timelines.size)
+				a.getBoolean("looping", true), timelines.size
+			)
 			entity.addAnimation(animation)
 			loadMainlineKeys(mainlineKeys, animation.mainline)
 			loadTimelines(timelines, animation, entity)
@@ -217,8 +229,10 @@ class SCMLReader {
 			val curve = Curve()
 			curve.type = Curve.getType(k.get("curve_type", "linear"))
 			curve.constraints[k.getFloat("c1", 0f), k.getFloat("c2", 0f), k.getFloat("c3", 0f)] = k.getFloat("c4", 0f)
-			val key = Mainline.Key(k.getInt("id", 0), k.getInt("time", 0), curve,
-				boneRefs.size, objectRefs.size)
+			val key = Mainline.Key(
+				k.getInt("id", 0), k.getInt("time", 0), curve,
+				boneRefs.size, objectRefs.size
+			)
 			main.addKey(key)
 			loadRefs(objectRefs, boneRefs, key)
 		}
@@ -235,15 +249,19 @@ class SCMLReader {
 	protected fun loadRefs(objectRefs: List<Xml>, boneRefs: List<Xml>, key: Mainline.Key) {
 		for (i in boneRefs.indices) {
 			val e = boneRefs[i]
-			val boneRef = BoneRef(e.getInt("id", 0), e.getInt("timeline", 0),
-				e.getInt("key", 0), key.getBoneRef(e.getInt("parent", -1)))
+			val boneRef = BoneRef(
+				e.getInt("id", 0), e.getInt("timeline", 0),
+				e.getInt("key", 0), key.getBoneRef(e.getInt("parent", -1))
+			)
 			key.addBoneRef(boneRef)
 		}
 
 		for (i in objectRefs.indices) {
 			val o = objectRefs[i]
-			val objectRef = ObjectRef(o.getInt("id", 0), o.getInt("timeline", 0),
-				o.getInt("key", 0), key.getBoneRef(o.getInt("parent", -1)), o.getInt("z_index", 0))
+			val objectRef = ObjectRef(
+				o.getInt("id", 0), o.getInt("timeline", 0),
+				o.getInt("key", 0), key.getBoneRef(o.getInt("parent", -1)), o.getInt("z_index", 0)
+			)
 			key.addObjectRef(objectRef)
 		}
 		key.objectRefs.sort()
@@ -289,7 +307,10 @@ class SCMLReader {
 
 			val position = Point(obj!!.getFloat("x", 0f), obj.getFloat("y", 0f))
 			val scale = Point(obj.getFloat("scale_x", 1f), obj.getFloat("scale_y", 1f))
-			var pivot = Point(obj.getFloat("pivot_x", 0f), obj.getFloat("pivot_y", if (timeline.objectInfo.type == ObjectType.Bone) .5f else 1f))
+			var pivot = Point(
+				obj.getFloat("pivot_x", 0f),
+				obj.getFloat("pivot_y", if (timeline.objectInfo.type == ObjectType.Bone) .5f else 1f)
+			)
 			val angle = obj.getFloat("angle", 0f)
 			var alpha = 1f
 			var folder = -1

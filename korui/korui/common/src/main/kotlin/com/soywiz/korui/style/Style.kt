@@ -1,8 +1,9 @@
 package com.soywiz.korui.style
 
-import com.soywiz.korma.geom.SizeInt
+import com.soywiz.korma.geom.*
 import com.soywiz.korui.geom.len.*
-import com.soywiz.korui.ui.Component
+import com.soywiz.korui.geom.len.Size
+import com.soywiz.korui.ui.*
 
 class Style(var parent: Style? = null) : Styled {
 	var position = Position(null, null)
@@ -78,10 +79,18 @@ val Styled.computedLeft: Length? get() = style.left ?: style.parent?.computedLef
 val Styled.computedRight: Length? get() = style.right ?: style.parent?.computedRight
 
 
-fun Styled.computedCalcWidth(ctx: Length.Context, ignoreBounds: Boolean = false): Int = Length.calc(ctx, computedDefaultWidth, computedWidth, computedMinWidth, computedMaxWidth, ignoreBounds)
-fun Styled.computedCalcHeight(ctx: Length.Context, ignoreBounds: Boolean = false): Int = Length.calc(ctx, computedDefaultHeight, computedHeight, computedMinHeight, computedMaxHeight, ignoreBounds)
+fun Styled.computedCalcWidth(ctx: Length.Context, ignoreBounds: Boolean = false): Int =
+	Length.calc(ctx, computedDefaultWidth, computedWidth, computedMinWidth, computedMaxWidth, ignoreBounds)
 
-fun Styled.computedCalcSize(ctx: Length.Context, size: SizeInt, out: SizeInt = SizeInt(), ignoreBounds: Boolean = false): SizeInt = out.setTo(
+fun Styled.computedCalcHeight(ctx: Length.Context, ignoreBounds: Boolean = false): Int =
+	Length.calc(ctx, computedDefaultHeight, computedHeight, computedMinHeight, computedMaxHeight, ignoreBounds)
+
+fun Styled.computedCalcSize(
+	ctx: Length.Context,
+	size: SizeInt,
+	out: SizeInt = SizeInt(),
+	ignoreBounds: Boolean = false
+): SizeInt = out.setTo(
 	this.computedCalcWidth(ctx.setSize(size.width), ignoreBounds),
 	this.computedCalcHeight(ctx.setSize(size.height), ignoreBounds)
 )

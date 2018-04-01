@@ -1,14 +1,10 @@
 package com.soywiz.korio.crypto
 
-import com.soywiz.kmem.write32_le
-import com.soywiz.korio.async.executeInWorker
-import com.soywiz.korio.lang.Charset
-import com.soywiz.korio.lang.Charsets
-import com.soywiz.korio.lang.toByteArray
-import com.soywiz.korio.stream.AsyncInputOpenable
-import com.soywiz.korio.stream.AsyncInputStream
-import com.soywiz.korio.stream.openAsync
-import com.soywiz.korio.util.use
+import com.soywiz.kmem.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.stream.*
+import com.soywiz.korio.util.*
 
 abstract class AsyncHash {
 	companion object {
@@ -20,12 +16,16 @@ abstract class AsyncHash {
 
 	suspend abstract fun hashSync(content: AsyncInputStream): ByteArray
 	suspend fun hashSync(content: ByteArray): ByteArray = hashSync(content.openAsync())
-	suspend fun hashSync(content: String, charset: Charset = Charsets.UTF_8): ByteArray = hashSync(content.toByteArray(charset))
+	suspend fun hashSync(content: String, charset: Charset = Charsets.UTF_8): ByteArray =
+		hashSync(content.toByteArray(charset))
+
 	suspend fun hashSync(openable: AsyncInputOpenable): ByteArray = openable.openRead().use { hashSync(this) }
 
 	suspend fun hash(content: AsyncInputStream): ByteArray = executeInWorker { hashSync(content) }
 	suspend fun hash(content: ByteArray): ByteArray = executeInWorker { hashSync(content) }
-	suspend fun hash(content: String, charset: Charset = Charsets.UTF_8): ByteArray = executeInWorker { hashSync(content) }
+	suspend fun hash(content: String, charset: Charset = Charsets.UTF_8): ByteArray =
+		executeInWorker { hashSync(content) }
+
 	suspend fun hash(openable: AsyncInputOpenable): ByteArray = executeInWorker { hashSync(openable) }
 
 	class MessageDigestHash(val algo: String) : AsyncHash() {

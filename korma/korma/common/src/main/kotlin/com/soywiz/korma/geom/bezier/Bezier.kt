@@ -1,9 +1,7 @@
 package com.soywiz.korma.geom.bezier
 
-import com.soywiz.korma.geom.Point2d
-import com.soywiz.korma.geom.Rectangle
-import kotlin.math.abs
-import kotlin.math.sqrt
+import com.soywiz.korma.geom.*
+import kotlin.math.*
 
 //(x0,y0) is start point; (x1,y1),(x2,y2) is control points; (x3,y3) is end point.
 interface Bezier {
@@ -24,8 +22,11 @@ interface Bezier {
 	}
 
 	class Cubic(val p0: Point2d, val p1: Point2d, val p2: Point2d, val p3: Point2d) : Bezier {
-		override fun getBounds(target: Rectangle): Rectangle = cubicBounds(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, target)
-		override fun calc(t: Double, target: Point2d): Point2d = cubicCalc(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, t, target)
+		override fun getBounds(target: Rectangle): Rectangle =
+			cubicBounds(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, target)
+
+		override fun calc(t: Double, target: Point2d): Point2d =
+			cubicCalc(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, t, target)
 	}
 
 	companion object {
@@ -52,12 +53,41 @@ interface Bezier {
 			)
 		}
 
-		fun quadBounds(x0: Double, y0: Double, xc: Double, yc: Double, x1: Double, y1: Double, target: Rectangle = Rectangle()): Rectangle {
+		fun quadBounds(
+			x0: Double,
+			y0: Double,
+			xc: Double,
+			yc: Double,
+			x1: Double,
+			y1: Double,
+			target: Rectangle = Rectangle()
+		): Rectangle {
 			// @TODO: Make an optimized version!
-			return quadToCubic(x0, y0, xc, yc, x1, y1) { x0, y0, x1, y1, x2, y2, x3, y3 -> cubicBounds(x0, y0, x1, y1, x2, y2, x3, y3, target) }
+			return quadToCubic(x0, y0, xc, yc, x1, y1) { x0, y0, x1, y1, x2, y2, x3, y3 ->
+				cubicBounds(
+					x0,
+					y0,
+					x1,
+					y1,
+					x2,
+					y2,
+					x3,
+					y3,
+					target
+				)
+			}
 		}
 
-		inline fun <T> quadCalc(x0: Double, y0: Double, xc: Double, yc: Double, x1: Double, y1: Double, t: Double, emit: (x: Double, y: Double) -> T): T {
+		inline fun <T> quadCalc(
+			x0: Double,
+			y0: Double,
+			xc: Double,
+			yc: Double,
+			x1: Double,
+			y1: Double,
+			t: Double,
+			emit: (x: Double, y: Double) -> T
+		): T {
 			//return quadToCubic(x0, y0, xc, yc, x1, y1) { x0, y0, x1, y1, x2, y2, x3, y3 -> cubicCalc(x0, y0, x1, y1, x2, y2, x3, y3, t, emit) }
 			val t1 = (1 - t)
 			val a = t1 * t1
@@ -69,11 +99,30 @@ interface Bezier {
 			)
 		}
 
-		fun quadCalc(x0: Double, y0: Double, xc: Double, yc: Double, x1: Double, y1: Double, t: Double, target: Point2d = Point2d()): Point2d {
+		fun quadCalc(
+			x0: Double,
+			y0: Double,
+			xc: Double,
+			yc: Double,
+			x1: Double,
+			y1: Double,
+			t: Double,
+			target: Point2d = Point2d()
+		): Point2d {
 			return quadCalc(x0, y0, xc, yc, x1, y1, t) { x, y -> target.setTo(x, y) }
 		}
 
-		fun cubicBounds(x0: Double, y0: Double, x1: Double, y1: Double, x2: Double, y2: Double, x3: Double, y3: Double, target: Rectangle = Rectangle()): Rectangle {
+		fun cubicBounds(
+			x0: Double,
+			y0: Double,
+			x1: Double,
+			y1: Double,
+			x2: Double,
+			y2: Double,
+			x3: Double,
+			y3: Double,
+			target: Rectangle = Rectangle()
+		): Rectangle {
 			var j = 0
 			var a: Double
 			var b: Double
@@ -118,10 +167,26 @@ interface Bezier {
 			yvalues[tvalues.size + 0] = y0
 			yvalues[tvalues.size + 1] = y3
 
-			return target.setBounds(xvalues.min() ?: 0.0, yvalues.min() ?: 0.0, xvalues.max() ?: 0.0, yvalues.max() ?: 0.0)
+			return target.setBounds(
+				xvalues.min() ?: 0.0,
+				yvalues.min() ?: 0.0,
+				xvalues.max() ?: 0.0,
+				yvalues.max() ?: 0.0
+			)
 		}
 
-		inline fun <T> cubicCalc(x0: Double, y0: Double, x1: Double, y1: Double, x2: Double, y2: Double, x3: Double, y3: Double, t: Double, emit: (x: Double, y: Double) -> T): T {
+		inline fun <T> cubicCalc(
+			x0: Double,
+			y0: Double,
+			x1: Double,
+			y1: Double,
+			x2: Double,
+			y2: Double,
+			x3: Double,
+			y3: Double,
+			t: Double,
+			emit: (x: Double, y: Double) -> T
+		): T {
 			val cx = 3.0 * (x1 - x0)
 			val bx = 3.0 * (x2 - x1) - cx
 			val ax = x3 - x0 - cx - bx
@@ -140,7 +205,18 @@ interface Bezier {
 		}
 
 		// http://stackoverflow.com/questions/7348009/y-coordinate-for-a-given-x-cubic-bezier
-		fun cubicCalc(x0: Double, y0: Double, x1: Double, y1: Double, x2: Double, y2: Double, x3: Double, y3: Double, t: Double, target: Point2d = Point2d()): Point2d {
+		fun cubicCalc(
+			x0: Double,
+			y0: Double,
+			x1: Double,
+			y1: Double,
+			x2: Double,
+			y2: Double,
+			x3: Double,
+			y3: Double,
+			t: Double,
+			target: Point2d = Point2d()
+		): Point2d {
 			return cubicCalc(x0, y0, x1, y1, x2, y2, x3, y3, t) { x, y -> target.setTo(x, y) }
 		}
 	}

@@ -1,27 +1,16 @@
 package com.soywiz.korio
 
-import com.soywiz.korio.async.Promise
-import com.soywiz.korio.async.SuspendingSequence
-import com.soywiz.korio.async.spawnAndForget
-import com.soywiz.korio.coroutine.getCoroutineContext
-import com.soywiz.kds.lmapOf
-import com.soywiz.korio.lang.Closeable
-import com.soywiz.korio.net.AsyncClient
-import com.soywiz.korio.net.AsyncServer
-import com.soywiz.korio.net.http.Http
-import com.soywiz.korio.net.http.HttpClient
-import com.soywiz.korio.net.http.HttpServer
+import com.soywiz.kds.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.coroutine.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.net.*
+import com.soywiz.korio.net.http.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korio.vfs.LocalVfs
-import com.soywiz.korio.vfs.VfsOpenMode
-import com.soywiz.korio.vfs.VfsUtil
-import org.khronos.webgl.ArrayBuffer
-import org.khronos.webgl.Int8Array
-import org.khronos.webgl.Uint8Array
-import org.khronos.webgl.get
+import com.soywiz.korio.vfs.*
+import org.khronos.webgl.*
+import kotlin.coroutines.experimental.*
 import kotlin.coroutines.experimental.CoroutineContext
-import kotlin.coroutines.experimental.EmptyCoroutineContext
-import kotlin.coroutines.experimental.suspendCoroutine
 
 external internal fun require(name: String): dynamic
 
@@ -35,11 +24,18 @@ fun ByteArray.asUint8Array(): Uint8Array {
 	val i = this.asInt8Array()
 	return Uint8Array(i.buffer, i.byteOffset, i.length)
 }
+
 fun ByteArray.toNodeJsBuffer(): NodeJsBuffer = this.asUint8Array().unsafeCast<NodeJsBuffer>()
-fun ByteArray.toNodeJsBuffer(offset: Int, size: Int): NodeJsBuffer = global.Buffer.from(this, offset, size).unsafeCast<NodeJsBuffer>()
+fun ByteArray.toNodeJsBuffer(offset: Int, size: Int): NodeJsBuffer =
+	global.Buffer.from(this, offset, size).unsafeCast<NodeJsBuffer>()
 
 class HttpClientNodeJs : HttpClient() {
-	suspend override fun requestInternal(method: Http.Method, url: String, headers: Http.Headers, content: AsyncStream?): Response = Promise.create { deferred ->
+	suspend override fun requestInternal(
+		method: Http.Method,
+		url: String,
+		headers: Http.Headers,
+		content: AsyncStream?
+	): Response = Promise.create { deferred ->
 		//println(url)
 
 		val http = require("http")

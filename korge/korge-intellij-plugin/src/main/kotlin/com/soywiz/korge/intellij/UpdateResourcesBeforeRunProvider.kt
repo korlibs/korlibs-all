@@ -23,7 +23,12 @@ open class KorgeUpdateResourceBeforeRunProvider : BeforeRunTaskProvider<UpdateRe
 
 	override fun getId(): Key<UpdateResourceBeforeRunTask> = UpdateResourceBeforeRunTask.KEY
 
-	override fun executeTask(p0: DataContext?, runConfiguration: RunConfiguration, executionEnvironment: ExecutionEnvironment, p3: UpdateResourceBeforeRunTask?): Boolean {
+	override fun executeTask(
+		p0: DataContext?,
+		runConfiguration: RunConfiguration,
+		executionEnvironment: ExecutionEnvironment,
+		p3: UpdateResourceBeforeRunTask?
+	): Boolean {
 		val project = executionEnvironment.project
 		if (project.hasKorge()) {
 			println("KORGE detected in $project")
@@ -47,7 +52,8 @@ open class KorgeUpdateResourceBeforeRunProvider : BeforeRunTaskProvider<UpdateRe
 	}
 }
 
-data class UpdateResourceBeforeRunTask(val runConfiguration: CommonJavaRunConfigurationParameters) : BeforeRunTask<UpdateResourceBeforeRunTask>(KEY) {
+data class UpdateResourceBeforeRunTask(val runConfiguration: CommonJavaRunConfigurationParameters) :
+	BeforeRunTask<UpdateResourceBeforeRunTask>(KEY) {
 	companion object {
 		val KEY = Key<UpdateResourceBeforeRunTask>(UpdateResourceBeforeRunTask::class.java.name)
 	}
@@ -57,6 +63,7 @@ data class UpdateResourceBeforeRunTask(val runConfiguration: CommonJavaRunConfig
 	//override fun setEnabled(isEnabled: Boolean) = Unit
 	//override fun getItemsCount(): Int = 0
 	override fun clone(): BeforeRunTask<out BeforeRunTask<*>> = this.copy()
+
 	//override fun isEnabled(): Boolean = runConfiguration.project.hasKorge()
 	override fun isEnabled(): Boolean = true
 }

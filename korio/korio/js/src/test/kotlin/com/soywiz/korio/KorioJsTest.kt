@@ -1,10 +1,10 @@
 package com.soywiz.korio
 
-import com.soywiz.korinject.AsyncInjector
-import com.soywiz.korio.async.suspendTest
+import com.soywiz.korinject.*
+import com.soywiz.korio.async.*
+import kotlin.js.*
 import kotlin.js.Promise
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class KorioJsTest {
 	@Test

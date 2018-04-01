@@ -8,7 +8,7 @@ package com.soywiz.korau.format.net.sourceforge.lame.mp3
  * @author Ken
  */
 class LameGlobalFlags {
-    var num_samples = -1
-    var inNumChannels = 2
-    var inSampleRate = 44100
+	var num_samples = -1
+	var inNumChannels = 2
+	var inSampleRate = 44100
 }

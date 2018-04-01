@@ -1,8 +1,8 @@
 package com.soywiz.korma.geom.binpack
 
-import com.soywiz.korma.geom.Size
+import com.soywiz.korma.geom.*
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class BinPackTest {
 	@Test
@@ -18,12 +18,22 @@ class BinPackTest {
 
 	@Test
 	fun packSeveral() {
-		val packs = BinPacker.packSeveral(10, 10, listOf(Size(10, 10), Size(5, 5), Size(5, 5), Size(5, 5), Size(5, 5), Size(10, 5), Size(5, 10), Size(5, 5)))
+		val packs = BinPacker.packSeveral(
+			10,
+			10,
+			listOf(Size(10, 10), Size(5, 5), Size(5, 5), Size(5, 5), Size(5, 5), Size(10, 5), Size(5, 10), Size(5, 5))
+		)
 		assertEquals(4, packs.size)
 		assertEquals("[Rectangle(x=0, y=0, width=10, height=10)]", packs[0].rectsStr)
-		assertEquals("[Rectangle(x=0, y=0, width=5, height=5), Rectangle(x=0, y=5, width=5, height=5), Rectangle(x=5, y=0, width=5, height=5), Rectangle(x=5, y=5, width=5, height=5)]", packs[1].rectsStr)
+		assertEquals(
+			"[Rectangle(x=0, y=0, width=5, height=5), Rectangle(x=0, y=5, width=5, height=5), Rectangle(x=5, y=0, width=5, height=5), Rectangle(x=5, y=5, width=5, height=5)]",
+			packs[1].rectsStr
+		)
 		assertEquals("[Rectangle(x=0, y=0, width=10, height=5)]", packs[2].rectsStr)
-		assertEquals("[Rectangle(x=0, y=0, width=5, height=10), Rectangle(x=5, y=0, width=5, height=5)]", packs[3].rectsStr)
+		assertEquals(
+			"[Rectangle(x=0, y=0, width=5, height=10), Rectangle(x=5, y=0, width=5, height=5)]",
+			packs[3].rectsStr
+		)
 	}
 
 	@Test

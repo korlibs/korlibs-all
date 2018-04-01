@@ -1,8 +1,8 @@
 package com.soywiz.korui.ui
 
-import com.soywiz.kds.Extra
-import com.soywiz.korio.async.Signal
-import com.soywiz.korio.util.Once
+import com.soywiz.kds.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.util.*
 import com.soywiz.korui.light.*
 
 
@@ -12,7 +12,8 @@ private var Component.touchEventOnce by Extra.Property { Once() }
 private var Component.gamepadEventOnce by Extra.Property { Once() }
 private var Component.changeEventOnce by Extra.Property { Once() }
 
-private fun <T> createMyHandler(init: Component.() -> Unit) = Extra.PropertyThis<Component, Signal<T>> { Signal { init() } }
+private fun <T> createMyHandler(init: Component.() -> Unit) =
+	Extra.PropertyThis<Component, Signal<T>> { Signal { init() } }
 
 private fun createMouseHandler() = createMyHandler<LightMouseHandler.Info> { registerMouseEventOnce() }
 private fun createKeyHandler() = createMyHandler<LightKeyHandler.Info> { registerKeyEventOnce() }

@@ -1,6 +1,6 @@
 package com.soywiz.korio.util
 
-import com.soywiz.korio.KorioNative
+import com.soywiz.korio.*
 
 object OS {
 	val rawName = KorioNative.rawOsName

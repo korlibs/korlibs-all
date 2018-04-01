@@ -1,6 +1,6 @@
 package com.soywiz.korio.time
 
-import com.soywiz.klock.Klock
+import com.soywiz.klock.*
 
 open class TimeProvider {
 	open fun currentTimeMillis() = Klock.currentTimeMillis()

@@ -1,10 +1,8 @@
 package com.soywiz.korim.awt
 
-import com.soywiz.korim.bitmap.NativeImage
-import com.soywiz.korio.vfs.LocalVfs
-import com.soywiz.korio.vfs.Vfs
-import com.soywiz.korio.vfs.VfsSpecialReader
-import java.io.File
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korio.vfs.*
+import java.io.*
 
 class AwtImageSpecialReader : VfsSpecialReader<NativeImage>(NativeImage::class) {
 	override suspend fun readSpecial(vfs: Vfs, path: String): NativeImage {

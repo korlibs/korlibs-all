@@ -43,7 +43,10 @@ abstract class KorgeBaseFileEditorProvider : com.intellij.openapi.fileEditor.Fil
 		val pluginResurcesVfs by lazy { ResourcesVfsProviderJvm().invoke(pluginClassLoader) }
 	}
 
-	override fun createEditor(project: com.intellij.openapi.project.Project, virtualFile: com.intellij.openapi.vfs.VirtualFile): com.intellij.openapi.fileEditor.FileEditor {
+	override fun createEditor(
+		project: com.intellij.openapi.project.Project,
+		virtualFile: com.intellij.openapi.vfs.VirtualFile
+	): com.intellij.openapi.fileEditor.FileEditor {
 		return KorgeBaseKorgeFileEditor(project, virtualFile, EditorModule, "Preview")
 	}
 
@@ -61,7 +64,9 @@ abstract class KorgeBaseFileEditorProvider : com.intellij.openapi.fileEditor.Fil
 			val fileToEdit: KorgeFileToEdit,
 			val ui: UIFactory
 		) : Scene() {
-			suspend private fun getLipTexture(char: Char) = ignoreErrors { pluginResurcesVfs["/com/soywiz/korge/intellij/lips/lisa-$char.png"].readTexture(views) } ?: views.transparentTexture
+			suspend private fun getLipTexture(char: Char) =
+				ignoreErrors { pluginResurcesVfs["/com/soywiz/korge/intellij/lips/lisa-$char.png"].readTexture(views) }
+						?: views.transparentTexture
 
 			suspend override fun sceneInit(sceneView: Container) {
 				val loading = views.text("Loading...", color = Colors.WHITE).apply {
@@ -101,7 +106,8 @@ abstract class KorgeBaseFileEditorProvider : com.intellij.openapi.fileEditor.Fil
 							sceneView += spriterView
 						}
 						"pex" -> {
-							sceneView += fileToEdit.file.readParticle(views).create(views.virtualWidth / 2.0, views.virtualHeight / 2.0)
+							sceneView += fileToEdit.file.readParticle(views)
+								.create(views.virtualWidth / 2.0, views.virtualHeight / 2.0)
 						}
 						"wav", "mp3", "ogg", "lipsync" -> {
 							var voice: Voice? = null
@@ -120,17 +126,19 @@ abstract class KorgeBaseFileEditorProvider : com.intellij.openapi.fileEditor.Fil
 
 								views.setVirtualSize(408 * 2, 334 * 2)
 
-								val mouth = AnSimpleAnimation(views, 10, mapOf(
-									"A" to listOf(getLipTexture('A')),
-									"B" to listOf(getLipTexture('B')),
-									"C" to listOf(getLipTexture('C')),
-									"D" to listOf(getLipTexture('D')),
-									"E" to listOf(getLipTexture('E')),
-									"F" to listOf(getLipTexture('F')),
-									"G" to listOf(getLipTexture('G')),
-									"H" to listOf(getLipTexture('H')),
-									"X" to listOf(getLipTexture('X'))
-								), Anchor.MIDDLE_CENTER).apply {
+								val mouth = AnSimpleAnimation(
+									views, 10, mapOf(
+										"A" to listOf(getLipTexture('A')),
+										"B" to listOf(getLipTexture('B')),
+										"C" to listOf(getLipTexture('C')),
+										"D" to listOf(getLipTexture('D')),
+										"E" to listOf(getLipTexture('E')),
+										"F" to listOf(getLipTexture('F')),
+										"G" to listOf(getLipTexture('G')),
+										"H" to listOf(getLipTexture('H')),
+										"X" to listOf(getLipTexture('X'))
+									), Anchor.MIDDLE_CENTER
+								).apply {
 									x = views.virtualWidth * 0.5
 									y = views.virtualHeight * 0.5
 									addProp("lipsync", voiceName)
@@ -185,13 +193,15 @@ abstract class KorgeBaseFileEditorProvider : com.intellij.openapi.fileEditor.Fil
 						}
 						"swf", "ani" -> {
 							val animationLibrary = when (file.extensionLC) {
-								"swf" -> file.readSWF(views, defaultConfig = SWFExportConfig(
-									mipmaps = false,
-									antialiasing = true,
-									rasterizerMethod = Context2d.ShapeRasterizerMethod.X4,
-									exportScale = 1.0,
-									exportPaths = false
-								))
+								"swf" -> file.readSWF(
+									views, defaultConfig = SWFExportConfig(
+										mipmaps = false,
+										antialiasing = true,
+										rasterizerMethod = Context2d.ShapeRasterizerMethod.X4,
+										exportScale = 1.0,
+										exportPaths = false
+									)
+								)
 								"ani" -> file.readAni(views)
 								else -> null
 							}
@@ -211,10 +221,11 @@ abstract class KorgeBaseFileEditorProvider : com.intellij.openapi.fileEditor.Fil
 								}
 							}
 
-							sceneView += views.text("${file.basename} : ${animationLibrary?.width}x${animationLibrary?.height}").apply {
-								x = 16.0
-								y = 30.0
-							}
+							sceneView += views.text("${file.basename} : ${animationLibrary?.width}x${animationLibrary?.height}")
+								.apply {
+									x = 16.0
+									y = 30.0
+								}
 						}
 					}
 					sceneView -= loading

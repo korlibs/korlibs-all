@@ -1,12 +1,11 @@
 package com.soywiz.korge.view
 
-import com.soywiz.korge.bitmapfont.BitmapFont
-import com.soywiz.korge.html.Html
-import com.soywiz.korge.render.RenderContext
-import com.soywiz.korim.color.Colors
-import com.soywiz.korim.color.RGBA
-import com.soywiz.korma.Matrix2d
-import com.soywiz.korma.geom.Rectangle
+import com.soywiz.korge.bitmapfont.*
+import com.soywiz.korge.html.*
+import com.soywiz.korge.render.*
+import com.soywiz.korim.color.*
+import com.soywiz.korma.*
+import com.soywiz.korma.geom.*
 
 interface IText {
 	var text: String
@@ -103,7 +102,18 @@ class Text(views: Views) : View(views), IText, IHtml {
 			val y = textBounds.y + (textBounds.height - tempRect.height) * anchor.sy
 
 			if (RGBA.getA(bgcolor) != 0) {
-				ctx.batch.drawQuad(views.whiteTexture, x = textBounds.x.toFloat(), y = textBounds.y.toFloat(), width = textBounds.width.toFloat(), height = textBounds.height.toFloat(), m = m, filtering = false, colorMul = RGBA.multiply(bgcolor, globalColorMul), colorAdd = colorAdd, blendFactors = computedBlendMode.factors)
+				ctx.batch.drawQuad(
+					views.whiteTexture,
+					x = textBounds.x.toFloat(),
+					y = textBounds.y.toFloat(),
+					width = textBounds.width.toFloat(),
+					height = textBounds.height.toFloat(),
+					m = m,
+					filtering = false,
+					colorMul = RGBA.multiply(bgcolor, globalColorMul),
+					colorAdd = colorAdd,
+					blendFactors = computedBlendMode.factors
+				)
 			}
 
 			//println(" -> ($x, $y)")
@@ -140,15 +150,22 @@ class Text(views: Views) : View(views), IText, IHtml {
 	}
 }
 
-fun Views.text(text: String, textSize: Double = 16.0, color: Int = Colors.WHITE, font: BitmapFont = this.defaultFont) = Text(this).apply {
-	this.format = Html.Format(color = color, face = Html.FontFace.Bitmap(font), size = textSize.toInt())
-	if (text != "") this.text = text
-}
+fun Views.text(text: String, textSize: Double = 16.0, color: Int = Colors.WHITE, font: BitmapFont = this.defaultFont) =
+	Text(this).apply {
+		this.format = Html.Format(color = color, face = Html.FontFace.Bitmap(font), size = textSize.toInt())
+		if (text != "") this.text = text
+	}
 
-fun Container.text(text: String, textSize: Double = 16.0, font: BitmapFont = this.views.defaultFont): Text = text(text, textSize, font) {
-}
+fun Container.text(text: String, textSize: Double = 16.0, font: BitmapFont = this.views.defaultFont): Text =
+	text(text, textSize, font) {
+	}
 
-inline fun Container.text(text: String, textSize: Double = 16.0, font: BitmapFont = this.views.defaultFont, callback: Text.() -> Unit): Text {
+inline fun Container.text(
+	text: String,
+	textSize: Double = 16.0,
+	font: BitmapFont = this.views.defaultFont,
+	callback: Text.() -> Unit
+): Text {
 	val child = views.text(text, textSize = textSize, font = font)
 	this += child
 	callback(child)

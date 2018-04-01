@@ -1,15 +1,11 @@
 package com.soywiz.korim.format
 
-import com.soywiz.korim.bitmap.Bitmap32
-import com.soywiz.korio.async.suspendTest
-import com.soywiz.korio.async.syncTest
-import com.soywiz.korio.util.OS
-import com.soywiz.korio.vfs.LocalVfs
-import com.soywiz.korio.vfs.ResourcesVfs
-import com.soywiz.korio.vfs.VfsFile
-import com.soywiz.korio.vfs.localCurrentDirVfs
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.util.*
+import com.soywiz.korio.vfs.*
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class ImageFormatsTest {
 	fun imageTest(callback: suspend () -> Unit) = suspendTest {

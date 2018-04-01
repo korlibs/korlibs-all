@@ -42,10 +42,8 @@
 
 package com.soywiz.korma.geom.clipper
 
-import com.soywiz.korma.geom.BoundsBuilder
-import com.soywiz.korma.geom.Point2d
-import com.soywiz.korma.geom.Rectangle
-import com.soywiz.korma.math.Math
+import com.soywiz.korma.geom.*
+import com.soywiz.korma.math.*
 import kotlin.math.*
 
 interface Clipper {
@@ -76,7 +74,8 @@ interface Clipper {
 	}
 }
 
-abstract class ClipperBase protected constructor(val isPreserveCollinear: Boolean) : Clipper { //constructor (nb: no external instantiation)
+abstract class ClipperBase protected constructor(val isPreserveCollinear: Boolean) :
+	Clipper { //constructor (nb: no external instantiation)
 	protected inner class LocalMinima {
 		var y: Double = 0.0
 		var leftBound: Edge? = null
@@ -153,7 +152,12 @@ abstract class ClipperBase protected constructor(val isPreserveCollinear: Boolea
 			if (e.prev === e.next) {
 				break //only two vertices
 			} else if (Closed && Points.slopesEqual(e.prev!!.current, e.current, e.next!!.current)
-				&& (!isPreserveCollinear || !Points.isPt2BetweenPt1AndPt3(e.prev!!.current, e.current, e.next!!.current))) {
+				&& (!isPreserveCollinear || !Points.isPt2BetweenPt1AndPt3(
+					e.prev!!.current,
+					e.current,
+					e.next!!.current
+				))
+			) {
 				//Collinear edges are allowed for open paths but in closed paths
 				//the default is to merge adjacent collinear edges into a single edge.
 				//However, if the PreserveCollinear property is enabled, only overlapping
@@ -504,7 +508,10 @@ abstract class ClipperBase protected constructor(val isPreserveCollinear: Boolea
 }
 
 //class ClipperOffset @JvmOverloads constructor(private val miterLimit: Double = 2.0, private val arcTolerance: Double = ClipperOffset.DEFAULT_ARC_TOLERANCE) {
-class ClipperOffset constructor(private val miterLimit: Double = 2.0, private val arcTolerance: Double = ClipperOffset.DEFAULT_ARC_TOLERANCE) {
+class ClipperOffset constructor(
+	private val miterLimit: Double = 2.0,
+	private val arcTolerance: Double = ClipperOffset.DEFAULT_ARC_TOLERANCE
+) {
 
 	private var destPolys: Paths? = null
 	private var srcPoly: Path? = null
@@ -655,7 +662,12 @@ class ClipperOffset constructor(private val miterLimit: Double = 2.0, private va
 					var Y = 0.0
 					var j = 1
 					while (j <= steps) {
-						destPoly!!.add(Point2d(round(srcPoly!![0].x + X * delta).toInt(), round(srcPoly!![0].y + Y * delta).toInt()))
+						destPoly!!.add(
+							Point2d(
+								round(srcPoly!![0].x + X * delta).toInt(),
+								round(srcPoly!![0].y + Y * delta).toInt()
+							)
+						)
 						val X2 = X
 						X = X * cos - sin * Y
 						Y = X2 * sin + Y * cos
@@ -665,7 +677,12 @@ class ClipperOffset constructor(private val miterLimit: Double = 2.0, private va
 					var X = -1.0
 					var Y = -1.0
 					for (j in 0..3) {
-						destPoly!!.add(Point2d(round(srcPoly!![0].x + X * delta).toInt(), round(srcPoly!![0].y + Y * delta).toInt()))
+						destPoly!!.add(
+							Point2d(
+								round(srcPoly!![0].x + X * delta).toInt(),
+								round(srcPoly!![0].y + Y * delta).toInt()
+							)
+						)
 						if (X < 0) {
 							X = 1.0
 						} else if (Y < 0) {
@@ -756,9 +773,15 @@ class ClipperOffset constructor(private val miterLimit: Double = 2.0, private va
 				for (j in k[0] - 1 downTo 1) offsetPoint(j, k, node.joinType!!)
 
 				if (node.endType == Clipper.EndType.OPEN_BUTT) {
-					pt1 = Point2d(round(srcPoly!![0].x - normals[0].x * delta).toInt(), round(srcPoly!![0].y - normals[0].y * delta).toInt())
+					pt1 = Point2d(
+						round(srcPoly!![0].x - normals[0].x * delta).toInt(),
+						round(srcPoly!![0].y - normals[0].y * delta).toInt()
+					)
 					destPoly!!.add(pt1)
-					pt1 = Point2d(round(srcPoly!![0].x + normals[0].x * delta).toInt(), round(srcPoly!![0].y + normals[0].y * delta).toInt())
+					pt1 = Point2d(
+						round(srcPoly!![0].x + normals[0].x * delta).toInt(),
+						round(srcPoly!![0].y + normals[0].y * delta).toInt()
+					)
 					destPoly!!.add(pt1)
 				} else {
 					k[0] = 1
@@ -782,12 +805,22 @@ class ClipperOffset constructor(private val miterLimit: Double = 2.0, private va
 		var Y = normals[k].y
 		var X2: Double
 		for (i in 0 until steps) {
-			destPoly!!.add(Point2d(round(srcPoly!![j].x + X * delta).toInt(), round(srcPoly!![j].y + Y * delta).toInt()))
+			destPoly!!.add(
+				Point2d(
+					round(srcPoly!![j].x + X * delta).toInt(),
+					round(srcPoly!![j].y + Y * delta).toInt()
+				)
+			)
 			X2 = X
 			X = X * cos - sin * Y
 			Y = X2 * sin + Y * cos
 		}
-		destPoly!!.add(Point2d(round(srcPoly!![j].x + normals[j].x * delta).toInt(), round(srcPoly!![j].y + normals[j].y * delta).toInt()))
+		destPoly!!.add(
+			Point2d(
+				round(srcPoly!![j].x + normals[j].x * delta).toInt(),
+				round(srcPoly!![j].y + normals[j].y * delta).toInt()
+			)
+		)
 	}
 
 	private fun doSquare(j: Int, k: Int) {
@@ -798,8 +831,18 @@ class ClipperOffset constructor(private val miterLimit: Double = 2.0, private va
 		val sjx = srcPoly!![j].x
 		val sjy = srcPoly!![j].y
 		val dx = tan(atan2(inA, nkx * njx + nky * njy) / 4)
-		destPoly!!.add(Point2d(round(sjx + delta * (nkx - nky * dx)).toInt(), round(sjy + delta * (nky + nkx * dx)).toInt()))
-		destPoly!!.add(Point2d(round(sjx + delta * (njx + njy * dx)).toInt(), round(sjy + delta * (njy - njx * dx)).toInt()))
+		destPoly!!.add(
+			Point2d(
+				round(sjx + delta * (nkx - nky * dx)).toInt(),
+				round(sjy + delta * (nky + nkx * dx)).toInt()
+			)
+		)
+		destPoly!!.add(
+			Point2d(
+				round(sjx + delta * (njx + njy * dx)).toInt(),
+				round(sjy + delta * (njy - njx * dx)).toInt()
+			)
+		)
 	}
 
 	//------------------------------------------------------------------------------
@@ -1102,7 +1145,11 @@ class DefaultClipper constructor(InitOptions: Int = 0) //constructor
 			prevE = if (e.prevInAEL === e1) e1.prevInAEL else e.prevInAEL
 		}
 
-		if (prevE != null && prevE.outIdx >= 0 && Edge.topX(prevE, pt.y) == Edge.topX(e, pt.y) && Edge.slopesEqual(e, prevE) && e.windDelta != 0 && prevE.windDelta != 0) {
+		if (prevE != null && prevE.outIdx >= 0 && Edge.topX(prevE, pt.y) == Edge.topX(e, pt.y) && Edge.slopesEqual(
+				e,
+				prevE
+			) && e.windDelta != 0 && prevE.windDelta != 0
+		) {
 			val outPt = addOutPt(prevE, pt)
 			addJoin(result, outPt, e.top)
 		}
@@ -1528,7 +1575,12 @@ class DefaultClipper constructor(InitOptions: Int = 0) //constructor
 		return execute(clipType, solution, Clipper.PolyFillType.EVEN_ODD, Clipper.PolyFillType.EVEN_ODD)
 	}
 
-	override fun execute(clipType: Clipper.ClipType, solution: Paths, subjFillType: Clipper.PolyFillType, clipFillType: Clipper.PolyFillType): Boolean {
+	override fun execute(
+		clipType: Clipper.ClipType,
+		solution: Paths,
+		subjFillType: Clipper.PolyFillType,
+		clipFillType: Clipper.PolyFillType
+	): Boolean {
 
 		return synchronized(this) {
 
@@ -1561,7 +1613,12 @@ class DefaultClipper constructor(InitOptions: Int = 0) //constructor
 		return execute(clipType, polytree, Clipper.PolyFillType.EVEN_ODD, Clipper.PolyFillType.EVEN_ODD)
 	}
 
-	override fun execute(clipType: Clipper.ClipType, polytree: PolyTree, subjFillType: Clipper.PolyFillType, clipFillType: Clipper.PolyFillType): Boolean {
+	override fun execute(
+		clipType: Clipper.ClipType,
+		polytree: PolyTree,
+		subjFillType: Clipper.PolyFillType,
+		clipFillType: Clipper.PolyFillType
+	): Boolean {
 		return synchronized(this) {
 			this.subjFillType = subjFillType
 			this.clipFillType = clipFillType
@@ -1705,7 +1762,12 @@ class DefaultClipper constructor(InitOptions: Int = 0) //constructor
 			}
 			//test for duplicate points and collinear edges ...
 			if (pp.pt == pp.next!!.pt || pp.pt == pp.prev!!.pt
-				|| Points.slopesEqual(pp.prev!!.pt, pp.pt, pp.next!!.pt) && (!isPreserveCollinear || !Points.isPt2BetweenPt1AndPt3(pp.prev!!.pt, pp.pt, pp.next!!.pt))) {
+				|| Points.slopesEqual(
+					pp.prev!!.pt,
+					pp.pt,
+					pp.next!!.pt
+				) && (!isPreserveCollinear || !Points.isPt2BetweenPt1AndPt3(pp.prev!!.pt, pp.pt, pp.next!!.pt))
+			) {
 				lastOK = null
 				pp.prev!!.next = pp.next
 				pp.next!!.prev = pp.prev
@@ -1744,7 +1806,8 @@ class DefaultClipper constructor(InitOptions: Int = 0) //constructor
 			activeEdges = edge
 		} else {
 			if (sedge == null) sedge = activeEdges
-			while (sedge!!.nextInAEL != null && !Edge.doesE2InsertBeforeE1(sedge.nextInAEL!!, edge)) sedge = sedge.nextInAEL
+			while (sedge!!.nextInAEL != null && !Edge.doesE2InsertBeforeE1(sedge.nextInAEL!!, edge)) sedge =
+					sedge.nextInAEL
 			edge.nextInAEL = sedge.nextInAEL
 			if (sedge.nextInAEL != null) sedge.nextInAEL!!.prevInAEL = edge
 			edge.prevInAEL = sedge
@@ -1811,14 +1874,19 @@ class DefaultClipper constructor(InitOptions: Int = 0) //constructor
 			}
 
 			if (lb.outIdx >= 0 && lb.prevInAEL != null && lb.prevInAEL!!.current.x == lb.bot.x && lb.prevInAEL!!.outIdx >= 0
-				&& Edge.slopesEqual(lb.prevInAEL!!, lb) && lb.windDelta != 0 && lb.prevInAEL!!.windDelta != 0) {
+				&& Edge.slopesEqual(lb.prevInAEL!!, lb) && lb.windDelta != 0 && lb.prevInAEL!!.windDelta != 0
+			) {
 				val Op2 = addOutPt(lb.prevInAEL!!, lb.bot)
 				addJoin(Op1!!, Op2, lb.top)
 			}
 
 			if (lb.nextInAEL !== rb) {
 
-				if (rb.outIdx >= 0 && rb.prevInAEL!!.outIdx >= 0 && Edge.slopesEqual(rb.prevInAEL!!, rb) && rb.windDelta != 0 && rb.prevInAEL!!.windDelta != 0) {
+				if (rb.outIdx >= 0 && rb.prevInAEL!!.outIdx >= 0 && Edge.slopesEqual(
+						rb.prevInAEL!!,
+						rb
+					) && rb.windDelta != 0 && rb.prevInAEL!!.windDelta != 0
+				) {
 					val Op2 = addOutPt(rb.prevInAEL!!, rb.bot)
 					addJoin(Op1!!, Op2, rb.top)
 				}
@@ -2261,7 +2329,8 @@ class DefaultClipper constructor(InitOptions: Int = 0) //constructor
 				if (strictlySimple) {
 					val ePrev = e.prevInAEL
 					if (e.outIdx >= 0 && e.windDelta != 0 && ePrev != null && ePrev.outIdx >= 0 && ePrev.current.x == e.current.x
-						&& ePrev.windDelta != 0) {
+						&& ePrev.windDelta != 0
+					) {
 						val ip = Point2d(e.current)
 
 						setZ(ip, ePrev, e)
@@ -2295,13 +2364,21 @@ class DefaultClipper constructor(InitOptions: Int = 0) //constructor
 				val ePrev = e.prevInAEL
 				val eNext = e.nextInAEL
 				if (ePrev != null && ePrev.current.x == e.bot.x && ePrev.current.y == e.bot.y && op != null
-					&& ePrev.outIdx >= 0 && ePrev.current.y > ePrev.top.y && Edge.slopesEqual(e, ePrev) && e.windDelta != 0
-					&& ePrev.windDelta != 0) {
+					&& ePrev.outIdx >= 0 && ePrev.current.y > ePrev.top.y && Edge.slopesEqual(
+						e,
+						ePrev
+					) && e.windDelta != 0
+					&& ePrev.windDelta != 0
+				) {
 					val op2 = addOutPt(ePrev, e.bot)
 					addJoin(op, op2, e.top)
 				} else if (eNext != null && eNext.current.x == e.bot.x && eNext.current.y == e.bot.y && op != null
-					&& eNext.outIdx >= 0 && eNext.current.y > eNext.top.y && Edge.slopesEqual(e, eNext) && e.windDelta != 0
-					&& eNext.windDelta != 0) {
+					&& eNext.outIdx >= 0 && eNext.current.y > eNext.top.y && Edge.slopesEqual(
+						e,
+						eNext
+					) && e.windDelta != 0
+					&& eNext.windDelta != 0
+				) {
 					val op2 = addOutPt(eNext, e.bot)
 					addJoin(op, op2, e.top)
 				}
@@ -2347,7 +2424,13 @@ class DefaultClipper constructor(InitOptions: Int = 0) //constructor
 							val op1 = addOutPt(horzEdge, horzEdge.top)
 							var eNextHorz = sortedEdges
 							while (eNextHorz != null) {
-								if (eNextHorz.outIdx >= 0 && doHorzSegmentsOverlap(horzEdge.bot.x, horzEdge.top.x, eNextHorz.bot.x, eNextHorz.top.x)) {
+								if (eNextHorz.outIdx >= 0 && doHorzSegmentsOverlap(
+										horzEdge.bot.x,
+										horzEdge.top.x,
+										eNextHorz.bot.x,
+										eNextHorz.top.x
+									)
+								) {
 									val op2 = addOutPt(eNextHorz, eNextHorz.bot)
 									addJoin(op2, op1, eNextHorz.top)
 								}
@@ -2406,12 +2489,14 @@ class DefaultClipper constructor(InitOptions: Int = 0) //constructor
 				val eNext = horzEdge.nextInAEL
 				if (ePrev != null && ePrev.current.x == horzEdge.bot.x && ePrev.current.y == horzEdge.bot.y
 					&& ePrev.windDelta != 0 && ePrev.outIdx >= 0 && ePrev.current.y > ePrev.top.y
-					&& Edge.slopesEqual(horzEdge, ePrev)) {
+					&& Edge.slopesEqual(horzEdge, ePrev)
+				) {
 					val op2 = addOutPt(ePrev, horzEdge.bot)
 					addJoin(op1, op2, horzEdge.top)
 				} else if (eNext != null && eNext.current.x == horzEdge.bot.x && eNext.current.y == horzEdge.bot.y
 					&& eNext.windDelta != 0 && eNext.outIdx >= 0 && eNext.current.y > eNext.top.y
-					&& Edge.slopesEqual(horzEdge, eNext)) {
+					&& Edge.slopesEqual(horzEdge, eNext)
+				) {
 					val op2 = addOutPt(eNext, horzEdge.bot)
 					addJoin(op1, op2, horzEdge.top)
 				}
@@ -2760,7 +2845,12 @@ class DefaultClipper constructor(InitOptions: Int = 0) //constructor
 
 	companion object {
 
-		private fun getHorzDirection(HorzEdge: Edge, Dir: Array<Clipper.Direction>, Left: DoubleArray, Right: DoubleArray) {
+		private fun getHorzDirection(
+			HorzEdge: Edge,
+			Dir: Array<Clipper.Direction>,
+			Left: DoubleArray,
+			Right: DoubleArray
+		) {
 			if (HorzEdge.bot.x < HorzEdge.top.x) {
 				Left[0] = HorzEdge.bot.x
 				Right[0] = HorzEdge.top.x
@@ -2772,7 +2862,14 @@ class DefaultClipper constructor(InitOptions: Int = 0) //constructor
 			}
 		}
 
-		private fun getOverlap(a1: Double, a2: Double, b1: Double, b2: Double, Left: DoubleArray, Right: DoubleArray): Boolean {
+		private fun getOverlap(
+			a1: Double,
+			a2: Double,
+			b1: Double,
+			b2: Double,
+			Left: DoubleArray,
+			Right: DoubleArray
+		): Boolean {
 			if (a1 < a2) {
 				if (b1 < b2) {
 					Left[0] = Math.max(a1, b1)
@@ -2848,7 +2945,14 @@ class DefaultClipper constructor(InitOptions: Int = 0) //constructor
 		}
 
 		//------------------------------------------------------------------------------
-		private fun joinHorz(op_1: Path.OutPt, op_1b: Path.OutPt, op_2: Path.OutPt, op_2b: Path.OutPt, Pt: Point2d, DiscardLeft: Boolean): Boolean {
+		private fun joinHorz(
+			op_1: Path.OutPt,
+			op_1b: Path.OutPt,
+			op_2: Path.OutPt,
+			op_2b: Path.OutPt,
+			Pt: Point2d,
+			DiscardLeft: Boolean
+		): Boolean {
 			var op1 = op_1
 			var op1b = op_1b
 			var op2 = op_2
@@ -2865,7 +2969,8 @@ class DefaultClipper constructor(InitOptions: Int = 0) //constructor
 			//when DiscardLeft, make sure we're AT or RIGHT of Pt before adding Op1b,
 			//otherwise make sure we're AT or LEFT of Pt. (Likewise with Op2b.)
 			if (Dir1 == Clipper.Direction.LEFT_TO_RIGHT) {
-				while (op1.next!!.pt.x <= Pt.x && op1.next!!.pt.x >= op1.pt.x && op1.next!!.pt.y == Pt.y) op1 = op1.next!!
+				while (op1.next!!.pt.x <= Pt.x && op1.next!!.pt.x >= op1.pt.x && op1.next!!.pt.y == Pt.y) op1 =
+						op1.next!!
 				if (DiscardLeft && op1.pt.x != Pt.x) op1 = op1.next!!
 				op1b = op1.duplicate(!DiscardLeft)
 				if (op1b.pt != Pt) {
@@ -2874,7 +2979,8 @@ class DefaultClipper constructor(InitOptions: Int = 0) //constructor
 					op1b = op1.duplicate(!DiscardLeft)
 				}
 			} else {
-				while (op1.next!!.pt.x >= Pt.x && op1.next!!.pt.x <= op1.pt.x && op1.next!!.pt.y == Pt.y) op1 = op1.next!!
+				while (op1.next!!.pt.x >= Pt.x && op1.next!!.pt.x <= op1.pt.x && op1.next!!.pt.y == Pt.y) op1 =
+						op1.next!!
 				if (!DiscardLeft && op1.pt.x != Pt.x) op1 = op1.next!!
 				op1b = op1.duplicate(DiscardLeft)
 				if (op1b.pt != Pt) {
@@ -2885,7 +2991,8 @@ class DefaultClipper constructor(InitOptions: Int = 0) //constructor
 			}
 
 			if (Dir2 == Clipper.Direction.LEFT_TO_RIGHT) {
-				while (op2.next!!.pt.x <= Pt.x && op2.next!!.pt.x >= op2.pt.x && op2.next!!.pt.y == Pt.y) op2 = op2.next!!
+				while (op2.next!!.pt.x <= Pt.x && op2.next!!.pt.x >= op2.pt.x && op2.next!!.pt.y == Pt.y) op2 =
+						op2.next!!
 				if (DiscardLeft && op2.pt.x != Pt.x) op2 = op2.next!!
 				op2b = op2.duplicate(!DiscardLeft)
 				if (op2b.pt != Pt) {
@@ -2894,7 +3001,8 @@ class DefaultClipper constructor(InitOptions: Int = 0) //constructor
 					op2b = op2.duplicate(!DiscardLeft)
 				}
 			} else {
-				while (op2.next!!.pt.x >= Pt.x && op2.next!!.pt.x <= op2.pt.x && op2.next!!.pt.y == Pt.y) op2 = op2.next!!
+				while (op2.next!!.pt.x >= Pt.x && op2.next!!.pt.x <= op2.pt.x && op2.next!!.pt.y == Pt.y) op2 =
+						op2.next!!
 				if (!DiscardLeft && op2.pt.x != Pt.x) op2 = op2.next!!
 				op2b = op2.duplicate(DiscardLeft)
 				if (op2b.pt != Pt) {
@@ -3224,7 +3332,11 @@ class Edge {
 		return if (direction == Clipper.Direction.LEFT_TO_RIGHT) nextInAEL else prevInAEL
 	}
 
-	fun isContributing(clipFillType: Clipper.PolyFillType, subjFillType: Clipper.PolyFillType, clipType: Clipper.ClipType): Boolean {
+	fun isContributing(
+		clipFillType: Clipper.PolyFillType,
+		subjFillType: Clipper.PolyFillType,
+		clipType: Clipper.ClipType
+	): Boolean {
 		val pft: Clipper.PolyFillType
 		val pft2: Clipper.PolyFillType
 		if (polyTyp == Clipper.PolyType.SUBJECT) {
@@ -3317,7 +3429,8 @@ class Edge {
 	}
 
 
-	override fun toString(): String = "TEdge [Bot=$bot, Curr=$current, Top=$top, Delta=$delta, Dx=$deltaX, PolyTyp=$polyTyp, Side=$side, WindDelta=$windDelta, WindCnt=$windCnt, WindCnt2=$windCnt2, OutIdx=$outIdx, Next=$next, Prev=$prev, NextInLML=$nextInLML, NextInAEL=$nextInAEL, PrevInAEL=$prevInAEL, NextInSEL=$nextInSEL, PrevInSEL=$prevInSEL]"
+	override fun toString(): String =
+		"TEdge [Bot=$bot, Curr=$current, Top=$top, Delta=$delta, Dx=$deltaX, PolyTyp=$polyTyp, Side=$side, WindDelta=$windDelta, WindCnt=$windCnt, WindCnt2=$windCnt2, OutIdx=$outIdx, Next=$next, Prev=$prev, NextInLML=$nextInLML, NextInAEL=$nextInAEL, PrevInAEL=$prevInAEL, NextInSEL=$nextInSEL, PrevInSEL=$prevInSEL]"
 
 	fun updateDeltaX() {
 		delta.x = top.x - bot.x
@@ -3453,15 +3566,16 @@ class Path private constructor(private val al: ArrayList<Point2d>) : MutableList
 				return pp
 			}
 
-		val pointCount: Int get() {
-			var result = 0
-			var p: OutPt? = this
-			do {
-				result++
-				p = p!!.next
-			} while (p !== this && p != null)
-			return result
-		}
+		val pointCount: Int
+			get() {
+				var result = 0
+				var p: OutPt? = this
+				do {
+					result++
+					p = p!!.next
+				} while (p !== this && p != null)
+				return result
+			}
 
 		fun reversePolyPtLinks() {
 			var pp1: OutPt
@@ -3714,48 +3828,54 @@ class Paths private constructor(private val al: ArrayList<Path>) : MutableList<P
 		return result
 	}
 
-	val bounds: Rectangle get() {
-		//var i = 0
-		//val cnt = size
-		//val result = Rectangle()
-		//while (i < cnt && get(i).isEmpty()) {
-		//	i++
-		//}
-		//if (i == cnt) {
-		//	return result
-		//}
+	val bounds: Rectangle
+		get() {
+			//var i = 0
+			//val cnt = size
+			//val result = Rectangle()
+			//while (i < cnt && get(i).isEmpty()) {
+			//	i++
+			//}
+			//if (i == cnt) {
+			//	return result
+			//}
 //
-		//result.left = get(i)[0].x
-		//result.right = result.left
-		//result.top = get(i)[0].y
-		//result.bottom = result.top
-		//while (i < cnt) {
-		//	for (j in 0..get(i).size - 1) {
-		//		if (get(i)[j].x < result.left) {
-		//			result.left = get(i)[j].x
-		//		} else if (get(i)[j].x > result.right) {
-		//			result.right = get(i)[j].x
-		//		}
-		//		if (get(i)[j].y < result.top) {
-		//			result.top = get(i)[j].y
-		//		} else if (get(i)[j].y > result.bottom) {
-		//			result.bottom = get(i)[j].y
-		//		}
-		//	}
-		//	i++
-		//}
-		//return result
-		val bb = BoundsBuilder()
-		for (path in this) for (p in path) bb.add(p)
-		return bb.getBounds()
-	}
+			//result.left = get(i)[0].x
+			//result.right = result.left
+			//result.top = get(i)[0].y
+			//result.bottom = result.top
+			//while (i < cnt) {
+			//	for (j in 0..get(i).size - 1) {
+			//		if (get(i)[j].x < result.left) {
+			//			result.left = get(i)[j].x
+			//		} else if (get(i)[j].x > result.right) {
+			//			result.right = get(i)[j].x
+			//		}
+			//		if (get(i)[j].y < result.top) {
+			//			result.top = get(i)[j].y
+			//		} else if (get(i)[j].y > result.bottom) {
+			//			result.bottom = get(i)[j].y
+			//		}
+			//	}
+			//	i++
+			//}
+			//return result
+			val bb = BoundsBuilder()
+			for (path in this) for (p in path) bb.add(p)
+			return bb.getBounds()
+		}
 
 	fun reversePaths() = run { for (poly in this) poly.reverse() }
 
 	companion object {
-		fun closedPathsFromPolyTree(polytree: PolyTree): Paths = Paths().apply { addPolyNode(polytree, PolyNode.NodeType.CLOSED) }
-		fun makePolyTreeToPaths(polytree: PolyTree): Paths = Paths().apply { addPolyNode(polytree, PolyNode.NodeType.ANY) }
-		fun openPathsFromPolyTree(polytree: PolyTree): Paths = Paths(polytree.getChilds().filter { it.isOpen }.map { it.polygon })
+		fun closedPathsFromPolyTree(polytree: PolyTree): Paths =
+			Paths().apply { addPolyNode(polytree, PolyNode.NodeType.CLOSED) }
+
+		fun makePolyTreeToPaths(polytree: PolyTree): Paths =
+			Paths().apply { addPolyNode(polytree, PolyNode.NodeType.ANY) }
+
+		fun openPathsFromPolyTree(polytree: PolyTree): Paths =
+			Paths(polytree.getChilds().filter { it.isOpen }.map { it.polygon })
 	}
 }
 
@@ -3780,7 +3900,8 @@ object Points {
 		return C * C / (A * A + B * B)
 	}
 
-	fun getDeltaX(pt1: Point2d, pt2: Point2d): Double = if (pt1.y == pt2.y) Edge.HORIZONTAL else (pt2.x - pt1.x) / (pt2.y - pt1.y)
+	fun getDeltaX(pt1: Point2d, pt2: Point2d): Double =
+		if (pt1.y == pt2.y) Edge.HORIZONTAL else (pt2.x - pt1.x) / (pt2.y - pt1.y)
 
 	fun getUnitNormal(pt1: Point2d, pt2: Point2d): Point2d {
 		val dx = (pt2.x - pt1.x)
@@ -3796,9 +3917,11 @@ object Points {
 		else -> (pt2.y > pt1.y == pt2.y < pt3.y)
 	}
 
-	fun slopesEqual(pt1: Point2d, pt2: Point2d, pt3: Point2d): Boolean = (pt1.y - pt2.y) * (pt2.x - pt3.x) - (pt1.x - pt2.x) * (pt2.y - pt3.y) == 0.0
+	fun slopesEqual(pt1: Point2d, pt2: Point2d, pt3: Point2d): Boolean =
+		(pt1.y - pt2.y) * (pt2.x - pt3.x) - (pt1.x - pt2.x) * (pt2.y - pt3.y) == 0.0
 
-	fun slopesEqual(pt1: Point2d, pt2: Point2d, pt3: Point2d, pt4: Point2d): Boolean = (pt1.y - pt2.y) * (pt3.x - pt4.x) - (pt1.x - pt2.x) * (pt3.y - pt4.y) == 0.0
+	fun slopesEqual(pt1: Point2d, pt2: Point2d, pt3: Point2d, pt4: Point2d): Boolean =
+		(pt1.y - pt2.y) * (pt3.x - pt4.x) - (pt1.x - pt2.x) * (pt3.y - pt4.y) == 0.0
 
 	fun slopesNearCollinear(pt1: Point2d, pt2: Point2d, pt3: Point2d, distSqrd: Double): Boolean {
 		//this function is more accurate when the point that's GEOMETRICALLY
@@ -3847,15 +3970,16 @@ open class PolyNode {
 
 	val isHole: Boolean get() = isHoleNode
 
-	private val isHoleNode: Boolean get() {
-		var result = true
-		var node = parent
-		while (node != null) {
-			result = !result
-			node = node.parent
+	private val isHoleNode: Boolean
+		get() {
+			var result = true
+			var node = parent
+			while (node != null) {
+				result = !result
+				node = node.parent
+			}
+			return result
 		}
-		return result
-	}
 }
 
 class PolyTree : PolyNode() {
@@ -3869,8 +3993,9 @@ class PolyTree : PolyNode() {
 	val first: PolyNode? get() = if (!_childs.isEmpty()) _childs[0] else null
 
 	//with negative offsets, ignore the hidden outer polygon ...
-	val totalSize: Int get() {
-		var result = allPolys.size
-		return if (result > 0 && _childs[0] !== allPolys[0]) result - 1 else result
-	}
+	val totalSize: Int
+		get() {
+			var result = allPolys.size
+			return if (result > 0 && _childs[0] !== allPolys[0]) result - 1 else result
+		}
 }

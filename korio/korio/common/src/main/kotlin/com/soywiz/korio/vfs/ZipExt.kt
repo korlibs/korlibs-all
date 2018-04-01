@@ -1,11 +1,8 @@
 package com.soywiz.korio.vfs
 
-import com.soywiz.kmem.ByteArrayBuffer
-import com.soywiz.kmem.readS32_le
-import com.soywiz.korio.crypto.AsyncHash
-import com.soywiz.korio.crypto.hashSync
-import com.soywiz.korio.lang.Charsets
-import com.soywiz.korio.lang.toByteArray
+import com.soywiz.kmem.*
+import com.soywiz.korio.crypto.*
+import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 
 suspend fun VfsFile.treeCreateZip(): ByteArray {

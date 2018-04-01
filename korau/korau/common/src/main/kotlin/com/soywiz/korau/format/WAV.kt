@@ -2,10 +2,9 @@
 
 package com.soywiz.korau.format
 
-import com.soywiz.kmem.arraycopy
-import com.soywiz.korio.async.await
-import com.soywiz.korio.error.ignoreErrors
-import com.soywiz.korio.error.invalidOp
+import com.soywiz.kmem.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.error.*
 import com.soywiz.korio.stream.*
 
 object WAV : AudioFormat("wav") {

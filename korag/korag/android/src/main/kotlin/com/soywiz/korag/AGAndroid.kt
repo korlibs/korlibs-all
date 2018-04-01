@@ -91,7 +91,14 @@ class AGAndroid : AG() {
 	//	}
 	//}
 
-	override fun clear(color: Int, depth: Float, stencil: Int, clearColor: Boolean, clearDepth: Boolean, clearStencil: Boolean) {
+	override fun clear(
+		color: Int,
+		depth: Float,
+		stencil: Int,
+		clearColor: Boolean,
+		clearDepth: Boolean,
+		clearStencil: Boolean
+	) {
 		var bits = 0
 		if (clearColor) bits = bits or GL.GL_COLOR_BUFFER_BIT
 		if (clearDepth) bits = bits or GL.GL_DEPTH_BUFFER_BIT
@@ -189,7 +196,12 @@ class AGAndroid : AG() {
 		} else {
 			gl.glEnable(GL.GL_BLEND)
 			gl.glBlendEquationSeparate(blending.eqRGB.toGl(), blending.eqA.toGl())
-			gl.glBlendFuncSeparate(blending.srcRGB.toGl(), blending.dstRGB.toGl(), blending.srcA.toGl(), blending.dstA.toGl())
+			gl.glBlendFuncSeparate(
+				blending.srcRGB.toGl(),
+				blending.dstRGB.toGl(),
+				blending.srcA.toGl(),
+				blending.dstA.toGl()
+			)
 		}
 
 		gl.glDrawElements(type.glDrawMode, vertexCount, GL.GL_UNSIGNED_SHORT, offset)
@@ -349,7 +361,17 @@ class AGAndroid : AG() {
 
 		override fun actualSyncUpload(source: BitmapSourceBase, bmp: Bitmap?, requestMipmaps: Boolean) {
 			val type = if (source.rgba) GL.GL_RGBA else GL.GL_LUMINANCE
-			gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, type, source.width, source.height, 0, type, GL.GL_UNSIGNED_BYTE, createBufferForBitmap(bmp))
+			gl.glTexImage2D(
+				GL.GL_TEXTURE_2D,
+				0,
+				type,
+				source.width,
+				source.height,
+				0,
+				type,
+				GL.GL_UNSIGNED_BYTE,
+				createBufferForBitmap(bmp)
+			)
 
 			this.mipmaps = false
 

@@ -1,6 +1,6 @@
 package com.soywiz.korio.vfs
 
-import java.io.File
+import java.io.*
 
 operator fun LocalVfs.Companion.get(base: File) = LocalVfs(base)
 fun LocalVfs(base: File): VfsFile = LocalVfs(base.absolutePath)

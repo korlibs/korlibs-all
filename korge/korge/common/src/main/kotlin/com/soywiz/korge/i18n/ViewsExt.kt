@@ -1,8 +1,7 @@
 package com.soywiz.korge.i18n
 
-import com.soywiz.korge.view.Views
-import com.soywiz.korge.view.foreachDescendant
-import com.soywiz.kds.Extra
+import com.soywiz.kds.*
+import com.soywiz.korge.view.*
 
 private var Views.extraLanguage by Extra.Property { Language.CURRENT }
 

@@ -1,7 +1,6 @@
 package com.soywiz.korio
 
-import kotlin.test.assertTrue
-import kotlin.test.fail
+import kotlin.test.*
 
 inline fun <reified T : Throwable> expectException(callback: () -> Unit) {
 	try {

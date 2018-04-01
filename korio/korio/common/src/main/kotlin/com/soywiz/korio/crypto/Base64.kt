@@ -1,11 +1,7 @@
 package com.soywiz.korio.crypto
 
-import com.soywiz.kmem.UByteArray
-import com.soywiz.kmem.readU24_be
-import com.soywiz.kmem.readU8
-import com.soywiz.korio.lang.Charset
-import com.soywiz.korio.lang.Charsets
-import com.soywiz.korio.lang.toByteArray
+import com.soywiz.kmem.*
+import com.soywiz.korio.lang.*
 
 object Base64 {
 	private val TABLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="

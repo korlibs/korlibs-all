@@ -1,5 +1,5 @@
 apply plugin: 'kotlin-platform-jvm'
 
 dependencies {
-    expectedBy project(":kzlib-common")
+	expectedBy project(":kzlib-common")
 }

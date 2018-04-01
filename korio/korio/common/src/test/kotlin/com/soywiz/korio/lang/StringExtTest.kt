@@ -1,7 +1,7 @@
 package com.soywiz.korio.lang
 
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class StringExtTest {
 	@kotlin.test.Test

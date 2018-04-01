@@ -1,7 +1,7 @@
 package com.soywiz.korma.random
 
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class RandomExtKtTest {
 	//class TestRandom(val values: List<Int>) : Random() {

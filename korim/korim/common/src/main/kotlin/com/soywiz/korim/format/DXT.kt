@@ -1,17 +1,11 @@
 package com.soywiz.korim.format
 
-import com.soywiz.kmem.readS32_le
-import com.soywiz.kmem.readU16_le
-import com.soywiz.kmem.readU32_le
-import com.soywiz.kmem.readU8
-import com.soywiz.korim.bitmap.Bitmap32
-import com.soywiz.korim.color.BGR_565
-import com.soywiz.korim.color.Colors
-import com.soywiz.korim.color.RGBA
-import com.soywiz.korio.stream.SyncStream
-import com.soywiz.korio.stream.readAll
-import com.soywiz.korio.vfs.PathInfo
-import kotlin.math.sqrt
+import com.soywiz.kmem.*
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
+import com.soywiz.korio.stream.*
+import com.soywiz.korio.vfs.*
+import kotlin.math.*
 
 // https://en.wikipedia.org/wiki/S3_Texture_Compression
 object DXT1 : DXT1Base("dxt1", premult = true)

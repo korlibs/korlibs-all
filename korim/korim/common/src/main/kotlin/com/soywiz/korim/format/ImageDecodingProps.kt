@@ -1,6 +1,6 @@
 package com.soywiz.korim.format
 
-import com.soywiz.kds.Extra
+import com.soywiz.kds.*
 
 data class ImageDecodingProps(
 	val filename: String = "unknown",

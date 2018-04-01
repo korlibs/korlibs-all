@@ -27,7 +27,7 @@ open class Player
  * Creates a [Player] instance with the given entity.
  * @param entity the entity this player will animate
  */
-(entity: Entity) {
+	(entity: Entity) {
 
 	@JvmField
 	var _entity: Entity = Entity.DUMMY
@@ -478,7 +478,19 @@ open class Player
 	 * *
 	 * @throws SpriterException if no object exists of the given name
 	 */
-	fun setObject(name: String, x: Float, y: Float, angle: Float, scaleX: Float, scaleY: Float, pivotX: Float, pivotY: Float, alpha: Float, folder: Int, file: Int) {
+	fun setObject(
+		name: String,
+		x: Float,
+		y: Float,
+		angle: Float,
+		scaleX: Float,
+		scaleY: Float,
+		pivotX: Float,
+		pivotY: Float,
+		alpha: Float,
+		folder: Int,
+		file: Int
+	) {
 		val index = getObjectIndex(name)
 		if (index == -1) throw SpriterException("No object found for name \"" + name + "\"")
 		val ref = currentKey!!.getObjectRef(index)
@@ -505,8 +517,28 @@ open class Player
 	 * *
 	 * @throws SpriterException if no object exists of the given name
 	 */
-	fun setObject(name: String, position: Point, angle: Float, scale: Point, pivot: Point, alpha: Float, ref: FileReference) {
-		this.setObject(name, position.x, position.y, angle, scale.x, scale.y, pivot.x, pivot.y, alpha, ref.folder, ref.file)
+	fun setObject(
+		name: String,
+		position: Point,
+		angle: Float,
+		scale: Point,
+		pivot: Point,
+		alpha: Float,
+		ref: FileReference
+	) {
+		this.setObject(
+			name,
+			position.x,
+			position.y,
+			angle,
+			scale.x,
+			scale.y,
+			pivot.x,
+			pivot.y,
+			alpha,
+			ref.folder,
+			ref.file
+		)
 	}
 
 	/**
@@ -616,7 +648,19 @@ open class Player
 	 */
 	fun setObject(name: String, alpha: Float, folder: Int, file: Int) {
 		val b = getObject(name)
-		setObject(name, b.position.x, b.position.y, b._angle, b.scale.x, b.scale.y, b.pivot.x, b.pivot.y, alpha, folder, file)
+		setObject(
+			name,
+			b.position.x,
+			b.position.y,
+			b._angle,
+			b.scale.x,
+			b.scale.y,
+			b.pivot.x,
+			b.pivot.y,
+			alpha,
+			folder,
+			file
+		)
 	}
 
 	/**
@@ -628,7 +672,15 @@ open class Player
 	 * @throws SpriterException if no object exists of the given name
 	 */
 	fun setObject(name: String, `object`: Object) {
-		setObject(name, `object`.position, `object`._angle, `object`.scale, `object`.pivot, `object`.alpha, `object`.ref)
+		setObject(
+			name,
+			`object`.position,
+			`object`._angle,
+			`object`.scale,
+			`object`.pivot,
+			`object`.alpha,
+			`object`.ref
+		)
 	}
 
 	/**
@@ -640,14 +692,16 @@ open class Player
 		for (i in start + 1..currentKey!!.boneRefs.size - 1) {
 			val ref = currentKey!!.getBoneRef(i)
 			if (ref!!.parent !== base && base != null) continue
-			val parent = if (ref!!.parent == null) this.root else this.unmappedTweenedKeys[ref.parent!!.timeline].`object`()!!
+			val parent =
+				if (ref!!.parent == null) this.root else this.unmappedTweenedKeys[ref.parent!!.timeline].`object`()!!
 			unmappedTweenedKeys[ref.timeline].`object`()!!.set(tweenedKeys[ref.timeline].`object`()!!)
 			unmappedTweenedKeys[ref.timeline].`object`()!!.unmap(parent)
 			unmapObjects(ref)
 		}
 		for (ref in currentKey!!.objectRefs) {
 			if (ref.parent !== base && base != null) continue
-			val parent = if (ref.parent == null) this.root else this.unmappedTweenedKeys[ref.parent.timeline].`object`()!!
+			val parent =
+				if (ref.parent == null) this.root else this.unmappedTweenedKeys[ref.parent.timeline].`object`()!!
 			unmappedTweenedKeys[ref.timeline].`object`()!!.set(tweenedKeys[ref.timeline].`object`()!!)
 			unmappedTweenedKeys[ref.timeline].`object`()!!.unmap(parent)
 		}
@@ -1186,7 +1240,7 @@ open class Player
 	 * Creates a new attachment
 	 * @param parent the parent of this attachment
 	 */
-	(parent: Bone) : Bone() {
+		(parent: Bone) : Bone() {
 
 		/**
 		 * Returns the current set parent.

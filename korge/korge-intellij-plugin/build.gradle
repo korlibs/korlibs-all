@@ -22,7 +22,7 @@ intellij {
 	downloadSources true
 }
 
-publishPlugin  {
+publishPlugin {
 	if (globalProps.jetbrainsUsername != null) {
 		username globalProps.jetbrainsUsername
 		password globalProps.jetbrainsPassword

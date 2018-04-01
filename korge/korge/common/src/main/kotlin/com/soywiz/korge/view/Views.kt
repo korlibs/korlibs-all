@@ -1,40 +1,25 @@
 package com.soywiz.korge.view
 
-import com.soywiz.korag.AG
-import com.soywiz.korag.log.LogAG
-import com.soywiz.korge.audio.SoundSystem
-import com.soywiz.korge.audio.soundSystem
+import com.soywiz.kds.*
+import com.soywiz.korag.*
+import com.soywiz.korag.log.*
+import com.soywiz.korge.audio.*
+import com.soywiz.korge.bitmapfont.*
 import com.soywiz.korge.bitmapfont.BitmapFont
-import com.soywiz.korge.bitmapfont.convert
-import com.soywiz.korge.event.Event
-import com.soywiz.korge.event.EventDispatcher
-import com.soywiz.korge.event.PreventDefaultException
-import com.soywiz.korge.input.Input
-import com.soywiz.korge.plugin.KorgePlugins
-import com.soywiz.korge.plugin.defaultKorgePlugins
-import com.soywiz.korge.render.RenderContext
-import com.soywiz.korge.render.Texture
-import com.soywiz.korge.render.TransformedTexture
-import com.soywiz.korim.bitmap.Bitmap
-import com.soywiz.korim.bitmap.Bitmap32
-import com.soywiz.korim.color.Colors
-import com.soywiz.korim.font.BitmapFontGenerator
-import com.soywiz.korinject.AsyncDependency
-import com.soywiz.korinject.AsyncInjector
-import com.soywiz.korinject.Singleton
-import com.soywiz.korio.async.CoroutineContextHolder
-import com.soywiz.korio.async.EventLoop
-import com.soywiz.korio.async.go
-import com.soywiz.korio.lang.Closeable
-import com.soywiz.korio.stream.FastByteArrayInputStream
-import com.soywiz.kds.Extra
-import com.soywiz.kds.IntMap
-import com.soywiz.korio.vfs.VfsFile
-import com.soywiz.korma.geom.Anchor
-import com.soywiz.korma.geom.Rectangle
-import com.soywiz.korma.geom.ScaleMode
-import com.soywiz.korma.geom.SizeInt
-import kotlin.reflect.KClass
+import com.soywiz.korge.event.*
+import com.soywiz.korge.input.*
+import com.soywiz.korge.plugin.*
+import com.soywiz.korge.render.*
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
+import com.soywiz.korim.font.*
+import com.soywiz.korinject.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.stream.*
+import com.soywiz.korio.vfs.*
+import com.soywiz.korma.geom.*
+import kotlin.reflect.*
 
 @Singleton
 class Views(
@@ -43,7 +28,8 @@ class Views(
 	val injector: AsyncInjector,
 	val input: Input,
 	val plugins: KorgePlugins
-) : AsyncDependency, Updatable, Extra by Extra.Mixin(), EventDispatcher by EventDispatcher.Mixin(), CoroutineContextHolder {
+) : AsyncDependency, Updatable, Extra by Extra.Mixin(), EventDispatcher by EventDispatcher.Mixin(),
+	CoroutineContextHolder {
 	override val coroutineContext = eventLoop.coroutineContext
 	var lastId = 0
 	val renderContext = RenderContext(ag)
@@ -118,7 +104,8 @@ class Views(
 
 	fun container() = Container(this)
 	fun fixedSizeContainer(width: Double = 100.0, height: Double = 100.0) = FixedSizeContainer(this, width, height)
-	inline fun solidRect(width: Number, height: Number, color: Int): SolidRect = SolidRect(this, width.toDouble(), height.toDouble(), color)
+	inline fun solidRect(width: Number, height: Number, color: Int): SolidRect =
+		SolidRect(this, width.toDouble(), height.toDouble(), color)
 
 	val dummyView by lazy { View(this) }
 	val transparentTexture by lazy { texture(Bitmap32(0, 0)) }
@@ -126,7 +113,8 @@ class Views(
 	val transformedDummyTexture by lazy { TransformedTexture(transparentTexture) }
 	val dummyFont by lazy { BitmapFont(ag, 16, IntMap(), IntMap()) }
 	val defaultFont by lazy {
-		com.soywiz.korim.font.BitmapFontGenerator.generate("Arial", 16, BitmapFontGenerator.LATIN_ALL).convert(ag, mipmaps = true)
+		com.soywiz.korim.font.BitmapFontGenerator.generate("Arial", 16, BitmapFontGenerator.LATIN_ALL)
+			.convert(ag, mipmaps = true)
 	}
 	val fontRepository = FontRepository(this)
 
@@ -281,7 +269,10 @@ interface ViewsContainer {
 	val views: Views
 }
 
-data class KorgeFileLoaderTester<T>(val name: String, val tester: suspend (s: FastByteArrayInputStream, injector: AsyncInjector) -> KorgeFileLoader<T>?) {
+data class KorgeFileLoaderTester<T>(
+	val name: String,
+	val tester: suspend (s: FastByteArrayInputStream, injector: AsyncInjector) -> KorgeFileLoader<T>?
+) {
 	suspend operator fun invoke(s: FastByteArrayInputStream, injector: AsyncInjector) = tester(s, injector)
 	override fun toString(): String = "KorgeFileTester(\"$name\")"
 }

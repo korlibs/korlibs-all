@@ -1,10 +1,8 @@
 package com.soywiz.korio.vfs
 
 import com.soywiz.korio.async.*
-import org.junit.Assert
-import org.junit.Ignore
 import org.junit.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class ResourcesVfsTest {
 	@Test

@@ -1,8 +1,7 @@
 package com.soywiz.korio.lang
 
-import com.soywiz.kmem.readS16_LEBE
-import com.soywiz.kmem.write16_LEBE
-import com.soywiz.korio.stream.ByteArrayBuilder
+import com.soywiz.kmem.*
+import com.soywiz.korio.stream.*
 
 abstract class Charset(val name: String) {
 	abstract fun encode(out: ByteArrayBuilder, src: CharSequence, start: Int = 0, end: Int = src.length)

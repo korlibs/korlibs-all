@@ -2,15 +2,10 @@
 
 package com.soywiz.korio.vfs
 
-import com.soywiz.kds.lmapOf
-import com.soywiz.korio.async.Signal
-import com.soywiz.korio.async.SuspendingSequence
-import com.soywiz.korio.async.asyncGenerate
-import com.soywiz.korio.lang.Closeable
-import com.soywiz.korio.stream.AsyncStream
-import com.soywiz.korio.stream.AsyncStreamBase
-import com.soywiz.korio.stream.MemorySyncStream
-import com.soywiz.korio.stream.toAsyncStream
+import com.soywiz.kds.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.stream.*
 
 open class NodeVfs(val caseSensitive: Boolean = true) : Vfs() {
 	val events = Signal<VfsFileEvent>()
@@ -55,7 +50,8 @@ open class NodeVfs(val caseSensitive: Boolean = true) : Vfs() {
 			}
 		}
 
-		fun createChild(name: String, isDirectory: Boolean = false): Node = Node(name, isDirectory = isDirectory, parent = this)
+		fun createChild(name: String, isDirectory: Boolean = false): Node =
+			Node(name, isDirectory = isDirectory, parent = this)
 
 		operator fun get(path: String): Node = access(path, createFolders = false)
 

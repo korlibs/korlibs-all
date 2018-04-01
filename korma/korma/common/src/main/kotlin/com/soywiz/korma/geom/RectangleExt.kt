@@ -1,6 +1,6 @@
 package com.soywiz.korma.geom
 
-import com.soywiz.korma.math.Math
+import com.soywiz.korma.math.*
 
 fun Iterable<Rectangle>.bounds(target: Rectangle = Rectangle()): Rectangle {
 	var first = true
