@@ -1,0 +1,6 @@
+apply plugin: 'kotlin-platform-js'
+
+dependencies {
+	expectedBy project(":kds-common")
+	compile project(':kmem-js')
+}

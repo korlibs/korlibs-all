@@ -10,4 +10,6 @@ def registerProject1(name, desc) {
     //findProject(":$name-native")?.projectDir = file("$name/$name/native")
 }
 
+registerProject1('kmem', 'Kmem: Fast memory for Kotlin Common (JVM and JS) using Buffers and Typed Arrays')
+registerProject1('kds', 'Kds: Kotlin Data Structures for JVM, JS and Common')
 registerProject1('klock', 'Klock: Consistent and portable date and time utilities for multiplatform kotlin')
