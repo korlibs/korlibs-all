@@ -4,9 +4,9 @@ dependencies {
 	expectedBy project(":korge-common")
 	testImplementation project(":korge-common")
 
-	compile "com.soywiz:korau-android:$korauVersion"
-	compile "com.soywiz:korui-android:$koruiVersion"
-	compile "com.soywiz:korag-android:$koragVersion"
+	compile project(":korau-android")
+	compile project(":korui-android")
+	compile project(":korag-android")
 
 	//testCompile project(":korge-tests")
 }

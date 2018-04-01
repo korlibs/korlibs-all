@@ -3,9 +3,9 @@ apply plugin: 'kotlin-platform-jvm'
 dependencies {
 	expectedBy project(":korau-common")
 
-	compile "com.soywiz:klogger:$kloggerVersion"
-	compile "com.soywiz:korio-android:$korioVersion"
-	compile "com.soywiz:korma:$kormaVersion"
+	compile project(":klogger")
+	compile project(":korio-android")
+	compile project(":korma")
 	compile "com.google.android:android:4.1.1.4"
 }
 

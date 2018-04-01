@@ -3,6 +3,6 @@ apply plugin: 'kotlin-platform-jvm'
 dependencies {
 	expectedBy project(":korui-common")
 
-	compile "com.soywiz:korag-android:$koragVersion"
+	compile project(":korag-android")
 	compile "com.google.android:android:4.1.1.4"
 }

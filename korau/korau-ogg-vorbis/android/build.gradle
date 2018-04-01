@@ -5,8 +5,8 @@ dependencies {
 
 	compile project(":korau-android")
 
-	compile "com.soywiz:korio-android:$korioVersion"
-	compile "com.soywiz:korma:$kormaVersion"
+	compile project(":korio-android")
+	compile project(":korma")
 }
 
 sourceSets {
