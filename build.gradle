@@ -25,6 +25,7 @@ buildscript {
 	dependencies {
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
 		classpath "org.jetbrains.kotlin:kotlin-native-gradle-plugin:$kotlinNativeVersion"
+		classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
 	}
 }
 
@@ -33,6 +34,8 @@ allprojects {
 	apply plugin: 'signing'
 	apply plugin: 'maven-publish'
 	apply plugin: 'idea'
+	apply plugin: 'com.jfrog.bintray'
+	apply plugin: 'java'
 
 	group projectGroup
 	version projectVersion
@@ -155,8 +158,72 @@ allprojects {
 			// @TODO: Enable mocha again!
 			//test.dependsOn runMocha
 		}
+	}
 
+	afterEvaluate {
+		project.configure(project) {
+			task(type: Jar, 'javadocJar') {
+				classifier = 'javadoc'
+				from 'build/docs/javadoc'
+			}
 
+			task(type: Jar, 'sourcesJar') {
+				classifier = 'sources'
+				from sourceSets.main.allSource
+				if (project != rootProject) {
+					if (!plugins.hasPlugin("kotlin-platform-common")) {
+						ProjectDependency pd = (ProjectDependency) (configurations
+								.findByName("expectedBy")?.dependencies
+								?.find { it instanceof ProjectDependency })
+						if (pd != null) {
+							from pd.dependencyProject.sourceSets.main.allSource
+						}
+					}
+				}
+			}
+
+			artifacts {
+				archives javadocJar
+				archives sourcesJar
+			}
+		}
+	}
+
+	publishing {
+		publications {
+			MyPublication(MavenPublication) {
+				from components.java
+				groupId project.group
+				artifactId project.name
+				version "$project.version"
+			}
+		}
+	}
+
+	tasks.withType(Test) {
+		testLogging {
+			showStandardStreams = true
+			events "passed", "failed"
+		}
+	}
+
+	// gradle bintrayUpload
+	if (rootProject.hasProperty('BINTRAY_USER') && rootProject.hasProperty('BINTRAY_KEY')) {
+		bintray {
+			user = rootProject.property('BINTRAY_USER')
+			key = rootProject.property('BINTRAY_KEY')
+			publications = ['MyPublication']
+			publish = true
+			override = true
+
+			pkg {
+				repo = "soywiz"
+				name = "korlibs"
+				userOrg = 'soywiz'
+				licenses = ['Apache-2.0']
+				vcsUrl = 'https://github.com/korlibs/korlibs-all.git'
+			}
+		}
 	}
 }
 
