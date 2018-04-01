@@ -1,0 +1,9 @@
+apply plugin: 'kotlin-platform-common'
+
+dependencies {
+	compile project(":klock-common")
+	compile project(":korinject-common")
+	compile project(":kmem-common")
+	compile project(":kds-common")
+	compile project(":klogger-common")
+}

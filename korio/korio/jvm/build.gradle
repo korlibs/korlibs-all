@@ -1,0 +1,10 @@
+apply plugin: 'kotlin-platform-jvm'
+
+dependencies {
+	expectedBy project(":korio-common")
+	compile project(":klock")
+	compile project(":korinject")
+	compile project(":kmem")
+	compile project(":kds")
+	compile project(":klogger")
+}
