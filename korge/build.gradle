@@ -1,0 +1,34 @@
+buildscript {
+	ext.projectVersion = '0.20.1'
+	ext.projectName = 'korge'
+	ext.projectGroup = 'com.soywiz'
+	ext.projectDesc = 'Korge: Kotlin cORoutines Game Engine'
+	ext.projectHost = 'github'
+	ext.projectOrg = 'korlibs'
+	ext.projectLicense = 'MIT'
+	ext.projectDevelNick = 'soywiz'
+	ext.projectDevelName = 'Carlos Ballesteros Velasco'
+	ext.projectInceptionYear = 2017
+
+	ext.korflVersion = '0.20.1'
+	ext.korioVersion = '0.20.1'
+	ext.korimVersion = '0.20.1'
+	ext.korauVersion = '0.20.1'
+	ext.koragVersion = '0.20.1'
+	ext.koruiVersion = '0.20.1'
+	ext.kotlinVersion = '1.2.21'
+
+	repositories {
+		mavenLocal()
+		jcenter()
+		mavenCentral()
+		maven { url "https://plugins.gradle.org/m2/" }
+	}
+
+	dependencies {
+		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+		classpath "gradle.plugin.com.soywiz:korlibs-build-gradle-plugin:0.1.7"
+	}
+}
+
+apply plugin: 'com.soywiz.korlibs-build-gradle-plugin'

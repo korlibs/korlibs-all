@@ -1,0 +1,13 @@
+apply plugin: 'kotlin-platform-js'
+
+dependencies {
+	expectedBy project(":korge-common")
+	testImplementation project(":korge-common")
+
+	compile project(":korio-js")
+	compile project(":korau-js")
+	compile project(":korui-js")
+	compile project(":korag-js")
+
+	//testCompile project(":korge-tests-js")
+}

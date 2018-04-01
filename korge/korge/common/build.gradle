@@ -1,0 +1,8 @@
+apply plugin: 'kotlin-platform-common'
+
+dependencies {
+	compile project(":korio-common")
+	compile project(":korau-common")
+	compile project(":korui-common")
+	compile project(":korag-common")
+}

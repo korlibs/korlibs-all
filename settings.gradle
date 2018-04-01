@@ -1,6 +1,5 @@
 rootProject.name = 'korlibs-all'
 
-
 def registerProject1(name, desc, rootPath = name) {
     include "$name-common", "$name", "$name-android", "$name-js", "$name-native"
 
@@ -38,6 +37,8 @@ registerProject1('korag', 'Korag: Kotlin cORoutines Accelerated Graphics')
 registerProject1('korui', 'Korui: Kotlin cORoutines User Interfaces for Kotlin Common')
 
 registerProject1('korfl', 'Korfl: Parse Adobe Animate SWF files in JVM and JS')
+
+registerProject1('korge', 'Korge: Kotlin cORoutines Game Engine')
 
 registerProject1('kbignum', 'KBigNum: Big Numbers for multiplatform Kotlin')
 registerProject1('dynarek', 'Dynarek: Dynamic recompilation for Kotlin Common (JS and JVM)')
