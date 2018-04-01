@@ -1,0 +1,6 @@
+apply plugin: 'kotlin-platform-common'
+
+dependencies {
+	compile project(":korio-common")
+	compile project(":korma-common")
+}
