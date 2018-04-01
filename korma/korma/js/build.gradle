@@ -1,0 +1,8 @@
+apply plugin: 'kotlin-platform-js'
+
+dependencies {
+    expectedBy project(":korma-common")
+
+    compile project(":kds-js")
+    compile project(":klogger-js")
+}
