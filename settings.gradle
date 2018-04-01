@@ -23,6 +23,9 @@ registerProject1('korinject', 'Korinject: Portable Kotlin Common library to do a
 registerProject1('korio', 'Korio: Kotlin cORoutines I/O : Streams + Async TCP Client/Server + Virtual File System for JVM, Node.JS and Browser')
 registerProject1('korma', 'Korma: Math Utilities for Kotlin Common')
 registerProject1('korim', 'Kotlin cORoutines IMaging utilities for Kotlin Common')
+
 registerProject1('korau', 'Korau: Kotlin cORoutines AUdio')
 registerProject2('korau-mp3', 'korau', 'Korau: MP3 extension')
 registerProject2('korau-ogg-vorbis', 'korau', 'Korau: OGG Vorbis extension')
+
+registerProject1('korag', 'korag: Kotlin cORoutines Accelerated Graphics')
