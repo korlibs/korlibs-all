@@ -1,6 +1,6 @@
 package com.soywiz.kzlib
 
-import com.soywiz.korio.compression.*
+import com.soywiz.kzlib.simple.*
 import kotlin.test.*
 
 class KzlibTest {
