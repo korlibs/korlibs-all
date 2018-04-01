@@ -1,5 +1,6 @@
 package com.soywiz.kzlib
 
+import com.soywiz.korio.compression.*
 import kotlin.test.*
 
 class KzlibTest {
@@ -10,5 +11,8 @@ class KzlibTest {
 		val uncompressed = compressed.inflate()
 
 		assertEquals(original.toList(), uncompressed.toList())
+
+		val uncompressed2 = SimpleInflater.inflateZlib(compressed)
+		assertEquals(original.toList(), uncompressed2.toList())
 	}
 }

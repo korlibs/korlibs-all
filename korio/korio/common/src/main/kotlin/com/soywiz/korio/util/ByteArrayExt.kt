@@ -38,7 +38,9 @@ fun ByteArray.indexOf(startOffset: Int, v: Byte): Int {
 }
 
 fun String.fromHexString(): ByteArray = Hex.decode(this)
-
 fun String.fromHexStringIgnoreSpaces(): ByteArray = this.replace(" ", "").fromHexString()
+
+val String.unhex get() = fromHexString()
+//val ByteArray.hex get() = toHexString()
 
 fun List<String>.fromHexChunks(): ByteArray = joinToString("").fromHexStringIgnoreSpaces()
