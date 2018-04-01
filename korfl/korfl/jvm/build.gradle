@@ -1,0 +1,14 @@
+apply plugin: 'kotlin-platform-jvm'
+
+dependencies {
+	expectedBy project(":korfl-common")
+
+	compile project(":korim")
+	compile project(":korau")
+	compile project(":korau-mp3")
+}
+
+sourceSets {
+	main.resources.srcDirs = [ '../common/src/main/resources', '../common/src/generated/resources' ]
+}
+
