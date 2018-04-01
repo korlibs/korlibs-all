@@ -14,3 +14,4 @@ registerProject1('kmem', 'Kmem: Fast memory for Kotlin Common (JVM and JS) using
 registerProject1('kds', 'Kds: Kotlin Data Structures for JVM, JS and Common')
 registerProject1('klock', 'Klock: Consistent and portable date and time utilities for multiplatform kotlin')
 registerProject1('kzlib', 'Kzlib: Port of zlib to kotlin common')
+registerProject1('klogger', 'Klogger: Consistent and portable logger library for multiplatform kotlin')
