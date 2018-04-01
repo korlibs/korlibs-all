@@ -32,6 +32,7 @@ registerProject1('korte', 'Korte: Asynchronous Template Engine for Kotlin')
 registerProject1('korau', 'Korau: Kotlin cORoutines AUdio')
 registerProject2('korau-mp3', 'korau', 'Korau: MP3 extension')
 registerProject2('korau-ogg-vorbis', 'korau', 'Korau: OGG Vorbis extension')
+registerProject2('korau-atrac3plus', 'korau', 'Korau: atrac3plus extension')
 
 registerProject1('korag', 'Korag: Kotlin cORoutines Accelerated Graphics')
 registerProject1('korui', 'Korui: Kotlin cORoutines User Interfaces for Kotlin Common')
