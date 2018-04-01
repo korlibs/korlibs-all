@@ -1,0 +1,7 @@
+apply plugin: 'kotlin-platform-jvm'
+
+dependencies {
+	expectedBy project(":korui-common")
+	testImplementation project(":korui-common")
+	compile project(":korag")
+}

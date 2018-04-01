@@ -1,0 +1,7 @@
+apply plugin: 'kotlin-platform-js'
+
+dependencies {
+	expectedBy project(":korui-common")
+
+	compile project(":korag-js")
+}
