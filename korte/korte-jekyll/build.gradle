@@ -1,0 +1,27 @@
+apply plugin: 'kotlin'
+
+apply plugin: 'application'
+apply plugin: 'jtransc'
+
+mainClassName = "com.soywiz.korte.jekyll.KorteJekyll"
+
+dependencies {
+    compile "com.soywiz:korio:$korVersion"
+    //compile "io.vertx:vertx-core:$vertxVersion"
+}
+
+configurations {
+    provided
+}
+
+repositories {
+    mavenLocal()
+    jcenter()
+    mavenCentral()
+}
+
+jtransc {
+    minimizeNames = false
+    treeshaking = true
+    //treeshaking = false
+}

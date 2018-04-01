@@ -14,6 +14,11 @@ def registerProject2(name, rootPath, desc) {
 	registerProject1(name, desc, rootPath)
 }
 
+def registerProject2Jvm(name, rootPath, desc) {
+	include name
+	findProject(":$name")?.projectDir = file("$rootPath/$name")
+}
+
 registerProject1('kmem', 'Kmem: Fast memory for Kotlin Common (JVM and JS) using Buffers and Typed Arrays')
 registerProject1('kds', 'Kds: Kotlin Data Structures for JVM, JS and Common')
 registerProject1('klock', 'Klock: Consistent and portable date and time utilities for multiplatform kotlin')
@@ -23,6 +28,7 @@ registerProject1('korinject', 'Korinject: Portable Kotlin Common library to do a
 registerProject1('korio', 'Korio: Kotlin cORoutines I/O : Streams + Async TCP Client/Server + Virtual File System for JVM, Node.JS and Browser')
 registerProject1('korma', 'Korma: Math Utilities for Kotlin Common')
 registerProject1('korim', 'Kotlin cORoutines IMaging utilities for Kotlin Common')
+//registerProject1('korte', 'Korte: Asynchronous Template Engine for Kotlin')
 
 registerProject1('korau', 'Korau: Kotlin cORoutines AUdio')
 registerProject2('korau-mp3', 'korau', 'Korau: MP3 extension')
@@ -36,4 +42,3 @@ registerProject1('korfl', 'Korfl: Parse Adobe Animate SWF files in JVM and JS')
 registerProject1('kbignum', 'KBigNum: Big Numbers for multiplatform Kotlin')
 registerProject1('dynarek', 'Dynarek: Dynamic recompilation for Kotlin Common (JS and JVM)')
 registerProject1('krypto', 'Krypto: Pure Kotlin cryptography library for JVM, JS and Common')
-
