@@ -1,0 +1,8 @@
+headers = SDL_image.h SDL.h stdlib.h time.h
+
+headerFilter = SDL*
+
+compilerOpts = -D_POSIX_SOURCE
+compilerOpts.osx =
+compilerOpts.linux = -D_REENTRANT
+compilerOpts.ios =
