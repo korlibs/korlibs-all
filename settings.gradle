@@ -1,0 +1,13 @@
+rootProject.name = 'korlibs-all'
+
+
+def registerProject1(name, desc) {
+    include "$name-common", "$name", "$name-android", "$name-js", "$name-native"
+
+    findProject(":$name-common")?.projectDir = file("$name/$name/common")
+    findProject(":$name")?.projectDir = file("$name/$name/jvm")
+    findProject(":$name-js")?.projectDir = file("$name/$name/js")
+    //findProject(":$name-native")?.projectDir = file("$name/$name/native")
+}
+
+registerProject1('klock', 'Klock: Consistent and portable date and time utilities for multiplatform kotlin')
