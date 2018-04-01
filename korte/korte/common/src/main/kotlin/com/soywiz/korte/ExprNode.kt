@@ -1,6 +1,7 @@
 package com.soywiz.korte
 
-import com.soywiz.korio.error.invalidOp
+import com.soywiz.kds.*
+import com.soywiz.korio.error.*
 import com.soywiz.korio.util.*
 
 interface ExprNode {
@@ -194,10 +195,12 @@ interface ExprNode {
 				"!", "~", "-", "+", "NOT" -> {
 					val op = tok
 					r.skip()
-					UNOP(parseFinal(r), when (op) {
-						"NOT" -> "!"
-						else -> op
-					})
+					UNOP(
+						parseFinal(r), when (op) {
+							"NOT" -> "!"
+							else -> op
+						}
+					)
 				}
 				"(" -> {
 					r.read()

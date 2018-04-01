@@ -191,10 +191,10 @@ object Dynamic2 {
 		}
 	}
 
-	suspend fun callAny(any: Any?, args: List<Any?>, mapper: ObjectMapper2): Any? =
+	suspend fun callAny(any: Any?, args: List<Any?>, mapper: ObjectMapper): Any? =
 		callAny(any, "invoke", args, mapper = mapper)
 
-	suspend fun callAny(any: Any?, methodName: Any?, args: List<Any?>, mapper: ObjectMapper2): Any? = when (any) {
+	suspend fun callAny(any: Any?, methodName: Any?, args: List<Any?>, mapper: ObjectMapper): Any? = when (any) {
 		null -> null
 		else -> mapper.invokeAsync(any::class as KClass<Any>, any, methodName.toDynamicString(), args)
 	}
@@ -207,14 +207,14 @@ internal fun Any?.toDynamicBool() = Dynamic2.toBool(this)
 internal fun Any?.toDynamicInt() = Dynamic2.toInt(this)
 internal fun Any?.toDynamicList() = Dynamic2.toList(this)
 internal fun Any?.dynamicLength() = Dynamic2.length(this)
-suspend internal fun Any?.dynamicGet(key: Any?, mapper: ObjectMapper2) = Dynamic2.accessAny(this, key, mapper)
-suspend internal fun Any?.dynamicSet(key: Any?, value: Any?, mapper: ObjectMapper2) =
+internal suspend fun Any?.dynamicGet(key: Any?, mapper: ObjectMapper) = Dynamic2.accessAny(this, key, mapper)
+internal suspend fun Any?.dynamicSet(key: Any?, value: Any?, mapper: ObjectMapper) =
 	Dynamic2.setAny(this, key, value, mapper)
 
-suspend internal fun Any?.dynamicCall(vararg args: Any?, mapper: ObjectMapper2) =
+internal suspend fun Any?.dynamicCall(vararg args: Any?, mapper: ObjectMapper) =
 	Dynamic2.callAny(this, args.toList(), mapper = mapper)
 
-suspend internal fun Any?.dynamicCallMethod(methodName: Any?, vararg args: Any?, mapper: ObjectMapper2) =
+internal suspend fun Any?.dynamicCallMethod(methodName: Any?, vararg args: Any?, mapper: ObjectMapper) =
 	Dynamic2.callAny(this, methodName, args.toList(), mapper = mapper)
 //suspend internal fun Any?.dynamicCastTo(target: KClass<*>) = Dynamic2.dynamicCast(this, target)
 
