@@ -1,0 +1,14 @@
+apply plugin: 'kotlin-platform-jvm'
+
+dependencies {
+    expectedBy project(":korau-ogg-vorbis-common")
+
+    compile project(":korau-android")
+
+    compile "com.soywiz:korio-android:$korioVersion"
+    compile "com.soywiz:korma:$kormaVersion"
+}
+
+sourceSets {
+    test.resources.srcDirs += [ '../common/src/test/resources' ] // @TODO: @BUG: Hack. No common resources are copied
+}

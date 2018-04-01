@@ -1,13 +1,17 @@
 rootProject.name = 'korlibs-all'
 
 
-def registerProject1(name, desc) {
+def registerProject1(name, desc, rootPath = name) {
     include "$name-common", "$name", "$name-android", "$name-js", "$name-native"
 
-    findProject(":$name-common")?.projectDir = file("$name/$name/common")
-    findProject(":$name")?.projectDir = file("$name/$name/jvm")
-    findProject(":$name-js")?.projectDir = file("$name/$name/js")
-    //findProject(":$name-native")?.projectDir = file("$name/$name/native")
+    findProject(":$name-common")?.projectDir = file("$rootPath/$name/common")
+    findProject(":$name")?.projectDir = file("$rootPath/$name/jvm")
+    findProject(":$name-js")?.projectDir = file("$rootPath/$name/js")
+    //findProject(":$name-native")?.projectDir = file("rootPath/$name/native")
+}
+
+def registerProject2(name, rootPath, desc) {
+	registerProject1(name, desc, rootPath)
 }
 
 registerProject1('kmem', 'Kmem: Fast memory for Kotlin Common (JVM and JS) using Buffers and Typed Arrays')
@@ -19,3 +23,6 @@ registerProject1('korinject', 'Korinject: Portable Kotlin Common library to do a
 registerProject1('korio', 'Korio: Kotlin cORoutines I/O : Streams + Async TCP Client/Server + Virtual File System for JVM, Node.JS and Browser')
 registerProject1('korma', 'Korma: Math Utilities for Kotlin Common')
 registerProject1('korim', 'Kotlin cORoutines IMaging utilities for Kotlin Common')
+registerProject1('korau', 'Korau: Kotlin cORoutines AUdio')
+registerProject2('korau-mp3', 'korau', 'Korau: MP3 extension')
+registerProject2('korau-ogg-vorbis', 'korau', 'Korau: OGG Vorbis extension')

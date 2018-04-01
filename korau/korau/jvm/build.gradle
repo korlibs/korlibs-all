@@ -1,0 +1,14 @@
+apply plugin: 'kotlin-platform-jvm'
+
+dependencies {
+    expectedBy project(":korau-common")
+    testImplementation project(":korau-common")
+
+    compile project(":klogger")
+	compile project(":korio")
+	compile project(":korma")
+}
+
+sourceSets {
+    test.resources.srcDirs += [ '../common/src/test/resources' ] // @TODO: @BUG: Hack. No common resources are copied
+}

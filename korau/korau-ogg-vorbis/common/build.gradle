@@ -1,0 +1,10 @@
+apply plugin: 'kotlin-platform-common'
+
+dependencies {
+    compile project(":korau-common")
+
+    testCompile project(":korau-common")
+
+	compile project(":korio-common")
+	compile project(":korma-common")
+}
