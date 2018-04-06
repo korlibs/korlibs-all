@@ -46,6 +46,7 @@ class Indenter(private val actions: ArrayList<Action> = arrayListOf<Indenter.Act
 
 		fun single(str: String): Indenter = Indenter(arrayListOf(Action.Line(str)))
 
+		operator fun invoke(init: Indenter.() -> Unit): Indenter = gen(init)
 		operator fun invoke(str: String): Indenter = single(str)
 
 		fun replaceString(templateString: String, replacements: Map<String, String>): String {
