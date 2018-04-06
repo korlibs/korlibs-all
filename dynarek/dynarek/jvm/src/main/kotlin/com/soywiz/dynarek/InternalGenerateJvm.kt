@@ -23,6 +23,7 @@ class JvmGenerator(val log: Boolean) {
 					java.lang.Void.TYPE -> "V"
 					java.lang.Integer.TYPE -> "I"
 					java.lang.Float.TYPE -> "F"
+					java.lang.Boolean.TYPE -> "Z"
 					else -> TODO("Unknown primitive $this")
 				}
 			}
@@ -126,6 +127,21 @@ class JvmGenerator(val log: Boolean) {
 				else -> _visitVarInsn(ALOAD, aindex)
 			}
 		}
+		is DUnopBool -> {
+			when (expr.op) {
+				BUnop.NOT -> {
+					visit(expr.right)
+					val label1 = Label()
+					val label2 = Label()
+					visitJumpInsn(IFEQ, label1)
+					_visitLdcInsn(false)
+					visitJumpInsn(GOTO, label2)
+					visitLabel(label1)
+					_visitLdcInsn(true)
+					visitLabel(label2)
+				}
+			}
+		}
 		is DBinopInt -> {
 			visit(expr.left)
 			visit(expr.right)
@@ -171,10 +187,32 @@ class JvmGenerator(val log: Boolean) {
 			val label1 = Label()
 			val label2 = Label()
 			visitJumpInsn(opcode, label1)
-			_visitLdcInsn(true)
+			_visitLdcInsn(false)
 			visitJumpInsn(GOTO, label2)
 			visitLabel(label1)
+			_visitLdcInsn(true)
+			visitLabel(label2)
+		}
+		is DBinopFloatBool -> {
+			visit(expr.left)
+			visit(expr.right)
+			visitInsn(FCMPG)
+			val opcode = when (expr.op) {
+				Compop.EQ -> IFEQ
+				Compop.NE -> IFNE
+				Compop.GE -> IFGE
+				Compop.GT -> IFGT
+				Compop.LE -> IFLE
+				Compop.LT -> IFLT
+				else -> TODO("Unsupported operator ${expr.op}")
+			}
+			val label1 = Label()
+			val label2 = Label()
+			visitJumpInsn(opcode, label1)
 			_visitLdcInsn(false)
+			visitJumpInsn(GOTO, label2)
+			visitLabel(label1)
+			_visitLdcInsn(true)
 			visitLabel(label2)
 		}
 		is DFieldAccess<*, *> -> {
@@ -276,10 +314,15 @@ class JvmGenerator(val log: Boolean) {
 			val endLabel = Label()
 			visitLabel(startLabel)
 			visit(stm.cond)
-			visitJumpInsn(IFNE, endLabel)
+			visitJumpInsn(IFEQ, endLabel)
 			visit(stm.block)
 			visitJumpInsn(GOTO, startLabel)
 			visitLabel(endLabel)
+		}
+		is DReturnVoid -> {
+			//visitInsn(RETURN)
+			visitInsn(ACONST_NULL)
+			visitInsn(ARETURN)
 		}
 		else -> TODO("MethodVisitor.visit: $stm")
 	}
@@ -316,7 +359,7 @@ class JvmGenerator(val log: Boolean) {
 		}
 	}
 
-	fun <T> _generateDynarek(func: DFunction, interfaceClass: Class<T>): T {
+	fun <T> _generateDynarek(func: DFunction, interfaceClass: Class<T>): DynarekResult {
 		val nargs = func.args.size
 		val classId = dynarekLastId++
 		val cw = ClassWriter(0)
@@ -393,7 +436,11 @@ class JvmGenerator(val log: Boolean) {
 		val classBytes = cw.toByteArray()
 
 		val gclazz = createDynamicClass(ClassLoader.getSystemClassLoader(), className.replace('/', '.'), classBytes)
-		return gclazz.declaredConstructors.first().newInstance() as T
+		try {
+			return DynarekResult(classBytes, gclazz.declaredConstructors.first().newInstance())
+		} catch (e: VerifyError) {
+			throw InvalidCodeGenerated("JvmGenerator", classBytes, e)
+		}
 	}
 
 	fun createDynamicClass(parent: ClassLoader, clazzName: String, b: ByteArray): Class<*> =
@@ -405,5 +452,5 @@ class JvmGenerator(val log: Boolean) {
 }
 
 //fun <T> _generateDynarek(func: DFunction, interfaceClass: Class<T>): T = JvmGenerator(log = true)._generateDynarek(func, interfaceClass)
-fun <T> _generateDynarek(func: DFunction, interfaceClass: Class<T>): T =
+fun <T> _generateDynarek(func: DFunction, interfaceClass: Class<T>): DynarekResult =
 	JvmGenerator(log = false)._generateDynarek(func, interfaceClass)

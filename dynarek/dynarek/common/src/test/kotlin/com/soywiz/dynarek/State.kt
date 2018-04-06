@@ -11,6 +11,11 @@ data class State(
 	@JvmField
 	var f2: Float = 0f
 
+	@JvmField
+	var _f3: Float = 3f
+	@JvmField
+	var _fm2: Float = -2f
+
 	// Do not have @JvmField to use setter/getter
 	var c: Int = 0
 

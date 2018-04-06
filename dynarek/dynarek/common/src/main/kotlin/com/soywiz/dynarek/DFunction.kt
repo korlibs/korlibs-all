@@ -25,6 +25,16 @@ data class DFunction2<TRet : Any, T0 : Any, T1 : Any>(
 	override val args = listOf<DType<*>>(p0, p1)
 }
 
+data class DFunction3<TRet : Any, T0 : Any, T1 : Any, T2 : Any>(
+	override val ret: DType<TRet>,
+	val p0: DType<T0>,
+	val p1: DType<T1>,
+	val p2: DType<T2>,
+	override val body: DStm
+) : DFunction {
+	override val args = listOf<DType<*>>(p0, p1, p2)
+}
+
 //fun <TRet> function(ret: DType<TRet>, vararg args: DType<*>, block: StmBuilder<TRet, Unit, Unit, Unit, Unit>.() -> Unit): DFunction {
 //	val builder = StmBuilder<TRet, Unit, Unit, Unit, Unit>()
 //	block(builder)

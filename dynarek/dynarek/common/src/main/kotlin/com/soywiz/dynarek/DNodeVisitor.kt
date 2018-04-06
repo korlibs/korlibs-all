@@ -26,9 +26,11 @@ open class DNodeVisitor {
 		is DLiteral<*> -> visit(node)
 		is DLocal<*> -> visit(node)
 		is DArg<*> -> visit(node)
+		is DUnopBool -> visit(node)
 		is DBinopInt -> visit(node)
-		is DBinopIntBool -> visit(node)
 		is DBinopFloat -> visit(node)
+		is DBinopIntBool -> visit(node)
+		is DBinopFloatBool -> visit(node)
 		is DExprInvoke<*, *> -> visit(node)
 		is DFieldAccess<*, *> -> visit(node)
 		else -> TODO("Unsupported $node")
@@ -43,6 +45,10 @@ open class DNodeVisitor {
 	open fun visit(node: DExprInvoke<*, *>): Unit {
 		visit(node.clazz)
 		for (arg in node.args) visit(arg)
+	}
+
+	open fun visit(node: DUnopBool): Unit {
+		visit(node.right)
 	}
 
 	open fun visit(node: DBinopInt): Unit {
@@ -60,6 +66,11 @@ open class DNodeVisitor {
 		visit(node.right)
 	}
 
+	open fun visit(node: DBinopFloatBool): Unit {
+		visit(node.left)
+		visit(node.right)
+	}
+
 	open fun visit(node: DLiteral<*>): Unit {
 	}
 
@@ -73,11 +84,15 @@ open class DNodeVisitor {
 		is DWhile -> visit(node)
 		is DAssign<*> -> visit(node)
 		is DStmExpr -> visit(node)
+		is DReturnVoid -> visit(node)
 		else -> TODO("Unsupported $node")
 	}
 
 	open fun visit(node: DStmExpr): Unit {
 		visit(node.expr)
+	}
+
+	open fun visit(node: DReturnVoid): Unit {
 	}
 
 	open fun visit(node: DAssign<*>): Unit {

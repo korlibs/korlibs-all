@@ -17,6 +17,8 @@ fun _generateDynarek(nargs: Int, func: DFunction): dynamic {
 		0 -> JsFunction(body)
 		1 -> JsFunction("p0", body)
 		2 -> JsFunction("p0", "p1", body)
+		3 -> JsFunction("p0", "p1", "p2", body)
+		4 -> JsFunction("p0", "p1", "p2", "p3", body)
 		else -> TODO("Unsupported args $nargs")
 	}
 }
