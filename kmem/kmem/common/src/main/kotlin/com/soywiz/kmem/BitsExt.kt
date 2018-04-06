@@ -84,6 +84,7 @@ inline fun Int.mask(): Int = (1 shl this) - 1
 inline fun Long.mask(): Long = (1L shl this.toInt()) - 1L
 fun Int.toUInt(): Long = this.toLong() and 0xFFFFFFFFL
 fun Int.getBits(offset: Int, count: Int): Int = (this ushr offset) and count.mask()
+fun Int.getBit(offset: Int): Boolean = ((this ushr offset) and 1) != 0
 
 fun Int.extract(offset: Int, count: Int): Int = (this ushr offset) and count.mask()
 fun Int.extract(offset: Int): Boolean = ((this ushr offset) and 1) != 0
