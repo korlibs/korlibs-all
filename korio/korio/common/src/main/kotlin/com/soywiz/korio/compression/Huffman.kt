@@ -36,41 +36,24 @@ class HuffmanTree(val root: Node, val symbolLimit: Int) {
 		}
 	}
 
-	@PublishedApi internal val tempResult = Result(0, 0, 0)
+	@PublishedApi
+	internal val tempResult = Result(0, 0, 0)
 
-	//suspend inline fun readOneValue(reader: BitReader) = readOne(reader, tempResult).value
-	suspend fun readOneValue(reader: BitReader) = readOne(reader, tempResult).value
+	suspend inline fun readOneValue(reader: BitReader) = readOne(reader, tempResult).value
+	//suspend fun readOneValue(reader: BitReader) = readOne(reader, tempResult).value
 
 	companion object {
 		fun fromLengths(codeLengths: IntArray): HuffmanTree {
 			var nodes = arrayListOf<Node>()
 			for (i in (codeLengths.max() ?: 0) downTo 1) {
 				val newNodes = arrayListOf<Node>()
-				for (j in 0 until codeLengths.size) if (codeLengths[j] == i) newNodes.add(
-					Node.leaf(
-						j,
-						i
-					)
-				)
-				for (j in 0 until nodes.size step 2) newNodes.add(
-					Node.int(
-						nodes[j],
-						nodes[j + 1]
-					)
-				)
+				for (j in 0 until codeLengths.size) if (codeLengths[j] == i) newNodes.add(Node.leaf(j, i))
+				for (j in 0 until nodes.size step 2) newNodes.add(Node.int(nodes[j], nodes[j + 1]))
 				nodes = newNodes
 				if (nodes.size % 2 != 0) error("This canonical code does not represent a Huffman code tree: ${nodes.size}")
 			}
-
 			if (nodes.size != 2) error("This canonical code does not represent a Huffman code tree")
-
-			return HuffmanTree(
-				Node.int(
-					nodes[0],
-					nodes[1]
-				), codeLengths.size
-			)
-
+			return HuffmanTree(Node.int(nodes[0], nodes[1]), codeLengths.size)
 		}
 	}
 }

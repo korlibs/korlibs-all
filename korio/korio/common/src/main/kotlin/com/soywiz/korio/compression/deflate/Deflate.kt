@@ -30,25 +30,26 @@ open class Deflate(val windowBits: Int) : CompressionMethod {
 		val ring = SlidingWindow(windowBits)
 		var lastBlock = false
 		while (!lastBlock) {
-			lastBlock = reader.readBits(1) != 0
+			lastBlock = reader.readBit()
 			val btype = reader.readBits(2)
-			when (btype) {
-				0 -> uncompressBlockUncompressed(reader, out, ring)
-				1, 2 -> uncompressBlockCompressed(reader, out, ring, btype)
-				else -> error("invalid bit")
+			if (btype !in 0..2) error("invalid bit")
+			if (btype == 0) {
+				uncompressBlockUncompressed(reader, out, ring)
+			} else {
+				uncompressBlockCompressed(reader, out, ring, btype)
 			}
 		}
 	}
 
 	private suspend fun uncompressBlockCompressed(reader: BitReader, out: AsyncOutputStream, ring: SlidingWindow, btype: Int) {
 		val (tree, dist) = readTree(reader, btype)
-		var completed = false
-		while (!completed && reader.hasBitsAvailable()) {
+		while (true) {
 			val value = tree.readOneValue(reader)
-			when {
-				value < 256 -> ring.putOut(out, value.toByte())
-				value == 256 -> completed = true
-				else -> uncompressLZBlock(reader, value, ring, out, dist)
+			if (value == 256) break
+			if (value < 256) {
+				ring.putOut(out, value.toByte())
+			} else {
+				uncompressLZBlock(reader, value, ring, out, dist)
 			}
 		}
 	}
@@ -89,16 +90,22 @@ open class Deflate(val windowBits: Int) : CompressionMethod {
 		val lengths = IntArray(hlit + hdist)
 		var n = 0
 		while (n < hlit + hdist) {
-			var value = codeLen.readOneValue(reader)
-			var len = 1
-			when {
-				value < 16 -> len = 1
-				value == 16 -> run { value = lengths[n - 1]; len = reader.readBits(2) + 3 }
-				value == 17 -> run { value = 0; len = reader.readBits(3) + 3 }
-				value == 18 -> run { value = 0; len = reader.readBits(7) + 11 }
-				else -> error("Invalid")
+			val value = codeLen.readOneValue(reader)
+			if (value !in 0..18) error("Invalid")
+
+			val len = when (value) {
+				16 -> reader.readBits(2) + 3
+				17 -> reader.readBits(3) + 3
+				18 -> reader.readBits(7) + 11
+				else -> 1
 			}
-			for (c in 0 until len) lengths[n++] = value
+			val vv = when (value) {
+				16 -> lengths[n - 1]
+				17, 18 -> 0
+				else -> value
+			}
+
+			for (c in 0 until len) lengths[n++] = vv
 		}
 		return Pair(
 			HuffmanTree.fromLengths(lengths.sliceArray(0 until hlit)),

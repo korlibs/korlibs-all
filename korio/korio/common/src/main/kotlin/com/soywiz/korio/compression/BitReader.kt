@@ -18,9 +18,7 @@ open class BitReader(val s: AsyncInputWithLengthStream) {
 
 	suspend fun u8(): Int = alignbyte().s.readU8()
 
-	//suspend inline fun readBits(bitcount: Int): Int {
-	suspend fun readBits(bitcount: Int): Int {
-		if (bitcount == 0) return 0
+	suspend inline fun readBits(bitcount: Int): Int {
 		return if (this.bitsavailable >= bitcount) readBitsSure(bitcount) else ensureBits(bitcount).readBitsSure(
 			bitcount
 		)
