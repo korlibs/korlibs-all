@@ -2,6 +2,7 @@ package com.soywiz.korio.crypto
 
 import com.soywiz.kmem.*
 import com.soywiz.korio.async.*
+import com.soywiz.korio.compression.deflate.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
@@ -14,7 +15,7 @@ abstract class AsyncHash {
 		val CRC32 by lazy { CRC32Hash() }
 	}
 
-	suspend abstract fun hashSync(content: AsyncInputStream): ByteArray
+	abstract suspend fun hashSync(content: AsyncInputStream): ByteArray
 	suspend fun hashSync(content: ByteArray): ByteArray = hashSync(content.openAsync())
 	suspend fun hashSync(content: String, charset: Charset = Charsets.UTF_8): ByteArray =
 		hashSync(content.toByteArray(charset))
@@ -29,7 +30,7 @@ abstract class AsyncHash {
 	suspend fun hash(openable: AsyncInputOpenable): ByteArray = executeInWorker { hashSync(openable) }
 
 	class MessageDigestHash(val algo: String) : AsyncHash() {
-		suspend override fun hashSync(content: AsyncInputStream): ByteArray {
+		override suspend fun hashSync(content: AsyncInputStream): ByteArray {
 			val temp = ByteArray(0x1000)
 			val md = SimplerMessageDigest(algo)
 			while (true) {
@@ -42,16 +43,16 @@ abstract class AsyncHash {
 	}
 
 	class CRC32Hash : AsyncHash() {
-		suspend override fun hashSync(content: AsyncInputStream): ByteArray {
+		override suspend fun hashSync(content: AsyncInputStream): ByteArray {
 			val temp = ByteArray(0x1000)
-			val crc32 = NativeCRC32()
+			var crc32 = com.soywiz.korio.crypto.CRC32.INITIAL
 			while (true) {
 				val read = content.read(temp, 0, temp.size)
 				if (read <= 0) break
-				crc32.update(temp, 0, read)
+				crc32 = com.soywiz.korio.crypto.CRC32.update(crc32, temp, 0, read)
 			}
 			val out = ByteArray(4)
-			out.write32_le(0, crc32.digest())
+			out.write32_le(0, crc32)
 			return out
 		}
 	}

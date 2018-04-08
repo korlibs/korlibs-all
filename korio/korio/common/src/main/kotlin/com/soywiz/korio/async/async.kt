@@ -4,11 +4,12 @@ package com.soywiz.korio.async
 
 import com.soywiz.korio.*
 import com.soywiz.korio.coroutine.*
+import com.soywiz.korio.error.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.util.*
 import kotlin.coroutines.experimental.*
 
-inline suspend fun <T> suspendCoroutineEL(crossinline block: (Continuation<T>) -> Unit): T =
+suspend inline fun <T> suspendCoroutineEL(crossinline block: (Continuation<T>) -> Unit): T =
 	_korioSuspendCoroutine { c ->
 		block(c.toEventLoop())
 	}
@@ -120,6 +121,20 @@ fun syncTest(block: suspend EventLoopTest.() -> Unit): Unit = suspendTest(block)
 
 @Deprecated("", ReplaceWith("suspendTest(block)"))
 fun syncTestIgnoreJs(block: suspend EventLoopTest.() -> Unit): Unit = suspendTestIgnoreJs(block)
+
+fun <T : Any> ioSync(callback: suspend () -> T): T {
+	var completed = false
+	lateinit var result: T
+	var resultEx: Throwable? = null
+	callback.startCoroutine(object : Continuation<T> {
+		override val context: CoroutineContext = EmptyCoroutineContext
+		override fun resume(value: T) = run { result = value; completed = true }
+		override fun resumeWithException(exception: Throwable) = run { resultEx = exception; completed = true }
+	})
+	if (!completed) invalidOp("ioSync was not completed synchronously!")
+	if (resultEx != null) throw resultEx!!
+	return result
+}
 
 fun runBlocking(block: suspend EventLoopTest.() -> Unit): Unit = KorioNative.syncTest(block)
 

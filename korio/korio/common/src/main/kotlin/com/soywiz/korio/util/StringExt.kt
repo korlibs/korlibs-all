@@ -73,4 +73,5 @@ fun String.parseInt(): Int = when {
 val String.quoted: String get() = this.quote()
 
 val Int.hex: String get() = "0x%08X".format(this)
+val Int.hex32: String get() = "0x%08X".format(this)
 val ByteArray.hex: String get() = this.hexString

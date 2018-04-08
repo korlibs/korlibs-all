@@ -59,14 +59,18 @@ class AsyncThread {
 
 	suspend fun <T> queue(func: suspend () -> T): T = invoke(func)
 
-	operator suspend fun <T> invoke(func: suspend () -> T): T {
-		val ctx = getCoroutineContext()
-		val newDeferred = Promise.Deferred<T>()
-		lastPromise.always {
-			func.korioStartCoroutine(newDeferred.toContinuation(ctx))
+	suspend operator fun <T> invoke(func: suspend () -> T): T {
+		if (coroutineContext.tryEventLoop == null) {
+			return func()
+		} else {
+			val ctx = getCoroutineContext()
+			val newDeferred = Promise.Deferred<T>()
+			lastPromise.always {
+				func.korioStartCoroutine(newDeferred.toContinuation(ctx))
+			}
+			lastPromise = newDeferred.promise
+			return newDeferred.promise.await() as T
 		}
-		lastPromise = newDeferred.promise
-		return newDeferred.promise.await() as T
 	}
 
 	suspend fun <T> sync(func: suspend () -> T): Promise<T> = sync(getCoroutineContext(), func)

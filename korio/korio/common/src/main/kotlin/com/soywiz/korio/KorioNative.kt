@@ -78,13 +78,6 @@ expect object KorioNative {
 	fun log(msg: Any?)
 	fun error(msg: Any?)
 
-	suspend fun uncompressGzip(data: ByteArray): ByteArray
-	suspend fun uncompressZlib(data: ByteArray): ByteArray
-	suspend fun uncompressZlibRaw(data: ByteArray): ByteArray
-	suspend fun compressGzip(data: ByteArray, level: Int): ByteArray
-	suspend fun compressZlib(data: ByteArray, level: Int): ByteArray
-	suspend fun compressZlibRaw(data: ByteArray, level: Int): ByteArray
-
 	class SimplerMessageDigest(name: String) {
 		suspend fun update(data: ByteArray, offset: Int, size: Int): Unit
 		suspend fun digest(): ByteArray
@@ -93,24 +86,6 @@ expect object KorioNative {
 	class SimplerMac(name: String, key: ByteArray) {
 		suspend fun update(data: ByteArray, offset: Int, size: Int)
 		suspend fun finalize(): ByteArray
-	}
-
-	class NativeCRC32() {
-		fun update(data: ByteArray, offset: Int, size: Int)
-		fun digest(): Int
-	}
-
-	class Inflater(nowrap: Boolean) {
-		fun needsInput(): Boolean
-		fun setInput(buffer: ByteArray): Unit
-		fun inflate(buffer: ByteArray, offset: Int, len: Int): Int
-		fun end(): Unit
-	}
-
-	object SyncCompression {
-		fun inflate(data: ByteArray): ByteArray
-		fun inflateTo(data: ByteArray, out: ByteArray): ByteArray
-		fun deflate(data: ByteArray, level: Int): ByteArray
 	}
 
 	fun syncTest(block: suspend EventLoopTest.() -> Unit): Unit

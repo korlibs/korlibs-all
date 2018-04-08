@@ -5,6 +5,7 @@ import com.soywiz.klock.*
 import com.soywiz.kmem.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.compression.*
+import com.soywiz.korio.compression.deflate.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
 import kotlin.collections.component1
@@ -186,17 +187,21 @@ suspend fun ZipVfs(s: AsyncStream, zipFile: VfsFile? = null, caseSensitive: Bool
 				// Uncompressed
 					0 -> compressedData
 				// Deflate
-					8 -> InflateAsyncStream(compressedData, Inflater(true), uncompressedSize.toLong()).toAsyncStream()
+					8 -> UncompressAsyncStream(
+						Deflate,
+						compressedData,
+						uncompressedSize.toLong()
+					).toAsyncStream()
 					else -> TODO("Not implemented zip method ${entry.compressionMethod}")
 				}
 			}
 		}
 
-		suspend override fun stat(path: String): VfsStat {
+		override suspend fun stat(path: String): VfsStat {
 			return files[path.normalizeName()].toStat(this@Impl[path])
 		}
 
-		suspend override fun list(path: String): SuspendingSequence<VfsFile> {
+		override suspend fun list(path: String): SuspendingSequence<VfsFile> {
 			return asyncGenerate {
 				for ((name, entry) in filesPerFolder[path.normalizeName()] ?: lmapOf()) {
 					//yield(entry.toStat(this@Impl[entry.path]))
@@ -235,22 +240,3 @@ suspend fun VfsFile.openAsZip(caseSensitive: Boolean) =
 
 suspend fun AsyncStream.openAsZip() = ZipVfs(this)
 suspend fun AsyncStream.openAsZip(caseSensitive: Boolean) = ZipVfs(this, caseSensitive = caseSensitive)
-
-class InflateAsyncStream(val base: AsyncStream, val inflater: Inflater, val uncompressedSize: Long? = null) :
-	AsyncInputStream, AsyncLengthStream, AsyncCloseable {
-	suspend override fun read(buffer: ByteArray, offset: Int, len: Int): Int {
-		if (inflater.needsInput()) {
-			inflater.setInput(base.readBytes(1024))
-		}
-		return executeInWorker {
-			inflater.inflate(buffer, offset, len)
-		}
-	}
-
-	suspend override fun setLength(value: Long) = throw UnsupportedOperationException()
-	suspend override fun getLength(): Long = uncompressedSize ?: throw UnsupportedOperationException()
-
-	suspend override fun close() {
-		inflater.end()
-	}
-}

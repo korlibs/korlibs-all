@@ -2,6 +2,7 @@ package com.soywiz.korio.compression
 
 import com.soywiz.kmem.*
 import com.soywiz.korio.async.*
+import com.soywiz.korio.compression.deflate.*
 import com.soywiz.korio.crypto.*
 import kotlin.test.*
 
@@ -10,7 +11,7 @@ class CompressionTest {
 	fun name() = suspendTest {
 		val data =
 			Base64.decode("H4sIAAAAAAAAA+3SsREAEBSD4WcFm2ACTID9dxGFxgDcub/4mjQpEmdmDuYPKwsSJT3qz1KkXu7fWZMu4/IGr78AAAAAAD+a6ywcnAAQAAA=")
-		val res = Compression.uncompressGzip(data)
+		val res = data.uncompress(GZIP)
 		val res2 = res.readIntArray_le(0, 4096 / 4)
 		assertEquals(
 			"" +

@@ -168,12 +168,9 @@ class EventLoopCoroutineContext(val eventLoop: EventLoop) :
 	companion object Key : CoroutineContext.Key<EventLoopCoroutineContext>
 }
 
+val CoroutineContext.tryEventLoop: EventLoop? get() = this[EventLoopCoroutineContext.Key]?.eventLoop
 val CoroutineContext.eventLoop: EventLoop
-	get() {
-		return this[EventLoopCoroutineContext.Key]?.eventLoop
-				?: invalidOp("No EventLoop associated to this CoroutineContext")
-	}
-
+	get() = tryEventLoop ?: invalidOp("No EventLoop associated to this CoroutineContext")
 val Continuation<*>.eventLoop: EventLoop get() = this.context.eventLoop
 
 suspend fun CoroutineContext.sleep(ms: Int) = this.eventLoop.sleep(ms)

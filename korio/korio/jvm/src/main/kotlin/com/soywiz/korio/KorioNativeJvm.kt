@@ -8,7 +8,6 @@ import com.soywiz.korio.net.ws.*
 import com.soywiz.korio.vfs.*
 import java.io.*
 import java.security.*
-import java.util.zip.*
 import javax.crypto.*
 import javax.crypto.spec.*
 import kotlin.reflect.*
@@ -119,18 +118,6 @@ actual object KorioNative {
 		}
 	}
 
-	actual class NativeCRC32 {
-		val crc32 = java.util.zip.CRC32()
-
-		actual fun update(data: ByteArray, offset: Int, size: Int) {
-			crc32.update(data, offset, size)
-		}
-
-		actual fun digest(): Int {
-			return crc32.value.toInt()
-		}
-	}
-
 	actual class SimplerMessageDigest actual constructor(name: String) {
 		val md = MessageDigest.getInstance(name)
 
@@ -146,54 +133,6 @@ actual object KorioNative {
 			executeInWorker { mac.update(data, offset, size) }
 
 		actual suspend fun finalize(): ByteArray = executeInWorker { mac.doFinal() }
-	}
-
-	actual object SyncCompression {
-		actual fun inflate(data: ByteArray): ByteArray {
-			val out = ByteArrayOutputStream()
-			val s = InflaterInputStream(ByteArrayInputStream(data))
-			val temp = ByteArray(0x1000)
-			while (true) {
-				val read = s.read(temp, 0, temp.size)
-				if (read <= 0) break
-				out.write(temp, 0, read)
-			}
-			return out.toByteArray()
-		}
-
-		actual fun inflateTo(data: ByteArray, out: ByteArray): ByteArray {
-			val s = InflaterInputStream(ByteArrayInputStream(data))
-			var pos = 0
-			var remaining = out.size
-			while (true) {
-				val read = s.read(out, pos, remaining)
-				if (read <= 0) break
-				pos += read
-				remaining -= read
-			}
-			return out
-		}
-
-		actual fun deflate(data: ByteArray, level: Int): ByteArray {
-			val s = DeflaterInputStream(ByteArrayInputStream(data), Deflater(level))
-			val buffer = ByteArray((data.size * 1.1).toInt() + 1024)
-			var pos = 0
-			while (true) {
-				val read = s.read(buffer, pos, buffer.size - pos)
-				if (read <= 0) break
-				pos += read
-			}
-			return buffer.copyOf(pos)
-		}
-	}
-
-	actual class Inflater actual constructor(val nowrap: Boolean) {
-		val ji = java.util.zip.Inflater(nowrap)
-
-		actual fun needsInput(): Boolean = ji.needsInput()
-		actual fun setInput(buffer: ByteArray) = ji.setInput(buffer)
-		actual fun inflate(buffer: ByteArray, offset: Int, len: Int): Int = ji.inflate(buffer, offset, len)
-		actual fun end() = ji.end()
 	}
 
 	actual fun Thread_sleep(time: Long) = Thread.sleep(time)
@@ -221,50 +160,6 @@ actual object KorioNative {
 	actual fun printStackTrace(e: Throwable) = e.printStackTrace()
 	actual fun log(msg: Any?): Unit = java.lang.System.out.println(msg)
 	actual fun error(msg: Any?): Unit = java.lang.System.err.println(msg)
-
-	actual suspend fun uncompressGzip(data: ByteArray): ByteArray = executeInWorker {
-		val out = ByteArrayOutputStream()
-		GZIPInputStream(ByteArrayInputStream(data)).copyTo(out)
-		return@executeInWorker out.toByteArray()
-	}
-
-	actual suspend fun uncompressZlib(data: ByteArray): ByteArray = executeInWorker {
-		val out = ByteArrayOutputStream()
-		InflaterInputStream(ByteArrayInputStream(data)).copyTo(out)
-		return@executeInWorker out.toByteArray()
-	}
-
-	actual suspend fun uncompressZlibRaw(data: ByteArray): ByteArray = executeInWorker {
-		val out = ByteArrayOutputStream()
-		InflaterInputStream(ByteArrayInputStream(data), java.util.zip.Inflater(true)).copyTo(out)
-		return@executeInWorker out.toByteArray()
-	}
-
-	actual suspend fun compressGzip(data: ByteArray, level: Int): ByteArray = executeInWorker {
-		val out = ByteArrayOutputStream()
-		val out2 = GZIPOutputStream(out)
-		ByteArrayInputStream(data).copyTo(out2)
-		out2.flush()
-		return@executeInWorker out.toByteArray()
-	}
-
-	actual suspend fun compressZlib(data: ByteArray, level: Int): ByteArray = executeInWorker {
-		val out = ByteArrayOutputStream()
-		val deflater = Deflater(level)
-		val out2 = DeflaterOutputStream(out, deflater)
-		ByteArrayInputStream(data).copyTo(out2)
-		out2.flush()
-		return@executeInWorker out.toByteArray()
-	}
-
-	actual suspend fun compressZlibRaw(data: ByteArray, level: Int): ByteArray = executeInWorker {
-		val out = ByteArrayOutputStream()
-		val deflater = Deflater(level, true)
-		val out2 = DeflaterOutputStream(out, deflater)
-		ByteArrayInputStream(data).copyTo(out2)
-		out2.flush()
-		return@executeInWorker out.toByteArray()
-	}
 
 	actual fun syncTest(block: suspend EventLoopTest.() -> Unit): Unit {
 		sync(el = EventLoopTest(), step = 10, block = block)

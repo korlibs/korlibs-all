@@ -1,44 +1,50 @@
 package com.soywiz.korio.compression
 
-interface ByteReader2 {
-	val remaining: Int
-	fun readByte(): Int
-}
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.stream.*
 
-class ByteArrayByteReader2(val ba: ByteArray) : ByteReader2 {
-	var pos = 0
-	override val remaining get() = ba.size - pos
+open class BitReader(val s: AsyncInputWithLengthStream) {
+	private var offset = 0
+	private var bitdata = 0
+	private var bitsavailable = 0
 
-	override fun readByte(): Int {
-		if (remaining <= 0) error("EOF")
-		return ba[pos++].toInt() and 0xFF
-	}
-}
-
-class BitReader2(val br: ByteReader2) : ByteReader2 by br {
-	var value = 0
-	var availableBits = 0
-
-	fun discardBits() {
-		value = 0
-		availableBits = 0
+	suspend fun alignbyte() {
+		this.bitsavailable = 0
 	}
 
-	fun readBits(requiredBits: Int): Int {
-		if (requiredBits > 24) error("Unsupported reading more than 24 bits at once")
-		while (availableBits < requiredBits) {
-			val b = br.readByte()
-			value = value or (b shl availableBits)
-			availableBits += 8
+	suspend fun available() = s.getLength() - offset
+
+	suspend fun u8(): Int = s.readU8()
+
+	suspend fun readBits(bitcount: Int): Int {
+		while (bitcount > this.bitsavailable) {
+			this.bitdata = this.bitdata or (this.u8() shl this.bitsavailable)
+			this.bitsavailable += 8
 		}
-		val result = value and ((1 shl requiredBits) - 1)
-		value = value ushr requiredBits
-		availableBits -= requiredBits
-		return result
+		val readed = this.bitdata and ((1 shl bitcount) - 1)
+		this.bitdata = this.bitdata ushr bitcount
+		this.bitsavailable -= bitcount
+		return readed
 	}
-
-	fun readBitBool(): Boolean = readBits(1) != 0
 }
 
+suspend fun BitReader.u16_le(): Int = (this.u8() shl 0) or (this.u8() shl 8)
+suspend fun BitReader.u32_le(): Int = (this.u8() shl 0) or (this.u8() shl 8) or (this.u8() shl 16) or (this.u8() shl 24)
 
-////////////////////////////////////////////////////////
+suspend fun BitReader.u16_be(): Int = (this.u8() shl 8) or (this.u8() shl 0)
+suspend fun BitReader.u32_be(): Int = (this.u8() shl 24) or (this.u8() shl 16) or (this.u8() shl 8) or (this.u8() shl 0)
+
+suspend fun BitReader.readBit() = readBits(1) != 0
+suspend fun BitReader.bytes(count: Int) = ByteArray(count).apply {
+	for (n in 0 until count) this[n] = u8().toByte()
+}
+
+suspend fun BitReader.strz(): String {
+	return MemorySyncStreamToByteArray {
+		while (true) {
+			val c = u8()
+			if (c == 0) break
+			write8(c)
+		}
+	}.toString(ASCII)
+}

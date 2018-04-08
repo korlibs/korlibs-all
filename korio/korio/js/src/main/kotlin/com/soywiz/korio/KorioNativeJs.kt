@@ -12,15 +12,12 @@ import com.soywiz.korio.net.ws.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
 import com.soywiz.korio.vfs.*
-import com.soywiz.kzlib.*
 import org.khronos.webgl.*
 import org.khronos.webgl.set
 import org.w3c.dom.*
 import org.w3c.xhr.*
 import kotlin.browser.*
 import kotlin.collections.set
-import kotlin.coroutines.experimental.*
-import kotlin.math.*
 import kotlin.reflect.*
 
 actual annotation class Synchronized
@@ -134,78 +131,6 @@ actual object KorioNative {
 
 	actual fun Thread_sleep(time: Long) {}
 
-	actual class Inflater actual constructor(val nowrap: Boolean) {
-		val ji = KZlibInflater(nowrap)
-
-		actual fun needsInput(): Boolean = ji.needsInput()
-		actual fun setInput(buffer: ByteArray) = ji.setInput(buffer)
-		actual fun inflate(buffer: ByteArray, offset: Int, len: Int): Int = ji.inflate(buffer, offset, len)
-		actual fun end() = ji.end()
-	}
-
-	actual object SyncCompression {
-		val zlib by lazy { require("zlib") }
-
-		actual fun inflate(data: ByteArray): ByteArray {
-			when {
-				OS.isNodejs -> {
-					return zlib.inflateSync(data.toNodeJsBuffer()).unsafeCast<NodeJsBuffer>().toByteArray()
-				}
-				else -> {
-					val out = ByteArrayOutputStream()
-					val s = InflaterInputStream(ByteArrayInputStream(data))
-					val temp = ByteArray(0x1000)
-					while (true) {
-						val read = s.read(temp, 0, temp.size)
-						if (read <= 0) break
-						out.write(temp, 0, read)
-					}
-					return out.toByteArray()
-				}
-			}
-		}
-
-		actual fun inflateTo(data: ByteArray, out: ByteArray): ByteArray {
-			when {
-				OS.isNodejs -> {
-					val res = inflate(data)
-					arraycopy(res, 0, out, 0, min(res.size, out.size))
-					return out
-				}
-				else -> {
-					val s = InflaterInputStream(ByteArrayInputStream(data))
-					var pos = 0
-					var remaining = out.size
-					while (true) {
-						val read = s.read(out, pos, remaining)
-						if (read <= 0) break
-						pos += read
-						remaining -= read
-					}
-					return out
-				}
-			}
-		}
-
-		actual fun deflate(data: ByteArray, level: Int): ByteArray {
-			when {
-				OS.isNodejs -> {
-					return zlib.deflateSync(
-						data.toNodeJsBuffer(), jsObject(
-							"level" to level
-						)
-					).unsafeCast<NodeJsBuffer>().toByteArray()
-				}
-				else -> {
-					val o = ByteArrayOutputStream()
-					val out = DeflaterOutputStream(o, Deflater(level))
-					out.write(data)
-					return o.toByteArray()
-				}
-			}
-		}
-	}
-
 	actual class SimplerMessageDigest actual constructor(name: String) {
 		val nname = name.toLowerCase().replace("-", "")
 		val hname: String = when (nname) {
@@ -239,12 +164,6 @@ actual object KorioNative {
 		actual suspend fun finalize(): ByteArray = Hex.decode(hmac.digest("hex"))
 	}
 
-	actual class NativeCRC32 {
-		val crc = CRC32()
-		actual fun update(data: ByteArray, offset: Int, size: Int): Unit = crc.update(data, offset, size)
-		actual fun digest(): Int = crc.value
-	}
-
 	actual val httpFactory: HttpFactory by lazy {
 		object : HttpFactory {
 			override fun createClient(): HttpClient = if (OS.isNodejs) HttpClientNodeJs() else HttpClientBrowserJs()
@@ -273,137 +192,6 @@ actual object KorioNative {
 
 	actual fun error(msg: Any?): Unit {
 		console.error(msg)
-	}
-
-	val zlib by lazy { require("zlib") }
-
-	suspend actual fun uncompressGzip(data: ByteArray): ByteArray = suspendCoroutine { c ->
-		when {
-			OS.isNodejs -> {
-				zlib.gunzip(data.toNodeJsBuffer()) { error, data ->
-					if (error != null) {
-						c.resumeWithException(error)
-					} else {
-						c.resume(data.unsafeCast<NodeJsBuffer>().toByteArray())
-					}
-				}
-			}
-			else -> {
-				// Browser
-				val out = ByteArrayOutputStream()
-				GZIPInputStream(ByteArrayInputStream(data)).copyTo(out)
-				c.resume(out.toByteArray())
-			}
-		}
-		Unit
-	}
-
-	suspend actual fun uncompressZlib(data: ByteArray): ByteArray = suspendCoroutine { c ->
-		when {
-			OS.isNodejs -> {
-				zlib.inflate(data.toNodeJsBuffer()) { error, data ->
-					if (error != null) {
-						c.resumeWithException(error)
-					} else {
-						c.resume(data.unsafeCast<NodeJsBuffer>().toByteArray())
-					}
-				}
-			}
-			else -> {
-				val out = ByteArrayOutputStream()
-				InflaterInputStream(ByteArrayInputStream(data)).copyTo(out)
-				c.resume(out.toByteArray())
-			}
-		}
-		Unit
-	}
-
-	suspend actual fun uncompressZlibRaw(data: ByteArray): ByteArray = suspendCoroutine { c ->
-		when {
-			OS.isNodejs -> {
-				zlib.inflateRaw(data.toNodeJsBuffer()) { error, data ->
-					if (error != null) {
-						c.resumeWithException(error)
-					} else {
-						c.resume(data.unsafeCast<NodeJsBuffer>().toByteArray())
-					}
-				}
-			}
-			else -> {
-				val out = ByteArrayOutputStream()
-				InflaterInputStream(ByteArrayInputStream(data), nowrap = true).copyTo(out)
-				c.resume(out.toByteArray())
-			}
-		}
-		Unit
-	}
-
-	suspend actual fun compressGzip(data: ByteArray, level: Int): ByteArray = suspendCoroutine { c ->
-		when {
-			OS.isNodejs -> {
-				zlib.gzip(data.toNodeJsBuffer()) { error, data ->
-					if (error != null) {
-						c.resumeWithException(error)
-					} else {
-						c.resume(data.unsafeCast<NodeJsBuffer>().toByteArray())
-					}
-				}
-			}
-			else -> {
-				val out = ByteArrayOutputStream()
-				val out2 = GZIPOutputStream(out)
-				ByteArrayInputStream(data).copyTo(out2)
-				out2.flush()
-				c.resume(out.toByteArray())
-			}
-		}
-		Unit
-	}
-
-	suspend actual fun compressZlib(data: ByteArray, level: Int): ByteArray = suspendCoroutine { c ->
-		when {
-			OS.isNodejs -> {
-				zlib.deflate(data.toNodeJsBuffer()) { error, data ->
-					if (error != null) {
-						c.resumeWithException(error)
-					} else {
-						c.resume(data.unsafeCast<NodeJsBuffer>().toByteArray())
-					}
-				}
-			}
-			else -> {
-				val out = ByteArrayOutputStream()
-				val deflater = Deflater(level)
-				val out2 = DeflaterOutputStream(out, deflater)
-				ByteArrayInputStream(data).copyTo(out2)
-				out2.flush()
-				c.resume(out.toByteArray())
-			}
-		}
-		Unit
-	}
-
-	suspend actual fun compressZlibRaw(data: ByteArray, level: Int): ByteArray = suspendCoroutine { c ->
-		when {
-			OS.isNodejs -> {
-				zlib.deflateRaw(data.toNodeJsBuffer()) { error, data ->
-					if (error != null) {
-						c.resumeWithException(error)
-					} else {
-						c.resume(data.unsafeCast<NodeJsBuffer>().toByteArray())
-					}
-				}
-			}
-			else -> {
-				val out = ByteArrayOutputStream()
-				val deflater = Deflater(level, true)
-				val out2 = DeflaterOutputStream(out, deflater)
-				ByteArrayInputStream(data).copyTo(out2)
-				out2.flush()
-				c.resume(out.toByteArray())
-			}
-		}
-		Unit
 	}
 
 	actual fun syncTest(block: suspend EventLoopTest.() -> Unit): Unit {
@@ -758,59 +546,5 @@ class CRC32 {
 				arraycopy(crc_table, 0, tmp, 0, tmp.size)
 				return tmp
 			}
-	}
-}
-
-class KZlibInflater(private var nowrap: Boolean = false) {
-	private var inf: Inflater? = Inflater(nowrap)
-	private var needDict: Boolean = false
-	var bytesRead: Long = 0; private set
-	var bytesWritten: Long = 0; private set
-
-	//System.out.println("getRemaining()=" + inf.getAvailIn());
-	val remaining: Int get() = inf!!.avail_in
-	val adler: Int get() = inf!!.getAdler()
-	val totalIn: Int get() = bytesRead.toInt()
-	val totalOut: Int get() = bytesWritten.toInt()
-	fun setInput(b: ByteArray, off: Int = 0, len: Int = b.size) = run { inf!!.setInput(b, off, len, true) }
-	fun setDictionary(b: ByteArray, off: Int = 0, len: Int = b.size) =
-		run { inf!!.setDictionary(b, off, len); needDict = false }
-
-	fun needsInput(): Boolean = remaining <= 0
-	fun needsDictionary(): Boolean = needDict
-	fun finished(): Boolean = inf!!.finished()
-
-	fun inflate(b: ByteArray, off: Int = 0, len: Int = b.size): Int {
-		val instart = inf!!.total_in
-		inf!!.setOutput(b, off, len)
-
-		val outstart = inf!!.total_out
-		//inf.inflate(len);
-		val err = inf!!.inflate(JZlib.Z_NO_FLUSH)
-		val outend = inf!!.total_out
-		val inend = inf!!.total_in
-
-		//System.out.println("inflate: " + instart + "/" + inend + " || " + outstart + "/" + outend);
-
-		val n = (outend - outstart).toInt()
-		bytesWritten += n.toLong()
-		bytesRead += (inend - instart).toInt().toLong()
-		return n
-	}
-
-	fun reset() {
-		inf!!.free()
-		inf!!.init(nowrap)
-		needDict = true
-		bytesRead = 0
-		bytesWritten = 0
-	}
-
-	fun end() {
-		//inf.inflateEnd()
-		inf!!.end()
-		needDict = true
-		bytesRead = 0
-		bytesWritten = 0
 	}
 }

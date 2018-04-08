@@ -3,7 +3,8 @@ package com.soywiz.korim.format
 import com.soywiz.kmem.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
-import com.soywiz.korio.KorioNative.SyncCompression
+import com.soywiz.korio.compression.*
+import com.soywiz.korio.compression.deflate.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
@@ -129,7 +130,7 @@ object PNG : ImageFormat("png") {
 				out.write32_be(pos + 0, adler32.value.toInt())
 				return out
 			} else {
-				return SyncCompression.deflate(data, level)
+				return data.syncCompressZlibRaw(level)
 			}
 		}
 
@@ -268,7 +269,7 @@ object PNG : ImageFormat("png") {
 
 		val datab = ByteArray((1 + width) * height * header.bytes)
 
-		SyncCompression.inflateTo(pngdata.toByteArray(), datab)
+		pngdata.toByteArray().syncUncompressTo(RawInflater, datab)
 
 		val data = datab.openSync()
 		val context = DecodingContext(header)

@@ -51,6 +51,12 @@ interface AsyncLengthStream : AsyncGetLengthStream {
 interface AsyncPositionLengthStream : AsyncPositionStream, AsyncLengthStream {
 }
 
+interface AsyncInputWithLengthStream : AsyncInputStream, AsyncGetPositionStream, AsyncGetLengthStream {
+}
+
+suspend fun AsyncInputWithLengthStream.getAvailable() = this.getLength() - this.getPosition()
+suspend fun AsyncInputWithLengthStream.hasAvailable() = getAvailable() > 0
+
 interface AsyncRAInputStream {
 	suspend fun read(position: Long, buffer: ByteArray, offset: Int, len: Int): Int
 }
@@ -114,8 +120,8 @@ open class AsyncStreamBase : AsyncCloseable, AsyncRAInputStream, AsyncRAOutputSt
 fun AsyncStreamBase.toAsyncStream(position: Long = 0L): AsyncStream = AsyncStream(this, position)
 
 class AsyncStream(val base: AsyncStreamBase, var position: Long = 0L) : Extra by Extra.Mixin(), AsyncInputStream,
-	AsyncOutputStream, AsyncPositionLengthStream, AsyncCloseable {
-	// NOTE: Sharing queue would hang writting on hang read
+	AsyncInputWithLengthStream, AsyncOutputStream, AsyncPositionLengthStream, AsyncCloseable {
+	// NOTE: Sharing queue would hang writing on hang read
 	//private val ioQueue = AsyncThread()
 	//private val readQueue = ioQueue
 	//private val writeQueue = ioQueue
@@ -123,29 +129,29 @@ class AsyncStream(val base: AsyncStreamBase, var position: Long = 0L) : Extra by
 	private val readQueue = AsyncThread()
 	private val writeQueue = AsyncThread()
 
-	suspend override fun read(buffer: ByteArray, offset: Int, len: Int): Int = readQueue {
+	override suspend fun read(buffer: ByteArray, offset: Int, len: Int): Int = readQueue {
 		//suspend override fun read(buffer: ByteArray, offset: Int, len: Int): Int {
 		val read = base.read(position, buffer, offset, len)
 		if (read >= 0) position += read
 		read
 	}
 
-	suspend override fun write(buffer: ByteArray, offset: Int, len: Int): Unit = writeQueue {
+	override suspend fun write(buffer: ByteArray, offset: Int, len: Int): Unit = writeQueue {
 		//suspend override fun write(buffer: ByteArray, offset: Int, len: Int): Unit {
 		base.write(position, buffer, offset, len)
 		position += len
 	}
 
-	suspend override fun setPosition(value: Long): Unit = run { this.position = value }
-	suspend override fun getPosition(): Long = this.position
-	suspend override fun setLength(value: Long): Unit = base.setLength(value)
-	suspend override fun getLength(): Long = base.getLength()
+	override suspend fun setPosition(value: Long): Unit = run { this.position = value }
+	override suspend fun getPosition(): Long = this.position
+	override suspend fun setLength(value: Long): Unit = base.setLength(value)
+	override suspend fun getLength(): Long = base.getLength()
 	suspend fun size(): Long = base.getLength()
 
 	suspend fun getAvailable(): Long = getLength() - getPosition()
 	suspend fun eof(): Boolean = this.getAvailable() <= 0L
 
-	suspend override fun close(): Unit = base.close()
+	override suspend fun close(): Unit = base.close()
 
 	@Deprecated("Use synchronous duplicate instead", ReplaceWith("duplicate()"))
 	suspend fun clone(): AsyncStream = duplicate()
