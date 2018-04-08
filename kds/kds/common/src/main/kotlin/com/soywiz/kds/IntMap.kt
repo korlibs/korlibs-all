@@ -124,6 +124,10 @@ class IntMap<T> private constructor(private var nbits: Int, private val loadFact
 	private fun hash2(key: Int) = (key * (-0x12477ce0)) and mask
 	private fun hash3(key: Int) = (key * (-1262997959)) and mask
 
+	fun removeRange(src: Int, dst: Int): Unit {
+		for (n in _keys.indices) if (_keys[n] in src..dst) _values[n] = null
+	}
+
 	data class Entry<T>(var key: Int, var value: T?)
 
 	val keys get() = KeyIterable()

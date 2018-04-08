@@ -30,93 +30,82 @@ open class Deflate(val windowBits: Int) : CompressionMethod {
 		val ring = SlidingWindow(windowBits)
 		var lastBlock = false
 		while (!lastBlock) {
-			reader.ensureBits(3)
-			lastBlock = reader.readBitsSure(1) != 0
-			val btype = reader.readBitsSure(2)
-			debug { "LAST_BLOCK: $lastBlock" }
-			debug { "BTYPE: $btype" }
+			lastBlock = reader.readBits(1) != 0
+			val btype = reader.readBits(2)
 			when (btype) {
-				0 -> {
-					reader.alignbyte()
-					val len = reader.u16_le()
-					val nlen = reader.u16_le()
-					val nnlen = nlen.inv() and 0xFFFF
-					debug { "UNCOMPRESSED: $len" }
-					if (len != nnlen) error("Invalid file: len($len) != ~nlen($nnlen) :: nlen=$nlen")
-					ring.putOut(out, reader.alignbyte().s.readBytesExact(len), 0, len)
-				}
-				1, 2 -> {
-					val tree: HuffmanTree
-					val dist: HuffmanTree
-					if (btype == 1) {
-						debug { "HUFFMAN_FIXED" }
-						tree = FIXED_TREE
-						dist = FIXED_DIST
-					} else {
-						debug { "HUFFMAN_DYNAMIC" }
-						val hclenpos = HCLENPOS
-						reader.ensureBits(5 + 5 + 4)
-						val hlit = reader.readBitsSure(5) + 257
-						val hdist = reader.readBitsSure(5) + 1
-						val hclen = reader.readBitsSure(4) + 4
-						val codeLenCodeLen = IntArray(19)
-						for (i in 0 until hclen) {
-							reader.ensureBits(3)
-							codeLenCodeLen[hclenpos[i]] = reader.readBitsSure(3)
-						}
-						//console.info(codeLenCodeLen);
-						val codeLen = HuffmanTree.fromLengths(codeLenCodeLen)
-						val lengths = IntArray(hlit + hdist)
-						var n = 0
-						while (n < hlit + hdist) {
-							var value = codeLen.readOneValue(reader)
-							var len = 1
-							when {
-								value < 16 -> len = 1
-								value == 16 -> run { value = lengths[n - 1]; len = reader.readBits(2) + 3 }
-								value == 17 -> run { value = 0; len = reader.readBits(3) + 3 }
-								value == 18 -> run { value = 0; len = reader.readBits(7) + 11 }
-								else -> error("Invalid")
-							}
-							for (c in 0 until len) lengths[n++] = value
-						}
-						tree = HuffmanTree.fromLengths(lengths.sliceArray(0 until hlit))
-						dist = HuffmanTree.fromLengths(lengths.sliceArray(hlit until lengths.size))
-					}
-					var completed = false
-					while (!completed && reader.hasBitsAvailable()) {
-						val value = tree.readOneValue(reader)
-						when {
-							value < 256 -> {
-								debug { "$value" }
-								ring.putOut(out, value.toByte())
-							}
-							value == 256 -> {
-								completed = true
-							}
-							else -> {
-								val lengthInfo = INFOS_LZ[value - 257]
-								val lengthExtra = reader.readBits(lengthInfo.extra)
-								val distanceData = dist.readOneValue(reader)
-								val distanceInfo = INFOS_LZ2[distanceData]
-								val distanceExtra = reader.readBits(distanceInfo.extra)
-								val distance = distanceInfo.offset + distanceExtra
-								val length = lengthInfo.offset + lengthExtra
-								ring.getPutCopyOut(out, distance, length)
-							}
-						}
-					}
-				}
-				3 -> {
-					error("invalid bit")
-				}
+				0 -> uncompressBlockUncompressed(reader, out, ring)
+				1, 2 -> uncompressBlockCompressed(reader, out, ring, btype)
+				else -> error("invalid bit")
 			}
 		}
 	}
 
-	private inline fun debug(callback: () -> String) {
-		//println(callback())
+	private suspend fun uncompressBlockCompressed(reader: BitReader, out: AsyncOutputStream, ring: SlidingWindow, btype: Int) {
+		val (tree, dist) = readTree(reader, btype)
+		var completed = false
+		while (!completed && reader.hasBitsAvailable()) {
+			val value = tree.readOneValue(reader)
+			when {
+				value < 256 -> ring.putOut(out, value.toByte())
+				value == 256 -> completed = true
+				else -> uncompressLZBlock(reader, value, ring, out, dist)
+			}
+		}
 	}
+
+	private suspend fun uncompressLZBlock(reader: BitReader, value: Int, ring: SlidingWindow, out: AsyncOutputStream, dist: HuffmanTree) {
+		val lengthInfo = INFOS_LZ[value - 257]
+		val lengthExtra = reader.readBits(lengthInfo.extra)
+		val distanceData = dist.readOneValue(reader)
+		val distanceInfo = INFOS_LZ2[distanceData]
+		val distanceExtra = reader.readBits(distanceInfo.extra)
+		val distance = distanceInfo.offset + distanceExtra
+		val length = lengthInfo.offset + lengthExtra
+		ring.getPutCopyOut(out, distance, length)
+	}
+
+	private suspend fun uncompressBlockUncompressed(reader: BitReader, out: AsyncOutputStream, ring: SlidingWindow) {
+		reader.alignbyte()
+		val len = reader.u16_le()
+		val nlen = reader.u16_le()
+		val nnlen = nlen.inv() and 0xFFFF
+		if (len != nnlen) error("Invalid deflate stream: len($len) != ~nlen($nnlen) :: nlen=$nlen")
+		ring.putOut(out, reader.alignbyte().s.readBytesExact(len), 0, len)
+	}
+
+	private suspend fun readTree(reader: BitReader, btype: Int): Pair<HuffmanTree, HuffmanTree> {
+		return if (btype == 1) FIXED_TREE_DIST else readDynamicTree(reader)
+	}
+
+	private suspend fun readDynamicTree(reader: BitReader): Pair<HuffmanTree, HuffmanTree> {
+		val hclenpos = HCLENPOS
+		val hlit = reader.readBits(5) + 257
+		val hdist = reader.readBits(5) + 1
+		val hclen = reader.readBits(4) + 4
+		val codeLenCodeLen = IntArray(19)
+		for (i in 0 until hclen) codeLenCodeLen[hclenpos[i]] = reader.readBits(3)
+		//console.info(codeLenCodeLen);
+		val codeLen = HuffmanTree.fromLengths(codeLenCodeLen)
+		val lengths = IntArray(hlit + hdist)
+		var n = 0
+		while (n < hlit + hdist) {
+			var value = codeLen.readOneValue(reader)
+			var len = 1
+			when {
+				value < 16 -> len = 1
+				value == 16 -> run { value = lengths[n - 1]; len = reader.readBits(2) + 3 }
+				value == 17 -> run { value = 0; len = reader.readBits(3) + 3 }
+				value == 18 -> run { value = 0; len = reader.readBits(7) + 11 }
+				else -> error("Invalid")
+			}
+			for (c in 0 until len) lengths[n++] = value
+		}
+		return Pair(
+			HuffmanTree.fromLengths(lengths.sliceArray(0 until hlit)),
+			HuffmanTree.fromLengths(lengths.sliceArray(hlit until lengths.size))
+		)
+	}
+
 
 	companion object : Deflate(15) {
 		private data class Info(val extra: Int, val offset: Int)
@@ -133,6 +122,8 @@ open class Deflate(val windowBits: Int) : CompressionMethod {
 		// https://www.ietf.org/rfc/rfc1951.txt
 		private val FIXED_TREE: HuffmanTree by lazy { HuffmanTree.fromLengths(LENGTH0) }
 		private val FIXED_DIST: HuffmanTree by lazy { HuffmanTree.fromLengths(IntArray(32) { 5 }) }
+
+		private val FIXED_TREE_DIST = FIXED_TREE to FIXED_DIST
 
 		private val INFOS_LZ = arrayOf(
 			Info(0, 3), Info(0, 4), Info(0, 5), Info(0, 6),

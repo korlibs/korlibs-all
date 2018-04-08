@@ -1,14 +1,14 @@
 package com.soywiz.korio.compression
 
-import com.soywiz.kmem.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 
 open class BitReader(val s: AsyncInputWithLengthStream) {
 	private var bitdata = 0
-	@PublishedApi internal var bitsavailable = 0
+	@PublishedApi
+	internal var bitsavailable = 0
 
-	suspend fun alignbyte(): BitReader {
+	fun alignbyte(): BitReader {
 		this.bitsavailable = 0
 		return this
 	}
@@ -18,8 +18,11 @@ open class BitReader(val s: AsyncInputWithLengthStream) {
 
 	suspend fun u8(): Int = alignbyte().s.readU8()
 
-	suspend inline fun readBits(bitcount: Int): Int {
-		return if (this.bitsavailable >= bitcount) readBitsSure(bitcount) else ensureBits(bitcount).readBitsSure(bitcount)
+	//suspend inline fun readBits(bitcount: Int): Int {
+	suspend fun readBits(bitcount: Int): Int {
+		return if (this.bitsavailable >= bitcount) readBitsSure(bitcount) else ensureBits(bitcount).readBitsSure(
+			bitcount
+		)
 	}
 
 	fun readBitsSure(bitcount: Int): Int {
@@ -40,7 +43,7 @@ open class BitReader(val s: AsyncInputWithLengthStream) {
 
 suspend fun BitReader.u16_le(): Int = alignbyte().s.readU16_le()
 suspend fun BitReader.u32_le(): Int = alignbyte().s.readS32_le()
-suspend fun BitReader.u32_be(): Int = u32_le().reverseBytes()
+suspend fun BitReader.u32_be(): Int = alignbyte().s.readS32_be()
 
 suspend fun BitReader.readBit() = readBits(1) != 0
 suspend fun BitReader.bytes(count: Int) = ByteArray(count).apply {

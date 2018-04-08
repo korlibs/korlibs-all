@@ -36,6 +36,12 @@ class ImageFormats2Test {
 	}
 
 	@Test
+	fun lucida_console32_png() = imgTest {
+		val bitmap = root["lucida_console32.png"].readBitmapNoNative(formats)
+		assertEquals("Bitmap8(576, 512, palette=256)", bitmap.toString())
+	}
+
+	@Test
 	@Ignore
 	fun mipmaps() = imgTest {
 		val bitmap = root["kotlin24.png"].readBitmapNoNative(formats)

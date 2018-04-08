@@ -1,33 +1,13 @@
-package com.soywiz.korge
+package com.soywiz.korge.scene
 
-import com.soywiz.korim.bitmap.*
-import com.soywiz.korim.font.*
-import com.soywiz.korim.format.*
-import com.soywiz.korio.async.*
+import com.soywiz.korge.bitmapfont.*
+import com.soywiz.korge.scene.DebugBitmapFont.bmpFontOnce
+import com.soywiz.korge.view.*
 import com.soywiz.korio.crypto.*
 import com.soywiz.korio.util.*
-import com.soywiz.korma.geom.*
 
 object DebugBitmapFont {
-	private val getDEBUG_BMP_FONTOnce = AsyncOnce<BitmapFont>()
-	private val getDEBUG_FONT_BMPOnce = AsyncOnce<NativeImage>()
-
-	suspend fun getDEBUG_BMP_FONT(): BitmapFont {
-		return getDEBUG_BMP_FONTOnce {
-			val fntAdvance = 7
-			val fntWidth = 8
-			val fntHeight = 8
-			BitmapFont(getDEBUG_FONT_BMP(), fntHeight, fntHeight, (0 until 256).map {
-				val x = it % 16
-				val y = it / 16
-				BitmapFont.GlyphInfo(it, RectangleInt(x * fntWidth, y * fntHeight, fntWidth, fntHeight), fntAdvance)
-			})
-		}
-	}
-
-	suspend fun getDEBUG_FONT_BMP(): Bitmap32 {
-		return NativeImageFormatProvider.decode(DEBUG_FONT_BYTES).toBmp32()
-	}
+	var bmpFontOnce = AsyncOnce<BitmapFont>()
 
 	val DEBUG_FONT_BYTES by lazy {
 		Base64.decode(
@@ -75,3 +55,16 @@ object DebugBitmapFont {
 		)
 	}
 }
+
+suspend fun Scene.getDebugBmpFontOnce() = bmpFontOnce {
+	val tex = this.views.texture(DebugBitmapFont.DEBUG_FONT_BYTES, mipmaps = false)
+	val fntAdvance = 7
+	val fntWidth = 8
+	val fntHeight = 8
+	BitmapFont(views.ag, fntHeight, (0 until 256).associate {
+		val x = it % 16
+		val y = it / 16
+		it to BitmapFont.Glyph(it, tex.slice(x * fntWidth, y * fntHeight, fntWidth, fntHeight), 0, 0, fntAdvance)
+	}, mapOf())
+}
+

@@ -13,6 +13,7 @@ import com.soywiz.korge.render.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
 import com.soywiz.korim.font.*
+import com.soywiz.korim.format.*
 import com.soywiz.korinject.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.lang.*
@@ -263,6 +264,10 @@ inline fun Container.container(callback: Container.() -> Unit): Container {
 
 fun Views.texture(bmp: Bitmap, mipmaps: Boolean = false): Texture {
 	return Texture(Texture.Base(ag.createTexture(bmp, mipmaps), bmp.width, bmp.height))
+}
+
+suspend fun Views.texture(bmp: ByteArray, mipmaps: Boolean = false): Texture {
+	return texture(NativeImageFormatProvider.decode(bmp), mipmaps)
 }
 
 interface ViewsContainer {

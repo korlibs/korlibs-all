@@ -37,7 +37,9 @@ class HuffmanTree(val root: Node, val symbolLimit: Int) {
 	}
 
 	@PublishedApi internal val tempResult = Result(0, 0, 0)
-	suspend inline fun readOneValue(reader: BitReader) = readOne(reader, tempResult).value
+
+	//suspend inline fun readOneValue(reader: BitReader) = readOne(reader, tempResult).value
+	suspend fun readOneValue(reader: BitReader) = readOne(reader, tempResult).value
 
 	companion object {
 		fun fromLengths(codeLengths: IntArray): HuffmanTree {
