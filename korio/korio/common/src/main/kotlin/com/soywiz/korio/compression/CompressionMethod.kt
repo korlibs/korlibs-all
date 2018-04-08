@@ -3,14 +3,26 @@ package com.soywiz.korio.compression
 import com.soywiz.korio.error.*
 import com.soywiz.korio.stream.*
 
-interface CompressionMethod {
-	suspend fun uncompress(i: AsyncInputWithLengthStream, o: AsyncOutputStream): Unit = unsupported()
-	suspend fun compress(i: AsyncInputWithLengthStream, o: AsyncOutputStream): Unit = unsupported()
+class CompressionContext(var level: Int = 6) {
+	var name: String? = null
+	var custom: Any? = null
 }
 
-suspend fun CompressionMethod.compress(data: ByteArray): ByteArray {
+interface CompressionMethod {
+	suspend fun uncompress(i: AsyncInputWithLengthStream, o: AsyncOutputStream): Unit = unsupported()
+	suspend fun compress(
+		i: AsyncInputWithLengthStream,
+		o: AsyncOutputStream,
+		context: CompressionContext = CompressionContext(level = 6)
+	): Unit = unsupported()
+}
+
+suspend fun CompressionMethod.compress(
+	data: ByteArray,
+	context: CompressionContext = CompressionContext(level = 6)
+): ByteArray {
 	return MemorySyncStreamToByteArray {
-		compress(data.openAsync(), this.toAsync())
+		compress(data.openAsync(), this.toAsync(), context)
 	}
 }
 

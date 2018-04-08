@@ -339,10 +339,10 @@ suspend fun AsyncInputStream.readExact(buffer: ByteArray, offset: Int, len: Int)
 //suspend private fun AsyncInputStream.readSmallTempExact(len: Int, temp: ByteArray): ByteArray = temp.apply { readExact(temp, 0, len) }
 //suspend private fun AsyncInputStream.readSmallTempExact(len: Int): ByteArray = readSmallTempExact(len, READ_SMALL_TEMP)
 
-suspend private fun AsyncInputStream.readSmallTempExact(len: Int): ByteArray = readBytesExact(len)
+private suspend fun AsyncInputStream.readSmallTempExact(len: Int): ByteArray = readBytesExact(len)
 
 
-suspend private fun AsyncInputStream.readTempExact(len: Int, temp: ByteArray): ByteArray =
+private suspend fun AsyncInputStream.readTempExact(len: Int, temp: ByteArray): ByteArray =
 	temp.apply { readExact(temp, 0, len) }
 //suspend private fun AsyncInputStream.readTempExact(len: Int): ByteArray = readTempExact(len, BYTES_TEMP)
 

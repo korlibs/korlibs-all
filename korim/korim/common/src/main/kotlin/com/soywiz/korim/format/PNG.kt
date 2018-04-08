@@ -5,6 +5,7 @@ import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
 import com.soywiz.korio.compression.*
 import com.soywiz.korio.compression.deflate.*
+import com.soywiz.korio.crypto.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
@@ -79,6 +80,9 @@ object PNG : ImageFormat("png") {
 		null
 	}
 
+	//private val method = Deflate
+	private val method = ZLib
+
 	override fun writeImage(image: ImageData, s: SyncStream, props: ImageEncodingProps) {
 		val bitmap = image.mainBitmap
 		val width = bitmap.width
@@ -89,14 +93,14 @@ object PNG : ImageFormat("png") {
 		fun writeChunk(name: String, data: ByteArray) {
 			val nameBytes = name.toByteArray().copyOf(4)
 
-			val crc = CRC32()
-			crc.update(nameBytes)
-			crc.update(data)
+			var crc = CRC32.INITIAL
+			crc = CRC32.update(crc, nameBytes)
+			crc = CRC32.update(crc, data)
 
 			s.write32_be(data.size)
 			s.writeBytes(nameBytes)
 			s.writeBytes(data)
-			s.write32_be(crc.value.toInt()) // crc32!
+			s.write32_be(crc) // crc32!
 		}
 
 		val level = props.quality.convertRangeClamped(0.0, 1.0, 0.0, 9.0).toInt()
@@ -104,7 +108,7 @@ object PNG : ImageFormat("png") {
 		fun compress(data: ByteArray): ByteArray {
 			if (level == 0) {
 				//if (false) {
-				val adler32 = Adler32()
+				var adler32 = Adler32.INITIAL
 				//if (false) {
 				//val data = ByteArray(0x15)
 				val blocks = ceil(data.size.toDouble() / 0xFFFF.toDouble()).toInt()
@@ -126,11 +130,11 @@ object PNG : ImageFormat("png") {
 				}
 
 				//adler32.update(out, 0, pos)
-				adler32.update(data, 0, data.size)
-				out.write32_be(pos + 0, adler32.value.toInt())
+				adler32 = Adler32.update(adler32, data, 0, data.size)
+				out.write32_be(pos + 0, adler32)
 				return out
 			} else {
-				return data.syncCompressZlibRaw(level)
+				return data.syncCompress(method, CompressionContext(level = level))
 			}
 		}
 
@@ -269,7 +273,7 @@ object PNG : ImageFormat("png") {
 
 		val datab = ByteArray((1 + width) * height * header.bytes)
 
-		pngdata.toByteArray().syncUncompressTo(RawInflater, datab)
+		pngdata.toByteArray().syncUncompressTo(method, datab)
 
 		val data = datab.openSync()
 		val context = DecodingContext(header)
@@ -368,213 +372,5 @@ object PNG : ImageFormat("png") {
 			}
 			else -> TODO("Filter: $filter")
 		}
-	}
-}
-
-class Adler32 {
-
-	private var s1 = 1
-	private var s2 = 0
-
-	val value: Int
-		get() = s2 shl 16 or s1
-
-	fun reset(init: Int) {
-		s1 = init shr 0 and 0xffff
-		s2 = init shr 16 and 0xffff
-	}
-
-	fun reset() {
-		s1 = 1
-		s2 = 0
-	}
-
-	fun update(buf: ByteArray, index: Int, len: Int) {
-		var index = index
-		var len = len
-		if (len == 1) {
-			s1 += buf[index++].toInt() and 0xff
-			s2 += s1
-			s1 %= BASE
-			s2 %= BASE
-			return
-		}
-
-		var len1 = len / NMAX
-		val len2 = len % NMAX
-		while (len1-- > 0) {
-			var k = NMAX
-			len -= k
-			while (k-- > 0) {
-				s1 += buf[index++].toInt() and 0xff
-				s2 += s1
-			}
-			s1 %= BASE
-			s2 %= BASE
-		}
-
-		var k = len2
-		len -= k
-		while (k-- > 0) {
-			s1 += buf[index++].toInt() and 0xff
-			s2 += s1
-		}
-		s1 %= BASE
-		s2 %= BASE
-	}
-
-	fun copy(): Adler32 {
-		val foo = Adler32()
-		foo.s1 = this.s1
-		foo.s2 = this.s2
-		return foo
-	}
-
-	companion object {
-		// largest prime smaller than 65536
-		private val BASE = 65521
-		// NMAX is the largest n such that 255n(n+1)/2 + (n+1)(BASE-1) <= 2^32-1
-		private val NMAX = 5552
-
-		// The following logic has come from zlib.1.2.
-		internal fun combine(adler1: Long, adler2: Long, len2: Long): Long {
-			val BASEL = BASE.toLong()
-			val rem: Long = len2 % BASEL
-			var sum1: Long = adler1 and 0xffffL
-			var sum2: Long = rem * sum1
-			sum2 %= BASEL // MOD(sum2);
-			sum1 += (adler2 and 0xffffL) + BASEL - 1
-			sum2 += (adler1 shr 16 and 0xffffL) + (adler2 shr 16 and 0xffffL) + BASEL - rem
-			if (sum1 >= BASEL) sum1 -= BASEL
-			if (sum1 >= BASEL) sum1 -= BASEL
-			if (sum2 >= BASEL shl 1) sum2 -= BASEL shl 1
-			if (sum2 >= BASEL) sum2 -= BASEL
-			return sum1 or (sum2 shl 16)
-		}
-	}
-}
-
-class CRC32 {
-	/*
-	 *  The following logic has come from RFC1952.
-     */
-	private var v = 0
-
-	val value: Int
-		get() = v
-
-	fun update(buf: ByteArray, index: Int = 0, len: Int = buf.size - index) {
-		var index = index
-		var len = len
-		//int[] crc_table = CRC32.crc_table;
-		var c = v.inv()
-		while (--len >= 0) {
-			c = crc_table!![c xor buf[index++].toInt() and 0xff] xor c.ushr(8)
-		}
-		v = c.inv()
-	}
-
-	fun reset() = run { v = 0 }
-	fun reset(vv: Int) = run { v = vv }
-
-	fun copy(): CRC32 {
-		val foo = CRC32()
-		foo.v = this.v
-		return foo
-	}
-
-	companion object {
-		private var crc_table: IntArray = IntArray(256)
-
-		init {
-			for (n in 0 until 0x100) {
-				var c = n
-				var k = 8
-				while (--k >= 0) {
-					if (c and 1 != 0) {
-						c = -0x12477ce0 xor c.ushr(1)
-					} else {
-						c = c.ushr(1)
-					}
-				}
-				crc_table[n] = c
-			}
-		}
-
-		// The following logic has come from zlib.1.2.
-		private val GF2_DIM = 32
-
-		internal fun combine(crc1: Long, crc2: Long, len2: Long): Long {
-			var crc1 = crc1
-			var len2 = len2
-			var row: Long
-			val even = LongArray(GF2_DIM)
-			val odd = LongArray(GF2_DIM)
-
-			// degenerate case (also disallow negative lengths)
-			if (len2 <= 0) return crc1
-
-			// put operator for one zero bit in odd
-			odd[0] = 0xedb88320L          // CRC-32 polynomial
-			row = 1
-			for (n in 1 until GF2_DIM) {
-				odd[n] = row
-				row = row shl 1
-			}
-
-			// put operator for two zero bits in even
-			gf2_matrix_square(even, odd)
-
-			// put operator for four zero bits in odd
-			gf2_matrix_square(odd, even)
-
-			// apply len2 zeros to crc1 (first square will put the operator for one
-			// zero byte, eight zero bits, in even)
-			do {
-				// apply zeros operator for this bit of len2
-				gf2_matrix_square(even, odd)
-				if (len2 and 1 != 0L) crc1 = gf2_matrix_times(even, crc1)
-				len2 = len2 shr 1
-
-				// if no more bits set, then done
-				if (len2 == 0L) break
-
-				// another iteration of the loop with odd and even swapped
-				gf2_matrix_square(odd, even)
-				if (len2 and 1 != 0L) crc1 = gf2_matrix_times(odd, crc1)
-				len2 = len2 shr 1
-
-				// if no more bits set, then done
-			} while (len2 != 0L)
-
-			/* return combined crc */
-			crc1 = crc1 xor crc2
-			return crc1
-		}
-
-		private fun gf2_matrix_times(mat: LongArray, vec: Long): Long {
-			var vec = vec
-			var sum: Long = 0
-			var index = 0
-			while (vec != 0L) {
-				if (vec and 1 != 0L)
-					sum = sum xor mat[index]
-				vec = vec shr 1
-				index++
-			}
-			return sum
-		}
-
-		internal fun gf2_matrix_square(square: LongArray, mat: LongArray) {
-			for (n in 0 until GF2_DIM)
-				square[n] = gf2_matrix_times(mat, mat[n])
-		}
-
-		val crC32Table: IntArray
-			get() {
-				val tmp = IntArray(crc_table.size)
-				arraycopy(crc_table, 0, tmp, 0, tmp.size)
-				return tmp
-			}
 	}
 }

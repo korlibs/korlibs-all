@@ -2,28 +2,29 @@ package com.soywiz.korio.crypto
 
 interface SimpleChecksum {
 	val INITIAL: Int
-	fun update(old: Int, data: ByteArray, start: Int = 0, end: Int = data.size): Int
+	fun update(old: Int, data: ByteArray, offset: Int = 0, len: Int = data.size - offset): Int
 
 	companion object {
 		val DUMMY = object : SimpleChecksum {
 			override val INITIAL: Int = 0
-			override fun update(old: Int, data: ByteArray, start: Int, end: Int): Int = 0
+			override fun update(old: Int, data: ByteArray, offset: Int, len: Int): Int = 0
 		}
 	}
 }
 
-fun SimpleChecksum.compute(data: ByteArray, start: Int = 0, end: Int = data.size) = update(INITIAL, data, start, end)
+fun SimpleChecksum.compute(data: ByteArray, offset: Int = 0, len: Int = data.size - offset) =
+	update(INITIAL, data, offset, len)
 
 object Adler32 : SimpleChecksum {
 	private val adler_base = 65521
 
 	override val INITIAL = 1
 
-	override fun update(old: Int, data: ByteArray, start: Int, end: Int): Int {
+	override fun update(old: Int, data: ByteArray, offset: Int, len: Int): Int {
 		var s1 = (old ushr 0) and 0xffff
 		var s2 = (old ushr 16) and 0xffff
 
-		for (n in start until end) {
+		for (n in offset until offset + len) {
 			s1 = (s1 + (data[n].toInt() and 0xFF)) % adler_base
 			s2 = (s2 + s1) % adler_base
 		}
@@ -46,10 +47,10 @@ object CRC32 : SimpleChecksum {
 		}
 	}
 
-	override fun update(old: Int, data: ByteArray, start: Int, end: Int): Int {
+	override fun update(old: Int, data: ByteArray, offset: Int, len: Int): Int {
 		var c = old.inv()
 		val table = this.crc_table
-		for (n in start until end) c = table[(c xor (data[n].toInt() and 0xFF)) and 0xff] xor (c ushr 8)
+		for (n in offset until offset + len) c = table[(c xor (data[n].toInt() and 0xFF)) and 0xff] xor (c ushr 8)
 		return c.inv()
 	}
 }

@@ -5,17 +5,20 @@ import com.soywiz.korio.stream.*
 import kotlin.math.*
 
 open class Deflate(val windowBits: Int) : CompressionMethod {
-	override suspend fun compress(i: AsyncInputWithLengthStream, o: AsyncOutputStream) {
+	override suspend fun compress(
+		i: AsyncInputWithLengthStream,
+		o: AsyncOutputStream,
+		context: CompressionContext
+	) {
+
 		while (i.hasAvailable()) {
-			val chunkSize = min(i.getAvailable().toInt(), 0xFFFF)
-			val nChunksize = chunkSize.inv() and 0xFFFF
-			o.write8(0)
-			o.write8(chunkSize ushr 8)
-			o.write8(chunkSize ushr 0)
-			o.write8(nChunksize ushr 8)
-			o.write8(nChunksize ushr 0)
-			for (n in 0 until chunkSize)
-				o.write8(i.readU8())
+			val available = i.getAvailable()
+			val chunkSize = min(available, 0xFFFFL).toInt()
+			o.write8(if (chunkSize >= available) 1 else 0)
+			o.write16_le(chunkSize)
+			o.write16_le(chunkSize.inv())
+			//for (n in 0 until chunkSize) o.write8(i.readU8())
+			o.writeBytes(i.readBytesExact(chunkSize))
 		}
 	}
 
@@ -24,7 +27,7 @@ open class Deflate(val windowBits: Int) : CompressionMethod {
 	}
 
 	suspend fun uncompress(reader: BitReader, out: AsyncOutputStream) {
-		val ring: SlidingWindow = SlidingWindow(windowBits)
+		val ring = SlidingWindow(windowBits)
 		var lastBlock = false
 		while (!lastBlock) {
 			lastBlock = reader.readBits(1) != 0
@@ -80,7 +83,7 @@ open class Deflate(val windowBits: Int) : CompressionMethod {
 						dist = HuffmanTree.fromLengths(lengths.sliceArray(hlit until lengths.size))
 					}
 					var completed = false
-					while (!completed && reader.available() > 0) {
+					while (!completed && reader.hasBitsAvailable()) {
 						val value = tree.readOneValue(reader)
 						when {
 							value < 256 -> {
@@ -122,7 +125,6 @@ open class Deflate(val windowBits: Int) : CompressionMethod {
 	}
 
 	companion object : Deflate(15) {
-
 		private data class Info(val extra: Int, val offset: Int)
 
 		private val LENGTH0: IntArray by lazy {

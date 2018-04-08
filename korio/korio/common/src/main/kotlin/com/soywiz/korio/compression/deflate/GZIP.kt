@@ -26,21 +26,47 @@ object GZIP : CompressionMethod {
 		val comment = if (fcomment) s.strz() else null
 		val crc16 = if (fhcrc) s.u16_le() else 0
 		var chash = CRC32.INITIAL
-		Deflate.uncompress(s, object : AsyncOutputStream {
+		var csize = 0
+		Deflate.uncompress(s, object : AsyncOutputStream by o {
 			override suspend fun write(buffer: ByteArray, offset: Int, len: Int) {
-				chash = CRC32.update(chash, buffer, offset, offset + len)
+				chash = CRC32.update(chash, buffer, offset, len)
+				csize += len
 				o.write(buffer, offset, len)
 			}
-
-			override suspend fun close() = o.close()
-
 		})
 		val crc32 = s.u32_le()
 		val size = s.u32_le()
 		if (chash != crc32) invalidOp("CRC32 doesn't match ${chash.hex32} != ${crc32.hex32}")
+		if (csize != size) invalidOp("Size doesn't match ${csize.hex32} != ${size.hex32}")
 	}
 
-	override suspend fun compress(i: AsyncInputWithLengthStream, o: AsyncOutputStream) {
-		TODO()
+	override suspend fun compress(
+		i: AsyncInputWithLengthStream,
+		o: AsyncOutputStream,
+		context: CompressionContext
+	) {
+		o.write8(31) // MAGIC[0]
+		o.write8(139) // MAGIC[1]
+		o.write8(8) // METHOD=8 (deflate)
+		o.write8(0) // Presence bits
+		o.write32_le(0) // Time
+		o.write8(0) // xfl
+		o.write8(0) // os
+
+		var size = 0
+		var crc32 = CRC32.INITIAL
+		Deflate.compress(object : AsyncInputWithLengthStream by i {
+			override suspend fun read(buffer: ByteArray, offset: Int, len: Int): Int {
+				val read = i.read(buffer, offset, len)
+				if (read > 0) {
+					crc32 = CRC32.update(crc32, buffer, offset, len)
+					size += read
+				}
+				return read
+			}
+		}, o, context)
+		o.write32_le(crc32)
+		o.write32_le(size)
+
 	}
 }

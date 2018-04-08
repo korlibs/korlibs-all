@@ -4,6 +4,7 @@ import com.soywiz.kmem.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.compression.deflate.*
 import com.soywiz.korio.crypto.*
+import com.soywiz.korio.lang.*
 import kotlin.test.*
 
 class CompressionJvmTest {
@@ -34,5 +35,17 @@ class CompressionJvmTest {
 		val res = data.syncUncompress(GZIP)
 		val res2 = res.readIntArray_le(0, 4096 / 4)
 		assertEquals(expectedData, res2.toList().joinToString(""))
+	}
+
+	@Test fun compressGzipSync() = compressSync(GZIP)
+	@Test fun compressZlibSync() = compressSync(ZLib)
+	@Test fun compressDeflateSync() = compressSync(Deflate)
+
+	fun compressSync(method: CompressionMethod) {
+		val str = "HELLO HELLO HELLO!"
+		val uncompressed = str.toByteArray(UTF8)
+		val compressed = uncompressed.syncCompress(method)
+		val decompressed = compressed.syncUncompress(method)
+		assertEquals(decompressed.toString(UTF8), str, "With $method")
 	}
 }

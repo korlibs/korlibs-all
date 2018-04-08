@@ -4,21 +4,22 @@ import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 
 open class BitReader(val s: AsyncInputWithLengthStream) {
-	private var offset = 0
 	private var bitdata = 0
 	private var bitsavailable = 0
 
-	suspend fun alignbyte() {
+	suspend fun alignbyte(): BitReader {
 		this.bitsavailable = 0
+		return this
 	}
 
-	suspend fun available() = s.getLength() - offset
+	suspend fun hasBitsAvailable() = bitsavailable > 0 || s.getAvailable() > 0
+	suspend fun available() = s.getAvailable()
 
-	suspend fun u8(): Int = s.readU8()
+	suspend fun u8(): Int = alignbyte().s.readU8()
 
 	suspend fun readBits(bitcount: Int): Int {
 		while (bitcount > this.bitsavailable) {
-			this.bitdata = this.bitdata or (this.u8() shl this.bitsavailable)
+			this.bitdata = this.bitdata or (s.readU8() shl this.bitsavailable)
 			this.bitsavailable += 8
 		}
 		val readed = this.bitdata and ((1 shl bitcount) - 1)
@@ -28,11 +29,10 @@ open class BitReader(val s: AsyncInputWithLengthStream) {
 	}
 }
 
-suspend fun BitReader.u16_le(): Int = (this.u8() shl 0) or (this.u8() shl 8)
-suspend fun BitReader.u32_le(): Int = (this.u8() shl 0) or (this.u8() shl 8) or (this.u8() shl 16) or (this.u8() shl 24)
-
-suspend fun BitReader.u16_be(): Int = (this.u8() shl 8) or (this.u8() shl 0)
-suspend fun BitReader.u32_be(): Int = (this.u8() shl 24) or (this.u8() shl 16) or (this.u8() shl 8) or (this.u8() shl 0)
+suspend fun BitReader.u16_le(): Int = alignbyte().s.readU16_le()
+suspend fun BitReader.u32_le(): Int = alignbyte().s.readS32_le()
+suspend fun BitReader.u16_be(): Int = alignbyte().s.readU16_be()
+suspend fun BitReader.u32_be(): Int = alignbyte().s.readS32_be()
 
 suspend fun BitReader.readBit() = readBits(1) != 0
 suspend fun BitReader.bytes(count: Int) = ByteArray(count).apply {
