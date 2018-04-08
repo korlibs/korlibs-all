@@ -30,8 +30,9 @@ open class Deflate(val windowBits: Int) : CompressionMethod {
 		val ring = SlidingWindow(windowBits)
 		var lastBlock = false
 		while (!lastBlock) {
-			lastBlock = reader.readBits(1) != 0
-			val btype = reader.readBits(2)
+			reader.ensureBits(3)
+			lastBlock = reader.readBitsSure(1) != 0
+			val btype = reader.readBitsSure(2)
 			debug { "LAST_BLOCK: $lastBlock" }
 			debug { "BTYPE: $btype" }
 			when (btype) {
@@ -58,11 +59,15 @@ open class Deflate(val windowBits: Int) : CompressionMethod {
 					} else {
 						debug { "HUFFMAN_DYNAMIC" }
 						val hclenpos = HCLENPOS
-						val hlit = reader.readBits(5) + 257 // hlit  + 257
-						val hdist = reader.readBits(5) + 1 // hdist +   1
-						val hclen = reader.readBits(4) + 4 // hclen +   4
+						reader.ensureBits(5 + 5 + 4)
+						val hlit = reader.readBitsSure(5) + 257
+						val hdist = reader.readBitsSure(5) + 1
+						val hclen = reader.readBitsSure(4) + 4
 						val codeLenCodeLen = IntArray(19)
-						for (i in 0 until hclen) codeLenCodeLen[hclenpos[i]] = reader.readBits(3)
+						for (i in 0 until hclen) {
+							reader.ensureBits(3)
+							codeLenCodeLen[hclenpos[i]] = reader.readBitsSure(3)
+						}
 						//console.info(codeLenCodeLen);
 						val codeLen = HuffmanTree.fromLengths(codeLenCodeLen)
 						val lengths = IntArray(hlit + hdist)
