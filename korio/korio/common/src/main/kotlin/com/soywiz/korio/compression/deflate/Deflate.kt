@@ -43,11 +43,7 @@ open class Deflate(val windowBits: Int) : CompressionMethod {
 					val nnlen = nlen.inv() and 0xFFFF
 					debug { "UNCOMPRESSED: $len" }
 					if (len != nnlen) error("Invalid file: len($len) != ~nlen($nnlen) :: nlen=$nlen")
-					for (n in 0 until len) {
-						val v = reader.u8()
-						out.write8(v)
-						ring.put(v)
-					}
+					ring.putOut(out, reader.alignbyte().s.readBytesExact(len), 0, len)
 				}
 				1, 2 -> {
 					val tree: HuffmanTree
@@ -93,27 +89,20 @@ open class Deflate(val windowBits: Int) : CompressionMethod {
 						when {
 							value < 256 -> {
 								debug { "$value" }
-								out.write8(value)
-								ring.put(value)
+								ring.putOut(out, value.toByte())
 							}
 							value == 256 -> {
 								completed = true
 							}
 							else -> {
 								val lengthInfo = INFOS_LZ[value - 257]
-
 								val lengthExtra = reader.readBits(lengthInfo.extra)
 								val distanceData = dist.readOneValue(reader)
 								val distanceInfo = INFOS_LZ2[distanceData]
 								val distanceExtra = reader.readBits(distanceInfo.extra)
 								val distance = distanceInfo.offset + distanceExtra
 								val length = lengthInfo.offset + lengthExtra
-
-								for (n in 0 until length) {
-									val v = ring.get(distance)
-									out.write8(v)
-									ring.put(v)
-								}
+								ring.getPutCopyOut(out, distance, length)
 							}
 						}
 					}

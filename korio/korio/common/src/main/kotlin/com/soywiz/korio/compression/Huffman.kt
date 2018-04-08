@@ -1,5 +1,6 @@
 package com.soywiz.korio.compression
 
+// @TODO: Optimize for instance reusal and to not require one node per item, but using arrays
 class HuffmanTree(val root: Node, val symbolLimit: Int) {
 	class Node(val value: Int, val len: Int, val left: Node?, val right: Node?) {
 		val isLeaf get() = this.len != 0
