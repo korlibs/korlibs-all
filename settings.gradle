@@ -25,7 +25,7 @@ def registerProject2Jvm(name, rootPath, desc) {
 }
 
 registerProject1('dynarek', 'Dynarek: Dynamic recompilation for Kotlin Common (JS and JVM)')
-/*
+
 registerProject1('kzlib', 'Kzlib: Port of zlib to kotlin common')
 registerProject1('kmem', 'Kmem: Fast memory for Kotlin Common (JVM and JS) using Buffers and Typed Arrays')
 registerProject1('kds', 'Kds: Kotlin Data Structures for JVM, JS and Common')
@@ -61,4 +61,3 @@ registerProject1('krypto', 'Krypto: Pure Kotlin cryptography library for JVM, JS
 
 registerProject1('kmedialayer', 'Kmedialayer: Portable layer for multimedia applications')
 registerProject2Jvm('kmedialayer-generator', 'kmedialayer', 'Kmedialayer generator')
-*/
