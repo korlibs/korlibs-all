@@ -1,8 +1,8 @@
 package com.soywiz.korge.scene
 
+import com.soywiz.klock.*
 import com.soywiz.korge.resources.*
 import com.soywiz.korge.tests.*
-import com.soywiz.korge.time.*
 import com.soywiz.korge.view.*
 import com.soywiz.korim.color.*
 import kotlin.test.*
