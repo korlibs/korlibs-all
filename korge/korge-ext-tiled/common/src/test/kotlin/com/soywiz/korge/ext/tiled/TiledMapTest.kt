@@ -3,6 +3,7 @@ package com.soywiz.korge.ext.tiled
 import com.soywiz.korge.resources.*
 import com.soywiz.korge.tests.*
 import com.soywiz.korim.format.*
+import com.soywiz.korio.async.*
 import kotlin.test.*
 
 class TiledMapTest : ViewsForTesting() {

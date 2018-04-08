@@ -4,6 +4,7 @@ import com.soywiz.korge.input.*
 import com.soywiz.korge.render.*
 import com.soywiz.korge.tests.*
 import com.soywiz.korge.view.*
+import com.soywiz.korio.async.*
 import kotlin.test.*
 
 class MouseComponentTest : ViewsForTesting() {

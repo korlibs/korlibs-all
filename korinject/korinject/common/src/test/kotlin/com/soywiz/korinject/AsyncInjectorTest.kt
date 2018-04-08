@@ -155,7 +155,7 @@ class AsyncInjectorTest {
 
 	@kotlin.test.Test
 	// @TODO: Check why this fails on Kotlin.JS!
-	fun testInjectAnnotation() = syncTestIgnoreJs {
+	fun testInjectAnnotation() = suspendTestIgnoreJs {
 		val holder = Holder()
 
 		open class Base : InjectorAsyncDependency {
