@@ -10,7 +10,7 @@ object ZLib : CompressionMethod {
 	override suspend fun uncompress(i: AsyncInputWithLengthStream, o: AsyncOutputStream) {
 		val s = BitReader(i)
 		//println("Zlib.uncompress.available[0]:" + s.available())
-		s.prepareBytesUpTo(64)
+		s.prepareBigChunk()
 		val compressionMethod = s.readBits(4)
 		if (compressionMethod != 8) error("Invalid zlib stream compressionMethod=$compressionMethod")
 		val windowBits = (s.readBits(4) + 8)
@@ -33,7 +33,7 @@ object ZLib : CompressionMethod {
 			}
 		})
 
-		s.prepareBytesUpTo(4)
+		s.prepareBigChunk()
 		val adler32 = s.su32_be()
 		//println("Zlib.uncompress.available[1]:" + s.available())
 		if (chash != adler32) invalidOp("Adler32 doesn't match ${chash.hex32} != ${adler32.hex32}")

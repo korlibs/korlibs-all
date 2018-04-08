@@ -22,9 +22,9 @@ open class BitReader(val s: AsyncInputWithLengthStream) {
 	private var cbuffer = byteArrayOf()
 	private var cbufferPos = 0
 
-	val requirePrepare get() = syncSize < 4096
+	val requirePrepare get() = syncSize < 32 * 1024
 
-	suspend fun prepareBigChunk(): BitReader = prepareBytesUpTo(4096)
+	suspend fun prepareBigChunk(): BitReader = prepareBytesUpTo(32 * 1024)
 
 	suspend fun prepareBytesUpTo(expectedBytes: Int): BitReader {
 		if (syncSize < expectedBytes) {
@@ -50,12 +50,12 @@ open class BitReader(val s: AsyncInputWithLengthStream) {
 
 	private fun _su8(): Int {
 		while (cbufferPos >= cbuffer.size) {
-			syncSize -= cbuffer.size
 			if (sbuffers.isEmpty()) error("sbuffer is empty!")
 			val ba = sbuffers.removeFirst()
 			cbuffer = ba
 			cbufferPos = 0
 		}
+		syncSize--
 		return cbuffer.readU8(cbufferPos++)
 	}
 
@@ -78,7 +78,7 @@ open class BitReader(val s: AsyncInputWithLengthStream) {
 		return MemorySyncStreamToByteArray {
 			discardBits()
 			while (true) {
-				if (syncSize < 32) prepareBytesUpTo(32)
+				if (requirePrepare) prepareBigChunk()
 				val c = _su8()
 				if (c == 0) break
 				write8(c)

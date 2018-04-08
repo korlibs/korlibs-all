@@ -9,11 +9,11 @@ class ByteArrayBuffer(var data: ByteArray, size: Int = data.size, val allowGrow:
 	var size: Int
 		get() = _size
 		set(len) {
-			ensure(len)
+			ensure(len + 1)
 			_size = len
 		}
 
-	fun ensure(expected: Int) {
+	private fun ensure(expected: Int) {
 		if (data.size < expected) {
 			if (!allowGrow) throw RuntimeException("ByteArrayBuffer configured to not grow!")
 			data = data.copyOf(max(expected, (data.size + 7) * 5))
@@ -21,17 +21,19 @@ class ByteArrayBuffer(var data: ByteArray, size: Int = data.size, val allowGrow:
 	}
 
 	fun append(ba: ByteArray, offset: Int, len: Int) {
-		ensure(len)
-		arraycopy(ba, offset, data, _size, len)
-		_size += len
+		val ssize = size
+		size += len
+		arraycopy(ba, offset, data, ssize, len)
+		//for (n in 0 until len) data[ssize + n] = ba[offset + n]
 	}
 
 	fun append(v: Byte) {
-		data[size++] = v
+		size++
+		data[size - 1] = v
 	}
 
 	fun clear() {
-		_size = 0
+		size = 0
 	}
 
 	fun toByteArraySlice(position: Long = 0) = ByteArraySlice(data, position.toInt(), size)

@@ -152,14 +152,13 @@ open class Deflate(val windowBits: Int) : CompressionMethod {
 
 class SlidingWindowWithOutput(val sliding: SlidingWindow, val out: AsyncOutputStream) {
 	// @TODO: Optimize with buffering and copying
-	val bab = ByteArrayBuffer()
+	val bab = ByteArrayBuffer(8 * 1024)
 
 	val output get() = bab.size
-	val mustFlush get() = bab.size >= 3 * 1024
+	val mustFlush get() = bab.size >= 4 * 1024
 
 	fun getPutCopyOut(distance: Int, length: Int) {
 		//print("LZ: distance=$distance, length=$length   :: ")
-		bab.ensure(bab.size + length)
 		for (n in 0 until length) {
 			val v = sliding.getPut(distance)
 			bab.append(v.toByte())

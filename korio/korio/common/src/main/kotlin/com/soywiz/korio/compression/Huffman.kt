@@ -41,8 +41,6 @@ class HuffmanTree(val root: Node, val symbolLimit: Int) {
 
 	inline fun sreadOneValue(reader: BitReader) = sreadOne(reader, tempResult).value
 
-	suspend inline fun readOneValue(reader: BitReader) = sreadOne(reader.prepareBytesUpTo(32), tempResult).value
-
 	companion object {
 		fun fromLengths(codeLengths: IntArray): HuffmanTree {
 			var nodes = arrayListOf<Node>()

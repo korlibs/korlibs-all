@@ -12,7 +12,7 @@ val GZIPNoCrc = GZIPBase(false)
 open class GZIPBase(val checkCrc: Boolean) : CompressionMethod {
 	override suspend fun uncompress(i: AsyncInputWithLengthStream, o: AsyncOutputStream) {
 		val s = BitReader(i)
-		s.prepareBytesUpTo(64)
+		s.prepareBigChunk()
 		if (s.su8() != 31 || s.su8() != 139) error("Not a GZIP file")
 		val method = s.su8()
 		if (method != 8) error("Just supported deflate in GZIP")
@@ -38,7 +38,7 @@ open class GZIPBase(val checkCrc: Boolean) : CompressionMethod {
 				o.write(buffer, offset, len)
 			}
 		})
-		s.prepareBytesUpTo(8)
+		s.prepareBigChunk()
 		val crc32 = s.su32_le()
 		val size = s.su32_le()
 		if (checkCrc) {
