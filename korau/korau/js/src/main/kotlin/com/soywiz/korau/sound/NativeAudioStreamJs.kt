@@ -7,6 +7,7 @@ import com.soywiz.korio.coroutine.*
 import org.khronos.webgl.*
 import org.w3c.dom.events.*
 import kotlin.browser.*
+import kotlin.coroutines.experimental.*
 
 external class AudioContext {
 	fun createScriptProcessor(
@@ -62,8 +63,14 @@ actual class NativeAudioStream actual constructor(val freq: Int = 44100) {
 	val logger = Logger("NativeAudioStream.js.$id")
 
 	companion object {
+		val available by lazy {
+			val available = window.asDynamic().AudioContext != undefined
+			if (!available) console.error("AudioContext not available! No sound produced!")
+			available
+		}
+
 		var lastId = 0
-		val context by lazy { AudioContext() }
+		val context by lazy { if (available) AudioContext() else null }
 
 		fun convertS16ToF32(channels: Int, input: Int16Array, leftVolume: Int, rightVolume: Int): Float32Array {
 			val output = Float32Array(input.length * 2 / channels)
@@ -101,9 +108,9 @@ actual class NativeAudioStream actual constructor(val freq: Int = 44100) {
 
 	var missingDataCount = 0
 	var nodeRunning = false
-	val node: ScriptProcessorNode by lazy {
-		val node = context.createScriptProcessor(1024, 2, 2)
-		node.onaudioprocess = { process(it) }
+	val node: ScriptProcessorNode? by lazy {
+		val node = context?.createScriptProcessor(1024, 2, 2)
+		node?.onaudioprocess = { process(it) }
 		node
 	}
 
@@ -159,7 +166,7 @@ actual class NativeAudioStream actual constructor(val freq: Int = 44100) {
 
 	fun start() {
 		if (nodeRunning) return
-		this.node.connect(context.destination)
+		context?.destination?.let { destination -> this.node?.connect(destination) }
 		logger.error { "this.node.connect" }
 		missingDataCount = 0
 		nodeRunning = true
@@ -167,7 +174,7 @@ actual class NativeAudioStream actual constructor(val freq: Int = 44100) {
 
 	fun stop() {
 		if (!nodeRunning) return
-		this.node.disconnect()
+		this.node?.disconnect()
 		logger.error { "this.node.disconnect" }
 		nodeRunning = false
 	}
@@ -180,14 +187,21 @@ actual class NativeAudioStream actual constructor(val freq: Int = 44100) {
 	}
 
 	actual suspend fun addSamples(samples: ShortArray, offset: Int, size: Int): Unit {
-		ensureRunning()
+		if (!available) {
+			// Delay simulating consuming samples
+			val sampleCount = (size / 2)
+			val timeSeconds = sampleCount.toDouble() / 41_000.0
+			coroutineContext.eventLoop.sleep((timeSeconds * 1000).toInt())
+		} else {
+			ensureRunning()
 
-		val fsamples = Float32Array(size)
-		for (n in 0 until size) fsamples[n] = (samples[offset + n].toFloat() / Short.MAX_VALUE.toFloat()).toFloat()
-		buffers.enqueue(PspAudioBuffer(fsamples))
+			val fsamples = Float32Array(size)
+			for (n in 0 until size) fsamples[n] = (samples[offset + n].toFloat() / Short.MAX_VALUE.toFloat()).toFloat()
+			buffers.enqueue(PspAudioBuffer(fsamples))
 
-		while (buffers.size > 4) {
-			getCoroutineContext().eventLoop.sleepNextFrame()
+			while (buffers.size > 4) {
+				getCoroutineContext().eventLoop.sleepNextFrame()
+			}
 		}
 	}
 }

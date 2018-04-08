@@ -1,5 +1,6 @@
 package com.soywiz.korge.scene
 
+import com.soywiz.klock.*
 import com.soywiz.korge.resources.*
 import com.soywiz.korge.time.*
 import com.soywiz.korge.util.*

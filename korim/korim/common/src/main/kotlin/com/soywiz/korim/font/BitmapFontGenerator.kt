@@ -1,5 +1,6 @@
 package com.soywiz.korim.font
 
+import com.soywiz.klock.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
 import com.soywiz.korim.vector.*
@@ -21,40 +22,45 @@ object BitmapFontGenerator {
 	val bni = NativeImage(1, 1)
 
 	fun generate(fontName: String, fontSize: Int, chars: IntArray): BitmapFont {
-		val bnictx = bni.getContext2d()
-		bnictx.font = Context2d.Font(fontName, fontSize.toDouble())
-		val bitmapHeight = bnictx.getTextBounds("a").bounds.height.toInt()
+		println("BitmapFontGenerator.generate($fontName, $fontSize, $chars)...")
 
-		val widths: List<Int> = chars.map { bnictx.getTextBounds("${it.toChar()}").bounds.width.toInt() }
-		val widthsSum = widths.map { it + 2 }.sum()
-		val ni = NativeImage(widthsSum, bitmapHeight)
+		val result = measureTime {
+			val bnictx = bni.getContext2d()
+			bnictx.font = Context2d.Font(fontName, fontSize.toDouble())
+			val bitmapHeight = bnictx.getTextBounds("a").bounds.height.toInt()
 
-		//println("BitmapFont:")
-		//println("bitmapHeight=$bitmapHeight")
-		//for ((index, width) in widths.withIndex()) {
-		//	val char = chars[index]
-		//	println("$index: $char: width=$width")
-		//}
+			val widths: List<Int> = chars.map { bnictx.getTextBounds("${it.toChar()}").bounds.width.toInt() }
+			val widthsSum = widths.map { it + 2 }.sum()
+			val ni = NativeImage(widthsSum, bitmapHeight)
 
-		val g = ni.getContext2d()
-		g.fillStyle = g.createColor(Colors.WHITE)
-		g.font = Context2d.Font(fontName, fontSize.toDouble())
-		g.horizontalAlign = Context2d.HorizontalAlign.LEFT
-		g.verticalAlign = Context2d.VerticalAlign.TOP
-		val glyphs = arrayListOf<BitmapFont.GlyphInfo>()
-		var x = 0
-		val itemp = IntArray(1)
-		for ((index, char) in chars.withIndex()) {
-			val width = widths[index]
-			itemp[0] = char
-			g.fillText(String_fromIntArray(itemp, 0, 1), x.toDouble(), 0.0)
-			glyphs += BitmapFont.GlyphInfo(char, RectangleInt(x, 0, width, ni.height), width)
-			x += width + 2
+			//println("BitmapFont:")
+			//println("bitmapHeight=$bitmapHeight")
+			//for ((index, width) in widths.withIndex()) {
+			//	val char = chars[index]
+			//	println("$index: $char: width=$width")
+			//}
+
+			val g = ni.getContext2d()
+			g.fillStyle = g.createColor(Colors.WHITE)
+			g.font = Context2d.Font(fontName, fontSize.toDouble())
+			g.horizontalAlign = Context2d.HorizontalAlign.LEFT
+			g.verticalAlign = Context2d.VerticalAlign.TOP
+			val glyphs = arrayListOf<BitmapFont.GlyphInfo>()
+			var x = 0
+			val itemp = IntArray(1)
+			for ((index, char) in chars.withIndex()) {
+				val width = widths[index]
+				itemp[0] = char
+				g.fillText(String_fromIntArray(itemp, 0, 1), x.toDouble(), 0.0)
+				glyphs += BitmapFont.GlyphInfo(char, RectangleInt(x, 0, width, ni.height), width)
+				x += width + 2
+			}
+			BitmapFont(ni.toBMP32(), fontSize, fontSize, glyphs)
 		}
 
-		println("BitmapFontGenerator.generate($fontName, $fontSize, $chars, premult=${ni.premult})")
+		println("   --> generated in ${result.time}")
 
-		return BitmapFont(ni.toBMP32(), fontSize, fontSize, glyphs)
+		return result.result
 
 	}
 }

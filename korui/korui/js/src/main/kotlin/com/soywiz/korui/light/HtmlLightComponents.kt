@@ -5,8 +5,7 @@ import com.soywiz.korag.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
 import com.soywiz.korim.format.*
-import com.soywiz.korio.CancellationException
-import com.soywiz.korio.FileNotFoundException
+import com.soywiz.korio.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.coroutine.*
 import com.soywiz.korio.lang.*
@@ -16,22 +15,10 @@ import org.khronos.webgl.*
 import org.w3c.dom.*
 import org.w3c.dom.events.*
 import org.w3c.files.*
-import kotlin.Any
-import kotlin.Boolean
-import kotlin.ByteArray
-import kotlin.Double
-import kotlin.Int
-import kotlin.Long
 import kotlin.RuntimeException
-import kotlin.String
-import kotlin.Suppress
-import kotlin.Unit
-import kotlin.apply
-import kotlin.arrayOf
 import kotlin.browser.*
 import kotlin.coroutines.experimental.*
-import kotlin.isInfinite
-import kotlin.isNaN
+import kotlin.math.*
 
 var windowInputFile: HTMLInputElement? = null
 var selectedFiles = arrayOf<File>()
@@ -271,23 +258,44 @@ class HtmlLightComponents : LightComponents() {
 		val node = window
 		val info = LightResizeHandler.Info()
 
-		fun send() {
-			if (mainFrame != null) {
+		var lastWidth = -1
+		var lastHeight = -1
+		var closed = false
 
-				mainFrame?.style?.width = "${window.innerWidth}px"
-				mainFrame?.style?.height = "${window.innerHeight}px"
+		fun update() {
+			if (lastWidth != window.innerWidth || lastHeight != window.innerHeight) {
+				lastWidth = window.innerWidth
+				lastHeight = window.innerHeight
+
+				if (mainFrame != null) {
+					mainFrame?.style?.width = "${lastWidth}px"
+					mainFrame?.style?.height = "${lastHeight}px"
+				}
+
+				listener.resized2(info.apply {
+					width = lastWidth
+					height = lastHeight
+				})
 			}
-
-			listener.resized2(info.apply {
-				width = window.innerWidth.toInt()
-				height = window.innerHeight.toInt()
-			})
 		}
 
-		send()
+		fun timer() {
+			update()
+			if (!closed) {
+				window.setTimeout(::timer, 100)
+			}
+		}
+
+		timer()
 
 		return listOf(
-			node.addCloseableEventListener("resize", { send() })
+			node.addCloseableEventListener("resize", { update() }),
+			node.addCloseableEventListener("deviceorientation", { update() }),
+			object : Closeable {
+				override fun close() {
+					closed = true
+				}
+			}
 		).closeable()
 	}
 
@@ -307,6 +315,40 @@ class HtmlLightComponents : LightComponents() {
 	}
 
 	override fun addHandler(c: Any, listener: LightGamepadHandler): Closeable {
+		val info = LightGamepadHandler.Info()
+
+		@Suppress("UNUSED_PARAMETER")
+		fun frame(e: Double) {
+			window.requestAnimationFrame(::frame)
+			if (navigator.getGamepads != null) {
+				val gamepads = navigator.getGamepads().unsafeCast<Array<dynamic>>()
+				for (gamepadId in 0 until gamepads.asDynamic().length.unsafeCast<Int>()) {
+					val controller = gamepads[gamepadId] ?: continue
+					val buttonsArray = controller.buttons
+					val axesArray = controller.axes
+					val controllerName = controller.id.unsafeCast<String?>() ?: "unknown"
+					val controllerIndex = controller.index.unsafeCast<Int>()
+					var buttons = 0
+					val igamepad = info.gamepad
+					for (i in 0 until buttonsArray.length.unsafeCast<Int>()) {
+						if (buttonsArray[i].pressed.unsafeCast<Boolean>()) buttons = buttons or (1 shl i)
+					}
+					for (i in 0 until min(igamepad.axes.size, axesArray.length.unsafeCast<Int>())) {
+						igamepad.axes[i] = axesArray[i].unsafeCast<Double>()
+					}
+					igamepad.index = controllerIndex
+					igamepad.name = controllerName
+					igamepad.mapping = knownControllers[controllerName] ?: StandardGamepadMapping
+					igamepad.buttons = buttons
+					listener.update(info)
+				}
+			}
+		}
+		frame(0.0)
+
+		window.addEventListener("gamepadconnected", { e -> })
+		window.addEventListener("gamepaddisconnected", { e -> })
+
 		return super.addHandler(c, listener)
 	}
 
@@ -321,9 +363,9 @@ class HtmlLightComponents : LightComponents() {
 			for (n in 0 until touchesLength) {
 				val touch = touches[n].unsafeCast<dynamic>()
 				out += LightTouchHandler.Info().apply {
-					this.x = (touch.pageX * devicePixelRatio)
-					this.y = (touch.pageY * devicePixelRatio)
-					this.id = touch.identifier
+					this.x = touch.pageX.unsafeCast<Double>().toInt()
+					this.y = touch.pageY.unsafeCast<Double>().toInt()
+					this.id = touch.identifier.unsafeCast<Int>()
 				}
 			}
 			if (preventDefault) e.preventDefault()
@@ -665,3 +707,37 @@ internal class JsFilesVfs(val files: List<File>) : Vfs() {
 		return this.files.map { this[it.name] }.toAsync()
 	}
 }
+
+object Nimbus_111_1420_Safari_GamepadMapping : GamepadMapping() {
+	override val id = "111-1420-Nimbus"
+
+	override fun get(button: GamepadButton, buttons: Int, axes: DoubleArray): Double {
+		return when (button) {
+			GamepadButton.BUTTON0 -> buttons.getButton(0)
+			GamepadButton.BUTTON1 -> buttons.getButton(1)
+			GamepadButton.BUTTON2 -> buttons.getButton(2)
+			GamepadButton.BUTTON3 -> buttons.getButton(3)
+			GamepadButton.L1 -> buttons.getButton(4)
+			GamepadButton.R1 -> buttons.getButton(5)
+			GamepadButton.L2 -> buttons.getButton(6)
+			GamepadButton.R2 -> buttons.getButton(7)
+			GamepadButton.LEFT -> buttons.getButton(8)
+			GamepadButton.DOWN -> buttons.getButton(9)
+			GamepadButton.RIGHT -> buttons.getButton(10)
+			GamepadButton.UP -> buttons.getButton(11)
+			GamepadButton.SELECT -> 0.0
+			GamepadButton.START -> 0.0
+			GamepadButton.SYSTEM -> 0.0
+			GamepadButton.LX -> axes[0]
+			GamepadButton.LY -> axes[1]
+			GamepadButton.RX -> axes[2]
+			GamepadButton.RY -> axes[3]
+			else -> 0.0
+		}
+	}
+}
+
+val knownControllers = listOf(
+	StandardGamepadMapping,
+	Nimbus_111_1420_Safari_GamepadMapping
+).associateBy { it.id }

@@ -302,3 +302,7 @@ interface KeyEvent : Event {
 class KeyDownEvent(override var keyCode: Int = 0) : KeyEvent
 class KeyUpEvent(override var keyCode: Int = 0) : KeyEvent
 class KeyTypedEvent(override var keyCode: Int = 0) : KeyEvent
+
+class GamepadUpdatedEvent(
+	val gamepad: GamepadInfo = GamepadInfo()
+) : Event

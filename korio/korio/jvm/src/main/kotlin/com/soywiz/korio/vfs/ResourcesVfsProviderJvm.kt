@@ -13,7 +13,7 @@ class ResourcesVfsProviderJvm {
 		val merged = MergedVfs()
 
 		return object : Vfs.Decorator(merged.root) {
-			suspend override fun init() {
+			override suspend fun init() {
 				if (classLoader is URLClassLoader) {
 					for (url in classLoader.urLs) {
 						//println("ResourcesVfsProviderJvm.url: $url")
@@ -34,7 +34,7 @@ class ResourcesVfsProviderJvm {
 					}
 					//println(merged.options)
 				} else {
-					//println("ResourcesVfsProviderJvm.classLoader: $classLoader")
+					//println("ResourcesVfsProviderJvm.classLoader not URLClassLoader: $classLoader")
 				}
 
 				//println("ResourcesVfsProviderJvm:classLoader:$classLoader")
@@ -45,13 +45,13 @@ class ResourcesVfsProviderJvm {
 					private fun getResourceAsStream(npath: String) = classLoader.getResourceAsStream(npath)
 							?: invalidOp("Can't find '$npath' in ResourcesVfsProviderJvm")
 
-					suspend override fun open(path: String, mode: VfsOpenMode): AsyncStream = executeInWorker {
+					override suspend fun open(path: String, mode: VfsOpenMode): AsyncStream = executeInWorker {
 						val npath = normalize(path)
 						//println("ResourcesVfsProviderJvm:open: $path")
 						MemorySyncStream(getResourceAsStream(npath).readBytes()).toAsync()
 					}
 
-					suspend override fun stat(path: String): VfsStat = executeInWorker {
+					override suspend fun stat(path: String): VfsStat = executeInWorker {
 						val npath = normalize(path)
 						//println("ResourcesVfsProviderJvm:stat: $npath")
 						try {

@@ -5,7 +5,7 @@ import com.soywiz.korge.resources.Path
 import com.soywiz.korge.resources.ResourcesRoot
 import com.soywiz.korge.view.Views
 import com.soywiz.korim.bitmap.Bitmap32
-import com.soywiz.korim.format.readBitmapOptimized
+import com.soywiz.korim.format.*
 import com.soywiz.korinject.AsyncFactory
 import com.soywiz.korio.JvmField
 import com.soywiz.korio.lang.Closeable
@@ -80,6 +80,7 @@ suspend fun VfsFile.readTexture(ag: AG, mipmaps: Boolean = true): Texture {
 	val tex = ag.createTexture()
 	//println("VfsFile.readTexture[2]")
 	val bmp = this.readBitmapOptimized()
+	//val bmp = this.readBitmapNoNative()
 	//println("VfsFile.readTexture[3]")
 	val canHasMipmaps = bmp.width.isPowerOfTwo && bmp.height.isPowerOfTwo
 	//println("VfsFile.readTexture[4]")

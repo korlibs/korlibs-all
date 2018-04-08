@@ -5,7 +5,6 @@ import com.soywiz.korio.async.*
 import com.soywiz.korio.util.*
 import com.soywiz.korui.light.*
 
-
 private var Component.mouseEventOnce by Extra.Property { Once() }
 private var Component.keyEventOnce by Extra.Property { Once() }
 private var Component.touchEventOnce by Extra.Property { Once() }
@@ -36,11 +35,9 @@ val Component.onTouchStart by createTouchHandler()
 val Component.onTouchEnd by createTouchHandler()
 val Component.onTouchMove by createTouchHandler()
 
-val Component.onGamepadDown by createGamepadHandler()
-val Component.onGamepadUp by createGamepadHandler()
+val Component.onGamepadUpdate by createGamepadHandler()
 
 val Component.onChange by createChangeHandler()
-
 
 private fun Component.registerMouseEventOnce(): Unit = mouseEventOnce {
 	fun LightMouseHandler.Info.handle(): LightMouseHandler.Info = this.apply {
@@ -75,8 +72,7 @@ private fun Component.registerTouchEventOnce(): Unit = touchEventOnce {
 
 private fun Component.registerGamepadEventOnce(): Unit = gamepadEventOnce {
 	lc.addHandler(handle, object : LightGamepadHandler() {
-		override fun down(info: Info) = onGamepadDown(info)
-		override fun up(info: Info) = onGamepadUp(info)
+		override fun update(info: Info) = onGamepadUpdate(info)
 	})
 }
 

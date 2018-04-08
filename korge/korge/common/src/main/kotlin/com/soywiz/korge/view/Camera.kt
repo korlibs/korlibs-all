@@ -1,5 +1,6 @@
 package com.soywiz.korge.view
 
+import com.soywiz.klock.*
 import com.soywiz.korge.time.*
 import com.soywiz.korge.tween.*
 import com.soywiz.korma.*

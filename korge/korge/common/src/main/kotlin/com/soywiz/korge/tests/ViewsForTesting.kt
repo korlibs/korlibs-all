@@ -1,6 +1,6 @@
 package com.soywiz.korge.tests
 
-import com.soywiz.korge.time.*
+import com.soywiz.klock.*
 import com.soywiz.korge.view.*
 import com.soywiz.korio.async.*
 

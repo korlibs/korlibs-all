@@ -40,7 +40,7 @@ abstract class Vfs {
 	)
 
 	@Suppress("UNCHECKED_CAST")
-	suspend open fun <T : Any> readSpecial(path: String, clazz: KClass<T>): T =
+	open suspend fun <T : Any> readSpecial(path: String, clazz: KClass<T>): T =
 		(vfsSpecialReadersMap[clazz]?.readSpecial(this, path) as? T?)
 				?: invalidOp("Don't know how to readSpecial $clazz")
 

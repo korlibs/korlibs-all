@@ -2,6 +2,7 @@
 
 package com.soywiz.korge.tween
 
+import com.soywiz.klock.*
 import com.soywiz.korge.component.*
 import com.soywiz.korge.time.*
 import com.soywiz.korge.view.*

@@ -69,7 +69,8 @@ actual object NativeImageFormatProvider {
 
 		suspend fun loadImage(jsUrl: String): HTMLCanvasElement = korioSuspendCoroutine { c ->
 			// Doesn't work with Kotlin.JS
-			//val img = document.createElement("image") as HTMLImageElement
+			//val img = document.createElement("img") as HTMLImageElement
+			//println("[1]")
 			if (OS.isNodejs) {
 				js("(require('canvas'))").loadImage(jsUrl).then({ v ->
 					c.resume(v)
@@ -78,17 +79,30 @@ actual object NativeImageFormatProvider {
 				})
 				Unit
 			} else {
-				val img = document.createElement("image").unsafeCast<HTMLImageElement>()
+				//println("[a]")
+				val img = document.createElement("img").unsafeCast<HTMLImageElement>()
+				//println("[b]")
 				img.onload = {
+					//println("[onload.a]")
 					val canvas: HTMLCanvasElement = HtmlCanvas.createCanvas(img.width, img.height)
+					//println("[onload.b]")
 					val ctx: CanvasRenderingContext2D = canvas.getContext("2d").unsafeCast<CanvasRenderingContext2D>()
+					//println("[onload.c]")
 					ctx.drawImage(img, 0.0, 0.0)
+					//println("[onload.d]")
 					c.resume(canvas)
+					//println("[onload.e]")
 				}
+				//println("[c]")
 				img.onerror = { _, _, _, _, _ ->
-					c.resumeWithException(RuntimeException("error loading image"))
+					//println("[onerror.a]")
+					c.resumeWithException(RuntimeException("error loading image $jsUrl"))
 				}
+				//println("[d]")
+				//println("image: $jsUrl")
 				img.src = jsUrl
+				document.body?.appendChild(img)
+				//println("[e]")
 				Unit
 			}
 		}

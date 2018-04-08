@@ -1,13 +1,12 @@
 package com.soywiz.korge
 
-import com.soywiz.klock.Klock
+import com.soywiz.klock.*
 import com.soywiz.klogger.*
 import com.soywiz.korag.*
 import com.soywiz.korge.input.*
 import com.soywiz.korge.plugin.*
 import com.soywiz.korge.resources.*
 import com.soywiz.korge.scene.*
-import com.soywiz.korge.time.seconds
 import com.soywiz.korge.view.*
 import com.soywiz.korim.*
 import com.soywiz.korim.format.*
@@ -99,6 +98,7 @@ object Korge {
 		val keyDownEvent = KeyDownEvent()
 		val keyUpEvent = KeyUpEvent()
 		val keyTypedEvent = KeyTypedEvent()
+		val gamepadTypedEvent = GamepadUpdatedEvent()
 		var downTime = 0.0
 		var moveTime = 0.0
 		var upTime = 0.0
@@ -139,6 +139,10 @@ object Korge {
 			e.keyCode = this.keyCode
 		}
 
+		fun AGInput.GamepadEvent.copyTo(e: GamepadUpdatedEvent) {
+			e.gamepad.copyFrom(this.gamepad)
+		}
+
 		// MOUSE
 		agInput.onMouseDown { e -> mouseDown("onMouseDown", e.x, e.y) }
 		agInput.onMouseUp { e -> mouseUp("onMouseUp", e.x, e.y) }
@@ -173,6 +177,10 @@ object Korge {
 			//println("onKeyTyped: $it")
 			it.copyTo(keyTypedEvent)
 			views.dispatch(keyTypedEvent)
+		}
+		agInput.onGamepadUpdate {
+			it.copyTo(gamepadTypedEvent)
+			views.dispatch(gamepadTypedEvent)
 		}
 
 		ag.onResized {

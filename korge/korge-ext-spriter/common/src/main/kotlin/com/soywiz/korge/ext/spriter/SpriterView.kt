@@ -1,8 +1,8 @@
 package com.soywiz.korge.ext.spriter
 
+import com.soywiz.klock.*
 import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.*
 import com.soywiz.korge.render.*
-import com.soywiz.korge.time.*
 import com.soywiz.korge.tween.*
 import com.soywiz.korge.view.*
 import com.soywiz.korio.async.*

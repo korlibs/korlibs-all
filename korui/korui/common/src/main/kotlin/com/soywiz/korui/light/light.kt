@@ -126,13 +126,10 @@ open class LightKeyHandler {
 
 open class LightGamepadHandler {
 	data class Info(
-		var id: Int = 0,
-		var buttons: Int = 0,
-		@Suppress("ArrayInDataClass") val axis: DoubleArray = DoubleArray(16)
+		var gamepad: GamepadInfo = GamepadInfo()
 	)
 
-	open fun down(info: Info) = Unit
-	open fun up(info: Info) = Unit
+	open fun update(info: Info) = Unit
 }
 
 open class LightTouchHandler {

@@ -236,6 +236,10 @@ class AgCanvas(app: Application) : Component(app, LightType.AGCANVAS), AGContain
 		}
 	}
 
+	private fun updateGamepad(e: LightGamepadHandler.Info) {
+		agInput.gamepadEvent.gamepad.copyFrom(e.gamepad)
+	}
+
 	private fun updateKey(e: LightKeyHandler.Info) {
 		agInput.keyEvent.keyCode = e.keyCode
 	}
@@ -259,6 +263,8 @@ class AgCanvas(app: Application) : Component(app, LightType.AGCANVAS), AGContain
 		onTouchStart { updateTouch(it); agInput.onTouchStart(agInput.touchEvent) }
 		onTouchEnd { updateTouch(it); agInput.onTouchEnd(agInput.touchEvent) }
 		onTouchMove { updateTouch(it); agInput.onTouchMove(agInput.touchEvent) }
+
+		onGamepadUpdate { updateGamepad(it); agInput.onGamepadUpdate(agInput.gamepadEvent) }
 	}
 
 	//var registeredKeyEvents = false

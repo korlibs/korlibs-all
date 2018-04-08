@@ -1,5 +1,6 @@
 package com.soywiz.korge.component.docking
 
+import com.soywiz.klock.*
 import com.soywiz.korge.input.*
 import com.soywiz.korge.time.*
 import com.soywiz.korge.tween.*
