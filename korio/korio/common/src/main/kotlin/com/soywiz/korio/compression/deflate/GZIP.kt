@@ -6,25 +6,29 @@ import com.soywiz.korio.error.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
 
-object GZIP : CompressionMethod {
+val GZIP = GZIPBase(true)
+val GZIPNoCrc = GZIPBase(false)
+
+open class GZIPBase(val checkCrc: Boolean) : CompressionMethod {
 	override suspend fun uncompress(i: AsyncInputWithLengthStream, o: AsyncOutputStream) {
 		val s = BitReader(i)
-		if (s.u8() != 31 || s.u8() != 139) error("Not a GZIP file")
-		val method = s.u8()
+		s.prepareBytesUpTo(64)
+		if (s.su8() != 31 || s.su8() != 139) error("Not a GZIP file")
+		val method = s.su8()
 		if (method != 8) error("Just supported deflate in GZIP")
-		val ftext = s.readBit()
-		val fhcrc = s.readBit()
-		val fextra = s.readBit()
-		val fname = s.readBit()
-		val fcomment = s.readBit()
+		val ftext = s.sreadBit()
+		val fhcrc = s.sreadBit()
+		val fextra = s.sreadBit()
+		val fname = s.sreadBit()
+		val fcomment = s.sreadBit()
 		val reserved = s.readBits(3)
-		val mtime = s.u32_le()
-		val xfl = s.u8()
-		val os = s.u8()
-		val extra = if (fextra) s.bytes(s.u16_le()) else byteArrayOf()
+		val mtime = s.su32_le()
+		val xfl = s.su8()
+		val os = s.su8()
+		val extra = if (fextra) s.abytes(s.su16_le()) else byteArrayOf()
 		val name = if (fname) s.strz() else null
 		val comment = if (fcomment) s.strz() else null
-		val crc16 = if (fhcrc) s.u16_le() else 0
+		val crc16 = if (fhcrc) s.su16_le() else 0
 		var chash = CRC32.INITIAL
 		var csize = 0
 		Deflate.uncompress(s, object : AsyncOutputStream by o {
@@ -34,10 +38,13 @@ object GZIP : CompressionMethod {
 				o.write(buffer, offset, len)
 			}
 		})
-		val crc32 = s.u32_le()
-		val size = s.u32_le()
-		if (chash != crc32) invalidOp("CRC32 doesn't match ${chash.hex32} != ${crc32.hex32}")
-		if (csize != size) invalidOp("Size doesn't match ${csize.hex32} != ${size.hex32}")
+		s.prepareBytesUpTo(8)
+		val crc32 = s.su32_le()
+		val size = s.su32_le()
+		if (checkCrc) {
+			if (chash != crc32) invalidOp("CRC32 doesn't match ${chash.hex32} != ${crc32.hex32}")
+			if (csize != size) invalidOp("Size doesn't match ${csize.hex32} != ${size.hex32}")
+		}
 	}
 
 	override suspend fun compress(

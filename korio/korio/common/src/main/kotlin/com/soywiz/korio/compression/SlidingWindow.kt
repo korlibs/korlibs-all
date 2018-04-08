@@ -1,7 +1,6 @@
 package com.soywiz.korio.compression
 
 import com.soywiz.kmem.*
-import com.soywiz.korio.stream.*
 
 class SlidingWindow(val nbits: Int) {
 	val data = ByteArray(1 shl nbits)
@@ -12,28 +11,15 @@ class SlidingWindow(val nbits: Int) {
 		return data[(pos - offset) and mask].toInt() and 0xFF
 	}
 
-	fun put(value: Int) {
+	fun getPut(offset: Int): Int = put(get(offset))
+
+	fun put(value: Int): Int {
 		data[pos] = value.toByte()
 		pos = (pos + 1) and mask
+		return value
 	}
 
-	// @TODO: Optimize with buffering and copying
-
-	suspend fun getPutCopyOut(out: AsyncOutputStream, distance: Int, length: Int) {
-		for (n in 0 until length) {
-			val v = get(distance)
-			out.write8(v)
-			put(v)
-		}
-	}
-
-	suspend fun putOut(out: AsyncOutputStream, bytes: ByteArray, offset: Int, len: Int) {
-		out.write(bytes, offset, len)
+	fun putBytes(bytes: ByteArray, offset: Int, len: Int) {
 		for (n in 0 until len) put(bytes[offset + n].toUnsigned())
-	}
-
-	suspend fun putOut(out: AsyncOutputStream, byte: Byte) {
-		out.write8(byte.toUnsigned())
-		put(byte.toUnsigned())
 	}
 }

@@ -10,15 +10,16 @@ object ZLib : CompressionMethod {
 	override suspend fun uncompress(i: AsyncInputWithLengthStream, o: AsyncOutputStream) {
 		val s = BitReader(i)
 		//println("Zlib.uncompress.available[0]:" + s.available())
+		s.prepareBytesUpTo(64)
 		val compressionMethod = s.readBits(4)
 		if (compressionMethod != 8) error("Invalid zlib stream compressionMethod=$compressionMethod")
 		val windowBits = (s.readBits(4) + 8)
 		val fcheck = s.readBits(5)
-		val hasDict = s.readBit()
+		val hasDict = s.sreadBit()
 		val flevel = s.readBits(2)
 		var dictid = 0
 		if (hasDict) {
-			dictid = s.u32_le()
+			dictid = s.su32_le()
 			TODO("Unsupported custom dictionaries (Provided DICTID=$dictid)")
 		}
 
@@ -32,7 +33,8 @@ object ZLib : CompressionMethod {
 			}
 		})
 
-		val adler32 = s.u32_be()
+		s.prepareBytesUpTo(4)
+		val adler32 = s.su32_be()
 		//println("Zlib.uncompress.available[1]:" + s.available())
 		if (chash != adler32) invalidOp("Adler32 doesn't match ${chash.hex32} != ${adler32.hex32}")
 	}

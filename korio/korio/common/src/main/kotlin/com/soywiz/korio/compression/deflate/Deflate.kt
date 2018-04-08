@@ -1,5 +1,6 @@
 package com.soywiz.korio.compression.deflate
 
+import com.soywiz.kmem.*
 import com.soywiz.korio.compression.*
 import com.soywiz.korio.stream.*
 import kotlin.math.*
@@ -10,7 +11,6 @@ open class Deflate(val windowBits: Int) : CompressionMethod {
 		o: AsyncOutputStream,
 		context: CompressionContext
 	) {
-
 		while (i.hasAvailable()) {
 			val available = i.getAvailable()
 			val chunkSize = min(available, 0xFFFFL).toInt()
@@ -28,69 +28,63 @@ open class Deflate(val windowBits: Int) : CompressionMethod {
 
 	suspend fun uncompress(reader: BitReader, out: AsyncOutputStream) {
 		val ring = SlidingWindow(windowBits)
+		val sout = SlidingWindowWithOutput(ring, out)
 		var lastBlock = false
 		while (!lastBlock) {
-			lastBlock = reader.readBit()
+			if (reader.requirePrepare) reader.prepareBigChunk()
+
+			lastBlock = reader.sreadBit()
 			val btype = reader.readBits(2)
 			if (btype !in 0..2) error("invalid bit")
 			if (btype == 0) {
-				uncompressBlockUncompressed(reader, out, ring)
+				reader.discardBits()
+				if (reader.requirePrepare) reader.prepareBigChunk()
+				val len = reader.su16_le()
+				val nlen = reader.su16_le()
+				val nnlen = nlen.inv() and 0xFFFF
+				if (len != nnlen) error("Invalid deflate stream: len($len) != ~nlen($nnlen) :: nlen=$nlen")
+				val bytes = reader.abytes(len)
+				sout.putOut(bytes, 0, len)
 			} else {
-				uncompressBlockCompressed(reader, out, ring, btype)
+				if (reader.requirePrepare) reader.prepareBigChunk()
+				val (tree, dist) = if (btype == 1) FIXED_TREE_DIST else readDynamicTree(reader)
+				while (true) {
+					if (reader.requirePrepare) reader.prepareBigChunk()
+					val value = tree.sreadOneValue(reader)
+					if (value == 256) break
+					if (value < 256) {
+						sout.putOut(value.toByte())
+					} else {
+						if (reader.requirePrepare) reader.prepareBigChunk()
+						val lengthInfo = INFOS_LZ[value - 257]
+						val lengthExtra = reader.readBits(lengthInfo.extra)
+						val distanceData = dist.sreadOneValue(reader)
+						val distanceInfo = INFOS_LZ2[distanceData]
+						val distanceExtra = reader.readBits(distanceInfo.extra)
+						val distance = distanceInfo.offset + distanceExtra
+						val length = lengthInfo.offset + lengthExtra
+						sout.getPutCopyOut(distance, length)
+					}
+					if (sout.mustFlush) sout.flush()
+				}
 			}
 		}
+		sout.flush(finish = true)
 	}
 
-	private suspend fun uncompressBlockCompressed(reader: BitReader, out: AsyncOutputStream, ring: SlidingWindow, btype: Int) {
-		val (tree, dist) = readTree(reader, btype)
-		while (true) {
-			val value = tree.readOneValue(reader)
-			if (value == 256) break
-			if (value < 256) {
-				ring.putOut(out, value.toByte())
-			} else {
-				uncompressLZBlock(reader, value, ring, out, dist)
-			}
-		}
-	}
-
-	private suspend fun uncompressLZBlock(reader: BitReader, value: Int, ring: SlidingWindow, out: AsyncOutputStream, dist: HuffmanTree) {
-		val lengthInfo = INFOS_LZ[value - 257]
-		val lengthExtra = reader.readBits(lengthInfo.extra)
-		val distanceData = dist.readOneValue(reader)
-		val distanceInfo = INFOS_LZ2[distanceData]
-		val distanceExtra = reader.readBits(distanceInfo.extra)
-		val distance = distanceInfo.offset + distanceExtra
-		val length = lengthInfo.offset + lengthExtra
-		ring.getPutCopyOut(out, distance, length)
-	}
-
-	private suspend fun uncompressBlockUncompressed(reader: BitReader, out: AsyncOutputStream, ring: SlidingWindow) {
-		reader.alignbyte()
-		val len = reader.u16_le()
-		val nlen = reader.u16_le()
-		val nnlen = nlen.inv() and 0xFFFF
-		if (len != nnlen) error("Invalid deflate stream: len($len) != ~nlen($nnlen) :: nlen=$nlen")
-		ring.putOut(out, reader.alignbyte().s.readBytesExact(len), 0, len)
-	}
-
-	private suspend fun readTree(reader: BitReader, btype: Int): Pair<HuffmanTree, HuffmanTree> {
-		return if (btype == 1) FIXED_TREE_DIST else readDynamicTree(reader)
-	}
-
-	private suspend fun readDynamicTree(reader: BitReader): Pair<HuffmanTree, HuffmanTree> {
-		val hclenpos = HCLENPOS
+	private fun readDynamicTree(reader: BitReader): Pair<HuffmanTree, HuffmanTree> {
 		val hlit = reader.readBits(5) + 257
 		val hdist = reader.readBits(5) + 1
 		val hclen = reader.readBits(4) + 4
 		val codeLenCodeLen = IntArray(19)
-		for (i in 0 until hclen) codeLenCodeLen[hclenpos[i]] = reader.readBits(3)
+		for (i in 0 until hclen) codeLenCodeLen[HCLENPOS[i]] = reader.readBits(3)
 		//console.info(codeLenCodeLen);
 		val codeLen = HuffmanTree.fromLengths(codeLenCodeLen)
 		val lengths = IntArray(hlit + hdist)
 		var n = 0
-		while (n < hlit + hdist) {
-			val value = codeLen.readOneValue(reader)
+		val hlithdist = hlit + hdist
+		while (n < hlithdist) {
+			val value = codeLen.sreadOneValue(reader)
 			if (value !in 0..18) error("Invalid")
 
 			val len = when (value) {
@@ -105,7 +99,8 @@ open class Deflate(val windowBits: Int) : CompressionMethod {
 				else -> value
 			}
 
-			for (c in 0 until len) lengths[n++] = vv
+			lengths.fill(vv, n, n + len)
+			n += len
 		}
 		return Pair(
 			HuffmanTree.fromLengths(lengths.sliceArray(0 until hlit)),
@@ -152,5 +147,48 @@ open class Deflate(val windowBits: Int) : CompressionMethod {
 			Info(13, 16385), Info(13, 24577)
 		)
 		private val HCLENPOS = intArrayOf(16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15)
+	}
+}
+
+class SlidingWindowWithOutput(val sliding: SlidingWindow, val out: AsyncOutputStream) {
+	// @TODO: Optimize with buffering and copying
+	val bab = ByteArrayBuffer()
+
+	val output get() = bab.size
+	val mustFlush get() = bab.size >= 3 * 1024
+
+	fun getPutCopyOut(distance: Int, length: Int) {
+		//print("LZ: distance=$distance, length=$length   :: ")
+		bab.ensure(bab.size + length)
+		for (n in 0 until length) {
+			val v = sliding.getPut(distance)
+			bab.append(v.toByte())
+			//print("$v,")
+		}
+		//println()
+	}
+
+	fun putOut(bytes: ByteArray, offset: Int, len: Int) {
+		//print("BYTES: $len ::")
+		bab.append(bytes, offset, len)
+		sliding.putBytes(bytes, offset, len)
+		//for (n in 0 until len) print("${bytes[offset + n].toUnsigned()},")
+		//println()
+	}
+
+	fun putOut(byte: Byte) {
+		//println("BYTE: $byte")
+		bab.append(byte)
+		sliding.put(byte.toUnsigned())
+	}
+
+	suspend fun flush(finish: Boolean = false) {
+		if (finish || mustFlush) {
+			//print("FLUSH[$finish][${bab.size}]")
+			//for (n in 0 until bab.size) print("${bab.data[n]},")
+			//println()
+			out.write(bab.data, 0, bab.size)
+			bab.clear()
+		}
 	}
 }

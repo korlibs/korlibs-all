@@ -14,7 +14,7 @@ class HuffmanTree(val root: Node, val symbolLimit: Int) {
 
 	data class Result(var value: Int, var bitcode: Int, var bitcount: Int)
 
-	suspend fun readOne(reader: BitReader, out: Result = Result(0, 0, 0)): Result {
+	fun sreadOne(reader: BitReader, out: Result = Result(0, 0, 0)): Result {
 		//console.log('-------------');
 		var node: Node? = this.root
 		var bitcount = 0
@@ -39,8 +39,9 @@ class HuffmanTree(val root: Node, val symbolLimit: Int) {
 	@PublishedApi
 	internal val tempResult = Result(0, 0, 0)
 
-	suspend inline fun readOneValue(reader: BitReader) = readOne(reader, tempResult).value
-	//suspend fun readOneValue(reader: BitReader) = readOne(reader, tempResult).value
+	inline fun sreadOneValue(reader: BitReader) = sreadOne(reader, tempResult).value
+
+	suspend inline fun readOneValue(reader: BitReader) = sreadOne(reader.prepareBytesUpTo(32), tempResult).value
 
 	companion object {
 		fun fromLengths(codeLengths: IntArray): HuffmanTree {

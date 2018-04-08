@@ -18,7 +18,20 @@ class ByteArrayBuffer(var data: ByteArray, size: Int = data.size, val allowGrow:
 			if (!allowGrow) throw RuntimeException("ByteArrayBuffer configured to not grow!")
 			data = data.copyOf(max(expected, (data.size + 7) * 5))
 		}
-		_size = max(size, expected)
+	}
+
+	fun append(ba: ByteArray, offset: Int, len: Int) {
+		ensure(len)
+		arraycopy(ba, offset, data, _size, len)
+		_size += len
+	}
+
+	fun append(v: Byte) {
+		data[size++] = v
+	}
+
+	fun clear() {
+		_size = 0
 	}
 
 	fun toByteArraySlice(position: Long = 0) = ByteArraySlice(data, position.toInt(), size)

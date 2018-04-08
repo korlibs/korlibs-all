@@ -751,8 +751,9 @@ class MemoryAsyncStreamBase(var data: ByteArrayBuffer) : AsyncStreamBase() {
 
 	override suspend fun write(position: Long, buffer: ByteArray, offset: Int, len: Int) {
 		checkPosition(position)
-		data.ensure((position + len).toInt())
+		data.size = max(data.size, (position + len).toInt())
 		arraycopy(buffer, offset, this.data.data, position.toInt(), len)
+
 	}
 
 	override suspend fun close() = Unit
