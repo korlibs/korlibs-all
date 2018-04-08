@@ -37,3 +37,7 @@ suspend fun CompressionMethod.uncompressTo(data: ByteArray, out: AsyncOutputStre
 	return out
 }
 
+object Uncompressed : CompressionMethod {
+	override suspend fun uncompress(i: AsyncInputWithLengthStream, o: AsyncOutputStream): Unit = run { i.copyTo(o) }
+	override suspend fun compress(i: AsyncInputWithLengthStream, o: AsyncOutputStream, context: CompressionContext): Unit = run { i.copyTo(o) }
+}

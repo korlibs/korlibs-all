@@ -67,12 +67,15 @@ class LimitedOutputStream : AsyncOutputStream {
 	val queue = ProduceConsumer<Task>()
 
 	override suspend fun write(buffer: ByteArray, offset: Int, len: Int) {
+		//println("write: $len")
+		if (len == 0) return // Ignore empty chunks
 		var o = offset
 		var pending = len
-		while (pending >= 0) {
+		while (pending > 0) {
 			val task = queue.consume() ?: invalidOp("Couldn't read from stream")
 			val toRead = min(pending, task.slice.length)
 			arraycopy(buffer, o, task.slice.data, task.slice.position, toRead)
+			//println("write...: $pending, ${task.slice.length}, $toRead")
 			task.count.resolve(toRead)
 			pending -= toRead
 			o += toRead
@@ -86,6 +89,9 @@ class LimitedOutputStream : AsyncOutputStream {
 	suspend fun provideOutput(buffer: ByteArray, offset: Int, len: Int): Int {
 		val task = Task(ByteArraySlice(buffer, offset, len))
 		queue.produce(task)
-		return task.count.promise.await()
+		//println("provideOutput: $len")
+		val result = task.count.promise.await()
+		//println("provideOutput: $len --> $result")
+		return result
 	}
 }

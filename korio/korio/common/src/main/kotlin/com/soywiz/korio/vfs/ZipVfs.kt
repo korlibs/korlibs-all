@@ -1,16 +1,13 @@
 package com.soywiz.korio.vfs
 
-import com.soywiz.kds.*
 import com.soywiz.klock.*
 import com.soywiz.kmem.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.compression.*
 import com.soywiz.korio.compression.deflate.*
+import com.soywiz.korio.coroutine.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.collections.set
 import kotlin.math.*
 
 suspend fun ZipVfs(s: AsyncStream, zipFile: VfsFile? = null): VfsFile = ZipVfs(s, zipFile, caseSensitive = true)
@@ -62,8 +59,8 @@ suspend fun ZipVfs(s: AsyncStream, zipFile: VfsFile? = null, caseSensitive: Bool
 		}
 	}
 
-	val files = lmapOf<String, ZipEntry>()
-	val filesPerFolder = lmapOf<String, MutableMap<String, ZipEntry>>()
+	val files = LinkedHashMap<String, ZipEntry>()
+	val filesPerFolder = LinkedHashMap<String, MutableMap<String, ZipEntry>>()
 
 	data.apply {
 		//println(s)
@@ -107,7 +104,7 @@ suspend fun ZipVfs(s: AsyncStream, zipFile: VfsFile? = null, caseSensitive: Bool
 				val baseFolder = normalizedName.substringBeforeLast('/', "")
 				val baseName = normalizedName.substringAfterLast('/')
 
-				val folder = filesPerFolder.getOrPut(baseFolder) { lmapOf() }
+				val folder = filesPerFolder.getOrPut(baseFolder) { LinkedHashMap() }
 				val entry = ZipEntry(
 					path = name,
 					compressionMethod = compressionMethod,
@@ -124,7 +121,7 @@ suspend fun ZipVfs(s: AsyncStream, zipFile: VfsFile? = null, caseSensitive: Bool
 					val f = components[m - 1]
 					val c = components[m]
 					if (c !in files) {
-						val folder2 = filesPerFolder.getOrPut(f) { lmapOf() }
+						val folder2 = filesPerFolder.getOrPut(f) { LinkedHashMap() }
 						val entry2 = ZipEntry(
 							path = c,
 							compressionMethod = 0,
@@ -162,7 +159,7 @@ suspend fun ZipVfs(s: AsyncStream, zipFile: VfsFile? = null, caseSensitive: Bool
 	class Impl : Vfs() {
 		val vfs = this
 
-		suspend override fun open(path: String, mode: VfsOpenMode): AsyncStream {
+		override suspend fun open(path: String, mode: VfsOpenMode): AsyncStream {
 			val entry = files[path.normalizeName()] ?: throw com.soywiz.korio.FileNotFoundException("Path: '$path'")
 			if (entry.isDirectory) throw com.soywiz.korio.IOException("Can't open a zip directory for $mode")
 			val base = entry.headerEntry.slice()
@@ -180,19 +177,15 @@ suspend fun ZipVfs(s: AsyncStream, zipFile: VfsFile? = null, caseSensitive: Bool
 				val fileNameLength = readU16_le()
 				val extraLength = readU16_le()
 				val name = readString(fileNameLength)
-				val extra = readBytes(extraLength)
+				val extra = readBytesExact(extraLength)
 				val compressedData = readSlice(entry.compressedSize)
 
 				when (entry.compressionMethod) {
-				// Uncompressed
 					0 -> compressedData
-				// Deflate
-					8 -> UncompressAsyncStream(
-						Deflate,
-						compressedData,
-						uncompressedSize.toLong()
-					).toAsyncStream()
-					else -> TODO("Not implemented zip method ${entry.compressionMethod}")
+					else -> UncompressAsyncStream(when (entry.compressionMethod) {
+						8 -> Deflate
+						else -> TODO("Not implemented zip method ${entry.compressionMethod}")
+					}, compressedData, uncompressedSize.toLong()).readAll().openAsync()
 				}
 			}
 		}
@@ -201,9 +194,9 @@ suspend fun ZipVfs(s: AsyncStream, zipFile: VfsFile? = null, caseSensitive: Bool
 			return files[path.normalizeName()].toStat(this@Impl[path])
 		}
 
-		override suspend fun list(path: String): SuspendingSequence<VfsFile> {
-			return asyncGenerate {
-				for ((name, entry) in filesPerFolder[path.normalizeName()] ?: lmapOf()) {
+		override suspend fun list(path: String): AsyncSequence<VfsFile> {
+			return asyncGenerate(getCoroutineContext()) {
+				for ((name, entry) in filesPerFolder[path.normalizeName()] ?: LinkedHashMap()) {
 					//yield(entry.toStat(this@Impl[entry.path]))
 					yield(vfs[entry.path])
 				}
