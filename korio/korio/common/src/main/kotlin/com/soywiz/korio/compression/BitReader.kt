@@ -20,10 +20,13 @@ open class BitReader(val s: AsyncInputWithLengthStream) {
 
 	//suspend inline fun readBits(bitcount: Int): Int {
 	suspend fun readBits(bitcount: Int): Int {
+		if (bitcount == 0) return 0
 		return if (this.bitsavailable >= bitcount) readBitsSure(bitcount) else ensureBits(bitcount).readBitsSure(
 			bitcount
 		)
 	}
+
+	suspend fun readBit(): Boolean = readBits(1) != 0
 
 	fun readBitsSure(bitcount: Int): Int {
 		val readed = this.bitdata and ((1 shl bitcount) - 1)
@@ -47,7 +50,7 @@ suspend fun BitReader.u32_be(): Int = alignbyte().s.readS32_be()
 
 suspend fun BitReader.readBit() = readBits(1) != 0
 suspend fun BitReader.bytes(count: Int) = ByteArray(count).apply {
-	for (n in 0 until count) this[n] = u8().toByte()
+	alignbyte().s.readBytesExact(count)
 }
 
 suspend fun BitReader.strz(): String {
