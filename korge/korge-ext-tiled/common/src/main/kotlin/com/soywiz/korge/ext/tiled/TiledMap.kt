@@ -10,6 +10,7 @@ import com.soywiz.korim.color.*
 import com.soywiz.korim.format.*
 import com.soywiz.korinject.*
 import com.soywiz.korio.compression.*
+import com.soywiz.korio.compression.deflate.*
 import com.soywiz.korio.crypto.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.serialization.xml.*
@@ -187,8 +188,8 @@ suspend fun VfsFile.readTiledMap(views: Views): TiledMap {
 
 								val content = when (compression) {
 									"" -> rawContent
-									"gzip" -> rawContent.uncompressGzip()
-									"zlib" -> rawContent.uncompressZlib()
+									"gzip" -> rawContent.uncompress(GZIP)
+									"zlib" -> rawContent.uncompress(ZLib)
 									else -> invalidOp
 								}
 								content.readIntArray_le(0, count)

@@ -2,8 +2,9 @@ package com.codeazur.as3swf.utils
 
 import com.codeazur.as3swf.data.*
 import com.soywiz.korfl.amf.*
-import com.soywiz.korio.KorioNative.SyncCompression
 import com.soywiz.korio.async.*
+import com.soywiz.korio.compression.*
+import com.soywiz.korio.compression.deflate.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.math.*
 import com.soywiz.korio.stream.*
@@ -128,25 +129,21 @@ open class FlashByteArray() {
 	}
 
 	private fun _uncompress(data: ByteArray, method: String = "zlib"): ByteArray {
-		when (method) {
-			"zlib" -> {
-				return SyncCompression.inflate(data)
+		return data.syncUncompress(
+			when (method) {
+				"zlib" -> ZLib
+				else -> TODO("Unsupported compression method $method")
 			}
-			else -> {
-				TODO("Unsupported compression method $method")
-			}
-		}
+		)
 	}
 
 	private fun _compress(data: ByteArray, method: String = "zlib"): ByteArray {
-		when (method) {
-			"zlib" -> {
-				return SyncCompression.deflate(data, 5)
+		return data.syncCompress(
+			when (method) {
+				"zlib" -> ZLib
+				else -> TODO("Unsupported compression method $method")
 			}
-			else -> {
-				TODO("Unsupported compression method $method")
-			}
-		}
+		)
 	}
 
 	fun replaceBytes(content: ByteArray): Unit {
