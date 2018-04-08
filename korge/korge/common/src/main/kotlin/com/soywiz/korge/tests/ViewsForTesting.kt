@@ -19,8 +19,8 @@ open class ViewsForTesting {
 	}
 
 	fun viewsTest(step: TimeSpan = 10.milliseconds, callback: suspend EventLoopTest.() -> Unit) = suspendTest {
-		views.updateLoop(this@syncTest, step.milliseconds) {
-			callback(this@syncTest)
+		views.updateLoop(this@suspendTest, step.milliseconds) {
+			callback(this@suspendTest)
 		}
 	}
 }

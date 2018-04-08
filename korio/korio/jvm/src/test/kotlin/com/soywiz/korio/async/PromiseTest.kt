@@ -62,12 +62,12 @@ class PromiseTest {
 			}.await()
 		}
 		assertEquals("a", out)
-		this@syncTest.step(1200)
+		this@suspendTest.step(1200)
 		assertEquals("ab", out)
-		this@syncTest.step(100)
+		this@suspendTest.step(100)
 		assertEquals("ab", out)
 		prom.cancel()
-		this@syncTest.step(1200)
+		this@suspendTest.step(1200)
 		assertEquals("ab", out)
 	}
 
