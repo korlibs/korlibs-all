@@ -8,7 +8,7 @@ import kotlin.test.*
 class TiledMapTest : ViewsForTesting() {
 	@Test
 	@Ignore // Must fix mapping first
-	fun name() = syncTest {
+	fun name() = suspendTest {
 		disableNativeImageLoading {
 			class Demo(@Path("sample.tmx") val map: TiledMap)
 

@@ -11,7 +11,7 @@ import kotlin.test.*
 class TtfFontTest {
 	lateinit var root: VfsFile
 
-	fun ttfTest(callback: suspend () -> Unit) = syncTest {
+	fun ttfTest(callback: suspend () -> Unit) = suspendTest {
 		for (path in listOf(applicationVfs["src/test/resources"], ResourcesVfs)) {
 			root = path
 			if (root["kotlin8.png"].exists()) break

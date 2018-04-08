@@ -6,7 +6,7 @@ import kotlin.test.*
 
 class UrlVfsTest {
 	@Test
-	fun name() = syncTest {
+	fun name() = suspendTest {
 		assertEquals(
 			"http://test.com/demo/hello/world",
 			UrlVfs("http://test.com/")["demo"].jail()["hello/world"].absolutePath
@@ -18,7 +18,7 @@ class UrlVfsTest {
 	}
 
 	@Test
-	fun testRightRequests() = syncTest {
+	fun testRightRequests() = suspendTest {
 		val httpClient = LogHttpClient()
 		val url = UrlVfs("http://google.es/", httpClient)
 		println(url.readString())
@@ -29,7 +29,7 @@ class UrlVfsTest {
 	}
 
 	@Test
-	fun requestRightUrl() = syncTest {
+	fun requestRightUrl() = suspendTest {
 		val httpClient = LogHttpClient()
 		val url = UrlVfs("http://google.es/demo/file.png", httpClient)
 		println(url.readString())

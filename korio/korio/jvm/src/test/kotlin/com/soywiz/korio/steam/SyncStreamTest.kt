@@ -28,7 +28,7 @@ class SyncStreamTest {
 	}
 
 	@Test
-	fun testArrays() = syncTest {
+	fun testArrays() = suspendTest {
 		val out = MemorySyncStream()
 		for (n in 0 until 6) out.write32_le(n * n)
 		out.position = 0L
@@ -45,7 +45,7 @@ class SyncStreamTest {
 	}
 
 	@Test
-	fun test2() = syncTest {
+	fun test2() = suspendTest {
 		val out = MemorySyncStream()
 		out.write16_be(0x1234)
 		val bb = out.toByteArray()

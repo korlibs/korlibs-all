@@ -11,7 +11,7 @@ class ImageFormats2Test {
 	//val root = ResourcesVfs
 	lateinit var root: VfsFile
 
-	fun imgTest(callback: suspend () -> Unit) = syncTest {
+	fun imgTest(callback: suspend () -> Unit) = suspendTest {
 		for (path in listOf(applicationVfs["src/test/resources"], ResourcesVfs)) {
 			root = path
 			if (root["kotlin8.png"].exists()) break

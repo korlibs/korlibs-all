@@ -9,14 +9,14 @@ class DDSTest {
 	val ResourcesVfs = ImageFormatsTest.root
 
 	@kotlin.test.Test
-	fun dxt1() = syncTest {
+	fun dxt1() = suspendTest {
 		val output = ResourcesVfs["dxt1.dds"].readBitmapNoNative(formats)
 		val expected = ResourcesVfs["dxt1.png"].readBitmapNoNative(formats)
 		assertTrue(output.matchContents(expected))
 	}
 
 	@kotlin.test.Test
-	fun dxt3() = syncTest {
+	fun dxt3() = suspendTest {
 		val output = ResourcesVfs["dxt3.dds"].readBitmapNoNative(formats)
 		val expected = ResourcesVfs["dxt3.png"].readBitmapNoNative(formats)
 		assertTrue(output.matchContents(expected))
@@ -24,7 +24,7 @@ class DDSTest {
 	}
 
 	@kotlin.test.Test
-	fun dxt5() = syncTest {
+	fun dxt5() = suspendTest {
 		val output = ResourcesVfs["dxt5.dds"].readBitmapNoNative(formats)
 		val expected = ResourcesVfs["dxt5.png"].readBitmapNoNative(formats)
 		assertTrue(output.matchContents(expected))

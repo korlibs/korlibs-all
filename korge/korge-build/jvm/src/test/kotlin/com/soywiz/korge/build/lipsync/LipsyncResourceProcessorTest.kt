@@ -15,12 +15,12 @@ import org.junit.Ignore
 class LipsyncResourceProcessorTest {
 	@Ignore
 	@Test
-	fun test1() = syncTest {
+	fun test1() = suspendTest {
 		LipsyncResourceProcessor.processAudioData(ResourcesVfs["simple.wav"].readAudioData())
 	}
 
 	@Test
-	fun test2() = syncTest {
+	fun test2() = suspendTest {
 		val json = """
 	{
 	  "metadata": {
@@ -67,7 +67,7 @@ class LipsyncResourceProcessorTest {
 
 	@Test
 	@Ignore
-	fun name() = syncTest {
+	fun name() = suspendTest {
 		val memoryVfs = MemoryVfs()
 		val processed1 = LipsyncResourceProcessor.process(ResourcesVfs["wav1.voice.wav"], memoryVfs)
 		Assert.assertEquals(true, processed1)

@@ -25,7 +25,7 @@ class DynamicTest {
 	}
 
 	@Test
-	fun get() = syncTest {
+	fun get() = suspendTest {
 		class DynamicObj(val obj: Any?) {
 			suspend fun get(key: String) = DynamicObj(Dynamic.getAny(obj, key))
 

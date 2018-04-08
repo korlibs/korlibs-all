@@ -6,7 +6,7 @@ import kotlin.test.*
 
 class Xml2Test {
 	@Test
-	fun name2() = syncTest {
+	fun name2() = suspendTest {
 		val xml = ResourcesVfs["test.xml"].readXml()
 		assertEquals("test", xml.name)
 		assertEquals("hello", xml.text)

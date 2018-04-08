@@ -5,7 +5,7 @@ import kotlin.test.*
 
 class SignalTest {
 	@Test
-	fun name() = syncTest {
+	fun name() = suspendTest {
 		var out = ""
 		val s = Signal<Int>()
 		assertEquals(0, s.listenerCount)
@@ -30,7 +30,7 @@ class SignalTest {
 	}
 
 	@Test
-	fun name2() = syncTest {
+	fun name2() = suspendTest {
 		var out = ""
 		val s = Signal<Int>()
 		spawn(coroutineContext) {

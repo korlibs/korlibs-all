@@ -10,14 +10,14 @@ class AsyncInjectorTest {
 	}
 
 	@Test
-	fun testSimple() = syncTest {
+	fun testSimple() = suspendTest {
 		val inject = AsyncInjector()
 		inject.mapInstance(Int::class, 10)
 		assertEquals(10, inject.get(Int::class))
 	}
 
 	@Test
-	fun testSingleton() = syncTest {
+	fun testSingleton() = suspendTest {
 		@Singleton
 		class A(val holder: Holder) {
 			val id: Int = holder.lastId++
@@ -53,7 +53,7 @@ class AsyncInjectorTest {
 	}
 
 	@kotlin.test.Test
-	fun testPrototype() = syncTest {
+	fun testPrototype() = suspendTest {
 		lastId = 0
 		val inject = AsyncInjector()
 		inject.mapPrototype(PrototypeA::class) { PrototypeA() }
@@ -64,7 +64,7 @@ class AsyncInjectorTest {
 	}
 
 	@kotlin.test.Test
-	fun testPrototypeSingleton() = syncTest {
+	fun testPrototypeSingleton() = suspendTest {
 		lastId = 0
 		val inject = AsyncInjector()
 		inject.mapPrototype(PrototypeA::class) { PrototypeA() }
@@ -92,7 +92,7 @@ class AsyncInjectorTest {
 	}
 
 	@kotlin.test.Test
-	fun testLoader() = syncTest {
+	fun testLoader() = suspendTest {
 		@Singleton
 		class Demo(
 			//@Path("path/to/font") val font: BitmapFont
@@ -130,7 +130,7 @@ class AsyncInjectorTest {
 	}
 
 	//@kotlin.test.Test
-	//fun testLoader2() = syncTest {
+	//fun testLoader2() = suspendTest {
 	//	@Singleton
 	//	class Demo2 : InjectorAsyncDependency {
 	//		lateinit var fontA: BitmapFont2
@@ -191,7 +191,7 @@ class AsyncInjectorTest {
 	}
 
 	@kotlin.test.Test
-	fun testSingletonInChilds() = syncTest {
+	fun testSingletonInChilds() = suspendTest {
 		@Singleton
 		class MySingleton {
 			var a = 10
@@ -209,7 +209,7 @@ class AsyncInjectorTest {
 	}
 
 	@kotlin.test.Test
-	fun testNotMapped() = syncTest {
+	fun testNotMapped() = suspendTest {
 		// @TODO: Not working with Kotlin.JS
 
 		//expectException<AsyncInjector.NotMappedException> {
@@ -234,7 +234,7 @@ class AsyncInjectorTest {
 	}
 
 	@kotlin.test.Test
-	fun testMap1() = syncTest {
+	fun testMap1() = suspendTest {
 		data class Mapped(val name: String)
 		@Singleton
 		class MySingleton(val mapped: Mapped)

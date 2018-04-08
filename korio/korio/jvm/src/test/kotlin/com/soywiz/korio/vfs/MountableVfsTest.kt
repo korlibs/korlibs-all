@@ -7,7 +7,7 @@ import kotlin.test.*
 
 class MountableVfsTest {
 	@Test
-	fun testMountable() = syncTest {
+	fun testMountable() = suspendTest {
 		val root = MountableVfs({
 			mount("/zip/demo2", ResourcesVfs["hello.zip"].openAsZip())
 			mount("/zip", ResourcesVfs["hello.zip"].openAsZip())

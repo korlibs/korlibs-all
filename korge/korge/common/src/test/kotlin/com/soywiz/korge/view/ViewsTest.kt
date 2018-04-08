@@ -10,7 +10,7 @@ class ViewsTest : ViewsForTesting() {
 	val tex = Texture(views.ag.createTexture(), 10, 10)
 
 	@Test
-	fun testBounds() = syncTest {
+	fun testBounds() = suspendTest {
 		val image = views.image(tex)
 		image.x = 100.0
 		image.y = 100.0

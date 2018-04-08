@@ -128,23 +128,18 @@ open class FlashByteArray() {
 		this.data.writeBytes(bytes.data.readBytes(len))
 	}
 
-	private fun _uncompress(data: ByteArray, method: String = "zlib"): ByteArray {
-		return data.syncUncompress(
-			when (method) {
-				"zlib" -> ZLib
-				else -> TODO("Unsupported compression method $method")
-			}
-		)
+	private fun getCompressionMethod(method: String) = when (method) {
+		"gzip" -> GZIP
+		"zlib" -> ZLib
+		"deflate" -> Deflate
+		else -> TODO("Unsupported compression method $method")
 	}
 
-	private fun _compress(data: ByteArray, method: String = "zlib"): ByteArray {
-		return data.syncCompress(
-			when (method) {
-				"zlib" -> ZLib
-				else -> TODO("Unsupported compression method $method")
-			}
-		)
-	}
+	private fun _uncompress(data: ByteArray, method: String = "zlib"): ByteArray =
+		data.syncUncompress(getCompressionMethod(method))
+
+	private fun _compress(data: ByteArray, method: String = "zlib"): ByteArray =
+		data.syncCompress(getCompressionMethod(method))
 
 	fun replaceBytes(content: ByteArray): Unit {
 		data.position = 0L

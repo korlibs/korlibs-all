@@ -8,7 +8,7 @@ class OGGDecoderTest {
 	val formats = AudioFormats().registerStandard().registerOggVorbisDecoder()
 
 	@Test
-	fun testDecodeWav() = syncTest {
+	fun testDecodeWav() = suspendTest {
 		//ResourcesVfs["ogg1.ogg"].readAudioData().play()
 		//ResourcesVfs["ogg1.ogg"].readAudioStream()!!.play()
 		val expected = ResourcesVfs["ogg1.ogg.wav"].readAudioData(formats)

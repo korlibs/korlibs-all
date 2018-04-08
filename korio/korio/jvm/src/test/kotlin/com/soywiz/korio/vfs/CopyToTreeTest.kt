@@ -7,7 +7,7 @@ import kotlin.test.*
 
 class CopyToTreeTest {
 	@Test
-	fun name() = syncTest {
+	fun name() = suspendTest {
 		val mem = MemoryVfs(
 			lmapOf(
 				"root.txt" to "hello".toByteArray().openAsync(),

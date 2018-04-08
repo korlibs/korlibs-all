@@ -5,7 +5,7 @@ import org.junit.*
 
 class CommonResourcesVfsTest {
 	@Test
-	fun testCanReadResourceProperly() = syncTest {
+	fun testCanReadResourceProperly() = suspendTest {
 		//assertEquals("HELLO", resourcesVfs["resource.txt"].readString())
 	}
 }

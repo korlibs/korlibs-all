@@ -9,7 +9,7 @@ class KorauTest {
 	val formats = AudioFormats().registerStandard()
 
 	@Test
-	fun name(): Unit = syncTest {
+	fun name(): Unit = suspendTest {
 		val sound = ResourcesVfs["wav1.wav"].readAudioData(formats)
 		//sleep(0)
 		//sound.play()

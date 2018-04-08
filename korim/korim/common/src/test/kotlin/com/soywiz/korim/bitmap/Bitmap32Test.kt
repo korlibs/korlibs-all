@@ -26,7 +26,7 @@ class Bitmap32Test {
 
 	//@Test
 	//	//@Ignore
-	//fun mipmaps() = syncTest {
+	//fun mipmaps() = suspendTest {
 	//	val bmp = Bitmap32(4096 * 2, 4096 * 2, Colors.BLACK)
 	//	val bitmap2 = bmp.mipmap(2)
 	//	//awtShowImage(bitmap2); Thread.sleep(10000L)

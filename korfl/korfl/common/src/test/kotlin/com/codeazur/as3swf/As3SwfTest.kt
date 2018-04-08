@@ -7,7 +7,7 @@ import org.junit.*
 
 class As3SwfTest {
 	@Test
-	fun name() = syncTest {
+	fun name() = suspendTest {
 		val swf2 = SWF().loadBytes(ResourcesVfs["empty.swf"].readAll())
 		println(swf2.frameSize.rect)
 		for (tag in swf2.tags) {
@@ -19,7 +19,7 @@ class As3SwfTest {
 	}
 
 	@Test
-	fun name2() = syncTest {
+	fun name2() = suspendTest {
 		val swf2 = SWF().loadBytes(ResourcesVfs["simple.swf"].readAll())
 		println(swf2.frameSize.rect)
 		for (tag in swf2.tags) {
@@ -32,7 +32,7 @@ class As3SwfTest {
 
 
 	@Test
-	fun name3() = syncTest {
+	fun name3() = suspendTest {
 		val swf2 = SWF().loadBytes(ResourcesVfs["test1.swf"].readAll())
 		println(swf2.frameSize.rect)
 		for (tag in swf2.tags) {
@@ -45,7 +45,7 @@ class As3SwfTest {
 
 	//@Test
 	//@Ignore
-	//fun name4() = syncTest {
+	//fun name4() = suspendTest {
 	//	val swf2 = SWF().loadBytes(LocalVfs["c:/temp/ui.swf"].readAll())
 	//	println(swf2.frameSize.rect)
 	//	for (tag in swf2.tags) {
@@ -58,7 +58,7 @@ class As3SwfTest {
 	//}
 
 	//@Test
-	//fun name4() = syncTest {
+	//fun name4() = suspendTest {
 	//	//val swf2 = SWF().loadBytes(File("c:/temp/sample1.swf").readBytes())
 	//	println(swf2.frameSize.rect)
 	//	for (tag in swf2.tags) {

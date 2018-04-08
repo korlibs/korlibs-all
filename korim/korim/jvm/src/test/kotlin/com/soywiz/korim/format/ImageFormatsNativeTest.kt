@@ -10,14 +10,14 @@ class ImageFormatsNativeTest {
 	val formats = ImageFormats().registerStandard().register(ICO).register(SVG)
 
 	@Test
-	fun png8() = syncTest {
+	fun png8() = suspendTest {
 		val bitmap = ResourcesVfs["kotlin8.png"].readNativeImage()
 		assertEquals("AwtNativeImage(190, 190)", bitmap.toString())
 		//awtShowImage(bitmap); Thread.sleep(10000L)
 	}
 
 	@Test
-	fun png24() = syncTest {
+	fun png24() = suspendTest {
 		val bitmap = ResourcesVfs["kotlin24.png"].readBitmap(formats = formats)
 		assertEquals("AwtNativeImage(190, 190)", bitmap.toString())
 		//awtShowImage(bitmap); Thread.sleep(10000L)
@@ -25,14 +25,14 @@ class ImageFormatsNativeTest {
 
 
 	@Test
-	fun png32() = syncTest {
+	fun png32() = suspendTest {
 		val bitmap = ResourcesVfs["kotlin32.png"].readBitmap(formats = formats)
 		assertEquals("AwtNativeImage(190, 190)", bitmap.toString())
 		//awtShowImage(bitmap); Thread.sleep(10000L)
 	}
 
 	@Test
-	fun jpeg() = syncTest {
+	fun jpeg() = suspendTest {
 		val bitmap = ResourcesVfs["kotlin.jpg"].readBitmap(formats = formats)
 		assertEquals("AwtNativeImage(190, 190)", bitmap.toString())
 
@@ -45,7 +45,7 @@ class ImageFormatsNativeTest {
 	}
 
 	@Test
-	fun jpeg2() = syncTest {
+	fun jpeg2() = suspendTest {
 		val bitmap = ResourcesVfs["img1.jpg"].readBitmap(formats = formats)
 		assertEquals("AwtNativeImage(460, 460)", bitmap.toString())
 
@@ -59,7 +59,7 @@ class ImageFormatsNativeTest {
 	}
 
 	@Test
-	fun svg() = syncTest {
+	fun svg() = suspendTest {
 		val bi = ResourcesVfs["logo.svg"].readBitmapInfo(formats)!!
 		assertEquals(Size(60, 60), bi.size)
 		val bitmap = ResourcesVfs["logo.svg"].readBitmap(formats = formats)

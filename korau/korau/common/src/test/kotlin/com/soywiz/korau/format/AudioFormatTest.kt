@@ -8,7 +8,7 @@ class AudioFormatTest {
 	val formats = AudioFormats().registerStandard()
 
 	@kotlin.test.Test
-	fun wav() = syncTest {
+	fun wav() = suspendTest {
 		assertEquals(
 			"Info(lengthInMicroseconds=500000, channels=1)",
 			ResourcesVfs["wav1.wav"].readSoundInfo(formats).toString()
@@ -20,7 +20,7 @@ class AudioFormatTest {
 	}
 
 	@kotlin.test.Test
-	fun ogg() = syncTest {
+	fun ogg() = suspendTest {
 		assertEquals(
 			"Info(lengthInMicroseconds=500000, channels=1)",
 			ResourcesVfs["ogg1.ogg"].readSoundInfo(formats).toString()
@@ -28,7 +28,7 @@ class AudioFormatTest {
 	}
 
 	@kotlin.test.Test
-	fun mp3() = syncTest {
+	fun mp3() = suspendTest {
 		assertEquals(
 			"Info(lengthInMicroseconds=546625, channels=1)",
 			ResourcesVfs["mp31.mp3"].readSoundInfo(formats).toString()

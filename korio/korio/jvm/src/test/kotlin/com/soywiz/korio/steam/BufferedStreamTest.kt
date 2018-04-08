@@ -6,7 +6,7 @@ import kotlin.test.*
 
 class BufferedStreamTest {
 	@Test
-	fun name() = syncTest {
+	fun name() = suspendTest {
 		val mem = MemorySyncStream().toAsync()
 		val write = mem.duplicate()
 		val read = mem.duplicate().buffered()

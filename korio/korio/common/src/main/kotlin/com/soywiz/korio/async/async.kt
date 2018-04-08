@@ -116,12 +116,6 @@ inline fun <T> spawnAndForget(context: CoroutineContext, value: T, noinline task
 
 //fun syncTest(callback: suspend EventLoopTest.() -> Unit): Unit = TODO()
 
-@Deprecated("", ReplaceWith("suspendTest(block)"))
-fun syncTest(block: suspend EventLoopTest.() -> Unit): Unit = suspendTest(block)
-
-@Deprecated("", ReplaceWith("suspendTest(block)"))
-fun syncTestIgnoreJs(block: suspend EventLoopTest.() -> Unit): Unit = suspendTestIgnoreJs(block)
-
 fun <T : Any> ioSync(callback: suspend () -> T): T {
 	var completed = false
 	lateinit var result: T

@@ -9,7 +9,7 @@ class PSDTest {
 	val ResourcesVfs = ImageFormatsTest.root
 
 	@Test
-	fun psdTest() = syncTest {
+	fun psdTest() = suspendTest {
 		val output = ResourcesVfs["small.psd"].readBitmapNoNative(formats)
 		val expected = ResourcesVfs["small.psd.png"].readBitmapNoNative(formats)
 		//showImageAndWait(output)

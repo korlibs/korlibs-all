@@ -7,7 +7,7 @@ import org.junit.*
 class SvgTest {
 	@Test
 	//@Ignore
-	fun name() = syncTest {
+	fun name() = suspendTest {
 		val logo = SVG(SAMPLE_LOGO)
 		val img = logo.render().toBmp32()
 

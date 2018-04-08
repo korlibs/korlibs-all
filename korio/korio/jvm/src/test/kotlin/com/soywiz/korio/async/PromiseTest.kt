@@ -8,19 +8,19 @@ import kotlin.test.*
 
 class PromiseTest {
 	@Test
-	fun nullPromise() = syncTest {
+	fun nullPromise() = suspendTest {
 		val promise = Promise.resolved<String?>(null)
 		assertEquals(null, promise.await())
 	}
 
 	@Test
-	fun rejectedPromise() = syncTest {
+	fun rejectedPromise() = suspendTest {
 		val promise = Promise.rejected<String?>(IllegalStateException())
 		expectException<IllegalStateException> { promise.await() }
 	}
 
 	@Test
-	fun name() = syncTest {
+	fun name() = suspendTest {
 		var out = ""
 		val p = spawn(coroutineContext) {
 			try {
@@ -48,7 +48,7 @@ class PromiseTest {
 
 	@Test
 	@Ignore
-	fun cancel1() = syncTest {
+	fun cancel1() = suspendTest {
 		var out = ""
 		val prom = go {
 			out += "a"
@@ -73,7 +73,7 @@ class PromiseTest {
 
 	@Test
 	@Ignore
-	fun jvmUnsafeAwait() = syncTest {
+	fun jvmUnsafeAwait() = suspendTest {
 		assertEquals(10, async(coroutineContext) {
 			sleep(20)
 			10

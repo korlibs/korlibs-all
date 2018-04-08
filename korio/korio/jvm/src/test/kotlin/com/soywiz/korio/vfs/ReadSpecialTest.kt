@@ -17,7 +17,7 @@ class ReadSpecialTest {
 	}
 
 	@Test
-	fun testReadSpecial2() = syncTest {
+	fun testReadSpecial2() = suspendTest {
 		val temp = MemoryVfs()
 		val f2 = temp["korio.chararray2"]
 		f2.writeString("123456789")

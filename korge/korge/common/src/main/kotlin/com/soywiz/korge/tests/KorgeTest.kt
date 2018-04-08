@@ -38,7 +38,7 @@ open class KorgeTest {
 		sceneClass: KClass<T>,
 		vararg injects: Any,
 		callback: suspend T.() -> Unit
-	) = syncTest {
+	) = suspendTest {
 		//disableNativeImageLoading {
 		val sc = Korge.test(
 			Korge.Config(

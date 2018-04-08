@@ -7,7 +7,7 @@ import kotlin.test.*
 
 class AtlasInfoTest {
 	@Test
-	fun name() = syncTest {
+	fun name() = suspendTest {
 		val atlas = AtlasInfo.loadJsonSpriter(TestAssertVfs["demo.json"].readString())
 		assertEquals("Spriter", atlas.app)
 		assertEquals("r10", atlas.version)

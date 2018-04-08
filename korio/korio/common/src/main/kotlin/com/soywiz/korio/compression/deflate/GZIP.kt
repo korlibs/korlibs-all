@@ -67,6 +67,5 @@ object GZIP : CompressionMethod {
 		}, o, context)
 		o.write32_le(crc32)
 		o.write32_le(size)
-
 	}
 }

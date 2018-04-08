@@ -8,7 +8,7 @@ import kotlin.test.*
 
 class MouseComponentTest : ViewsForTesting() {
 	@Test
-	fun name() = syncTest {
+	fun name() = suspendTest {
 		val log = arrayListOf<String>()
 		val tex = Texture(ag.createTexture(), 16, 16)
 		val image = views.image(tex)

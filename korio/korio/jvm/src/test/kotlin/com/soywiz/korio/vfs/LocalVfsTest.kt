@@ -9,7 +9,7 @@ class LocalVfsTest {
 	val temp = TempVfs()
 
 	@Test
-	fun name() = syncTest {
+	fun name() = suspendTest {
 		val content = "HELLO WORLD!"
 		temp["korio.temp"].writeString(content)
 		temp["korio.temp2"].writeFile(temp["korio.temp"])
@@ -31,7 +31,7 @@ class LocalVfsTest {
 	}
 
 	@Test
-	fun ensureParent() = syncTest {
+	fun ensureParent() = suspendTest {
 		temp["korio.temp.folder/test.txt"].ensureParents().writeString("HELLO")
 		temp["korio.temp.folder/test.txt"].delete()
 		temp["korio.temp.folder"].delete()

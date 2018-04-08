@@ -6,19 +6,19 @@ import kotlin.test.*
 
 class AsyncStreamTest {
 	@Test
-	fun name() = syncTest {
+	fun name() = suspendTest {
 		val mem = FillSyncStream(0).toAsync()
 		println(mem.readU8())
 	}
 
 	@Test
-	fun name2() = syncTest {
+	fun name2() = suspendTest {
 		val data = "HELLO WORLD\u0000TEST".toByteArray()
 		assertEquals("HELLO WORLD", data.openAsync().readStringz())
 	}
 
 	@Test
-	fun name3() = syncTest {
+	fun name3() = suspendTest {
 		val bytes = "HELLO WORLD\u0000TEST".toByteArray()
 		val data = bytes.openAsync()
 		data.position = 1000
@@ -30,7 +30,7 @@ class AsyncStreamTest {
 	}
 
 	@Test
-	fun name4() = syncTest {
+	fun name4() = suspendTest {
 		assertTrue(byteArrayOf(1, 2, 3).openSync().toAsync().base is MemoryAsyncStreamBase)
 		assertTrue(byteArrayOf(1, 2, 3).openAsync().base is MemoryAsyncStreamBase)
 	}

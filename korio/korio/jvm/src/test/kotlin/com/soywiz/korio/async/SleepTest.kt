@@ -4,7 +4,7 @@ import kotlin.test.*
 
 class SleepTest {
 	@Test
-	fun name() = syncTest {
+	fun name() = suspendTest {
 		val start = time
 		sleep(10)
 		sleep(20)

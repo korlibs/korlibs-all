@@ -5,7 +5,7 @@ import kotlin.test.*
 
 class MemoryVfsTest {
 	@Test
-	fun name() = syncTest {
+	fun name() = suspendTest {
 		val log = ArrayList<String>()
 		val mem = MemoryVfs()
 

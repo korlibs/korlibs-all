@@ -26,7 +26,7 @@ class SwfTest {
 		return mem["file.ani"].readAni(views)
 	}
 
-	fun swfTest(callback: suspend EventLoopTest.() -> Unit) = syncTest {
+	fun swfTest(callback: suspend EventLoopTest.() -> Unit) = suspendTest {
 		viewsLog.init()
 		callback()
 	}

@@ -9,7 +9,7 @@ import org.junit.Assert
 
 class SwfResourceProcessorTest {
 	@Test
-	fun name() = syncTest {
+	fun name() = suspendTest {
 		val memoryVfs = MemoryVfs()
 		val processed1 = SwfResourceProcessor.process(ResourcesVfs["shapes.swf"], memoryVfs)
 		Assert.assertEquals(true, processed1)

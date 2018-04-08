@@ -4,12 +4,12 @@ class RhubarbLipSyncTest {
 	/*
 	@Ignore
 	@Test
-	fun test1() = syncTest {
+	fun test1() = suspendTest {
 		RhubarbLipSyncProcessor.process(ResourcesVfs["simple.wav"].readAudioData())
 	}
 
 	@Test
-	fun test2() = syncTest {
+	fun test2() = suspendTest {
 		val json = """
 		{
 		  "metadata": {

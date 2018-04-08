@@ -10,7 +10,7 @@ import kotlin.test.*
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
 class ZipVfsTest {
 	@Test
-	fun testZipUncompressed1() = syncTest {
+	fun testZipUncompressed1() = suspendTest {
 		val helloZip = ResourcesVfs["hello.zip"].openAsZip()
 
 		assertEquals(
@@ -20,7 +20,7 @@ class ZipVfsTest {
 	}
 
 	@Test
-	fun testZipUncompressed2() = syncTest {
+	fun testZipUncompressed2() = suspendTest {
 		val helloZip = ResourcesVfs["hello.zip"].openAsZip()
 
 		assertEquals(
@@ -30,7 +30,7 @@ class ZipVfsTest {
 	}
 
 	@Test
-	fun testZipUncompressed3() = syncTest {
+	fun testZipUncompressed3() = suspendTest {
 		val helloZip = ResourcesVfs["hello.zip"].openAsZip()
 
 		assertEquals(
@@ -40,7 +40,7 @@ class ZipVfsTest {
 	}
 
 	@Test
-	fun testZipUncompressed4() = syncTest {
+	fun testZipUncompressed4() = suspendTest {
 		val helloZip = ResourcesVfs["hello.zip"].openAsZip()
 
 		assertEquals(
@@ -50,7 +50,7 @@ class ZipVfsTest {
 	}
 
 	@Test
-	fun testZipUncompressed5() = syncTest {
+	fun testZipUncompressed5() = suspendTest {
 		val helloZip = ResourcesVfs["hello.zip"].openAsZip()
 
 		val stat = helloZip["hello/world.txt"].stat()
@@ -63,7 +63,7 @@ class ZipVfsTest {
 	}
 
 	@Test
-	fun testZipCompressed() = syncTest {
+	fun testZipCompressed() = suspendTest {
 		val helloZip = ResourcesVfs["compressedHello.zip"].openAsZip()
 
 		val contents =
@@ -100,7 +100,7 @@ class ZipVfsTest {
 	}
 
 	@Test
-	fun testCreateZip() = syncTest {
+	fun testCreateZip() = suspendTest {
 		val mem = MemoryVfsMix(
 			"/test.txt" to "test",
 			"/hello/world.txt" to "hello world world world world!"
@@ -120,7 +120,7 @@ class ZipVfsTest {
 
 	@Test
 	@Ignore
-	fun testZip1() = syncTest {
+	fun testZip1() = suspendTest {
 		val mem = MemoryVfs()
 		//UrlVfs("https://github.com/soywiz/korge-tools/releases/download/binaries/rhubarb-lip-sync-1.4.2-win32.zip").copyTo(LocalVfs["c:/temp/file.zip"])
 
@@ -138,7 +138,7 @@ class ZipVfsTest {
 	}
 
 	@Test
-	fun testReadChunk() = syncTest {
+	fun testReadChunk() = suspendTest {
 		val zip = ResourcesVfs["simple1.fla.zip"].openAsZip()
 		val xml = zip["DOMDocument.xml"].readXml()
 		assertEquals(1, xml.descendants.filter { it.nameLC == "frames" }.count())

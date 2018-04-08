@@ -9,7 +9,7 @@ class MP3DecoderTest {
 
 	// http://mpgedit.org/mpgedit/testdata/mpegdata.html
 	@kotlin.test.Test
-	fun testDecodeMp3() = syncTest {
+	fun testDecodeMp3() = suspendTest {
 		val output = ResourcesVfs["mp31.mp3"].readAudioData(formats)
 		val outputBytes = formats.encodeToByteArray(output, "out.wav")
 

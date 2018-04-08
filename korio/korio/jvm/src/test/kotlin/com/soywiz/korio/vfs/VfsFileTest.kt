@@ -5,19 +5,19 @@ import kotlin.test.*
 
 class VfsFileTest {
 	@Test
-	fun name() = syncTest {
+	fun name() = suspendTest {
 		val file = MemoryVfs()["C:\\this\\is\\a\\test.txt"]
 		assertEquals("C:/this/is/a", file.parent.fullname)
 	}
 
 	@Test
-	fun memoryNonExists() = syncTest {
+	fun memoryNonExists() = suspendTest {
 		val file = MemoryVfs()
 		assertEquals(false, file["test"].exists())
 	}
 
 	@Test
-	fun testCaseSensitiveAccess() = syncTest {
+	fun testCaseSensitiveAccess() = suspendTest {
 		val file = MemoryVfs(caseSensitive = true)
 		file["test.tXt"].writeString("hello world")
 		assertEquals(true, file["test.tXt"].exists())
@@ -26,7 +26,7 @@ class VfsFileTest {
 	}
 
 	@Test
-	fun testCaseInsensitiveAccess() = syncTest {
+	fun testCaseInsensitiveAccess() = suspendTest {
 		val file = MemoryVfs(caseSensitive = false)
 		file["test.tXt"].writeString("hello world")
 		assertEquals(true, file["test.txt"].exists())
@@ -35,7 +35,7 @@ class VfsFileTest {
 	}
 
 	@Test
-	fun redirected() = syncTest {
+	fun redirected() = suspendTest {
 		var out = ""
 		val file = MemoryVfsMix(
 			"hello.txt" to "yay!",
@@ -56,7 +56,7 @@ class VfsFileTest {
 	}
 
 	@Test
-	fun avoidStats() = syncTest {
+	fun avoidStats() = suspendTest {
 		val log = LogVfs(MemoryVfsMix("hello.txt" to "yay!"))
 		val root = log.root
 		root["hello.txt"].readBytes()

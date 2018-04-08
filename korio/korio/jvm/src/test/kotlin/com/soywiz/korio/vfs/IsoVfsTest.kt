@@ -5,7 +5,7 @@ import kotlin.test.*
 
 class IsoVfsTest {
 	@Test
-	fun testIso() = syncTest {
+	fun testIso() = suspendTest {
 		val isotestIso = ResourcesVfs["isotest.iso"].openAsIso()
 		assertEquals(
 			listOf("/HELLO", "/HELLO/WORLD.TXT"),

@@ -10,7 +10,7 @@ class FlaTest {
 
 	@Test
 	@Ignore
-	fun name() = syncTest {
+	fun name() = suspendTest {
 		val fla = Fla.read(TestAssertVfs["simple1.fla"])
 		//val fla = Fla.read(ResourcesVfs["simple1"])
 	}

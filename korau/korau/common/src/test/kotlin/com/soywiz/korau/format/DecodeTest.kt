@@ -9,7 +9,7 @@ class DecodeTest {
 	val formats = AudioFormats().register(WAV)
 
 	@kotlin.test.Test
-	fun wav() = syncTest {
+	fun wav() = suspendTest {
 		val wavContents = ResourcesVfs["wav1.wav"].read()
 		val wavData = formats.decode(wavContents.openAsync())!!
 
@@ -20,7 +20,7 @@ class DecodeTest {
 	}
 
 	@kotlin.test.Test
-	fun wav24() = syncTest {
+	fun wav24() = suspendTest {
 		val wavContents = ResourcesVfs["wav24.wav"].read()
 		val wavData = formats.decode(wavContents.openAsync())!!
 

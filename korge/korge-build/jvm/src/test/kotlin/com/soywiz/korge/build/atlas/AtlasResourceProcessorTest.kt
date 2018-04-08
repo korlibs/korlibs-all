@@ -9,7 +9,7 @@ import kotlin.test.assertEquals
 
 class AtlasResourceProcessorTest {
 	@Test
-	fun name() = syncTest {
+	fun name() = suspendTest {
 		val memoryVfs = MemoryVfs()
 		val processed1 = AtlasResourceProcessor.process(ResourcesVfs["simple.atlas"], memoryVfs)
 		println(memoryVfs.listRecursive().toList())

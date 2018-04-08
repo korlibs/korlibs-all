@@ -11,7 +11,7 @@ class ViewsJvmTest : ViewsForTesting() {
 	val tex = Texture(views.ag.createTexture(), 10, 10)
 
 	@Test
-	fun name() = syncTest {
+	fun name() = suspendTest {
 		views.stage += views.container().apply {
 			this += views.image(tex)
 		}

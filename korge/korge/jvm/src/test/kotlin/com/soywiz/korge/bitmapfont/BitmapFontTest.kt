@@ -16,7 +16,7 @@ class BitmapFontTest {
 	}
 
 	@Test
-	fun simple() = syncTest {
+	fun simple() = suspendTest {
 		val font = TestAssertVfs["font/font.fnt"].readBitmapFont(ag)
 		assertEquals(81, font.glyphs.size)
 		val glyph = font[64]

@@ -5,7 +5,7 @@ import kotlin.test.*
 
 class withTimeoutTest {
 	@Test
-	fun noTimeout() = syncTest {
+	fun noTimeout() = suspendTest {
 		var out = ""
 		var result = "none"
 		try {
@@ -29,7 +29,7 @@ class withTimeoutTest {
 	}
 
 	@Test
-	fun simple() = syncTest {
+	fun simple() = suspendTest {
 		var out = ""
 		try {
 			withTimeout(100, name = "timeout2") {
@@ -50,7 +50,7 @@ class withTimeoutTest {
 	}
 
 	@Test
-	fun name() = syncTest {
+	fun name() = suspendTest {
 		var out = ""
 		try {
 			out += "0"
@@ -78,7 +78,7 @@ class withTimeoutTest {
 	}
 
 	@Test
-	fun name2() = syncTest {
+	fun name2() = suspendTest {
 		var out = ""
 		try {
 			withTimeout(200) {

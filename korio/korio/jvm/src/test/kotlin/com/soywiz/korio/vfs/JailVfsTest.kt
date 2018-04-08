@@ -7,7 +7,7 @@ import kotlin.test.*
 
 class JailVfsTest {
 	@Test
-	fun name() = syncTest {
+	fun name() = suspendTest {
 		val mem = MemoryVfsMix(
 			"hello/secret.txt" to "SECRET!",
 			"hello/world/test.txt" to "HELLO WORLD!"
