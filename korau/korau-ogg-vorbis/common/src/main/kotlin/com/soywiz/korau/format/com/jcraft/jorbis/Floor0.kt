@@ -39,7 +39,7 @@ class Floor0 : FuncFloor() {
 		opb.write(info.ampbits, 6)
 		opb.write(info.ampdB, 8)
 		opb.write(info.numbooks - 1, 4)
-		for (j in 0..info.numbooks - 1) {
+		for (j in 0 until info.numbooks) {
 			opb.write(info.books[j], 8)
 		}
 	}
@@ -143,7 +143,7 @@ class Floor0 : FuncFloor() {
 					val b = vb.vd.fullbooks[info.books[booknum]]
 					var last = 0f
 
-					for (j in 0..look.m - 1) {
+					for (j in 0 until look.m) {
 						out[j] = 0.0f
 					}
 
@@ -151,7 +151,7 @@ class Floor0 : FuncFloor() {
 						var j = 0
 						while (j < look.m) {
 							if (b.decodevs(lsp, j, vb.opb, 1, -1) == -1) {
-								for (k in 0..look.n - 1) {
+								for (k in 0 until look.n) {
 									out[k] = 0.0f
 								}
 								return@synchronized 0
@@ -207,7 +207,7 @@ class Floor0 : FuncFloor() {
 				run {
 					var j = 0
 					while (j < look.m) {
-						if (b.decodev_set(lsp!!, j, vb.opb, b.dim) == -1) {
+						if (b.decodev_set(lsp, j, vb.opb, b.dim) == -1) {
 							return null
 						}
 						j += b.dim
@@ -242,7 +242,7 @@ class Floor0 : FuncFloor() {
 			Lsp.lsp_to_curve(out, look.linearmap, look.n, look.ln, lsp, look.m, amp, info!!.ampdB.toFloat())
 			return 1
 		}
-		for (j in 0..look.n - 1) {
+		for (j in 0 until look.n) {
 			out[j] = 0f
 		}
 		return 0

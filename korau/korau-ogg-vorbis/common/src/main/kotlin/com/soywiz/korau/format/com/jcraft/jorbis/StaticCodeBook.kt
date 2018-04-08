@@ -92,7 +92,7 @@ constructor() {
 				val _this = lengthlist[i]
 				val _last = lengthlist[i - 1]
 				if (_this > _last) {
-					for (j in _last.._this - 1) {
+					for (j in _last until _this) {
 						opb.write(i - count, Util.ilog(entries - count))
 						count = i
 					}
@@ -336,11 +336,11 @@ constructor() {
 		while (true) {
 			var acc = 1
 			var acc1 = 1
-			for (i in 0..dim - 1) {
+			for (i in 0 until dim) {
 				acc *= vals
 				acc1 *= vals + 1
 			}
-			if (acc <= entries && acc1 > entries) {
+			if (entries in acc until acc1) {
 				return vals
 			} else {
 				if (acc > entries) {
@@ -378,10 +378,10 @@ constructor() {
 					// we'll have 'left over' entries; left over entries use zeroed
 					// values (and are wasted).  So don't generate codebooks like that
 					quantvals = maptype1_quantvals()
-					for (j in 0..entries - 1) {
+					for (j in 0 until entries) {
 						var last = 0f
 						var indexdiv = 1
-						for (k in 0..dim - 1) {
+						for (k in 0 until dim) {
 							val index = j / indexdiv % quantvals
 							var `val` = quantlist!![index].toFloat()
 							`val` = abs(`val`) * delta + mindel + last
@@ -392,9 +392,9 @@ constructor() {
 						}
 					}
 				}
-				2 -> for (j in 0..entries - 1) {
+				2 -> for (j in 0 until entries) {
 					var last = 0f
-					for (k in 0..dim - 1) {
+					for (k in 0 until dim) {
 						var `val` = quantlist!![j * dim + k].toFloat()
 						//if((j*dim+k)==0){System.err.println(" | 0 -> "+val+" | ");}
 						`val` = abs(`val`) * delta + mindel + last

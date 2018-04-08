@@ -37,25 +37,25 @@ class Floor1 : FuncFloor() {
 
 		var count = 0
 		val rangebits: Int
-		val maxposit = info.postlist!![1]
+		val maxposit = info.postlist[1]
 		var maxclass = -1
 
 		/* save out partitions */
 		opb.write(info.partitions, 5) /* only 0 to 31 legal */
-		for (j in 0..info.partitions - 1) {
+		for (j in 0 until info.partitions) {
 			opb.write(info.partitionclass[j], 4) /* only 0 to 15 legal */
 			if (maxclass < info.partitionclass[j])
 				maxclass = info.partitionclass[j]
 		}
 
 		/* save out partition classes */
-		for (j in 0..maxclass + 1 - 1) {
+		for (j in 0 until maxclass + 1) {
 			opb.write(info.class_dim[j] - 1, 3) /* 1 to 8 */
 			opb.write(info.class_subs[j], 2) /* 0 to 3 */
 			if (info.class_subs[j] != 0) {
 				opb.write(info.class_book[j], 8)
 			}
-			for (k in 0..(1 shl info.class_subs[j]) - 1) {
+			for (k in 0 until (1 shl info.class_subs[j])) {
 				opb.write(info.class_subbook[j][k] + 1, 8)
 			}
 		}
@@ -70,7 +70,7 @@ class Floor1 : FuncFloor() {
 		while (j < info.partitions) {
 			count += info.class_dim[info.partitionclass[j]]
 			while (k < count) {
-				opb.write(info.postlist!![k + 2], rangebits)
+				opb.write(info.postlist[k + 2], rangebits)
 				k++
 			}
 			j++
@@ -85,14 +85,14 @@ class Floor1 : FuncFloor() {
 
 		/* read partitions */
 		info.partitions = opb.read(5) /* only 0 to 31 legal */
-		for (j in 0..info.partitions - 1) {
+		for (j in 0 until info.partitions) {
 			info.partitionclass[j] = opb.read(4) /* only 0 to 15 legal */
 			if (maxclass < info.partitionclass[j])
 				maxclass = info.partitionclass[j]
 		}
 
 		/* read partition classes */
-		for (j in 0..maxclass + 1 - 1) {
+		for (j in 0 until maxclass + 1) {
 			info.class_dim[j] = opb.read(3) + 1 /* 1 to 8 */
 			info.class_subs[j] = opb.read(2) /* 0,1,2,3 bits */
 			if (info.class_subs[j] < 0) {
@@ -106,7 +106,7 @@ class Floor1 : FuncFloor() {
 				info.free()
 				return null
 			}
-			for (k in 0..(1 shl info.class_subs[j]) - 1) {
+			for (k in 0 until (1 shl info.class_subs[j])) {
 				info.class_subbook[j][k] = opb.read(8) - 1
 				if (info.class_subbook[j][k] < -1 || info.class_subbook[j][k] >= vi.books) {
 					info.free()
@@ -159,22 +159,22 @@ class Floor1 : FuncFloor() {
 	 course, the neighbors can change (if a position is declined), but
 	 this is an initial mapping */
 
-		for (j in 0..info.partitions - 1) {
+		for (j in 0 until info.partitions) {
 			_n += info.class_dim[info.partitionclass[j]]
 		}
 		_n += 2
 		look.posts = _n
 
 		/* also store a sorted position index */
-		for (j in 0.._n - 1) {
+		for (j in 0 until _n) {
 			sortpointer[j] = j
 		}
 		//    qsort(sortpointer,n,sizeof(int),icomp); // !!
 
 		var foo: Int
-		for (j in 0.._n - 1 - 1) {
-			for (k in j.._n - 1) {
-				if (info.postlist!![sortpointer[j]] > info.postlist!![sortpointer[k]]) {
+		for (j in 0 until _n - 1) {
+			for (k in j until _n) {
+				if (info.postlist[sortpointer[j]] > info.postlist[sortpointer[k]]) {
 					foo = sortpointer[k]
 					sortpointer[k] = sortpointer[j]
 					sortpointer[j] = foo
@@ -183,16 +183,16 @@ class Floor1 : FuncFloor() {
 		}
 
 		/* points from sort order back to range number */
-		for (j in 0.._n - 1) {
+		for (j in 0 until _n) {
 			look.forward_index[j] = sortpointer[j]
 		}
 		/* points from range order to sorted position */
-		for (j in 0.._n - 1) {
-			look.reverse_index[look.forward_index!![j]] = j
+		for (j in 0 until _n) {
+			look.reverse_index[look.forward_index[j]] = j
 		}
 		/* we actually need the post values too */
-		for (j in 0.._n - 1) {
-			look.sorted_index[j] = info.postlist!![look.forward_index!![j]]
+		for (j in 0 until _n) {
+			look.sorted_index[j] = info.postlist[look.forward_index[j]]
 		}
 
 		/* quantize values to multiplier spec */
@@ -206,19 +206,19 @@ class Floor1 : FuncFloor() {
 
 		/* discover our neighbors for decode where we don't use fit flags
 	   (that would push the neighbors outward) */
-		for (j in 0.._n - 2 - 1) {
+		for (j in 0 until _n - 2) {
 			var lo = 0
 			var hi = 1
 			var lx = 0
 			var hx = look.n
-			val currentx = info.postlist!![j + 2]
-			for (k in 0..j + 2 - 1) {
-				val x = info.postlist!![k]
-				if (x > lx && x < currentx) {
+			val currentx = info.postlist[j + 2]
+			for (k in 0 until j + 2) {
+				val x = info.postlist[k]
+				if (x in (lx + 1) until currentx) {
 					lo = k
 					lx = x
 				}
-				if (x < hx && x > currentx) {
+				if (x in (currentx + 1) until hx) {
 					hi = k
 					hx = x
 				}
@@ -280,7 +280,7 @@ class Floor1 : FuncFloor() {
 						}
 					}
 
-					for (k in 0..cdim - 1) {
+					for (k in 0 until cdim) {
 						val book = info.class_subbook[clss][cval and csub - 1]
 						cval = cval ushr csubbits
 						if (book >= 0) {
@@ -298,12 +298,12 @@ class Floor1 : FuncFloor() {
 			}
 
 			/* unwrap positive values and reconsitute via linear interpolation */
-			for (i in 2..look.posts - 1) {
+			for (i in 2 until look.posts) {
 				val predicted = render_point(
-					info!!.postlist!![look.loneighbor!![i - 2]],
-					info.postlist!![look.hineighbor!![i - 2]],
-					fit_value[look.loneighbor!![i - 2]], fit_value[look.hineighbor!![i - 2]],
-					info.postlist!![i]
+					info!!.postlist[look.loneighbor[i - 2]],
+					info.postlist[look.hineighbor[i - 2]],
+					fit_value[look.loneighbor[i - 2]], fit_value[look.hineighbor[i - 2]],
+					info.postlist[i]
 				)
 				val hiroom = look.quant_q - predicted
 				val loroom = predicted
@@ -313,7 +313,7 @@ class Floor1 : FuncFloor() {
 				if (`val` != 0) {
 					if (`val` >= room) {
 						if (hiroom > loroom) {
-							`val` = `val` - loroom
+							`val` -= loroom
 						} else {
 							`val` = -1 - (`val` - hiroom)
 						}
@@ -326,8 +326,8 @@ class Floor1 : FuncFloor() {
 					}
 
 					fit_value[i] = `val` + predicted
-					fit_value[look.loneighbor!![i - 2]] = fit_value[look.loneighbor!![i - 2]] and 0x7fff
-					fit_value[look.hineighbor!![i - 2]] = fit_value[look.hineighbor!![i - 2]] and 0x7fff
+					fit_value[look.loneighbor[i - 2]] = fit_value[look.loneighbor[i - 2]] and 0x7fff
+					fit_value[look.hineighbor[i - 2]] = fit_value[look.hineighbor[i - 2]] and 0x7fff
 				} else {
 					fit_value[i] = predicted or 0x8000
 				}
@@ -349,7 +349,7 @@ class Floor1 : FuncFloor() {
 			var hx = 0
 			var lx = 0
 			var ly = fit_value!![0] * info!!.mult
-			for (j in 1..look.posts - 1) {
+			for (j in 1 until look.posts) {
 				val current = look.forward_index!![j]
 				var hy = fit_value[current] and 0x7fff
 				if (hy == fit_value[current]) {
@@ -362,12 +362,12 @@ class Floor1 : FuncFloor() {
 					ly = hy
 				}
 			}
-			for (j in hx..n - 1) {
+			for (j in hx until n) {
 				out[j] *= out[j - 1] /* be certain */
 			}
 			return 1
 		}
-		for (j in 0..n - 1) {
+		for (j in 0 until n) {
 			out[j] = 0f
 		}
 		return 0
@@ -429,7 +429,7 @@ class Floor1 : FuncFloor() {
 			}
 
 			ret.mult = info.mult
-			arraycopy(info.postlist!!, 0, ret.postlist!!, 0, VIF_POSIT + 2)
+			arraycopy(info.postlist, 0, ret.postlist, 0, VIF_POSIT + 2)
 
 			ret.maxover = info.maxover
 			ret.maxunder = info.maxunder

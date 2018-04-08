@@ -46,7 +46,7 @@ internal open class Residue0 : FuncResidue() {
 		/* secondstages is a bitmask; as encoding progresses pass by pass, a
 	   bitmask of one indicates this partition class has bits to write
 	   this pass */
-		for (j in 0..info.partitions - 1) {
+		for (j in 0 until info.partitions) {
 			val i = info.secondstages[j]
 			if (Util.ilog(i) > 3) {
 				/* yes, this is a minor hack due to not thinking ahead */
@@ -58,7 +58,7 @@ internal open class Residue0 : FuncResidue() {
 			}
 			acc += Util.icount(i)
 		}
-		for (j in 0..acc - 1) {
+		for (j in 0 until acc) {
 			opb.write(info.booklist[j], 8)
 		}
 	}
@@ -72,7 +72,7 @@ internal open class Residue0 : FuncResidue() {
 		info.partitions = opb.read(6) + 1
 		info.groupbook = opb.read(8)
 
-		for (j in 0..info.partitions - 1) {
+		for (j in 0 until info.partitions) {
 			var cascade = opb.read(3)
 			if (opb.read(1) != 0) {
 				cascade = cascade or (opb.read(5) shl 3)
@@ -81,7 +81,7 @@ internal open class Residue0 : FuncResidue() {
 			acc += Util.icount(cascade)
 		}
 
-		for (j in 0..acc - 1) {
+		for (j in 0 until acc) {
 			info.booklist[j] = opb.read(8)
 		}
 
@@ -90,7 +90,7 @@ internal open class Residue0 : FuncResidue() {
 			return null
 		}
 
-		for (j in 0..acc - 1) {
+		for (j in 0 until acc) {
 			if (info.booklist[j] >= vi.books) {
 				free_info(info)
 				return null
@@ -116,13 +116,13 @@ internal open class Residue0 : FuncResidue() {
 
 		look.partbooks = Array<IntArray>(look.parts) { intArrayOf() }
 
-		for (j in 0..look.parts - 1) {
+		for (j in 0 until look.parts) {
 			val i = info.secondstages[j]
 			val stages = Util.ilog(i)
 			if (stages != 0) {
 				if (stages > maxstage) maxstage = stages
 				look.partbooks[j] = IntArray(stages)
-				for (k in 0..stages - 1) {
+				for (k in 0 until stages) {
 					if (i and (1 shl k) != 0) {
 						look.partbooks!![j][k] = info.booklist[acc++]
 					}
@@ -133,16 +133,16 @@ internal open class Residue0 : FuncResidue() {
 		look.partvals = rint(look.parts.toDouble().pow(dim.toDouble())).toInt()
 		look.stages = maxstage
 		look.decodemap = Array<IntArray>(look.partvals) { intArrayOf() }
-		for (j in 0..look.partvals - 1) {
+		for (j in 0 until look.partvals) {
 			var `val` = j
 			var mult = look.partvals / look.parts
 			look.decodemap[j] = IntArray(dim)
 
-			for (k in 0..dim - 1) {
+			for (k in 0 until dim) {
 				val deco = `val` / mult
 				`val` -= deco * mult
 				mult /= look.parts
-				look.decodemap!![j][k] = deco
+				look.decodemap[j][k] = deco
 			}
 		}
 		return look
@@ -154,7 +154,7 @@ internal open class Residue0 : FuncResidue() {
 
 	override fun inverse(vb: Block, vl: Any, `in`: Array<FloatArray>, nonzero: IntArray, ch: Int): Int {
 		var used = 0
-		for (i in 0..ch - 1) {
+		for (i in 0 until ch) {
 			if (nonzero[i] != 0) {
 				`in`[used++] = `in`[i]
 			}

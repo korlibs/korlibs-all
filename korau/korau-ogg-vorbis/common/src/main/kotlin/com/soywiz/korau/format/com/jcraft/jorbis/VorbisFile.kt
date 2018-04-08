@@ -303,7 +303,7 @@ class VorbisFile {
 		pcmlengths = LongArray(links)
 		serialnos = IntArray(links)
 
-		for (i in 0..links - 1) {
+		for (i in 0 until links) {
 			if (first_i != null && first_c != null && i == 0) {
 				// we already grabbed the initial header earlier.  This just
 				// saves the waste of grabbing it again
@@ -479,7 +479,7 @@ class VorbisFile {
 
 							val samples = vd.synthesis_pcmout(null, intArrayOf())
 							granulepos -= samples.toLong()
-							for (i in 0..link - 1) {
+							for (i in 0 until link) {
 								granulepos += pcmlengths[i]
 							}
 							pcm_offset = granulepos
@@ -563,7 +563,7 @@ class VorbisFile {
 		os.clear()
 
 		if (links != 0) {
-			for (i in 0..links - 1) {
+			for (i in 0 until links) {
 				info[i].clear()
 				comment[i].clear()
 			}
@@ -648,7 +648,7 @@ class VorbisFile {
 			return bitrate(0)
 		if (i < 0) {
 			var bits: Long = 0
-			for (j in 0..links - 1) {
+			for (j in 0 until links) {
 				bits += (offsets[j + 1] - dataoffsets[j]) * 8
 			}
 			return rint((bits / time_total(-1)).toDouble()).toInt()
@@ -707,7 +707,7 @@ class VorbisFile {
 			return (-1).toLong()
 		if (i < 0) {
 			var acc: Long = 0 // bug?
-			for (j in 0..links - 1) {
+			for (j in 0 until links) {
 				acc += raw_total(j)
 			}
 			return acc
@@ -724,7 +724,7 @@ class VorbisFile {
 			return (-1).toLong()
 		if (i < 0) {
 			var acc: Long = 0
-			for (j in 0..links - 1) {
+			for (j in 0 until links) {
 				acc += pcm_total(j)
 			}
 			return acc
@@ -741,7 +741,7 @@ class VorbisFile {
 			return (-1).toFloat()
 		if (i < 0) {
 			var acc = 0f
-			for (j in 0..links - 1) {
+			for (j in 0 until links) {
 				acc += time_total(j)
 			}
 			return acc
@@ -1136,8 +1136,8 @@ class VorbisFile {
 						var `val`: Int
 						if (word == 1) {
 							val off = if (sgned != 0) 0 else 128
-							for (j in 0..samples - 1) {
-								for (i in 0..channels - 1) {
+							for (j in 0 until samples) {
+								for (i in 0 until channels) {
 									`val` = (pcm[i][_index[i] + j] * 128.0 + 0.5).toInt()
 									if (`val` > 127)
 										`val` = 127
@@ -1151,10 +1151,10 @@ class VorbisFile {
 
 							if (host_endian == bigendianp) {
 								if (sgned != 0) {
-									for (i in 0..channels - 1) { // It's faster in this order
+									for (i in 0 until channels) { // It's faster in this order
 										val src = _index[i]
 										var dest = i
-										for (j in 0..samples - 1) {
+										for (j in 0 until samples) {
 											`val` = (pcm[i][src + j] * 32768.0 + 0.5).toInt()
 											if (`val` > 32767)
 												`val` = 32767
@@ -1166,10 +1166,10 @@ class VorbisFile {
 										}
 									}
 								} else {
-									for (i in 0..channels - 1) {
+									for (i in 0 until channels) {
 										val src = pcm[i]
 										var dest = i
-										for (j in 0..samples - 1) {
+										for (j in 0 until samples) {
 											`val` = (src[j] * 32768.0 + 0.5).toInt()
 											if (`val` > 32767)
 												`val` = 32767
@@ -1182,8 +1182,8 @@ class VorbisFile {
 									}
 								}
 							} else if (bigendianp != 0) {
-								for (j in 0..samples - 1) {
-									for (i in 0..channels - 1) {
+								for (j in 0 until samples) {
+									for (i in 0 until channels) {
 										`val` = (pcm[i][j] * 32768.0 + 0.5).toInt()
 										if (`val` > 32767)
 											`val` = 32767
@@ -1196,8 +1196,8 @@ class VorbisFile {
 								}
 							} else {
 								//int val;
-								for (j in 0..samples - 1) {
-									for (i in 0..channels - 1) {
+								for (j in 0 until samples) {
+									for (i in 0 until channels) {
 										`val` = (pcm[i][j] * 32768.0 + 0.5).toInt()
 										if (`val` > 32767)
 											`val` = 32767

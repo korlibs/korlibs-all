@@ -57,7 +57,7 @@ class Comment {
 		user_comments = arrayOfNulls<ByteArray>(comments + 1)
 		comment_lengths = IntArray(comments + 1)
 
-		for (i in 0..comments - 1) {
+		for (i in 0 until comments) {
 			val len = opb.read(32)
 			if (len < 0) {
 				clear()
@@ -81,7 +81,7 @@ class Comment {
 		vendor = null
 	}
 
-	private fun ByteArray.toZeroString() = this.toString(Charsets.UTF_8)
+	private fun ByteArray.toZeroString() = this.toString(UTF8)
 
 	fun getVendor(): String = vendor!!.toZeroString()
 

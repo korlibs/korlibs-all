@@ -122,7 +122,7 @@ internal class Mapping0 : FuncMapping() {
 		if (opb.read(1) != 0) {
 			info.coupling_steps = opb.read(8) + 1
 
-			for (i in 0..info.coupling_steps - 1) {
+			for (i in 0 until info.coupling_steps) {
 				val testM = opb.read(Util.ilog2(vi.channels))
 				info.coupling_mag[i] = testM
 				val testA = opb.read(Util.ilog2(vi.channels))
@@ -200,7 +200,7 @@ internal class Mapping0 : FuncMapping() {
 		// NOT IMPLEMENTED
 
 		// recover the spectral envelope; store it in the PCM vector for now
-		for (i in 0..vi.channels - 1) {
+		for (i in 0 until vi.channels) {
 			val pcm = vb.pcm[i]
 			val submap = info.chmuxlist[i]
 
@@ -210,7 +210,7 @@ internal class Mapping0 : FuncMapping() {
 			} else {
 				nonzero[i] = 0
 			}
-			for (j in 0..n / 2 - 1) {
+			for (j in 0 until n / 2) {
 				pcm[j] = 0f
 			}
 
@@ -227,7 +227,7 @@ internal class Mapping0 : FuncMapping() {
 
 		for (i in 0 until info.submaps) {
 			var ch_in_bundle = 0
-			for (j in 0..vi.channels - 1) {
+			for (j in 0 until vi.channels) {
 				if (info.chmuxlist[j] == i) {
 					if (nonzero[j] != 0) {
 						zerobundle[ch_in_bundle] = 1
@@ -245,7 +245,7 @@ internal class Mapping0 : FuncMapping() {
 			val pcmM = vb.pcm[info.coupling_mag[i]]
 			val pcmA = vb.pcm[info.coupling_ang[i]]
 
-			for (j in 0..n / 2 - 1) {
+			for (j in 0 until n / 2) {
 				val mag = pcmM[j]
 				val ang = pcmA[j]
 
@@ -296,11 +296,11 @@ internal class Mapping0 : FuncMapping() {
 		for (i in 0 until vi.channels) {
 			val pcm = vb.pcm[i]
 			if (nonzero[i] != 0) {
-				for (j in 0..n - 1) {
+				for (j in 0 until n) {
 					pcm[j] *= window[j]
 				}
 			} else {
-				for (j in 0..n - 1) {
+				for (j in 0 until n) {
 					pcm[j] = 0f
 				}
 			}

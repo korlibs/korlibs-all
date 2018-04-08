@@ -121,7 +121,7 @@ class DspState() {
 		window[1][1][0] = Array<FloatArray>(VI_WINDOWB) { floatArrayOf() }
 		window[1][1][1] = Array<FloatArray>(VI_WINDOWB) { floatArrayOf() }
 
-		for (i in 0..VI_WINDOWB - 1) {
+		for (i in 0 until VI_WINDOWB) {
 			window[0][0][0][i] = window(i, vi.blocksizes[0], vi.blocksizes[0] / 2, vi.blocksizes[0] / 2)
 			window[1][0][0][i] = window(i, vi.blocksizes[1], vi.blocksizes[0] / 2, vi.blocksizes[0] / 2)
 			window[1][0][1][i] = window(i, vi.blocksizes[1], vi.blocksizes[0] / 2, vi.blocksizes[1] / 2)
@@ -139,7 +139,7 @@ class DspState() {
 		// accumulated samples in analysis
 		pcm = Array<FloatArray>(vi.channels) { floatArrayOf() }
 		run {
-			for (i in 0..vi.channels - 1) {
+			for (i in 0 until vi.channels) {
 				pcm[i] = FloatArray(pcm_storage)
 			}
 		}
@@ -156,7 +156,7 @@ class DspState() {
 
 		// initialize all the mapping/backend lookups
 		mode = Array<Any>(vi.modes) { Unit }
-		for (i in 0..vi.modes - 1) {
+		for (i in 0 until vi.modes) {
 			val mapnum = vi.mode_param[i].mapping
 			val maptype = vi.map_type[mapnum]
 			mode[i] = FuncMapping.mapping_P[maptype].look(this, vi.mode_param[i], vi.map_param[mapnum]!!)
@@ -233,7 +233,7 @@ class DspState() {
 			if (endW > pcm_storage) {
 				// expand the storage
 				pcm_storage = endW + vi.blocksizes[1]
-				for (i in 0..vi.channels - 1) {
+				for (i in 0 until vi.channels) {
 					val foo = FloatArray(pcm_storage)
 					arraycopy(pcm[i], 0, foo, 0, pcm[i].size)
 					pcm[i] = foo
@@ -252,11 +252,10 @@ class DspState() {
 				}
 			}
 
-			for (j in 0..vi.channels - 1) {
+			for (j in 0 until vi.channels) {
 				val _pcm = beginW
 				// the overlap/add section
-				var i = 0
-				i = beginSl
+				var i = beginSl
 				while (i < endSl) {
 					pcm[j][_pcm + i] += vb.pcm[j][i]
 					i++
@@ -307,7 +306,7 @@ class DspState() {
 	fun synthesis_pcmout(_pcm: Array<Array<FloatArray>>?, index: IntArray): Int {
 		if (pcm_returned < centerW) {
 			if (_pcm != null) {
-				for (i in 0..vi.channels - 1) {
+				for (i in 0 until vi.channels) {
 					index[i] = pcm_returned
 				}
 				_pcm[0] = pcm

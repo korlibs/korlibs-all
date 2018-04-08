@@ -93,7 +93,7 @@ class Lpc {
 
 	fun lpc_to_curve(curve: FloatArray, lpc: FloatArray, amp: Float) {
 
-		for (i in 0..ln * 2 - 1) {
+		for (i in 0 until ln * 2) {
 			curve[i] = 0.0f
 		}
 
@@ -101,7 +101,7 @@ class Lpc {
 			return
 		}
 
-		for (i in 0..m - 1) {
+		for (i in 0 until m) {
 			curve[i * 2 + 1] = lpc[i] / (4 * amp)
 			curve[i * 2 + 2] = -lpc[i] / (4 * amp)
 		}
@@ -112,7 +112,7 @@ class Lpc {
 			val l2 = ln * 2
 			val unit = (1.0 / amp).toFloat()
 			curve[0] = (1.0 / (curve[0] * 2 + unit)).toFloat()
-			for (i in 1..ln - 1) {
+			for (i in 1 until ln) {
 				val real = curve[i] + curve[l2 - i]
 				val imag = curve[i] - curve[l2 - i]
 
@@ -164,7 +164,7 @@ class Lpc {
 				var r = -aut[i + 1]
 
 				if (error == 0f) {
-					for (k in 0..m - 1) {
+					for (k in 0 until m) {
 						lpc[k] = 0.0f
 					}
 					return 0f

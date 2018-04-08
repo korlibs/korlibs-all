@@ -100,28 +100,28 @@ class Info {
 	}
 
 	fun clear() {
-		for (i in 0..modes - 1) {
+		for (i in 0 until modes) {
 			mode_param[i] = InfoMode()
 		}
 		mode_param = arrayOf()
 
-		for (i in 0..maps - 1) { // unpack does the range checking
-			FuncMapping.mapping_P[map_type!![i]].free_info(map_param!![i]!!)
+		for (i in 0 until maps) { // unpack does the range checking
+			FuncMapping.mapping_P[map_type[i]].free_info(map_param[i]!!)
 		}
 		map_param = arrayOf()
 
-		for (i in 0..times - 1) { // unpack does the range checking
-			FuncTime.time_P[time_type!![i]].free_info(time_param!![i])
+		for (i in 0 until times) { // unpack does the range checking
+			FuncTime.time_P[time_type[i]].free_info(time_param[i])
 		}
 		time_param = arrayOf()
 
-		for (i in 0..floors - 1) { // unpack does the range checking
-			FuncFloor.floor_P[floor_type!![i]].free_info(floor_param!![i]!!)
+		for (i in 0 until floors) { // unpack does the range checking
+			FuncFloor.floor_P[floor_type[i]].free_info(floor_param[i]!!)
 		}
 		floor_param = arrayOf()
 
-		for (i in 0..residues - 1) { // unpack does the range checking
-			FuncResidue.residue_P[residue_type!![i]].free_info(residue_param!![i]!!)
+		for (i in 0 until residues) { // unpack does the range checking
+			FuncResidue.residue_P[residue_type[i]].free_info(residue_param[i]!!)
 		}
 		residue_param = arrayOf()
 
@@ -129,17 +129,15 @@ class Info {
 		// decode side does alloc a 'static' codebook. Calling clear on the
 		// full codebook does not clear the static codebook (that's our
 		// responsibility)
-		for (i in 0..books - 1) {
+		for (i in 0 until books) {
 			// just in case the decoder pre-cleared to save space
-			if (book_param!![i] != null) {
-				book_param!![i].clear()
-				book_param[i] = StaticCodeBook()
-			}
+			book_param[i].clear()
+			book_param[i] = StaticCodeBook()
 		}
 		//if(vi->book_param)free(vi->book_param);
 		book_param = arrayOf()
 
-		for (i in 0..psys - 1) {
+		for (i in 0 until psys) {
 			psy_param[i].free()
 		}
 
@@ -176,11 +174,11 @@ class Info {
 
 		books = opb.read(8) + 1
 
-		if (book_param == null || book_param!!.size != books)
-			book_param = Array<StaticCodeBook>(books) { StaticCodeBook() }
-		for (i in 0..books - 1) {
+		if (book_param.size != books)
+			book_param = Array(books) { StaticCodeBook() }
+		for (i in 0 until books) {
 			book_param[i] = StaticCodeBook()
-			if (book_param!![i].unpack(opb) != 0) {
+			if (book_param[i].unpack(opb) != 0) {
 				clear()
 				return -1
 			}
@@ -188,39 +186,35 @@ class Info {
 
 		// time backend settings
 		times = opb.read(6) + 1
-		if (time_type == null || time_type!!.size != times)
+		if (time_type.size != times)
 			time_type = IntArray(times)
-		if (time_param == null || time_param!!.size != times)
+		if (time_param.size != times)
 			time_param = Array<Any>(times) { Unit }
-		for (i in 0..times - 1) {
+		for (i in 0 until times) {
 			time_type[i] = opb.read(16)
-			if (time_type!![i] < 0 || time_type!![i] >= VI_TIMEB) {
+			if (time_type[i] < 0 || time_type[i] >= VI_TIMEB) {
 				clear()
 				return -1
 			}
-			time_param[i] = FuncTime.time_P[time_type!![i]].unpack(this, opb)
-			if (time_param!![i] == null) {
-				clear()
-				return -1
-			}
+			time_param[i] = FuncTime.time_P[time_type[i]].unpack(this, opb)
 		}
 
 		// floor backend settings
 		floors = opb.read(6) + 1
-		if (floor_type == null || floor_type!!.size != floors)
+		if (floor_type.size != floors)
 			floor_type = IntArray(floors)
-		if (floor_param == null || floor_param!!.size != floors)
+		if (floor_param.size != floors)
 			floor_param = Array<Any?>(floors) { Unit }
 
-		for (i in 0..floors - 1) {
+		for (i in 0 until floors) {
 			floor_type[i] = opb.read(16)
-			if (floor_type!![i] < 0 || floor_type!![i] >= VI_FLOORB) {
+			if (floor_type[i] < 0 || floor_type[i] >= VI_FLOORB) {
 				clear()
 				return -1
 			}
 
-			floor_param[i] = FuncFloor.floor_P[floor_type!![i]].unpack(this, opb)
-			if (floor_param!![i] == null) {
+			floor_param[i] = FuncFloor.floor_P[floor_type[i]].unpack(this, opb)
+			if (floor_param[i] == null) {
 				clear()
 				return -1
 			}
@@ -229,20 +223,20 @@ class Info {
 		// residue backend settings
 		residues = opb.read(6) + 1
 
-		if (residue_type == null || residue_type!!.size != residues)
+		if (residue_type.size != residues)
 			residue_type = IntArray(residues)
 
-		if (residue_param == null || residue_param!!.size != residues)
+		if (residue_param.size != residues)
 			residue_param = Array<Any?>(residues) { Unit }
 
-		for (i in 0..residues - 1) {
+		for (i in 0 until residues) {
 			residue_type[i] = opb.read(16)
-			if (residue_type!![i] < 0 || residue_type!![i] >= VI_RESB) {
+			if (residue_type[i] < 0 || residue_type[i] >= VI_RESB) {
 				clear()
 				return -1
 			}
-			residue_param[i] = FuncResidue.residue_P[residue_type!![i]].unpack(this, opb)
-			if (residue_param!![i] == null) {
+			residue_param[i] = FuncResidue.residue_P[residue_type[i]].unpack(this, opb)
+			if (residue_param[i] == null) {
 				clear()
 				return -1
 			}
@@ -250,18 +244,18 @@ class Info {
 
 		// map backend settings
 		maps = opb.read(6) + 1
-		if (map_type == null || map_type!!.size != maps)
+		if (map_type.size != maps)
 			map_type = IntArray(maps)
-		if (map_param == null || map_param!!.size != maps)
+		if (map_param.size != maps)
 			map_param = Array<Any?>(maps) { Unit }
-		for (i in 0..maps - 1) {
+		for (i in 0 until maps) {
 			map_type[i] = opb.read(16)
-			if (map_type!![i] < 0 || map_type!![i] >= VI_MAPB) {
+			if (map_type[i] < 0 || map_type[i] >= VI_MAPB) {
 				clear()
 				return -1
 			}
-			map_param[i] = FuncMapping.mapping_P[map_type!![i]].unpack(this, opb)
-			if (map_param!![i] == null) {
+			map_param[i] = FuncMapping.mapping_P[map_type[i]].unpack(this, opb)
+			if (map_param[i] == null) {
 				clear()
 				return -1
 			}
@@ -269,18 +263,18 @@ class Info {
 
 		// mode settings
 		modes = opb.read(6) + 1
-		if (mode_param == null || mode_param!!.size != modes)
+		if (mode_param.size != modes)
 			mode_param = Array<InfoMode>(modes) { InfoMode() }
-		for (i in 0..modes - 1) {
+		for (i in 0 until modes) {
 			mode_param[i] = InfoMode()
-			mode_param!![i].blockflag = opb.read(1)
-			mode_param!![i].windowtype = opb.read(16)
-			mode_param!![i].transformtype = opb.read(16)
-			mode_param!![i].mapping = opb.read(8)
+			mode_param[i].blockflag = opb.read(1)
+			mode_param[i].windowtype = opb.read(16)
+			mode_param[i].transformtype = opb.read(16)
+			mode_param[i].mapping = opb.read(8)
 
-			if (mode_param!![i].windowtype >= VI_WINDOWB
-				|| mode_param!![i].transformtype >= VI_WINDOWB
-				|| mode_param!![i].mapping >= maps
+			if (mode_param[i].windowtype >= VI_WINDOWB
+				|| mode_param[i].transformtype >= VI_WINDOWB
+				|| mode_param[i].mapping >= maps
 			) {
 				clear()
 				return -1
@@ -339,7 +333,7 @@ class Info {
 					}
 					0x05 // least significant *bit* is read first
 					-> {
-						if (rate == 0 || vc.getVendor() == null) {
+						if (rate == 0) {
 							// um... we didn;t get the initial header or comments yet
 							return -1
 						}
@@ -381,8 +375,8 @@ class Info {
 
 		// books
 		opb.write(books - 1, 8)
-		for (i in 0..books - 1) {
-			if (book_param!![i].pack(opb) != 0) {
+		for (i in 0 until books) {
+			if (book_param[i].pack(opb) != 0) {
 				//goto err_out;
 				return -1
 			}
@@ -390,39 +384,39 @@ class Info {
 
 		// times
 		opb.write(times - 1, 6)
-		for (i in 0..times - 1) {
-			opb.write(time_type!![i], 16)
-			FuncTime.time_P[time_type!![i]].pack(this.time_param!![i], opb)
+		for (i in 0 until times) {
+			opb.write(time_type[i], 16)
+			FuncTime.time_P[time_type[i]].pack(this.time_param[i], opb)
 		}
 
 		// floors
 		opb.write(floors - 1, 6)
-		for (i in 0..floors - 1) {
-			opb.write(floor_type!![i], 16)
-			FuncFloor.floor_P[floor_type!![i]].pack(floor_param!![i]!!, opb)
+		for (i in 0 until floors) {
+			opb.write(floor_type[i], 16)
+			FuncFloor.floor_P[floor_type[i]].pack(floor_param[i]!!, opb)
 		}
 
 		// residues
 		opb.write(residues - 1, 6)
-		for (i in 0..residues - 1) {
-			opb.write(residue_type!![i], 16)
-			FuncResidue.residue_P[residue_type!![i]].pack(residue_param!![i]!!, opb)
+		for (i in 0 until residues) {
+			opb.write(residue_type[i], 16)
+			FuncResidue.residue_P[residue_type[i]].pack(residue_param[i]!!, opb)
 		}
 
 		// maps
 		opb.write(maps - 1, 6)
-		for (i in 0..maps - 1) {
-			opb.write(map_type!![i], 16)
-			FuncMapping.mapping_P[map_type!![i]].pack(this, map_param!![i]!!, opb)
+		for (i in 0 until maps) {
+			opb.write(map_type[i], 16)
+			FuncMapping.mapping_P[map_type[i]].pack(this, map_param[i]!!, opb)
 		}
 
 		// modes
 		opb.write(modes - 1, 6)
-		for (i in 0..modes - 1) {
-			opb.write(mode_param!![i].blockflag, 1)
-			opb.write(mode_param!![i].windowtype, 16)
-			opb.write(mode_param!![i].transformtype, 16)
-			opb.write(mode_param!![i].mapping, 8)
+		for (i in 0 until modes) {
+			opb.write(mode_param[i].blockflag, 1)
+			opb.write(mode_param[i].windowtype, 16)
+			opb.write(mode_param[i].transformtype, 16)
+			opb.write(mode_param[i].mapping, 8)
 		}
 		opb.write(1, 1)
 		return 0
@@ -454,7 +448,7 @@ class Info {
 		}
 		if (mode == -1)
 			return OV_EBADPACKET
-		return blocksizes[mode_param!![mode].blockflag]
+		return blocksizes[mode_param[mode].blockflag]
 	}
 
 	override fun toString(): String {
@@ -465,7 +459,7 @@ class Info {
 		private val OV_EBADPACKET = -136
 		private val OV_ENOTAUDIO = -135
 
-		private val _vorbis = "vorbis".toByteArray(Charsets.UTF_8)
+		private val _vorbis = "vorbis".toByteArray(UTF8)
 		private val VI_TIMEB = 1
 		//  private static final int VI_FLOORB=1;
 		private val VI_FLOORB = 2

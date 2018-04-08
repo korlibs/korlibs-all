@@ -240,11 +240,10 @@ class CodeBook {
 
 		t.aux = entries * 2
 
-		for (i in 0..entries - 1) {
+		for (i in 0 until entries) {
 			if (c.lengthlist[i] > 0) {
 				var ptr = 0
-				var j: Int
-				j = 0
+				var j = 0
 				while (j < c.lengthlist[i] - 1) {
 					val bit = codelist[i].ushr(j) and 1
 					if (bit == 0) {
@@ -277,16 +276,11 @@ class CodeBook {
 		val n = 1 shl t.tabn
 		t.tab = IntArray(n)
 		t.tabl = IntArray(n)
-		for (i in 0..n - 1) {
+		for (i in 0 until n) {
 			var p = 0
 			var j = 0
-			j = 0
 			while (j < t.tabn && (p > 0 || j == 0)) {
-				if (i and (1 shl j) != 0) {
-					p = ptr1[p]
-				} else {
-					p = ptr0[p]
-				}
+				p = (if (i and (1 shl j) != 0) ptr1[p] else ptr0[p])
 				j++
 			}
 			t.tab[i] = p // -code
@@ -311,7 +305,7 @@ class CodeBook {
 			val marker = IntArray(33)
 			val r = IntArray(n)
 
-			for (i in 0..n - 1) {
+			for (i in 0 until n) {
 				val length = l[i]
 				if (length > 0) {
 					var entry = marker[length]

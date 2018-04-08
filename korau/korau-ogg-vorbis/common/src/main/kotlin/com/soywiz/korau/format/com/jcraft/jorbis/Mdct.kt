@@ -68,7 +68,7 @@ internal class Mdct {
 		run {
 			val mask = (1 shl log2n - 1) - 1
 			val msb = 1 shl log2n - 2
-			for (i in 0..n / 8 - 1) {
+			for (i in 0 until n / 8) {
 				var acc = 0
 				var j = 0
 				while (msb.ushr(j) != 0) {
@@ -146,7 +146,7 @@ internal class Mdct {
 			var o3 = n4 + n2
 			var o4 = o3 - 1
 
-			for (i in 0..n4 - 1) {
+			for (i in 0 until n4) {
 				val temp1 = xxx[xx] * trig[B + 1] - xxx[xx + 1] * trig[B]
 				val temp2 = -(xxx[xx] * trig[B] + xxx[xx + 1] * trig[B + 1])
 
@@ -196,7 +196,7 @@ internal class Mdct {
 		// step 3
 
 		run {
-			for (i in 0..log2n - 3 - 1) {
+			for (i in 0 until log2n - 3) {
 				var k0 = n.ushr(i + 2)
 				val k1 = 1 shl i + 3
 				var wbase = n2 - 2
@@ -204,7 +204,7 @@ internal class Mdct {
 				A = 0
 				val temp: FloatArray
 
-				for (r in 0..k0.ushr(2) - 1) {
+				for (r in 0 until k0.ushr(2)) {
 					var w1 = wbase
 					w2 = w1 - (k0 shr 1)
 					val AEv = trig[A]
@@ -214,7 +214,7 @@ internal class Mdct {
 					wbase -= 2
 
 					k0++
-					for (s in 0..(2 shl i) - 1) {
+					for (s in 0 until (2 shl i)) {
 						wB = w[w1] - w[w2]
 						x[w1] = w[w1] + w[w2]
 
@@ -244,7 +244,7 @@ internal class Mdct {
 			var x1 = 0
 			var x2 = n2 - 1
 
-			for (i in 0..n8 - 1) {
+			for (i in 0 until n8) {
 				val t1 = bitrev[bit++]
 				val t2 = bitrev[bit++]
 
