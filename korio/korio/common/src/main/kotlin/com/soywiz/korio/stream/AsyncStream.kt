@@ -292,7 +292,7 @@ suspend fun AsyncStream.readSlice(length: Long): AsyncStream {
 suspend fun AsyncStream.readStream(length: Int): AsyncStream = readSlice(length.toLong())
 suspend fun AsyncStream.readStream(length: Long): AsyncStream = readSlice(length)
 
-suspend fun AsyncInputStream.readStringz(charset: Charset = Charsets.UTF_8): String {
+suspend fun AsyncInputStream.readStringz(charset: Charset = UTF8): String {
 	val buf = ByteArrayBuilder()
 	val temp = ByteArray(1)
 	while (true) {
@@ -304,22 +304,22 @@ suspend fun AsyncInputStream.readStringz(charset: Charset = Charsets.UTF_8): Str
 	return buf.toByteArray().toString(charset)
 }
 
-suspend fun AsyncInputStream.readStringz(len: Int, charset: Charset = Charsets.UTF_8): String {
+suspend fun AsyncInputStream.readStringz(len: Int, charset: Charset = UTF8): String {
 	val res = readBytesExact(len)
 	val index = res.indexOf(0.toByte())
 	return res.copyOf(if (index < 0) len else index).toString(charset)
 }
 
-suspend fun AsyncInputStream.readString(len: Int, charset: Charset = Charsets.UTF_8): String =
+suspend fun AsyncInputStream.readString(len: Int, charset: Charset = UTF8): String =
 	readBytesExact(len).toString(charset)
 
-suspend fun AsyncOutputStream.writeStringz(str: String, charset: Charset = Charsets.UTF_8) =
+suspend fun AsyncOutputStream.writeStringz(str: String, charset: Charset = UTF8) =
 	this.writeBytes(str.toBytez(charset))
 
-suspend fun AsyncOutputStream.writeStringz(str: String, len: Int, charset: Charset = Charsets.UTF_8) =
+suspend fun AsyncOutputStream.writeStringz(str: String, len: Int, charset: Charset = UTF8) =
 	this.writeBytes(str.toBytez(len, charset))
 
-suspend fun AsyncOutputStream.writeString(string: String, charset: Charset = Charsets.UTF_8): Unit =
+suspend fun AsyncOutputStream.writeString(string: String, charset: Charset = UTF8): Unit =
 	writeBytes(string.toByteArray(charset))
 
 suspend fun AsyncInputStream.readExact(buffer: ByteArray, offset: Int, len: Int) {
@@ -665,7 +665,7 @@ suspend fun AsyncInputStream.readUntil(endByte: Byte, limit: Int = 0x1000): Byte
 	return out.toByteArray()
 }
 
-suspend fun AsyncInputStream.readLine(eol: Char = '\n', charset: Charset = Charsets.UTF_8): String {
+suspend fun AsyncInputStream.readLine(eol: Char = '\n', charset: Charset = UTF8): String {
 	val temp = ByteArray(1)
 	val out = ByteArrayBuilder()
 	try {
@@ -681,11 +681,13 @@ suspend fun AsyncInputStream.readLine(eol: Char = '\n', charset: Charset = Chars
 }
 
 
-fun SyncInputStream.toAsyncInputStream() = object : AsyncInputStream {
-	suspend override fun read(buffer: ByteArray, offset: Int, len: Int): Int =
-		this@toAsyncInputStream.read(buffer, offset, len)
+fun SyncInputStream.toAsyncInputStream() = object : AsyncInputWithLengthStream {
+	val sync = this@toAsyncInputStream
 
-	suspend override fun close(): Unit = run { (this@toAsyncInputStream as? Closeable)?.close() }
+	override suspend fun read(buffer: ByteArray, offset: Int, len: Int): Int = sync.read(buffer, offset, len)
+	override suspend fun close(): Unit = run { (sync as? Closeable)?.close() }
+	override suspend fun getPosition(): Long = (sync as? SyncPositionStream)?.position ?: super.getPosition()
+	override suspend fun getLength(): Long = (sync as? SyncLengthStream)?.length ?: super.getLength()
 }
 
 fun SyncOutputStream.toAsyncOutputStream() = object : AsyncOutputStream {

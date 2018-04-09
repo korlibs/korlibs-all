@@ -102,15 +102,15 @@ class FastByteArrayInputStream(val ba: ByteArray, var offset: Int = 0) {
 
 
 	// String
-	fun readString(len: Int, charset: Charset = Charsets.UTF_8) = readBytes(len).toString(charset)
+	fun readString(len: Int, charset: Charset = UTF8) = readBytes(len).toString(charset)
 
-	fun readStringz(len: Int, charset: Charset = Charsets.UTF_8): String {
+	fun readStringz(len: Int, charset: Charset = UTF8): String {
 		val res = readBytes(len)
 		val index = res.indexOf(0.toByte())
 		return res.copyOf(if (index < 0) len else index).toString(charset)
 	}
 
-	fun readStringz(charset: Charset = Charsets.UTF_8): String {
+	fun readStringz(charset: Charset = UTF8): String {
 		val startOffset = offset
 		val index = ba.indexOf(offset, 0.toByte())
 		val end = if (index >= 0) index else ba.size
@@ -119,7 +119,7 @@ class FastByteArrayInputStream(val ba: ByteArray, var offset: Int = 0) {
 		return str
 	}
 
-	fun readStringVL(charset: Charset = Charsets.UTF_8): String = readString(readU_VL(), charset)
+	fun readStringVL(charset: Charset = UTF8): String = readString(readU_VL(), charset)
 
 	// Tools
 	inline private fun <T> increment(count: Int, callback: () -> T): T {

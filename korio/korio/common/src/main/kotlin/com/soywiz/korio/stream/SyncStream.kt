@@ -17,6 +17,10 @@ interface SyncOutputStream {
 	fun write(buffer: ByteArray, offset: Int, len: Int): Unit
 }
 
+interface SyncPositionStream {
+	var position: Long
+}
+
 interface SyncLengthStream {
 	var length: Long
 }
@@ -49,8 +53,8 @@ open class SyncStreamBase : Closeable, SyncRAInputStream, SyncRAOutputStream, Sy
 	override fun close() = Unit
 }
 
-class SyncStream(val base: SyncStreamBase, var position: Long = 0L) : Extra by Extra.Mixin(), Closeable,
-	SyncInputStream, SyncOutputStream, SyncLengthStream {
+class SyncStream(val base: SyncStreamBase, override var position: Long = 0L) : Extra by Extra.Mixin(), Closeable,
+	SyncInputStream, SyncPositionStream, SyncOutputStream, SyncLengthStream {
 	override fun read(buffer: ByteArray, offset: Int, len: Int): Int {
 		val read = base.read(position, buffer, offset, len)
 		position += read
@@ -237,7 +241,7 @@ fun SyncStream.readSlice(length: Long): SyncStream = sliceWithSize(position, len
 fun SyncStream.readStream(length: Int): SyncStream = readSlice(length.toLong())
 fun SyncStream.readStream(length: Long): SyncStream = readSlice(length)
 
-fun SyncInputStream.readStringz(charset: Charset = Charsets.UTF_8): String {
+fun SyncInputStream.readStringz(charset: Charset = UTF8): String {
 	val buf = ByteArrayBuilder()
 	val temp = BYTES_TEMP
 	while (true) {
@@ -249,14 +253,14 @@ fun SyncInputStream.readStringz(charset: Charset = Charsets.UTF_8): String {
 	return buf.toByteArray().toString(charset)
 }
 
-fun SyncInputStream.readStringz(len: Int, charset: Charset = Charsets.UTF_8): String {
+fun SyncInputStream.readStringz(len: Int, charset: Charset = UTF8): String {
 	val res = readBytes(len)
 	val index = res.indexOf(0.toByte())
 	return res.copyOf(if (index < 0) len else index).toString(charset)
 }
 
-fun SyncInputStream.readString(len: Int, charset: Charset = Charsets.UTF_8): String = readBytes(len).toString(charset)
-fun SyncOutputStream.writeString(string: String, charset: Charset = Charsets.UTF_8): Unit =
+fun SyncInputStream.readString(len: Int, charset: Charset = UTF8): String = readBytes(len).toString(charset)
+fun SyncOutputStream.writeString(string: String, charset: Charset = UTF8): Unit =
 	writeBytes(string.toByteArray(charset))
 
 fun SyncInputStream.readExact(out: ByteArray, offset: Int, len: Int): Unit {
@@ -277,10 +281,10 @@ fun SyncInputStream.read(data: UByteArray): Int = read(data.data, 0, data.size)
 
 fun SyncInputStream.readBytesExact(len: Int): ByteArray = ByteArray(len).apply { readExact(this, 0, len) }
 
-fun SyncOutputStream.writeStringz(str: String, charset: Charset = Charsets.UTF_8) =
+fun SyncOutputStream.writeStringz(str: String, charset: Charset = UTF8) =
 	this.writeBytes(str.toBytez(charset))
 
-fun SyncOutputStream.writeStringz(str: String, len: Int, charset: Charset = Charsets.UTF_8) =
+fun SyncOutputStream.writeStringz(str: String, len: Int, charset: Charset = UTF8) =
 	this.writeBytes(str.toBytez(len, charset))
 
 fun SyncInputStream.readBytes(len: Int): ByteArray {
@@ -390,9 +394,10 @@ fun SyncStreamBase.toSyncStream(position: Long = 0L) = SyncStream(this, position
 
 fun ByteArray.openSync(mode: String = "r"): SyncStream = MemorySyncStreamBase(ByteArrayBuffer(this)).toSyncStream(0L)
 fun ByteArray.openAsync(mode: String = "r"): AsyncStream =
-	MemoryAsyncStreamBase(ByteArrayBuffer(this, allowGrow = false)).toAsyncStream(0L)
+	//MemoryAsyncStreamBase(ByteArrayBuffer(this, allowGrow = false)).toAsyncStream(0L)
+	MemoryAsyncStreamBase(ByteArrayBuffer(this, allowGrow = true)).toAsyncStream(0L)
 
-fun String.openAsync(charset: Charset = Charsets.UTF_8): AsyncStream = toByteArray(charset).openSync("r").toAsync()
+fun String.openAsync(charset: Charset = UTF8): AsyncStream = toByteArray(charset).openSync("r").toAsync()
 
 fun SyncOutputStream.writeStream(source: SyncInputStream): Unit = source.copyTo(this)
 
@@ -501,13 +506,13 @@ fun SyncOutputStream.writeS_VL(v: Int): Unit {
 	writeU_VL(sign or ((if (v < 0) -v - 1 else v) shl 1))
 }
 
-fun SyncOutputStream.writeStringVL(str: String, charset: Charset = Charsets.UTF_8): Unit {
+fun SyncOutputStream.writeStringVL(str: String, charset: Charset = UTF8): Unit {
 	val bytes = str.toByteArray(charset)
 	writeU_VL(bytes.size)
 	writeBytes(bytes)
 }
 
-fun SyncStream.readStringVL(charset: Charset = Charsets.UTF_8): String {
+fun SyncStream.readStringVL(charset: Charset = UTF8): String {
 	val bytes = ByteArray(readU_VL())
 	readExact(bytes, 0, bytes.size)
 	return bytes.toString(charset)

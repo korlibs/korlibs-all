@@ -11,7 +11,7 @@ abstract class SyncHash {
 
 	abstract fun hash(content: SyncInputStream): ByteArray
 	fun hash(content: ByteArray): ByteArray = hash(content.openSync())
-	fun hash(content: String, charset: Charset = Charsets.UTF_8): ByteArray = hash(content.toByteArray(charset))
+	fun hash(content: String, charset: Charset = UTF8): ByteArray = hash(content.toByteArray(charset))
 
 	class MessageDigestHash(val algo: String) : SyncHash() {
 		override fun hash(content: SyncInputStream): ByteArray {

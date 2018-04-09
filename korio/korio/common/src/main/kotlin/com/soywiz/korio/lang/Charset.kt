@@ -109,26 +109,6 @@ object ASCII : Charset("ASCII") {
 	}
 }
 
-object Charsets {
-	@Deprecated("", ReplaceWith("com.soywiz.korio.lang.UTF8"))
-	val UTF_8 get() = com.soywiz.korio.lang.UTF8
-
-	@Deprecated("", ReplaceWith("com.soywiz.korio.lang.ASCII"))
-	val ASCII get() = com.soywiz.korio.lang.ASCII
-
-	@Deprecated("", ReplaceWith("com.soywiz.korio.lang.ISO_8859_1"))
-	val ISO_8859_1 get() = com.soywiz.korio.lang.ISO_8859_1
-
-	@Deprecated("", ReplaceWith("com.soywiz.korio.lang.LATIN1"))
-	val LATIN1 get() = com.soywiz.korio.lang.LATIN1
-
-	@Deprecated("", ReplaceWith("com.soywiz.korio.lang.UTF16_LE"))
-	val UTF16_LE get() = com.soywiz.korio.lang.UTF16_LE
-
-	@Deprecated("", ReplaceWith("com.soywiz.korio.lang.UTF16_BE"))
-	val UTF16_BE get() = com.soywiz.korio.lang.UTF16_BE
-}
-
 val LATIN1 = ISO_8859_1
 val UTF16_LE = UTF16Charset(le = true)
 val UTF16_BE = UTF16Charset(le = false)

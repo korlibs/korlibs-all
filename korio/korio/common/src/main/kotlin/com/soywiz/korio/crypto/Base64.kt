@@ -15,7 +15,7 @@ object Base64 {
 	}
 
 	fun decode(str: String): ByteArray {
-		val src = str.toByteArray(Charsets.UTF_8)
+		val src = str.toByteArray(UTF8)
 		val dst = ByteArray(src.size)
 		return dst.copyOf(decode(src, dst))
 	}

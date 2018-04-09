@@ -106,36 +106,7 @@ object PNG : ImageFormat("png") {
 		val level = props.quality.convertRangeClamped(0.0, 1.0, 0.0, 9.0).toInt()
 
 		fun compress(data: ByteArray): ByteArray {
-			if (level == 0) {
-				//if (false) {
-				var adler32 = Adler32.INITIAL
-				//if (false) {
-				//val data = ByteArray(0x15)
-				val blocks = ceil(data.size.toDouble() / 0xFFFF.toDouble()).toInt()
-				val lastBlockSize = data.size % 0xFFFF
-				val out = ByteArray(2 + 4 + data.size + blocks * 5)
-				var upos = 0
-				var pos = 2
-				out.write8(0, 0x78)
-				out.write8(1, 0x01)
-				for (n in 0 until blocks) {
-					val last = n == blocks - 1
-					val size = if (last) lastBlockSize else 0xFFFF
-					out.write8(pos, if (last) 1 else 0)
-					out.write16_le(pos + 1, size)
-					out.write16_le(pos + 3, size.inv())
-					arraycopy(data, upos, out, pos + 5, size)
-					pos += 5 + size
-					upos += size
-				}
-
-				//adler32.update(out, 0, pos)
-				adler32 = Adler32.update(adler32, data, 0, data.size)
-				out.write32_be(pos + 0, adler32)
-				return out
-			} else {
-				return data.syncCompress(method, CompressionContext(level = level))
-			}
+			return data.syncCompress(method, CompressionContext(level = level))
 		}
 
 		fun writeChunk(name: String, initialCapacity: Int = 4096, callback: SyncStream.() -> Unit) {
@@ -242,8 +213,6 @@ object PNG : ImageFormat("png") {
 							interlacemethod = readU8()
 						)
 					}
-
-					val header = pheader!!
 				}
 				"PLTE" -> {
 					paletteCount = max(paletteCount, data.length.toInt() / 3)
@@ -271,11 +240,11 @@ object PNG : ImageFormat("png") {
 		val width = header.width
 		val height = header.height
 
-		val datab = ByteArray((1 + width) * height * header.bytes)
+		val databb = ByteArrayBuffer((1 + width) * height * header.bytes)
 
-		pngdata.toByteArray().syncUncompressTo(method, datab)
+		method.syncUncompress(pngdata.toByteArray().openSync(), MemorySyncStreamBase(databb).toSyncStream(0L))
 
-		val data = datab.openSync()
+		val data = MemorySyncStreamBase(databb).toSyncStream(0L)
 		val context = DecodingContext(header)
 		val bpp = context.header.bytes
 		val row32 = context.row32

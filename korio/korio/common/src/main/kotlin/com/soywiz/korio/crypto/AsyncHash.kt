@@ -17,14 +17,14 @@ abstract class AsyncHash {
 
 	abstract suspend fun hashSync(content: AsyncInputStream): ByteArray
 	suspend fun hashSync(content: ByteArray): ByteArray = hashSync(content.openAsync())
-	suspend fun hashSync(content: String, charset: Charset = Charsets.UTF_8): ByteArray =
+	suspend fun hashSync(content: String, charset: Charset = UTF8): ByteArray =
 		hashSync(content.toByteArray(charset))
 
 	suspend fun hashSync(openable: AsyncInputOpenable): ByteArray = openable.openRead().use { hashSync(this) }
 
 	suspend fun hash(content: AsyncInputStream): ByteArray = executeInWorker { hashSync(content) }
 	suspend fun hash(content: ByteArray): ByteArray = executeInWorker { hashSync(content) }
-	suspend fun hash(content: String, charset: Charset = Charsets.UTF_8): ByteArray =
+	suspend fun hash(content: String, charset: Charset = UTF8): ByteArray =
 		executeInWorker { hashSync(content) }
 
 	suspend fun hash(openable: AsyncInputOpenable): ByteArray = executeInWorker { hashSync(openable) }

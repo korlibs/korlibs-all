@@ -198,12 +198,12 @@ open class HttpServer protected constructor() : AsyncCloseable {
 			end()
 		}
 
-		suspend fun write(data: String, charset: Charset = Charsets.UTF_8) {
+		suspend fun write(data: String, charset: Charset = UTF8) {
 			flushHeaders()
 			_write(data.toByteArray(charset))
 		}
 
-		suspend fun end(data: String, charset: Charset = Charsets.UTF_8) {
+		suspend fun end(data: String, charset: Charset = UTF8) {
 			end(data.toByteArray(charset))
 		}
 
@@ -295,13 +295,13 @@ class FakeRequest(
 	}
 
 	override suspend fun _write(data: ByteArray, offset: Int, size: Int) {
-		log += "_write(${data.copyOfRange(offset, offset + size).toString(Charsets.UTF_8)})"
+		log += "_write(${data.copyOfRange(offset, offset + size).toString(UTF8)})"
 		buf.append(data, offset, size)
 	}
 
 	override suspend fun _end() {
 		log += "_end()"
-		output = buf.toByteArray().toString(Charsets.UTF_8)
+		output = buf.toByteArray().toString(UTF8)
 	}
 
 	override fun toString(): String = "$outputStatusCode:$outputStatusMessage:$outputHeaders:$output"

@@ -23,7 +23,7 @@ class VfsFile(
 
 	// @TODO: Kotlin suspend operator not supported yet!
 	suspend fun set(path: String, content: String): Unit =
-		run { this[path].put(content.toByteArray(Charsets.UTF_8).openAsync()) }
+		run { this[path].put(content.toByteArray(UTF8).openAsync()) }
 
 	suspend fun set(path: String, content: ByteArray): Unit = run { this[path].put(content.openAsync()) }
 	suspend fun set(path: String, content: AsyncStream): Unit = run { this[path].writeStream(content) }
@@ -85,9 +85,9 @@ class VfsFile(
 	suspend fun read(): ByteArray = readAll()
 	suspend fun readBytes(): ByteArray = readAll()
 
-	suspend fun readString(charset: Charset = Charsets.UTF_8): String = read().toString(charset)
+	suspend fun readString(charset: Charset = UTF8): String = read().toString(charset)
 	suspend fun writeString(data: String, vararg attributes: Vfs.Attribute): Unit =
-		run { write(data.toByteArray(Charsets.UTF_8), *attributes) }
+		run { write(data.toByteArray(UTF8), *attributes) }
 
 	suspend fun writeString(data: String, charset: Charset, vararg attributes: Vfs.Attribute): Unit =
 		run { write(data.toByteArray(charset), *attributes) }
@@ -166,7 +166,7 @@ class VfsFile(
 	suspend fun execToString(
 		cmdAndArgs: List<String>,
 		env: Map<String, String> = lmapOf(),
-		charset: Charset = Charsets.UTF_8,
+		charset: Charset = UTF8,
 		captureError: Boolean = false,
 		throwOnError: Boolean = true
 	): String {
@@ -192,13 +192,13 @@ class VfsFile(
 		return outString
 	}
 
-	suspend fun execToString(vararg cmdAndArgs: String, charset: Charset = Charsets.UTF_8): String =
+	suspend fun execToString(vararg cmdAndArgs: String, charset: Charset = UTF8): String =
 		execToString(cmdAndArgs.toList(), charset = charset)
 
 	suspend fun passthru(
 		cmdAndArgs: List<String>,
 		env: Map<String, String> = lmapOf(),
-		charset: Charset = Charsets.UTF_8
+		charset: Charset = UTF8
 	): Int {
 		return exec(cmdAndArgs.toList(), env, object : VfsProcessHandler() {
 			suspend override fun onOut(data: ByteArray) {
@@ -214,7 +214,7 @@ class VfsFile(
 	suspend fun passthru(
 		vararg cmdAndArgs: String,
 		env: Map<String, String> = lmapOf(),
-		charset: Charset = Charsets.UTF_8
+		charset: Charset = UTF8
 	): Int = passthru(cmdAndArgs.toList(), env, charset)
 
 	suspend fun watch(handler: suspend (VfsFileEvent) -> Unit): Closeable {

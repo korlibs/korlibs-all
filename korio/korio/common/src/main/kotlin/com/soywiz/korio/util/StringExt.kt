@@ -3,14 +3,14 @@ package com.soywiz.korio.util
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 
-fun String.toBytez(len: Int, charset: Charset = Charsets.UTF_8): ByteArray {
+fun String.toBytez(len: Int, charset: Charset = UTF8): ByteArray {
 	val out = ByteArrayBuilder()
 	out.append(this.toByteArray(charset))
 	while (out.size < len) out.append(0.toByte())
 	return out.toByteArray()
 }
 
-fun String.toBytez(charset: Charset = Charsets.UTF_8): ByteArray {
+fun String.toBytez(charset: Charset = UTF8): ByteArray {
 	val out = ByteArrayBuilder()
 	out.append(this.toByteArray(charset))
 	out.append(0.toByte())

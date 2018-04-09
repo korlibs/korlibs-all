@@ -100,7 +100,7 @@ open class FlashByteArray() {
 
 	fun readUTFBytes(len: Int): String {
 		val dd = content.data.toByteArray().copyOfRange(position, position + len)
-		return dd.toString(Charsets.UTF_8).apply { position += len }
+		return dd.toString(UTF8).apply { position += len }
 	}
 
 	fun writeByte(i: Int): Unit = data.write8(i)

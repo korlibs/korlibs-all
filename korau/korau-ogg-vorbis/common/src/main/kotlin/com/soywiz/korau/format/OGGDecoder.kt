@@ -88,7 +88,7 @@ object OGGDecoder : OggBase() {
 			if (ptr[j] == null) break
 			//System.err.println("Comment: " + String(ptr[j], 0, ptr[j].size - 1))
 			//sb.append(" " + String(ptr[j]!!, 0, ptr[j]!!.size - 1))
-			sb.append(" " + ptr[j]!!.copyOf(ptr[j]!!.size - 1).toString(Charsets.UTF_8))
+			sb.append(" " + ptr[j]!!.copyOf(ptr[j]!!.size - 1).toString(UTF8))
 		}
 		//System.err.println("Bitstream is ${vi.channels} channel, ${vi.rate}Hz")
 		//System.err.println("Encoded by: ${String(vc.vendor, 0, vc.vendor.size - 1)}\n")

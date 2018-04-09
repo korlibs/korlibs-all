@@ -3,9 +3,8 @@ package com.soywiz.korge.ext.spriter.com.brashmonkey.spriter
 import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.Entity.*
 import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.Mainline.Key.BoneRef
 import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.Mainline.Key.ObjectRef
-import com.soywiz.korio.lang.Charsets
 import com.soywiz.korio.JvmField
-import com.soywiz.korio.lang.toString
+import com.soywiz.korio.lang.*
 import com.soywiz.korio.serialization.xml.Xml
 import com.soywiz.korio.stream.SyncStream
 import com.soywiz.korio.stream.readAll
@@ -59,7 +58,7 @@ class SCMLReader {
 	 * @return the built data
 	 */
 	protected fun load(stream: SyncStream): Data {
-		return load(Xml(stream.readAll().toString(Charsets.UTF_8)))
+		return load(Xml(stream.readAll().toString(UTF8)))
 	}
 
 	/**

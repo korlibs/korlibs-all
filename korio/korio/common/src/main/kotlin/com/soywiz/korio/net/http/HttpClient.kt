@@ -36,7 +36,7 @@ abstract class HttpClient protected constructor() {
 
 		val responseCharset by lazy {
 			// @TODO: Detect charset from headers with default to UTF-8
-			Charsets.UTF_8
+			UTF8
 		}
 
 		suspend fun readAllString(charset: Charset = responseCharset): String {
@@ -49,7 +49,7 @@ abstract class HttpClient protected constructor() {
 			if (!success) throw Http.HttpException(status, readAllString(), statusText)
 		}
 
-		fun withStringResponse(str: String, charset: Charset = Charsets.UTF_8) =
+		fun withStringResponse(str: String, charset: Charset = UTF8) =
 			this.copy(content = str.toByteArray(charset).openAsync())
 
 		fun <T> toCompletedResponse(content: T) = CompletedResponse(status, statusText, headers, content)
@@ -169,7 +169,7 @@ fun HttpClient.delayed(ms: Int) = DelayedHttpClient(ms, this)
 class FakeHttpClient(val redirect: HttpClient? = null) : HttpClient() {
 	val log = arrayListOf<String>()
 	var defaultResponse =
-		HttpClient.Response(200, "OK", Http.Headers(), "LogHttpClient.response".toByteArray(Charsets.UTF_8).openAsync())
+		HttpClient.Response(200, "OK", Http.Headers(), "LogHttpClient.response".toByteArray(UTF8).openAsync())
 	private val rules = LinkedHashMap<Rule, ArrayList<ResponseBuilder>>()
 
 	suspend override fun requestInternal(
@@ -178,7 +178,7 @@ class FakeHttpClient(val redirect: HttpClient? = null) : HttpClient() {
 		headers: Http.Headers,
 		content: AsyncStream?
 	): Response {
-		val contentString = content?.slice()?.readAll()?.toString(Charsets.UTF_8)
+		val contentString = content?.slice()?.readAll()?.toString(UTF8)
 		val requestNumber = log.size
 		log += "$method, $url, $headers, $contentString"
 		if (redirect != null) return redirect.request(method, url, headers, content)

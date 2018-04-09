@@ -20,7 +20,7 @@ fun MemoryVfs(items: Map<String, AsyncStream> = lmapOf(), caseSensitive: Boolean
 fun MemoryVfsMix(
 	items: Map<String, Any> = lmapOf(),
 	caseSensitive: Boolean = true,
-	charset: Charset = Charsets.UTF_8
+	charset: Charset = UTF8
 ): VfsFile = MemoryVfs(items.mapValues { (_, v) ->
 	when (v) {
 		is SyncStream -> v.toAsync()
@@ -33,7 +33,7 @@ fun MemoryVfsMix(
 fun MemoryVfsMix(
 	vararg items: Pair<String, Any>,
 	caseSensitive: Boolean = true,
-	charset: Charset = Charsets.UTF_8
+	charset: Charset = UTF8
 ): VfsFile = MemoryVfs(items.map { (key, value) ->
 	key to when (value) {
 		is SyncStream -> value.toAsync()

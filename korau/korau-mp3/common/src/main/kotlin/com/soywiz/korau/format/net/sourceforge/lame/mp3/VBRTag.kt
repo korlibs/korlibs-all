@@ -33,7 +33,6 @@ class VBRTag {
 		const private val VBR_SCALE_FLAG = 0x0008
 		const private val VBRTag0 = "Xing"
 		const private val VBRTag1 = "Info"
-		private val ISO_8859_1: Charset = Charsets.ISO_8859_1
 	}
 
 	private fun extractInteger(buf: ByteArray, bufPos: Int): Int {

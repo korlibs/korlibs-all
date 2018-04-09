@@ -24,7 +24,7 @@ suspend private fun addZipFileEntry(s: AsyncStream, entry: VfsFile): ZipEntry {
 	val crc32 = entry.hashSync(AsyncHash.CRC32).readS32_le(0)
 
 	val name = entry.fullname.trim('/')
-	val nameBytes = name.toByteArray(Charsets.UTF_8)
+	val nameBytes = name.toByteArray(UTF8)
 	val extraBytes = byteArrayOf()
 	val compressedSize = size
 	val uncompressedSize = size

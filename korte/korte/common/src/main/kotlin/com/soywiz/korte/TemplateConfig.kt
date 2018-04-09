@@ -1,13 +1,12 @@
 package com.soywiz.korte
 
-import com.soywiz.korio.lang.Charset
-import com.soywiz.korio.lang.Charsets
+import com.soywiz.korio.lang.*
 
 class TemplateConfig(
 	extraTags: List<Tag> = listOf(),
 	extraFilters: List<Filter> = listOf(),
 	extraFunctions: List<TeFunction> = listOf(),
-	val charset: Charset = Charsets.UTF_8
+	val charset: Charset = UTF8
 ) {
 	val integratedFunctions = DefaultFunctions.ALL
 	val integratedFilters = DefaultFilters.ALL
