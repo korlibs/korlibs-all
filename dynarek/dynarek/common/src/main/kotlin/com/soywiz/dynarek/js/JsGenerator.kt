@@ -18,7 +18,7 @@ class JsGenerator(val func: DFunction, val log: Boolean = false) {
 		get() = when (this) {
 			is DLiteral<*> -> {
 				if (kind == "hex") {
-					(value as Int).hex
+					"((" + (value as Int).hex + ")|0)"
 				} else {
 					"$value"
 				}
