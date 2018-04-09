@@ -9,7 +9,7 @@ class ByteArrayBuffer(var data: ByteArray, size: Int = data.size, val allowGrow:
 	var size: Int
 		get() = _size
 		set(len) {
-			ensure(len + 1)
+			ensure(len)
 			_size = len
 		}
 
