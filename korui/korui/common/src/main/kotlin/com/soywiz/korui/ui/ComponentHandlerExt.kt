@@ -24,6 +24,7 @@ val Component.onMouseUp by createMouseHandler()
 val Component.onMouseDown by createMouseHandler()
 val Component.onMouseClick by createMouseHandler()
 val Component.onMouseOver by createMouseHandler()
+val Component.onMouseDrag by createMouseHandler()
 val Component.onMouseEnter by createMouseHandler()
 val Component.onMouseExit by createMouseHandler()
 
@@ -36,6 +37,7 @@ val Component.onTouchEnd by createTouchHandler()
 val Component.onTouchMove by createTouchHandler()
 
 val Component.onGamepadUpdate by createGamepadHandler()
+val Component.onGamepadConnection by createGamepadHandler()
 
 val Component.onChange by createChangeHandler()
 
@@ -48,6 +50,7 @@ private fun Component.registerMouseEventOnce(): Unit = mouseEventOnce {
 		override fun enter(info: Info) = onMouseEnter(info.handle())
 		override fun exit(info: Info) = onMouseExit(info.handle())
 		override fun over(info: Info) = onMouseOver(info.handle())
+		override fun drag(info: Info) = onMouseDrag(info.handle())
 		override fun up(info: Info) = onMouseUp(info.handle())
 		override fun down(info: Info) = onMouseDown(info.handle())
 		override fun click(info: Info) = onMouseClick(info.handle())
@@ -73,6 +76,7 @@ private fun Component.registerTouchEventOnce(): Unit = touchEventOnce {
 private fun Component.registerGamepadEventOnce(): Unit = gamepadEventOnce {
 	lc.addHandler(handle, object : LightGamepadHandler() {
 		override fun update(info: Info) = onGamepadUpdate(info)
+		override fun connection(info: Info) = onGamepadConnection(info)
 	})
 }
 

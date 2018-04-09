@@ -2,13 +2,43 @@ package com.soywiz.korge.input
 
 import com.soywiz.kds.*
 import com.soywiz.kmem.*
+import com.soywiz.korag.*
 import com.soywiz.korinject.*
+import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 
 @Singleton
 class Input : Extra by Extra.Mixin() {
 	companion object {
 		const val KEYCODES = 0x100
+	}
+
+	data class Touch(
+		val index: Int,
+		var active: Boolean = false,
+		var id: Int = -1,
+		var startTime: Double = 0.0,
+		var currentTime: Double = 0.0,
+		var start: Vector2 = Vector2(),
+		var current: Vector2 = Vector2()
+	) : Extra by Extra.Mixin() {
+		companion object {
+		    val dummy = Touch(-1)
+		}
+	}
+
+	val dummyTouch = Touch.dummy
+	val touches = (0 until 16).map { Touch(it) }.toTypedArray()
+	val activeTouches = arrayListOf<Touch>()
+
+	var _isTouchDeviceGen = { false }
+	val isTouchDevice: Boolean get() = _isTouchDeviceGen()
+
+	fun getTouch(id: Int) = touches.firstOrNull { it.id == id } ?: touches.first { !it.active } ?: dummyTouch
+
+	fun updateTouches() {
+		activeTouches.clear()
+		for (touch in touches) if (touch.active) activeTouches.add(touch)
 	}
 
 	val mouse = Point2d(-1000.0, -1000.0)
@@ -21,6 +51,13 @@ class Input : Extra by Extra.Mixin() {
 	val keys = BooleanArray(KEYCODES)
 	val keysJustPressed = BooleanArray(KEYCODES)
 	val keysJustReleased = BooleanArray(KEYCODES)
+	val gamepads = (0 until 8).map { GamepadInfo(it) }.toTypedArray()
+	val connectedGamepads = arrayListOf<GamepadInfo>()
+
+	fun updateConnectedGamepads() {
+		connectedGamepads.clear()
+		for (gamepad in gamepads) if (gamepad.connected) connectedGamepads += gamepad
+	}
 
 	fun setKey(keyCode: Int, b: Boolean) {
 		val pKeyCode = keyCode and 0xFF

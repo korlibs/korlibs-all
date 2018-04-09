@@ -75,6 +75,7 @@ class AwtLightComponents : LightComponents() {
 			override fun mousePressed(e: MouseEvent) = listener.down2(populate(e))
 			override fun mouseClicked(e: MouseEvent) = listener.click2(populate(e))
 			override fun mouseMoved(e: MouseEvent) = listener.over2(populate(e))
+			override fun mouseDragged(e: MouseEvent) = listener.dragged2(populate(e))
 			override fun mouseEntered(e: MouseEvent) = listener.enter2(populate(e))
 			override fun mouseExited(e: MouseEvent) = listener.exit2(populate(e))
 		}

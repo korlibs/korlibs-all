@@ -22,6 +22,7 @@ import javax.microedition.khronos.opengles.GL10
 
 actual object AGFactoryFactory {
 	actual fun create(): AGFactory = AGFactoryAndroid
+	actual val isTouchDevice: Boolean = true
 }
 
 object AGFactoryAndroid : AGFactory {

@@ -20,6 +20,7 @@ enum class GamepadButton(val index: Int) {
 
 class GamepadInfo(
 	var index: Int = 0,
+	var connected: Boolean = false,
 	var name: String = "unknown",
 	var mapping: GamepadMapping = StandardGamepadMapping,
 	var buttons: Int = 0,
@@ -30,6 +31,7 @@ class GamepadInfo(
 		this.name = that.name
 		this.mapping = that.mapping
 		this.buttons = that.buttons
+		this.connected = that.connected
 		arraycopy(that.axes, 0, this.axes, 0, min(this.axes.size, that.axes.size))
 	}
 

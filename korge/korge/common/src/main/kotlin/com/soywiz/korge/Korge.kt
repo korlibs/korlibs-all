@@ -64,6 +64,8 @@ object Korge {
 		if (config.trace) println("Korge.setupCanvas[1f]. size: $size")
 		injector.mapInstance(EventLoop::class, config.eventLoop)
 		val views = injector.get(Views::class)
+		val input = views.input
+		input._isTouchDeviceGen = { AGFactoryFactory.isTouchDevice }
 		views.debugViews = config.debug
 		config.constructedViews(views)
 		val moduleArgs = ModuleArgs(config.args)
@@ -90,18 +92,22 @@ object Korge {
 
 		val downPos = Point2d()
 		val upPos = Point2d()
-		val mouseMovedEvent = MouseMovedEvent()
+		val mouseMovedEvent = MouseOverEvent()
+		val mouseDragEvent = MouseDragEvent()
 		val mouseUpEvent = MouseUpEvent()
 		val mouseClickEvent = MouseClickEvent()
 		val mouseDownEvent = MouseDownEvent()
+		val touchEvent = TouchEvent(input.dummyTouch, false, false)
 
 		val keyDownEvent = KeyDownEvent()
 		val keyUpEvent = KeyUpEvent()
 		val keyTypedEvent = KeyTypedEvent()
 		val gamepadTypedEvent = GamepadUpdatedEvent()
+		val gamepadConnectionEvent = GamepadConnectionEvent()
 		var downTime = 0.0
 		var moveTime = 0.0
 		var upTime = 0.0
+		var moveMouseOutsideInNextFrame = false
 
 		fun mouseDown(name: String, x: Int, y: Int) {
 			//Console.log("mouseDown: $name")
@@ -118,6 +124,14 @@ object Korge {
 			views.input.mouse.setTo(x * ag.pixelDensity, y * ag.pixelDensity)
 			views.mouseUpdated()
 			views.dispatch(mouseMovedEvent)
+			moveTime = Klock.currentTimeMillisDouble()
+		}
+
+		fun mouseDrag(name: String, x: Int, y: Int) {
+			//Console.log("mouseMove: $name")
+			views.input.mouse.setTo(x * ag.pixelDensity, y * ag.pixelDensity)
+			views.mouseUpdated()
+			views.dispatch(mouseDragEvent)
 			moveTime = Klock.currentTimeMillisDouble()
 		}
 
@@ -143,17 +157,71 @@ object Korge {
 			e.gamepad.copyFrom(this.gamepad)
 		}
 
+		fun AGInput.GamepadEvent.copyTo(e: GamepadConnectionEvent) {
+			e.gamepad.copyFrom(this.gamepad)
+		}
+
+		fun updateTouch(id: Int, x: Int, y: Int, start: Boolean, end: Boolean) {
+			val touch = input.getTouch(id)
+			val now = Klock.currentTimeMillisDouble()
+			val sx = x * ag.pixelDensity
+			val sy = y * ag.pixelDensity
+
+			touchEvent.touch = touch
+			touchEvent.start = start
+			touchEvent.end = end
+			touch.id = id
+			touch.active = !end
+
+			if (start) {
+				touch.startTime = now
+				touch.start.setTo(sx, sy)
+			}
+
+			touch.currentTime = now
+			touch.current.setTo(sx, sy)
+
+			input.updateTouches()
+			views.dispatch(touchEvent)
+		}
+
 		// MOUSE
-		agInput.onMouseDown { e -> mouseDown("onMouseDown", e.x, e.y) }
-		agInput.onMouseUp { e -> mouseUp("onMouseUp", e.x, e.y) }
+		val mouseTouchId = -1
+		agInput.onMouseDown { e ->
+			mouseDown("onMouseDown", e.x, e.y)
+			updateTouch(mouseTouchId, e.x, e.y, start = true, end = false)
+		}
+		agInput.onMouseUp { e ->
+			mouseUp("onMouseUp", e.x, e.y)
+			updateTouch(mouseTouchId, e.x, e.y, start = false, end = true)
+		}
 		agInput.onMouseOver { e -> mouseMove("onMouseOver", e.x, e.y) }
+		agInput.onMouseDrag { e ->
+			mouseDrag("onMouseDrag", e.x, e.y)
+			updateTouch(mouseTouchId, e.x, e.y, start = false, end = false)
+		}
 		//agInput.onMouseClick { e -> } // Triggered by mouseUp
 
 		// TOUCH
-		var moveMouseOutsideInNextFrame = false
-		agInput.onTouchStart { e -> mouseDown("onTouchStart", e.x, e.y) }
-		agInput.onTouchEnd { e -> mouseUp("onTouchEnd", e.x, e.y); moveMouseOutsideInNextFrame = true }
-		agInput.onTouchMove { e -> mouseMove("onTouchMove", e.x, e.y) }
+		fun touch(e: AGInput.TouchEvent, start: Boolean, end: Boolean) {
+			updateTouch(e.id, e.x, e.y, start, end)
+			when {
+				start -> {
+					mouseDown("onTouchStart", e.x, e.y)
+				}
+				end -> {
+					mouseUp("onTouchEnd", e.x, e.y)
+					moveMouseOutsideInNextFrame = true
+				}
+				else -> {
+					mouseDrag("onTouchMove", e.x, e.y)
+				}
+			}
+		}
+
+		agInput.onTouchStart { e -> touch(e, start = true, end = false) }
+		agInput.onTouchMove { e -> touch(e, start = false, end = false) }
+		agInput.onTouchEnd { e -> touch(e, start = false, end = true) }
 
 		// KEYS
 		agInput.onKeyDown {
@@ -178,9 +246,22 @@ object Korge {
 			it.copyTo(keyTypedEvent)
 			views.dispatch(keyTypedEvent)
 		}
+
+		fun gamepadUpdated(gamepad: GamepadInfo) {
+			input.gamepads[gamepad.index].copyFrom(gamepad)
+			input.updateConnectedGamepads()
+		}
+
 		agInput.onGamepadUpdate {
+			gamepadUpdated(it.gamepad)
 			it.copyTo(gamepadTypedEvent)
 			views.dispatch(gamepadTypedEvent)
+		}
+
+		agInput.onGamepadConnection {
+			gamepadUpdated(it.gamepad)
+			it.copyTo(gamepadConnectionEvent)
+			views.dispatch(gamepadConnectionEvent)
 		}
 
 		ag.onResized {

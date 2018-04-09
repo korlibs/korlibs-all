@@ -101,7 +101,7 @@ actual object NativeImageFormatProvider {
 				//println("[d]")
 				//println("image: $jsUrl")
 				img.src = jsUrl
-				document.body?.appendChild(img)
+				//document.body?.appendChild(img)
 				//println("[e]")
 				Unit
 			}

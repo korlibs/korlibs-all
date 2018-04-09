@@ -19,6 +19,7 @@ import java.nio.*
 
 actual object AGFactoryFactory {
 	actual fun create(): AGFactory = AGFactoryAwt
+	actual val isTouchDevice: Boolean = false
 }
 
 object AGFactoryAwt : AGFactory {

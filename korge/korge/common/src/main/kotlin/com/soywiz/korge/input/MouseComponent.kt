@@ -16,6 +16,7 @@ class MouseComponent(view: View) : Component(view) {
 	val onOver = Signal<MouseComponent>()
 	val onOut = Signal<MouseComponent>()
 	val onDown = Signal<MouseComponent>()
+	val onDownFromOutside = Signal<MouseComponent>()
 	val onUp = Signal<MouseComponent>()
 	val onUpOutside = Signal<MouseComponent>()
 	val onUpAnywhere = Signal<MouseComponent>()
@@ -88,7 +89,7 @@ class MouseComponent(view: View) : Component(view) {
 		addEventListener<MouseDownEvent> { e ->
 			downPos.copyFrom(input.mouse)
 		}
-		addEventListener<MouseMovedEvent> { e ->
+		addEventListener<MouseOverEvent> { e ->
 			//println(e)
 		}
 	}
@@ -155,6 +156,9 @@ class MouseComponent(view: View) : Component(view) {
 			startedPos.copyFrom(currentPos)
 			onDown(this)
 		}
+		if (overChanged && pressing) {
+			onDownFromOutside(this)
+		}
 		if (pressingChanged && !pressing) {
 			if (over) onUp(this) else onUpOutside(this)
 			onUpAnywhere(this)
@@ -191,6 +195,9 @@ inline fun <T : View?> T?.onOut(noinline handler: suspend (MouseComponent) -> Un
 
 inline fun <T : View?> T?.onDown(noinline handler: suspend (MouseComponent) -> Unit) =
 	this.apply { this?.mouse?.onDown?.addSuspend(this.views.coroutineContext, handler) }
+
+inline fun <T : View?> T?.onDownFromOutside(noinline handler: suspend (MouseComponent) -> Unit) =
+	this.apply { this?.mouse?.onDownFromOutside?.addSuspend(this.views.coroutineContext, handler) }
 
 inline fun <T : View?> T?.onUp(noinline handler: suspend (MouseComponent) -> Unit) =
 	this.apply { this?.mouse?.onUp?.addSuspend(this.views.coroutineContext, handler) }

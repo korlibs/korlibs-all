@@ -299,7 +299,8 @@ interface MouseEvent : Event
 class MouseClickEvent : MouseEvent
 class MouseUpEvent : MouseEvent
 class MouseDownEvent : MouseEvent
-class MouseMovedEvent : MouseEvent
+class MouseOverEvent : MouseEvent
+class MouseDragEvent : MouseEvent
 interface KeyEvent : Event {
 	var keyCode: Int
 }
@@ -308,6 +309,21 @@ class KeyDownEvent(override var keyCode: Int = 0) : KeyEvent
 class KeyUpEvent(override var keyCode: Int = 0) : KeyEvent
 class KeyTypedEvent(override var keyCode: Int = 0) : KeyEvent
 
+data class TouchEvent(var touch: Input.Touch, var start: Boolean, var end: Boolean) : Event {
+	fun set(touch: Input.Touch, start: Boolean, end: Boolean) = this.apply {
+		this.touch = touch
+		this.start = start
+		this.end = end
+	}
+}
+
 class GamepadUpdatedEvent(
 	val gamepad: GamepadInfo = GamepadInfo()
 ) : Event
+
+class GamepadConnectionEvent(
+	val gamepad: GamepadInfo = GamepadInfo()
+) : Event {
+	val index get() = gamepad.index
+	val connected get() = gamepad.connected
+}

@@ -226,7 +226,6 @@ class Frame(app: Application, title: String) : Container(app, LayeredLayout(app)
 
 class AgCanvas(app: Application) : Component(app, LightType.AGCANVAS), AGContainer {
 	override val ag = componentInfo.ag!!
-
 	override val agInput: AGInput = AGInput()
 
 	private fun updateMouse(e: LightMouseHandler.Info) {
@@ -254,6 +253,7 @@ class AgCanvas(app: Application) : Component(app, LightType.AGCANVAS), AGContain
 		onMouseUp { updateMouse(it); agInput.onMouseUp(agInput.mouseEvent) }
 		onMouseDown { updateMouse(it); agInput.onMouseDown(agInput.mouseEvent) }
 		onMouseOver { updateMouse(it); agInput.onMouseOver(agInput.mouseEvent) }
+		onMouseDrag { updateMouse(it); agInput.onMouseDrag(agInput.mouseEvent) }
 		onMouseClick { updateMouse(it); agInput.onMouseClick(agInput.mouseEvent) }
 
 		onKeyDown { updateKey(it); agInput.onKeyDown(agInput.keyEvent) }
@@ -265,6 +265,7 @@ class AgCanvas(app: Application) : Component(app, LightType.AGCANVAS), AGContain
 		onTouchMove { updateTouch(it); agInput.onTouchMove(agInput.touchEvent) }
 
 		onGamepadUpdate { updateGamepad(it); agInput.onGamepadUpdate(agInput.gamepadEvent) }
+		onGamepadConnection { updateGamepad(it); agInput.onGamepadConnection(agInput.gamepadEvent) }
 	}
 
 	//var registeredKeyEvents = false
@@ -475,6 +476,9 @@ fun <T : Component> T.click(handler: suspend Component.() -> Unit) =
 
 fun <T : Component> T.mouseOver(handler: suspend Component.() -> Unit) =
 	this.apply { onMouseOver { handler.execAndForget(coroutineContext, this) } }
+
+fun <T : Component> T.mouseDrag(handler: suspend Component.() -> Unit) =
+	this.apply { onMouseDrag { handler.execAndForget(coroutineContext, this) } }
 
 fun <T : Component> T.mouseEnter(handler: suspend Component.() -> Unit) =
 	this.apply { onMouseEnter { handler.execAndForget(coroutineContext, this) } }

@@ -19,6 +19,7 @@ val agFactory: AGFactory by lazy { defaultFactory }
 
 expect object AGFactoryFactory {
 	fun create(): AGFactory
+	val isTouchDevice: Boolean
 }
 
 interface AGFactory {
@@ -41,6 +42,7 @@ open class AGInput {
 	open val mouseX: Int get() = mouseEvent.x
 	open val mouseY: Int get() = mouseEvent.y
 	open val onMouseOver: Signal<MouseEvent> = Signal()
+	open val onMouseDrag: Signal<MouseEvent> = Signal()
 	open val onMouseUp: Signal<MouseEvent> = Signal()
 	open val onMouseDown: Signal<MouseEvent> = Signal()
 	open val onMouseClick: Signal<MouseEvent> = Signal()
@@ -53,12 +55,12 @@ open class AGInput {
 	open val onTouchEnd: Signal<TouchEvent> = Signal()
 	open val onTouchMove: Signal<TouchEvent> = Signal()
 
+	open val onGamepadConnection: Signal<GamepadEvent> = Signal()
 	open val onGamepadUpdate: Signal<GamepadEvent> = Signal()
 }
 
 interface AGContainer {
 	val ag: AG
-
 	val agInput: AGInput
 
 	//data class Resized(var width: Int, var height: Int) {

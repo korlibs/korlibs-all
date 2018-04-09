@@ -235,7 +235,14 @@ class HtmlLightComponents : LightComponents() {
 		return listOf(
 			node.addCloseableEventListener("click", { listener.click2(process(it as MouseEvent, 1)) }),
 			node.addCloseableEventListener("mouseover", { listener.over2(process(it as MouseEvent, 0)) }),
-			node.addCloseableEventListener("mousemove", { listener.over2(process(it as MouseEvent, 0)) }),
+			node.addCloseableEventListener("mousemove", {
+				val me = it as MouseEvent
+				if (me.buttons.toInt() == 0) {
+					listener.over2(process(me, 0))
+				} else {
+					listener.dragged2(process(me, 0))
+				}
+			}),
 			node.addCloseableEventListener("mouseup", { listener.up2(process(it as MouseEvent, 0)) }),
 			node.addCloseableEventListener("mousedown", { listener.down2(process(it as MouseEvent, 0)) })
 		).closeable()
@@ -336,6 +343,7 @@ class HtmlLightComponents : LightComponents() {
 					for (i in 0 until min(igamepad.axes.size, axesArray.length.unsafeCast<Int>())) {
 						igamepad.axes[i] = axesArray[i].unsafeCast<Double>()
 					}
+					igamepad.connected = true
 					igamepad.index = controllerIndex
 					igamepad.name = controllerName
 					igamepad.mapping = knownControllers[controllerName] ?: StandardGamepadMapping
@@ -346,8 +354,14 @@ class HtmlLightComponents : LightComponents() {
 		}
 		frame(0.0)
 
-		window.addEventListener("gamepadconnected", { e -> })
-		window.addEventListener("gamepaddisconnected", { e -> })
+		window.addEventListener("gamepadconnected", { e ->
+			info.gamepad.connected = true
+			listener.connection(info)
+		})
+		window.addEventListener("gamepaddisconnected", { e ->
+			info.gamepad.connected = false
+			listener.connection(info)
+		})
 
 		return super.addHandler(c, listener)
 	}

@@ -18,6 +18,9 @@ import org.khronos.webgl.WebGLRenderingContext as GL
 
 actual object AGFactoryFactory {
 	actual fun create(): AGFactory = AGFactoryWebgl
+	actual val isTouchDevice: Boolean get() {
+		return js("('ontouchstart' in window || navigator.maxTouchPoints)").unsafeCast<Boolean>()
+	}
 }
 
 object AGFactoryWebgl : AGFactory {

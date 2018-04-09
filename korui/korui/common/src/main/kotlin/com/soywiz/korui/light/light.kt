@@ -37,6 +37,7 @@ open class LightComponents {
 	protected fun LightMouseHandler.down2(info: LightMouseHandler.Info) = insideEventHandler { this.down(info) }
 	protected fun LightMouseHandler.click2(info: LightMouseHandler.Info) = insideEventHandler { this.click(info) }
 	protected fun LightMouseHandler.over2(info: LightMouseHandler.Info) = insideEventHandler { this.over(info) }
+	protected fun LightMouseHandler.dragged2(info: LightMouseHandler.Info) = insideEventHandler { this.drag(info) }
 	protected fun LightMouseHandler.enter2(info: LightMouseHandler.Info) = insideEventHandler { this.enter(info) }
 	protected fun LightMouseHandler.exit2(info: LightMouseHandler.Info) = insideEventHandler { this.exit(info) }
 	protected fun LightChangeHandler.changed2(info: LightChangeHandler.Info) = insideEventHandler { this.changed(info) }
@@ -97,6 +98,7 @@ open class LightMouseHandler {
 	open fun enter(info: Info) = Unit
 	open fun exit(info: Info) = Unit
 	open fun over(info: Info) = Unit
+	open fun drag(info: Info) = Unit
 	open fun up(info: Info) = Unit
 	open fun down(info: Info) = Unit
 	open fun click(info: Info) = Unit
@@ -130,6 +132,7 @@ open class LightGamepadHandler {
 	)
 
 	open fun update(info: Info) = Unit
+	open fun connection(info: Info) = Unit
 }
 
 open class LightTouchHandler {
@@ -182,4 +185,4 @@ class LightProperty<out T>(val name: String, val default: T) {
 	override fun toString(): String = "LightProperty[$name]"
 }
 
-var LightComponents.LightComponentInfo.ag: AG? by extraProperty("ag", null)
+var LightComponents.LightComponentInfo.ag: AG? by extraProperty("ag") { null }
