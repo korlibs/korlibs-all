@@ -20,6 +20,8 @@ open class Module {
 	open val mainScene: KClass<out Scene> = EmptyScene::class
 	open val clearEachFrame = true
 
+	open val targetFps: Double = 0.0
+
 	open suspend fun init(injector: AsyncInjector) {
 	}
 }

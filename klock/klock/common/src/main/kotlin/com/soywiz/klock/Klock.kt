@@ -23,6 +23,11 @@ expect object Klock {
 	fun currentTimeMillisDouble(): Double
 
 	/**
+	 * Returns a performance counter measure in microseconds.
+	 */
+	fun microClock(): Double
+
+	/**
 	 * Returns timezone offset in minutes, from a specified [unix] epoch in milliseconds.
 	 *
 	 * For example, GMT+01 would return 60.

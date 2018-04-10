@@ -302,6 +302,8 @@ object Korge {
 
 		if (config.trace) println("Korge.setupCanvas[7]")
 
+		views.targetFps = config.module.targetFps
+
 		views.animationFrameLoop {
 			if (config.trace) println("views.animationFrameLoop")
 			//ag.resized()

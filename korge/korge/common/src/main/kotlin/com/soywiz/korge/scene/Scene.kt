@@ -112,3 +112,4 @@ abstract class LogScene : Scene() {
 }
 
 suspend fun Scene.sleep(time: TimeSpan) = sceneView.sleep(time)
+suspend fun Scene.sleep(time: Int) = sceneView.sleep(time)

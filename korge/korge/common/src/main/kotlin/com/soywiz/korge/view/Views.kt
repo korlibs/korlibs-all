@@ -200,8 +200,25 @@ class Views(
 		stage.dispatch(resizedEvent.setSize(actualSize.width, actualSize.height))
 	}
 
+	var targetFps: Double = -1.0
+
 	fun animationFrameLoop(callback: () -> Unit): Closeable {
 		println("Views.animationFrameLoop.eventLoop: $eventLoop")
+		//val process = async {
+		//	var accumulatedMs = 0.0
+		//	while (true) {
+		//		callback()
+		//		if (targetFps <= 0) {
+		//			eventLoop.sleepNextFrame()
+		//		} else {
+		//			val targetMs = (1000.0 / targetFps) + accumulatedMs
+		//			val targetMsInt = targetMs.toInt()
+		//			accumulatedMs = targetMs - targetMsInt
+		//			eventLoop.sleep(targetMsInt)
+		//		}
+		//	}
+		//}
+		//return Closeable { process.cancel() }
 		return eventLoop.animationFrameLoop(callback)
 	}
 
