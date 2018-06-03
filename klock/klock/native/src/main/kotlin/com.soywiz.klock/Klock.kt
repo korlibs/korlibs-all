@@ -4,8 +4,6 @@ import kotlinx.cinterop.*
 import platform.posix.*
 
 actual object Klock {
-	actual val VERSION: String = KlockExt.VERSION
-
 	actual fun currentTimeMillis(): Long = memScoped {
 		val timeVal = alloc<timeval>()
 		gettimeofday(timeVal.ptr, null)

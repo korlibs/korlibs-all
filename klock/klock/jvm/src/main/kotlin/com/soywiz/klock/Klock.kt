@@ -3,7 +3,6 @@ package com.soywiz.klock
 import java.util.*
 
 actual object Klock {
-	actual val VERSION: String = KlockExt.VERSION
 	actual fun currentTimeMillis(): Long = System.currentTimeMillis()
 	actual fun currentTimeMillisDouble(): Double = System.currentTimeMillis().toDouble()
 	actual fun microClock(): Double = (System.nanoTime() / 1000L).toDouble()

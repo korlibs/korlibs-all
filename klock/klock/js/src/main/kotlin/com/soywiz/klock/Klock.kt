@@ -4,8 +4,6 @@ import kotlin.browser.*
 import kotlin.math.*
 
 actual object Klock {
-	actual val VERSION: String = KlockExt.VERSION
-
 	actual fun currentTimeMillis(): Long = js("Date.now()").unsafeCast<Double>().toLong()
 	actual fun currentTimeMillisDouble(): Double = js("Date.now()").unsafeCast<Double>()
 

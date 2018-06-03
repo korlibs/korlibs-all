@@ -5,11 +5,6 @@ package com.soywiz.klock
  */
 expect object Klock {
 	/**
-	 * Version of this library.
-	 */
-	val VERSION: String
-
-	/**
 	 * Returns the total milliseconds since unix epoch.
 	 */
 	fun currentTimeMillis(): Long
@@ -33,8 +28,4 @@ expect object Klock {
 	 * For example, GMT+01 would return 60.
 	 */
 	fun getLocalTimezoneOffset(unix: Long): Int
-}
-
-object KlockExt {
-	val VERSION = KLOCK_VERSION
 }
