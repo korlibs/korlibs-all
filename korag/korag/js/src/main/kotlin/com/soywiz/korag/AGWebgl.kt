@@ -76,17 +76,17 @@ class AGWebgl : AG(), AGContainer {
 		val event = AGInput.KeyEvent()
 
 
-		canvas.addEventListener("keydown", { e ->
+		window.addEventListener("keydown", { e ->
 			event.keyCode = e.unsafeCast<KeyboardEvent>().keyCode
 			agInput.onKeyDown(event)
 		}, false)
 
-		canvas.addEventListener("keyup", { e ->
+		window.addEventListener("keyup", { e ->
 			event.keyCode = e.unsafeCast<KeyboardEvent>().keyCode
 			agInput.onKeyUp(event)
 		}, false)
 
-		canvas.addEventListener("keypress", { e ->
+		window.addEventListener("keypress", { e ->
 			event.keyCode = e.unsafeCast<KeyboardEvent>().keyCode
 			agInput.onKeyTyped(event)
 		}, false)
@@ -318,7 +318,8 @@ class AGWebgl : AG(), AGContainer {
 			if (dirty) {
 				val mem2: FastMemory = mem!!
 				val buffer = mem2.i8
-				val typedArray = Int8Array(buffer.buffer, memOffset, memLength)
+				@Suppress("CAST_NEVER_SUCCEEDS")
+				val typedArray = Int8Array((buffer as Int8Buffer).buffer, memOffset, memLength)
 				//console.methods["log"](target)
 				//console.methods["log"](typedArray)
 				gl.bufferData(this.target, typedArray, GL.STATIC_DRAW)

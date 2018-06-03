@@ -314,10 +314,12 @@ class HtmlLightComponents : LightComponents() {
 			this.keyCode = e.keyCode
 		}
 
+		val rnode: HTMLElement = if (node.tagName.toUpperCase() == "CANVAS") window.asDynamic() else node
+
 		return listOf(
-			node.addCloseableEventListener("keydown", { listener.down2(process(it as KeyboardEvent)) }),
-			node.addCloseableEventListener("keyup", { listener.up2(process(it as KeyboardEvent)) }),
-			node.addCloseableEventListener("keypress", { listener.typed2(process(it as KeyboardEvent)) })
+			rnode.addCloseableEventListener("keydown", { listener.down2(process(it as KeyboardEvent)) }),
+			rnode.addCloseableEventListener("keyup", { listener.up2(process(it as KeyboardEvent)) }),
+			rnode.addCloseableEventListener("keypress", { listener.typed2(process(it as KeyboardEvent)) })
 		).closeable()
 	}
 
@@ -667,9 +669,6 @@ class JsFileAsyncStreamBase(val jsfile: File) : AsyncStreamBase() {
 
 	suspend fun readBytes(position: Double, len: Int): ByteArray = suspendCoroutine { c ->
 		val reader = FileReader()
-		// @TODO: Blob.slice should use Double
-		val djsfile = jsfile.asDynamic()
-		val slice = djsfile.slice(position, (position + len))
 
 		reader.onload = {
 			val result = reader.result
@@ -679,7 +678,8 @@ class JsFileAsyncStreamBase(val jsfile: File) : AsyncStreamBase() {
 		reader.onerror = {
 			c.resumeWithException(RuntimeException("error reading file"))
 		}
-		reader.readAsArrayBuffer(slice)
+
+		reader.readAsArrayBuffer(jsfile.asDynamic().slice(position, (position + len)))
 	}
 
 	override suspend fun read(position: Long, buffer: ByteArray, offset: Int, len: Int): Int {
