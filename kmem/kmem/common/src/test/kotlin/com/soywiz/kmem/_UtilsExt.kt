@@ -12,9 +12,9 @@ fun String.format(vararg params: Any): String {
 		//println("param: $param")
 		val size = mr.groupValues[1]
 		val type = mr.groupValues[2]
-		val str = when (type) {
+		val str = when (type.toLowerCase()) {
 			"d" -> (param as Number).toLong().toString()
-			"X", "x" -> {
+			"x" -> {
 				val res = when (param) {
 					is Int -> param.toStringUnsigned(16)
 					else -> (param as Number).toLong().toStringUnsigned(16)
