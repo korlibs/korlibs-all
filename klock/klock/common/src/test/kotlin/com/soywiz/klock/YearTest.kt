@@ -1,6 +1,5 @@
-package com.klock
+package com.soywiz.klock
 
-import com.soywiz.klock.*
 import kotlin.test.*
 
 class YearTest {

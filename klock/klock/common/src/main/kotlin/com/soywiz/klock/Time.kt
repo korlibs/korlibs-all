@@ -137,6 +137,9 @@ interface DateTime : Comparable<DateTime> {
 	fun toString(format: String): String = toString(SimplerDateFormat(format))
 	fun toString(format: SimplerDateFormat): String = format.format(this)
 
+	override fun hashCode(): Int
+	override fun equals(other: Any?): Boolean
+
 	companion object {
 		val EPOCH by lazy { DateTime(1970, 1, 1, 0, 0, 0) as UtcDateTime }
 		internal val EPOCH_INTERNAL_MILLIS by lazy { EPOCH.internalMillis }
@@ -449,8 +452,7 @@ data class TimeSpan private constructor(val ms: Int) : Comparable<TimeSpan> {
 
 	companion object {
 		val ZERO = TimeSpan(0)
-		@PublishedApi
-		internal fun fromMilliseconds(ms: Int) = when (ms) {
+		@PublishedApi internal fun fromMilliseconds(ms: Int) = when (ms) {
 			0 -> ZERO
 			else -> TimeSpan(ms)
 		}
