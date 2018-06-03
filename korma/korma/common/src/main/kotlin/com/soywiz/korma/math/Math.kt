@@ -183,3 +183,6 @@ object Math {
 		return kotlin.math.ceil(value).toInt()
 	}
 }
+
+inline fun pow(a: Number, b: Number) = a.toDouble().pow(b.toDouble())
+fun log(a: Double): Double = log(a, E)
