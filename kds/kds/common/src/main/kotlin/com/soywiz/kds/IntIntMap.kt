@@ -1,7 +1,5 @@
 package com.soywiz.kds
 
-import com.soywiz.kmem.*
-
 class IntIntMap private constructor(private var nbits: Int, private val loadFactor: Double) {
 	constructor(loadFactor: Double = 0.75) : this(4, loadFactor)
 
@@ -15,7 +13,7 @@ class IntIntMap private constructor(private var nbits: Int, private val loadFact
 	private var hasZero = false
 	private var zeroValue: Int = 0
 	private var mask = capacity - 1
-	private var stashSize = 1 + ilog2(capacity)
+	private var stashSize = KdsExt { 1 + ilog2(capacity) }
 	private var _keys = IntArray(capacity + stashSize)
 	private var _values = IntArray(capacity + stashSize)
 	private val stashStart get() = _keys.size - stashSize
@@ -66,8 +64,8 @@ class IntIntMap private constructor(private var nbits: Int, private val loadFact
 	fun clear() {
 		hasZero = false
 		zeroValue = 0
-		_keys.fill(0)
-		_values.fill(0)
+		MemTools.fill(_keys, 0)
+		MemTools.fill(_values, 0)
 		size = 0
 	}
 

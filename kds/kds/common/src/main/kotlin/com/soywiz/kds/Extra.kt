@@ -22,8 +22,7 @@ interface Extra {
 
 		inline operator fun setValue(thisRef: Extra, property: KProperty<*>, value: T): Unit = run {
 			//beforeSet(value)
-			if (thisRef.extra == null) thisRef.extra = lmapOf()
-			thisRef.extra?.set(name ?: property.name, value as Any?)
+			thisRef.setExtra(name ?: property.name, value as Any?)
 			//afterSet(value)
 		}
 	}
@@ -46,6 +45,13 @@ interface Extra {
 			//afterSet(value)
 		}
 	}
+}
+
+fun <T : Any> Extra.getExtraTyped(name: String): T? = extra?.get(name) as T?
+fun Extra.getExtra(name: String): Any? = extra?.get(name)
+fun Extra.setExtra(name: String, value: Any?): Unit {
+	if (extra == null) extra = LinkedHashMap()
+	extra?.set(name, value)
 }
 
 @Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE")

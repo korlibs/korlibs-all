@@ -17,4 +17,10 @@ class Queue<T>() {
 	}
 
 	fun dequeue(): T = items.removeFirst()
+
+	fun remove(v: T) {
+		items.remove(v)
+	}
+
+	fun toList() = items.toList()
 }

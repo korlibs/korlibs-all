@@ -1,18 +1,6 @@
 package com.soywiz.kds
 
-import com.soywiz.kmem.*
-import kotlin.collections.Collection
-import kotlin.collections.Iterable
-import kotlin.collections.MutableCollection
-import kotlin.collections.MutableIterator
-import kotlin.collections.all
-import kotlin.collections.any
-import kotlin.collections.contains
-import kotlin.collections.copyOf
-import kotlin.collections.count
-import kotlin.collections.map
 import kotlin.collections.set
-import kotlin.collections.toSet
 
 // Accessing by index: 1
 // Inserting at first or last: 1
@@ -45,8 +33,8 @@ class CircularList<T>() : MutableCollection<T> {
 	private fun copyCyclic(i: Array<Any>, istart: Int, o: Array<Any>, count: Int) {
 		val size1 = kotlin.math.min(i.size - istart, count)
 		val size2 = count - size1
-		arraycopy(i, istart, o, 0, size1)
-		if (size2 > 0) arraycopy(i, 0, o, size1, size2)
+		MemTools.arraycopy(i, istart, o, 0, size1)
+		if (size2 > 0) MemTools.arraycopy(i, 0, o, size1, size2)
 	}
 
 	fun addAll(items: Iterable<T>) = run {
@@ -56,20 +44,20 @@ class CircularList<T>() : MutableCollection<T> {
 
 	fun addFirst(item: T) {
 		resizeIfRequiredFor(1)
-		_start = (_start - 1) umod capacity
+		_start = KdsExt { (_start - 1) umod capacity }
 		_size++
 		data[_start] = item as Any
 	}
 
 	fun addLast(item: T) {
 		resizeIfRequiredFor(1)
-		data[(_start + size) umod capacity] = item as Any
+		data[KdsExt { (_start + size) umod capacity }] = item as Any
 		_size++
 	}
 
 	fun removeFirst(): T {
 		if (_size <= 0) throw IndexOutOfBoundsException()
-		return first.apply { _start = (_start + 1) umod capacity; _size-- }
+		return first.apply { KdsExt { _start = (_start + 1) umod capacity; _size-- } }
 	}
 
 	fun removeLast(): T {
@@ -122,7 +110,7 @@ class CircularList<T>() : MutableCollection<T> {
 	val first: T get() = data[_start] as T
 	val last: T get() = data[internalIndex(size - 1)] as T
 
-	private fun internalIndex(index: Int) = (_start + index) umod capacity
+	private fun internalIndex(index: Int) = KdsExt { (_start + index) umod capacity }
 
 	operator fun set(index: Int, value: T): Unit = run { data[internalIndex(index)] = value as Any }
 	operator fun get(index: Int): T = data[internalIndex(index)] as T

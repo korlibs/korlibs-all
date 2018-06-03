@@ -1,6 +1,5 @@
 package com.soywiz.kds
 
-import com.soywiz.kmem.*
 import kotlin.math.*
 
 class IntArrayList(capacity: Int = 7) : Collection<Int> {
@@ -37,7 +36,7 @@ class IntArrayList(capacity: Int = 7) : Collection<Int> {
 
 	fun add(values: IntArray, offset: Int = 0, length: Int = values.size) {
 		ensure(values.size)
-		arraycopy(values, offset, data, this.length, length)
+		MemTools.arraycopy(values, offset, data, this.length, length)
 		this.length += values.size
 	}
 
@@ -70,7 +69,7 @@ class IntArrayList(capacity: Int = 7) : Collection<Int> {
 	fun removeAt(index: Int): Int {
 		if (index < 0 || index >= length) throw IndexOutOfBoundsException()
 		val out = data[index]
-		if (index < length - 1) arraycopy(data, index + 1, data, index, length - index - 1)
+		if (index < length - 1) MemTools.arraycopy(data, index + 1, data, index, length - index - 1)
 		length--
 		return out
 	}

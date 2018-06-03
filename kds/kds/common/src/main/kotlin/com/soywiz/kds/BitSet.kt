@@ -1,9 +1,7 @@
 package com.soywiz.kds
 
-import com.soywiz.kmem.*
-
 class BitSet(val size: Int) {
-	val data = IntArray(size divCeil 4)
+	val data = IntArray(KdsExt { size divCeil 4 })
 
 	private fun part(index: Int) = index ushr 5
 	private fun bit(index: Int) = index and 0x1f
@@ -22,5 +20,5 @@ class BitSet(val size: Int) {
 	fun set(index: Int): Unit = set(index, true)
 	fun unset(index: Int): Unit = set(index, false)
 
-	fun clear() = data.fill(0)
+	fun clear(): Unit = MemTools.fill(data, 0)
 }
