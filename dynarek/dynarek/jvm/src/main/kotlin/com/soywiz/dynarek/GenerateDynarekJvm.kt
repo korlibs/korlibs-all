@@ -8,7 +8,7 @@ actual typealias JvmField = kotlin.jvm.JvmField
 
 actual annotation class JsName(actual val name: String)
 
-actual fun DFunction.generateDynarekResult(count: Int): DynarekResult = _generateDynarek(this, when (count) {
+actual fun DFunction.generateDynarekResult(name: String, count: Int): DynarekResult = _generateDynarek(this, when (count) {
 	0 -> Function0::class.java
 	1 -> Function1::class.java
 	2 -> Function2::class.java
