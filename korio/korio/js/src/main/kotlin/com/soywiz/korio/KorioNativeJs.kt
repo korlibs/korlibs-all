@@ -26,12 +26,6 @@ actual annotation class JvmStatic
 actual annotation class JvmOverloads
 actual annotation class Transient
 
-actual annotation class Language actual constructor(
-	actual val value: String,
-	actual val prefix: String = "",
-	actual val suffix: String = ""
-)
-
 actual open class IOException actual constructor(msg: String) : Exception(msg)
 actual open class EOFException actual constructor(msg: String) : IOException(msg)
 actual open class FileNotFoundException actual constructor(msg: String) : IOException(msg)

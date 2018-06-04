@@ -19,8 +19,6 @@ actual typealias JvmStatic = kotlin.jvm.JvmStatic
 actual typealias JvmOverloads = kotlin.jvm.JvmOverloads
 actual typealias Transient = kotlin.jvm.Transient
 
-actual typealias Language = org.intellij.lang.annotations.Language
-
 actual typealias IOException = java.io.IOException
 actual typealias EOFException = java.io.EOFException
 actual typealias FileNotFoundException = java.io.FileNotFoundException
