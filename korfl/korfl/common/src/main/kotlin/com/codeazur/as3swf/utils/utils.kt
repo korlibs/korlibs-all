@@ -5,6 +5,7 @@ import com.soywiz.korfl.amf.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.compression.*
 import com.soywiz.korio.compression.deflate.*
+import com.soywiz.korio.compression.lzma.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.math.*
 import com.soywiz.korio.stream.*
@@ -132,6 +133,7 @@ open class FlashByteArray() {
 		"gzip" -> GZIP
 		"zlib" -> ZLib
 		"deflate" -> Deflate
+		"lzma" -> Lzma
 		else -> TODO("Unsupported compression method $method")
 	}
 

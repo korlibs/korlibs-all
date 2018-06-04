@@ -1,4 +1,4 @@
-package com.soywiz.korio.compression
+package com.soywiz.korio.compression.util
 
 import com.soywiz.kmem.*
 

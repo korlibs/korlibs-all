@@ -9,12 +9,15 @@ import com.soywiz.korio.lang.tl.*
 import com.soywiz.korio.util.*
 import kotlin.math.*
 
-interface SyncInputStream {
+interface SyncInputStream : OptionalCloseable {
 	fun read(buffer: ByteArray, offset: Int, len: Int): Int
 }
 
-interface SyncOutputStream {
+interface SyncOutputStream : OptionalCloseable {
 	fun write(buffer: ByteArray, offset: Int, len: Int): Unit
+}
+
+fun SyncOutputStream.flush() {
 }
 
 interface SyncPositionStream {
