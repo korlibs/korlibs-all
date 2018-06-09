@@ -121,9 +121,7 @@ suspend fun Scene.delay(ms: Int): Unit = kml.delay(ms)
 class SceneRenderContext(
 	val batcher: SceneBatcher
 ) {
-	fun flush() {
-		batcher.flush()
-	}
+	fun flush(): Unit = batcher.flush()
 }
 
 open class SceneContainer(val rootScene: Scene) : ViewContainer() {
