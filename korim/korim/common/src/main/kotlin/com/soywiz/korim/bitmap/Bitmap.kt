@@ -1,9 +1,9 @@
 package com.soywiz.korim.bitmap
 
 import com.soywiz.kds.*
+import com.soywiz.kmem.*
 import com.soywiz.korim.vector.*
 import com.soywiz.korio.error.*
-import com.soywiz.korio.util.*
 import com.soywiz.korma.geom.*
 
 abstract class Bitmap(

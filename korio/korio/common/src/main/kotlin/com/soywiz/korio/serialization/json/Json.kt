@@ -2,6 +2,7 @@ package com.soywiz.korio.serialization.json
 
 import com.soywiz.korio.*
 import com.soywiz.korio.error.*
+import com.soywiz.korio.lang.*
 import com.soywiz.korio.serialization.*
 import com.soywiz.korio.util.*
 import kotlin.collections.Iterable
@@ -30,25 +31,25 @@ object Json {
 		}
 	}
 
-	fun parse(@Lang("json") s: String): Any? = StrReader(s).decode()
-	inline fun <reified T : Any> parseTyped(@Lang("json") s: String, mapper: ObjectMapper = Mapper): T =
+	fun parse(@Language("json") s: String): Any? = StrReader(s).decode()
+	inline fun <reified T : Any> parseTyped(@Language("json") s: String, mapper: ObjectMapper = Mapper): T =
 		decodeToType(T::class, s, mapper)
 
 	fun invalidJson(msg: String = "Invalid JSON"): Nothing = throw com.soywiz.korio.IOException(msg)
 
-	fun decode(@Lang("json") s: String): Any? = StrReader(s).decode()
+	fun decode(@Language("json") s: String): Any? = StrReader(s).decode()
 
 	@Deprecated("Not compatible with Kotlin.JS (for now)")
-	inline fun <reified T : Any> decodeToType(@Lang("json") s: String, mapper: ObjectMapper = Mapper): T =
+	inline fun <reified T : Any> decodeToType(@Language("json") s: String, mapper: ObjectMapper = Mapper): T =
 		decodeToType(T::class, s, mapper)
 
 	@Suppress("UNCHECKED_CAST")
 	@Deprecated("Put class first")
-	fun <T : Any> decodeToType(@Lang("json") s: String, clazz: KClass<T>, mapper: ObjectMapper = Mapper): T =
+	fun <T : Any> decodeToType(@Language("json") s: String, clazz: KClass<T>, mapper: ObjectMapper = Mapper): T =
 		mapper.toTyped(clazz, decode(s))
 
 	@Suppress("UNCHECKED_CAST")
-	fun <T : Any> decodeToType(clazz: KClass<T>, @Lang("json") s: String, mapper: ObjectMapper = Mapper): T =
+	fun <T : Any> decodeToType(clazz: KClass<T>, @Language("json") s: String, mapper: ObjectMapper = Mapper): T =
 		mapper.toTyped(clazz, decode(s))
 
 	fun StrReader.decode(): Any? {
@@ -82,7 +83,7 @@ object Json {
 				unread()
 				val res =
 					readWhile { (it in '0'..'9') || it == '.' || it == 'e' || it == 'E' || it == '-' || it == '+' }
-				return res.toNumber()
+				return Dynamic.toNumber(res)
 			}
 			't', 'f', 'n' -> {
 				unread()
@@ -99,7 +100,7 @@ object Json {
 		}
 	}
 
-	@Lang("json")
+	@Language("json")
 	fun encodeUntyped(obj: Any?) = StringBuilder().apply { encodeUntyped(obj, this) }.toString()
 
 	fun encodeUntyped(obj: Any?, b: StringBuilder) {
@@ -201,3 +202,6 @@ object Json {
 interface CustomJsonSerializer {
 	fun encodeToJson(b: StringBuilder)
 }
+
+fun Map<*, *>.toJson(mapper: ObjectMapper) = Json.encode(this, mapper)
+fun Map<*, *>.toJsonUntyped() = Json.encodeUntyped(this)

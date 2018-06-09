@@ -6,7 +6,7 @@ import com.soywiz.korio.async.asyncGenerate
 import com.soywiz.korio.lang.Closeable
 import com.soywiz.korio.stream.AsyncInputStream
 import com.soywiz.korio.stream.AsyncStream
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.*
 import java.io.File
 import java.io.FileNotFoundException
 import kotlin.reflect.KClass

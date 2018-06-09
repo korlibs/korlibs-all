@@ -13,7 +13,6 @@ import com.soywiz.korio.util.*
 import com.soywiz.korma.interpolation.*
 import kotlin.reflect.*
 
-
 class TweenComponent(
 	private val vs: List<V2<*>>,
 	view: View,

@@ -6,8 +6,8 @@ import com.soywiz.korge.render.*
 import com.soywiz.korge.tween.*
 import com.soywiz.korge.view.*
 import com.soywiz.korio.async.*
-import com.soywiz.korio.math.*
 import com.soywiz.korma.*
+import com.soywiz.korma.geom.*
 import kotlin.math.*
 
 class SpriterView(
@@ -113,7 +113,7 @@ class SpriterView(
 			t1.setTransform(
 				(obj.position.x - 0.0), (obj.position.y - 0.0),
 				obj.scale.x.toDouble(), -obj.scale.y.toDouble(),
-				-toRadians(obj._angle.toDouble()),
+				-Angle.toRadians(obj._angle.toDouble()),
 				0.0, 0.0
 			)
 			t2.copyFrom(m)

@@ -3,6 +3,7 @@
 package com.soywiz.korio.file.std
 
 import com.soywiz.kds.*
+import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.file.*

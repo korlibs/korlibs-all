@@ -1,6 +1,7 @@
 package com.soywiz.korim.format
 
 import com.soywiz.korim.bitmap.*
+import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.file.*
@@ -80,11 +81,11 @@ suspend fun VfsFile.readBitmapInfo(formats: ImageFormats = defaultImageFormats):
 	formats.decodeHeader(this.readAsSyncStream())
 
 suspend fun VfsFile.readBitmapOptimized(): Bitmap {
-	return try {
-		nativeImageFormatProvider.decode(this)
+	try {
+		return nativeImageFormatProvider.decode(this)
 	} catch (t: Throwable) {
 		t.printStackTrace()
-		this.readBitmap()
+		return this.readBitmap()
 	}
 }
 

@@ -41,14 +41,6 @@ class Text(views: Views) : View(views), IText, IHtml {
 			recalculateBoundsWhenRequired()
 		}
 
-	private fun recalculateBounds() {
-		views.fontRepository.getBounds(text, format, out = textBounds)
-	}
-
-	private fun recalculateBoundsWhenRequired() {
-		if (autoSize) recalculateBounds()
-	}
-
 	override var text: String
 		get() = if (document != null) document?.xml?.text ?: "" else _text
 		set(value) {
@@ -97,9 +89,9 @@ class Text(views: Views) : View(views), IText, IHtml {
 			//println("tempRect=$tempRect, textBounds=$textBounds")
 			//tempRect.setToAnchoredRectangle(tempRect, format.align.anchor, textBounds)
 			//val x = (textBounds.width) * anchor.sx - tempRect.width
-			val x = textBounds.x + (textBounds.width - tempRect.width) * anchor.sx
+			val px = textBounds.x + (textBounds.width - tempRect.width) * anchor.sx
 			//val x = textBounds.x + (textBounds.width) * anchor.sx
-			val y = textBounds.y + (textBounds.height - tempRect.height) * anchor.sy
+			val py = textBounds.y + (textBounds.height - tempRect.height) * anchor.sy
 
 			if (RGBA.getA(bgcolor) != 0) {
 				ctx.batch.drawQuad(
@@ -118,7 +110,7 @@ class Text(views: Views) : View(views), IText, IHtml {
 
 			//println(" -> ($x, $y)")
 			font.drawText(
-				ctx.batch, format.computedSize.toDouble(), text, x.toInt(), y.toInt(),
+				ctx.batch, format.computedSize.toDouble(), text, px.toInt(), py.toInt(),
 				m,
 				colMul = RGBA.multiply(colorMul, format.computedColor),
 				colAdd = colorAdd,
@@ -128,12 +120,25 @@ class Text(views: Views) : View(views), IText, IHtml {
 		}
 	}
 
+	private fun recalculateBounds() {
+		views.fontRepository.getBounds(text, format, out = textBounds)
+	}
+
+	private fun recalculateBoundsWhenRequired() {
+		if (autoSize) recalculateBounds()
+	}
+
 	override fun getLocalBoundsInternal(out: Rectangle) {
 		if (document != null) {
 			out.copyFrom(document!!.bounds)
 		} else {
-			views.fontRepository.getBounds(text, format, out)
-			out.setToAnchoredRectangle(out, format.computedAlign.anchor, textBounds)
+			if (autoSize) {
+				views.fontRepository.getBounds(text, format, out)
+				out.setToAnchoredRectangle(out, format.computedAlign.anchor, textBounds)
+			} else {
+				out.copyFrom(textBounds)
+			}
+			//println(textBounds)
 		}
 	}
 

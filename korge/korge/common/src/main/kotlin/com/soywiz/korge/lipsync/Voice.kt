@@ -1,4 +1,4 @@
-package com.soywiz.korge.lipsync
+package com.soywiz.korge.ext.lipsync
 
 import com.soywiz.kds.*
 import com.soywiz.korau.sound.*
@@ -10,6 +10,7 @@ import com.soywiz.korge.resources.Path
 import com.soywiz.korge.view.*
 import com.soywiz.korinject.*
 import com.soywiz.korio.async.*
+import com.soywiz.korio.file.*
 import com.soywiz.korio.util.*
 import com.soywiz.korio.file.*
 

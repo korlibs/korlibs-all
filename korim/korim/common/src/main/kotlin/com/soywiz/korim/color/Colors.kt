@@ -1,8 +1,8 @@
 package com.soywiz.korim.color
 
-import com.soywiz.korio.JvmField
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korio.util.substr
+import com.soywiz.korio.*
+import com.soywiz.korio.error.*
+import com.soywiz.korio.lang.*
 
 object Colors {
 	@JvmField

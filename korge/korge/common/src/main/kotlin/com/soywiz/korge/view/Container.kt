@@ -1,9 +1,9 @@
 package com.soywiz.korge.view
 
+import com.soywiz.kmem.*
 import com.soywiz.korge.render.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
-import com.soywiz.korma.numeric.*
 import kotlin.reflect.*
 
 open class Container(views: Views) : View(views) {

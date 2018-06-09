@@ -26,9 +26,10 @@
 
 package com.soywiz.korau.format.com.jcraft.jorbis
 
+import com.soywiz.kmem.*
 import com.soywiz.korau.format.com.jcraft.jogg.*
 import com.soywiz.korio.*
-import com.soywiz.korio.math.*
+import com.soywiz.korma.math.*
 import kotlin.math.*
 
 internal open class Residue0 : FuncResidue() {

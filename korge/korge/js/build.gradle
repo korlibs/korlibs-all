@@ -8,6 +8,7 @@ dependencies {
 	compile project(":korau-js")
 	compile project(":korui-js")
 	compile project(":korag-js")
+	compile project(":korinject-js")
 
 	//testCompile project(":korge-tests-js")
 }

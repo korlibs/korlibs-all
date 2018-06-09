@@ -11,7 +11,7 @@ class UByteArraySlice(val data: ByteArray, val position: Int, val length: Int) {
 
 	companion object {
 		fun create(start: Pointer, end: Pointer): ByteArraySlice {
-			if (start.ba != end.ba) throw RuntimeException("Pointer must reference the samea array")
+			if (start.ba !== end.ba) throw RuntimeException("Pointer must reference the samea array")
 			return ByteArraySlice(start.ba, start.offset, end.offset - start.offset)
 		}
 	}

@@ -1,5 +1,6 @@
 package com.soywiz.korau.format.util
 
+import com.soywiz.kmem.*
 import com.soywiz.korau.format.atrac3plus.Atrac3plusDecoder
 import com.soywiz.korio.lang.format
 import kotlin.math.max
@@ -55,7 +56,7 @@ class VLC {
 		}
 
 		@Suppress("UNCHECKED_CAST")
-		Arrays.sort(buf as Array<VLC.VLCcode>, 0, j)
+		Arrays_sort(buf as Array<VLC.VLCcode>, 0, j)
 
 		for (i in 0 until nbCodes) {
 			val vlCcode = VLCcode()
@@ -78,6 +79,11 @@ class VLC {
 
 		@Suppress("UNCHECKED_CAST")
 		return buildTable(nbBits, nbCodes, buf as Array<VLC.VLCcode>, 0)
+	}
+
+	private fun <T : Comparable<T>> Arrays_sort(buf: Array<T>, fromIndex: Int, toIndex: Int) {
+		val sorted = buf.copyOfRange(fromIndex, toIndex).sortedArray()
+		arraycopy(sorted, 0, buf, fromIndex, toIndex - fromIndex)
 	}
 
 	private fun buildTable(tableNbBits: Int, nbCodes: Int, codes: Array<VLCcode>, codeOffset: Int): Int {

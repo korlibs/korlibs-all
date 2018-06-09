@@ -1,7 +1,7 @@
 package com.soywiz.korio.ds
 
+import com.soywiz.korio.crypto.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korio.util.*
 import kotlin.test.*
 
 class ByteArrayBuilderTest {
@@ -12,6 +12,6 @@ class ByteArrayBuilderTest {
 		bb.append(byteArrayOf(2, 3))
 		bb.append(4)
 		bb.append(byteArrayOf(5))
-		assertEquals("0102030405", bb.toByteArray().toHexStringLower())
+		assertEquals("0102030405", bb.toByteArray().hex)
 	}
 }

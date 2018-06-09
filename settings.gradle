@@ -37,9 +37,10 @@ registerProject1('korma', 'Korma: Math Utilities for Kotlin Common')
 registerProject1('korim', 'Kotlin cORoutines IMaging utilities for Kotlin Common')
 registerProject2('korim-qr', 'korim', 'Korim: QR generation extension')
 
-registerProject1('korte', 'Korte: Asynchronous Template Engine for Kotlin')
+//registerProject1('korte', 'Korte: Asynchronous Template Engine for Kotlin')
 
 registerProject1('korau', 'Korau: Kotlin cORoutines AUdio')
+registerProject2('korau-mod', 'korau', 'Korau: MOD extension (XM) and WIP (MOD,MIDI) playback')
 registerProject2('korau-mp3', 'korau', 'Korau: MP3 extension')
 registerProject2('korau-ogg-vorbis', 'korau', 'Korau: OGG Vorbis extension')
 registerProject2('korau-atrac3plus', 'korau', 'Korau: atrac3plus extension')

@@ -10,7 +10,7 @@ import com.soywiz.korio.serialization.json.Json
 import com.soywiz.korio.util.AsyncCacheItem
 import com.soywiz.korio.util.OS
 import com.soywiz.korio.util.basename
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.*
 import java.net.URL
 
 object LipsyncResourceProcessor : ResourceProcessor("voice.wav", "voice.mp3", "voice.ogg") {

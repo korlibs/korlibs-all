@@ -1,8 +1,8 @@
 package com.soywiz.korim.color
 
+import com.soywiz.kmem.*
 import com.soywiz.korio.*
 import com.soywiz.korio.lang.*
-import com.soywiz.korio.util.*
 
 object RGBA : ColorFormat32() {
 	//private inline val R_SHIFT: Int get() = 0
@@ -120,6 +120,7 @@ object RGBA : ColorFormat32() {
 	}
 
 	fun Double.clampf1() = if (this > 1.0) 1.0 else this
+	fun Int.clamp0_255() = clamp(0, 255)
 	fun Int.clamp255() = if (this > 255) 255 else this
 
 	@JvmStatic
@@ -138,9 +139,9 @@ object RGBA : ColorFormat32() {
 	fun depremultiplyFastOld(v: Int): Int {
 		val A = (v ushr 24)
 		if (A == 0) return 0
-		val R = ((((v ushr 0) and 0xFF) * 255) / A).clamp(0, 0xFF)
-		val G = ((((v ushr 8) and 0xFF) * 255) / A).clamp(0, 0xFF)
-		val B = ((((v ushr 16) and 0xFF) * 255) / A).clamp(0, 0xFF)
+		val R = ((((v ushr 0) and 0xFF) * 255) / A).clamp0_255()
+		val G = ((((v ushr 8) and 0xFF) * 255) / A).clamp0_255()
+		val B = ((((v ushr 16) and 0xFF) * 255) / A).clamp0_255()
 		return packFast(R, G, B, A)
 	}
 

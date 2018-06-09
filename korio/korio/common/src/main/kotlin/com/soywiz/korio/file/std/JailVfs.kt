@@ -1,6 +1,7 @@
 package com.soywiz.korio.file.std
 
 import com.soywiz.korio.file.*
+import com.soywiz.korio.file.*
 
 fun JailVfs(jailRoot: VfsFile): VfsFile = object : Vfs.Proxy() {
 	val baseJail = VfsUtil.normalize(jailRoot.path)

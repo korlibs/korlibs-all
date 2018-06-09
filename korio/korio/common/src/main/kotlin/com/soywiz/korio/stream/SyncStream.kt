@@ -5,7 +5,6 @@ import com.soywiz.kmem.*
 import com.soywiz.korio.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.lang.*
-import com.soywiz.korio.lang.tl.*
 import com.soywiz.korio.util.*
 import kotlin.math.*
 
@@ -210,13 +209,14 @@ class MemorySyncStreamBase(var data: ByteArrayBuffer) : SyncStreamBase() {
 	override fun toString(): String = "MemorySyncStreamBase(${data.size})"
 }
 
-@Deprecated("Replace with sliceStart", ReplaceWith("sliceStart"))
+@Deprecated("Replace with sliceStart", ReplaceWith("sliceStart()"))
 fun SyncStream.slice(): SyncStream = SyncStream(SliceSyncStreamBase(this.base, 0L, length))
 
-@Deprecated("Replace with sliceStart", ReplaceWith("sliceStart"))
+@Deprecated("Replace with sliceStart", ReplaceWith("sliceStart(start)"))
 fun SyncStream.sliceWithStart(start: Long): SyncStream = sliceWithBounds(start, this.length)
 
 fun SyncStream.sliceStart(): SyncStream = sliceWithBounds(0L, this.length)
+
 fun SyncStream.sliceHere(): SyncStream = SyncStream(SliceSyncStreamBase(this.base, position, length))
 
 fun SyncStream.slice(range: IntRange): SyncStream =
@@ -403,7 +403,7 @@ fun SyncStreamBase.toSyncStream(position: Long = 0L) = SyncStream(this, position
 
 fun ByteArray.openSync(mode: String = "r"): SyncStream = MemorySyncStreamBase(ByteArrayBuffer(this)).toSyncStream(0L)
 fun ByteArray.openAsync(mode: String = "r"): AsyncStream =
-	//MemoryAsyncStreamBase(ByteArrayBuffer(this, allowGrow = false)).toAsyncStream(0L)
+//MemoryAsyncStreamBase(ByteArrayBuffer(this, allowGrow = false)).toAsyncStream(0L)
 	MemoryAsyncStreamBase(ByteArrayBuffer(this, allowGrow = true)).toAsyncStream(0L)
 
 fun String.openAsync(charset: Charset = UTF8): AsyncStream = toByteArray(charset).openSync("r").toAsync()

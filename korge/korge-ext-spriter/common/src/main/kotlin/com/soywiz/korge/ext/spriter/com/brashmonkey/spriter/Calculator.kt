@@ -1,7 +1,7 @@
 package com.soywiz.korge.ext.spriter.com.brashmonkey.spriter
 
 import com.soywiz.korio.*
-import com.soywiz.korio.math.*
+import com.soywiz.korma.geom.*
 import kotlin.math.*
 
 /**
@@ -43,7 +43,7 @@ object Calculator {
 	 */
 	@JvmStatic
 	fun angleBetween(x1: Float, y1: Float, x2: Float, y2: Float): Float {
-		return toDegrees(atan2((y2 - y1).toDouble(), (x2 - x1).toDouble())).toFloat()
+		return Angle.toDegrees(atan2((y2 - y1).toDouble(), (x2 - x1).toDouble())).toFloat()
 	}
 
 	/**
@@ -61,7 +61,7 @@ object Calculator {
 	fun distanceBetween(x1: Float, y1: Float, x2: Float, y2: Float): Float {
 		val xDiff = x2 - x1
 		val yDiff = y2 - y1
-		return sqrt(xDiff * xDiff + yDiff * yDiff).toFloat()
+		return sqrt(xDiff * xDiff + yDiff * yDiff)
 	}
 
 	/**
@@ -101,15 +101,15 @@ object Calculator {
 			t = if (t < 0) -cubicRoot(-t) else cubicRoot(t)
 
 			val result = -term1 + s + t
-			if (result >= 0 && result <= 1) return result
+			if (result in 0.0..1.0) return result
 		} else if (disc == 0f) {
 			val r13 = if (r < 0) -cubicRoot(-r) else cubicRoot(r)
 
 			var result = -term1 + 2f * r13
-			if (result >= 0 && result <= 1) return result
+			if (result in 0.0..1.0) return result
 
 			result = -(r13 + term1)
-			if (result >= 0 && result <= 1) return result
+			if (result in 0.0..1.0) return result
 		} else {
 			q = -q
 			var dum1 = q * q * q
@@ -117,13 +117,13 @@ object Calculator {
 			val r13 = 2f * sqrt(q)
 
 			var result = -term1 + r13 * cos(dum1 / 3f)
-			if (result >= 0 && result <= 1) return result
+			if (result in 0.0..1.0) return result
 
 			result = -term1 + r13 * cos((dum1 + 2f * PI) / 3f)
-			if (result >= 0 && result <= 1) return result
+			if (result in 0.0..1.0) return result
 
 			result = -term1 + r13 * cos((dum1 + 4f * PI) / 3f)
-			if (result >= 0 && result <= 1) return result
+			if (result in 0.0..1.0) return result
 		}
 
 		return NO_SOLUTION
@@ -226,14 +226,12 @@ object Calculator {
 	val degRad = degreesToRadians
 
 	private object Sin {
-		internal val table = FloatArray(SIN_COUNT)
-
-		init {
+		internal val table = FloatArray(SIN_COUNT).apply {
 			for (i in 0 until SIN_COUNT)
-				table[i] = kotlin.math.sin(((i + 0.5f) / SIN_COUNT * radFull).toDouble()).toFloat()
+				this[i] = kotlin.math.sin(((i + 0.5f) / SIN_COUNT * radFull).toDouble()).toFloat()
 			var i = 0
 			while (i < 360) {
-				table[(i * degToIndex).toInt() and SIN_MASK] =
+				this[(i * degToIndex).toInt() and SIN_MASK] =
 						kotlin.math.sin((i * degreesToRadians).toDouble()).toFloat()
 				i += 90
 			}

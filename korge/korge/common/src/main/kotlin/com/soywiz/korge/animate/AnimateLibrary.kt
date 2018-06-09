@@ -140,7 +140,7 @@ data class AnSymbolTimelineFrame(
 	//	this.colorTransform.setToInterpolated(l.colorTransform, r.colorTransform, ratio)
 	//	this.blendMode = l.blendMode
 	//}
-//
+	//
 	//fun writeCompressedPack(s: SyncStream, cp: AnConstantPool) {
 	//	val hasUid = uid >= 0
 	//	val hasClipDepth = clipDepth >= 0
@@ -158,7 +158,7 @@ data class AnSymbolTimelineFrame(
 	//		.insert(hasColorTransform, 5)
 	//		.insert(hasBlendMode, 6)
 	//	)
-//
+	//
 	//	if (hasUid) s.writeU_VL(uid)
 	//	if (hasClipDepth) s.writeU_VL(clipDepth)
 	//	if (hasRatio) s.write8((ratio * 255).toInt())
@@ -192,7 +192,7 @@ data class AnSymbolTimelineFrame(
 	//		s.write8(blendMode.ordinal)
 	//	}
 	//}
-//
+	//
 	//fun readCompressedPack(s: FastByteArrayInputStream, cp: AnConstantPool) {
 	//	val flags = s.readU_VL()
 	//	val t = transform
@@ -290,7 +290,7 @@ val Views.animateLibraryLoaders by Extra.Property {
 }
 
 object AnLibraryPlugin : KorgePlugin() {
-	suspend override fun register(views: Views) {
+	override suspend fun register(views: Views) {
 		views.injector
 			.mapFactory(AnLibrary::class) {
 				//AnLibrary.Factory(getOrNull(), getOrNull(), get(), get(), get()) // @TODO: Kotlin.js bug
@@ -369,13 +369,12 @@ class AnLibrary(val views: Views, val width: Int, val height: Int, val fps: Doub
 		val injector: AsyncInjector,
 		val resourcesRoot: ResourcesRoot
 	) : AsyncFactory<AnLibrary> {
-		suspend override fun create(): AnLibrary {
+		override suspend fun create(): AnLibrary {
 			val file = resourcesRoot[path?.path ?: vpath?.path ?: invalidOp("Invalid path")]
 			val content = file.readAll()
 
 			for (loader in views.animateLibraryLoaders) {
 				val aloader = loader(FastByteArrayInputStream(content), injector) ?: continue
-
 				return aloader.loader(file, FastByteArrayInputStream(content), views)
 			}
 

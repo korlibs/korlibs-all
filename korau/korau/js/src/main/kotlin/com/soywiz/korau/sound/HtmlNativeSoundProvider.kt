@@ -2,6 +2,7 @@ package com.soywiz.korau.sound
 
 import com.soywiz.klogger.*
 import com.soywiz.korio.async.*
+import com.soywiz.korio.coroutine.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.file.std.*
@@ -55,11 +56,7 @@ class HtmlNativeSoundProvider : NativeSoundProvider() {
 	}
 }
 
-class MediaNativeSound private constructor(
-	val coroutineContext: CoroutineContext,
-	val url: String,
-	override val lengthInMs: Long
-) : NativeSound() {
+class MediaNativeSound private constructor(val url: String, override val lengthInMs: Long) : NativeSound() {
 	companion object {
 		val log = Logger("MediaNativeSound")
 
@@ -67,7 +64,7 @@ class MediaNativeSound private constructor(
 			//val audio = document.createElement("audio").unsafeCast<HTMLAudioElement>()
 			//audio.autoplay = false
 			//audio.src = url
-			return MediaNativeSound(coroutineContext, url, 100L)
+			return MediaNativeSound(url, 100L)
 			//val audio = document.createElement("audio").unsafeCast<HTMLAudioElement>()
 			//audio.autoplay = false
 			//audio.src = url
@@ -106,16 +103,16 @@ class MediaNativeSound private constructor(
 
 	override fun play(): NativeSoundChannel {
 		return object : NativeSoundChannel(this) {
-			val bufferPromise = launch(coroutineContext) {
+			val bufferPromise = go(EmptyCoroutineContext) {
 				if (HtmlSimpleSound.unlocked) HtmlSimpleSound.loadSoundBuffer(url) else null
 			}
-			val channelPromise = launch(coroutineContext) {
+			val channelPromise = go(EmptyCoroutineContext) {
 				val buffer = bufferPromise.await()
 				if (buffer != null) HtmlSimpleSound.playSoundBuffer(buffer) else null
 			}
 
 			override fun stop() {
-				launch(coroutineContext) {
+				go(EmptyCoroutineContext) {
 					val res = bufferPromise.await()
 					if (res != null) HtmlSimpleSound.stopSoundBuffer(res)
 				}
@@ -148,7 +145,7 @@ private suspend fun soundProgress(
 		val elapsed = now - startTime
 		if (elapsed >= totalTime) break
 		progress(elapsed, totalTime)
-		sleepNextFrame()
+		eventLoop().sleepNextFrame()
 	}
 	progress(totalTime, totalTime)
 }

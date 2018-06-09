@@ -6,9 +6,9 @@ import com.soywiz.korio.async.*
 import com.soywiz.korio.coroutine.*
 import com.soywiz.korio.util.*
 import org.khronos.webgl.*
-import org.w3c.dom.events.*
 import kotlin.browser.*
 import kotlin.coroutines.experimental.*
+
 
 actual val nativeSoundProvider: NativeSoundProvider by lazy { HtmlNativeSoundProvider() }
 
@@ -112,7 +112,7 @@ actual class NativeAudioStream actual constructor(val freq: Int) {
 			// Delay simulating consuming samples
 			val sampleCount = (size / 2)
 			val timeSeconds = sampleCount.toDouble() / 41_000.0
-			sleepMs((timeSeconds * 1000).toInt())
+			coroutineContext.eventLoop.sleep((timeSeconds * 1000).toInt())
 		} else {
 			ensureRunning()
 
@@ -121,7 +121,7 @@ actual class NativeAudioStream actual constructor(val freq: Int) {
 			buffers.enqueue(MyNativeAudioBuffer(fsamples))
 
 			while (buffers.size > 4) {
-				sleepNextFrame()
+				getCoroutineContext().eventLoop.sleepNextFrame()
 			}
 		}
 	}

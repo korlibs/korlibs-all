@@ -5,7 +5,7 @@ import com.soywiz.korio.*
 import kotlin.reflect.*
 
 annotation class Path(
-	@Lang("File Reference")
+	@Language("File Reference")
 	val path: String
 )
 

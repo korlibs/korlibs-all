@@ -201,4 +201,3 @@ object Math2 {
 
 inline fun pow(a: Number, b: Number) = a.toDouble().pow(b.toDouble())
 fun log(a: Double): Double = log(a, E)
-

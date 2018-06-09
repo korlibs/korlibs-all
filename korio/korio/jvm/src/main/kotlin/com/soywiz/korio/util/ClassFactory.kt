@@ -67,13 +67,13 @@ class ClassFactory<T> private constructor(iclazz: Class<out T>, internal: kotlin
 				for (field in fields) {
 					if (values.containsKey(field.name)) {
 						field.isAccessible = true
-						field.set(instance, Dynamic.dynamicCast(values[field.name], field.type, field.genericType))
+						field.set(instance, DynamicJvm.dynamicCast(values[field.name], field.type, field.genericType))
 					}
 				}
 				return instance
 			}
 			else -> {
-				return Dynamic.dynamicCast(values, clazz as Class<*>) as T
+				return DynamicJvm.dynamicCast(values, clazz as Class<*>) as T
 			}
 		}
 	}

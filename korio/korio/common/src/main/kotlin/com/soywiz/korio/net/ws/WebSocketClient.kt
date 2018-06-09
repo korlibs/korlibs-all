@@ -13,8 +13,8 @@ abstract class WebSocketClient protected constructor(val url: String, val protoc
 	val onAnyMessage = Signal<Any>()
 
 	open fun close(code: Int = 0, reason: String = ""): Unit = Unit
-	suspend open fun send(message: String): Unit = Unit
-	suspend open fun send(message: ByteArray): Unit = Unit
+	open suspend fun send(message: String): Unit = Unit
+	open suspend fun send(message: ByteArray): Unit = Unit
 }
 
 suspend fun WebSocketClient(
@@ -28,7 +28,7 @@ suspend fun WebSocketClient(
 val websockets: WebSocketClientFactory get() = KorioNative.websockets
 
 abstract class WebSocketClientFactory {
-	suspend abstract fun create(
+	abstract suspend fun create(
 		url: String,
 		protocols: List<String>? = null,
 		origin: String? = null,

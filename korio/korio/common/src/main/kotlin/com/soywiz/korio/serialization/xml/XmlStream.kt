@@ -2,9 +2,6 @@ package com.soywiz.korio.serialization.xml
 
 import com.soywiz.kds.*
 import com.soywiz.korio.util.*
-import kotlin.collections.Iterable
-import kotlin.collections.Iterator
-import kotlin.collections.Map
 import kotlin.collections.set
 
 object XmlStream {

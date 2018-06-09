@@ -3,7 +3,6 @@ apply plugin: 'kotlin-platform-js'
 dependencies {
 	expectedBy project(":korio-common")
 	compile project(":klock-js")
-	compile project(":korinject-js")
 	compile project(":kmem-js")
 	compile project(":kds-js")
 	compile project(":klogger-js")

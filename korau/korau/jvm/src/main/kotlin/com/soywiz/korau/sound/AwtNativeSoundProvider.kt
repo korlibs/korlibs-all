@@ -26,13 +26,13 @@ class AwtNativeSoundProvider : NativeSoundProvider() {
 	}
 
 	override suspend fun createSound(data: ByteArray, streaming: Boolean): NativeSound {
-		return try {
-			AwtNativeSound(
+		try {
+			return AwtNativeSound(
 				(defaultAudioFormats.decode(data.openAsync()) ?: AudioData(44100, 2, shortArrayOf())).toWav()
 			).init()
 		} catch (e: Throwable) {
 			e.printStackTrace()
-			AwtNativeSound(AudioData(44100, 2, shortArrayOf()).toWav()).init()
+			return AwtNativeSound(AudioData(44100, 2, shortArrayOf()).toWav()).init()
 		}
 		//return AwtNativeSound(data)
 	}

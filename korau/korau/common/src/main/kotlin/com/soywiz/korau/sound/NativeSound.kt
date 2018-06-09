@@ -4,6 +4,8 @@ import com.soywiz.klock.*
 import com.soywiz.korau.format.*
 import com.soywiz.korio.*
 import com.soywiz.korio.async.*
+import com.soywiz.korio.coroutine.*
+import com.soywiz.korio.file.*
 import com.soywiz.korio.file.*
 
 expect val nativeSoundProvider: NativeSoundProvider
@@ -47,14 +49,14 @@ open class NativeSoundProvider {
 	open suspend fun play(stream: BaseAudioStream, bufferSeconds: Double = 0.1): Unit =
 		suspendCancellableCoroutine<Unit> { c ->
 			val nas = NativeAudioStream()
-			val task = launch(c.context) {
+			val task = async(c.context) {
 				val temp = ShortArray(1024)
 				val nchannels = 2
 				val minBuf = stream.rate * nchannels * bufferSeconds
 				while (true) {
 					val read = stream.read(temp, 0, temp.size)
 					nas.addSamples(temp, 0, read)
-					while (nas.availableSamples in minBuf..minBuf * 2) sleepNextFrame() // 100ms of buffering, and 1s as much
+					while (nas.availableSamples in minBuf..minBuf * 2) c.eventLoop.sleepNextFrame() // 100ms of buffering, and 1s as much
 				}
 			}
 			nas.start()
@@ -77,11 +79,11 @@ abstract class NativeSoundChannel(val sound: NativeSound) {
 	abstract fun stop(): Unit
 	suspend fun await(progress: (current: Double, total: Double) -> Unit = { current, total -> }) {
 		suspendCancellableCoroutine<Unit> { c ->
-			launch(c.context) {
+			go(c.context) {
 				try {
 					while (playing) {
 						progress(current, total)
-						sleepNextFrame()
+						eventLoop().sleepNextFrame()
 					}
 					progress(total, total)
 				} catch (e: CancellationException) {

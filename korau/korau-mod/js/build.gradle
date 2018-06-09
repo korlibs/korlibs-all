@@ -1,0 +1,14 @@
+apply plugin: 'kotlin-platform-js'
+
+dependencies {
+	expectedBy project(":korau-mod-common")
+
+	compile project(":korau-js")
+
+	compile project(":korio-js")
+	compile project(":korma-js")
+}
+
+sourceSets {
+	test.resources.srcDirs += ['../common/src/test/resources'] // @TODO: @BUG: Hack. No common resources are copied
+}

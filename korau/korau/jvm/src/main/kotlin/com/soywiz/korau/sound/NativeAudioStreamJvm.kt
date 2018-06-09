@@ -89,7 +89,7 @@ actual class NativeAudioStream actual constructor(val freq: Int) {
 		ensureThread()
 
 		while (availableBuffers >= 5) {
-			sleepNextFrame()
+			getCoroutineContext().eventLoop.sleepNextFrame()
 		}
 
 		//val ONE_SECOND = 44100 * 2

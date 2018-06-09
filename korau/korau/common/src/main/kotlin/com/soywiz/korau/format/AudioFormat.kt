@@ -3,10 +3,10 @@
 package com.soywiz.korau.format
 
 import com.soywiz.kds.*
+import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.file.*
-
 
 open class AudioFormat(vararg exts: String) {
 	val extensions = exts.map { it.toLowerCase().trim() }.toSet()
@@ -19,10 +19,10 @@ open class AudioFormat(vararg exts: String) {
 		val length = lengthInMicroseconds.toDouble() / 1_000_000.0
 	}
 
-	open suspend fun tryReadInfo(data: AsyncStream): Info? = null
-	open suspend fun decodeStream(data: AsyncStream): AudioStream? = null
+	suspend open fun tryReadInfo(data: AsyncStream): Info? = null
+	suspend open fun decodeStream(data: AsyncStream): AudioStream? = null
 	suspend fun decode(data: AsyncStream): AudioData? = decodeStream(data)?.toData()
-	open suspend fun encode(data: AudioData, out: AsyncOutputStream, filename: String): Unit = TODO()
+	suspend open fun encode(data: AudioData, out: AsyncOutputStream, filename: String): Unit = TODO()
 
 	suspend fun encodeToByteArray(
 		data: AudioData,
@@ -42,10 +42,10 @@ class AudioFormats : AudioFormat() {
 
 	fun register(vararg formats: AudioFormat): AudioFormats = this.apply { this.formats += formats }
 
-	override suspend fun tryReadInfo(data: AsyncStream): Info? {
+	suspend override fun tryReadInfo(data: AsyncStream): Info? {
 		for (format in formats) {
 			try {
-				return format.tryReadInfo(data.duplicate()) ?: continue
+				return format.tryReadInfo(data.clone()) ?: continue
 			} catch (e: Throwable) {
 				e.printStackTrace()
 			}
@@ -53,12 +53,12 @@ class AudioFormats : AudioFormat() {
 		return null
 	}
 
-	override suspend fun decodeStream(data: AsyncStream): AudioStream? {
+	suspend override fun decodeStream(data: AsyncStream): AudioStream? {
 		//println(formats)
 		for (format in formats) {
 			try {
-				if (format.tryReadInfo(data.duplicate()) == null) continue
-				return format.decodeStream(data.duplicate()) ?: continue
+				if (format.tryReadInfo(data.clone()) == null) continue
+				return format.decodeStream(data.clone()) ?: continue
 			} catch (e: Throwable) {
 				e.printStackTrace()
 			}
@@ -66,8 +66,8 @@ class AudioFormats : AudioFormat() {
 		return null
 	}
 
-	override suspend fun encode(data: AudioData, out: AsyncOutputStream, filename: String) {
-		val ext = filename.pathInfo.extensionLC
+	suspend override fun encode(data: AudioData, out: AsyncOutputStream, filename: String) {
+		val ext = PathInfo(filename).extensionLC
 		val format = formats.firstOrNull { ext in it.extensions }
 				?: throw UnsupportedOperationException("Don't know how to generate file for extension '$ext'")
 		return format.encode(data, out, filename)

@@ -1,18 +1,18 @@
 package com.soywiz.korge.render
 
-import com.soywiz.korag.AG
+import com.soywiz.kmem.*
+import com.soywiz.korag.*
+import com.soywiz.korge.resources.*
 import com.soywiz.korge.resources.Path
-import com.soywiz.korge.resources.ResourcesRoot
-import com.soywiz.korge.view.Views
-import com.soywiz.korim.bitmap.Bitmap32
+import com.soywiz.korge.view.*
+import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.format.*
-import com.soywiz.korinject.AsyncFactory
-import com.soywiz.korio.JvmField
-import com.soywiz.korio.lang.Closeable
-import com.soywiz.korio.util.clamp
-import com.soywiz.korio.file.VfsFile
-import com.soywiz.korma.geom.Rectangle
-import com.soywiz.korma.numeric.isPowerOfTwo
+import com.soywiz.korinject.*
+import com.soywiz.korio.*
+import com.soywiz.korio.file.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.file.*
+import com.soywiz.korma.geom.*
 
 //e: java.lang.UnsupportedOperationException: Class literal annotation arguments are not yet supported: Factory
 //@AsyncFactoryClass(TextureAsyncFactory::class)

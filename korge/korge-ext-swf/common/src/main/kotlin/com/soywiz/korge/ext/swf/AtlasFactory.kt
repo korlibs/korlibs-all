@@ -1,19 +1,13 @@
 package com.soywiz.korge.ext.swf
 
 import com.soywiz.kds.*
+import com.soywiz.kmem.*
 import com.soywiz.korge.render.*
 import com.soywiz.korge.view.*
 import com.soywiz.korim.bitmap.*
-import com.soywiz.korio.util.nextAlignedTo
 import com.soywiz.korma.geom.*
 import com.soywiz.korma.geom.binpack.*
-import com.soywiz.korma.numeric.nextPowerOfTwo
-import kotlin.collections.Map
-import kotlin.collections.firstOrNull
-import kotlin.collections.hashMapOf
-import kotlin.collections.mapValues
 import kotlin.collections.set
-import kotlin.collections.toList
 
 data class BitmapWithScale(val bitmap: Bitmap, val scale: Double, val bounds: Rectangle) : Extra by Extra.Mixin() {
 	val width: Int = bitmap.width

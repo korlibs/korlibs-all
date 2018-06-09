@@ -11,7 +11,7 @@ fun printToConsole(callback: Printer.() -> Unit) {
 }
 
 fun printToFile(file: String, callback: Printer.() -> Unit) {
-	val lines = arrayListOf<String>()
+	val lines = ArrayList<String>()
 	callback(object : Printer {
 		override fun println(str: String) = run { lines += str }
 	})

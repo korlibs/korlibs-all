@@ -1,5 +1,6 @@
 package com.soywiz.korui.geom.len
 
+import com.soywiz.kmem.*
 import com.soywiz.korio.util.*
 import com.soywiz.korma.geom.*
 import kotlin.math.*

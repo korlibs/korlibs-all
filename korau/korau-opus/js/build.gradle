@@ -1,0 +1,7 @@
+apply plugin: 'kotlin-platform-js'
+
+dependencies {
+    expectedBy project(":korau-opus-common")
+
+    compile project(":korau-js")
+}

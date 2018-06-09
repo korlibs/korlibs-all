@@ -2,6 +2,7 @@ package com.soywiz.korio.file.std
 
 import com.soywiz.korio.*
 import com.soywiz.korio.file.*
+import com.soywiz.korio.file.*
 
 abstract class LocalVfs : Vfs() {
 	companion object {

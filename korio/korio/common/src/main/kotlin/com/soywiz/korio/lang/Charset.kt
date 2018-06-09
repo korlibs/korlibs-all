@@ -24,15 +24,18 @@ abstract class UTC8CharsetBase(name: String) : Charset(name) {
 			if (codePoint and 0x7F.inv() == 0) { // 1-byte sequence
 				out.append(codePoint.toByte())
 			} else {
-				if (codePoint and 0x7FF.inv() == 0) { // 2-byte sequence
-					out.append((codePoint shr 6 and 0x1F or 0xC0).toByte())
-				} else if (codePoint and 0xFFFF.inv() == 0) { // 3-byte sequence
-					out.append((codePoint shr 12 and 0x0F or 0xE0).toByte())
-					out.append((createByte(codePoint, 6)).toByte())
-				} else if (codePoint and -0x200000 == 0) { // 4-byte sequence
-					out.append((codePoint shr 18 and 0x07 or 0xF0).toByte())
-					out.append((createByte(codePoint, 12)).toByte())
-					out.append((createByte(codePoint, 6)).toByte())
+				when {
+					codePoint and 0x7FF.inv() == 0 -> // 2-byte sequence
+						out.append((codePoint shr 6 and 0x1F or 0xC0).toByte())
+					codePoint and 0xFFFF.inv() == 0 -> { // 3-byte sequence
+						out.append((codePoint shr 12 and 0x0F or 0xE0).toByte())
+						out.append((createByte(codePoint, 6)).toByte())
+					}
+					codePoint and -0x200000 == 0 -> { // 4-byte sequence
+						out.append((codePoint shr 18 and 0x07 or 0xF0).toByte())
+						out.append((createByte(codePoint, 12)).toByte())
+						out.append((createByte(codePoint, 6)).toByte())
+					}
 				}
 				out.append((codePoint and 0x3F or 0x80).toByte())
 			}
@@ -123,4 +126,24 @@ fun ByteArray.toString(charset: Charset): String {
 	val out = StringBuilder()
 	charset.decode(out, this)
 	return out.toString()
+}
+
+fun ByteArray.toUtf8String() = this.toString(UTF8)
+
+fun ByteArray.readStringz(o: Int, size: Int, charset: Charset = UTF8): String {
+	var idx = o
+	val stop = kotlin.math.min(this.size, o + size)
+	while (idx < stop) {
+		if (this[idx] == 0.toByte()) break
+		idx++
+	}
+	return this.copyOfRange(o, idx).toString(charset)
+}
+
+fun ByteArray.readStringz(o: Int, charset: Charset = UTF8): String {
+	return readStringz(o, size - o, charset)
+}
+
+fun ByteArray.readString(o: Int, size: Int, charset: Charset = UTF8): String {
+	return this.copyOfRange(o, o + size).toString(charset)
 }

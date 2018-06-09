@@ -13,10 +13,7 @@ class ImageFormats2Test {
 	lateinit var root: VfsFile
 
 	fun imgTest(callback: suspend () -> Unit) = suspendTest {
-		for (path in listOf(
-			applicationVfs["src/test/resources"],
-			ResourcesVfs
-		)) {
+		for (path in listOf(applicationVfs["src/test/resources"], ResourcesVfs)) {
 			root = path
 			if (root["kotlin8.png"].exists()) break
 		}

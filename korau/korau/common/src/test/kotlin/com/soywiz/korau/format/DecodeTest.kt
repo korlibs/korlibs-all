@@ -1,8 +1,8 @@
 package com.soywiz.korau.format
 
 import com.soywiz.korio.async.*
-import com.soywiz.korio.stream.*
 import com.soywiz.korio.file.std.*
+import com.soywiz.korio.stream.*
 import kotlin.test.*
 
 class DecodeTest {

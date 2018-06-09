@@ -1,6 +1,7 @@
 package com.soywiz.korio.net.http
 
 import com.soywiz.klock.*
+import com.soywiz.kmem.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.coroutine.*
 import com.soywiz.korio.error.*
@@ -62,7 +63,7 @@ class HttpClientJvm : HttpClient() {
 			if (content != null) {
 				con.doOutput = true
 
-				val ccontent = content.slice()
+				val ccontent = content.sliceStart()
 				val len = ccontent.getAvailable()
 				var left = len
 				val temp = ByteArray(1024)

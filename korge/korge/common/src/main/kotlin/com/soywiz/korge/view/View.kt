@@ -8,7 +8,6 @@ import com.soywiz.korge.render.*
 import com.soywiz.korim.color.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.error.*
-import com.soywiz.korio.math.*
 import com.soywiz.korio.util.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
@@ -128,7 +127,7 @@ open class View(val views: Views) : Renderable, Updatable, Extra by Extra.Mixin(
 		}
 		get() = ensureTransform()._rotation
 
-	var rotationDegrees: Double; set(v) = run { rotation = toRadians(v) }; get() = toDegrees(rotation)
+	var rotationDegrees: Double; set(v) = run { rotation = Angle.toRadians(v) }; get() = Angle.toDegrees(rotation)
 	var scale: Double; get() = (scaleX + scaleY) / 2.0; set(v) = run { scaleX = v; scaleY = v }
 	var globalX: Double
 		get() = parent?.localToGlobalX(x, y) ?: x;

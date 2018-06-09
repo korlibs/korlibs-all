@@ -7,6 +7,8 @@ import com.soywiz.kmem.*
 import com.soywiz.korio.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.error.*
+import com.soywiz.korio.file.*
+import com.soywiz.korio.file.std.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.util.*
 import com.soywiz.korio.file.*
@@ -203,11 +205,9 @@ class SliceAsyncStreamBase(
 	override fun toString(): String = "SliceAsyncStreamBase($base, $baseStart, $baseEnd)"
 }
 
-fun AsyncStream.buffered(blockSize: Int = 2048, blocksToRead: Int = 0x10) =
-	BufferedStreamBase(this.base, blockSize, blocksToRead).toAsyncStream(this.position)
+fun AsyncStream.buffered(blockSize: Int = 2048, blocksToRead: Int = 0x10) = BufferedStreamBase(this.base, blockSize, blocksToRead).toAsyncStream(this.position)
 
-class BufferedStreamBase(val base: AsyncStreamBase, val blockSize: Int = 2048, val blocksToRead: Int = 0x10) :
-	AsyncStreamBase() {
+class BufferedStreamBase(val base: AsyncStreamBase, val blockSize: Int = 2048, val blocksToRead: Int = 0x10) : AsyncStreamBase() {
 	val bsize = blockSize * blocksToRead
 
 	override suspend fun read(position: Long, buffer: ByteArray, offset: Int, len: Int): Int {
@@ -496,9 +496,7 @@ suspend fun AsyncInputStream.skip(count: Int) {
 	}
 }
 
-suspend fun AsyncInputStream.readUByteArray(count: Int): UByteArray =
-	UByteArray(readBytesExact(count))
-
+suspend fun AsyncInputStream.readUByteArray(count: Int): UByteArray = UByteArray(readBytesExact(count))
 suspend fun AsyncInputStream.readShortArray_le(count: Int): ShortArray =
 	readBytesExact(count * 2).readShortArray_le(0, count)
 

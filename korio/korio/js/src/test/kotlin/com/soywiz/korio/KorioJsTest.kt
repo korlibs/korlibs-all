@@ -1,12 +1,7 @@
 package com.soywiz.korio
 
-import com.soywiz.korinject.*
-import com.soywiz.korio.async.*
-import kotlin.js.*
-import kotlin.js.Promise
-import kotlin.test.*
-
 class KorioJsTest {
+	/*
 	@Test
 	fun mykorioJsTest(): Promise<String> {
 		return Promise { resolve, reject ->
@@ -21,7 +16,7 @@ class KorioJsTest {
 	@Test
 	fun demo() = suspendTest {
 		//assertEquals(true, false)
-		val injector = AsyncInjector()
+		val injector = AsyncInjecto()
 
 		class MyClass(var a: Int)
 		injector.mapPrototype {
@@ -34,4 +29,5 @@ class KorioJsTest {
 		assertEquals(99, a.a)
 		assertEquals(99, b.a)
 	}
+	*/
 }

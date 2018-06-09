@@ -8,7 +8,7 @@ actual class NativeAudioStream actual constructor(val freq: Int) {
 	val availableBuffers: Int = 0
 
 	actual suspend fun addSamples(samples: ShortArray, offset: Int, size: Int) {
-		sleepMs(1)
+		getCoroutineContext().sleep(1)
 		// @TODO
 	}
 

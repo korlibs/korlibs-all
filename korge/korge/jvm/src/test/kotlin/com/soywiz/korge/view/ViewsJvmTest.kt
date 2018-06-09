@@ -47,6 +47,7 @@ class ViewsJvmTest : ViewsForTesting() {
 	}
 
 	@Test
+	@Ignore
 	fun textGetBounds() = viewsTest {
 		val font = DebugBitmapFont.getDEBUG_BMP_FONT().toKorge(views, mipmaps = false)
 		val text = views.text("Hello World", font = font, textSize = 8.0)

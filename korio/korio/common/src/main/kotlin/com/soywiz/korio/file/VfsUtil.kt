@@ -21,8 +21,8 @@ object VfsUtil {
 			val out = ArrayList<String>()
 			for (part in path2.split("/")) {
 				when (part) {
-					"", "" -> if (out.isEmpty()) out += "" else Unit
-					"" -> if (out.isNotEmpty()) out.removeAt(out.size - 1)
+					"", "." -> if (out.isEmpty()) out += "" else Unit
+					".." -> if (out.isNotEmpty()) out.removeAt(out.size - 1)
 					else -> out += part
 				}
 			}
@@ -32,11 +32,11 @@ object VfsUtil {
 
 	fun combine(base: String, access: String): String =
 		if (isAbsolute(access)) normalize(access) else normalize(
-			base + "/" + access
+			"$base/$access"
 		)
 
 	fun lightCombine(base: String, access: String): String =
-		if (base.isNotEmpty()) base.trimEnd('/') + "/" + access.trim('/') else "$access"
+		if (base.isNotEmpty()) base.trimEnd('/') + "/" + access.trim('/') else access
 
 	fun isAbsolute(base: String): Boolean {
 		if (base.isEmpty()) return false

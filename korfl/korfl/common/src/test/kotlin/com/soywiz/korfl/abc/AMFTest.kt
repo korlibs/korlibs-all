@@ -2,6 +2,7 @@ package com.soywiz.korfl.abc
 
 import com.soywiz.kds.*
 import com.soywiz.korfl.*
+import com.soywiz.korio.crypto.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
 import kotlin.test.*
@@ -16,7 +17,7 @@ class AMFTest {
 					"03 00 04 6e 61 6d 65 02 00 04 4d 69 6b 65 00 03 61 67 65 00",
 					"40 3e 00 00 00 00 00 00 00 05 61 6c 69 61 73 02 00 04 4d 69",
 					"6b 65 00 00 09"
-				).fromHexChunks().openSync()
+				).unhexIgnoreSpaces.openSync()
 			)
 		)
 	}

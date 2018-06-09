@@ -35,7 +35,6 @@ import com.soywiz.korau.format.net.sourceforge.lame.mpg.Interface.*
 import com.soywiz.korau.format.net.sourceforge.lame.mpg.MPG123.III_sideinfo
 import com.soywiz.korau.format.net.sourceforge.lame.mpg.MPG123.gr_info_s
 import com.soywiz.korau.format.net.sourceforge.lame.mpg.MPGLib.*
-import com.soywiz.korio.lang.*
 import kotlin.math.*
 
 @Suppress("UNUSED_CHANGED_VALUE")
@@ -284,7 +283,7 @@ class Layer3(private val common: Common) {
 				gr_infos.part2_3_length = common.getbits(mp, 12)
 				gr_infos.big_values = common.getbits_fast(mp, 9)
 				if (gr_infos.big_values > 288) {
-					Console.error("big_values too large! ${gr_infos.big_values}")
+					log.error { "big_values too large! ${gr_infos.big_values}" }
 					gr_infos.big_values = 288
 				}
 
@@ -312,7 +311,7 @@ class Layer3(private val common: Common) {
 					}
 
 					if (gr_infos.block_type == 0) {
-						Console.error("Blocktype == 0 and window-switching == 1 not allowed.")
+						log.error { "Blocktype == 0 and window-switching == 1 not allowed." }
 					}
 					gr_infos.region1start = 36 shr 1
 					gr_infos.region2start = 576 shr 1
@@ -365,7 +364,7 @@ class Layer3(private val common: Common) {
 			gr_infos.part2_3_length = common.getbits(mp, 12)
 			gr_infos.big_values = common.getbits_fast(mp, 9)
 			if (gr_infos.big_values > 288) {
-				Console.error("big_values too large! ${gr_infos.big_values}")
+				log.error { "big_values too large! ${gr_infos.big_values}" }
 				gr_infos.big_values = 288
 			}
 			val qss = common.getbits_fast(mp, 8)
@@ -388,7 +387,7 @@ class Layer3(private val common: Common) {
 					mp.pinfo.sub_gain[0][ch][i] = sbg / 8
 				}
 
-				if (gr_infos.block_type == 0) Console.error("Blocktype == 0 and window-switching == 1 not allowed.")
+				if (gr_infos.block_type == 0) log.error { "Blocktype == 0 and window-switching == 1 not allowed." }
 
 				gr_infos.region1start = if (gr_infos.block_type == 2) {
 					if (sfreq == 8) 36 else 36 shr 1
@@ -620,7 +619,7 @@ class Layer3(private val common: Common) {
 		// MDH crash fix
 		for (i in 0 until 3) {
 			if (l[i] < 0) {
-				Console.error("hip: Bogus region length (${l[i]})")
+				log.error { "hip: Bogus region length (${l[i]})" }
 				l[i] = 0
 			}
 		}
@@ -934,7 +933,7 @@ class Layer3(private val common: Common) {
 		}
 		if (part2remain > 0) common.getbits(mp, part2remain)
 		else if (part2remain < 0) {
-			Console.error("hip: Can't rewind stream by ${-part2remain} bits!")
+			log.error { "hip: Can't rewind stream by ${-part2remain} bits!" }
 			return 1
 		}
 		return 0
@@ -1868,6 +1867,7 @@ class Layer3(private val common: Common) {
 	}
 
 	companion object {
+		val log = Logger("MpgLayer3")
 		private val slen = arrayOf(
 			intArrayOf(0, 0, 0, 0, 3, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4),
 			intArrayOf(0, 1, 2, 3, 0, 1, 2, 3, 1, 2, 3, 1, 2, 3, 2, 3)

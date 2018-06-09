@@ -30,10 +30,10 @@ import com.soywiz.klogger.*
 import com.soywiz.kmem.*
 import com.soywiz.korau.format.net.sourceforge.lame.mp3.*
 import com.soywiz.korau.format.net.sourceforge.lame.mpg.MPGLib.*
-import com.soywiz.korio.lang.*
 
 class Interface(private val vbr: VBRTag) {
 	companion object {
+		val log = Logger("MpgInterface")
 
 		/* number of bytes needed by GetVbrTag to parse header */
 		const val XING_HEADER_SIZE = 194
@@ -366,7 +366,7 @@ class Interface(private val vbr: VBRTag) {
 				 * but we need to make sure we do not overflow buffer
 				 */
 				var size: Int
-				Console.error("hip: bitstream problem, resyncing skipping $bytes bytes...")
+				log.error { "hip: bitstream problem, resyncing skipping $bytes bytes..." }
 				mp.old_free_format = false
 
 				/* FIXME: correct ??? */
@@ -380,7 +380,7 @@ class Interface(private val vbr: VBRTag) {
 					 * wordpointer buffer is trashed. probably cant recover, but
 					 * try anyway
 					 */
-					Console.error("hip: wordpointer trashed.  size=$size (${MPG123.MAXFRAMESIZE})  bytes=$bytes")
+					log.error { "hip: wordpointer trashed.  size=$size (${MPG123.MAXFRAMESIZE})  bytes=$bytes" }
 					size = 0
 					mp.wordpointer = mp.bsspace[mp.bsnum]
 					mp.wordpointerPos = 512
@@ -496,7 +496,7 @@ class Interface(private val vbr: VBRTag) {
 				}
 
 				3 -> layer3.do_layer3(mp, out, done, synth)
-				else -> Console.error("hip: invalid layer ${mp.fr.lay}")
+				else -> log.error { "hip: invalid layer ${mp.fr.lay}" }
 			}
 
 			mp.wordpointer = mp.bsspace[mp.bsnum]
@@ -537,7 +537,7 @@ class Interface(private val vbr: VBRTag) {
 
 			size = mp.wordpointerPos - 512
 			if (size > MPG123.MAXFRAMESIZE) {
-				Console.error("hip: fatal error.  MAXFRAMESIZE not large enough.")
+				log.error { "hip: fatal error.  MAXFRAMESIZE not large enough." }
 			}
 
 		}
@@ -558,7 +558,7 @@ class Interface(private val vbr: VBRTag) {
 		out: FloatArray, osize: Int, done: ProcessedBytes
 	): Int {
 		if (osize < 2304) {
-			Console.error("hip: Insufficient memory for decoding buffer $osize")
+			log.error { "hip: Insufficient memory for decoding buffer $osize" }
 			return MPGLib.MP3_ERR
 		}
 
@@ -592,7 +592,7 @@ class Interface(private val vbr: VBRTag) {
 		 * unclipped mode
 		 */
 		if (osize < 1152 * 2) {
-			Console.error("hip: out space too small for unclipped mode")
+			log.error { "hip: out space too small for unclipped mode" }
 			return MPGLib.MP3_ERR
 		}
 

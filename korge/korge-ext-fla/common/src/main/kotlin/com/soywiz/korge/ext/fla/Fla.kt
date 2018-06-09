@@ -1,5 +1,7 @@
 package com.soywiz.korge.ext.fla
 
+import com.soywiz.korio.file.*
+import com.soywiz.korio.file.std.*
 import com.soywiz.korio.serialization.xml.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.file.std.*

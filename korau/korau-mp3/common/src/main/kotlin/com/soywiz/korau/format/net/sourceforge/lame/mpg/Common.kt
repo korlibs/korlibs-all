@@ -30,19 +30,14 @@
 package com.soywiz.korau.format.net.sourceforge.lame.mpg
 
 import com.soywiz.klogger.*
-import com.soywiz.kmem.*
+import com.soywiz.kmem.arraycopy
+import com.soywiz.kmem.toUnsigned
 import com.soywiz.korio.JvmField
-import kotlin.Array
-import kotlin.Boolean
-import kotlin.FloatArray
-import kotlin.Int
-import kotlin.Long
-import kotlin.RuntimeException
-import kotlin.arrayOf
-import kotlin.intArrayOf
 
 class Common {
 	companion object {
+		val log = Logger("Mpg")
+
 		val tabsel_123 = arrayOf(
 			arrayOf(
 				intArrayOf(0, 32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448),
@@ -132,7 +127,7 @@ class Common {
 
 			3 -> {
 				if (fr.framesize > MAX_INPUT_FRAMESIZE) {
-					Console.error("Frame size too big.")
+					log.error { "Frame size too big." }
 					fr.framesize = MAX_INPUT_FRAMESIZE
 					return 0
 				}
@@ -146,7 +141,7 @@ class Common {
 				}
 			}
 			else -> {
-				Console.error("Sorry, layer ${fr.lay} not supported")
+				log.error { "Sorry, layer ${fr.lay} not supported" }
 				return 0
 			}
 		}
@@ -199,7 +194,7 @@ class Common {
 
 	fun set_pointer(mp: MPGLib.mpstr_tag, backstep: Int): Int {
 		if (mp.fsizeold < 0 && backstep > 0) {
-			Console.error("hip: Can't step back $backstep bytes!")
+			log.error { "hip: Can't step back $backstep bytes!" }
 			return MPGLib.MP3_ERR
 		}
 		val bsbufold = mp.bsspace[1 - mp.bsnum]

@@ -2,6 +2,7 @@ package com.soywiz.korim.format
 
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korio.file.*
+import com.soywiz.korio.file.*
 
 abstract class NativeImageFormatProvider {
 	abstract suspend fun decode(data: ByteArray): NativeImage

@@ -6,6 +6,7 @@ import com.soywiz.kds.*
 import com.soywiz.klogger.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.error.*
+import com.soywiz.korio.file.std.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
@@ -62,7 +63,8 @@ class VfsFile(
 	fun withCompoundExtension(ext: String): VfsFile =
 		VfsFile(vfs, fullnameWithoutCompoundExtension + if (ext.isNotEmpty()) ".$ext" else "")
 
-	fun appendExtension(ext: String): VfsFile = VfsFile(vfs, "$fullname.$ext")
+	fun appendExtension(ext: String): VfsFile =
+		VfsFile(vfs, "$fullname.$ext")
 
 	suspend fun open(mode: VfsOpenMode = VfsOpenMode.READ): AsyncStream = vfs.open(path, mode)
 	suspend fun openInputStream(): AsyncInputStream = vfs.openInputStream(path)

@@ -3,6 +3,8 @@ package com.soywiz.korau.format
 import com.soywiz.kds.*
 import com.soywiz.kmem.*
 import com.soywiz.korau.sound.*
+import com.soywiz.korio.async.*
+import com.soywiz.korio.file.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
 import com.soywiz.korio.file.*
@@ -72,5 +74,5 @@ suspend inline fun <T> VfsFile.openUse2(
 	mode: VfsOpenMode = VfsOpenMode.READ,
 	noinline callback: suspend AsyncStream.() -> T
 ): T {
-	return open(mode).use { callback() }
+	return open(mode).use { callback.await(this) }
 }

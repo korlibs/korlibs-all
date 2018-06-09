@@ -1,12 +1,13 @@
 package com.soywiz.korim.color
 
 import com.soywiz.korim.bitmap.*
-import com.soywiz.korio.util.*
+import com.soywiz.korio.crypto.*
+import com.soywiz.korio.lang.*
 import kotlin.test.*
 
 class ColorFormatTest {
 	fun bmp() = Bitmap32(3, 1, intArrayOf(Colors.RED, Colors.GREEN, Colors.BLUE))
-	fun ByteArray.toHexChunks(size: Int) = this.toHexString().splitInChunks(size).joinToString("-").toLowerCase()
+	fun ByteArray.toHexChunks(size: Int) = this.hex.splitInChunks(size).joinToString("-").toLowerCase()
 
 	@kotlin.test.Test
 	fun name() {

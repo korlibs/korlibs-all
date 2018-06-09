@@ -2,6 +2,7 @@ package com.soywiz.korge.atlas
 
 import com.soywiz.korge.render.*
 import com.soywiz.korge.view.*
+import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.serialization.json.*
 import com.soywiz.korio.file.*

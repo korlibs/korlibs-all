@@ -26,8 +26,9 @@
 
 package com.soywiz.korau.format.com.jcraft.jorbis
 
+import com.soywiz.kmem.*
 import com.soywiz.korau.format.com.jcraft.jogg.*
-import com.soywiz.korio.math.*
+import com.soywiz.korma.math.*
 import kotlin.math.*
 
 class StaticCodeBook

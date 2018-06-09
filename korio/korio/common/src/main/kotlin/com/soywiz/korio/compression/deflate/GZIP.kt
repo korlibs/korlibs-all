@@ -43,8 +43,8 @@ open class GZIPBase(val checkCrc: Boolean) : CompressionMethod {
 		val crc32 = s.su32_le()
 		val size = s.su32_le()
 		if (checkCrc) {
-			if (chash != crc32) invalidOp("CRC32 doesn't match ${chash.hex32} != ${crc32.hex32}")
-			if (csize != size) invalidOp("Size doesn't match ${csize.hex32} != ${size.hex32}")
+			if (chash != crc32) invalidOp("CRC32 doesn't match ${chash.hex} != ${crc32.hex}")
+			if (csize != size) invalidOp("Size doesn't match ${csize.hex} != ${size.hex}")
 		}
 	}
 

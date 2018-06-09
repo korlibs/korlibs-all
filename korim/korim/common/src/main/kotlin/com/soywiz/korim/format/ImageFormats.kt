@@ -1,9 +1,10 @@
 package com.soywiz.korim.format
 
 import com.soywiz.korim.bitmap.*
+import com.soywiz.korio.crypto.*
+import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korio.util.*
 import com.soywiz.korio.file.*
 
 class ImageFormats : ImageFormat("") {
@@ -50,7 +51,7 @@ class ImageFormats : ImageFormat("") {
 			"Not suitable image format : MAGIC:" + s.slice().readString(
 				4,
 				ASCII
-			) + "(" + s.slice().readBytes(4).hexString + ") (" + s.slice().readBytes(4).toString(ASCII) + ")"
+			) + "(" + s.sliceStart().readBytes(4).hex + ") (" + s.sliceStart().readBytes(4).toString(ASCII) + ")"
 		)
 	}
 

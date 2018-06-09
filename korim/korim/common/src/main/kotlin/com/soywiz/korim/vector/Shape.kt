@@ -1,9 +1,10 @@
 package com.soywiz.korim.vector
 
+import com.soywiz.kmem.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
+import com.soywiz.korio.lang.*
 import com.soywiz.korio.serialization.xml.*
-import com.soywiz.korio.util.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 
@@ -41,8 +42,7 @@ class SvgBuilder(val bounds: Rectangle, val scale: Double) {
 				"xmlns:xlink" to "http://www.w3.org/1999/xlink"
 			),
 			listOf(
-				Xml.Tag("defs", mapOf(), defs)
-				,
+				Xml.Tag("defs", mapOf(), defs),
 				Xml.Tag(
 					"g",
 					mapOf("transform" to Matrix2d().translate(-bounds.x, -bounds.y).scale(scale, scale).toSvg()),
@@ -301,15 +301,7 @@ data class PolylineShape(
 class CompoundShape(
 	val components: List<Shape>
 ) : Shape {
-	override fun addBounds(bb: BoundsBuilder) {
-		for (component in components) component.addBounds(bb)
-	}
-
-	override fun draw(c: Context2d) {
-		for (component in components) component.draw(c)
-	}
-
-	override fun buildSvg(svg: SvgBuilder) {
-		for (component in components) component.buildSvg(svg)
-	}
+	override fun addBounds(bb: BoundsBuilder) = run { for (component in components) component.addBounds(bb) }
+	override fun draw(c: Context2d) = run { for (component in components) component.draw(c) }
+	override fun buildSvg(svg: SvgBuilder) = run { for (component in components) component.buildSvg(svg) }
 }

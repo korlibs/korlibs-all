@@ -4,6 +4,7 @@ package com.soywiz.korio.file.std
 
 import com.soywiz.kds.*
 import com.soywiz.korio.async.*
+import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.file.*
@@ -41,8 +42,8 @@ open class NodeVfs(val caseSensitive: Boolean = true) : Vfs() {
 		var stream: AsyncStream? = null
 
 		fun child(name: String): Node? = when (name) {
-			"", "" -> this
-			"" -> parent
+			"", "." -> this
+			".." -> parent
 			else -> if (caseSensitive) {
 				children[name]
 			} else {

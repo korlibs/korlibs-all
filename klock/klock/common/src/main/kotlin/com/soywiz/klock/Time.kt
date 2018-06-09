@@ -573,6 +573,12 @@ class SimplerDateFormat(val format: String) {
 
 	fun parse(str: String): Long = parseDate(str).unix
 
+	fun parseOrNull(str: String?): Long? = try {
+		str?.let { parse(str) }
+	} catch (e: Throwable) {
+		null
+	}
+
 	fun parseDate(str: String): DateTime {
 		return tryParseDate(str) ?: throw RuntimeException("Not a valid format: '$str' for '$format'")
 	}

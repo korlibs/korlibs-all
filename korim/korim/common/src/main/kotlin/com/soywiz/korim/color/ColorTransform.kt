@@ -1,9 +1,8 @@
 package com.soywiz.korim.color
 
+import com.soywiz.kmem.*
 import com.soywiz.korio.*
-import com.soywiz.korio.util.clamp
 import com.soywiz.korma.interpolation.*
-import com.soywiz.korma.numeric.niceStr
 
 data class ColorTransform(
 	private var _mR: Double = 1.0,

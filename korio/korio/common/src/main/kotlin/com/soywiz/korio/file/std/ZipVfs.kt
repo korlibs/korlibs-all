@@ -7,9 +7,9 @@ import com.soywiz.korio.async.*
 import com.soywiz.korio.compression.deflate.*
 import com.soywiz.korio.compression.util.*
 import com.soywiz.korio.crypto.*
+import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korio.util.*
 import com.soywiz.korio.file.*
 import kotlin.coroutines.experimental.*
 import kotlin.math.*
@@ -244,11 +244,11 @@ private class DosFileDateTime(var dosTime: Int, var dosDate: Int) {
 }
 
 suspend fun VfsFile.openAsZip() =
-	ZipVfs(this.open(VfsOpenMode.READ), this)
+	ZipVfs(this.open(com.soywiz.korio.file.VfsOpenMode.READ), this)
 
 suspend fun VfsFile.openAsZip(caseSensitive: Boolean) =
 	ZipVfs(
-		this.open(VfsOpenMode.READ),
+		this.open(com.soywiz.korio.file.VfsOpenMode.READ),
 		this,
 		caseSensitive = caseSensitive
 	)

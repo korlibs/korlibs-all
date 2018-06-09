@@ -12,8 +12,8 @@ class Bitmap16(
 	override fun createWithThisFormat(width: Int, height: Int): Bitmap =
 		Bitmap16(width, height, format = format, premult = premult)
 
-	operator override fun set(x: Int, y: Int, color: Int) = Unit.apply { data[index(x, y)] = color.toShort() }
-	operator override fun get(x: Int, y: Int): Int = data[index(x, y)].toInt() and 0xFFFF
+	override operator fun set(x: Int, y: Int, color: Int) = Unit.apply { data[index(x, y)] = color.toShort() }
+	override operator fun get(x: Int, y: Int): Int = data[index(x, y)].toInt() and 0xFFFF
 
 	override fun get32(x: Int, y: Int): Int = format.unpackToRGBA(data[index(x, y)].toInt())
 	override fun set32(x: Int, y: Int, v: Int) = Unit.apply { data[index(x, y)] = format.packRGBA(v).toShort() }

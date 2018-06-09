@@ -21,7 +21,6 @@ class KeysComponent(view: View) : Component(view) {
 	fun typed(keyCode: Int, callback: (keyCode: Int) -> Unit): Closeable =
 		onKeyTyped { e -> if (e.keyCode == keyCode) callback(keyCode) }
 
-
 	init {
 		this.detatchCancellables += view.addEventListener<KeyDownEvent> { go { onKeyDown(it) } }
 		this.detatchCancellables += view.addEventListener<KeyUpEvent> { go { onKeyUp(it) } }

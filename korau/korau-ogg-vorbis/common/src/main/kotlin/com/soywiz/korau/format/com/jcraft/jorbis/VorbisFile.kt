@@ -29,7 +29,6 @@ package com.soywiz.korau.format.com.jcraft.jorbis
 
 import com.soywiz.kmem.*
 import com.soywiz.korau.format.com.jcraft.jogg.*
-import com.soywiz.korio.math.*
 import com.soywiz.korio.stream.*
 
 class VorbisFile {
@@ -678,8 +677,7 @@ class VorbisFile {
 	// additional data to offer since last call (or at beginning of stream)
 	fun bitrate_instant(): Int {
 		val _link = if (seekable) current_link else 0
-		if (samptrack == 0f)
-			return -1
+		if (samptrack == 0f) return -1
 		val ret = (bittrack / samptrack * info[_link].rate + .5).toInt()
 		bittrack = 0f
 		samptrack = 0f
@@ -687,15 +685,9 @@ class VorbisFile {
 	}
 
 	fun serialnumber(i: Int): Int {
-		if (i >= links)
-			return -1
-		if (!seekable && i >= 0)
-			return serialnumber(-1)
-		if (i < 0) {
-			return current_serialno
-		} else {
-			return serialnos[i]
-		}
+		if (i >= links) return -1
+		if (!seekable && i >= 0) return serialnumber(-1)
+		return if (i < 0) current_serialno else serialnos[i]
 	}
 
 	// returns: total raw (compressed) length of content if i==-1
@@ -703,8 +695,7 @@ class VorbisFile {
 	//          -1 if the stream is not seekable (we can't know the length)
 
 	fun raw_total(i: Int): Long {
-		if (!seekable || i >= links)
-			return (-1).toLong()
+		if (!seekable || i >= links) return (-1).toLong()
 		if (i < 0) {
 			var acc: Long = 0 // bug?
 			for (j in 0 until links) {
@@ -979,14 +970,10 @@ class VorbisFile {
 
 	// tell the current stream offset cursor.  Note that seek followed by
 	// tell will likely not give the set offset due to caching
-	fun raw_tell(): Long {
-		return offset
-	}
+	fun raw_tell(): Long = offset
 
 	// return PCM offset (sample) of next PCM sample to be read
-	fun pcm_tell(): Long {
-		return pcm_offset
-	}
+	fun pcm_tell(): Long = pcm_offset
 
 	// return time offset (seconds) of next PCM sample to be read
 	fun time_tell(): Float {

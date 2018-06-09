@@ -3,6 +3,7 @@ package com.soywiz.korio
 import com.soywiz.klogger.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.crypto.*
+import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.net.*
 import com.soywiz.korio.net.http.*
@@ -19,7 +20,7 @@ expect annotation class JvmStatic()
 expect annotation class JvmOverloads()
 expect annotation class Transient()
 
-annotation class Lang(val value: String, val prefix: String = "", val suffix: String = "")
+annotation class Language(val value: String, val prefix: String = "", val suffix: String = "")
 //expect annotation class Language(val value: String, val prefix: String = "", val suffix: String = "")
 
 expect open class IOException(msg: String) : Exception

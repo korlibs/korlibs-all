@@ -3,7 +3,7 @@ package com.soywiz.korio.net.http
 import com.soywiz.korio.crypto.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.lang.*
-import com.soywiz.korio.serialization.querystring.*
+import com.soywiz.korio.net.*
 
 interface Http {
 	enum class Methods : Method {

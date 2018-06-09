@@ -1,6 +1,8 @@
 package com.soywiz.korge.audio
 
 import com.soywiz.kds.*
+import com.soywiz.klock.*
+import com.soywiz.kmem.*
 import com.soywiz.korau.format.*
 import com.soywiz.korau.sound.*
 import com.soywiz.korge.plugin.*
@@ -9,8 +11,7 @@ import com.soywiz.korge.resources.Path
 import com.soywiz.korge.view.*
 import com.soywiz.korinject.*
 import com.soywiz.korio.async.*
-import com.soywiz.korio.time.*
-import com.soywiz.korio.util.*
+import com.soywiz.korio.file.*
 import com.soywiz.korio.file.*
 
 object SoundPlugin : KorgePlugin() {

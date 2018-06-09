@@ -11,6 +11,7 @@ import com.soywiz.korim.color.*
 import com.soywiz.korim.font.*
 import com.soywiz.korinject.*
 import com.soywiz.korio.error.*
+import com.soywiz.korio.file.*
 import com.soywiz.korio.serialization.xml.*
 import com.soywiz.korio.file.*
 import com.soywiz.korma.*

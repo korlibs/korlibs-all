@@ -1,6 +1,7 @@
 package com.soywiz.korio.net.http
 
 import com.soywiz.korio.lang.*
+import com.soywiz.korio.net.*
 import com.soywiz.korio.stream.*
 
 interface HttpClientEndpoint {
@@ -13,7 +14,7 @@ interface HttpClientEndpoint {
 	): HttpClient.Response
 }
 
-data internal class Request(
+internal data class Request(
 	val method: Http.Method,
 	val path: String,
 	val headers: Http.Headers,
@@ -116,7 +117,7 @@ fun HttpClient.endpoint(endpoint: String): HttpClientEndpoint {
 			content: AsyncStream?,
 			config: HttpClient.RequestConfig
 		): HttpClient.Response {
-			val resolvedUrl = URIUtils.resolve(endpoint, "/" + path.trimStart('/')).toString()
+			val resolvedUrl = URI.resolve(endpoint, "/" + path.trimStart('/')).toString()
 			return client.request(method, resolvedUrl, headers, content, config)
 		}
 	}

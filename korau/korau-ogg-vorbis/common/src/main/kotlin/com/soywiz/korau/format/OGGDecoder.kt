@@ -19,7 +19,7 @@ object OGGDecoder : OggBase() {
 		var channels: Int = 0
 	)
 
-	private suspend fun stream(outInfo: OutInfo, data: AsyncStream) = asyncGenerate<ShortArray> {
+	suspend private fun stream(outInfo: OutInfo, data: AsyncStream) = asyncGenerate<ShortArray> {
 		val oy = SyncState()
 		val os = StreamState()
 		val og = Page()
@@ -182,7 +182,7 @@ object OGGDecoder : OggBase() {
 		vi.clear()
 	}
 
-	override suspend fun decodeStream(data: AsyncStream): AudioStream? {
+	suspend override fun decodeStream(data: AsyncStream): AudioStream? {
 		val info = OutInfo()
 		val ss = stream(info, data.buffered())
 		val ssi = ss.iterator()
@@ -194,7 +194,7 @@ object OGGDecoder : OggBase() {
 		while (items.isEmpty() && ssi.hasNext()) items += ssi.next()
 
 		return object : AudioStream(info.rate, info.channels) {
-			suspend override fun read(out: ShortArray, offset: Int, length: Int): Int {
+			override suspend fun read(out: ShortArray, offset: Int, length: Int): Int {
 				if (current == null || currentpos >= current!!.size) {
 					while (items.isEmpty() && ssi.hasNext()) items += ssi.next()
 					current = if (items.isNotEmpty()) items.removeFirst() else null

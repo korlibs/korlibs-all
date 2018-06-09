@@ -1,6 +1,7 @@
 package com.soywiz.korim.bitmap
 
-import com.soywiz.korio.util.*
+import com.soywiz.korio.crypto.*
+import com.soywiz.korio.lang.*
 import kotlin.test.*
 
 class Bitmap1Test {
@@ -34,7 +35,7 @@ class Bitmap1Test {
 
 		assertEquals(
 			"21:82",
-			bmp.data.toHexString().splitInChunks(2).joinToString(":")
+			bmp.data.hex.splitInChunks(2).joinToString(":")
 		)
 	}
 }

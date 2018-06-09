@@ -9,6 +9,8 @@ import com.soywiz.korim.color.*
 import com.soywiz.korio.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.file.std.*
+import com.soywiz.korio.file.*
+import com.soywiz.korio.file.std.*
 import com.soywiz.korma.geom.*
 
 class SwfTestDisabled {

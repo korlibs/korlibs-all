@@ -5,25 +5,11 @@ import com.soywiz.klock.*
 import com.soywiz.kmem.*
 import com.soywiz.korim.color.*
 import com.soywiz.korim.vector.*
+import com.soywiz.korio.crypto.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korio.util.*
-import kotlin.collections.LinkedHashMap
-import kotlin.collections.List
-import kotlin.collections.arrayListOf
-import kotlin.collections.copyOf
-import kotlin.collections.filterNotNull
-import kotlin.collections.getOrNull
-import kotlin.collections.indices
-import kotlin.collections.last
-import kotlin.collections.lastOrNull
-import kotlin.collections.listOf
-import kotlin.collections.map
-import kotlin.collections.plus
-import kotlin.collections.plusAssign
 import kotlin.collections.set
-import kotlin.collections.toList
 
 // Used information from:
 // - https://www.sweetscape.com/010editor/repository/files/TTF.bt

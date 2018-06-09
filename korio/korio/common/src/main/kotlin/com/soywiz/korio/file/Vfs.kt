@@ -5,6 +5,7 @@ package com.soywiz.korio.file
 import com.soywiz.klock.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.error.*
+import com.soywiz.korio.file.std.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*

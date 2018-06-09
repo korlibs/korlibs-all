@@ -35,25 +35,6 @@ fun String.format(vararg params: Any): String {
 	}
 }
 
-fun String.splitKeep(regex: Regex): List<String> {
-	val str = this
-	val out = arrayListOf<String>()
-	var lastPos = 0
-	for (part in regex.findAll(this)) {
-		val prange = part.range
-		if (lastPos != prange.start) {
-			out += str.substring(lastPos, prange.start)
-		}
-		out += str.substring(prange)
-		lastPos = prange.endInclusive + 1
-	}
-	if (lastPos != str.length) {
-		out += str.substring(lastPos)
-	}
-	return out
-}
-
-
 fun Long.toString(radix: Int): String {
 	val isNegative = this < 0
 	var temp = abs(this)
@@ -123,83 +104,4 @@ fun Long.toStringUnsigned(radix: Int): String {
 object Hex {
 	val DIGITS = "0123456789ABCDEF"
 	val DIGITS_UPPER = DIGITS.toUpperCase()
-	val DIGITS_LOWER = DIGITS.toLowerCase()
-
-	fun isHexDigit(c: Char) = c in '0'..'9' || c in 'a'..'f' || c in 'A'..'F'
-
-	fun decode(str: String): ByteArray {
-		val out = ByteArray(str.length / 2)
-		for (n in 0 until out.size) {
-			out[n] = (str.substring(n * 2, n * 2 + 2).toIntOrNull(16) ?: 0).toByte()
-		}
-		return out
-	}
-
-	fun encode(src: ByteArray): String = encodeBase(src, DIGITS_LOWER)
-
-	fun encodeLower(src: ByteArray): String = encodeBase(src, DIGITS_LOWER)
-	fun encodeUpper(src: ByteArray): String = encodeBase(src, DIGITS_UPPER)
-
-	private fun encodeBase(data: ByteArray, digits: String = DIGITS): String {
-		val out = StringBuilder(data.size * 2)
-		for (n in data.indices) {
-			val v = data[n].toInt() and 0xFF
-			out.append(digits[(v ushr 4) and 0xF])
-			out.append(digits[(v ushr 0) and 0xF])
-		}
-		return out.toString()
-	}
-}
-
-infix fun Int.udiv(that: Int) = IntEx.divideUnsigned(this, that)
-infix fun Int.urem(that: Int) = IntEx.remainderUnsigned(this, that)
-
-infix fun Long.udiv(that: Long) = LongEx.divideUnsigned(this, that)
-infix fun Long.urem(that: Long) = LongEx.remainderUnsigned(this, that)
-
-object LongEx {
-	val MIN_VALUE: Long = 0x7fffffffffffffffL.inv()
-	val MAX_VALUE: Long = 0x7fffffffffffffffL
-
-	fun compare(x: Long, y: Long): Int = if (x < y) -1 else if (x == y) 0 else 1
-	fun compareUnsigned(x: Long, y: Long): Int = compare(x xor MIN_VALUE, y xor MIN_VALUE)
-
-	fun divideUnsigned(dividend: Long, divisor: Long): Long {
-		if (divisor < 0) return (if (compareUnsigned(dividend, divisor) < 0) 0 else 1).toLong()
-		if (dividend >= 0) return dividend / divisor
-		val quotient = dividend.ushr(1) / divisor shl 1
-		val rem = dividend - quotient * divisor
-		return quotient + if (compareUnsigned(rem, divisor) >= 0) 1 else 0
-	}
-
-	fun remainderUnsigned(dividend: Long, divisor: Long): Long {
-		if (divisor < 0) return if (compareUnsigned(dividend, divisor) < 0) dividend else dividend - divisor
-		if (dividend >= 0) return dividend % divisor
-		val quotient = dividend.ushr(1) / divisor shl 1
-		val rem = dividend - quotient * divisor
-		return rem - if (compareUnsigned(rem, divisor) >= 0) divisor else 0
-	}
-}
-
-object IntEx {
-	private val MIN_VALUE = -0x80000000
-	private val MAX_VALUE = 0x7fffffff
-
-	fun compare(l: Int, r: Int): Int = if (l < r) -1 else if (l > r) 1 else 0
-	fun compareUnsigned(l: Int, r: Int): Int = compare(l xor MIN_VALUE, r xor MIN_VALUE)
-	fun divideUnsigned(dividend: Int, divisor: Int): Int {
-		if (divisor < 0) return if (compareUnsigned(dividend, divisor) < 0) 0 else 1
-		if (dividend >= 0) return dividend / divisor
-		val quotient = dividend.ushr(1) / divisor shl 1
-		val rem = dividend - quotient * divisor
-		return quotient + if (compareUnsigned(rem, divisor) >= 0) 1 else 0
-	}
-
-	fun remainderUnsigned(dividend: Int, divisor: Int): Int {
-		if (divisor < 0) return if (compareUnsigned(dividend, divisor) < 0) dividend else dividend - divisor
-		if (dividend >= 0) return dividend % divisor
-		val quotient = dividend.ushr(1) / divisor shl 1
-		val rem = dividend - quotient * divisor
-		return rem - if (compareUnsigned(rem, divisor) >= 0) divisor else 0
-	}
 }

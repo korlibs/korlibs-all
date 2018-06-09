@@ -2,7 +2,7 @@ package com.soywiz.korge.ext.spriter.com.brashmonkey.spriter
 
 import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.Mainline.Key.*
 import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.Timeline.Key.*
-import com.soywiz.korio.math.*
+import com.soywiz.korma.geom.*
 import kotlin.math.*
 
 /**
@@ -24,8 +24,8 @@ class CCDResolver(player: Player) : IKResolver(player) {
 		val unmappedffector = unmappedKey.`object`()!!
 		var width = if (timeline.objectInfo != null) timeline.objectInfo.size.width else 200f
 		width *= unmappedffector.scale.x
-		var xx = unmappedffector.position.x + cos(toRadians(unmappedffector._angle.toDouble())).toFloat() * width
-		var yy = unmappedffector.position.y + sin(toRadians(unmappedffector._angle.toDouble())).toFloat() * width
+		var xx = unmappedffector.position.x + cos(Angle.toRadians(unmappedffector._angle.toDouble())).toFloat() * width
+		var yy = unmappedffector.position.y + sin(Angle.toRadians(unmappedffector._angle.toDouble())).toFloat() * width
 		if (Calculator.distanceBetween(xx, yy, x, y) <= this.tolerance)
 			return
 
@@ -56,8 +56,8 @@ class CCDResolver(player: Player) : IKResolver(player) {
 			} else
 				parent = null
 			player.unmapObjects(null)
-			xx = unmappedffector.position.x + cos(toRadians(unmappedffector._angle.toDouble())).toFloat() * width
-			yy = unmappedffector.position.y + sin(toRadians(unmappedffector._angle.toDouble())).toFloat() * width
+			xx = unmappedffector.position.x + cos(Angle.toRadians(unmappedffector._angle.toDouble())).toFloat() * width
+			yy = unmappedffector.position.y + sin(Angle.toRadians(unmappedffector._angle.toDouble())).toFloat() * width
 			i++
 		}
 	}

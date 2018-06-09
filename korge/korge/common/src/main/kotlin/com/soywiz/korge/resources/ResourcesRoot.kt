@@ -1,14 +1,14 @@
 package com.soywiz.korge.resources
 
 import com.soywiz.korinject.*
-import com.soywiz.korio.util.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.file.std.*
+import com.soywiz.korio.util.*
 
 @Singleton
 class ResourcesRoot : AsyncDependency {
-	lateinit private var root: VfsFile
-	lateinit private var mountable: Mountable
+	private lateinit var root: VfsFile
+	private lateinit var mountable: Mountable
 
 	fun mount(path: String, file: VfsFile) {
 		mountable.mount(path, file)
@@ -18,7 +18,7 @@ class ResourcesRoot : AsyncDependency {
 	operator fun get(path: Path) = root[path.path]
 	operator fun get(path: VPath) = root[path.path]
 
-	suspend override fun init() {
+	override suspend fun init() {
 		root = MountableVfs() {
 			mountable = this
 		}

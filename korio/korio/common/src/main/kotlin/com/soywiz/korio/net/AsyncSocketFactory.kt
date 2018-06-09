@@ -7,20 +7,19 @@ import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
 
-abstract class AsyncSocketFactory {
-	suspend abstract fun createClient(): AsyncClient
-	suspend abstract fun createServer(port: Int, host: String = "127.0.0.1", backlog: Int = 511): AsyncServer
-}
-
 val asyncSocketFactory: AsyncSocketFactory get() = KorioNative.asyncSocketFactory
 
-interface AsyncClient : AsyncInputStream, AsyncOutputStream, AsyncCloseable {
-	suspend fun connect(host: String, port: Int): Unit
-	val connected: Boolean
-	suspend override fun read(buffer: ByteArray, offset: Int, len: Int): Int
-	suspend override fun write(buffer: ByteArray, offset: Int, len: Int): Unit
-	suspend override fun close(): Unit
+abstract class AsyncSocketFactory {
+	abstract suspend fun createClient(): AsyncClient
+	abstract suspend fun createServer(port: Int, host: String = "127.0.0.1", backlog: Int = 511): AsyncServer
+}
 
+interface AsyncClient : AsyncInputStream, AsyncOutputStream, AsyncCloseable {
+	suspend fun connect(host: String, port: Int)
+	val connected: Boolean
+	override suspend fun read(buffer: ByteArray, offset: Int, len: Int): Int
+	override suspend fun write(buffer: ByteArray, offset: Int, len: Int)
+	override suspend fun close()
 	//suspend open fun reconnect() = Unit
 
 	object Stats {
@@ -33,11 +32,7 @@ interface AsyncClient : AsyncInputStream, AsyncOutputStream, AsyncCloseable {
 
 	companion object {
 		suspend operator fun invoke(host: String, port: Int) = createAndConnect(host, port)
-
-		suspend fun create(): AsyncClient {
-			return asyncSocketFactory.createClient()
-		}
-
+		suspend fun create(): AsyncClient = asyncSocketFactory.createClient()
 		suspend fun createAndConnect(host: String, port: Int): AsyncClient {
 			val socket = asyncSocketFactory.createClient()
 			socket.connect(host, port)
@@ -53,7 +48,7 @@ interface AsyncServer {
 	val port: Int
 
 	companion object {
-		operator suspend fun invoke(port: Int, host: String = "127.0.0.1", backlog: Int = -1) =
+		suspend operator fun invoke(port: Int, host: String = "127.0.0.1", backlog: Int = -1) =
 			asyncSocketFactory.createServer(port, host, backlog)
 	}
 
@@ -61,7 +56,7 @@ interface AsyncServer {
 
 	suspend fun listen(): SuspendingSequence<AsyncClient> {
 		val ctx = getCoroutineContext()
-		return asyncGenerate3<AsyncClient> {
+		return asyncGenerate3 {
 			spawnAndForget(ctx) {
 				listen {
 					yield(it)

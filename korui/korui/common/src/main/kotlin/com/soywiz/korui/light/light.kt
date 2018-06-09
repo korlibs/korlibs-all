@@ -4,6 +4,7 @@ import com.soywiz.kds.*
 import com.soywiz.korag.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
+import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.file.*
 

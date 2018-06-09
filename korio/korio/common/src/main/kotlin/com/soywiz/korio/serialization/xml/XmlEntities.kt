@@ -1,6 +1,7 @@
 package com.soywiz.korio.serialization.xml
 
 import com.soywiz.kds.*
+import com.soywiz.korio.lang.*
 import com.soywiz.korio.util.*
 
 object XmlEntities {

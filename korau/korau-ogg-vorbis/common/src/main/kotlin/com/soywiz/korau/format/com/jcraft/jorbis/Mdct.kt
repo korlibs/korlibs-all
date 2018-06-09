@@ -26,8 +26,9 @@
 
 package com.soywiz.korau.format.com.jcraft.jorbis
 
+import com.soywiz.kmem.*
 import com.soywiz.korio.*
-import com.soywiz.korio.math.*
+import com.soywiz.korma.math.*
 import kotlin.math.*
 
 internal class Mdct {
@@ -202,7 +203,7 @@ internal class Mdct {
 				var wbase = n2 - 2
 
 				A = 0
-				val temp: FloatArray
+
 
 				for (r in 0 until k0.ushr(2)) {
 					var w1 = wbase
@@ -231,7 +232,7 @@ internal class Mdct {
 					A += k1
 				}
 
-				temp = w
+				val temp = w
 				w = x
 				x = temp
 			}

@@ -2,11 +2,11 @@ package com.soywiz.korio.util
 
 @Suppress("UNCHECKED_CAST")
 class DynamicNode(private val wrapped: Any?, private val key: String? = null) {
-	fun getAny(): Any? = if (key != null) Dynamic.getAnySync(wrapped, key!!) else wrapped
+	fun getAny(): Any? = if (key != null) DynamicJvm.getAnySync(wrapped, key!!) else wrapped
 
-	fun setAny(value: Any?) = Dynamic.setAnySync(wrapped, key, value)
+	fun setAny(value: Any?) = DynamicJvm.setAnySync(wrapped, key, value)
 
-	operator fun set(name: String, value: Any?) = Dynamic.setAnySync(getAny(), name, value)
+	operator fun set(name: String, value: Any?) = DynamicJvm.setAnySync(getAny(), name, value)
 
 	operator fun get(name: String): DynamicNode = DynamicNode(this.getAny(), name)
 
@@ -30,7 +30,7 @@ class DynamicNode(private val wrapped: Any?, private val key: String? = null) {
 	fun toInt() = toNumber()?.toInt()
 	fun toDouble() = toNumber()?.toDouble()
 	fun toFloat() = toNumber()?.toFloat()
-	fun toBoolean(): Boolean? = Dynamic.toBoolOrNull(getAny())
+	fun toBoolean(): Boolean? = DynamicJvm.toBoolOrNull(getAny())
 
 	fun asString() = getAny()?.toString()
 

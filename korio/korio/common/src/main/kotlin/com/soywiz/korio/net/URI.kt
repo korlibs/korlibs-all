@@ -1,5 +1,7 @@
 package com.soywiz.korio.net
 
+import com.soywiz.korio.file.*
+import com.soywiz.korio.file.*
 import com.soywiz.korio.util.*
 
 data class URI private constructor(
@@ -99,7 +101,7 @@ data class URI private constructor(
 			access.startsWith("/") -> URI(base).copy(path = access).fullUri
 			else -> URI(base).run {
 				copy(
-					path = "/" + com.soywiz.korio.file.VfsUtil.normalize(
+					path = "/" + VfsUtil.normalize(
 						this.path.substringBeforeLast(
 							'/'
 						) + "/" + access

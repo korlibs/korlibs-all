@@ -27,4 +27,17 @@ class StringExtTest {
 	fun replaceNonPrintableCharacters() {
 		assertEquals("?hello??world", "\nhello\t\rworld".replaceNonPrintableCharacters(replacement = "?"))
 	}
+
+	@kotlin.test.Test
+	fun name2() {
+		assertEquals(listOf<String>(), "".splitInChunks(3))
+		assertEquals(listOf("1"), "1".splitInChunks(3))
+		assertEquals(listOf("12"), "12".splitInChunks(3))
+		assertEquals(listOf("123"), "123".splitInChunks(3))
+		assertEquals(listOf("123", "4"), "1234".splitInChunks(3))
+		assertEquals(listOf("123", "45"), "12345".splitInChunks(3))
+		assertEquals(listOf("123", "456"), "123456".splitInChunks(3))
+		assertEquals(listOf("123", "456", "7"), "1234567".splitInChunks(3))
+	}
+
 }

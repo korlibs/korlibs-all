@@ -13,7 +13,7 @@ import com.soywiz.korim.vector.*
 import com.soywiz.korinject.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.lang.*
-import com.soywiz.korio.time.*
+import com.soywiz.korio.file.*
 import com.soywiz.korio.file.std.*
 import com.soywiz.korma.geom.*
 import com.soywiz.korui.*

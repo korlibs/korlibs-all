@@ -5,4 +5,5 @@ dependencies {
 	compile project(":korau-common")
 	compile project(":korui-common")
 	compile project(":korag-common")
+	compile project(":korinject-common")
 }

@@ -3,12 +3,11 @@
 package com.soywiz.korio.async
 
 import com.soywiz.klock.*
+import com.soywiz.kmem.*
 import com.soywiz.korio.*
 import com.soywiz.korio.coroutine.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.lang.*
-import com.soywiz.korio.time.*
-import com.soywiz.korio.util.*
 import kotlin.coroutines.experimental.*
 
 abstract class EventLoopFactory {

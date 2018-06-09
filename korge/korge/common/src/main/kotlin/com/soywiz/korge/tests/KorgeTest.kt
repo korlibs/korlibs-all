@@ -1,5 +1,6 @@
 package com.soywiz.korge.tests
 
+import com.soywiz.klock.*
 import com.soywiz.korag.*
 import com.soywiz.korge.*
 import com.soywiz.korge.input.*
@@ -8,7 +9,6 @@ import com.soywiz.korge.scene.*
 import com.soywiz.korge.view.*
 import com.soywiz.korinject.*
 import com.soywiz.korio.async.*
-import com.soywiz.korio.time.*
 import com.soywiz.korma.geom.*
 import kotlin.math.*
 import kotlin.reflect.*

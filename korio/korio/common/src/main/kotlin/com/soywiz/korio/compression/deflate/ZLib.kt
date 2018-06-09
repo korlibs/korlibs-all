@@ -5,7 +5,6 @@ import com.soywiz.korio.compression.util.*
 import com.soywiz.korio.crypto.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korio.util.*
 
 object ZLib : CompressionMethod {
 	override suspend fun uncompress(i: AsyncInputWithLengthStream, o: AsyncOutputStream) {
@@ -37,7 +36,7 @@ object ZLib : CompressionMethod {
 		s.prepareBigChunk()
 		val adler32 = s.su32_be()
 		//println("Zlib.uncompress.available[1]:" + s.available())
-		if (chash != adler32) invalidOp("Adler32 doesn't match ${chash.hex32} != ${adler32.hex32}")
+		if (chash != adler32) invalidOp("Adler32 doesn't match ${chash.hex} != ${adler32.hex}")
 	}
 
 	override suspend fun compress(

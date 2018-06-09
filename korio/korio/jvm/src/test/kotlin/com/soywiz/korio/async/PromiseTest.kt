@@ -41,7 +41,7 @@ class PromiseTest {
 		}
 
 		assertEquals(
-			"CancellationException",
+			"|CancellationException",
 			out
 		)
 	}

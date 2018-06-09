@@ -3,6 +3,7 @@ package com.soywiz.korim.bitmap
 import com.soywiz.kmem.*
 import com.soywiz.korim.color.*
 import com.soywiz.korim.vector.*
+import com.soywiz.korio.util.*
 import kotlin.math.*
 
 class Bitmap32(
@@ -307,6 +308,26 @@ class Bitmap32(
 		premult = false
 		for (n in 0 until data.size) data[n] = RGBA.depremultiplyFast(data[n])
 		//for (n in 0 until data.size) data[n] = RGBA.depremultiplyAccurate(data[n])
+	}
+
+	fun applyTransform(ct: ColorTransform): Bitmap32 {
+		return clone().apply { applyTransformInline(ct) }
+	}
+
+	fun applyTransformInline(ct: ColorTransform) {
+		val R = IntArray(256) { ((it * ct.mR) + ct.aR).toInt().clamp(0x00, 0xFF) }
+		val G = IntArray(256) { ((it * ct.mG) + ct.aG).toInt().clamp(0x00, 0xFF) }
+		val B = IntArray(256) { ((it * ct.mB) + ct.aB).toInt().clamp(0x00, 0xFF) }
+		val A = IntArray(256) { ((it * ct.mA) + ct.aA).toInt().clamp(0x00, 0xFF) }
+		for (n in 0 until data.size) {
+			val c = data[n]
+			data[n] = RGBA.packFast(
+				R[RGBA.getFastR(c)],
+				G[RGBA.getFastG(c)],
+				B[RGBA.getFastB(c)],
+				A[RGBA.getFastA(c)]
+			)
+		}
 	}
 
 	/*

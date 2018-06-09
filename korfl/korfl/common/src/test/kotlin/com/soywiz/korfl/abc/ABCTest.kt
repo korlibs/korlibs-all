@@ -1,6 +1,7 @@
 package com.soywiz.korfl.abc
 
 import com.soywiz.korfl.*
+import com.soywiz.korio.crypto.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
 import org.junit.*
@@ -35,7 +36,7 @@ class ABCTest {
 			"60 06 30 60 07 30 60 08 30 60 09 30 60 0a 30 60",        // `*0`*0`*0`*0`*0` |
 			"0b 30 60 02 30 60 02 58 00 1d 1d 1d 1d 1d 1d 1d",        // *0`*0`*X******** |
 			"68 01 47 00 00 		                        "       //  h*G** |
-		).fromHexChunks()
+		).unhexIgnoreSpaces
 
 		val abc = ABC().readFile(data.openSync())
 		for (type in abc.typesInfo) {

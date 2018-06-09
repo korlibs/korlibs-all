@@ -2,7 +2,9 @@ package com.soywiz.korio.serialization.xml
 
 import com.soywiz.kds.*
 import com.soywiz.korio.*
+import com.soywiz.korio.file.*
 import com.soywiz.korio.util.*
+import com.soywiz.korio.file.*
 
 data class Xml(
 	val type: Type,
@@ -33,7 +35,7 @@ data class Xml(
 
 		//operator fun invoke(@Language("xml") str: String): Xml = parse(str)
 
-		fun parse(@Lang("xml") str: String): Xml {
+		fun parse(@Language("xml") str: String): Xml {
 			try {
 				val stream = XmlStream.parse(str).iterator()
 
@@ -159,3 +161,13 @@ data class Xml(
 val Xml.isText get() = this.type == Xml.Type.TEXT
 val Xml.isComment get() = this.type == Xml.Type.COMMENT
 val Xml.isNode get() = this.type == Xml.Type.NODE
+
+fun Iterable<Xml>.str(name: String, defaultValue: String = ""): String = this.first().attributes[name] ?: defaultValue
+fun Iterable<Xml>.children(name: String): Iterable<Xml> = this.flatMap { it.children(name) }
+val Iterable<Xml>.allChildren: Iterable<Xml> get() = this.flatMap(Xml::allChildren)
+operator fun Iterable<Xml>.get(name: String): Iterable<Xml> = this.children(name)
+fun String.toXml(): Xml = Xml.parse(this)
+
+fun Xml(@Language("xml") str: String): Xml = Xml.parse(str)
+
+suspend fun VfsFile.readXml(): Xml = Xml(this.readString())

@@ -1,5 +1,7 @@
 package com.soywiz.korio.lang
 
+import com.soywiz.kmem.*
+import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
 
 private val formatRegex = Regex("%([-]?\\d+)?(\\w)")
@@ -56,3 +58,53 @@ private val replaceNonPrintableCharactersRegex by lazy { Regex("[^ -~]") }
 fun String.replaceNonPrintableCharacters(replacement: String = "?"): String {
 	return this.replace(replaceNonPrintableCharactersRegex, replacement)
 }
+
+fun String.toBytez(len: Int, charset: Charset = UTF8): ByteArray {
+	val out = ByteArrayBuilder()
+	out.append(this.toByteArray(charset))
+	while (out.size < len) out.append(0.toByte())
+	return out.toByteArray()
+}
+
+fun String.toBytez(charset: Charset = UTF8): ByteArray {
+	val out = ByteArrayBuilder()
+	out.append(this.toByteArray(charset))
+	out.append(0.toByte())
+	return out.toByteArray()
+}
+
+fun String.indexOfOrNull(char: Char, startIndex: Int = 0): Int? = this.indexOf(char, startIndex).takeIf { it >= 0 }
+
+fun String.lastIndexOfOrNull(char: Char, startIndex: Int = lastIndex): Int? =
+	this.lastIndexOf(char, startIndex).takeIf { it >= 0 }
+
+fun String.splitInChunks(size: Int): List<String> {
+	val out = arrayListOf<String>()
+	var pos = 0
+	while (pos < this.length) {
+		out += this.substring(pos, kotlin.math.min(this.length, pos + size))
+		pos += size
+	}
+	return out
+}
+
+fun String.substr(start: Int): String = this.substr(start, this.length)
+
+fun String.substr(start: Int, length: Int): String {
+	val low = (if (start >= 0) start else this.length + start).clamp(0, this.length)
+	val high = (if (length >= 0) low + length else this.length + length).clamp(0, this.length)
+	return if (high >= low) this.substring(low, high) else ""
+}
+
+fun String.transform(transform: (Char) -> String): String {
+	var out = ""
+	for (ch in this) out += transform(ch)
+	return out
+}
+
+fun String.parseInt(): Int = when {
+	this.startsWith("0x", ignoreCase = true) -> this.substring(2).toLong(16).toInt()
+	else -> this.toInt()
+}
+
+val String.quoted: String get() = this.quote()
