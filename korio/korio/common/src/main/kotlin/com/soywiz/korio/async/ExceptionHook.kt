@@ -8,7 +8,7 @@ object ExceptionHook {
 
 	fun <T : Throwable> hook(exception: T): T {
 		if (show) {
-			Console.error("ExceptionHook: $exception")
+			Logger("ExceptionHook").error { "$exception" }
 			exception.printStackTrace()
 		}
 		return exception

@@ -30,25 +30,25 @@ object Json {
 		}
 	}
 
-	fun parse(@Language("json") s: String): Any? = StrReader(s).decode()
-	inline fun <reified T : Any> parseTyped(@Language("json") s: String, mapper: ObjectMapper = Mapper): T =
+	fun parse(@Lang("json") s: String): Any? = StrReader(s).decode()
+	inline fun <reified T : Any> parseTyped(@Lang("json") s: String, mapper: ObjectMapper = Mapper): T =
 		decodeToType(T::class, s, mapper)
 
 	fun invalidJson(msg: String = "Invalid JSON"): Nothing = throw com.soywiz.korio.IOException(msg)
 
-	fun decode(@Language("json") s: String): Any? = StrReader(s).decode()
+	fun decode(@Lang("json") s: String): Any? = StrReader(s).decode()
 
 	@Deprecated("Not compatible with Kotlin.JS (for now)")
-	inline fun <reified T : Any> decodeToType(@Language("json") s: String, mapper: ObjectMapper = Mapper): T =
+	inline fun <reified T : Any> decodeToType(@Lang("json") s: String, mapper: ObjectMapper = Mapper): T =
 		decodeToType(T::class, s, mapper)
 
 	@Suppress("UNCHECKED_CAST")
 	@Deprecated("Put class first")
-	fun <T : Any> decodeToType(@Language("json") s: String, clazz: KClass<T>, mapper: ObjectMapper = Mapper): T =
+	fun <T : Any> decodeToType(@Lang("json") s: String, clazz: KClass<T>, mapper: ObjectMapper = Mapper): T =
 		mapper.toTyped(clazz, decode(s))
 
 	@Suppress("UNCHECKED_CAST")
-	fun <T : Any> decodeToType(clazz: KClass<T>, @Language("json") s: String, mapper: ObjectMapper = Mapper): T =
+	fun <T : Any> decodeToType(clazz: KClass<T>, @Lang("json") s: String, mapper: ObjectMapper = Mapper): T =
 		mapper.toTyped(clazz, decode(s))
 
 	fun StrReader.decode(): Any? {
@@ -99,7 +99,7 @@ object Json {
 		}
 	}
 
-	@Language("json")
+	@Lang("json")
 	fun encodeUntyped(obj: Any?) = StringBuilder().apply { encodeUntyped(obj, this) }.toString()
 
 	fun encodeUntyped(obj: Any?, b: StringBuilder) {

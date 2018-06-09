@@ -19,7 +19,7 @@ expect annotation class JvmStatic()
 expect annotation class JvmOverloads()
 expect annotation class Transient()
 
-annotation class Language(val value: String, val prefix: String = "", val suffix: String = "")
+annotation class Lang(val value: String, val prefix: String = "", val suffix: String = "")
 //expect annotation class Language(val value: String, val prefix: String = "", val suffix: String = "")
 
 expect open class IOException(msg: String) : Exception

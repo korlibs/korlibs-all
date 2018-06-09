@@ -50,7 +50,7 @@ class Float16(val bits: Int) {
 					if (significand == 0) ((sign ushr 16) or 0x7C00) else 0xFE00
 				} else {
 					val signedExponent = (exponent ushr 20) - 1023 + 15
-					var halfSignificand = 0
+					val halfSignificand: Int
 					if (signedExponent >= 0x1F) {
 						((significand ushr 16) or 0x7C00)
 					} else if (signedExponent <= 0) {
@@ -58,8 +58,8 @@ class Float16(val bits: Int) {
 							halfSignificand = 0
 						} else {
 							significand = significand or 0x00100000
-							halfSignificand = (significand ushr (11 - signedExponent))
-							if (((significand ushr (10 - signedExponent)) and 0x00000001) != 0) halfSignificand += 1
+							val add = if (((significand ushr (10 - signedExponent)) and 0x00000001) != 0) 1 else 0
+							halfSignificand = (significand ushr (11 - signedExponent)) + add
 						}
 						((sign ushr 16) or halfSignificand)
 					} else {

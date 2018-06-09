@@ -33,7 +33,7 @@ data class Xml(
 
 		//operator fun invoke(@Language("xml") str: String): Xml = parse(str)
 
-		fun parse(@Language("xml") str: String): Xml {
+		fun parse(@Lang("xml") str: String): Xml {
 			try {
 				val stream = XmlStream.parse(str).iterator()
 

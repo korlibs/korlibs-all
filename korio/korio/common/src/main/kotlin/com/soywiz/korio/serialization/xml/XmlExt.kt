@@ -9,6 +9,6 @@ val Iterable<Xml>.allChildren: Iterable<Xml> get() = this.flatMap(Xml::allChildr
 operator fun Iterable<Xml>.get(name: String): Iterable<Xml> = this.children(name)
 fun String.toXml(): Xml = Xml.parse(this)
 
-fun Xml(@Language("xml") str: String): Xml = Xml.parse(str)
+fun Xml(@Lang("xml") str: String): Xml = Xml.parse(str)
 
 suspend fun VfsFile.readXml(): Xml = Xml(this.readString())
