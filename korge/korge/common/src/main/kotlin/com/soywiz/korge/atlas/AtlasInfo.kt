@@ -109,7 +109,7 @@ data class AtlasInfo(
 			}
 		}
 
-		fun loadJsonSpriter(@Language("json") json: String): AtlasInfo {
+		fun loadJsonSpriter(@Lang("json") json: String): AtlasInfo {
 			val info = Json.decodeToType(AtlasInfo::class, json)
 			return info.copy(frames = info.frames.mapValues { it.value.applyRotation() })
 		}

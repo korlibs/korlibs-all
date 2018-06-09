@@ -22,8 +22,6 @@ import kotlin.math.*
 import kotlin.reflect.*
 
 object Korge {
-	val VERSION = KORGE_VERSION
-
 	val logger = Logger("Korge")
 
 	suspend fun setupCanvas(config: Config): SceneContainer {

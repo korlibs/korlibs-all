@@ -51,12 +51,8 @@ registerProject1('korfl', 'Korfl: Parse Adobe Animate SWF files in JVM and JS')
 
 registerProject1('korge', 'Korge: Kotlin cORoutines Game Engine')
 registerProject2('korge-ext-fla', 'korge', 'Korge: Extension for fla files')
-registerProject2('korge-ext-lipsync', 'korge', 'Korge: Extension for lipsync')
-registerProject2('korge-ext-particle', 'korge', 'Korge: Extension for particle system')
 registerProject2('korge-ext-spriter', 'korge', 'Korge: Extension for spriter')
 registerProject2('korge-ext-swf', 'korge', 'Korge: Extension for SWF')
-registerProject2('korge-ext-tiled', 'korge', 'Korge: Extension for tiled maps')
-registerProject2('korge-ext-ui', 'korge', 'Korge: Extension implementing Korui')
 
 registerProject1('kbignum', 'KBigNum: Big Numbers for multiplatform Kotlin')
 registerProject1('krypto', 'Krypto: Pure Kotlin cryptography library for JVM, JS and Common')
