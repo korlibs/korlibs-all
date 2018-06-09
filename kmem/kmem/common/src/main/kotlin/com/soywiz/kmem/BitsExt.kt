@@ -240,6 +240,27 @@ infix fun Int.urem(that: Int) = IntEx.remainderUnsigned(this, that)
 infix fun Long.udiv(that: Long) = LongEx.divideUnsigned(this, that)
 infix fun Long.urem(that: Long) = LongEx.remainderUnsigned(this, that)
 
+infix fun Int.divCeil(that: Int): Int = if (this % that != 0) (this / that) + 1 else (this / that)
+
+infix fun Int.umod(other: Int): Int {
+	val remainder = this % other
+	return when {
+		remainder < 0 -> remainder + other
+		else -> remainder
+	}
+}
+
+infix fun Double.umod(other: Double): Double {
+	val remainder = this % other
+	return when {
+		remainder < 0 -> remainder + other
+		else -> remainder
+	}
+}
+
+// @TODO: Use bit counting instead
+fun ilog2(v: Int): Int = log2(v.toDouble()).toInt()
+
 fun imul32_64(a: Int, b: Int, result: IntArray = IntArray(2)): IntArray {
 	if (a == 0) {
 		result[0] = 0
