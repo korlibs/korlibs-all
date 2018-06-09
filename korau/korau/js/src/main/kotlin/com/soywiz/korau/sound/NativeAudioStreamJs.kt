@@ -4,118 +4,32 @@ import com.soywiz.kds.*
 import com.soywiz.klogger.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.coroutine.*
+import com.soywiz.korio.util.*
 import org.khronos.webgl.*
 import org.w3c.dom.events.*
 import kotlin.browser.*
 import kotlin.coroutines.experimental.*
 
-external class AudioContext {
-	fun createScriptProcessor(
-		bufferSize: Int,
-		numberOfInputChannels: Int,
-		numberOfOutputChannels: Int
-	): ScriptProcessorNode
+actual val nativeSoundProvider: NativeSoundProvider by lazy { HtmlNativeSoundProvider() }
 
-	val destination: AudioDestinationNode
-}
-
-external interface AudioBuffer {
-	val duration: Double
-	val length: Double
-	val numberOfChannels: Int
-	val sampleRate: Int
-	fun copyFromChannel(destination: Float32Array, channelNumber: Int, startInChannel: Double?): Unit
-	fun copyToChannel(source: Float32Array, channelNumber: Int, startInChannel: Double?): Unit
-	fun getChannelData(channel: Int): Float32Array
-}
-
-external interface AudioNode {
-	val channelCount: Int
-	//val channelCountMode: ChannelCountMode
-	//val channelInterpretation: ChannelInterpretation
-	val context: AudioContext
-	val numberOfInputs: Int
-	val numberOfOutputs: Int
-	fun connect(destination: AudioNode, output: Int? = definedExternally, input: Int? = definedExternally): AudioNode
-	//fun connect(destination: AudioParam, output: Int?): Unit
-	fun disconnect(output: Int? = definedExternally): Unit
-
-	fun disconnect(destination: AudioNode, output: Int? = definedExternally, input: Int? = definedExternally): Unit
-	//fun disconnect(destination: AudioParam, output: Int?): Unit
-}
-
-external interface AudioDestinationNode : AudioNode {
-	val maxChannelCount: Int
-}
-
-external class AudioProcessingEvent : Event {
-	val inputBuffer: AudioBuffer
-	val outputBuffer: AudioBuffer
-	val playbackTime: Double
-}
-
-external interface ScriptProcessorNode : AudioNode {
-	var onaudioprocess: (AudioProcessingEvent) -> Unit
-}
-
-actual class NativeAudioStream actual constructor(val freq: Int = 44100) {
+actual class NativeAudioStream actual constructor(val freq: Int) {
 	val id = lastId++
 	val logger = Logger("NativeAudioStream.js.$id")
 
+	init {
+		nativeSoundProvider.initOnce()
+	}
+
 	companion object {
-		val available by lazy {
-			val available = window.asDynamic().AudioContext != undefined
-			if (!available) console.error("AudioContext not available! No sound produced!")
-			available
-		}
-
 		var lastId = 0
-		val context by lazy { if (available) AudioContext() else null }
-
-		fun convertS16ToF32(channels: Int, input: Int16Array, leftVolume: Int, rightVolume: Int): Float32Array {
-			val output = Float32Array(input.length * 2 / channels)
-			val optimized = leftVolume == 1 && rightVolume == 1
-			when (channels) {
-				2 ->
-					if (optimized) {
-						for (n in 0 until output.length) output[n] = (input[n] / 32767.0).toFloat()
-					} else {
-						for (n in 0 until output.length step 2) {
-							output[n + 0] = ((input[n + 0] / 32767.0) * leftVolume).toFloat()
-							output[n + 1] = ((input[n + 1] / 32767.0) * rightVolume).toFloat()
-						}
-					}
-				1 ->
-					if (optimized) {
-						var m = 0
-						for (n in 0 until input.length) {
-							val v = (input[n] / 32767.0).toFloat()
-							output[m++] = v
-							output[m++] = v
-						}
-					} else {
-						var m = 0
-						for (n in 0 until input.length) {
-							val sample = (input[n] / 32767.0).toFloat()
-							output[m++] = sample * leftVolume
-							output[m++] = sample * rightVolume
-						}
-					}
-			}
-			return output
-		}
 	}
 
 	var missingDataCount = 0
 	var nodeRunning = false
-	val node: ScriptProcessorNode? by lazy {
-		val node = context?.createScriptProcessor(1024, 2, 2)
-		node?.onaudioprocess = { process(it) }
-		node
-	}
+	var node: ScriptProcessorNode? = null
 
-	var currentBuffer: PspAudioBuffer? = null
-	val buffers = Queue<PspAudioBuffer>()
+	var currentBuffer: MyNativeAudioBuffer? = null
+	val buffers = Queue<MyNativeAudioBuffer>()
 
 	private fun process(e: AudioProcessingEvent) {
 		val left = e.outputBuffer.getChannelData(0)
@@ -130,11 +44,6 @@ actual class NativeAudioStream actual constructor(val freq: Int = 44100) {
 					hasData = false
 					break
 				}
-
-				//for (m in 0 until min(3, this.buffers.size)) {
-				//	this.buffers[m].resolve()
-				//}
-
 				this.currentBuffer = this.buffers.dequeue()
 			}
 
@@ -142,6 +51,7 @@ actual class NativeAudioStream actual constructor(val freq: Int = 44100) {
 			if (cb.available >= 2) {
 				left[n] = cb.read()
 				right[n] = cb.read()
+				totalShorts -= 2
 			} else {
 				this.currentBuffer = null
 				continue
@@ -164,18 +74,23 @@ actual class NativeAudioStream actual constructor(val freq: Int = 44100) {
 
 	private fun ensureInit() = run { node }
 
-	fun start() {
+	private var startPromise: Cancellable? = null
+
+	actual fun start() {
 		if (nodeRunning) return
-		context?.destination?.let { destination -> this.node?.connect(destination) }
-		logger.error { "this.node.connect" }
+		startPromise = HtmlSimpleSound.callOnUnlocked {
+			node = HtmlSimpleSound.ctx?.createScriptProcessor(1024, 2, 2)
+			node?.onaudioprocess = { process(it) }
+			if (HtmlSimpleSound.ctx != null) this.node?.connect(HtmlSimpleSound.ctx.destination)
+		}
 		missingDataCount = 0
 		nodeRunning = true
 	}
 
-	fun stop() {
+	actual fun stop() {
 		if (!nodeRunning) return
+		startPromise?.cancel()
 		this.node?.disconnect()
-		logger.error { "this.node.disconnect" }
 		nodeRunning = false
 	}
 
@@ -186,27 +101,33 @@ actual class NativeAudioStream actual constructor(val freq: Int = 44100) {
 		}
 	}
 
+	var totalShorts = 0
+	actual val availableSamples get() = totalShorts
+
 	actual suspend fun addSamples(samples: ShortArray, offset: Int, size: Int): Unit {
-		if (!available) {
+		//println("addSamples: $available, $size")
+		//println(samples.sliceArray(offset until offset + size).toList())
+		totalShorts += size
+		if (!HtmlSimpleSound.available) {
 			// Delay simulating consuming samples
 			val sampleCount = (size / 2)
 			val timeSeconds = sampleCount.toDouble() / 41_000.0
-			coroutineContext.eventLoop.sleep((timeSeconds * 1000).toInt())
+			sleepMs((timeSeconds * 1000).toInt())
 		} else {
 			ensureRunning()
 
 			val fsamples = Float32Array(size)
 			for (n in 0 until size) fsamples[n] = (samples[offset + n].toFloat() / Short.MAX_VALUE.toFloat()).toFloat()
-			buffers.enqueue(PspAudioBuffer(fsamples))
+			buffers.enqueue(MyNativeAudioBuffer(fsamples))
 
 			while (buffers.size > 4) {
-				getCoroutineContext().eventLoop.sleepNextFrame()
+				sleepNextFrame()
 			}
 		}
 	}
 }
 
-class PspAudioBuffer(val data: Float32Array, var readedCallback: (() -> Unit)? = null) {
+class MyNativeAudioBuffer(val data: Float32Array, var readedCallback: (() -> Unit)? = null) {
 	var offset: Int = 0
 
 	fun resolve() {
@@ -222,138 +143,3 @@ class PspAudioBuffer(val data: Float32Array, var readedCallback: (() -> Unit)? =
 	val available: Int get() = this.length - this.offset
 	val length: Int get() = this.data.length
 }
-
-/*
-
-
-class Audio2Channel {
-	private buffers: PspAudioBuffer[] = [];
-	private node: ScriptProcessorNode;
-	currentBuffer: PspAudioBuffer;
-
-	static convertS16ToF32(channels: number, input: Int16Array, leftVolume: number, rightVolume: number) {
-		var output = new Float32Array(input.length * 2 / channels);
-		var optimized = leftVolume == 1.0 && rightVolume == 1.0;
-		switch (channels) {
-			case 2:
-				if (optimized) {
-					for (var n = 0; n < output.length; n++) output[n] = input[n] / 32767.0;
-				} else {
-					for (var n = 0; n < output.length; n += 2) {
-						output[n + 0] = (input[n + 0] / 32767.0) * leftVolume;
-						output[n + 1] = (input[n + 1] / 32767.0) * rightVolume;
-					}
-				}
-				break;
-			case 1:
-				if (optimized) {
-					for (var n = 0, m = 0; n < input.length; n++) {
-						output[m++] = output[m++] = (input[n] / 32767.0);
-					}
-				} else {
-					for (var n = 0, m = 0; n < input.length; n++) {
-						var sample = (input[n] / 32767.0);
-						output[m++] = sample * leftVolume;
-						output[m++] = sample * rightVolume;
-					}
-				}
-				break;
-		}
-		return output;
-	}
-
-	constructor(public id: number, public context: AudioContext) {
-		if (this.context) {
-			this.node = this.context.createScriptProcessor(1024, 2, 2);
-			this.node.onaudioprocess = (e) => { this.process(e) };
-		}
-	}
-
-	start() {
-		if (this.node) this.node.connect(this.context.destination);
-	}
-
-	stop() {
-		if (this.node) this.node.disconnect();
-	}
-
-	process(e: AudioProcessingEvent) {
-		var left = e.outputBuffer.getChannelData(0);
-		var right = e.outputBuffer.getChannelData(1);
-		var sampleCount = left.length;
-		var hidden = document.hidden;
-
-		for (var n = 0; n < sampleCount; n++) {
-			if (!this.currentBuffer) {
-				if (this.buffers.length == 0) break;
-
-				for (var m = 0; m < Math.min(3, this.buffers.length); m++) {
-					this.buffers[m].resolve();
-				}
-
-				this.currentBuffer = this.buffers.shift();
-				this.currentBuffer.resolve();
-			}
-
-			if (this.currentBuffer.available >= 2) {
-				left[n] = this.currentBuffer.read();
-				right[n] = this.currentBuffer.read();
-			} else {
-				this.currentBuffer = null;
-				n--;
-			}
-
-			if (hidden) left[n] = right[n] = 0;
-		}
-	}
-
-	playAsync(data: Float32Array): Promise2<any> {
-		if (!this.node) return waitAsync(10).then(() => 0);
-
-		if (this.buffers.length < 8) {
-		//if (this.buffers.length < 16) {
-			//(data.length / 2)
-			this.buffers.push(new PspAudioBuffer(null, data));
-			//return 0;
-			return Promise2.resolve(0);
-		} else {
-			return new Promise2<number>((resolved, rejected) => {
-				this.buffers.push(new PspAudioBuffer(resolved, data));
-				return 0;
-			});
-		}
-	}
-
-	playDataAsync(channels: number, data: Int16Array, leftVolume: number, rightVolume: number): Promise2<any> {
-		//console.log(channels, data);
-		return this.playAsync(Audio2Channel.convertS16ToF32(channels, data, leftVolume, rightVolume));
-	}
-}
-
-export class Html5Audio2 {
-	private channels = new Map<number, Audio2Channel>();
-	private context: AudioContext;
-
-	constructor() {
-		this.context = new AudioContext();
-	}
-
-	getChannel(id: number):Audio2Channel {
-		if (!this.channels.has(id)) this.channels.set(id, new Audio2Channel(id, this.context));
-		return this.channels.get(id);
-	}
-
-	startChannel(id: number) {
-		return this.getChannel(id).start();
-	}
-
-	stopChannel(id: number) {
-		return this.getChannel(id).stop();
-	}
-
-	playDataAsync(id:number, channels:number, data:Int16Array, leftVolume: number, rightVolume: number) {
-		return this.getChannel(id).playDataAsync(channels, data, leftVolume, rightVolume);
-	}
-}
-
- */

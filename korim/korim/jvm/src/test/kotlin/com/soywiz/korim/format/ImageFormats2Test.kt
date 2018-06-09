@@ -3,7 +3,8 @@ package com.soywiz.korim.format
 import com.soywiz.korim.awt.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korio.async.*
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.*
+import com.soywiz.korio.file.std.*
 import kotlin.test.*
 
 class ImageFormats2Test {
@@ -12,7 +13,10 @@ class ImageFormats2Test {
 	lateinit var root: VfsFile
 
 	fun imgTest(callback: suspend () -> Unit) = suspendTest {
-		for (path in listOf(applicationVfs["src/test/resources"], ResourcesVfs)) {
+		for (path in listOf(
+			applicationVfs["src/test/resources"],
+			ResourcesVfs
+		)) {
 			root = path
 			if (root["kotlin8.png"].exists()) break
 		}

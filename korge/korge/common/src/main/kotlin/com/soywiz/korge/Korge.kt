@@ -8,14 +8,13 @@ import com.soywiz.korge.plugin.*
 import com.soywiz.korge.resources.*
 import com.soywiz.korge.scene.*
 import com.soywiz.korge.view.*
-import com.soywiz.korim.*
 import com.soywiz.korim.format.*
 import com.soywiz.korim.vector.*
 import com.soywiz.korinject.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.time.*
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.std.*
 import com.soywiz.korma.geom.*
 import com.soywiz.korui.*
 import com.soywiz.korui.ui.*
@@ -55,7 +54,6 @@ object Korge {
 			defaultKorgePlugins.register(plugin)
 		}
 
-		NativeImageSpecialReader.instance.register()
 		injector.mapInstance(AG::class, ag)
 		if (config.trace) println("Korge.setupCanvas[1b]. EventLoop: ${config.eventLoop}")
 		if (config.trace) println("Korge.setupCanvas[1c]. ag: $ag")
@@ -376,7 +374,7 @@ object Korge {
 						module.iconImage!!.render()
 					}
 					module.icon != null -> {
-						ResourcesVfs[module.icon!!].readBitmap()
+						ResourcesVfs[module.icon!!].readBitmapOptimized()
 					}
 					else -> {
 						null

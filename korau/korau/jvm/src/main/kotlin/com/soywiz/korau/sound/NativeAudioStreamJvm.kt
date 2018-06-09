@@ -9,7 +9,7 @@ import javax.sound.sampled.*
 
 data class SampleBuffer(val timestamp: Long, val data: ShortArray)
 
-actual class NativeAudioStream actual constructor(val freq: Int = 44100) {
+actual class NativeAudioStream actual constructor(val freq: Int) {
 	companion object {
 		var lastId = 0
 		val mixer by lazy { AudioSystem.getMixer(null) }
@@ -23,9 +23,12 @@ actual class NativeAudioStream actual constructor(val freq: Int = 44100) {
 	var totalShorts = 0
 	val buffers = Queue<SampleBuffer>()
 	var thread: Thread? = null
+	var running = true
 
 	val availableBuffers: Int get() = synchronized(buffers) { buffers.size }
 	val line by lazy { mixer.getLine(DataLine.Info(SourceDataLine::class.java, format)) as SourceDataLine }
+
+	actual val availableSamples get() = synchronized(buffers) { totalShorts }
 
 	fun ensureThread() {
 		if (thread == null) {
@@ -36,7 +39,7 @@ actual class NativeAudioStream actual constructor(val freq: Int = 44100) {
 				logger.trace { "OPENED_LINE($id)!" }
 				try {
 					var timesWithoutBuffers = 0
-					while (true) {
+					while (running) {
 						while (availableBuffers > 0) {
 							timesWithoutBuffers = 0
 							val buf = synchronized(buffers) { buffers.dequeue() }
@@ -86,7 +89,7 @@ actual class NativeAudioStream actual constructor(val freq: Int = 44100) {
 		ensureThread()
 
 		while (availableBuffers >= 5) {
-			getCoroutineContext().eventLoop.sleepNextFrame()
+			sleepNextFrame()
 		}
 
 		//val ONE_SECOND = 44100 * 2
@@ -109,4 +112,11 @@ actual class NativeAudioStream actual constructor(val freq: Int = 44100) {
 	//suspend fun CoroutineContext.sleepImmediate2() = suspendCoroutine<Unit> { c ->
 	//	eventLoop.setImmediate { c.resume(Unit) }
 	//}
+	actual fun stop() {
+		running = false
+	}
+
+	actual fun start() {
+
+	}
 }

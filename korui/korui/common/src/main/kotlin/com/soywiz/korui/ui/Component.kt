@@ -7,7 +7,7 @@ import com.soywiz.korag.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.lang.*
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.*
 import com.soywiz.korma.geom.*
 import com.soywiz.korui.*
 import com.soywiz.korui.geom.len.*

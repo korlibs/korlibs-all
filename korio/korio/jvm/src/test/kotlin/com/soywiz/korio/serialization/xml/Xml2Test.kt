@@ -1,7 +1,7 @@
 package com.soywiz.korio.serialization.xml
 
 import com.soywiz.korio.async.*
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.std.*
 import kotlin.test.*
 
 class Xml2Test {

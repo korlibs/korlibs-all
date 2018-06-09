@@ -1,25 +1,16 @@
 package com.soywiz.korau.sound
 
-import com.soywiz.korau.*
 import com.soywiz.korau.format.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korio.vfs.*
 import java.io.*
 import javax.sound.sampled.*
 import javax.sound.sampled.AudioFormat
-import kotlin.coroutines.experimental.*
 
-actual object NativeNativeSoundProvider {
-	actual val instance: NativeSoundProvider by lazy { AwtNativeSoundProvider() }
-}
-
-actual fun registerNativeSoundSpecialReader(): Unit {
-	AwtNativeSoundSpecialReader().register()
-}
+actual val nativeSoundProvider: NativeSoundProvider by lazy { AwtNativeSoundProvider() }
 
 class AwtNativeSoundProvider : NativeSoundProvider() {
-	override suspend fun init(): Unit {
+	override fun init(): Unit {
 		AudioSystem.getMixerInfo()
 
 		val af = AudioFormat(44100f, 16, 2, true, false)
@@ -34,23 +25,24 @@ class AwtNativeSoundProvider : NativeSoundProvider() {
 		line.close()
 	}
 
-	override suspend fun createSound(data: ByteArray): NativeSound {
-		try {
-			return AwtNativeSound(
-				(defaultAudioFormats.decode(data.openAsync()) ?: AudioData(
-					44100,
-					2,
-					shortArrayOf()
-				)).toWav()
+	override suspend fun createSound(data: ByteArray, streaming: Boolean): NativeSound {
+		return try {
+			AwtNativeSound(
+				(defaultAudioFormats.decode(data.openAsync()) ?: AudioData(44100, 2, shortArrayOf())).toWav()
 			).init()
 		} catch (e: Throwable) {
 			e.printStackTrace()
-			return AwtNativeSound(AudioData(44100, 2, shortArrayOf()).toWav()).init()
+			AwtNativeSound(AudioData(44100, 2, shortArrayOf()).toWav()).init()
 		}
 		//return AwtNativeSound(data)
 	}
 
-	suspend override fun play(stream: AudioStream): Unit = suspendCancellableCoroutine { c ->
+	override suspend fun createSound(data: AudioData, formats: AudioFormats, streaming: Boolean): NativeSound {
+		return AwtNativeSound(WAV.encodeToByteArray(data))
+	}
+
+	/*
+	override suspend fun play(stream: BaseAudioStream): Unit = suspendCancellableCoroutine { c ->
 		spawn(c.context) {
 			executeInNewThread {
 				val af = AudioFormat(stream.rate.toFloat(), 16, stream.channels, true, false)
@@ -88,6 +80,7 @@ class AwtNativeSoundProvider : NativeSoundProvider() {
 			}
 		}
 	}
+	*/
 }
 
 class AwtNativeSound(val data: ByteArray) : NativeSound() {
@@ -101,30 +94,38 @@ class AwtNativeSound(val data: ByteArray) : NativeSound() {
 		return this
 	}
 
-	suspend override fun play(): Unit = suspendCancellableCoroutine { c ->
-		Thread {
-			val sound = AudioSystem.getAudioInputStream(ByteArrayInputStream(data))
-			val info = DataLine.Info(Clip::class.java, sound.format)
+	override fun play(): NativeSoundChannel {
+		return object : NativeSoundChannel(this) {
+			val sound2 = AudioSystem.getAudioInputStream(ByteArrayInputStream(data))
+			val info = DataLine.Info(Clip::class.java, sound2.format)
 			val clip = AudioSystem.getLine(info) as Clip
-			clip.open(sound)
+			val len = clip.microsecondLength.toDouble() / 1_000_000.0
+			override val current: Double get() = clip.microsecondPosition.toDouble() / 1_000_000.0
+			override val total: Double get() = len
+			override var playing: Boolean = true
 
-			clip.addLineListener(MyLineListener(clip, c))
-			clip.start()
-			c.onCancel {
+			override fun stop() {
 				clip.stop()
+				playing = false
 			}
-		}.apply {
-			isDaemon = true
-		}.start()
+
+			init {
+				clip.open(sound2)
+				clip.addLineListener(MyLineListener(clip) {
+					stop()
+				})
+				clip.start()
+			}
+		}
 	}
 
-	private class MyLineListener(val clip: Clip, val c: Continuation<Unit>) : LineListener {
+	private class MyLineListener(val clip: Clip, val complete: () -> Unit) : LineListener {
 		override fun update(event: LineEvent) {
 			when (event.type) {
 				LineEvent.Type.STOP, LineEvent.Type.CLOSE -> {
 					event.line.close()
 					clip.removeLineListener(this)
-					c.resume(Unit)
+					complete()
 				}
 			}
 		}

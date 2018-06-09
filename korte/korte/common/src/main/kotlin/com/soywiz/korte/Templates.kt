@@ -2,7 +2,7 @@ package com.soywiz.korte
 
 import com.soywiz.korio.text.AsyncTextWriterContainer
 import com.soywiz.korio.util.AsyncCache
-import com.soywiz.korio.vfs.VfsFile
+import com.soywiz.korio.file.VfsFile
 
 class Templates(
 	val root: VfsFile,

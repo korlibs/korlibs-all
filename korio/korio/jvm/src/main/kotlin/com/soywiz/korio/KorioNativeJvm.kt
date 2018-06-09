@@ -5,7 +5,8 @@ import com.soywiz.korio.coroutine.*
 import com.soywiz.korio.net.*
 import com.soywiz.korio.net.http.*
 import com.soywiz.korio.net.ws.*
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.*
+import com.soywiz.korio.file.std.*
 import java.io.*
 import java.security.*
 import javax.crypto.*

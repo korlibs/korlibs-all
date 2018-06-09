@@ -5,7 +5,7 @@ import com.soywiz.korio.lang.*
 import com.soywiz.korio.serialization.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.text.*
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.std.*
 import kotlin.collections.set
 
 class Template internal constructor(

@@ -1,10 +1,5 @@
 package com.soywiz.korte
 
-import com.soywiz.korio.async.*
-import com.soywiz.korio.serialization.*
-import com.soywiz.korio.vfs.*
-import kotlin.test.*
-
 /*
 class TemplateTest : BaseTest() {
 	data class Person(val name: String, val surname: String)

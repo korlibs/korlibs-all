@@ -99,7 +99,7 @@ data class URI private constructor(
 			access.startsWith("/") -> URI(base).copy(path = access).fullUri
 			else -> URI(base).run {
 				copy(
-					path = "/" + com.soywiz.korio.vfs.VfsUtil.normalize(
+					path = "/" + com.soywiz.korio.file.VfsUtil.normalize(
 						this.path.substringBeforeLast(
 							'/'
 						) + "/" + access

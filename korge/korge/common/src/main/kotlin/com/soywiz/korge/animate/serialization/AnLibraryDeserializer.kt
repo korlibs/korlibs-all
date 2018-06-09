@@ -12,7 +12,7 @@ import com.soywiz.korim.format.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.serialization.json.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 

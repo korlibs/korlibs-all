@@ -38,4 +38,13 @@ object DefaultFunctions {
 	}
 
 	val ALL = listOf(Cycle, Range, Parent)
+
+	private infix fun Int.umod(other: Int): Int {
+		val remainder = this % other
+		return when {
+			remainder < 0 -> remainder + other
+			else -> remainder
+		}
+	}
+
 }

@@ -4,19 +4,16 @@ import com.soywiz.kds.*
 import com.soywiz.korau.sound.*
 import com.soywiz.korge.plugin.*
 import com.soywiz.korge.resources.*
+import com.soywiz.korge.resources.Path
 import com.soywiz.korge.view.*
 import com.soywiz.korinject.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.time.*
 import com.soywiz.korio.util.*
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.*
 
 object SoundPlugin : KorgePlugin() {
-	init {
-		registerNativeSoundSpecialReader()
-	}
-
-	suspend override fun register(views: Views) {
+	override suspend fun register(views: Views) {
 		views.injector
 			.mapFactory(SoundFile::class) {
 				//AnLibrary.Factory(getOrNull(), getOrNull(), get(), get(), get()) // @TODO: Kotlin.js bug
@@ -32,8 +29,8 @@ object SoundPlugin : KorgePlugin() {
 
 @Singleton
 class SoundSystem(val views: Views) : AsyncDependency {
-	suspend override fun init() {
-		nativeSoundProvider.init()
+	override suspend fun init() {
+		//nativeSoundProvider.init()
 	}
 
 	internal val promises = LinkedHashSet<Promise<*>>()

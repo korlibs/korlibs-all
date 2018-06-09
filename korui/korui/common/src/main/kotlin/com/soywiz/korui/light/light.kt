@@ -5,7 +5,7 @@ import com.soywiz.korag.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
 import com.soywiz.korio.lang.*
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.*
 
 expect object NativeLightsComponentsFactory : LightComponentsFactory {
 	override fun create(): LightComponents

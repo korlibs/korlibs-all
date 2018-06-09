@@ -5,7 +5,6 @@ import org.w3c.dom.*
 import kotlin.browser.*
 
 object HtmlCanvas {
-
 	fun createCanvas(width: Int, height: Int): HTMLCanvasElement {
 		if (OS.isNodejs) {
 			return js("new (require('canvas'))(width, height)").unsafeCast<HTMLCanvasElement>()

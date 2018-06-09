@@ -1,7 +1,7 @@
 package com.soywiz.korau.format
 
 import com.soywiz.korio.async.*
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.std.*
 import kotlin.test.*
 
 class OGGDecoderTest {

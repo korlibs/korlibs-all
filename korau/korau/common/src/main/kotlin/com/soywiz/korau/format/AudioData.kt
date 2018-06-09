@@ -3,7 +3,7 @@ package com.soywiz.korau.format
 import com.soywiz.kmem.*
 import com.soywiz.korau.sound.*
 import com.soywiz.korio.error.*
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.*
 import kotlin.math.*
 
 class AudioData(
@@ -19,7 +19,7 @@ class AudioData(
 
 	fun toStream() = object : AudioStream(rate, channels) {
 		var cursor = 0
-		suspend override fun read(out: ShortArray, offset: Int, length: Int): Int {
+		override suspend fun read(out: ShortArray, offset: Int, length: Int): Int {
 			val available = samples.size - cursor
 			val toread = min(available, length)
 			if (toread > 0) arraycopy(samples, cursor, out, offset, toread)

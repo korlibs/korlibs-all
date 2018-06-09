@@ -6,7 +6,7 @@ import com.soywiz.korio.net.*
 import com.soywiz.korio.net.http.*
 import com.soywiz.korio.net.ws.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.*
 import kotlin.math.*
 import kotlin.reflect.*
 
@@ -110,15 +110,15 @@ object KorioNativeDefaults {
 			val onClose = Signal<Unit>()
 			override var actualPort: Int = -1; private set
 
-			suspend override fun websocketHandlerInternal(handler: suspend (WsRequest) -> Unit) {
+			override suspend fun websocketHandlerInternal(handler: suspend (WsRequest) -> Unit) {
 				this.wshandler = handler
 			}
 
-			suspend override fun httpHandlerInternal(handler: suspend (Request) -> Unit) {
+			override suspend fun httpHandlerInternal(handler: suspend (Request) -> Unit) {
 				this.handler = handler
 			}
 
-			suspend override fun listenInternal(port: Int, host: String) {
+			override suspend fun listenInternal(port: Int, host: String) {
 				val socket = KorioNative.asyncSocketFactory.createServer(port, host)
 				actualPort = socket.port
 				tasksInProgress.incrementAndGet()
@@ -157,10 +157,10 @@ object KorioNativeDefaults {
 
 						spawnAndForget {
 							handler(object : HttpServer.Request(Http.Method(method), url, headers) {
-								suspend override fun _handler(handler: (ByteArray) -> Unit) =
+								override suspend fun _handler(handler: (ByteArray) -> Unit) =
 									run { bodyHandler = handler }
 
-								suspend override fun _endHandler(handler: () -> Unit) = run { endHandler = handler }
+								override suspend fun _endHandler(handler: () -> Unit) = run { endHandler = handler }
 
 								override suspend fun _sendHeader(code: Int, message: String, headers: Http.Headers) {
 									val sb = StringBuilder()

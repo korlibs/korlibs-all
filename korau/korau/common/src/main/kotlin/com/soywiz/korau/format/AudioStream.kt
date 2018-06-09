@@ -3,17 +3,22 @@ package com.soywiz.korau.format
 import com.soywiz.kds.*
 import com.soywiz.kmem.*
 import com.soywiz.korau.sound.*
-import com.soywiz.korio.async.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.*
 import kotlin.math.*
 
-open class AudioStream(
-	val rate: Int,
+interface BaseAudioStream {
+	val rate: Int
 	val channels: Int
-) {
-	suspend open fun read(out: ShortArray, offset: Int, length: Int): Int {
+	suspend fun read(out: ShortArray, offset: Int, length: Int): Int
+}
+
+open class AudioStream(
+	override val rate: Int,
+	override val channels: Int
+) : BaseAudioStream {
+	override suspend fun read(out: ShortArray, offset: Int, length: Int): Int {
 		return 0
 	}
 
@@ -36,7 +41,7 @@ open class AudioStream(
 				val available get() = chunk.size - pos
 				val chunks = LinkedList<ShortArray>()
 
-				suspend override fun read(out: ShortArray, offset: Int, length: Int): Int {
+				override suspend fun read(out: ShortArray, offset: Int, length: Int): Int {
 					while (available <= 0) {
 						if (chunks.isEmpty()) chunks += gen() ?: return 0
 						chunk = chunks.removeFirst()
@@ -52,17 +57,14 @@ open class AudioStream(
 	}
 }
 
-suspend fun AudioStream.play() = nativeSoundProvider.play(this)
+suspend fun AudioStream.play(bufferSeconds: Double = 0.1) = nativeSoundProvider.play(this, bufferSeconds)
+suspend fun BaseAudioStream.play(bufferSeconds: Double = 0.1) = nativeSoundProvider.play(this, bufferSeconds)
 
 suspend fun VfsFile.readAudioStream(formats: AudioFormats = defaultAudioFormats) = formats.decodeStream(this.open())
 
 suspend fun VfsFile.writeAudio(data: AudioData, formats: AudioFormats = defaultAudioFormats) =
-	this.openUse2(com.soywiz.korio.vfs.VfsOpenMode.CREATE_OR_TRUNCATE) {
-		formats.encode(
-			data,
-			this,
-			this@writeAudio.basename
-		)
+	this.openUse2(VfsOpenMode.CREATE_OR_TRUNCATE) {
+		formats.encode(data, this, this@writeAudio.basename)
 	}
 
 // @TODO: Problem with Kotlin.JS
@@ -70,5 +72,5 @@ suspend inline fun <T> VfsFile.openUse2(
 	mode: VfsOpenMode = VfsOpenMode.READ,
 	noinline callback: suspend AsyncStream.() -> T
 ): T {
-	return open(mode).use { callback.await(this) }
+	return open(mode).use { callback() }
 }

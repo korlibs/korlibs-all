@@ -26,7 +26,7 @@ object DebugBitmapFont {
 	}
 
 	suspend fun getDEBUG_FONT_BMP(): Bitmap32 {
-		return NativeImageFormatProvider.decode(DEBUG_FONT_BYTES).toBmp32()
+		return nativeImageFormatProvider.decode(DEBUG_FONT_BYTES).toBmp32()
 	}
 
 	val DEBUG_FONT_BYTES by lazy {

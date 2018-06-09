@@ -8,12 +8,12 @@ class LoggerTest {
 	fun simple() {
 		val out = arrayListOf<String>()
 		val logger = Logger("demo")
-		logger.output = object : LogOutput {
-			override fun output(logger: Logger, level: LogLevel, msg: String) {
+		logger.output = object : Logger.Output {
+			override fun output(logger: Logger, level: Logger.Level, msg: Any?) {
 				out += "${logger.name}: $level: $msg"
 			}
 		}
-		logger.level = LogLevel.INFO
+		logger.level = Logger.Level.INFO
 		logger.warn { "mywarn" }
 		logger.info { "myinfo" }
 		logger.trace { "mytrace" }
@@ -23,7 +23,7 @@ class LoggerTest {
 				"demo: INFO: myinfo"
 			), out
 		)
-		logger.level = LogLevel.WARN
+		logger.level = Logger.Level.WARN
 		logger.warn { "mywarn" }
 		logger.info { "myinfo" }
 		logger.trace { "mytrace" }

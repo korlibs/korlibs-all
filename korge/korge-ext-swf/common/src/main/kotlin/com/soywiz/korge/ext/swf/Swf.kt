@@ -11,7 +11,7 @@ import com.soywiz.korim.vector.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.serialization.*
 import com.soywiz.korio.serialization.yaml.*
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.*
 
 data class SWFExportConfig(
 	val debug: Boolean = false,

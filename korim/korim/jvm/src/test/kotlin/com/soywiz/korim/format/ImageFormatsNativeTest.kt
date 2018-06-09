@@ -2,7 +2,7 @@ package com.soywiz.korim.format
 
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korio.async.*
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.std.*
 import com.soywiz.korma.geom.*
 import kotlin.test.*
 

@@ -302,28 +302,36 @@ class ABC {
 			val info = kind ushr 4
 			val hasMetadata = (info and 0x04) != 0
 			val traitKind = kind and 0x0f
+
+			fun handleTraitSlot() = run {
+				val slotIndex = s.readU30()
+				val type = multinames[s.readU30()]
+				val valueIndex = s.readU30()
+				val value = if (valueIndex != 0) {
+					val valueKind = s.readU8()
+					getConstantValue(valueKind, valueIndex)
+				} else {
+					null
+				}
+				TraitSlot(name, slotIndex, type, value)
+			}
+
+			fun handleTraitMethod() = run {
+				val dispIndex = s.readU30()
+				val methodIndex = s.readU30()
+				val isFinal = (info and 0x01) != 0
+				val isOverride = (info and 0x02) != 0
+				TraitMethod(name, dispIndex, methodIndex)
+			}
+
 			val trait: Trait = when (traitKind) {
-				0x00, 0x06 -> { // TraitSlot
-					val slotIndex = s.readU30()
-					val type = multinames[s.readU30()]
-					val valueIndex = s.readU30()
-					val value = if (valueIndex != 0) {
-						val valueKind = s.readU8()
-						getConstantValue(valueKind, valueIndex)
-					} else {
-						null
-					}
-					TraitSlot(name, slotIndex, type, value)
-				}
-				0x01, 0x02, 0x03 -> { // TraitMethod, TraitGetter, TraitSetter
-					val dispIndex = s.readU30()
-					val methodIndex = s.readU30()
-					val isFinal = (info and 0x01) != 0
-					val isOverride = (info and 0x02) != 0
-					TraitMethod(name, dispIndex, methodIndex)
-				}
+				0x00 -> handleTraitSlot()
+				0x01 -> handleTraitMethod()
+				0x02 -> handleTraitMethod()
+				0x03 -> handleTraitMethod()
 				0x04 -> TraitClass(name, s.readU30(), s.readU30())
 				0x05 -> TraitFunction(name, s.readU30(), s.readU30())
+				0x06 -> handleTraitSlot()
 				else -> invalidOp("Unknown trait kind $traitKind")
 			}
 			if (hasMetadata) {

@@ -2,7 +2,7 @@ package com.soywiz.korau
 
 import com.soywiz.korau.format.*
 import com.soywiz.korio.async.*
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.std.*
 import org.junit.*
 
 class KorauTest {

@@ -3,11 +3,12 @@ package com.soywiz.korge.atlas
 import com.soywiz.korge.plugin.*
 import com.soywiz.korge.render.*
 import com.soywiz.korge.resources.*
+import com.soywiz.korge.resources.Path
 import com.soywiz.korge.view.*
 import com.soywiz.korinject.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.serialization.*
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.*
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.hashMapOf

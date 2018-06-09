@@ -129,7 +129,7 @@ object WAV : AudioFormat("wav") {
 			val type = s.readString(4)
 			val size = s.readS32_le()
 			val d = s.readStream(size)
-			handler.await(Chunk(type, d))
+			handler(Chunk(type, d))
 		}
 	}
 }

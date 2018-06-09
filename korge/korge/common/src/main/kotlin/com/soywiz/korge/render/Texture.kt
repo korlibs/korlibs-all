@@ -10,7 +10,7 @@ import com.soywiz.korinject.AsyncFactory
 import com.soywiz.korio.JvmField
 import com.soywiz.korio.lang.Closeable
 import com.soywiz.korio.util.clamp
-import com.soywiz.korio.vfs.VfsFile
+import com.soywiz.korio.file.VfsFile
 import com.soywiz.korma.geom.Rectangle
 import com.soywiz.korma.numeric.isPowerOfTwo
 

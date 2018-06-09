@@ -6,11 +6,12 @@ import com.soywiz.korge.animate.*
 import com.soywiz.korge.audio.*
 import com.soywiz.korge.component.*
 import com.soywiz.korge.resources.*
+import com.soywiz.korge.resources.Path
 import com.soywiz.korge.view.*
 import com.soywiz.korinject.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.util.*
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.*
 
 class LipSync(val lipsync: String) {
 	val timeMs: Int get() = lipsync.length * 16
@@ -42,7 +43,7 @@ class Voice(val views: Views, val voice: NativeSound, val lipsync: LipSync) {
 		val resourcesRoot: ResourcesRoot,
 		val views: Views
 	) : AsyncFactory<Voice> {
-		suspend override fun create(): Voice = resourcesRoot[path].readVoice(views)
+		override suspend fun create(): Voice = resourcesRoot[path].readVoice(views)
 	}
 }
 

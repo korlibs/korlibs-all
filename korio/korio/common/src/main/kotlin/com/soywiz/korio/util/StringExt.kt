@@ -1,5 +1,6 @@
 package com.soywiz.korio.util
 
+import com.soywiz.korio.crypto.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 
@@ -72,6 +73,14 @@ fun String.parseInt(): Int = when {
 
 val String.quoted: String get() = this.quote()
 
-val Int.hex32: String get() = "0x%08X".format(this)
+val Int.hex32: String get() = "0x$shex"
 val Int.hex: String get() = hex32
+val Int.shex: String get() {
+	var out = ""
+	for (n in 0 until 8) {
+		val v = (this ushr ((7 - n) * 4)) and 0xF
+		out += Hex.DIGITS_UPPER[v]
+	}
+	return out
+}
 val ByteArray.hex: String get() = this.hexString

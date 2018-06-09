@@ -174,3 +174,6 @@ val CoroutineContext.eventLoop: EventLoop
 val Continuation<*>.eventLoop: EventLoop get() = this.context.eventLoop
 
 suspend fun CoroutineContext.sleep(ms: Int) = this.eventLoop.sleep(ms)
+
+suspend fun sleepMs(ms: Int): Unit = eventLoop().sleep(ms)
+suspend fun sleepNextFrame(): Unit = eventLoop().sleepNextFrame()

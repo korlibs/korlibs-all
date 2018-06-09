@@ -4,7 +4,7 @@ import com.soywiz.kmem.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.*
 import kotlin.math.*
 
 // https://en.wikipedia.org/wiki/S3_Texture_Compression

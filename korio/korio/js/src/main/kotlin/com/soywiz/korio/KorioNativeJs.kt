@@ -1,7 +1,6 @@
 package com.soywiz.korio
 
 import com.soywiz.kds.*
-import com.soywiz.kmem.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.crypto.*
 import com.soywiz.korio.error.*
@@ -11,7 +10,8 @@ import com.soywiz.korio.net.http.*
 import com.soywiz.korio.net.ws.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.*
+import com.soywiz.korio.file.std.*
 import org.khronos.webgl.*
 import org.khronos.webgl.set
 import org.w3c.dom.*
@@ -272,6 +272,11 @@ fun jsEmptyObj(): dynamic = js("({})")
 fun jsEmptyArray(): dynamic = js("([])")
 fun jsObjectKeys(obj: dynamic): dynamic = js("Object.keys(obj)")
 fun jsToArray(obj: dynamic): Array<Any?> = Array<Any?>(obj.length) { obj[it] }
+fun jsArray(vararg elements: dynamic): Array<dynamic> {
+	val out = jsEmptyArray()
+	for (e in elements) out.push(e)
+	return out
+}
 inline fun <reified T> jsToArrayT(obj: dynamic): Array<T> = Array<T>(obj.length) { obj[it] }
 fun jsObject(vararg pairs: Pair<String, Any?>): dynamic {
 	val out = jsEmptyObj()
@@ -406,139 +411,5 @@ class JsWebSocketClient(url: String, protocols: List<String>?, val DEBUG: Boolea
 		val bb = Int8Array(message.size)
 		for (n in message.indices) bb[n] = message[n]
 		jsws.send(bb)
-	}
-}
-
-data class JsStat(val size: Double, var isDirectory: Boolean = false) {
-	fun toStat(path: String, vfs: Vfs): VfsStat =
-		vfs.createExistsStat(path, isDirectory = isDirectory, size = size.toLong())
-}
-
-class CRC32 {
-	/*
-	 *  The following logic has come from RFC1952.
-     */
-	private var v = 0
-
-	val value: Int get() = v
-
-	fun update(buf: ByteArray, index: Int, len: Int) {
-		var index = index
-		var len = len
-		//int[] crc_table = CRC32.crc_table;
-		var c = v.inv()
-		while (--len >= 0) {
-			c = crc_table!![c xor buf[index++].toInt() and 0xff] xor c.ushr(8)
-		}
-		v = c.inv()
-	}
-
-	fun reset() {
-		v = 0
-	}
-
-	fun reset(vv: Int) {
-		v = vv
-	}
-
-	fun copy(): CRC32 {
-		val foo = CRC32()
-		foo.v = this.v
-		return foo
-	}
-
-	companion object {
-		private var crc_table: IntArray = IntArray(256)
-
-		init {
-			for (n in 0..255) {
-				var c = n
-				var k = 8
-				while (--k >= 0) {
-					if (c and 1 != 0) {
-						c = -0x12477ce0 xor c.ushr(1)
-					} else {
-						c = c.ushr(1)
-					}
-				}
-				crc_table[n] = c
-			}
-		}
-
-		// The following logic has come from zlib.1.2.
-		private val GF2_DIM = 32
-
-		internal fun combine(crc1: Long, crc2: Long, len2: Long): Long {
-			var crc1 = crc1
-			var len2 = len2
-			var row: Long
-			val even = LongArray(GF2_DIM)
-			val odd = LongArray(GF2_DIM)
-
-			// degenerate case (also disallow negative lengths)
-			if (len2 <= 0) return crc1
-
-			// put operator for one zero bit in odd
-			odd[0] = 0xedb88320L          // CRC-32 polynomial
-			row = 1
-			for (n in 1 until GF2_DIM) {
-				odd[n] = row
-				row = row shl 1
-			}
-
-			// put operator for two zero bits in even
-			gf2_matrix_square(even, odd)
-
-			// put operator for four zero bits in odd
-			gf2_matrix_square(odd, even)
-
-			// apply len2 zeros to crc1 (first square will put the operator for one
-			// zero byte, eight zero bits, in even)
-			do {
-				// apply zeros operator for this bit of len2
-				gf2_matrix_square(even, odd)
-				if (len2 and 1 != 0L) crc1 = gf2_matrix_times(even, crc1)
-				len2 = len2 shr 1
-
-				// if no more bits set, then done
-				if (len2 == 0L) break
-
-				// another iteration of the loop with odd and even swapped
-				gf2_matrix_square(odd, even)
-				if (len2 and 1 != 0L) crc1 = gf2_matrix_times(odd, crc1)
-				len2 = len2 shr 1
-
-				// if no more bits set, then done
-			} while (len2 != 0L)
-
-			/* return combined crc */
-			crc1 = crc1 xor crc2
-			return crc1
-		}
-
-		private fun gf2_matrix_times(mat: LongArray, vec: Long): Long {
-			var vec = vec
-			var sum: Long = 0
-			var index = 0
-			while (vec != 0L) {
-				if (vec and 1 != 0L)
-					sum = sum xor mat[index]
-				vec = vec shr 1
-				index++
-			}
-			return sum
-		}
-
-		internal fun gf2_matrix_square(square: LongArray, mat: LongArray) {
-			for (n in 0 until GF2_DIM)
-				square[n] = gf2_matrix_times(mat, mat[n])
-		}
-
-		val crC32Table: IntArray
-			get() {
-				val tmp = IntArray(crc_table.size)
-				arraycopy(crc_table, 0, tmp, 0, tmp.size)
-				return tmp
-			}
 	}
 }

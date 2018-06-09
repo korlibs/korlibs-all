@@ -1,27 +1,19 @@
 package com.soywiz.korim.format
 
 import com.soywiz.korim.bitmap.*
+import com.soywiz.korio.file.*
 
-expect object NativeImageFormatProvider {
-	suspend fun decode(data: ByteArray): NativeImage
-	fun create(width: Int, height: Int): NativeImage
-	fun copy(bmp: Bitmap): NativeImage
-	suspend fun display(bitmap: Bitmap): Unit
-	fun mipmap(bmp: Bitmap, levels: Int): NativeImage
-	fun mipmap(bmp: Bitmap): NativeImage
+abstract class NativeImageFormatProvider {
+	abstract suspend fun decode(data: ByteArray): NativeImage
+	open suspend fun decode(vfs: Vfs, path: String): NativeImage = decode(vfs.file(path).readBytes())
+	suspend fun decode(file: FinalVfsFile): Bitmap = decode(file.vfs, file.path)
+	suspend fun decode(file: VfsFile): Bitmap = decode(file.getUnderlyingUnscapedFile())
+	abstract suspend fun display(bitmap: Bitmap): Unit
 
-	//open suspend fun display(bitmap: Bitmap): Unit {
-	//	println("Not implemented NativeImageFormatProvider.display: $bitmap")
-	//}
-	//open fun mipmap(bmp: Bitmap, levels: Int): NativeImage {
-	//	var out = bmp.ensureNative()
-	//	for (n in 0 until levels) out = mipmap(out)
-	//	return out
-	//}
-//
-	//open fun mipmap(bmp: Bitmap): NativeImage {
-	//	val out = NativeImage(ceil(bmp.width * 0.5).toInt(), ceil(bmp.height * 0.5).toInt())
-	//	out.getContext2d(antialiasing = true).renderer.drawImage(bmp, 0, 0, out.width, out.height)
-	//	return out
-	//}
+	abstract fun create(width: Int, height: Int): NativeImage
+	abstract fun copy(bmp: Bitmap): NativeImage
+	abstract fun mipmap(bmp: Bitmap, levels: Int): NativeImage
+	abstract fun mipmap(bmp: Bitmap): NativeImage
 }
+
+expect val nativeImageFormatProvider: NativeImageFormatProvider

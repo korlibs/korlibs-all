@@ -7,7 +7,8 @@ import com.soywiz.korio.lang.*
 import com.soywiz.korio.net.*
 import com.soywiz.korio.net.http.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.*
+import com.soywiz.korio.file.std.*
 import org.khronos.webgl.*
 import kotlin.coroutines.experimental.*
 import kotlin.coroutines.experimental.CoroutineContext

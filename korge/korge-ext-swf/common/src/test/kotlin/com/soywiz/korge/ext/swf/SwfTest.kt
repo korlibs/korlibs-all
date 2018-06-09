@@ -1,12 +1,5 @@
 package com.soywiz.korge.ext.swf
 
-import com.soywiz.korge.animate.*
-import com.soywiz.korge.animate.serialization.*
-import com.soywiz.korge.view.*
-import com.soywiz.korio.async.*
-import com.soywiz.korio.vfs.*
-import kotlin.test.*
-
 /*
 class SwfTest {
 	val eventLoopTest = EventLoopTest()

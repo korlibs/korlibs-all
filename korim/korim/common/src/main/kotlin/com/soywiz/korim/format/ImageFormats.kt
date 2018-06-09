@@ -4,7 +4,7 @@ import com.soywiz.korim.bitmap.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.*
 
 class ImageFormats : ImageFormat("") {
 	private val formats = linkedSetOf<ImageFormat>()

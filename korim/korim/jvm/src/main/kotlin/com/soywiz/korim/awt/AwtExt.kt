@@ -3,13 +3,13 @@ package com.soywiz.korim.awt
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
 import com.soywiz.korio.async.*
-import com.soywiz.korio.coroutine.*
 import java.awt.*
 import java.awt.event.*
 import java.awt.image.*
 import java.io.*
 import javax.imageio.*
 import javax.swing.*
+import kotlin.coroutines.experimental.*
 
 fun Bitmap32.toAwt(
 	out: BufferedImage = BufferedImage(
@@ -32,7 +32,7 @@ fun Bitmap.toAwt(
 
 suspend fun awtShowImageAndWait(image: Bitmap): Unit = awtShowImageAndWait(image.toBMP32().toAwt())
 
-suspend fun awtShowImageAndWait(image: BufferedImage): Unit = korioSuspendCoroutine { c ->
+suspend fun awtShowImageAndWait(image: BufferedImage): Unit = suspendCoroutine { c ->
 	awtShowImage(image).addWindowListener(object : WindowAdapter() {
 		override fun windowClosing(e: WindowEvent) {
 			c.resume(Unit)
@@ -89,34 +89,8 @@ fun BufferedImage.toBMP32(): Bitmap32 {
 	return Bitmap32(image.width, image.height, ints, premultiplied)
 }
 
-fun ImageIOReadFormat(s: InputStream, type: Int = AWT_INTERNAL_IMAGE_TYPE): BufferedImage {
-	return ImageIO.read(s).clone(type = type)
-	//return ImageIO.createImageInputStream(s).use { i ->
-	//	// Get the reader
-	//	val readers = ImageIO.getImageReaders(i)
-//
-	//	if (!readers.hasNext()) {
-	//		throw IllegalArgumentException("No reader for: " + s) // Or simply return null
-	//	}
-//
-	//	val reader = readers.next()
-//
-	//	try {
-	//		// Set input
-	//		reader.input = i
-//
-	//		// Configure the param to use the destination type you want
-	//		val param = reader.defaultReadParam
-	//		//param.destinationType = ImageTypeSpecifier.createFromBufferedImageType(type)
-//
-	//		// Finally read the image, using settings from param
-	//		reader.read(0, param).clone(type = type)
-	//	} finally {
-	//		// Dispose reader in finally block to avoid memory leaks
-	//		reader.dispose()
-	//	}
-	//}
-}
+fun ImageIOReadFormat(s: InputStream, type: Int = AWT_INTERNAL_IMAGE_TYPE): BufferedImage =
+	ImageIO.read(s).clone(type = type)
 
 fun awtReadImage(data: ByteArray): BufferedImage = ImageIOReadFormat(ByteArrayInputStream(data))
 suspend fun awtReadImageInWorker(data: ByteArray): BufferedImage =

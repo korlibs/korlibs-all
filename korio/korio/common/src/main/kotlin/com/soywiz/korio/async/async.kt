@@ -2,6 +2,8 @@
 
 package com.soywiz.korio.async
 
+import com.soywiz.klogger.*
+import com.soywiz.klogger.Console
 import com.soywiz.korio.*
 import com.soywiz.korio.coroutine.*
 import com.soywiz.korio.error.*
@@ -59,6 +61,19 @@ interface CoroutineContextHolder {
 
 // Aliases for spawn
 fun <T> async(context: CoroutineContext, task: suspend () -> T): Promise<T> = spawn(context, task)
+fun <T> launch(context: CoroutineContext, task: suspend () -> T): Promise<T> = spawn(context, task)
+//fun <T> launch(task: suspend () -> T): Promise<T> = launch(EmptyCoroutineContext, task)
+
+fun launchAndForget(context: CoroutineContext, callback: suspend () -> Unit) {
+	callback.startCoroutine(object : Continuation<Unit> {
+		override val context: CoroutineContext = context
+
+		override fun resume(value: Unit) = Unit
+		override fun resumeWithException(exception: Throwable) {
+			Console.error(exception)
+		}
+	})
+}
 
 fun <T> go(context: CoroutineContext, task: suspend () -> T): Promise<T> = spawn(context, task)
 

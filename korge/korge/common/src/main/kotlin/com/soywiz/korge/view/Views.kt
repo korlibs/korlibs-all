@@ -18,7 +18,7 @@ import com.soywiz.korinject.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.*
 import com.soywiz.korma.geom.*
 import kotlin.reflect.*
 
@@ -284,7 +284,7 @@ fun Views.texture(bmp: Bitmap, mipmaps: Boolean = false): Texture {
 }
 
 suspend fun Views.texture(bmp: ByteArray, mipmaps: Boolean = false): Texture {
-	return texture(NativeImageFormatProvider.decode(bmp), mipmaps)
+	return texture(nativeImageFormatProvider.decode(bmp), mipmaps)
 }
 
 interface ViewsContainer {

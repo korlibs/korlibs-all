@@ -3,7 +3,7 @@ package com.soywiz.korui.light
 import com.soywiz.korag.*
 import com.soywiz.korim.awt.*
 import com.soywiz.korio.lang.Closeable
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.*
 import java.awt.*
 import java.awt.datatransfer.*
 import java.awt.dnd.*

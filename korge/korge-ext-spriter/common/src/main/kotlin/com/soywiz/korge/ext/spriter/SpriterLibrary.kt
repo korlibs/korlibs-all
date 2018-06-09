@@ -4,9 +4,10 @@ import com.soywiz.korge.atlas.*
 import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.*
 import com.soywiz.korge.render.*
 import com.soywiz.korge.resources.*
+import com.soywiz.korge.resources.Path
 import com.soywiz.korge.view.*
 import com.soywiz.korinject.*
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.*
 import kotlin.collections.set
 
 //e: java.lang.UnsupportedOperationException: Class literal annotation arguments are not yet supported: Factory

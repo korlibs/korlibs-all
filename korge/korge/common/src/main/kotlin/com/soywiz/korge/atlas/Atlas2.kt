@@ -4,7 +4,7 @@ import com.soywiz.korge.render.*
 import com.soywiz.korge.view.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.serialization.json.*
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.*
 
 suspend fun VfsFile.readAtlas2(views: Views): Atlas2 {
 	val json = Json.decode(this.readString())

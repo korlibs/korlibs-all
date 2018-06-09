@@ -1,6 +1,7 @@
 package com.soywiz.korio.async
 
 import com.soywiz.kds.*
+import com.soywiz.klogger.*
 import com.soywiz.korio.*
 import com.soywiz.korio.coroutine.*
 import com.soywiz.korio.lang.*
@@ -13,10 +14,10 @@ class Promise<T : Any?> : Cancellable {
 		val onCancel = promise.onCancel
 		fun resolve(value: T): Unit = run { promise.complete(value, null) }
 		fun reject(error: Throwable): Unit = run { promise.complete(null, error) }
-		fun toContinuation(ctx: CoroutineContext): CancellableContinuation<T> {
+		fun toContinuation(coroutineContext: CoroutineContext): CancellableContinuation<T> {
 			val deferred = this
 			val cc = CancellableContinuation(object : Continuation<T> {
-				override val context: CoroutineContext = ctx
+				override val context: CoroutineContext = coroutineContext
 				override fun resume(value: T) = deferred.resolve(value)
 				override fun resumeWithException(exception: Throwable) = deferred.reject(exception)
 			})
@@ -75,7 +76,7 @@ class Promise<T : Any?> : Cancellable {
 
 			if (error != null && synchronized(resolvedHandlers) { this.rejectedHandlers.size == 0 } && error !is com.soywiz.korio.CancellationException) {
 				if (error !is CancellationException) {
-					Console.error("## Not handled Promise exception:")
+					Logger("Promise").error { "## Not handled Promise exception:" }
 					error.printStackTrace()
 				}
 			}
@@ -85,25 +86,27 @@ class Promise<T : Any?> : Cancellable {
 		return this
 	}
 
-	fun then(resolved: (T) -> Unit) {
+	fun then(resolved: (T) -> Unit): Cancellable {
 		synchronized(resolvedHandlers) { resolvedHandlers.enqueue(resolved) }
 		flush()
+		return Cancellable {
+			synchronized(resolvedHandlers) { resolvedHandlers.remove(resolved) }
+		}
 	}
 
-	fun always(resolved: () -> Unit) {
-		then(
-			resolved = { resolved() },
-			rejected = { resolved() }
-		)
-	}
+	fun always(resolved: () -> Unit) = then(resolved = { resolved() }, rejected = { resolved() })
 
-	fun then(resolved: (T) -> Unit, rejected: (Throwable) -> Unit) {
+	fun then(resolved: (T) -> Unit, rejected: (Throwable) -> Unit): Cancellable {
 		synchronized(resolvedHandlers) { resolvedHandlers.enqueue(resolved) }
 		synchronized(rejectedHandlers) { rejectedHandlers.enqueue(rejected) }
 		flush()
+		return Cancellable {
+			synchronized(resolvedHandlers) { resolvedHandlers.remove(resolved) }
+			synchronized(rejectedHandlers) { rejectedHandlers.remove(rejected) }
+		}
 	}
 
-	fun then(c: Continuation<T>) {
+	fun then(c: Continuation<T>): Unit {
 		this.then(
 			resolved = { c.resume(it) },
 			rejected = { c.resumeWithException(it) }
@@ -116,6 +119,19 @@ class Promise<T : Any?> : Cancellable {
 		onCancel(e)
 		complete(null, com.soywiz.korio.CancellationException(""))
 	}
+}
 
-	suspend fun await(): T = korioSuspendCoroutine(this::then)
+@Deprecated("Use suspendCoroutine instead")
+fun <T> Promise(callback: (resolve: (T) -> Unit, reject: (Throwable) -> Unit) -> Unit): Promise<T> {
+	val deferred = Promise.Deferred<T>()
+	callback({ deferred.resolve(it) }, { deferred.reject(it) })
+	return deferred.promise
+}
+
+suspend fun <T> Promise<T>.await(): T = suspendCoroutine(this::then)
+
+suspend fun <T> Iterable<Promise<T>>.await(): List<T> {
+	val out = arrayListOf<T>()
+	for (p in this) out += p.await()
+	return out
 }

@@ -97,7 +97,7 @@ class AwtContext2dRender(val awtImage: BufferedImage, val antialiasing: Boolean 
 			if (winding == VectorPath.Winding.EVEN_ODD) java.awt.geom.GeneralPath.WIND_EVEN_ODD else java.awt.geom.GeneralPath.WIND_NON_ZERO
 		//val winding = java.awt.geom.GeneralPath.WIND_NON_ZERO
 		//val winding = java.awt.geom.GeneralPath.WIND_EVEN_ODD
-		val polylines = arrayListOf<java.awt.geom.Path2D.Double>()
+		val polylines = ArrayList<java.awt.geom.Path2D.Double>()
 		var parts = 0
 		var polyline = java.awt.geom.Path2D.Double(winding)
 		//kotlin.io.println("---")

@@ -2,7 +2,8 @@ package com.soywiz.korge.resources
 
 import com.soywiz.korinject.*
 import com.soywiz.korio.util.*
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.*
+import com.soywiz.korio.file.std.*
 
 @Singleton
 class ResourcesRoot : AsyncDependency {
@@ -34,9 +35,9 @@ class ResourcesRoot : AsyncDependency {
 			val pi = PathInfo(it)
 			val map = mapsLC[pi.extensionLC]
 			if (map != null) {
-				pi.pathWithExtension(map)
+				pi.fullPathWithExtension(map)
 			} else {
-				pi.fullpath
+				pi.fullPath
 			}
 		}
 	}

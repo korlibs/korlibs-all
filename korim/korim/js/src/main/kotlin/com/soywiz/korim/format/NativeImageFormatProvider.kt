@@ -3,14 +3,20 @@ package com.soywiz.korim.format
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
 import com.soywiz.korim.vector.*
-import com.soywiz.korio.coroutine.*
+import com.soywiz.korio.RuntimeException
 import com.soywiz.korio.util.*
+import com.soywiz.korio.file.*
+import com.soywiz.korio.file.std.*
 import com.soywiz.korma.*
 import org.w3c.dom.*
 import org.w3c.dom.url.*
 import org.w3c.files.*
 import kotlin.browser.*
+import kotlin.coroutines.experimental.*
 import kotlin.math.*
+
+
+actual val nativeImageFormatProvider: NativeImageFormatProvider = HtmlNativeImageFormatProvider
 
 class CanvasNativeImage(val canvas: HTMLCanvasElement) :
 	NativeImage(canvas.width.toInt(), canvas.height.toInt(), canvas, false) {
@@ -18,98 +24,118 @@ class CanvasNativeImage(val canvas: HTMLCanvasElement) :
 
 	override fun toNonNativeBmp(): Bitmap {
 		val data = IntArray(width * height)
-		NativeImageFormatProvider.BrowserImage.imgData(canvas, data)
+		BrowserImage.imgData(canvas, data)
 		return Bitmap32(width, height, data)
 	}
 
 	override fun getContext2d(antialiasing: Boolean): Context2d = Context2d(CanvasContext2dRenderer(canvas))
 }
 
-actual object NativeImageFormatProvider {
-	actual suspend fun decode(data: ByteArray): NativeImage {
+object HtmlNativeImageFormatProvider : NativeImageFormatProvider() {
+	override suspend fun decode(data: ByteArray): NativeImage {
 		return CanvasNativeImage(BrowserImage.decodeToCanvas(data))
 	}
 
-	actual fun create(width: Int, height: Int): NativeImage {
+	override suspend fun decode(vfs: Vfs, path: String): NativeImage {
+		//println("HtmlImageSpecialReader.readSpecial: $vfs, $path")
+		val canvas = when (vfs) {
+			is LocalVfs -> {
+				//println("LOCAL: HtmlImageSpecialReader: $vfs, $path")
+				BrowserImage.loadImage(path)
+			}
+			is UrlVfs -> {
+				val jsUrl = vfs.getFullUrl(path)
+				//println("URL: HtmlImageSpecialReader: $vfs, $path : $jsUrl")
+				BrowserImage.loadImage(jsUrl)
+			}
+			else -> {
+				//println("OTHER: HtmlImageSpecialReader: $vfs, $path")
+				BrowserImage.decodeToCanvas(vfs[path].readAll())
+			}
+		}
+		return CanvasNativeImage(canvas)
+	}
+
+	override fun create(width: Int, height: Int): NativeImage {
 		return CanvasNativeImage(HtmlCanvas.createCanvas(width, height))
 	}
 
-	actual fun copy(bmp: Bitmap): NativeImage {
+	override fun copy(bmp: Bitmap): NativeImage {
 		return CanvasNativeImage(HtmlImage.bitmapToHtmlCanvas(bmp.toBMP32()))
 	}
 
-	actual suspend fun display(bitmap: Bitmap) {
+	override suspend fun display(bitmap: Bitmap) {
 		val img = bitmap.toHtmlNative()
 		document.body?.appendChild(img.canvas)
 	}
 
-	actual fun mipmap(bmp: Bitmap, levels: Int): NativeImage {
+	override fun mipmap(bmp: Bitmap, levels: Int): NativeImage {
 		var out = bmp.ensureNative()
 		for (n in 0 until levels) out = mipmap(out)
 		return out
 	}
 
-	actual fun mipmap(bmp: Bitmap): NativeImage {
+	override fun mipmap(bmp: Bitmap): NativeImage {
 		val out = NativeImage(ceil(bmp.width * 0.5).toInt(), ceil(bmp.height * 0.5).toInt())
 		out.getContext2d(antialiasing = true).renderer.drawImage(bmp, 0, 0, out.width, out.height)
 		return out
 	}
+}
 
-	@Suppress("unused")
-	object BrowserImage {
-		suspend fun decodeToCanvas(bytes: ByteArray): HTMLCanvasElement {
-			val blob = Blob(arrayOf(bytes), BlobPropertyBag(type = "image/png"))
-			val blobURL = URL.createObjectURL(blob)
-			try {
-				return loadImage(blobURL)
-			} finally {
-				URL.revokeObjectURL(blobURL)
+@Suppress("unused")
+object BrowserImage {
+	suspend fun decodeToCanvas(bytes: ByteArray): HTMLCanvasElement {
+		val blob = Blob(arrayOf(bytes), BlobPropertyBag(type = "image/png"))
+		val blobURL = URL.createObjectURL(blob)
+		try {
+			return loadImage(blobURL)
+		} finally {
+			URL.revokeObjectURL(blobURL)
+		}
+	}
+
+	suspend fun loadImage(jsUrl: String): HTMLCanvasElement = suspendCoroutine { c ->
+		// Doesn't work with Kotlin.JS
+		//val img = document.createElement("img") as HTMLImageElement
+		//println("[1]")
+		if (OS.isNodejs) {
+			js("(require('canvas'))").loadImage(jsUrl).then({ v ->
+				c.resume(v)
+			}, { v ->
+				c.resumeWithException(v)
+			})
+			Unit
+		} else {
+			//println("[a]")
+			val img = document.createElement("img").unsafeCast<HTMLImageElement>()
+			//println("[b]")
+			img.onload = {
+				//println("[onload.a]")
+				val canvas: HTMLCanvasElement = HtmlCanvas.createCanvas(img.width, img.height)
+				//println("[onload.b]")
+				val ctx: CanvasRenderingContext2D = canvas.getContext("2d").unsafeCast<CanvasRenderingContext2D>()
+				//println("[onload.c]")
+				ctx.drawImage(img, 0.0, 0.0)
+				//println("[onload.d]")
+				c.resume(canvas)
+				//println("[onload.e]")
 			}
-		}
-
-		suspend fun loadImage(jsUrl: String): HTMLCanvasElement = korioSuspendCoroutine { c ->
-			// Doesn't work with Kotlin.JS
-			//val img = document.createElement("img") as HTMLImageElement
-			//println("[1]")
-			if (OS.isNodejs) {
-				js("(require('canvas'))").loadImage(jsUrl).then({ v ->
-					c.resume(v)
-				}, { v ->
-					c.resumeWithException(v)
-				})
-				Unit
-			} else {
-				//println("[a]")
-				val img = document.createElement("img").unsafeCast<HTMLImageElement>()
-				//println("[b]")
-				img.onload = {
-					//println("[onload.a]")
-					val canvas: HTMLCanvasElement = HtmlCanvas.createCanvas(img.width, img.height)
-					//println("[onload.b]")
-					val ctx: CanvasRenderingContext2D = canvas.getContext("2d").unsafeCast<CanvasRenderingContext2D>()
-					//println("[onload.c]")
-					ctx.drawImage(img, 0.0, 0.0)
-					//println("[onload.d]")
-					c.resume(canvas)
-					//println("[onload.e]")
-				}
-				//println("[c]")
-				img.onerror = { _, _, _, _, _ ->
-					//println("[onerror.a]")
-					c.resumeWithException(RuntimeException("error loading image $jsUrl"))
-				}
-				//println("[d]")
-				//println("image: $jsUrl")
-				img.src = jsUrl
-				//document.body?.appendChild(img)
-				//println("[e]")
-				Unit
+			//println("[c]")
+			img.onerror = { _, _, _, _, _ ->
+				//println("[onerror.a]")
+				c.resumeWithException(RuntimeException("error loading image $jsUrl"))
 			}
+			//println("[d]")
+			//println("image: $jsUrl")
+			img.src = jsUrl
+			//document.body?.appendChild(img)
+			//println("[e]")
+			Unit
 		}
+	}
 
-		fun imgData(canvas: HTMLCanvasElement, out: IntArray): Unit {
-			HtmlImage.renderHtmlCanvasIntoBitmap(canvas, out)
-		}
+	fun imgData(canvas: HTMLCanvasElement, out: IntArray): Unit {
+		HtmlImage.renderHtmlCanvasIntoBitmap(canvas, out)
 	}
 }
 

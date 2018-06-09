@@ -5,14 +5,18 @@ import com.soywiz.korim.color.*
 import com.soywiz.korim.format.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.*
+import com.soywiz.korio.file.std.*
 import kotlin.test.*
 
 class TtfFontTest {
 	lateinit var root: VfsFile
 
 	fun ttfTest(callback: suspend () -> Unit) = suspendTest {
-		for (path in listOf(applicationVfs["src/test/resources"], ResourcesVfs)) {
+		for (path in listOf(
+			applicationVfs["src/test/resources"],
+			ResourcesVfs
+		)) {
 			root = path
 			if (root["kotlin8.png"].exists()) break
 		}

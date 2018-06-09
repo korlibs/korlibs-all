@@ -2,17 +2,36 @@ package com.soywiz.korim.format
 
 import com.soywiz.korim.awt.*
 import com.soywiz.korim.bitmap.*
+import com.soywiz.korio.file.*
+import com.soywiz.korio.file.std.*
 import java.awt.image.*
+import java.io.*
 import kotlin.math.*
 
-actual object NativeImageFormatProvider {
-	actual suspend fun decode(data: ByteArray): NativeImage = AwtNativeImage(awtReadImageInWorker(data))
-	actual fun create(width: Int, height: Int): NativeImage =
+actual val nativeImageFormatProvider: NativeImageFormatProvider = AwtNativeImageFormatProvider
+
+object AwtNativeImageFormatProvider : NativeImageFormatProvider() {
+	override suspend fun decode(data: ByteArray): NativeImage = AwtNativeImage(awtReadImageInWorker(data))
+
+	override suspend fun decode(vfs: Vfs, path: String): NativeImage {
+		return when (vfs) {
+			is LocalVfs -> {
+				//println("LOCAL: AwtImageSpecialReader.readSpecial: $vfs, $path")
+				AwtNativeImage(awtReadImageInWorker(File(path)))
+			}
+			else -> {
+				//println("OTHER: AwtImageSpecialReader.readSpecial: $vfs, $path")
+				AwtNativeImage(awtReadImageInWorker(vfs[path].readAll()))
+			}
+		}
+	}
+
+	override fun create(width: Int, height: Int): NativeImage =
 		AwtNativeImage(BufferedImage(Math.max(width, 1), Math.max(height, 1), BufferedImage.TYPE_INT_ARGB_PRE))
 
-	actual fun copy(bmp: Bitmap): NativeImage = AwtNativeImage(bmp.toAwt())
-	actual suspend fun display(bitmap: Bitmap): Unit = awtShowImageAndWait(bitmap)
-	actual fun mipmap(bmp: Bitmap, levels: Int): NativeImage = bmp.toBMP32().mipmap(levels).ensureNative()
+	override fun copy(bmp: Bitmap): NativeImage = AwtNativeImage(bmp.toAwt())
+	override suspend fun display(bitmap: Bitmap): Unit = awtShowImageAndWait(bitmap)
+	override fun mipmap(bmp: Bitmap, levels: Int): NativeImage = bmp.toBMP32().mipmap(levels).ensureNative()
 
 	//actual fun mipmap(bmp: Bitmap, levels: Int): NativeImage {
 	//	var out = bmp.ensureNative()
@@ -20,7 +39,7 @@ actual object NativeImageFormatProvider {
 	//	return out
 	//}
 
-	actual fun mipmap(bmp: Bitmap): NativeImage {
+	override fun mipmap(bmp: Bitmap): NativeImage {
 		val out = NativeImage(ceil(bmp.width * 0.5).toInt(), ceil(bmp.height * 0.5).toInt())
 		out.getContext2d(antialiasing = true).renderer.drawImage(bmp, 0, 0, out.width, out.height)
 		return out

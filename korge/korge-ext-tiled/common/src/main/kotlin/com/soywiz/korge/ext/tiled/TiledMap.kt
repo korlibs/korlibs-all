@@ -3,6 +3,7 @@ package com.soywiz.korge.ext.tiled
 import com.soywiz.kmem.*
 import com.soywiz.korge.render.*
 import com.soywiz.korge.resources.*
+import com.soywiz.korge.resources.Path
 import com.soywiz.korge.view.*
 import com.soywiz.korge.view.tiles.*
 import com.soywiz.korim.bitmap.*
@@ -14,7 +15,7 @@ import com.soywiz.korio.compression.deflate.*
 import com.soywiz.korio.crypto.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.serialization.xml.*
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.*
 import com.soywiz.korma.geom.*
 import kotlin.collections.Iterable
 import kotlin.collections.List
@@ -260,5 +261,5 @@ class TiledMapFactory(
 	val resourcesRoot: ResourcesRoot,
 	val path: Path
 ) : AsyncFactory<TiledMap> {
-	suspend override fun create(): TiledMap = resourcesRoot[path].readTiledMap(views)
+	override suspend fun create(): TiledMap = resourcesRoot[path].readTiledMap(views)
 }

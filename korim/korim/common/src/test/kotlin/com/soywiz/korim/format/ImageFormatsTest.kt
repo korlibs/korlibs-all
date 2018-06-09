@@ -3,7 +3,8 @@ package com.soywiz.korim.format
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.util.*
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.*
+import com.soywiz.korio.file.std.*
 import kotlin.test.*
 
 class ImageFormatsTest {

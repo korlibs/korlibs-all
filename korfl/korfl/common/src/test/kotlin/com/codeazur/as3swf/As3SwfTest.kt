@@ -2,7 +2,7 @@ package com.codeazur.as3swf
 
 import com.codeazur.as3swf.tags.*
 import com.soywiz.korio.async.*
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.std.*
 import org.junit.*
 
 class As3SwfTest {

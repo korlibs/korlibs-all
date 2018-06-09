@@ -1,6 +1,6 @@
 package com.soywiz.korge.ext.spriter.com.brashmonkey.spriter
 
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.*
 
 /**
  * A loader is responsible for loading all resources.

@@ -20,6 +20,8 @@ interface SyncOutputStream : OptionalCloseable {
 fun SyncOutputStream.flush() {
 }
 
+fun SyncOutputStream.write(buffer: ByteArray) = write(buffer, 0, buffer.size)
+
 interface SyncPositionStream {
 	var position: Long
 }
@@ -74,6 +76,10 @@ class SyncStream(val base: SyncStreamBase, override var position: Long = 0L) : E
 		get() = base.length
 
 	val available: Long get() = length - position
+
+	fun flush() {
+		//base.flush()
+	}
 
 	override fun close(): Unit = base.close()
 

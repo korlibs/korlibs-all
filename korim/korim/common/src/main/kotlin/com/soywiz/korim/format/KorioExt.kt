@@ -3,7 +3,7 @@ package com.soywiz.korim.format
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korio.vfs.*
+import com.soywiz.korio.file.*
 
 suspend fun ImageFormat.decode(s: VfsFile, props: ImageDecodingProps = ImageDecodingProps()) =
 	this.read(s.readAsSyncStream(), props.copy(filename = s.basename))
@@ -13,10 +13,8 @@ suspend fun ImageFormat.decode(s: AsyncStream, props: ImageDecodingProps = Image
 	this.read(s.readAll(), props)
 
 val nativeImageFormatProviders: List<NativeImageFormatProvider> by lazy {
-	listOf(NativeImageFormatProvider)
+	listOf(nativeImageFormatProvider)
 }
-
-val nativeImageFormatProvider: NativeImageFormatProvider = NativeImageFormatProvider
 
 suspend fun displayImage(bmp: Bitmap) = nativeImageFormatProvider.display(bmp)
 
@@ -82,12 +80,11 @@ suspend fun VfsFile.readBitmapInfo(formats: ImageFormats = defaultImageFormats):
 	formats.decodeHeader(this.readAsSyncStream())
 
 suspend fun VfsFile.readBitmapOptimized(): Bitmap {
-	try {
-		//return this.readSpecial<NativeImage>() // @TODO: Kotlin.JS BUG!
-		return this.readSpecial(NativeImage::class)
+	return try {
+		nativeImageFormatProvider.decode(this)
 	} catch (t: Throwable) {
 		t.printStackTrace()
-		return this.readBitmap()
+		this.readBitmap()
 	}
 }
 
