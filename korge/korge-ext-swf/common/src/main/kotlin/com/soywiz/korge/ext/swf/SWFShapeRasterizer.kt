@@ -1,9 +1,6 @@
 package com.soywiz.korge.ext.swf
 
 import com.codeazur.as3swf.*
-import com.codeazur.as3swf.data.*
-import com.codeazur.as3swf.data.consts.*
-import com.codeazur.as3swf.exporters.*
 import com.soywiz.kds.*
 import com.soywiz.kmem.*
 import com.soywiz.korim.bitmap.*

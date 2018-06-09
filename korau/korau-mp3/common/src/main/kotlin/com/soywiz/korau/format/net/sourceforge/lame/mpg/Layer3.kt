@@ -29,6 +29,7 @@
  */
 package com.soywiz.korau.format.net.sourceforge.lame.mpg
 
+import com.soywiz.klogger.*
 import com.soywiz.kmem.*
 import com.soywiz.korau.format.net.sourceforge.lame.mpg.Interface.*
 import com.soywiz.korau.format.net.sourceforge.lame.mpg.MPG123.III_sideinfo

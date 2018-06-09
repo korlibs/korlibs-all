@@ -69,6 +69,12 @@ data class RectangleInt(val position: PositionInt, val size: SizeInt) : IRectang
 	override fun toString(): String = "IRectangle(x=$x, y=$y, width=$width, height=$height)"
 }
 
+val IRectangle.int get() = RectangleInt(x, y, width, height)
+val IRectangleInt.double get() = Rectangle(x, y, width, height)
+
+fun IRectangleInt.anchor(ax: Double, ay: Double) = IPointInt(x + width * ax, y + height * ay)
+val IRectangleInt.center get() = anchor(0.5, 0.5)
+
 inline fun RectangleInt(x: Number, y: Number, width: Number, height: Number) =
 	RectangleInt(x.toInt(), y.toInt(), width.toInt(), height.toInt())
 

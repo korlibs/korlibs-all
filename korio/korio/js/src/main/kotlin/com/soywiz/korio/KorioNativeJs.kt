@@ -12,6 +12,7 @@ import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.file.std.*
+import com.soywiz.korio.serialization.querystring.*
 import org.khronos.webgl.*
 import org.khronos.webgl.set
 import org.w3c.dom.*
@@ -25,6 +26,14 @@ actual annotation class JvmField
 actual annotation class JvmStatic
 actual annotation class JvmOverloads
 actual annotation class Transient
+
+/*
+actual annotation class Language actual constructor(
+	actual val value: String,
+	actual val prefix: String = "",
+	actual val suffix: String = ""
+)
+*/
 
 actual open class IOException actual constructor(msg: String) : Exception(msg)
 actual open class EOFException actual constructor(msg: String) : IOException(msg)
@@ -46,6 +55,19 @@ actual class Semaphore actual constructor(initial: Int) {
 }
 
 val isNodeJs by lazy { jsTypeOf(window) === "undefined" }
+
+object HtmlDelay : Delay {
+	override suspend fun delay(ms: Int) = suspendCancellableCoroutine<Unit> { c ->
+		val timeout = window.setTimeout({
+			c.resume(Unit)
+		}, ms)
+		c.onCancel {
+			window.clearTimeout(timeout)
+		}
+	}
+}
+
+actual val nativeDelay: Delay = HtmlDelay
 
 actual object KorioNative {
 	actual val currentThreadId: Long = 1L
@@ -105,8 +127,8 @@ actual object KorioNative {
 
 	actual val asyncSocketFactory: AsyncSocketFactory by lazy {
 		object : AsyncSocketFactory() {
-			suspend override fun createClient(): AsyncClient = NodeJsAsyncClient()
-			suspend override fun createServer(port: Int, host: String, backlog: Int): AsyncServer =
+			override suspend fun createClient(): AsyncClient = NodeJsAsyncClient()
+			override suspend fun createServer(port: Int, host: String, backlog: Int): AsyncServer =
 				NodeJsAsyncServer().init(port, host, backlog)
 		}
 	}
@@ -114,6 +136,8 @@ actual object KorioNative {
 	actual val websockets: WebSocketClientFactory by lazy { JsWebSocketClientFactory() }
 
 	actual val eventLoopFactoryDefaultImpl: EventLoopFactory = EventLoopFactoryJs()
+
+	actual val systemLanguageStrings = window.navigator.languages.toList()
 
 	actual suspend fun <T> executeInNewThread(callback: suspend () -> T): T {
 		return callback()
@@ -180,14 +204,6 @@ actual object KorioNative {
 		//e.printStackTrace()
 	}
 
-	actual fun log(msg: Any?): Unit {
-		console.log(msg)
-	}
-
-	actual fun error(msg: Any?): Unit {
-		console.error(msg)
-	}
-
 	actual fun syncTest(block: suspend EventLoopTest.() -> Unit): Unit {
 		global.testPromise = kotlin.js.Promise<Unit> { resolve, reject ->
 			val el = EventLoopTest()
@@ -211,9 +227,19 @@ actual object KorioNative {
 			step()
 		}
 	}
+
+	actual fun getenv(key: String): String? {
+		if (OS.isNodejs) {
+			return process.env[key]
+		} else {
+			val qs = QueryString.decode((document.location?.search ?: "").trimStart('?'))
+			val envs = qs.map { it.key.toUpperCase() to (it.value.firstOrNull() ?: it.key) }.toMap()
+			return envs[key.toUpperCase()]
+		}
+	}
 }
 
-external private class Date(time: Double)
+private external class Date(time: Double)
 
 
 private class EventLoopFactoryJs : EventLoopFactory() {
@@ -277,6 +303,7 @@ fun jsArray(vararg elements: dynamic): Array<dynamic> {
 	for (e in elements) out.push(e)
 	return out
 }
+
 inline fun <reified T> jsToArrayT(obj: dynamic): Array<T> = Array<T>(obj.length) { obj[it] }
 fun jsObject(vararg pairs: Pair<String, Any?>): dynamic {
 	val out = jsEmptyObj()
@@ -412,4 +439,9 @@ class JsWebSocketClient(url: String, protocols: List<String>?, val DEBUG: Boolea
 		for (n in message.indices) bb[n] = message[n]
 		jsws.send(bb)
 	}
+}
+
+data class JsStat(val size: Double, var isDirectory: Boolean = false) {
+	fun toStat(path: String, vfs: Vfs): VfsStat =
+		vfs.createExistsStat(path, isDirectory = isDirectory, size = size.toLong())
 }

@@ -1,5 +1,6 @@
 package com.soywiz.korag
 
+import com.soywiz.klogger.*
 import com.soywiz.kmem.*
 import com.soywiz.korag.shader.*
 import com.soywiz.korag.shader.gl.*
@@ -41,6 +42,10 @@ fun jsObject(vararg pairs: Pair<String, Any?>): dynamic {
 }
 
 class AGWebgl : AG(), AGContainer {
+	companion object {
+		val log = Logger("AGWebgl")
+	}
+
 	override val ag: AG = this
 	override val agInput: AGInput = AGInput()
 
@@ -74,7 +79,6 @@ class AGWebgl : AG(), AGContainer {
 		}, false);
 
 		val event = AGInput.KeyEvent()
-
 
 		window.addEventListener("keydown", { e ->
 			event.keyCode = e.unsafeCast<KeyboardEvent>().keyCode
@@ -158,9 +162,9 @@ class AGWebgl : AG(), AGContainer {
 			val success: dynamic = gl.getShaderParameter(shader, GL.COMPILE_STATUS)
 			if (!success) {
 				val error = gl.getShaderInfoLog(shader)
-				Console.error("$shader")
-				Console.error(source)
-				Console.error("Could not compile WebGL shader: " + error)
+				log.error { "$shader" }
+				log.error { source }
+				log.error { "Could not compile WebGL shader: " + error }
 				throw RuntimeException(error)
 			}
 			return shader
@@ -173,13 +177,12 @@ class AGWebgl : AG(), AGContainer {
 				fragment = createShader(GL.FRAGMENT_SHADER, p.fragment.toGlSlString())
 				gl.attachShader(program, vertex)
 				gl.attachShader(program, fragment)
-
 				gl.linkProgram(program)
 
 				val linkStatus: dynamic = gl.getProgramParameter(program, GL.LINK_STATUS)
 				if (!linkStatus) {
 					val info = gl.getProgramInfoLog(program)
-					Console.error("Could not compile WebGL program: " + info)
+					log.error { "Could not compile WebGL program: $info" }
 				}
 			}
 		}
@@ -228,8 +231,8 @@ class AGWebgl : AG(), AGContainer {
 					val type = GL.RGBA
 					//println("Uploading native image!")
 
-					gl.pixelStorei(GL.UNPACK_PREMULTIPLY_ALPHA_WEBGL, if (premultiplied) 1 else 0)
-					gl.texImage2D(GL.TEXTURE_2D, 0, type, type, GL.UNSIGNED_BYTE, bmp.canvas)
+					checkErrors { gl.pixelStorei(GL.UNPACK_PREMULTIPLY_ALPHA_WEBGL, if (premultiplied) 1 else 0) }
+					checkErrors { gl.texImage2D(GL.TEXTURE_2D, 0, type, type, GL.UNSIGNED_BYTE, bmp.canvas) }
 					//gl.pixelStorei(GL.UNPACK_COLORSPACE_CONVERSION_WEBGL, 0)
 				}
 				is Bitmap32, is Bitmap8 -> {
@@ -241,9 +244,9 @@ class AGWebgl : AG(), AGContainer {
 						(bmp as? Bitmap32)?.data ?: ((bmp as? Bitmap8)?.data ?: ByteArray(width * height * Bpp))
 					val rdata = Uint8Array(data.buffer, 0, width * height * Bpp)
 					val type = if (rgba) GL.RGBA else GL.LUMINANCE
-					gl.pixelStorei(GL.UNPACK_PREMULTIPLY_ALPHA_WEBGL, if (premultiplied xor bmp.premult) 1 else 0)
+					checkErrors { gl.pixelStorei(GL.UNPACK_PREMULTIPLY_ALPHA_WEBGL, if (premultiplied xor bmp.premult) 1 else 0) }
 					//gl.pixelStorei(GL.UNPACK_COLORSPACE_CONVERSION_WEBGL, 0)
-					gl.texImage2D(GL.TEXTURE_2D, 0, type, width, height, 0, type, GL.UNSIGNED_BYTE, rdata)
+					checkErrors { gl.texImage2D(GL.TEXTURE_2D, 0, type, width, height, 0, type, GL.UNSIGNED_BYTE, rdata) }
 				}
 			}
 
@@ -253,17 +256,30 @@ class AGWebgl : AG(), AGContainer {
 				bind()
 				setFilter(true)
 				setWrapST()
-				gl.generateMipmap(GL.TEXTURE_2D)
+				checkErrors { gl.generateMipmap(GL.TEXTURE_2D) }
 				this.mipmaps = true
 			}
 		}
 
-		override fun bind(): Unit = run { gl.bindTexture(GL.TEXTURE_2D, tex) }
-		override fun unbind(): Unit = run { gl.bindTexture(GL.TEXTURE_2D, null) }
+		val rtex get() = if (!closed && tex !== undefined) tex else null
 
-		override fun close(): Unit = run { gl.deleteTexture(tex) }
+		override fun bind(): Unit = run {
+			checkErrors { gl.bindTexture(GL.TEXTURE_2D, rtex) }
+		}
+		override fun unbind(): Unit = run { checkErrors { gl.bindTexture(GL.TEXTURE_2D, null) } }
+
+		private var closed = false
+		override fun close(): Unit = run {
+			super.close()
+			if (!closed) {
+				closed = true
+				checkErrors { gl.deleteTexture(tex) }
+			}
+		}
 
 		fun setFilter(linear: Boolean) {
+			if (rtex == null) return
+
 			val minFilter = if (this.mipmaps) {
 				if (linear) GL.LINEAR_MIPMAP_NEAREST else GL.NEAREST_MIPMAP_NEAREST
 			} else {
@@ -276,13 +292,15 @@ class AGWebgl : AG(), AGContainer {
 		}
 
 		private fun setWrapST() {
-			gl.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE)
-			gl.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE)
+			if (rtex == null) return
+			checkErrors { gl.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE) }
+			checkErrors { gl.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE) }
 		}
 
 		private fun setMinMag(min: Int, mag: Int) {
-			gl.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, min)
-			gl.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, mag)
+			if (rtex == null) return
+			checkErrors { gl.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, min) }
+			checkErrors { gl.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, mag) }
 		}
 	}
 
@@ -313,7 +331,7 @@ class AGWebgl : AG(), AGContainer {
 				buffer = gl.createBuffer()
 			}
 
-			gl.bindBuffer(this.target, this.buffer)
+			checkErrors { gl.bindBuffer(this.target, this.buffer) }
 
 			if (dirty) {
 				val mem2: FastMemory = mem!!
@@ -322,13 +340,13 @@ class AGWebgl : AG(), AGContainer {
 				val typedArray = Int8Array((buffer as Int8Buffer).buffer, memOffset, memLength)
 				//console.methods["log"](target)
 				//console.methods["log"](typedArray)
-				gl.bufferData(this.target, typedArray, GL.STATIC_DRAW)
+				checkErrors { gl.bufferData(this.target, typedArray, GL.STATIC_DRAW) }
 			}
 		}
 
 		override fun close() {
 			if (buffer != null) {
-				gl.deleteBuffer(buffer)
+				checkErrors { gl.deleteBuffer(buffer) }
 			}
 			buffer = null
 		}
@@ -431,7 +449,7 @@ class AGWebgl : AG(), AGContainer {
 		val glProgram = getProgram(program)
 		(vertices as WebglBuffer).bind()
 		(aindices as WebglBuffer).bind()
-		glProgram.bind()
+		checkErrors { glProgram.bind() }
 
 		val totalSize = vertexLayout.totalSize
 		for (n in vertexLayout.attributePositions.indices) {
@@ -442,8 +460,8 @@ class AGWebgl : AG(), AGContainer {
 				val glElementType = att.type.webglElementType
 				val elementCount = att.type.elementCount
 				if (loc >= 0) {
-					gl.enableVertexAttribArray(loc)
-					gl.vertexAttribPointer(loc, elementCount, glElementType, att.normalized, totalSize, off)
+					checkErrors { gl.enableVertexAttribArray(loc) }
+					checkErrors { gl.vertexAttribPointer(loc, elementCount, glElementType, att.normalized, totalSize, off) }
 				}
 			}
 		}
@@ -453,18 +471,18 @@ class AGWebgl : AG(), AGContainer {
 			when (uniform.type) {
 				VarType.TextureUnit -> {
 					val unit = value as TextureUnit
-					gl.activeTexture(GL.TEXTURE0 + textureUnit)
+					checkErrors { gl.activeTexture(GL.TEXTURE0 + textureUnit) }
 					val tex = (unit.texture as WebglTexture?)
 					tex?.bindEnsuring()
 					tex?.setFilter(unit.linear)
-					gl.uniform1i(location, textureUnit)
+					checkErrors { gl.uniform1i(location, textureUnit) }
 					textureUnit++
 				}
 				VarType.Mat4 -> {
-					glUniformMatrix4fv(location, false, (value as Matrix4).data)
+					checkErrors { glUniformMatrix4fv(location, false, (value as Matrix4).data) }
 				}
 				VarType.Float1 -> {
-					gl.uniform1f(location, (value as Number).toFloat())
+					checkErrors { gl.uniform1f(location, (value as Number).toFloat()) }
 				}
 				VarType.Float2 -> {
 					val fa = value as FloatArray
@@ -483,23 +501,23 @@ class AGWebgl : AG(), AGContainer {
 		}
 
 		if (blending.disabled) {
-			gl.disable(GL.BLEND)
+			checkErrors { gl.disable(GL.BLEND) }
 		} else {
-			gl.enable(GL.BLEND)
-			gl.blendEquationSeparate(blending.eqRGB.toGl(), blending.eqA.toGl())
-			gl.blendFuncSeparate(
+			checkErrors { gl.enable(GL.BLEND) }
+			checkErrors { gl.blendEquationSeparate(blending.eqRGB.toGl(), blending.eqA.toGl()) }
+			checkErrors { gl.blendFuncSeparate(
 				blending.srcRGB.toGl(),
 				blending.dstRGB.toGl(),
 				blending.srcA.toGl(),
 				blending.dstA.toGl()
-			)
+			) }
 		}
 
-		gl.depthMask(renderState.depthMask)
+		checkErrors { gl.depthMask(renderState.depthMask) }
 
-		gl.depthRange(renderState.depthNear, renderState.depthFar)
+		checkErrors { gl.depthRange(renderState.depthNear, renderState.depthFar) }
 
-		gl.lineWidth(renderState.lineWidth)
+		checkErrors { gl.lineWidth(renderState.lineWidth) }
 
 		if (renderState.depthFunc != CompareMode.ALWAYS) {
 			checkErrors { gl.enable(GL.DEPTH_TEST) }
@@ -508,7 +526,7 @@ class AGWebgl : AG(), AGContainer {
 			checkErrors { gl.disable(GL.DEPTH_TEST) }
 		}
 
-		gl.colorMask(colorMask.red, colorMask.green, colorMask.blue, colorMask.alpha)
+		checkErrors { gl.colorMask(colorMask.red, colorMask.green, colorMask.blue, colorMask.alpha) }
 
 		if (stencil.enabled) {
 			gl.enable(GL.STENCIL_TEST)
@@ -597,21 +615,23 @@ class AGWebgl : AG(), AGContainer {
 
 	override fun createRenderBuffer(): RenderBuffer = WebglRenderBuffer()
 
-	inline fun <T> checkErrors(callback: () -> T): T {
-		val res = callback()
-		if (checkErrors) {
-			val error =
-				gl.getError() // @TODO: Kotlin.JS bug? Generates WebGLRenderingContext$Companion!! Just for this because of the inline.
-			//if (error != GL.NO_ERROR) {
-			if (error != 0) {
-				Console.error("OpenGL error: $error")
-				//System.err.println(Throwable().stackTrace)
-				Throwable().printStackTrace()
-				//throw RuntimeException("OpenGL error: $error")
-			}
-		}
-		return res
-	}
+	inline fun <T> checkErrors(callback: () -> T): T = callback()
+
+	//inline fun <T> checkErrors(callback: () -> T): T {
+	//	val res = callback()
+	//	if (checkErrors) {
+	//		val error =
+	//			gl.getError() // @TODO: Kotlin.JS bug? Generates WebGLRenderingContext$Companion!! Just for this because of the inline.
+	//		//if (error != GL.NO_ERROR) {
+	//		if (error != 0) {
+	//			Console.error("OpenGL error: $error")
+	//			//System.err.println(Throwable().stackTrace)
+	//			Throwable().printStackTrace()
+	//			//throw RuntimeException("OpenGL error: $error")
+	//		}
+	//	}
+	//	return res
+	//}
 
 	override fun readColor(bitmap: Bitmap32) {
 		gl.readPixels(

@@ -76,4 +76,3 @@ suspend fun <T> Map<T, BitmapWithScale>.toAtlas(
 	}
 	return this.mapValues { bitmapsToTextures[it.value]!! }
 }
-

@@ -370,7 +370,7 @@ abstract class AGAwtBase : AG() {
 			VarKind.FLOAT -> GL.GL_FLOAT
 		}
 
-	private val programs = hashMapOf<Program, AwtProgram>()
+	private val programs = HashMap<Program, AwtProgram>()
 	fun getProgram(program: Program): AwtProgram = programs.getOrPut(program) { AwtProgram(gl, program) }
 
 	inner class AwtProgram(val gl: GL2, val program: Program) : Closeable {
@@ -620,7 +620,14 @@ abstract class AGAwtBase : AG() {
 		override fun bind(): Unit = checkErrors { gl.glBindTexture(GL2.GL_TEXTURE_2D, tex) }
 		override fun unbind(): Unit = checkErrors { gl.glBindTexture(GL2.GL_TEXTURE_2D, 0) }
 
-		override fun close(): Unit = checkErrors { gl.glDeleteTextures(1, texIds, 0) }
+		private var closed = false
+		override fun close(): Unit = checkErrors {
+			super.close()
+			if (!closed) {
+				closed = true
+				gl.glDeleteTextures(1, texIds, 0)
+			}
+		}
 
 		fun setFilter(linear: Boolean) {
 			val minFilter = if (this.mipmaps) {

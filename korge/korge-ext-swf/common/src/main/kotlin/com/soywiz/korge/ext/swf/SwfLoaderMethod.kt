@@ -1,13 +1,9 @@
 package com.soywiz.korge.ext.swf
 
 import com.codeazur.as3swf.*
-import com.codeazur.as3swf.data.actions.*
-import com.codeazur.as3swf.data.consts.*
-import com.codeazur.as3swf.exporters.*
-import com.codeazur.as3swf.tags.*
 import com.soywiz.kds.*
 import com.soywiz.kmem.*
-import com.soywiz.korfl.abc.*
+import com.soywiz.korfl.*
 import com.soywiz.korge.animate.*
 import com.soywiz.korge.render.*
 import com.soywiz.korge.view.*
@@ -23,32 +19,9 @@ import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashSet
-import kotlin.collections.Iterable
-import kotlin.collections.LinkedHashMap
-import kotlin.collections.LinkedHashSet
-import kotlin.collections.Map
-import kotlin.collections.arrayListOf
 import kotlin.collections.component1
 import kotlin.collections.component2
-import kotlin.collections.contains
-import kotlin.collections.filter
-import kotlin.collections.filterIsInstance
-import kotlin.collections.first
-import kotlin.collections.get
-import kotlin.collections.getOrPut
-import kotlin.collections.hashMapOf
-import kotlin.collections.hashSetOf
-import kotlin.collections.iterator
-import kotlin.collections.last
-import kotlin.collections.map
-import kotlin.collections.plusAssign
 import kotlin.collections.set
-import kotlin.collections.setOf
-import kotlin.collections.sorted
-import kotlin.collections.toIntArray
-import kotlin.collections.toMap
 import kotlin.math.*
 
 data class MinMaxDouble(
@@ -816,22 +789,22 @@ class SwfLoaderMethod(val views: Views, val config: SWFExportConfig) {
 						//allMatrices += m
 					}
 					if (it.hasBlendMode) depth.blendMode = when (it.blendMode) {
-						SwfBlendMode.NORMAL_0 -> BlendMode.NORMAL
-						SwfBlendMode.NORMAL_1 -> BlendMode.NORMAL
-						SwfBlendMode.LAYER -> BlendMode.INHERIT
-						SwfBlendMode.MULTIPLY -> BlendMode.MULTIPLY
-						SwfBlendMode.SCREEN -> BlendMode.SCREEN
-						SwfBlendMode.LIGHTEN -> BlendMode.LIGHTEN
-						SwfBlendMode.DARKEN -> BlendMode.DARKEN
-						SwfBlendMode.DIFFERENCE -> BlendMode.DIFFERENCE
-						SwfBlendMode.ADD -> BlendMode.ADD
-						SwfBlendMode.SUBTRACT -> BlendMode.SUBTRACT
-						SwfBlendMode.INVERT -> BlendMode.INVERT
-						SwfBlendMode.ALPHA -> BlendMode.ALPHA
-						SwfBlendMode.ERASE -> BlendMode.ERASE
-					//SwfBlendMode.OVERLAY ->  BlendMode.OVERLAY
-						SwfBlendMode.OVERLAY -> BlendMode.INHERIT
-						SwfBlendMode.HARDLIGHT -> BlendMode.HARDLIGHT
+						com.codeazur.as3swf.BlendMode.NORMAL_0 -> BlendMode.NORMAL
+						com.codeazur.as3swf.BlendMode.NORMAL_1 -> BlendMode.NORMAL
+						com.codeazur.as3swf.BlendMode.LAYER -> BlendMode.INHERIT
+						com.codeazur.as3swf.BlendMode.MULTIPLY -> BlendMode.MULTIPLY
+						com.codeazur.as3swf.BlendMode.SCREEN -> BlendMode.SCREEN
+						com.codeazur.as3swf.BlendMode.LIGHTEN -> BlendMode.LIGHTEN
+						com.codeazur.as3swf.BlendMode.DARKEN -> BlendMode.DARKEN
+						com.codeazur.as3swf.BlendMode.DIFFERENCE -> BlendMode.DIFFERENCE
+						com.codeazur.as3swf.BlendMode.ADD -> BlendMode.ADD
+						com.codeazur.as3swf.BlendMode.SUBTRACT -> BlendMode.SUBTRACT
+						com.codeazur.as3swf.BlendMode.INVERT -> BlendMode.INVERT
+						com.codeazur.as3swf.BlendMode.ALPHA -> BlendMode.ALPHA
+						com.codeazur.as3swf.BlendMode.ERASE -> BlendMode.ERASE
+					//com.codeazur.as3swf.BlendMode.OVERLAY ->  BlendMode.OVERLAY
+						com.codeazur.as3swf.BlendMode.OVERLAY -> BlendMode.INHERIT
+						com.codeazur.as3swf.BlendMode.HARDLIGHT -> BlendMode.HARDLIGHT
 						else -> BlendMode.INHERIT
 					}
 					val uid = getUid(depthId)
@@ -889,4 +862,3 @@ class SwfLoaderMethod(val views: Views, val config: SWFExportConfig) {
 	}
 }
 
-private typealias SwfBlendMode = com.codeazur.as3swf.data.consts.BlendMode

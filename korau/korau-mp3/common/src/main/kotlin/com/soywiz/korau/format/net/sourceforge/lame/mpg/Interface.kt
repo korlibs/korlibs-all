@@ -26,6 +26,7 @@
  */
 package com.soywiz.korau.format.net.sourceforge.lame.mpg
 
+import com.soywiz.klogger.*
 import com.soywiz.kmem.*
 import com.soywiz.korau.format.net.sourceforge.lame.mp3.*
 import com.soywiz.korau.format.net.sourceforge.lame.mpg.MPGLib.*

@@ -154,12 +154,18 @@ abstract class EventLoop(val captureCloseables: Boolean) : Closeable {
 
 	suspend fun sleep(ms: Int): Unit = suspendCancellableCoroutine { c ->
 		val cc = setTimeout(ms) { c.resume(Unit) }
-		c.onCancel { cc.close() }
+		c.onCancel {
+			cc.close()
+			c.resumeWithException(it)
+		}
 	}
 
 	suspend fun sleepNextFrame(): Unit = suspendCancellableCoroutine { c ->
 		val cc = requestAnimationFrame { c.resume(Unit) }
-		c.onCancel { cc.close() }
+		c.onCancel {
+			cc.close()
+			c.resumeWithException(it)
+		}
 	}
 }
 

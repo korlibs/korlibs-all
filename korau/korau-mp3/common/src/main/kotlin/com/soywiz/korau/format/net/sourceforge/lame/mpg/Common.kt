@@ -29,10 +29,17 @@
  */
 package com.soywiz.korau.format.net.sourceforge.lame.mpg
 
-import com.soywiz.kmem.arraycopy
-import com.soywiz.kmem.toUnsigned
+import com.soywiz.klogger.*
+import com.soywiz.kmem.*
 import com.soywiz.korio.JvmField
-import com.soywiz.korio.lang.Console
+import kotlin.Array
+import kotlin.Boolean
+import kotlin.FloatArray
+import kotlin.Int
+import kotlin.Long
+import kotlin.RuntimeException
+import kotlin.arrayOf
+import kotlin.intArrayOf
 
 class Common {
 	companion object {

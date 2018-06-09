@@ -9,16 +9,18 @@ import com.soywiz.korio.file.*
 import com.soywiz.korio.file.std.*
 import java.io.*
 import java.security.*
+import java.util.*
 import javax.crypto.*
 import javax.crypto.spec.*
 import kotlin.reflect.*
-
 
 actual typealias Synchronized = kotlin.jvm.Synchronized
 actual typealias JvmField = kotlin.jvm.JvmField
 actual typealias JvmStatic = kotlin.jvm.JvmStatic
 actual typealias JvmOverloads = kotlin.jvm.JvmOverloads
 actual typealias Transient = kotlin.jvm.Transient
+
+//actual typealias Language = org.intellij.lang.annotations.Language
 
 actual typealias IOException = java.io.IOException
 actual typealias EOFException = java.io.EOFException
@@ -36,6 +38,14 @@ actual class Semaphore actual constructor(initial: Int) {
 	actual fun release() = jsema.release()
 }
 
+object JvmDelay : Delay {
+	override suspend fun delay(ms: Int) {
+		tryEventLoop?.sleep(ms) ?: Thread.sleep(ms.toLong())
+	}
+}
+
+actual val nativeDelay: Delay = JvmDelay
+
 actual object KorioNative {
 	actual val currentThreadId: Long get() = Thread.currentThread().id
 
@@ -51,6 +61,8 @@ actual object KorioNative {
 		actual fun get(): T = jthreadLocal.get()
 		actual fun set(value: T) = jthreadLocal.set(value)
 	}
+
+	actual val systemLanguageStrings get() = listOf(Locale.getDefault().getISO3Language())
 
 	suspend private fun <T> _executeInside(task: suspend () -> T, executionScope: (body: () -> Unit) -> Unit): T {
 		val deferred = Promise.Deferred<T>()
@@ -157,10 +169,12 @@ actual object KorioNative {
 
 	actual fun enterDebugger() = Unit
 	actual fun printStackTrace(e: Throwable) = e.printStackTrace()
-	actual fun log(msg: Any?): Unit = java.lang.System.out.println(msg)
-	actual fun error(msg: Any?): Unit = java.lang.System.err.println(msg)
 
 	actual fun syncTest(block: suspend EventLoopTest.() -> Unit): Unit {
 		sync(el = EventLoopTest(), step = 10, block = block)
+	}
+
+	actual fun getenv(key: String): String? {
+		return System.getenv(key)
 	}
 }

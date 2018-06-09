@@ -33,9 +33,6 @@ object Math {
 	@Deprecated("", ReplaceWith("kotlin.math.hypot(a, b)", "kotlin"))
 	fun len(a: Double, b: Double) = kotlin.math.hypot(a, b)
 
-	@Deprecated("", ReplaceWith("Float.fromBits(value)"))
-	fun reinterpretIntFloat(value: Int): Float = Float.fromBits(value)
-
 	fun interpolate(min: Int, max: Int, ratio: Double): Int = min + ((max - min) * ratio).toInt()
 	fun interpolate(min: Long, max: Long, ratio: Double) = min + ((max - min) * ratio).toLong()
 
@@ -122,8 +119,8 @@ object Math {
 
 	fun log2(v: Int): Int = log(v.toDouble(), base = 2.0).toInt()
 
-	fun distanceXY(x1: Double, y1: Double, x2: Double, y2: Double): Double = hypot(x1 - x2, y1 - y2);
-	fun distancePoint(a: Vector2, b: Vector2): Double = distanceXY(a.x, a.y, b.x, b.y);
+	fun distanceXY(x1: Double, y1: Double, x2: Double, y2: Double): Double = hypot(x1 - x2, y1 - y2)
+	fun distancePoint(a: Vector2, b: Vector2): Double = distanceXY(a.x, a.y, b.x, b.y)
 
 	@Deprecated("", ReplaceWith("kotlin.math.abs(v)", "kotlin"))
 	fun abs(v: Int): Int = kotlin.math.abs(v)
@@ -142,12 +139,15 @@ object Math {
 	}
 
 	fun rintDouble(value: Double): Double {
-		val twoToThe52 = 2.0.pow(52); // 2^52
-		val sign = kotlin.math.sign(value); // preserve sign info
-		var rvalue = kotlin.math.abs(value);
-		if (rvalue < twoToThe52) rvalue = ((twoToThe52 + rvalue) - twoToThe52);
-		return sign * rvalue; // restore original sign
+		val twoToThe52 = 2.0.pow(52) // 2^52
+		val sign = kotlin.math.sign(value) // preserve sign info
+		var rvalue = kotlin.math.abs(value)
+		if (rvalue < twoToThe52) rvalue = ((twoToThe52 + rvalue) - twoToThe52)
+		return sign * rvalue // restore original sign
 	}
+
+	private fun Float.isAlmostZero(): Boolean = kotlin.math.abs(this) <= 1e-19
+	private fun Float.isNanOrInfinite() = this.isNaN() || this.isInfinite()
 
 	fun rint(value: Float): Int {
 		if (value.isNanOrInfinite()) return handleCastInfinite(value)
@@ -161,11 +161,7 @@ object Math {
 
 	fun trunc(value: Float): Int {
 		if (value.isNanOrInfinite()) return handleCastInfinite(value)
-		if (value < 0) {
-			return kotlin.math.ceil(value).toInt()
-		} else {
-			return kotlin.math.floor(value).toInt()
-		}
+		return if (value < 0) kotlin.math.ceil(value).toInt() else kotlin.math.floor(value).toInt()
 	}
 
 	fun round(value: Float): Int {
@@ -184,5 +180,25 @@ object Math {
 	}
 }
 
+object Math2 {
+	fun round(value: Float): Float = kotlin.math.round(value)
+	fun floor(value: Float): Float = kotlin.math.floor(value)
+	fun ceil(value: Float): Float = kotlin.math.ceil(value)
+	fun round(value: Double): Double = kotlin.math.round(value)
+	fun floor(value: Double): Double = kotlin.math.floor(value)
+	fun ceil(value: Double): Double = kotlin.math.ceil(value)
+
+	fun abs(a: Double) = if (a >= 0.0) a else -a
+	fun abs(a: Int) = if (a >= 0) a else -a
+	fun min(a: Double, b: Double) = if (a < b) a else b
+	fun max(a: Double, b: Double) = if (a > b) a else b
+	fun min(a: Int, b: Int) = if (a < b) a else b
+	fun max(a: Int, b: Int) = if (a > b) a else b
+
+	fun pow(a: Double, b: Double) = a.pow(b)
+
+}
+
 inline fun pow(a: Number, b: Number) = a.toDouble().pow(b.toDouble())
 fun log(a: Double): Double = log(a, E)
+

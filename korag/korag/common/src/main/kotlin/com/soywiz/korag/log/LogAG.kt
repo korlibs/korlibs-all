@@ -50,7 +50,10 @@ open class LogAG(
 			log("$this.uploadedBitmap($source, ${source.width}, ${source.height})")
 		}
 
-		override fun close() = log("$this.close()")
+		override fun close() {
+			super.close()
+			log("$this.close()")
+		}
 		override fun toString(): String = "Texture[$id]"
 	}
 

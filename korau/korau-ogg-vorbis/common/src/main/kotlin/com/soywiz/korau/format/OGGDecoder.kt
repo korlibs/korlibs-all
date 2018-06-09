@@ -19,7 +19,7 @@ object OGGDecoder : OggBase() {
 		var channels: Int = 0
 	)
 
-	suspend private fun stream(outInfo: OutInfo, data: AsyncStream) = asyncGenerate<ShortArray> {
+	private suspend fun stream(outInfo: OutInfo, data: AsyncStream) = asyncGenerate<ShortArray> {
 		val oy = SyncState()
 		val os = StreamState()
 		val og = Page()
@@ -182,7 +182,7 @@ object OGGDecoder : OggBase() {
 		vi.clear()
 	}
 
-	suspend override fun decodeStream(data: AsyncStream): AudioStream? {
+	override suspend fun decodeStream(data: AsyncStream): AudioStream? {
 		val info = OutInfo()
 		val ss = stream(info, data.buffered())
 		val ssi = ss.iterator()

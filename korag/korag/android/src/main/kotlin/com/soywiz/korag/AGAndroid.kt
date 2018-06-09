@@ -387,7 +387,14 @@ class AGAndroid : AG() {
 		override fun bind(): Unit = run { gl.glBindTexture(GL.GL_TEXTURE_2D, tex) }
 		override fun unbind(): Unit = run { gl.glBindTexture(GL.GL_TEXTURE_2D, 0) }
 
-		override fun close(): Unit = run { gl.glDeleteTextures(1, texIds, 0) }
+		var closed = false
+		override fun close(): Unit = run {
+			super.close()
+			if (!closed) {
+				closed = true
+				gl.glDeleteTextures(1, texIds, 0)
+			}
+		}
 
 		fun setFilter(linear: Boolean) {
 			val minFilter = if (this.mipmaps) {

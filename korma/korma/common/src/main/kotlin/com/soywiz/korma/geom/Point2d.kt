@@ -5,6 +5,9 @@ import com.soywiz.korma.*
 typealias IPoint2d = IVector2
 typealias Point2d = Vector2
 
+typealias IPoint = IVector2
+typealias Point = Vector2
+
 // @TODO: Check if this avoid boxing!
 inline fun Point2d(x: Number, y: Number) = Point2d(x.toDouble(), y.toDouble())
 

@@ -1,6 +1,7 @@
 package com.soywiz.korge.audio
 
 import com.soywiz.kds.*
+import com.soywiz.korau.format.*
 import com.soywiz.korau.sound.*
 import com.soywiz.korge.plugin.*
 import com.soywiz.korge.resources.*
@@ -30,7 +31,7 @@ object SoundPlugin : KorgePlugin() {
 @Singleton
 class SoundSystem(val views: Views) : AsyncDependency {
 	override suspend fun init() {
-		//nativeSoundProvider.init()
+		nativeSoundProvider.initOnce()
 	}
 
 	internal val promises = LinkedHashSet<Promise<*>>()
@@ -40,41 +41,50 @@ class SoundSystem(val views: Views) : AsyncDependency {
 
 	fun createChannel(): SoundChannel = SoundChannel(this)
 
+	fun createSoundChannel(): SoundChannel = SoundChannel(this)
+	fun createMusicChannel(): MusicChannel = MusicChannel(this)
+
 	fun close() {
 		for (promise in promises) promise.cancel()
 		promises.clear()
 	}
 }
 
+interface AudioChannel {
+	val soundSystem: SoundSystem
+	fun stop(): Unit
+}
+
 @Prototype
-class SoundChannel(val soundSystem: SoundSystem) {
+open class SoundChannel(override val soundSystem: SoundSystem) : AudioChannel {
 	var enabled: Boolean = true
 
 	var playing: Boolean = false; private set
-	val position: Int
-		get() {
-			return if (playing) {
-				(TimeProvider.now() - startedTime).toInt()
-			} else {
-				0
-			}
-		}
-	var length: Int = 0; private set
-	val remaining: Int get() = (length - position).clamp(0, Int.MAX_VALUE)
+	var position: Double = 0.0; private set
+	var length: Double = 0.0; private set
+	val remaining: Double get() = (length - position)
+	var volume = 1.0
 
 	private var startedTime: Long = 0L
 	private var promise: Promise<*>? = null
 
-	fun play(sound: NativeSound): SoundChannel {
+	fun play(
+		sound: NativeSound,
+		progress: (current: Double, total: Double) -> Unit = { current, total -> }
+	): SoundChannel {
 		if (enabled) {
 			stop()
 
 			startedTime = TimeProvider.now()
-			length = sound.lengthInMs.toInt()
+			length = sound.lengthInSeconds
 			playing = true
 
 			promise = go(soundSystem.views.coroutineContext) {
-				sound.play()
+				sound.playAndWait { current, total ->
+					this@SoundChannel.position = current
+					this@SoundChannel.length = total
+					progress(current, total)
+				}
 				_end()
 			}
 
@@ -83,21 +93,45 @@ class SoundChannel(val soundSystem: SoundSystem) {
 		return this
 	}
 
-	fun stop() {
+
+	fun play(stream: BaseAudioStream, bufferSeconds: Double = 0.1) {
+		stop()
+
+		val astream = object : BaseAudioStream by stream {
+			override suspend fun read(out: ShortArray, offset: Int, length: Int): Int {
+				val read = stream.read(out, offset, length)
+				for (n in offset until offset + read) {
+					out[n] = (out[n] * volume).clamp(Short.MIN_VALUE.toDouble(), Short.MAX_VALUE.toDouble()).toShort()
+				}
+				return read
+			}
+		}
+
+		promise = go(soundSystem.views.coroutineContext) {
+			astream.play(bufferSeconds)
+		}
+	}
+
+	override fun stop() {
 		_end()
 		promise?.cancel()
+		promise = null
 	}
 
 	private fun _end() {
 		if (promise != null) soundSystem.promises -= promise!!
-		length = 0
+		position = 0.0
+		length = 0.0
 		playing = false
 	}
-
 
 	suspend fun await() {
 		promise?.await()
 	}
+}
+
+@Prototype
+class MusicChannel(override val soundSystem: SoundSystem) : SoundChannel(soundSystem) {
 }
 
 //e: java.lang.UnsupportedOperationException: Class literal annotation arguments are not yet supported: Factory
@@ -114,7 +148,7 @@ class SoundFile(
 		val resourcesRoot: ResourcesRoot,
 		val soundSystem: SoundSystem
 	) : AsyncFactory<SoundFile> {
-		suspend override fun create(): SoundFile {
+		override suspend fun create(): SoundFile {
 			val rpath = path?.path ?: vpath?.path ?: ""
 			return SoundFile(resourcesRoot[rpath].readNativeSoundOptimized(), soundSystem)
 		}

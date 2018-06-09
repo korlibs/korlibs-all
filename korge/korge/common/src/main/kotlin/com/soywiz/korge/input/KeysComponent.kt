@@ -5,11 +5,22 @@ import com.soywiz.korge.component.*
 import com.soywiz.korge.event.*
 import com.soywiz.korge.view.*
 import com.soywiz.korio.async.*
+import com.soywiz.korio.lang.*
 
 class KeysComponent(view: View) : Component(view) {
 	val onKeyDown = AsyncSignal<KeyDownEvent>()
 	val onKeyUp = AsyncSignal<KeyUpEvent>()
 	val onKeyTyped = AsyncSignal<KeyTypedEvent>()
+
+	fun down(keyCode: Int, callback: (keyCode: Int) -> Unit): Closeable =
+		onKeyDown { e -> if (e.keyCode == keyCode) callback(keyCode) }
+
+	fun up(keyCode: Int, callback: (keyCode: Int) -> Unit): Closeable =
+		onKeyUp { e -> if (e.keyCode == keyCode) callback(keyCode) }
+
+	fun typed(keyCode: Int, callback: (keyCode: Int) -> Unit): Closeable =
+		onKeyTyped { e -> if (e.keyCode == keyCode) callback(keyCode) }
+
 
 	init {
 		this.detatchCancellables += view.addEventListener<KeyDownEvent> { go { onKeyDown(it) } }

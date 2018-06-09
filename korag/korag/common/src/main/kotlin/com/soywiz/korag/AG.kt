@@ -226,6 +226,16 @@ abstract class AG : Extra by Extra.Mixin() {
 		private var generated: Boolean = false
 		private var tempBitmap: Bitmap? = null
 		var ready: Boolean = false; private set
+		val texId = lastId++
+		init {
+			createdCount++
+		}
+
+		companion object {
+			var lastId = 0
+			var createdCount = 0
+			var deletedCount = 0
+		}
 
 		protected fun invalidate() {
 			uploaded = false
@@ -249,7 +259,7 @@ abstract class AG : Extra by Extra.Mixin() {
 			this.requestMipmaps = mipmaps
 		}
 
-		open protected fun uploadedSource() {
+		protected open fun uploadedSource() {
 		}
 
 		open fun bind() {
@@ -298,7 +308,25 @@ abstract class AG : Extra by Extra.Mixin() {
 
 		enum class Kind { RGBA, LUMINANCE }
 
+		init {
+			//Console.log("CREATED TEXTURE: $texId")
+			//printTexStats()
+		}
+
+		private var alreadyClosed = false
 		override fun close() {
+			if (!alreadyClosed) {
+				alreadyClosed = true
+				source = SyncBitmapSource.NULL
+				tempBitmap = null
+				deletedCount++
+				//Console.log("CLOSED TEXTURE: $texId")
+				//printTexStats()
+			}
+		}
+
+		private fun printTexStats() {
+			//Console.log("create=$createdCount, delete=$deletedCount, alive=${createdCount - deletedCount}")
 		}
 	}
 

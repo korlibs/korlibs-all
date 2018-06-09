@@ -33,7 +33,10 @@ registerProject1('klogger', 'Klogger: Consistent and portable logger library for
 registerProject1('korinject', 'Korinject: Portable Kotlin Common library to do asynchronous dependency injection')
 registerProject1('korio', 'Korio: Kotlin cORoutines I/O : Streams + Async TCP Client/Server + Virtual File System for JVM, Node.JS and Browser')
 registerProject1('korma', 'Korma: Math Utilities for Kotlin Common')
+
 registerProject1('korim', 'Kotlin cORoutines IMaging utilities for Kotlin Common')
+registerProject2('korim-qr', 'korim', 'Korim: QR generation extension')
+
 registerProject1('korte', 'Korte: Asynchronous Template Engine for Kotlin')
 
 registerProject1('korau', 'Korau: Kotlin cORoutines AUdio')

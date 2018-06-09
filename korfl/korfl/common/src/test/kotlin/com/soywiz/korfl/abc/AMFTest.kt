@@ -1,7 +1,7 @@
 package com.soywiz.korfl.abc
 
 import com.soywiz.kds.*
-import com.soywiz.korfl.amf.*
+import com.soywiz.korfl.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
 import kotlin.test.*

@@ -1,27 +1,17 @@
 package com.codeazur.as3swf
 
-import com.codeazur.as3swf.data.*
-import com.codeazur.as3swf.data.actions.*
-import com.codeazur.as3swf.data.consts.*
-import com.codeazur.as3swf.data.filters.*
-import com.codeazur.as3swf.factories.*
-import com.codeazur.as3swf.tags.*
-import com.codeazur.as3swf.timeline.*
-import com.codeazur.as3swf.utils.*
 import com.soywiz.kds.*
+import com.soywiz.kmem.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.contains
-import kotlin.collections.hashMapOf
 import kotlin.collections.set
 import kotlin.math.*
 
 @Suppress("unused")
 open class SWF : SWFTimelineContainer(), Extra by Extra.Mixin() {
-	protected var bytes: SWFData = SWFData()
+	private var bytes: SWFData = SWFData()
 
 	var signature: String? = null
 	var version = 0
@@ -121,16 +111,14 @@ open class SWF : SWFTimelineContainer(), Extra by Extra.Mixin() {
 				indent2 + "Header:\n" +
 				indent4 + "Version: " + version + "\n" +
 				indent4 + "Compression: "
-		if (compressed) {
-			if (compressionMethod == COMPRESSION_METHOD_ZLIB) {
-				s += "ZLIB"
-			} else if (compressionMethod == COMPRESSION_METHOD_LZMA) {
-				s += "LZMA"
-			} else {
-				s += "Unknown"
+		s += if (compressed) {
+			when (compressionMethod) {
+				COMPRESSION_METHOD_ZLIB -> "ZLIB"
+				COMPRESSION_METHOD_LZMA -> "LZMA"
+				else -> "Unknown"
 			}
 		} else {
-			s += "None"
+			"None"
 		}
 		return s + "\n" + indent4 + "FileLength: " + fileLength + "\n" +
 				indent4 + "FileLengthCompressed: " + fileLengthCompressed + "\n" +
@@ -153,12 +141,12 @@ class SWFData : BitArray() {
 			for (i in 0 until length) {
 				var b: String = ba.readUnsignedByte().toString(16)
 				if (b.length == 1) {
-					b = "0" + b
+					b = "0$b"
 				}
 				if (i % 16 == 0) {
 					var addr: String = (pos + i).toString(16)
 					addr = "00000000".substr(0, 8 - addr.length) + addr
-					str += "\r" + addr + ": "
+					str += "\r$addr: "
 				}
 				b += " "
 				str += b
@@ -469,46 +457,48 @@ class SWFData : BitArray() {
 
 	suspend fun swfUncompress(compressionMethod: String, uncompressedLength: Int = 0) {
 		val pos = position
-		val ba: FlashByteArray = FlashByteArray()
+		val ba = FlashByteArray()
 
-		if (compressionMethod == SWF.COMPRESSION_METHOD_ZLIB) {
-			readBytes(ba)
-			ba.position = 0
-			ba.uncompressInWorker()
-		} else if (compressionMethod == SWF.COMPRESSION_METHOD_LZMA) {
+		when (compressionMethod) {
+			SWF.COMPRESSION_METHOD_ZLIB -> {
+				readBytes(ba)
+				ba.position = 0
+				ba.uncompressInWorker()
+			}
+			SWF.COMPRESSION_METHOD_LZMA -> {
 
-			// LZMA compressed SWF:
-			//   0000 5A 57 53 0F   (ZWS, Version 15)
-			//   0004 DF 52 00 00   (Uncompressed size: 21215)
-			//   0008 94 3B 00 00   (Compressed size: 15252)
-			//   000C 5D 00 00 00 01   (LZMA Properties)
-			//   0011 00 3B FF FC A6 14 16 5A ...   (15252 bytes of LZMA Compressed Data, until EOF)
-			// 7z LZMA format:
-			//   0000 5D 00 00 00 01   (LZMA Properties)
-			//   0005 D7 52 00 00 00 00 00 00   (Uncompressed size: 21207, 64 bit)
-			//   000D 00 3B FF FC A6 14 16 5A ...   (15252 bytes of LZMA Compressed Data, until EOF)
-			// (see also https://github.com/claus/as3swf/pull/23#issuecomment-7203861)
+				// LZMA compressed SWF:
+				//   0000 5A 57 53 0F   (ZWS, Version 15)
+				//   0004 DF 52 00 00   (Uncompressed size: 21215)
+				//   0008 94 3B 00 00   (Compressed size: 15252)
+				//   000C 5D 00 00 00 01   (LZMA Properties)
+				//   0011 00 3B FF FC A6 14 16 5A ...   (15252 bytes of LZMA Compressed Data, until EOF)
+				// 7z LZMA format:
+				//   0000 5D 00 00 00 01   (LZMA Properties)
+				//   0005 D7 52 00 00 00 00 00 00   (Uncompressed size: 21207, 64 bit)
+				//   000D 00 3B FF FC A6 14 16 5A ...   (15252 bytes of LZMA Compressed Data, until EOF)
+				// (see also https://github.com/claus/as3swf/pull/23#issuecomment-7203861)
 
-			// Write LZMA properties
-			for (i in 0 until 5) ba.writeByte(this[i + 12])
+				// Write LZMA properties
+				for (i in 0 until 5) ba.writeByte(this[i + 12])
 
-			// Write uncompressed length (64 bit)
-			ba.endian = Endian.LITTLE_ENDIAN
-			ba.writeUnsignedInt(uncompressedLength - 8)
-			ba.writeUnsignedInt(0)
+				// Write uncompressed length (64 bit)
+				ba.endian = Endian.LITTLE_ENDIAN
+				ba.writeUnsignedInt(uncompressedLength - 8)
+				ba.writeUnsignedInt(0)
 
-			// Write compressed data
-			position = 17
+				// Write compressed data
+				position = 17
 
-			ba.position = 13
-			ba.writeBytes(this.readBytes(this.bytesAvailable))
-			ba.position = 13
+				ba.position = 13
+				ba.writeBytes(this.readBytes(this.bytesAvailable))
+				ba.position = 13
 
-			// Uncompress
-			ba.position = 0
-			ba.uncompressInWorker(compressionMethod)
-		} else {
-			throw Error("Unknown compression method: " + compressionMethod)
+				// Uncompress
+				ba.position = 0
+				ba.uncompressInWorker(compressionMethod)
+			}
+			else -> error("Unknown compression method: $compressionMethod")
 		}
 
 		length = pos
@@ -539,9 +529,9 @@ open class SWFTimelineContainer {
 	var scenes = ArrayList<Scene>()
 	var frames = ArrayList<Frame>()
 	var layers = ArrayList<Layer>()
-	var soundStream: com.codeazur.as3swf.timeline.SoundStream? = null
+	var soundStream: SoundStream? = null
 
-	lateinit var currentFrame: com.codeazur.as3swf.timeline.Frame
+	lateinit var currentFrame: Frame
 	protected var frameLabels = hashMapOf<Int, String>()
 	protected var hasSoundStream: Boolean = false
 
@@ -566,7 +556,7 @@ open class SWFTimelineContainer {
 		return null
 	}
 
-	suspend fun parseTags(data: SWFData, version: Int): Unit {
+	suspend fun parseTags(data: SWFData, version: Int) {
 		parseTagsInit(data, version)
 		while (data.bytesAvailable > 0) {
 			dispatchProgress(_tmpData!!.position, _tmpData!!.length)
@@ -583,13 +573,13 @@ open class SWFTimelineContainer {
 	private fun dispatchWarning(msg: String) {
 	}
 
-	protected fun parseTagsInit(data: SWFData, version: Int): Unit {
+	private fun parseTagsInit(data: SWFData, version: Int) {
 		tags.clear()
 		frames.clear()
 		layers.clear()
-		dictionary = hashMapOf<Int, Int>()
-		this.currentFrame = com.codeazur.as3swf.timeline.Frame()
-		frameLabels = hashMapOf<Int, String>()
+		dictionary = hashMapOf()
+		this.currentFrame = Frame()
+		frameLabels = hashMapOf()
 		hasSoundStream = false
 		_tmpData = data
 		_tmpVersion = version
@@ -656,12 +646,12 @@ open class SWFTimelineContainer {
 		return tag
 	}
 
-	protected fun parseTagsFinalize(): Unit {
+	private fun parseTagsFinalize() {
 		val soundStream = soundStream
 		if (soundStream != null && soundStream.data.length == 0) this.soundStream = null
 	}
 
-	protected fun processTag(tag: ITag): Unit {
+	private fun processTag(tag: ITag) {
 		val currentTagIndex: Int = tags.size - 1
 		if (tag is IDefinitionTag) {
 			processDefinitionTag(tag, currentTagIndex)
@@ -691,7 +681,7 @@ open class SWFTimelineContainer {
 		}
 	}
 
-	protected fun processDefinitionTag(tag: IDefinitionTag, currentTagIndex: Int): Unit {
+	private fun processDefinitionTag(tag: IDefinitionTag, currentTagIndex: Int) {
 		if (tag.characterId > 0) {
 			// Register definition tag in dictionary
 			// key: character id
@@ -702,7 +692,7 @@ open class SWFTimelineContainer {
 		}
 	}
 
-	protected fun processDisplayListTag(tag: IDisplayListTag, currentTagIndex: Int): Unit {
+	private fun processDisplayListTag(tag: IDisplayListTag, currentTagIndex: Int) {
 		when (tag.type) {
 			TagShowFrame.TYPE -> {
 				currentFrame.tagIndexEnd = currentTagIndex
@@ -723,7 +713,7 @@ open class SWFTimelineContainer {
 		}
 	}
 
-	protected fun processFrameLabelTag(tag: ITag, currentTagIndex: Int): Unit {
+	private fun processFrameLabelTag(tag: ITag, currentTagIndex: Int) {
 		when (tag.type) {
 			TagDefineSceneAndFrameLabelData.TYPE -> {
 				val tagSceneAndFrameLabelData: TagDefineSceneAndFrameLabelData = tag as TagDefineSceneAndFrameLabelData
@@ -733,7 +723,7 @@ open class SWFTimelineContainer {
 				}
 				for (i in 0 until tagSceneAndFrameLabelData.scenes.size) {
 					val scene: SWFScene = tagSceneAndFrameLabelData.scenes[i]
-					scenes.add(com.codeazur.as3swf.timeline.Scene(scene.offset, scene.name))
+					scenes.add(Scene(scene.offset, scene.name))
 				}
 			}
 			TagFrameLabel.TYPE -> {
@@ -743,11 +733,11 @@ open class SWFTimelineContainer {
 		}
 	}
 
-	protected fun processSoundStreamTag(tag: ITag, currentTagIndex: Int): Unit {
+	private fun processSoundStreamTag(tag: ITag, currentTagIndex: Int) {
 		when (tag.type) {
 			TagSoundStreamHead.TYPE, TagSoundStreamHead2.TYPE -> {
 				val tagSoundStreamHead = tag as TagSoundStreamHead
-				soundStream = com.codeazur.as3swf.timeline.SoundStream()
+				soundStream = SoundStream()
 				val soundStream = soundStream!!
 				soundStream.compression = tagSoundStreamHead.streamSoundCompression
 				soundStream.rate = tagSoundStreamHead.streamSoundRate
@@ -775,6 +765,7 @@ open class SWFTimelineContainer {
 						SoundCompression.MP3 -> {
 							// MP3
 							val numSamples: Int = soundData.readUnsignedShort()
+							@Suppress("UNUSED_VARIABLE")
 							var seekSamples: Int = soundData.readShort()
 							if (numSamples > 0) {
 								soundStream.numSamples += numSamples
@@ -788,16 +779,16 @@ open class SWFTimelineContainer {
 		}
 	}
 
-	protected fun processBackgroundColorTag(tag: TagSetBackgroundColor, currentTagIndex: Int): Unit {
+	protected fun processBackgroundColorTag(tag: TagSetBackgroundColor, currentTagIndex: Int) {
 		backgroundColor = tag.color
 	}
 
-	protected fun processJPEGTablesTag(tag: TagJPEGTables, currentTagIndex: Int): Unit {
+	protected fun processJPEGTablesTag(tag: TagJPEGTables, currentTagIndex: Int) {
 		jpegTablesTag = tag
 	}
 
 	open fun toString(indent: Int = 0, flags: Int = 0): String {
-		var str: String = ""
+		var str = ""
 		if (tags.size > 0) {
 			str += "\n" + " ".repeat(indent + 2) + "Tags:"
 			for (i in 0 until tags.size) {

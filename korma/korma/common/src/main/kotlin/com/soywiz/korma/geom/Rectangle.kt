@@ -1,8 +1,8 @@
 package com.soywiz.korma.geom
 
+import com.soywiz.korma.*
 import com.soywiz.korma.interpolation.*
 import com.soywiz.korma.math.*
-import com.soywiz.korma.numeric.*
 
 interface IRectangle {
 	val x: Double
@@ -99,10 +99,12 @@ data class Rectangle(
 	)
 
 	//override fun toString(): String = "Rectangle([${left.niceStr}, ${top.niceStr}]-[${right.niceStr}, ${bottom.niceStr}])"
-	override fun toString(): String =
+	override fun toString(): String = KormaStr {
 		"Rectangle(x=${x.niceStr}, y=${y.niceStr}, width=${width.niceStr}, height=${height.niceStr})"
+	}
 
-	fun toStringBounds(): String = "Rectangle([${left.niceStr},${top.niceStr}]-[${right.niceStr},${bottom.niceStr}])"
+	fun toStringBounds(): String =
+		KormaStr { "Rectangle([${left.niceStr},${top.niceStr}]-[${right.niceStr},${bottom.niceStr}])" }
 
 	companion object {
 		fun fromBounds(left: Double, top: Double, right: Double, bottom: Double): Rectangle =

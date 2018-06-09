@@ -20,3 +20,6 @@ inline fun IPointInt(x: Number, y: Number) = PointInt.Immutable(x.toInt(), y.toI
 
 operator fun IPointInt.plus(that: IPointInt) = PointInt.Immutable(this.x + that.x, this.y + that.y)
 operator fun IPointInt.minus(that: IPointInt) = PointInt.Immutable(this.x - that.x, this.y - that.y)
+
+val IPointInt.double get() = IPoint2d(x, y)
+val IPoint2d.int get() = IPointInt(x, y)

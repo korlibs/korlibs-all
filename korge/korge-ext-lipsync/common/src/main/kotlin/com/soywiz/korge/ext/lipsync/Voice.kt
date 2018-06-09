@@ -43,19 +43,21 @@ class Voice(val views: Views, val voice: NativeSound, val lipsync: LipSync) {
 		val resourcesRoot: ResourcesRoot,
 		val views: Views
 	) : AsyncFactory<Voice> {
-		override suspend fun create(): Voice = resourcesRoot[path].readVoice(views)
+		suspend override fun create(): Voice = resourcesRoot[path].readVoice(views)
 	}
 }
 
-data class LipSyncEvent(var name: String = "", var timeMs: Int = 0, var lip: Char = 'X')
+data class LipSyncEvent(var name: String = "", var time: Double = 0.0, var lip: Char = 'X') {
+	val timeMs: Int get() = (time * 1000).toInt()
+}
 
 class LipSyncHandler(val views: Views) {
 	val event = LipSyncEvent()
 
-	private fun dispatch(name: String, elapsedTime: Int, lip: Char) {
+	private fun dispatch(name: String, elapsedTime: Double, lip: Char) {
 		views.dispatch(event.apply {
 			this.name = name
-			this.timeMs = elapsedTime
+			this.time = elapsedTime
 			this.lip = lip
 		})
 	}
@@ -67,12 +69,13 @@ class LipSyncHandler(val views: Views) {
 
 		cancel = views.stage.addUpdatable {
 			val elapsedTime = channel.position
+			val elapsedTimeMs = (elapsedTime * 1000).toInt()
 			//println("elapsedTime:$elapsedTime, channel.length=${channel.length}")
 			if (elapsedTime >= channel.length) {
 				cancel?.cancel()
-				dispatch(name, 0, 'X')
+				dispatch(name, 0.0, 'X')
 			} else {
-				dispatch(name, channel.position, voice[elapsedTime])
+				dispatch(name, channel.position, voice[elapsedTimeMs])
 			}
 		}
 
@@ -85,7 +88,7 @@ class LipSyncHandler(val views: Views) {
 			cancel?.cancel(it)
 			cancel2.cancel(it)
 			channel.stop()
-			dispatch(name, 0, 'X')
+			dispatch(name, 0.0, 'X')
 		}
 	}
 }

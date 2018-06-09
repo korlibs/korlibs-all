@@ -1,5 +1,6 @@
 package com.soywiz.korio.async
 
+import com.soywiz.klogger.*
 import com.soywiz.korio.lang.*
 
 object ExceptionHook {

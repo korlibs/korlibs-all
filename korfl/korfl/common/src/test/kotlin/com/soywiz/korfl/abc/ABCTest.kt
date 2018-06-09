@@ -1,5 +1,6 @@
 package com.soywiz.korfl.abc
 
+import com.soywiz.korfl.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
 import org.junit.*

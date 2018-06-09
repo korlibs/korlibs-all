@@ -254,10 +254,14 @@ data class Matrix2d(
 
 	data class Transform(
 		var x: Double = 0.0, var y: Double = 0.0,
-		var scaleX: Double = 0.0, var scaleY: Double = 0.0,
+		var scaleX: Double = 1.0, var scaleY: Double = 1.0,
 		var skewX: Double = 0.0, var skewY: Double = 0.0,
 		var rotation: Double = 0.0
 	) {
+		var rotationDegrees: Double
+			get() = Angle.radiansToDegrees(rotation)
+			set(value) = run { rotation = Angle.degreesToRadians(value) }
+
 		fun setMatrix(matrix: IMatrix2d): Transform {
 			val PI_4 = PI / 4.0
 			this.x = matrix.tx

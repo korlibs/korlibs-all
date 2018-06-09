@@ -1,9 +1,8 @@
 package com.codeazur.as3swf
 
-import com.codeazur.as3swf.tags.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.file.std.*
-import org.junit.*
+import kotlin.test.*
 
 class As3SwfTest {
 	@Test

@@ -1,17 +1,16 @@
 package com.soywiz.korge.ext.swf
 
 import com.codeazur.as3swf.*
-import com.codeazur.as3swf.tags.*
 import com.soywiz.kds.*
 import com.soywiz.korge.animate.*
 import com.soywiz.korge.animate.serialization.*
 import com.soywiz.korge.view.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.vector.*
+import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.serialization.*
 import com.soywiz.korio.serialization.yaml.*
-import com.soywiz.korio.file.*
 
 data class SWFExportConfig(
 	val debug: Boolean = false,
@@ -107,4 +106,3 @@ internal val AnSymbolMovieClip.labelsToFrame0 by Extra.Property { hashMapOf<Stri
 
 var AnSymbolMorphShape.tagDefineMorphShape by Extra.Property<TagDefineMorphShape?> { null }
 var AnSymbolShape.tagDefineShape by Extra.Property<TagDefineShape?> { null }
-

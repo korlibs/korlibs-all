@@ -1,8 +1,8 @@
 package com.soywiz.korma
 
+import com.soywiz.korma.geom.*
 import com.soywiz.korma.interpolation.*
 import com.soywiz.korma.math.*
-import com.soywiz.korma.numeric.*
 import kotlin.math.*
 
 interface IVector2 {
@@ -83,7 +83,7 @@ data class Vector2(override var x: Double = 0.0, override var y: Double = x) : M
 	fun distanceTo(x: Double, y: Double) = Math.hypot(x - this.x, y - this.y)
 	fun distanceTo(that: IVector2) = distanceTo(that.x, that.y)
 
-	override fun toString(): String = "Vector2(${x.niceStr}, ${y.niceStr})"
+	override fun toString(): String = KormaStr { "Vector2(${x.niceStr}, ${y.niceStr})" }
 
 	override fun interpolateWith(other: Vector2, ratio: Double): Vector2 =
 		Vector2().setToInterpolated(this, other, ratio)
@@ -131,3 +131,11 @@ inline fun Vector2(x: Number, y: Number) = Vector2(x.toDouble(), y.toDouble())
 operator fun IVector2.times(that: IVector2) = this.x * that.x + this.y * that.y
 fun IVector2.distanceTo(x: Double, y: Double) = Math.hypot(x - this.x, y - this.y)
 fun IVector2.distanceTo(that: IVector2) = distanceTo(that.x, that.y)
+
+fun IVector2.angleToRad(other: IVector2): Double {
+	//val angle = atan2(other.y, other.x) - atan2(this.y, this.x);
+	val angle = atan2(other.y - this.y, other.x - this.x)
+	return if (angle < 0) angle + 2 * PI else angle
+}
+
+fun IVector2.angleTo(other: IVector2): Angle = Angle.fromRadians(angleToRad(other))

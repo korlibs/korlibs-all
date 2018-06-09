@@ -1,9 +1,9 @@
 package com.soywiz.korma.geom.shape
 
+import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 import com.soywiz.korma.geom.clipper.*
 import com.soywiz.korma.math.*
-import com.soywiz.korma.numeric.*
 import kotlin.math.*
 
 abstract class Shape2d {
@@ -64,8 +64,9 @@ abstract class Shape2d {
 		override val closed: Boolean = true
 		override val area: Double get() = width * height
 		override fun containsPoint(x: Double, y: Double) = (x in this.left..this.right) && (y in this.top..this.bottom)
-		override fun toString(): String =
+		override fun toString(): String = KormaStr {
 			"Rectangle(x=${x.niceStr}, y=${y.niceStr}, width=${width.niceStr}, height=${height.niceStr})"
+		}
 	}
 
 	data class Polygon(val points: List<Point2d>) : Shape2d() {

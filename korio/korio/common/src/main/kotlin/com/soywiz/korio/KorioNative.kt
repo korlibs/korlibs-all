@@ -1,12 +1,15 @@
 package com.soywiz.korio
 
+import com.soywiz.klogger.*
 import com.soywiz.korio.async.*
+import com.soywiz.korio.crypto.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.net.*
 import com.soywiz.korio.net.http.*
 import com.soywiz.korio.net.ws.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.file.*
+import kotlin.coroutines.experimental.*
 import kotlin.math.*
 import kotlin.reflect.*
 
@@ -17,6 +20,7 @@ expect annotation class JvmOverloads()
 expect annotation class Transient()
 
 annotation class Language(val value: String, val prefix: String = "", val suffix: String = "")
+//expect annotation class Language(val value: String, val prefix: String = "", val suffix: String = "")
 
 expect open class IOException(msg: String) : Exception
 expect open class EOFException(msg: String) : IOException
@@ -32,6 +36,8 @@ expect class Semaphore(initial: Int) {
 
 	fun release()
 }
+
+expect val nativeDelay: Delay
 
 expect object KorioNative {
 	abstract class NativeThreadLocal<T>() {
@@ -50,6 +56,8 @@ expect object KorioNative {
 	val websockets: WebSocketClientFactory
 
 	val eventLoopFactoryDefaultImpl: EventLoopFactory
+
+	val systemLanguageStrings: List<String>
 
 	fun getRandomValues(data: ByteArray): Unit
 
@@ -75,8 +83,6 @@ expect object KorioNative {
 
 	fun printStackTrace(e: Throwable)
 	fun enterDebugger()
-	fun log(msg: Any?)
-	fun error(msg: Any?)
 
 	class SimplerMessageDigest(name: String) {
 		suspend fun update(data: ByteArray, offset: Int, size: Int): Unit
@@ -89,12 +95,14 @@ expect object KorioNative {
 	}
 
 	fun syncTest(block: suspend EventLoopTest.() -> Unit): Unit
+
+	fun getenv(key: String): String?
 }
 
 object KorioNativeDefaults {
 	fun printStackTrace(e: Throwable) {
-		Console.error("KorioNativeDefaults.printStackTrace:")
-		Console.error(e.message ?: "Error")
+		Logger("KorioNativeDefaults").error { "printStackTrace:" }
+		Logger("KorioNativeDefaults").error { e.message ?: "Error" }
 	}
 
 	fun createServer(): HttpServer {
@@ -208,9 +216,22 @@ object KorioNativeDefaults {
 				}
 			}
 
-			suspend override fun closeInternal() {
+			override suspend fun closeInternal() {
 				onClose()
 			}
 		}
 	}
 }
+
+fun createBase64URLForData(data: ByteArray, contentType: String): String {
+	return "data:$contentType;base64," + Base64.encode(data)
+}
+
+interface Delay : CoroutineContext.Element {
+	object KEY : CoroutineContext.Key<Delay> {}
+
+	override val key get() = KEY
+	suspend fun delay(ms: Int): Unit
+}
+
+val CoroutineContext.delay: Delay get() = this[Delay.KEY]?.delay ?: nativeDelay
