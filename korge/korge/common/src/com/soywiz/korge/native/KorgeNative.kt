@@ -4,4 +4,5 @@ import kotlin.reflect.*
 
 expect object KorgeNative {
 	fun getClassSimpleName(clazz: KClass<*>): String
+	fun checkEnvironment()
 }

@@ -4,6 +4,7 @@ import com.soywiz.klock.*
 import com.soywiz.klogger.*
 import com.soywiz.korag.*
 import com.soywiz.korge.input.*
+import com.soywiz.korge.native.*
 import com.soywiz.korge.plugin.*
 import com.soywiz.korge.resources.*
 import com.soywiz.korge.scene.*
@@ -33,6 +34,7 @@ object Korge {
 		val ag = container.ag
 		val size = config.module.size
 
+		logger.trace { "pre injector" }
 		injector
 			.mapSingleton(Views::class) { Views(get(), get(), get(), get(), get()) }
 			.mapSingleton(Input::class) { Input() }
@@ -47,10 +49,14 @@ object Korge {
 			injector.mapInstance(Frame::class, config.frame)
 		}
 
+		logger.trace { "pre plugins" }
+
 		// Register module plugins
 		for (plugin in config.module.plugins) {
 			defaultKorgePlugins.register(plugin)
 		}
+
+		logger.trace { "post plugins" }
 
 		injector.mapInstance(AG::class, ag)
 		if (config.trace) println("Korge.setupCanvas[1b]. EventLoop: ${config.eventLoop}")
@@ -328,6 +334,7 @@ object Korge {
 		constructedViews: (Views) -> Unit = {},
 		eventLoop: EventLoop = KoruiEventLoop.instance
 	) = EventLoop.main(eventLoop) {
+		logger.trace { "Korge.invoke" }
 		test(
 			Config(
 				module = module,
@@ -360,12 +367,18 @@ object Korge {
 	)
 
 	suspend fun test(config: Config): SceneContainer {
+		logger.trace { "!!!! KORGE: if the main window doesn't appear and hangs, check that the VM option -XstartOnFirstThread is set" }
+		logger.trace { "Korge.test" }
+		logger.trace { "Korge.test.checkEnvironment" }
+		KorgeNative.checkEnvironment()
 		val done = Promise.Deferred<SceneContainer>()
 		if (config.container != null) {
+			logger.trace { "Korge.test with container" }
 			done.resolve(setupCanvas(config))
-
 		} else {
+			logger.trace { "Korge.test without container" }
 			val module = config.module
+			logger.trace { "Korge.test loading icon" }
 			val icon = try {
 				when {
 					module.iconImage != null -> {
@@ -383,13 +396,17 @@ object Korge {
 				e.printStackTrace()
 				null
 			}
+
+			logger.trace { "Korge.test pre CanvasApplicationEx" }
 			CanvasApplicationEx(
 				config.module.title,
 				config.module.windowSize.width,
 				config.module.windowSize.height,
 				icon
 			) { container, frame ->
+				logger.trace { "Korge.test [1]" }
 				go {
+					logger.trace { "Korge.test [2]" }
 					done.resolve(setupCanvas(config.copy(container = container, frame = frame)))
 				}
 			}
