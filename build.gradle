@@ -47,8 +47,11 @@ allprojects {
 		maven { url "https://dl.bintray.com/jetbrains/kotlin-native-dependencies" }
 	}
 
+	def kotlinProject = false
+
 	it.afterEvaluate {
 		if (it.plugins.hasPlugin("kotlin-platform-common")) {
+			kotlinProject = true
 			dependencies {
 				compile "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion"
 				testCompile "org.jetbrains.kotlin:kotlin-test-common:$kotlinVersion"
@@ -60,6 +63,7 @@ allprojects {
 			}
 		}
 		if (it.plugins.hasPlugin("kotlin-platform-jvm") || it.plugins.hasPlugin("kotlin")) {
+			kotlinProject = true
 			dependencies {
 				compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
 				testCompile "org.jetbrains.kotlin:kotlin-test:$kotlinVersion"
@@ -79,6 +83,7 @@ allprojects {
 		}
 
 		if (it.plugins.hasPlugin("kotlin-platform-js") || it.plugins.hasPlugin("kotlin2js")) {
+			kotlinProject = true
 			dependencies {
 				compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlinVersion"
 				testCompile "org.jetbrains.kotlin:kotlin-test-js:$kotlinVersion"
@@ -158,7 +163,21 @@ allprojects {
 			// @TODO: Enable mocha again!
 			//test.dependsOn runMocha
 		}
+
+		//println("kotlinProject")
+		if (kotlinProject) {
+			sourceSets {
+				main.kotlin.srcDirs += "src"
+				main.resources.srcDirs += "resources"
+				main.resources.srcDirs += ['../common/resources'] // @TODO: @BUG: Hack. No common resources are copied
+				test.kotlin.srcDirs += "test"
+				test.resources.srcDirs += "testresources"
+				test.resources.srcDirs += ['../common/testresources'] // @TODO: @BUG: Hack. No common resources are copied
+			}
+		}
 	}
+
+
 
 	afterEvaluate {
 		project.configure(project) {
