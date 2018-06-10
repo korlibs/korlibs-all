@@ -2,15 +2,14 @@ package com.soywiz.korge.view
 
 import com.soywiz.kds.*
 import com.soywiz.korge.component.*
-import com.soywiz.korge.event.*
-import com.soywiz.korge.lang.*
 import com.soywiz.korge.render.*
 import com.soywiz.korim.color.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.error.*
-import com.soywiz.korio.util.*
+import com.soywiz.korio.lang.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
+import com.soywiz.korui.event.*
 import kotlin.collections.ArrayList
 import kotlin.collections.List
 import kotlin.collections.Map

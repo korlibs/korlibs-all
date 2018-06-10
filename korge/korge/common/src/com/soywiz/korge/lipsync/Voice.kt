@@ -11,8 +11,8 @@ import com.soywiz.korge.view.*
 import com.soywiz.korinject.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.file.*
-import com.soywiz.korio.util.*
-import com.soywiz.korio.file.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korui.event.*
 
 class LipSync(val lipsync: String) {
 	val timeMs: Int get() = lipsync.length * 16
@@ -48,7 +48,7 @@ class Voice(val views: Views, val voice: NativeSound, val lipsync: LipSync) {
 	}
 }
 
-data class LipSyncEvent(var name: String = "", var time: Double = 0.0, var lip: Char = 'X') {
+data class LipSyncEvent(var name: String = "", var time: Double = 0.0, var lip: Char = 'X') : Event() {
 	val timeMs: Int get() = (time * 1000).toInt()
 }
 

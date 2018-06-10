@@ -3,6 +3,8 @@ package com.soywiz.korio.lang
 import com.soywiz.korio.serialization.*
 
 object Dynamic {
+	inline operator fun <T> invoke(callback: DynamicAccess.() -> T) = DynamicAccess(callback)
+
 	fun set(obj: Any?, key: Any?, value: Any?): Unit = when (obj) {
 		is MutableMap<*, *>, is MutableList<*> -> setUntyped(obj, key, value)
 		else -> {

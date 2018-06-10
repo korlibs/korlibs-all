@@ -47,7 +47,6 @@ class AGWebgl : AG(), AGContainer {
 	}
 
 	override val ag: AG = this
-	override val agInput: AGInput = AGInput()
 
 	val canvas = document.createElement("canvas") as HTMLCanvasElement
 	val glOpts = jsObject(
@@ -77,23 +76,6 @@ class AGWebgl : AG(), AGContainer {
 			contextVersion++
 			//e.preventDefault()
 		}, false);
-
-		val event = AGInput.KeyEvent()
-
-		window.addEventListener("keydown", { e ->
-			event.keyCode = e.unsafeCast<KeyboardEvent>().keyCode
-			agInput.onKeyDown(event)
-		}, false)
-
-		window.addEventListener("keyup", { e ->
-			event.keyCode = e.unsafeCast<KeyboardEvent>().keyCode
-			agInput.onKeyUp(event)
-		}, false)
-
-		window.addEventListener("keypress", { e ->
-			event.keyCode = e.unsafeCast<KeyboardEvent>().keyCode
-			agInput.onKeyTyped(event)
-		}, false)
 	}
 
 	override fun repaint() {

@@ -2,29 +2,15 @@ package com.soywiz.korge.input
 
 import com.soywiz.kds.*
 import com.soywiz.kmem.*
-import com.soywiz.korag.*
 import com.soywiz.korinject.*
-import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
+import com.soywiz.korui.event.*
+import com.soywiz.korui.input.*
 
 @Singleton
 class Input : Extra by Extra.Mixin() {
 	companion object {
 		const val KEYCODES = 0x100
-	}
-
-	data class Touch(
-		val index: Int,
-		var active: Boolean = false,
-		var id: Int = -1,
-		var startTime: Double = 0.0,
-		var currentTime: Double = 0.0,
-		var start: Vector2 = Vector2(),
-		var current: Vector2 = Vector2()
-	) : Extra by Extra.Mixin() {
-		companion object {
-		    val dummy = Touch(-1)
-		}
 	}
 
 	val dummyTouch = Touch.dummy

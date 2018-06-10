@@ -1,6 +1,7 @@
 package com.soywiz.korge.scene
 
 import com.soywiz.klock.*
+import com.soywiz.korag.*
 import com.soywiz.korge.resources.*
 import com.soywiz.korge.time.*
 import com.soywiz.korge.util.*
@@ -13,6 +14,7 @@ import kotlin.coroutines.experimental.*
 abstract class Scene : InjectorAsyncDependency, ViewsContainer, CoroutineContextHolder {
 	lateinit var injector: AsyncInjector
 	override lateinit var views: Views
+	val ag: AG get() = views.ag
 	lateinit var sceneContainer: SceneContainer
 	lateinit var resourcesRoot: ResourcesRoot
 	//protected lateinit var bus: Bus

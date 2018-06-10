@@ -6,7 +6,6 @@ import com.soywiz.korag.log.*
 import com.soywiz.korge.audio.*
 import com.soywiz.korge.bitmapfont.*
 import com.soywiz.korge.bitmapfont.BitmapFont
-import com.soywiz.korge.event.*
 import com.soywiz.korge.input.*
 import com.soywiz.korge.plugin.*
 import com.soywiz.korge.render.*
@@ -19,8 +18,8 @@ import com.soywiz.korio.async.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korio.file.*
 import com.soywiz.korma.geom.*
+import com.soywiz.korui.event.*
 import kotlin.reflect.*
 
 @Singleton
@@ -94,15 +93,15 @@ class Views(
 		for (plugin in plugins.plugins) plugin.register(this)
 	}
 
-	override fun <T : Any> dispatch(event: T, clazz: KClass<out T>) {
+	override fun <T : Event> dispatch(clazz: KClass<T>, event: T) {
 		try {
-			this.stage.dispatch(event, clazz)
+			this.stage.dispatch(clazz, event)
 		} catch (e: PreventDefaultException) {
 			//println("PreventDefaultException.Reason: ${e.reason}")
 		}
 	}
 
-	private val resizedEvent = StageResizedEvent(0, 0)
+	private val resizedEvent = ResizedEvent(0, 0)
 
 	fun container() = Container(this)
 	fun fixedSizeContainer(width: Double = 100.0, height: Double = 100.0) = FixedSizeContainer(this, width, height)
@@ -198,7 +197,10 @@ class Views(
 		actualVirtualLeft = -(stage.x / ratioX).toInt()
 		actualVirtualTop = -(stage.y / ratioY).toInt()
 
-		stage.dispatch(resizedEvent.setSize(actualSize.width, actualSize.height))
+		stage.dispatch(resizedEvent.apply {
+			this.width = actualSize.width
+			this.height = actualSize.height
+		})
 	}
 
 	var targetFps: Double = -1.0
@@ -292,6 +294,8 @@ interface ViewsContainer {
 	val views: Views
 }
 
+val ViewsContainer.ag: AG get() = views.ag
+
 data class KorgeFileLoaderTester<T>(
 	val name: String,
 	val tester: suspend (s: FastByteArrayInputStream, injector: AsyncInjector) -> KorgeFileLoader<T>?
@@ -305,43 +309,3 @@ data class KorgeFileLoader<T>(val name: String, val loader: suspend VfsFile.(Fas
 }
 
 //suspend val AsyncInjector.views: Views get() = this.get<Views>()
-
-data class StageResizedEvent(var width: Int, var height: Int) : Event {
-	fun setSize(width: Int, height: Int) = this.apply {
-		this.width = width
-		this.height = height
-	}
-}
-
-interface MouseEvent : Event
-class MouseClickEvent : MouseEvent
-class MouseUpEvent : MouseEvent
-class MouseDownEvent : MouseEvent
-class MouseOverEvent : MouseEvent
-class MouseDragEvent : MouseEvent
-interface KeyEvent : Event {
-	var keyCode: Int
-}
-
-class KeyDownEvent(override var keyCode: Int = 0) : KeyEvent
-class KeyUpEvent(override var keyCode: Int = 0) : KeyEvent
-class KeyTypedEvent(override var keyCode: Int = 0) : KeyEvent
-
-data class TouchEvent(var touch: Input.Touch, var start: Boolean, var end: Boolean) : Event {
-	fun set(touch: Input.Touch, start: Boolean, end: Boolean) = this.apply {
-		this.touch = touch
-		this.start = start
-		this.end = end
-	}
-}
-
-class GamepadUpdatedEvent(
-	val gamepad: GamepadInfo = GamepadInfo()
-) : Event
-
-class GamepadConnectionEvent(
-	val gamepad: GamepadInfo = GamepadInfo()
-) : Event {
-	val index get() = gamepad.index
-	val connected get() = gamepad.connected
-}

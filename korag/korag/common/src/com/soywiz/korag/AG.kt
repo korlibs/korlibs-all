@@ -28,41 +28,8 @@ interface AGFactory {
 	fun createFastWindow(title: String, width: Int, height: Int): AGWindow
 }
 
-open class AGInput {
-	data class MouseEvent(var buttons: Int = 0, var x: Int = 0, var y: Int = 0)
-	data class KeyEvent(var keyCode: Int = 0)
-	data class GamepadEvent(var gamepad: GamepadInfo = GamepadInfo())
-	data class TouchEvent(var id: Int = 0, var x: Int = 0, var y: Int = 0)
-
-	val mouseEvent = MouseEvent()
-	val keyEvent = KeyEvent()
-	val gamepadEvent = GamepadEvent()
-	val touchEvent = TouchEvent()
-
-	open val mouseX: Int get() = mouseEvent.x
-	open val mouseY: Int get() = mouseEvent.y
-	open val onMouseOver: Signal<MouseEvent> = Signal()
-	open val onMouseDrag: Signal<MouseEvent> = Signal()
-	open val onMouseUp: Signal<MouseEvent> = Signal()
-	open val onMouseDown: Signal<MouseEvent> = Signal()
-	open val onMouseClick: Signal<MouseEvent> = Signal()
-
-	open val onKeyDown: Signal<KeyEvent> = Signal()
-	open val onKeyUp: Signal<KeyEvent> = Signal()
-	open val onKeyTyped: Signal<KeyEvent> = Signal()
-
-	open val onTouchStart: Signal<TouchEvent> = Signal()
-	open val onTouchEnd: Signal<TouchEvent> = Signal()
-	open val onTouchMove: Signal<TouchEvent> = Signal()
-
-	open val onGamepadConnection: Signal<GamepadEvent> = Signal()
-	open val onGamepadUpdate: Signal<GamepadEvent> = Signal()
-}
-
 interface AGContainer {
 	val ag: AG
-	val agInput: AGInput
-
 	//data class Resized(var width: Int, var height: Int) {
 	//	fun setSize(width: Int, height: Int): Resized = this.apply {
 	//		this.width = width
@@ -154,12 +121,9 @@ abstract class AG : Extra by Extra.Mixin() {
 	) {
 
 		constructor(src: BlendFactor, dst: BlendFactor, eq: BlendEquation = BlendEquation.ADD) : this(
-			src,
-			dst,
-			src,
-			dst,
-			eq,
-			eq
+			src, dst,
+			src, dst,
+			eq, eq
 		)
 
 		val disabled: Boolean get() = srcRGB == BlendFactor.ONE && dstRGB == BlendFactor.ZERO && srcA == BlendFactor.ONE && dstA == BlendFactor.ZERO

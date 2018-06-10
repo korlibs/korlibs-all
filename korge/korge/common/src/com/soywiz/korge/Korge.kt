@@ -4,7 +4,6 @@ import com.soywiz.klock.*
 import com.soywiz.klogger.*
 import com.soywiz.korag.*
 import com.soywiz.korge.input.*
-import com.soywiz.korge.native.*
 import com.soywiz.korge.plugin.*
 import com.soywiz.korge.resources.*
 import com.soywiz.korge.scene.*
@@ -13,11 +12,11 @@ import com.soywiz.korim.format.*
 import com.soywiz.korim.vector.*
 import com.soywiz.korinject.*
 import com.soywiz.korio.async.*
-import com.soywiz.korio.lang.*
-import com.soywiz.korio.file.*
 import com.soywiz.korio.file.std.*
+import com.soywiz.korio.lang.*
 import com.soywiz.korma.geom.*
 import com.soywiz.korui.*
+import com.soywiz.korui.event.*
 import com.soywiz.korui.ui.*
 import kotlin.math.*
 import kotlin.reflect.*
@@ -29,9 +28,9 @@ object Korge {
 		if (config.trace) println("Korge.setupCanvas[1]")
 		val injector = config.injector
 
-		val container = config.container!!
-		val agInput = container.agInput
-		val ag = container.ag
+		val eventDispatcher = config.eventDispatcher
+		val agContainer = config.container ?: error("No agContainer defined")
+		val ag = agContainer.ag
 		val size = config.module.size
 
 		logger.trace { "pre injector" }
@@ -40,7 +39,6 @@ object Korge {
 			.mapSingleton(Input::class) { Input() }
 			.mapInstance(KorgePlugins::class, defaultKorgePlugins)
 			.mapInstance(Config::class, config)
-			.mapInstance(AGContainer::class, container)
 			.mapInstance(AG::class, ag)
 			.mapPrototype(EmptyScene::class) { EmptyScene() }
 			.mapSingleton(ResourcesRoot::class) { ResourcesRoot() }
@@ -94,23 +92,12 @@ object Korge {
 
 		val downPos = Point2d()
 		val upPos = Point2d()
-		val mouseMovedEvent = MouseOverEvent()
-		val mouseDragEvent = MouseDragEvent()
-		val mouseUpEvent = MouseUpEvent()
-		val mouseClickEvent = MouseClickEvent()
-		val mouseDownEvent = MouseDownEvent()
-		val touchEvent = TouchEvent(input.dummyTouch, false, false)
-
-		val keyDownEvent = KeyDownEvent()
-		val keyUpEvent = KeyUpEvent()
-		val keyTypedEvent = KeyTypedEvent()
-		val gamepadTypedEvent = GamepadUpdatedEvent()
-		val gamepadConnectionEvent = GamepadConnectionEvent()
 		var downTime = 0.0
 		var moveTime = 0.0
 		var upTime = 0.0
 		var moveMouseOutsideInNextFrame = false
 
+		/*
 		fun mouseDown(name: String, x: Int, y: Int) {
 			//Console.log("mouseDown: $name")
 			views.input.mouseButtons = 1
@@ -265,6 +252,8 @@ object Korge {
 			it.copyTo(gamepadConnectionEvent)
 			views.dispatch(gamepadConnectionEvent)
 		}
+		*/
+
 
 		ag.onResized {
 			//println("ag.onResized: ${ag.backWidth},${ag.backHeight}")
@@ -296,7 +285,7 @@ object Korge {
 			if (moveMouseOutsideInNextFrame) {
 				moveMouseOutsideInNextFrame = false
 				views.input.mouse.setTo(-1000, -1000)
-				views.dispatch(mouseMovedEvent)
+				//views.dispatch(mouseMovedEvent)
 				views.mouseUpdated()
 			}
 			//println("render:$delta,$adelta")
@@ -325,6 +314,7 @@ object Korge {
 		module: Module,
 		args: Array<String> = arrayOf(),
 		container: AGContainer? = null,
+		eventDispatcher: EventDispatcher = DummyEventDispatcher,
 		sceneClass: KClass<out Scene> = module.mainScene,
 		sceneInjects: List<Any> = listOf(),
 		timeProvider: TimeProvider = TimeProvider(),
@@ -340,6 +330,7 @@ object Korge {
 				module = module,
 				args = args,
 				container = container,
+				eventDispatcher = eventDispatcher,
 				sceneClass = sceneClass,
 				sceneInjects = sceneInjects,
 				injector = injector,
@@ -355,6 +346,7 @@ object Korge {
 		val module: Module,
 		val args: Array<String> = arrayOf(),
 		val container: AGContainer? = null,
+		val eventDispatcher: EventDispatcher = DummyEventDispatcher,
 		val frame: Frame? = null,
 		val sceneClass: KClass<out Scene> = module.mainScene,
 		val sceneInjects: List<Any> = listOf(),
@@ -370,47 +362,42 @@ object Korge {
 		logger.trace { "!!!! KORGE: if the main window doesn't appear and hangs, check that the VM option -XstartOnFirstThread is set" }
 		logger.trace { "Korge.test" }
 		logger.trace { "Korge.test.checkEnvironment" }
-		KorgeNative.checkEnvironment()
 		val done = Promise.Deferred<SceneContainer>()
-		if (config.container != null) {
-			logger.trace { "Korge.test with container" }
-			done.resolve(setupCanvas(config))
-		} else {
-			logger.trace { "Korge.test without container" }
-			val module = config.module
-			logger.trace { "Korge.test loading icon" }
-			val icon = try {
-				when {
-					module.iconImage != null -> {
-						module.iconImage!!.render()
-					}
-					module.icon != null -> {
-						ResourcesVfs[module.icon!!].readBitmapOptimized()
-					}
-					else -> {
-						null
-					}
+		logger.trace { "Korge.test without container" }
+		val module = config.module
+		logger.trace { "Korge.test loading icon" }
+		val icon = try {
+			when {
+				module.iconImage != null -> {
+					module.iconImage!!.render()
 				}
-			} catch (e: Throwable) {
-				logger.error { "Couldn't get the application icon" }
-				e.printStackTrace()
-				null
+				module.icon != null -> {
+					ResourcesVfs[module.icon!!].readBitmapOptimized()
+				}
+				else -> {
+					null
+				}
 			}
+		} catch (e: Throwable) {
+			logger.error { "Couldn't get the application icon" }
+			e.printStackTrace()
+			null
+		}
 
-			logger.trace { "Korge.test pre CanvasApplicationEx" }
-			CanvasApplicationEx(
-				config.module.title,
-				config.module.windowSize.width,
-				config.module.windowSize.height,
-				icon
-			) { container, frame ->
-				logger.trace { "Korge.test [1]" }
-				go {
-					logger.trace { "Korge.test [2]" }
-					done.resolve(setupCanvas(config.copy(container = container, frame = frame)))
-				}
+		logger.trace { "Korge.test pre CanvasApplicationEx" }
+		CanvasApplicationEx(
+			config.module.title,
+			config.module.windowSize.width,
+			config.module.windowSize.height,
+			icon
+		) { container, frame ->
+			logger.trace { "Korge.test [1]" }
+			go {
+				logger.trace { "Korge.test [2]" }
+				done.resolve(setupCanvas(config.copy(container = container, frame = frame, eventDispatcher = container)))
 			}
 		}
+
 		return done.promise.await()
 	}
 

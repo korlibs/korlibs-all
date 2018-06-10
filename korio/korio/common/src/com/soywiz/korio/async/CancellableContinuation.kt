@@ -1,7 +1,7 @@
 package com.soywiz.korio.async
 
 import com.soywiz.kds.*
-import com.soywiz.korio.util.*
+import com.soywiz.korio.lang.*
 import kotlin.coroutines.experimental.*
 
 //inline suspend fun <T> suspendCancellableCoroutine(crossinline block: (CancellableContinuation<T>) -> Unit): T = suspendCoroutineOrReturn { c ->
@@ -47,7 +47,8 @@ class CoroutineCancelContext : AbstractCoroutineContextElement(CoroutineCancelCo
 	override fun toString(): String = "CoroutineCancelSignal(${handlers.size})"
 }
 
-class CancellableContinuation<in T>(private val delegate: Continuation<T>) : Continuation<T>, Cancellable,
+class CancellableContinuation<in T>(private val delegate: Continuation<T>) : Continuation<T>,
+	Cancellable,
 	Cancellable.Listener {
 	override val context: CoroutineContext =
 		if (delegate.context[CoroutineCancelContext.Key] != null) delegate.context else CoroutineCancelContext() + delegate.context

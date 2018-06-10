@@ -41,9 +41,6 @@ object AGFactoryAwt : AGFactory {
 		})
 
 		return object : AGWindow() {
-			override val agInput: AGInput = AGInput()
-			//override val onResized: Signal<Unit> = Signal()
-
 			override fun repaint() = Unit
 			override val ag: AG = AGAwtNative(window)
 		}
@@ -500,7 +497,8 @@ abstract class AGAwtBase : AG() {
 				_bind(gl, id)
 				if (mem != null) {
 					val mem2: FastMemory = mem!!
-					val bb = mem2.buffer.buffer
+					@Suppress("USELESS_CAST")
+					val bb = (mem2.buffer as MemBuffer).buffer
 					val old = bb.position()
 					bb.position(memOffset)
 					checkErrors { gl.glBufferData(glKind, memLength.toLong(), bb, GL.GL_STATIC_DRAW) }
@@ -545,12 +543,14 @@ abstract class AGAwtBase : AG() {
 						mem.setAlignedInt32(n, RGBA.rgbaToBgra(data[n]))
 					}
 					//mem.setArrayInt32(0, data, 0, bmp.area)
-					return mem.buffer.buffer
+					@Suppress("USELESS_CAST")
+					return (mem.buffer as MemBuffer).buffer
 				}
 				is Bitmap8 -> {
 					val mem: FastMemory = FastMemory.alloc(bmp.area)
 					mem.setAlignedArrayInt8(0, bmp.data, 0, bmp.area)
-					return mem.buffer.buffer
+					@Suppress("USELESS_CAST")
+					return (mem.buffer as MemBuffer).buffer
 				}
 				is Bitmap32 -> {
 					val abmp: Bitmap32 =
@@ -559,7 +559,8 @@ abstract class AGAwtBase : AG() {
 					//val abmp: Bitmap32 = bmp
 					val mem = FastMemory.alloc(abmp.area * 4)
 					mem.setAlignedArrayInt32(0, abmp.data, 0, abmp.area)
-					return mem.buffer.buffer
+					@Suppress("USELESS_CAST")
+					return (mem.buffer as MemBuffer).buffer
 				}
 				else -> unsupported()
 			}
@@ -673,8 +674,6 @@ class AGAwt : AGAwtBase(), AGContainer {
 
 	override val ag: AG = this
 
-	override val agInput: AGInput = AGInput()
-
 	override fun offscreenRendering(callback: () -> Unit) {
 		if (!glcanvas.context.isCurrent) {
 			glcanvas.context.makeCurrent()
@@ -688,19 +687,7 @@ class AGAwt : AGAwtBase(), AGContainer {
 		}
 	}
 
-
-	/*
-	override var mouseX: Int = 0
-	override var mouseY: Int = 0
-	override val onMouseOver: Signal<Unit> = Signal()
-	override val onMouseUp: Signal<Unit> = Signal()
-	override val onMouseDown: Signal<Unit> = Signal()
-	*/
-
 	override fun dispose() {
-		glcanvas.removeMouseListener(mouseEventListener)
-		glcanvas.removeMouseMotionListener(mouseEventListener)
-		glcanvas.removeKeyListener(keyListener)
 		glcanvas.disposeGLEventListener(glEventListener, true)
 	}
 
@@ -713,15 +700,6 @@ class AGAwt : AGAwtBase(), AGContainer {
 
 	override fun resized() {
 		onResized(Unit)
-	}
-
-	private fun updateMouse(e: MouseEvent) {
-		this.agInput.mouseEvent.x = e.x
-		this.agInput.mouseEvent.y = e.y
-	}
-
-	private fun updateKey(e: KeyEvent) {
-		this.agInput.keyEvent.keyCode = e.keyCode
 	}
 
 	private val tempFloat4 = FloatArray(4)
@@ -770,61 +748,12 @@ class AGAwt : AGAwtBase(), AGContainer {
 		}
 	}
 
-	val mouseMotionEventListener = object : MouseMotionAdapter() {
-		override fun mouseMoved(e: MouseEvent) {
-			updateMouse(e)
-			agInput.onMouseOver(agInput.mouseEvent)
-		}
-
-		override fun mouseDragged(e: MouseEvent) {
-			updateMouse(e)
-			agInput.onMouseOver(agInput.mouseEvent)
-		}
-	}
-
-	val mouseEventListener = object : MouseAdapter() {
-		override fun mouseReleased(e: MouseEvent) {
-			updateMouse(e)
-			agInput.onMouseUp(agInput.mouseEvent)
-		}
-
-		override fun mousePressed(e: MouseEvent) {
-			updateMouse(e)
-			agInput.onMouseDown(agInput.mouseEvent)
-		}
-
-		override fun mouseClicked(e: MouseEvent) {
-			updateMouse(e)
-			agInput.onMouseClick(agInput.mouseEvent)
-		}
-	}
-
-	val keyListener = object : KeyAdapter() {
-		override fun keyTyped(e: KeyEvent) {
-			updateKey(e)
-			agInput.onKeyTyped(agInput.keyEvent)
-		}
-
-		override fun keyPressed(e: KeyEvent) {
-			updateKey(e)
-			agInput.onKeyDown(agInput.keyEvent)
-		}
-
-		override fun keyReleased(e: KeyEvent) {
-			updateKey(e)
-			agInput.onKeyUp(agInput.keyEvent)
-		}
-	}
-
 	init {
 		//((glcanvas as JoglNewtAwtCanvas).getNativeWindow() as JAWTWindow).setSurfaceScale(new float[] {2, 2});
 		//glcanvas.nativeSurface.
 		//println(glcanvas.nativeSurface.convertToPixelUnits(intArrayOf(1000)).toList())
 
-		glcanvas.addMouseMotionListener(mouseMotionEventListener)
-		glcanvas.addMouseListener(mouseEventListener)
 		glcanvas.addGLEventListener(glEventListener)
-		glcanvas.addKeyListener(keyListener)
 	}
 
 	override fun readColor(bitmap: Bitmap32): Unit {

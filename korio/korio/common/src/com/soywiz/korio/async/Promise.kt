@@ -3,9 +3,7 @@ package com.soywiz.korio.async
 import com.soywiz.kds.*
 import com.soywiz.klogger.*
 import com.soywiz.korio.*
-import com.soywiz.korio.coroutine.*
 import com.soywiz.korio.lang.*
-import com.soywiz.korio.util.*
 import kotlin.coroutines.experimental.*
 
 class Promise<T : Any?> : Cancellable {

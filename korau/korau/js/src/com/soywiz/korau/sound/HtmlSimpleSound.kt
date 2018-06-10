@@ -2,7 +2,7 @@ package com.soywiz.korau.sound
 
 import com.soywiz.korio.async.*
 import com.soywiz.korio.file.std.*
-import com.soywiz.korio.util.*
+import com.soywiz.korio.lang.*
 import org.khronos.webgl.*
 import org.w3c.dom.*
 import org.w3c.dom.events.*

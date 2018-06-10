@@ -58,6 +58,17 @@ class BitmapFontTest {
 			""".trimIndent(),
 			ag.getLogAsString()
 		)
+	}
 
+	@Test
+	fun font2() = suspendTest {
+		val font = TestAssertVfs["font2/font1.fnt"].readBitmapFont(ag)
+		assertEquals(95, font.glyphs.size)
+		val glyph = font[64]
+		assertEquals(52, glyph.texture.width)
+		assertEquals(52, glyph.texture.height)
+		assertEquals(3, glyph.xoffset)
+		assertEquals(8, glyph.yoffset)
+		assertEquals(51, glyph.xadvance)
 	}
 }

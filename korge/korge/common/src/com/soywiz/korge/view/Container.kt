@@ -4,6 +4,7 @@ import com.soywiz.kmem.*
 import com.soywiz.korge.render.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
+import com.soywiz.korui.event.*
 import kotlin.reflect.*
 
 open class Container(views: Views) : View(views) {
@@ -84,14 +85,14 @@ open class Container(views: Views) : View(views) {
 		//for (child in children.toList()) child.update(dtMs)
 	}
 
-	override fun <T : Any> dispatch(event: T, clazz: KClass<out T>) {
+	override fun <T : Event> dispatch(clazz: KClass<T>, event: T) {
 		safeForEachChildrenReversed { child ->
-			child.dispatch(event, clazz)
+			child.dispatch(event)
 		}
-		super.dispatch(event, clazz)
+		super.dispatch(clazz, event)
 	}
 
-	inline protected fun safeForEachChildren(crossinline callback: (View) -> Unit) {
+	private inline fun safeForEachChildren(crossinline callback: (View) -> Unit) {
 		var n = 0
 		while (n < children.size) {
 			callback(children[n])
@@ -99,7 +100,7 @@ open class Container(views: Views) : View(views) {
 		}
 	}
 
-	inline protected fun safeForEachChildrenReversed(crossinline callback: (View) -> Unit) {
+	private inline fun safeForEachChildrenReversed(crossinline callback: (View) -> Unit) {
 		var n = 0
 		while (n < children.size) {
 			callback(children[children.size - n - 1])

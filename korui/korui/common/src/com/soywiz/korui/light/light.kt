@@ -6,7 +6,8 @@ import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
-import com.soywiz.korio.file.*
+import com.soywiz.korui.event.*
+import kotlin.reflect.*
 
 expect object NativeLightsComponentsFactory : LightComponentsFactory {
 	override fun create(): LightComponents
@@ -34,29 +35,30 @@ open class LightComponents {
 		}
 	}
 
-	protected fun LightMouseHandler.up2(info: LightMouseHandler.Info) = insideEventHandler { this.up(info) }
-	protected fun LightMouseHandler.down2(info: LightMouseHandler.Info) = insideEventHandler { this.down(info) }
-	protected fun LightMouseHandler.click2(info: LightMouseHandler.Info) = insideEventHandler { this.click(info) }
-	protected fun LightMouseHandler.over2(info: LightMouseHandler.Info) = insideEventHandler { this.over(info) }
-	protected fun LightMouseHandler.dragged2(info: LightMouseHandler.Info) = insideEventHandler { this.drag(info) }
-	protected fun LightMouseHandler.enter2(info: LightMouseHandler.Info) = insideEventHandler { this.enter(info) }
-	protected fun LightMouseHandler.exit2(info: LightMouseHandler.Info) = insideEventHandler { this.exit(info) }
-	protected fun LightChangeHandler.changed2(info: LightChangeHandler.Info) = insideEventHandler { this.changed(info) }
-	protected fun LightResizeHandler.resized2(info: LightResizeHandler.Info) = insideEventHandler { this.resized(info) }
-	protected fun LightKeyHandler.up2(info: LightKeyHandler.Info) = insideEventHandler { this.up(info) }
-	protected fun LightKeyHandler.down2(info: LightKeyHandler.Info) = insideEventHandler { this.down(info) }
-	protected fun LightKeyHandler.typed2(info: LightKeyHandler.Info) = insideEventHandler { this.typed(info) }
-	protected fun LightTouchHandler.start2(info: LightTouchHandler.Info) = insideEventHandler { this.start(info) }
-	protected fun LightTouchHandler.end2(info: LightTouchHandler.Info) = insideEventHandler { this.end(info) }
-	protected fun LightTouchHandler.move2(info: LightTouchHandler.Info) = insideEventHandler { this.move(info) }
+	private val eds = LinkedHashMap<Any, EventDispatcher>()
+	fun getEventListener(c: Any): EventDispatcher {
+		return eds.getOrPut(c) {
+			object : EventDispatcher.Mixin() {
+				val registeredClasses = LinkedHashSet<KClass<out Event>>()
 
-	open fun addHandler(c: Any, listener: LightMouseHandler): Closeable = Closeable { }
-	open fun addHandler(c: Any, listener: LightChangeHandler): Closeable = Closeable { }
-	open fun addHandler(c: Any, listener: LightResizeHandler): Closeable = Closeable { }
-	open fun addHandler(c: Any, listener: LightKeyHandler): Closeable = Closeable { }
-	open fun addHandler(c: Any, listener: LightGamepadHandler): Closeable = Closeable { }
-	open fun addHandler(c: Any, listener: LightTouchHandler): Closeable = Closeable { }
-	open fun addHandler(c: Any, listener: LightDropHandler): Closeable = Closeable { }
+				override fun <T : Event> addEventListener(clazz: KClass<T>, handler: (T) -> Unit): Cancellable {
+					if (clazz !in registeredClasses) {
+						registeredClasses += clazz
+						registerEventKind(c, clazz, this)
+					}
+					return super.addEventListener(clazz, handler)
+				}
+			}
+		}
+	}
+
+	fun <T : Event> register(c: Any, clazz: KClass<T>, handler: (T) -> Unit): Cancellable {
+		return getEventListener(c).addEventListener(clazz, handler)
+	}
+
+	protected open fun <T : Event> registerEventKind(c: Any, clazz: KClass<T>, ed: EventDispatcher): Cancellable {
+		return Cancellable { }
+	}
 
 	open fun getDpi(): Double = 96.0
 	open fun <T> callAction(c: Any, key: LightAction<T>, param: T): Unit = Unit
@@ -71,81 +73,6 @@ open class LightComponents {
 	open suspend fun dialogOpenFile(c: Any, filter: String): VfsFile = throw UnsupportedOperationException()
 	open fun openURL(url: String): Unit = Unit
 	open fun open(file: VfsFile): Unit = openURL(file.absolutePath)
-}
-
-open class LightChangeHandler {
-	data class Info(var dummy: Boolean = true)
-
-	open fun changed(info: Info) = Unit
-}
-
-open class LightResizeHandler {
-	data class Info(var width: Int = 0, var height: Int = 0)
-
-	open fun resized(info: Info) = Unit
-}
-
-open class LightMouseHandler {
-	data class Info(
-		var x: Int = 0,
-		var y: Int = 0,
-		var buttons: Int = 0,
-		var isShiftDown: Boolean = false,
-		var isCtrlDown: Boolean = false,
-		var isAltDown: Boolean = false,
-		var isMetaDown: Boolean = false
-	)
-
-	open fun enter(info: Info) = Unit
-	open fun exit(info: Info) = Unit
-	open fun over(info: Info) = Unit
-	open fun drag(info: Info) = Unit
-	open fun up(info: Info) = Unit
-	open fun down(info: Info) = Unit
-	open fun click(info: Info) = Unit
-}
-
-open class LightDropHandler {
-	data class FileInfo(
-		val files: List<VfsFile>
-	)
-
-	class EnterInfo()
-
-	open fun enter(info: EnterInfo): Boolean = true
-	open fun exit(): Unit = Unit
-	open fun files(info: FileInfo) = Unit
-}
-
-open class LightKeyHandler {
-	data class Info(
-		var keyCode: Int = 0
-	)
-
-	open fun typed(info: Info) = Unit
-	open fun down(info: Info) = Unit
-	open fun up(info: Info) = Unit
-}
-
-open class LightGamepadHandler {
-	data class Info(
-		var gamepad: GamepadInfo = GamepadInfo()
-	)
-
-	open fun update(info: Info) = Unit
-	open fun connection(info: Info) = Unit
-}
-
-open class LightTouchHandler {
-	data class Info(
-		var x: Int = 0,
-		var y: Int = 0,
-		var id: Int = 0
-	)
-
-	open fun start(info: Info) = Unit
-	open fun end(info: Info) = Unit
-	open fun move(info: Info) = Unit
 }
 
 val defaultLightFactory: LightComponentsFactory by lazy { NativeLightsComponentsFactory }

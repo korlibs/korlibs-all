@@ -3,12 +3,12 @@ package com.soywiz.korge.input
 import com.soywiz.kds.*
 import com.soywiz.korge.bitmapfont.*
 import com.soywiz.korge.component.*
-import com.soywiz.korge.event.*
 import com.soywiz.korge.view.*
 import com.soywiz.korim.color.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.util.*
 import com.soywiz.korma.geom.*
+import com.soywiz.korui.event.*
 
 class MouseComponent(view: View) : Component(view) {
 	val input = views.input
@@ -60,37 +60,39 @@ class MouseComponent(view: View) : Component(view) {
 	val isOver: Boolean get() = hitTest?.hasAncestor(view) ?: false
 
 	init {
-		addEventListener<MouseClickEvent> { e ->
-			if (isOver) {
-				onClick(this)
-				if (onClick.listenerCount > 0) {
-					preventDefault(view)
-				}
-			}
-			/*
-			upPos.copyFrom(input.mouse)
-			if (upPos.distanceTo(downPos) < CLICK_THRESHOLD) {
-				clickedCount++
+		mouse {
+			click {
 				if (isOver) {
-					onClick(this)
+					onClick(this@MouseComponent)
+					if (onClick.listenerCount > 0) {
+						preventDefault(view)
+					}
+				}
+				/*
+                upPos.copyFrom(input.mouse)
+                if (upPos.distanceTo(downPos) < CLICK_THRESHOLD) {
+                    clickedCount++
+                    if (isOver) {
+                        onClick(this)
+                    }
+                }
+                */
+			}
+			up {
+				upPos.copyFrom(input.mouse)
+				if (upPos.distanceTo(downPos) < CLICK_THRESHOLD) {
+					clickedCount++
+					//if (isOver) {
+					//	onClick(this)
+					//}
 				}
 			}
-			*/
-		}
-		addEventListener<MouseUpEvent> { e ->
-			upPos.copyFrom(input.mouse)
-			if (upPos.distanceTo(downPos) < CLICK_THRESHOLD) {
-				clickedCount++
-				//if (isOver) {
-				//	onClick(this)
-				//}
+			down {
+				downPos.copyFrom(input.mouse)
 			}
-		}
-		addEventListener<MouseDownEvent> { e ->
-			downPos.copyFrom(input.mouse)
-		}
-		addEventListener<MouseOverEvent> { e ->
-			//println(e)
+			over {
+				//println(e)
+			}
 		}
 	}
 
@@ -183,6 +185,7 @@ class MouseComponent(view: View) : Component(view) {
 //var View.mouseEnabled by Extra.Property { true }
 
 val View.mouse by Extra.PropertyThis<View, MouseComponent> { this.getOrCreateComponent { MouseComponent(this) } }
+inline fun <T> View.mouse(callback: MouseComponent.() -> T): T = mouse.run(callback)
 
 inline fun <T : View?> T?.onClick(noinline handler: suspend (MouseComponent) -> Unit) =
 	this.apply { this?.mouse?.onClick?.addSuspend(this.views.coroutineContext, handler) }

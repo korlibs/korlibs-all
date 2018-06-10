@@ -4,7 +4,7 @@ import com.soywiz.kds.*
 import com.soywiz.klogger.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.coroutine.*
-import com.soywiz.korio.util.*
+import com.soywiz.korio.lang.*
 import org.khronos.webgl.*
 import kotlin.browser.*
 import kotlin.coroutines.experimental.*

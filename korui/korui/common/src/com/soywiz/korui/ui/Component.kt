@@ -8,15 +8,15 @@ import com.soywiz.korim.bitmap.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
-import com.soywiz.korio.file.*
 import com.soywiz.korma.geom.*
 import com.soywiz.korui.*
+import com.soywiz.korui.event.*
 import com.soywiz.korui.geom.len.*
 import com.soywiz.korui.light.*
 import com.soywiz.korui.style.*
 import kotlin.reflect.*
 
-open class Component(val app: Application, val type: LightType) : Styled, Extra by Extra.Mixin() {
+open class Component(val app: Application, val type: LightType) : Styled, Extra by Extra.Mixin(), EventDispatcher {
 	val coroutineContext = app.coroutineContext
 	val lc = app.light
 
@@ -43,6 +43,10 @@ open class Component(val app: Application, val type: LightType) : Styled, Extra 
 	var valid = false
 	protected var nativeBounds = RectangleInt()
 	val actualBounds: RectangleInt = RectangleInt()
+	val eventListener by lazy { lc.getEventListener(handle) }
+
+	override fun <T : Event> addEventListener(clazz: KClass<T>, handler: (T) -> Unit): Cancellable = eventListener.addEventListener(clazz, handler)
+	override fun <T : Event> dispatch(clazz: KClass<T>, event: T) = eventListener.dispatch(clazz, event)
 
 	val actualWidth: Int get() = actualBounds.width
 	val actualHeight: Int get() = actualBounds.height
@@ -215,11 +219,19 @@ class Frame(app: Application, title: String) : Container(app, LayeredLayout(app)
 		exit: () -> Unit,
 		drop: (List<VfsFile>) -> Unit
 	): Closeable {
-		return lc.addHandler(handle, object : LightDropHandler() {
-			override fun enter(info: EnterInfo): Boolean = enter()
-			override fun exit() = exit()
-			override fun files(info: FileInfo) = drop(info.files)
-		})
+		return eventListener.addEventListener<DropFileEvent> {
+			when (it.type) {
+				DropFileEvent.Type.ENTER -> {
+					enter()
+				}
+				DropFileEvent.Type.EXIT -> {
+					exit()
+				}
+				DropFileEvent.Type.DROP -> {
+					drop(it.files ?: listOf())
+				}
+			}
+		}.closeable()
 	}
 
 	override fun toString(): String = "Frame"
@@ -227,59 +239,6 @@ class Frame(app: Application, title: String) : Container(app, LayeredLayout(app)
 
 class AgCanvas(app: Application) : Component(app, LightType.AGCANVAS), AGContainer {
 	override val ag = componentInfo.ag!!
-	override val agInput: AGInput = AGInput()
-
-	private fun updateMouse(e: LightMouseHandler.Info) {
-		agInput.mouseEvent.apply {
-			x = e.x
-			y = e.y
-		}
-	}
-
-	private fun updateGamepad(e: LightGamepadHandler.Info) {
-		agInput.gamepadEvent.gamepad.copyFrom(e.gamepad)
-	}
-
-	private fun updateKey(e: LightKeyHandler.Info) {
-		agInput.keyEvent.keyCode = e.keyCode
-	}
-
-	private fun updateTouch(e: LightTouchHandler.Info) {
-		agInput.touchEvent.id = e.id
-		agInput.touchEvent.x = e.x
-		agInput.touchEvent.y = e.y
-	}
-
-	init {
-		onMouseUp { updateMouse(it); agInput.onMouseUp(agInput.mouseEvent) }
-		onMouseDown { updateMouse(it); agInput.onMouseDown(agInput.mouseEvent) }
-		onMouseOver { updateMouse(it); agInput.onMouseOver(agInput.mouseEvent) }
-		onMouseDrag { updateMouse(it); agInput.onMouseDrag(agInput.mouseEvent) }
-		onMouseClick { updateMouse(it); agInput.onMouseClick(agInput.mouseEvent) }
-
-		onKeyDown { updateKey(it); agInput.onKeyDown(agInput.keyEvent) }
-		onKeyUp { updateKey(it); agInput.onKeyUp(agInput.keyEvent) }
-		onKeyTyped { updateKey(it); agInput.onKeyTyped(agInput.keyEvent) }
-
-		onTouchStart { updateTouch(it); agInput.onTouchStart(agInput.touchEvent) }
-		onTouchEnd { updateTouch(it); agInput.onTouchEnd(agInput.touchEvent) }
-		onTouchMove { updateTouch(it); agInput.onTouchMove(agInput.touchEvent) }
-
-		onGamepadUpdate { updateGamepad(it); agInput.onGamepadUpdate(agInput.gamepadEvent) }
-		onGamepadConnection { updateGamepad(it); agInput.onGamepadConnection(agInput.gamepadEvent) }
-	}
-
-	//var registeredKeyEvents = false
-
-	//override fun ancestorChanged(old: Container?, newParent: Container?) {
-	//	if (!registeredKeyEvents) {
-	//		registeredKeyEvents = true
-	//		println("Registered AgCanvas.keyEvents to $parentFrame")
-	//		parentFrame?.onKeyDown?.invoke { updateKey(it); agInput.onKeyDown(agInput.keyEvent) }
-	//		parentFrame?.onKeyUp?.invoke { updateKey(it); agInput.onKeyUp(agInput.keyEvent) }
-	//		parentFrame?.onKeyTyped?.invoke { updateKey(it); agInput.onKeyTyped(agInput.keyEvent) }
-	//	}
-	//}
 
 	override fun repaint() {
 		ag.repaint()
@@ -470,19 +429,3 @@ suspend inline fun Container.scrollPane(noinline callback: suspend ScrollPane.()
 		callback.await(this)
 	})
 }
-
-
-fun <T : Component> T.click(handler: suspend Component.() -> Unit) =
-	this.apply { onMouseClick { handler.execAndForget(coroutineContext, this) } }
-
-fun <T : Component> T.mouseOver(handler: suspend Component.() -> Unit) =
-	this.apply { onMouseOver { handler.execAndForget(coroutineContext, this) } }
-
-fun <T : Component> T.mouseDrag(handler: suspend Component.() -> Unit) =
-	this.apply { onMouseDrag { handler.execAndForget(coroutineContext, this) } }
-
-fun <T : Component> T.mouseEnter(handler: suspend Component.() -> Unit) =
-	this.apply { onMouseEnter { handler.execAndForget(coroutineContext, this) } }
-
-fun <T : Component> T.mouseExit(handler: suspend Component.() -> Unit) =
-	this.apply { onMouseExit { handler.execAndForget(coroutineContext, this) } }

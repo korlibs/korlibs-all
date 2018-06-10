@@ -2,9 +2,11 @@ package com.soywiz.korge.ui
 
 import com.soywiz.korge.input.*
 import com.soywiz.korge.view.*
-import com.soywiz.korio.lang.Closeable
-import com.soywiz.korio.util.closeable
+import com.soywiz.korio.lang.*
+import com.soywiz.korui.event.*
+import com.soywiz.korui.input.*
 import com.soywiz.korui.light.*
+import kotlin.reflect.*
 
 //class KorgeLightComponentsFactory : LightComponentsFactory() {
 //	//override fun create(): LightComponents = KorgeLightComponents()
@@ -43,13 +45,24 @@ class KorgeLightComponents(val uiFactory: UIFactory) : LightComponents() {
 		}
 	}
 
-	override fun addHandler(c: Any, listener: LightMouseHandler): Closeable {
+	override fun <T : Event> registerEventKind(c: Any, clazz: KClass<T>, ed: EventDispatcher): Cancellable {
 		val view = c as View
-		val info = LightMouseHandler.Info()
-
-		return listOf(
-			view.mouse.onClick { listener.click(info) }
-		).closeable()
+		val mouseEvent = MouseEvent()
+		when (clazz) {
+			MouseEvent::class -> {
+				return listOf(
+					view.mouse.onClick {
+						ed.dispatch(mouseEvent.apply {
+							this.type = MouseEvent.Type.CLICK
+							this.button = MouseButton.LEFT
+							this.x = 0
+							this.y = 0
+						})
+					}
+				).closeable().cancellable()
+			}
+		}
+		return super.registerEventKind(c, clazz, ed)
 	}
 
 	override fun openURL(url: String) {

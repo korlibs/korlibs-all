@@ -10,6 +10,7 @@ import com.soywiz.korge.view.*
 import com.soywiz.korinject.*
 import com.soywiz.korio.async.*
 import com.soywiz.korma.geom.*
+import com.soywiz.korui.event.*
 import kotlin.math.*
 import kotlin.reflect.*
 
@@ -20,6 +21,7 @@ open class KorgeTest {
 	val injector: AsyncInjector = AsyncInjector()
 	val ag: AG = DummyAG()
 	val input: Input = Input()
+	val eventDispatcher = EventDispatcher.Mixin()
 	val views = Views(eventLoop, ag, injector, input, plugins).apply {
 		syncTest {
 			init()
@@ -46,6 +48,7 @@ open class KorgeTest {
 				sceneClass = sceneClass,
 				sceneInjects = injects.toList(),
 				container = canvas,
+				eventDispatcher = eventDispatcher,
 				timeProvider = TimeProvider {
 					//println("Requested Time: $testTime")
 					testTime
@@ -75,9 +78,12 @@ open class KorgeTest {
 	}
 
 	suspend fun Scene.updateMousePosition(x: Int, y: Int) {
-		canvas.agInput.mouseEvent.x = x
-		canvas.agInput.mouseEvent.y = y
-		canvas.agInput.onMouseOver(canvas.agInput.mouseEvent)
+		eventDispatcher.dispatch(MouseEvent(
+			type = MouseEvent.Type.MOVE,
+			id = 0,
+			x = x,
+			y = y
+		))
 		updateTime(0)
 	}
 
@@ -119,8 +125,6 @@ open class KorgeTest {
 	}
 
 	class DummyAGContainer(override val ag: AG) : AGContainer {
-		override val agInput: AGInput = AGInput()
-
 		override fun repaint(): Unit {
 			ag.onRender(ag)
 		}

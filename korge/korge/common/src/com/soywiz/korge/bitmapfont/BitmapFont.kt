@@ -14,6 +14,8 @@ import com.soywiz.korio.error.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.serialization.xml.*
 import com.soywiz.korio.file.*
+import com.soywiz.korio.lang.*
+import com.soywiz.korio.util.*
 import com.soywiz.korma.*
 import kotlin.collections.Map
 import kotlin.collections.arrayListOf
@@ -150,45 +152,113 @@ fun BatchBuilder2D.drawText(
 
 suspend fun VfsFile.readBitmapFont(ag: AG): BitmapFont {
 	val fntFile = this
-	val xml = fntFile.readXml()
+	val content = fntFile.readString().trim()
 	val textures = hashMapOf<Int, Texture>()
 
-	val fontSize = xml["info"].firstOrNull()?.int("size", 16) ?: 16
+	when {
+	// XML
+		content.startsWith('<') -> {
+			val xml = Xml(content)
 
-	for (page in xml["pages"]["page"]) {
-		val id = page.int("id")
-		val file = page.str("file")
-		val texFile = fntFile.parent[file]
-		val tex = texFile.readTexture(ag)
-		textures[id] = tex
+			val fontSize = xml["info"].firstOrNull()?.int("size", 16) ?: 16
+
+			for (page in xml["pages"]["page"]) {
+				val id = page.int("id")
+				val file = page.str("file")
+				val texFile = fntFile.parent[file]
+				val tex = texFile.readTexture(ag)
+				textures[id] = tex
+			}
+
+			val glyphs = xml["chars"]["char"].map {
+				val page = it.int("page")
+				val texture = textures[page] ?: textures.values.first()
+				BitmapFont.Glyph(
+					id = it.int("id"),
+					texture = texture.slice(it.int("x"), it.int("y"), it.int("width"), it.int("height")),
+					xoffset = it.int("xoffset"),
+					yoffset = it.int("yoffset"),
+					xadvance = it.int("xadvance")
+				)
+			}
+
+			val kernings = xml["kernings"]["kerning"].map {
+				BitmapFont.Kerning(
+					first = it.int("first"),
+					second = it.int("second"),
+					amount = it.int("amount")
+				)
+			}
+
+			return BitmapFont(
+				ag = ag,
+				fontSize = fontSize,
+				glyphs = glyphs.map { it.id to it }.toMap().toIntMap(),
+				kernings = kernings.map { BitmapFont.Kerning.buildKey(it.first, it.second) to it }.toMap().toIntMap()
+			)
+		}
+	// FNT
+		content.startsWith("info") -> {
+			data class BmpChar(
+				val id: Int, val x: Int, val y: Int, val width: Int, val height: Int,
+				val xoffset: Int, var yoffset: Int, val xadvance: Int,
+				val page: Int, val chnl: Int
+			)
+			val kernings = arrayListOf<BitmapFont.Kerning>()
+			val glyphs = arrayListOf<BitmapFont.Glyph>()
+			var lineHeight = 16
+			var base: Int? = null
+			for (rline in content.lines()) {
+				val line = rline.trim()
+				val map = LinkedHashMap<String, String>()
+				for (part in line.split(' ')) {
+					val (key, value) = part.split('=') + listOf("", "")
+					map[key] = value
+				}
+				when {
+					line.startsWith("info") -> {
+					}
+					line.startsWith("page") -> {
+						val id = map["id"]?.toInt() ?: 0
+						val file = map["file"]?.unquote() ?: error("page without file")
+						textures[id] = fntFile.parent[file].readTexture(ag)
+					}
+					line.startsWith("common ") -> {
+						lineHeight = map["lineHeight"]?.toIntOrNull() ?: 16
+						base = map["base"]?.toIntOrNull()
+					}
+					line.startsWith("char ") -> {
+						//id=54 x=158 y=88 width=28 height=42 xoffset=2 yoffset=8 xadvance=28 page=0 chnl=0
+						val page = map["page"]?.toIntOrNull() ?: 0
+						val texture = textures[page] ?: textures.values.first()
+						glyphs += Dynamic {
+							BitmapFont.Glyph(
+								id = map["id"].int,
+								xoffset = map["xoffset"].int,
+								yoffset = map["yoffset"].int,
+								xadvance = map["xadvance"].int,
+								texture = texture.slice(map["x"].int, map["y"].int, map["width"].int, map["height"].int)
+							)
+						}
+					}
+					line.startsWith("kerning ") -> {
+						kernings += BitmapFont.Kerning(
+							first = map["first"]?.toIntOrNull() ?: 0,
+							second = map["second"]?.toIntOrNull() ?: 0,
+							amount = map["amount"]?.toIntOrNull() ?: 0
+						)
+					}
+				}
+			}
+			return BitmapFont(
+				ag = ag,
+				fontSize = lineHeight,
+				glyphs = glyphs.map { it.id to it }.toMap().toIntMap(),
+				kernings = kernings.map { BitmapFont.Kerning.buildKey(it.first, it.second) to it }.toMap().toIntMap()
+			)
+		}
+		else ->TODO("Unsupported font type starting with ${content.substr(0, 16)}")
 	}
-
-	val texture = textures.values.first()
-
-	val glyphs = xml["chars"]["char"].map {
-		BitmapFont.Glyph(
-			id = it.int("id"),
-			texture = texture.slice(it.int("x"), it.int("y"), it.int("width"), it.int("height")),
-			xoffset = it.int("xoffset"),
-			yoffset = it.int("yoffset"),
-			xadvance = it.int("xadvance")
-		)
-	}
-
-	val kernings = xml["kernings"]["kerning"].map {
-		BitmapFont.Kerning(
-			first = it.int("first"),
-			second = it.int("second"),
-			amount = it.int("amount")
-		)
-	}
-
-	return BitmapFont(
-		ag = ag,
-		fontSize = fontSize,
-		glyphs = glyphs.map { it.id to it }.toMap().toIntMap(),
-		kernings = kernings.map { BitmapFont.Kerning.buildKey(it.first, it.second) to it }.toMap().toIntMap()
-	)
 }
 
 // @TODO: Move to kds

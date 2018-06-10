@@ -3,12 +3,13 @@ package com.soywiz.korge.component.docking
 import com.soywiz.korge.component.*
 import com.soywiz.korge.view.*
 import com.soywiz.korma.geom.*
+import com.soywiz.korui.event.*
 
 class DockingComponent(view: View, var anchor: Anchor) : Component(view) {
 	//private val bounds = Rectangle()
 
 	init {
-		addEventListener<StageResizedEvent> { e ->
+		addEventListener<ResizedEvent> { e ->
 			view.x = views.actualVirtualLeft.toDouble() + (views.actualVirtualWidth) * anchor.sx
 			view.y = views.actualVirtualTop.toDouble() + (views.actualVirtualHeight) * anchor.sy
 			view.invalidate()

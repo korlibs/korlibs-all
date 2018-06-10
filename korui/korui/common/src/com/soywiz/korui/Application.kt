@@ -4,6 +4,7 @@ import com.soywiz.korag.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.coroutine.*
+import com.soywiz.korui.event.*
 import com.soywiz.korui.geom.len.*
 import com.soywiz.korui.light.*
 import com.soywiz.korui.ui.*
@@ -45,12 +46,10 @@ suspend fun Application.frame(
 	frame.icon = icon
 	callback.await(frame)
 	light.setBounds(frame.handle, 0, 0, frame.actualBounds.width, frame.actualBounds.height)
-	light.addHandler(frame.handle, object : LightResizeHandler() {
-		override fun resized(e: Info) {
-			frame.setBoundsInternal(0, 0, e.width, e.height)
-			frame.invalidate()
-		}
-	})
+	frame.addEventListener<ResizedEvent> { e ->
+		frame.setBoundsInternal(0, 0, e.width, e.height)
+		frame.invalidate()
+	}
 	frames += frame
 	frame.visible = true
 	frame.invalidate()
@@ -84,7 +83,7 @@ suspend fun CanvasApplicationEx(
 	height: Int = 480,
 	icon: Bitmap? = null,
 	light: LightComponents = defaultLight,
-	callback: suspend (AGContainer, Frame) -> Unit = { c, f -> }
+	callback: suspend (AgCanvas, Frame) -> Unit = { c, f -> }
 ): Unit {
 	//if (agFactory.supportsNativeFrame) {
 	//	val win = agFactory.createFastWindow(title, width, height)
