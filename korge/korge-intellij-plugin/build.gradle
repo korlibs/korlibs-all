@@ -18,7 +18,6 @@ intellij {
 	version "IC-2017.2.5"
 	plugins = ['kotlin']
 	pluginName 'KorgePlugin'
-	plugins 'coverage'
 	downloadSources true
 }
 

@@ -4,11 +4,16 @@ import com.soywiz.korag.*
 import com.soywiz.korim.awt.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.file.std.*
+import com.soywiz.korio.lang.*
 import com.soywiz.korio.lang.Closeable
+import com.soywiz.korui.event.*
+import com.soywiz.korui.event.Event
 import java.awt.*
 import java.awt.datatransfer.*
 import java.awt.dnd.*
 import java.awt.event.*
+import java.awt.event.KeyEvent
+import java.awt.event.MouseEvent
 import java.awt.image.*
 import java.io.*
 import java.net.*
@@ -17,6 +22,11 @@ import javax.swing.*
 import javax.swing.border.*
 import javax.swing.event.*
 import javax.swing.text.*
+import kotlin.reflect.*
+
+typealias KoruiMouseEvent = com.soywiz.korui.event.MouseEvent
+typealias KoruiMouseEventType = com.soywiz.korui.event.MouseEvent.Type
+typealias KoruiChangeEvent = com.soywiz.korui.event.ChangeEvent
 
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
 class AwtLightComponents : LightComponents() {
@@ -56,152 +66,151 @@ class AwtLightComponents : LightComponents() {
 		}
 	}
 
-	override fun addHandler(c: Any, listener: LightMouseHandler): Closeable {
-		val cc = c as Component
+	override fun <T : Event> registerEventKind(c: Any, clazz: KClass<T>, ed: EventDispatcher): Cancellable {
+		when (clazz) {
+			KoruiMouseEvent::class -> {
+				val cc = c as Component
 
-		val adapter = object : MouseAdapter() {
-			private val info = LightMouseHandler.Info()
+				val adapter = object : MouseAdapter() {
+					private val info = KoruiMouseEvent()
 
-			private fun populate(e: MouseEvent): LightMouseHandler.Info = info.apply {
-				x = e.x
-				y = e.y
-				buttons = 1 shl e.button
-				isAltDown = e.isAltDown
-				isCtrlDown = e.isControlDown
-				isShiftDown = e.isShiftDown
-				isMetaDown = e.isMetaDown
-			}
+					private fun dispatch(ntype: KoruiMouseEventType, e: MouseEvent) {
+						info.apply {
+							type = ntype
+							x = e.x
+							y = e.y
+							buttons = 1 shl e.button
+							isAltDown = e.isAltDown
+							isCtrlDown = e.isControlDown
+							isShiftDown = e.isShiftDown
+							isMetaDown = e.isMetaDown
+						}
+						ed.dispatch(info)
+					}
 
-			override fun mouseReleased(e: MouseEvent) = listener.up2(populate(e))
-			override fun mousePressed(e: MouseEvent) = listener.down2(populate(e))
-			override fun mouseClicked(e: MouseEvent) = listener.click2(populate(e))
-			override fun mouseMoved(e: MouseEvent) = listener.over2(populate(e))
-			override fun mouseDragged(e: MouseEvent) = listener.dragged2(populate(e))
-			override fun mouseEntered(e: MouseEvent) = listener.enter2(populate(e))
-			override fun mouseExited(e: MouseEvent) = listener.exit2(populate(e))
-		}
-
-		cc.addMouseListener(adapter)
-		cc.addMouseMotionListener(adapter)
-
-		return Closeable {
-			cc.removeMouseListener(adapter)
-			cc.removeMouseMotionListener(adapter)
-		}
-	}
-
-	override fun addHandler(c: Any, listener: LightChangeHandler): Closeable {
-		var rc = c as Component
-		if (rc is JScrollableTextArea) rc = rc.textArea
-		val cc = rc as? JTextComponent
-
-		val adaptor = object : DocumentListener {
-			val info = LightChangeHandler.Info()
-
-			override fun changedUpdate(e: DocumentEvent?) = listener.changed2(info)
-			override fun insertUpdate(e: DocumentEvent?) = listener.changed2(info)
-			override fun removeUpdate(e: DocumentEvent?) = listener.changed2(info)
-		}
-
-		cc?.document?.addDocumentListener(adaptor)
-
-		return Closeable {
-			cc?.document?.removeDocumentListener(adaptor)
-		}
-	}
-
-	override fun addHandler(c: Any, listener: LightDropHandler): Closeable {
-		val cc = c as JFrame
-
-		val oldTH = cc.transferHandler
-		cc.transferHandler = object : TransferHandler() {
-			override fun canImport(support: TransferHandler.TransferSupport): Boolean {
-				return support.isDataFlavorSupported(DataFlavor.javaFileListFlavor)
-			}
-
-			override fun importData(support: TransferHandler.TransferSupport): Boolean {
-				if (!canImport(support)) return false
-				val l = support.transferable.getTransferData(DataFlavor.javaFileListFlavor) as List<File>
-				listener.files(LightDropHandler.FileInfo(l.map { LocalVfs(it) }))
-				return true
-			}
-		}
-		val adapter = object : DropTargetAdapter() {
-			override fun dragEnter(dtde: DropTargetDragEvent) {
-				if (listener.enter(LightDropHandler.EnterInfo())) {
-					dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE)
+					override fun mouseReleased(e: MouseEvent) = dispatch(KoruiMouseEventType.UP, e)
+					override fun mousePressed(e: MouseEvent) = dispatch(KoruiMouseEventType.DOWN, e)
+					override fun mouseClicked(e: MouseEvent) = dispatch(KoruiMouseEventType.CLICK, e)
+					override fun mouseMoved(e: MouseEvent) = dispatch(KoruiMouseEventType.MOVE, e)
+					override fun mouseDragged(e: MouseEvent) = dispatch(KoruiMouseEventType.MOVE, e)
+					override fun mouseEntered(e: MouseEvent) = dispatch(KoruiMouseEventType.OVER, e)
+					override fun mouseExited(e: MouseEvent) = dispatch(KoruiMouseEventType.OUT, e)
 				}
+
+				cc.addMouseListener(adapter)
+				cc.addMouseMotionListener(adapter)
+
+				return Closeable {
+					cc.removeMouseListener(adapter)
+					cc.removeMouseMotionListener(adapter)
+				}.cancellable()
 			}
+			com.soywiz.korui.event.ChangeEvent::class -> {
+				var rc = c as Component
+				if (rc is JScrollableTextArea) rc = rc.textArea
+				val cc = rc as? JTextComponent
 
-			override fun dragExit(dte: DropTargetEvent) {
-				listener.exit()
+				val adaptor = object : DocumentListener {
+					val info = KoruiChangeEvent(null, null)
+
+					override fun changedUpdate(e: DocumentEvent?) = ed.dispatch(info)
+					override fun insertUpdate(e: DocumentEvent?) = ed.dispatch(info)
+					override fun removeUpdate(e: DocumentEvent?) = ed.dispatch(info)
+				}
+
+				cc?.document?.addDocumentListener(adaptor)
+
+				return Closeable {
+					cc?.document?.removeDocumentListener(adaptor)
+				}.cancellable()
 			}
+			DropFileEvent::class -> {
+				val cc = c as JFrame
 
-			override fun drop(dtde: DropTargetDropEvent?) {
+				val oldTH = cc.transferHandler
+				cc.transferHandler = object : TransferHandler() {
+					override fun canImport(support: TransferHandler.TransferSupport): Boolean {
+						return support.isDataFlavorSupported(DataFlavor.javaFileListFlavor)
+					}
+
+					override fun importData(support: TransferHandler.TransferSupport): Boolean {
+						if (!canImport(support)) return false
+						val l = support.transferable.getTransferData(DataFlavor.javaFileListFlavor) as List<File>
+						ed.dispatch(DropFileEvent(DropFileEvent.Type.DROP, l.map { LocalVfs(it) }))
+						return true
+					}
+				}
+				val adapter = object : DropTargetAdapter() {
+					override fun dragEnter(dtde: DropTargetDragEvent) {
+						ed.dispatch(DropFileEvent(DropFileEvent.Type.ENTER, null))
+						//if (listener.enter(LightDropHandler.EnterInfo())) {
+							dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE)
+						//}
+					}
+
+					override fun dragExit(dte: DropTargetEvent) {
+						ed.dispatch(DropFileEvent(DropFileEvent.Type.EXIT, null))
+					}
+
+					override fun drop(dtde: DropTargetDropEvent?) {
+					}
+				}
+				cc.dropTarget.addDropTargetListener(adapter)
+
+				return Closeable {
+					cc.transferHandler = oldTH
+					cc.dropTarget.removeDropTargetListener(adapter)
+				}.cancellable()
 			}
-		}
-		cc.dropTarget.addDropTargetListener(adapter)
+			ResizedEvent::class -> {
+				val info = ResizedEvent(0, 0)
+				val cc = c as Frame
 
-		return Closeable {
-			cc.transferHandler = oldTH
-			cc.dropTarget.removeDropTargetListener(adapter)
-		}
-	}
+				fun send() {
+					val cc2 = (c as JFrame2)
+					val cp = cc2.contentPane
+					ed.dispatch(info.apply {
+						width = cp.width
+						height = cp.height
+					})
+				}
 
-	override fun addHandler(c: Any, listener: LightResizeHandler): Closeable {
-		val info = LightResizeHandler.Info()
-		val cc = c as Frame
+				val adapter = object : ComponentAdapter() {
+					override fun componentResized(e: ComponentEvent) {
+						send()
+					}
+				}
 
-		fun send() {
-			val cc2 = (c as JFrame2)
-			val cp = cc2.contentPane
-			listener.resized2(info.apply {
-				width = cp.width
-				height = cp.height
-			})
-		}
-
-		val adapter = object : ComponentAdapter() {
-			override fun componentResized(e: ComponentEvent) {
+				cc.addComponentListener(adapter)
 				send()
+
+				return Closeable {
+					cc.removeComponentListener(adapter)
+				}.cancellable()
+			}
+			com.soywiz.korui.event.KeyEvent::class -> {
+				val cc = c as Component
+				val ev = com.soywiz.korui.event.KeyEvent()
+
+				val adapter = object : KeyAdapter() {
+					private fun populate(type: com.soywiz.korui.event.KeyEvent.Type, e: KeyEvent) = ev.apply {
+						this.type = type
+						this.keyCode = e.keyCode
+					}
+
+					override fun keyTyped(e: KeyEvent) = ed.dispatch(populate(com.soywiz.korui.event.KeyEvent.Type.TYPE, e))
+					override fun keyPressed(e: KeyEvent) = ed.dispatch(populate(com.soywiz.korui.event.KeyEvent.Type.DOWN, e))
+					override fun keyReleased(e: KeyEvent) = ed.dispatch(populate(com.soywiz.korui.event.KeyEvent.Type.UP, e))
+				}
+
+				cc.addKeyListener(adapter)
+
+				return Closeable {
+					cc.removeKeyListener(adapter)
+				}.cancellable()
 			}
 		}
-
-		cc.addComponentListener(adapter)
-		send()
-
-		return Closeable {
-			cc.removeComponentListener(adapter)
-		}
-	}
-
-	override fun addHandler(c: Any, listener: LightKeyHandler): Closeable {
-		val cc = c as Component
-		val ev = LightKeyHandler.Info()
-
-		val adapter = object : KeyAdapter() {
-			private fun populate(e: KeyEvent) = ev.apply {
-				keyCode = e.keyCode
-			}
-
-			override fun keyTyped(e: KeyEvent) = listener.typed2(populate(e))
-			override fun keyPressed(e: KeyEvent) = listener.down2(populate(e))
-			override fun keyReleased(e: KeyEvent) = listener.up2(populate(e))
-		}
-
-		cc.addKeyListener(adapter)
-
-		return Closeable {
-			cc.removeKeyListener(adapter)
-		}
-	}
-
-	override fun addHandler(c: Any, listener: LightGamepadHandler): Closeable {
-		return super.addHandler(c, listener)
-	}
-
-	override fun addHandler(c: Any, listener: LightTouchHandler): Closeable {
-		return super.addHandler(c, listener)
+		TODO()
 	}
 
 	val Any.actualComponent: Component get() = if (this is JFrame2) this.panel else (this as Component)

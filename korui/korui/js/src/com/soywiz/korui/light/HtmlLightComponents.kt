@@ -279,7 +279,7 @@ class HtmlLightComponents : LightComponents() {
 			}
 			com.soywiz.korui.event.ResizedEvent::class -> {
 				val node = window
-				val info = LightResizeHandler.Info()
+				val info = ResizedEvent()
 
 				var lastWidth = -1
 				var lastHeight = -1
@@ -295,7 +295,7 @@ class HtmlLightComponents : LightComponents() {
 							mainFrame?.style?.height = "${lastHeight}px"
 						}
 
-						listener.resized2(info.apply {
+						ed.dispatch(info.apply {
 							width = lastWidth
 							height = lastHeight
 						})
@@ -319,87 +319,88 @@ class HtmlLightComponents : LightComponents() {
 							closed = true
 						}
 					}
-				).closeable()
+				).closeable().cancellable()
 			}
-			com.soywiz.korui.event.KeyEvent::class -> {
-				val node = c as HTMLElement
-				val info = LightKeyHandler.Info()
+			//om.soywiz.korui.event.GamePadConnectionEvent::class -> {
+			//	val node = c as HTMLElement
+			//	val info = GamePadConnectionEvent()
 
-				fun process(e: KeyboardEvent) = info.apply {
-					this.keyCode = e.keyCode
-				}
+			//	fun process(e: KeyboardEvent) = info.apply {
+			//		this.keyCode = e.keyCode
+			//	}
 
-				val rnode: HTMLElement = if (node.tagName.toUpperCase() == "CANVAS") window.asDynamic() else node
+			//	val rnode: HTMLElement = if (node.tagName.toUpperCase() == "CANVAS") window.asDynamic() else node
 
-				window.addEventListener("gamepadconnected", { e ->
-					info.gamepad.connected = true
-					listener.connection(info)
-				})
-				window.addEventListener("gamepaddisconnected", { e ->
-					info.gamepad.connected = false
-					listener.connection(info)
-				})
+			//	window.addEventListener("gamepadconnected", { e ->
+			//		info.gamepad.connected = true
+			//		ed.dispatch(info)
+			//	})
+			//	window.addEventListener("gamepaddisconnected", { e ->
+			//		info.gamepad.connected = false
+			//		ed.dispatch(info)
+			//	})
 
-				return super.addHandler(c, listener)
-			}
-			com.soywiz.korui.event.GamePadButtonEvent::class -> {
-				val info = LightGamepadHandler.Info()
+			//	return super.addHandler(c, listener)
+			//
+			//om.soywiz.korui.event.GamePadButtonEvent::class -> {
+			//	val info = GamePadButtonEvent()
 
-				@Suppress("UNUSED_PARAMETER")
-				fun frame(e: Double) {
-					window.requestAnimationFrame(::frame)
-					if (navigator.getGamepads != null) {
-						val gamepads = navigator.getGamepads().unsafeCast<Array<dynamic>>()
-						for (gamepadId in 0 until gamepads.asDynamic().length.unsafeCast<Int>()) {
-							val controller = gamepads[gamepadId] ?: continue
-							val buttonsArray = controller.buttons
-							val axesArray = controller.axes
-							val controllerName = controller.id.unsafeCast<String?>() ?: "unknown"
-							val controllerIndex = controller.index.unsafeCast<Int>()
-							var buttons = 0
-							val igamepad = info.gamepad
-							for (i in 0 until buttonsArray.length.unsafeCast<Int>()) {
-								if (buttonsArray[i].pressed.unsafeCast<Boolean>()) buttons = buttons or (1 shl i)
-							}
-							for (i in 0 until min(igamepad.axes.size, axesArray.length.unsafeCast<Int>())) {
-								igamepad.axes[i] = axesArray[i].unsafeCast<Double>()
-							}
-							igamepad.connected = true
-							igamepad.index = controllerIndex
-							igamepad.name = controllerName
-							igamepad.mapping = knownControllers[controllerName] ?: StandardGamepadMapping
-							igamepad.buttons = buttons
-							listener.update(info)
-						}
-					}
-				}
-				frame(0.0)
+			//	@Suppress("UNUSED_PARAMETER")
+			//	fun frame(e: Double) {
+			//		window.requestAnimationFrame(::frame)
+			//		if (navigator.getGamepads != null) {
+			//			val gamepads = navigator.getGamepads().unsafeCast<Array<dynamic>>()
+			//			for (gamepadId in 0 until gamepads.asDynamic().length.unsafeCast<Int>()) {
+			//				val controller = gamepads[gamepadId] ?: continue
+			//				val buttonsArray = controller.buttons
+			//				val axesArray = controller.axes
+			//				val controllerName = controller.id.unsafeCast<String?>() ?: "unknown"
+			//				val controllerIndex = controller.index.unsafeCast<Int>()
+			//				var buttons = 0
+			//				val igamepad = info
+			//				for (i in 0 until buttonsArray.length.unsafeCast<Int>()) {
+			//					if (buttonsArray[i].pressed.unsafeCast<Boolean>()) buttons = buttons or (1 shl i)
+			//				}
+			//				for (i in 0 until min(igamepad.axes.size, axesArray.length.unsafeCast<Int>())) {
+			//					igamepad.axes[i] = axesArray[i].unsafeCast<Double>()
+			//				}
+			//				igamepad.connected = true
+			//				igamepad.index = controllerIndex
+			//				igamepad.name = controllerName
+			//				igamepad.mapping = knownControllers[controllerName] ?: StandardGamepadMapping
+			//				igamepad.buttons = buttons
+			//				ed.update(info)
+			//			}
+			//		}
+			//	}
+			//	frame(0.0)
 
-				window.addEventListener("gamepadconnected", { e ->
-					info.gamepad.connected = true
-					listener.connection(info)
-				})
-				window.addEventListener("gamepaddisconnected", { e ->
-					info.gamepad.connected = false
-					listener.connection(info)
-				})
+			//	window.addEventListener("gamepadconnected", { e ->
+			//		info.gamepad.connected = true
+			//		listener.connection(info)
+			//	})
+			//	window.addEventListener("gamepaddisconnected", { e ->
+			//		info.gamepad.connected = false
+			//		listener.connection(info)
+			//	})
 
-				return super.addHandler(c, listener)
-			}
+			//	return super.addHandler(c, listener)
+			//
 			com.soywiz.korui.event.TouchEvent::class -> {
 				val node = c as HTMLElement
 
-				fun process(e: Event, preventDefault: Boolean): List<LightTouchHandler.Info> {
-					val out = arrayListOf<LightTouchHandler.Info>()
+				fun process(type: TouchEvent.Type, e: Event, preventDefault: Boolean): List<TouchEvent> {
+					val out = arrayListOf<TouchEvent>()
 
 					val touches = e.unsafeCast<dynamic>().changedTouches
 					val touchesLength: Int = touches.length.unsafeCast<Int>()
 					for (n in 0 until touchesLength) {
 						val touch = touches[n].unsafeCast<dynamic>()
-						out += LightTouchHandler.Info().apply {
-							this.x = touch.pageX.unsafeCast<Double>().toInt()
-							this.y = touch.pageY.unsafeCast<Double>().toInt()
-							this.id = touch.identifier.unsafeCast<Int>()
+						out += TouchEvent().apply {
+							this.type = type
+							this.touch.current.x = touch.pageX.unsafeCast<Double>()
+							this.touch.current.y = touch.pageY.unsafeCast<Double>()
+							this.touch.id = touch.identifier.unsafeCast<Int>()
 						}
 					}
 					if (preventDefault) e.preventDefault()
@@ -409,14 +410,14 @@ class HtmlLightComponents : LightComponents() {
 				return listOf(
 					node.addCloseableEventListener(
 						"touchstart",
-						{ for (info in process(it, preventDefault = true)) listener.start2(info) }),
+						{ for (info in process(TouchEvent.Type.START, it, preventDefault = true)) ed.dispatch(info) }),
 					node.addCloseableEventListener(
 						"touchend",
-						{ for (info in process(it, preventDefault = true)) listener.end2(info) }),
+						{ for (info in process(TouchEvent.Type.END, it, preventDefault = true)) ed.dispatch(info) }),
 					node.addCloseableEventListener(
 						"touchmove",
-						{ for (info in process(it, preventDefault = true)) listener.move2(info) })
-				).closeable()
+						{ for (info in process(TouchEvent.Type.MOVE, it, preventDefault = true)) ed.dispatch(info) })
+				).closeable().cancellable()
 			}
 			com.soywiz.korui.event.DropFileEvent::class -> {
 				val node = c as HTMLElement
@@ -434,17 +435,17 @@ class HtmlLightComponents : LightComponents() {
 					}
 					//jsEmptyArray()
 					val fileSystem = JsFilesVfs(files)
-					listener.files(LightDropHandler.FileInfo(files.map { fileSystem[it.name] }))
+					ed.dispatch(DropFileEvent(DropFileEvent.Type.ENTER, files.map { fileSystem[it.name] }))
 				}
 
 				fun ondragenter(e: DragEvent) {
 					e.preventDefault()
-					listener.enter(LightDropHandler.EnterInfo())
+					ed.dispatch(DropFileEvent(DropFileEvent.Type.ENTER, null))
 				}
 
 				fun ondragexit(e: DragEvent) {
 					e.preventDefault()
-					listener.exit()
+					ed.dispatch(DropFileEvent(DropFileEvent.Type.EXIT, null))
 				}
 
 				return listOf(
@@ -455,7 +456,7 @@ class HtmlLightComponents : LightComponents() {
 					node.addCloseableEventListener("dragenter") { ondragenter(it.unsafeCast<DragEvent>()) },
 					node.addCloseableEventListener("dragover") { it.preventDefault() },
 					node.addCloseableEventListener("dragleave") { ondragexit(it.unsafeCast<DragEvent>()) }
-				).closeable()
+				).closeable().cancellable()
 			}
 		}
 		TODO()
