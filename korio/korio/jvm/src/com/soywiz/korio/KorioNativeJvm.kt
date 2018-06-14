@@ -7,7 +7,11 @@ import com.soywiz.korio.file.std.*
 import com.soywiz.korio.net.*
 import com.soywiz.korio.net.http.*
 import com.soywiz.korio.net.ws.*
+import com.soywiz.korio.util.*
+import org.java_websocket.handshake.*
 import java.io.*
+import java.lang.Exception
+import java.nio.*
 import java.security.*
 import java.util.*
 import javax.crypto.*
@@ -151,7 +155,7 @@ actual object KorioNative {
 	actual val eventLoopFactoryDefaultImpl: EventLoopFactory = EventLoopFactoryJvmAndCSharp()
 
 	actual val asyncSocketFactory: AsyncSocketFactory by lazy { JvmAsyncSocketFactory() }
-	actual val websockets: WebSocketClientFactory get() = TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+	actual val websockets: WebSocketClientFactory by lazy { JvmWebSocketClientFactory() }
 	actual val File_separatorChar: Char by lazy { File.separatorChar }
 
 	actual fun rootLocalVfs(): VfsFile = localVfs(".")
@@ -177,4 +181,64 @@ actual object KorioNative {
 	actual fun getenv(key: String): String? {
 		return System.getenv(key)
 	}
+}
+
+class JvmWebSocketClientFactory : WebSocketClientFactory() {
+	override suspend fun create(
+		url: String,
+		protocols: List<String>?,
+		origin: String?,
+		wskey: String?,
+		debug: Boolean
+	): WebSocketClient {
+		return object : WebSocketClient(url, protocols, false) {
+			val that = this
+
+			val client = object : org.java_websocket.client.WebSocketClient(java.net.URI(url)) {
+				override fun onOpen(handshakedata: ServerHandshake) {
+					that.onOpen(Unit)
+				}
+
+				override fun onClose(code: Int, reason: String, remote: Boolean) {
+					that.onClose(Unit)
+				}
+
+				override fun onMessage(message: String) {
+					that.onStringMessage(message)
+					that.onAnyMessage(message)
+				}
+
+				override fun onMessage(bytes: ByteBuffer) {
+					val rbytes = bytes.toByteArray()
+					that.onBinaryMessage(rbytes)
+					that.onAnyMessage(rbytes)
+				}
+
+				override fun onError(ex: Exception) {
+					that.onError(ex)
+				}
+			}
+
+			suspend fun init() {
+				client.connect()
+			}
+
+			override fun close(code: Int, reason: String) {
+				client.close(code, reason)
+			}
+
+			override suspend fun send(message: String) {
+				client.send(message)
+			}
+
+			override suspend fun send(message: ByteArray) {
+				client.send(message)
+			}
+		}.apply {
+			init()
+			val res = listOf(onOpen, onError).waitOne()
+			if (res is Throwable) throw res
+		}
+	}
+
 }

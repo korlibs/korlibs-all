@@ -74,6 +74,20 @@ fun <TI, TO> Signal<TI>.mapSignal(transform: (TI) -> TO): Signal<TO> {
 
 operator fun Signal<Unit>.invoke() = invoke(Unit)
 
+suspend fun Iterable<Signal<*>>.waitOne(): Any? = suspendCancellableCoroutine { c ->
+	val closes = arrayListOf<Closeable>()
+	for (signal in this) {
+		closes += signal.once {
+			closes.close()
+			c.resume(it)
+		}
+	}
+
+	c.onCancel {
+		closes.close()
+	}
+}
+
 suspend fun <T> Signal<T>.waitOne(): T = suspendCancellableCoroutine { c ->
 	var close: Closeable? = null
 	close = once {

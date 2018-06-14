@@ -3,7 +3,7 @@ package com.soywiz.korio.net.ws
 import com.soywiz.korio.*
 import com.soywiz.korio.async.*
 
-abstract class WebSocketClient protected constructor(val url: String, val protocols: List<String>?, int: Boolean) {
+abstract class WebSocketClient protected constructor(val url: String, val protocols: List<String>?, DEBUG: Boolean) {
 	val onOpen = Signal<Unit>()
 	val onError = Signal<Throwable>()
 	val onClose = Signal<Unit>()
