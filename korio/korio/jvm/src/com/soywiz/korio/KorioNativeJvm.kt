@@ -49,7 +49,7 @@ actual val nativeDelay: Delay = JvmDelay
 actual object KorioNative {
 	actual val currentThreadId: Long get() = Thread.currentThread().id
 
-	actual fun getClassSimpleName(clazz: KClass<*>): String = clazz.java.name
+	actual fun getClassSimpleName(clazz: KClass<*>): String = clazz.java.simpleName
 
 	actual abstract class NativeThreadLocal<T> {
 		actual abstract fun initialValue(): T
