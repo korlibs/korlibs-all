@@ -17,6 +17,7 @@ import com.soywiz.korio.lang.*
 import com.soywiz.korma.geom.*
 import com.soywiz.korui.*
 import com.soywiz.korui.event.*
+import com.soywiz.korui.input.*
 import com.soywiz.korui.ui.*
 import kotlin.math.*
 import kotlin.reflect.*
@@ -98,45 +99,6 @@ object Korge {
 		var moveMouseOutsideInNextFrame = false
 
 		/*
-		fun mouseDown(name: String, x: Int, y: Int) {
-			//Console.log("mouseDown: $name")
-			views.input.mouseButtons = 1
-			views.input.mouse.setTo(x * ag.pixelDensity, y * ag.pixelDensity)
-			views.mouseUpdated()
-			downPos.copyFrom(views.input.mouse)
-			views.dispatch(mouseDownEvent)
-			downTime = Klock.currentTimeMillisDouble()
-		}
-
-		fun mouseMove(name: String, x: Int, y: Int) {
-			//Console.log("mouseMove: $name")
-			views.input.mouse.setTo(x * ag.pixelDensity, y * ag.pixelDensity)
-			views.mouseUpdated()
-			views.dispatch(mouseMovedEvent)
-			moveTime = Klock.currentTimeMillisDouble()
-		}
-
-		fun mouseDrag(name: String, x: Int, y: Int) {
-			//Console.log("mouseMove: $name")
-			views.input.mouse.setTo(x * ag.pixelDensity, y * ag.pixelDensity)
-			views.mouseUpdated()
-			views.dispatch(mouseDragEvent)
-			moveTime = Klock.currentTimeMillisDouble()
-		}
-
-		fun mouseUp(name: String, x: Int, y: Int) {
-			//Console.log("mouseUp: $name")
-			views.input.mouseButtons = 0
-			views.input.mouse.setTo(x * ag.pixelDensity, y * ag.pixelDensity)
-			views.mouseUpdated()
-			upPos.copyFrom(views.input.mouse)
-			views.dispatch(mouseUpEvent)
-			upTime = Klock.currentTimeMillisDouble()
-			if ((downTime - upTime) <= 40.0) {
-				//Console.log("mouseClick: $name")
-				views.dispatch(mouseClickEvent)
-			}
-		}
 
 		fun AGInput.KeyEvent.copyTo(e: KeyEvent) {
 			e.keyCode = this.keyCode
@@ -235,25 +197,87 @@ object Korge {
 			it.copyTo(keyTypedEvent)
 			views.dispatch(keyTypedEvent)
 		}
+		*/
+
+		//fun mouseUp(name: String, x: Int, y: Int) {
+		//
+		//	views.dispatch(mouseUpEvent)
+		//}
+
+		eventDispatcher.addEventListener<MouseEvent> { e ->
+			val x = e.x
+			val y = e.y
+			when (e.type) {
+				MouseEvent.Type.DOWN -> {
+					views.input.mouseButtons = 1
+					views.input.mouse.setTo(x * ag.pixelDensity, y * ag.pixelDensity)
+					views.mouseUpdated()
+					downPos.copyFrom(views.input.mouse)
+					downTime = Klock.currentTimeMillisDouble()
+				}
+				MouseEvent.Type.UP -> {
+					//Console.log("mouseUp: $name")
+					views.input.mouseButtons = 0
+					views.input.mouse.setTo(x * ag.pixelDensity, y * ag.pixelDensity)
+					views.mouseUpdated()
+					upPos.copyFrom(views.input.mouse)
+				}
+				MouseEvent.Type.MOVE -> {
+					views.input.mouse.setTo(x * ag.pixelDensity, y * ag.pixelDensity)
+					views.mouseUpdated()
+					moveTime = Klock.currentTimeMillisDouble()
+				}
+			}
+			//println(e)
+			views.dispatch(e)
+			if (e.type == MouseEvent.Type.UP) {
+				upTime = Klock.currentTimeMillisDouble()
+				if ((downTime - upTime) <= 40.0) {
+					//Console.log("mouseClick: $name")
+					views.dispatch(MouseEvent(MouseEvent.Type.CLICK))
+				}
+			}
+		}
+
+		eventDispatcher.addEventListener<KeyEvent> {
+			println(it)
+			views.dispatch(it)
+		}
+
+		eventDispatcher.addEventListener<TouchEvent> {
+			println(it)
+			views.dispatch(it)
+		}
+
+		eventDispatcher.addEventListener<ResizedEvent> {
+			println(it)
+		}
 
 		fun gamepadUpdated(gamepad: GamepadInfo) {
 			input.gamepads[gamepad.index].copyFrom(gamepad)
 			input.updateConnectedGamepads()
 		}
 
-		agInput.onGamepadUpdate {
-			gamepadUpdated(it.gamepad)
-			it.copyTo(gamepadTypedEvent)
-			views.dispatch(gamepadTypedEvent)
+		//agInput.onGamepadUpdate {
+		//	gamepadUpdated(it.gamepad)
+		//	it.copyTo(gamepadTypedEvent)
+		//	views.dispatch(gamepadTypedEvent)
+		//}
+
+		eventDispatcher.addEventListener<GamePadButtonEvent> {
+			println(it)
 		}
 
-		agInput.onGamepadConnection {
-			gamepadUpdated(it.gamepad)
-			it.copyTo(gamepadConnectionEvent)
-			views.dispatch(gamepadConnectionEvent)
+		eventDispatcher.addEventListener<GamePadStickEvent> {
+			println(it)
 		}
-		*/
 
+		eventDispatcher.addEventListener<GamePadConnectionEvent> {
+			println(it)
+			//gamepadUpdated(it.gamepad)
+			//it.copyTo(gamepadConnectionEvent)
+			//views.dispatch(gamepadConnectionEvent)
+		}
 
 		ag.onResized {
 			//println("ag.onResized: ${ag.backWidth},${ag.backHeight}")

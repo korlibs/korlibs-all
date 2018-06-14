@@ -24,9 +24,9 @@ class KeysComponent(view: View) : Component(view) {
 
 	init {
 		keys {
-			detatchCancellables += this.down { go { onKeyDown(this) } }
-			detatchCancellables += this.up { go { onKeyUp(this) } }
-			detatchCancellables += this.press { go { onKeyTyped(this) } }
+			detatchCloseables += this.down { go { onKeyDown(this) } }
+			detatchCloseables += this.up { go { onKeyUp(this) } }
+			detatchCloseables += this.press { go { onKeyTyped(this) } }
 		}
 	}
 }

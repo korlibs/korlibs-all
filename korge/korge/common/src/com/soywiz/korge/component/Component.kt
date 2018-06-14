@@ -9,22 +9,22 @@ import kotlin.reflect.*
 
 open class Component(val view: View) : CoroutineContextHolder, EventDispatcher by view {
 	override val coroutineContext: CoroutineContext get() = view.views.coroutineContext
-	val detatchCancellables = arrayListOf<Cancellable>()
+	val detatchCloseables = arrayListOf<Closeable>()
 
 	val views: Views get() = view.views
 	fun attach() = view.addComponent(this)
 	fun dettach() = view.removeComponent(this)
 	fun afterDetatch() {
-		for (e in detatchCancellables) e.cancel()
-		detatchCancellables.clear()
+		for (e in detatchCloseables) e.close()
+		detatchCloseables.clear()
 	}
 
 	open fun update(dtMs: Int): Unit = Unit
 
-	override fun <T : Event> addEventListener(clazz: KClass<T>, handler: (T) -> Unit): Cancellable {
+	override fun <T : Event> addEventListener(clazz: KClass<T>, handler: (T) -> Unit): Closeable {
 		val c = this.view.addEventListener<T>(clazz, handler)
-		detatchCancellables += c
-		return Cancellable { detatchCancellables -= c }
+		detatchCloseables += c
+		return Closeable { detatchCloseables -= c }
 	}
 
 	override fun <T : Event> dispatch(clazz: KClass<T>, event: T) {

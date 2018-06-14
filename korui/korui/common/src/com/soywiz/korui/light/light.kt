@@ -41,7 +41,7 @@ open class LightComponents {
 			object : EventDispatcher.Mixin() {
 				val registeredClasses = LinkedHashSet<KClass<out Event>>()
 
-				override fun <T : Event> addEventListener(clazz: KClass<T>, handler: (T) -> Unit): Cancellable {
+				override fun <T : Event> addEventListener(clazz: KClass<T>, handler: (T) -> Unit): Closeable {
 					if (clazz !in registeredClasses) {
 						registeredClasses += clazz
 						registerEventKind(c, clazz, this)
@@ -52,12 +52,12 @@ open class LightComponents {
 		}
 	}
 
-	fun <T : Event> register(c: Any, clazz: KClass<T>, handler: (T) -> Unit): Cancellable {
+	fun <T : Event> register(c: Any, clazz: KClass<T>, handler: (T) -> Unit): Closeable {
 		return getEventListener(c).addEventListener(clazz, handler)
 	}
 
-	protected open fun <T : Event> registerEventKind(c: Any, clazz: KClass<T>, ed: EventDispatcher): Cancellable {
-		return Cancellable { }
+	protected open fun <T : Event> registerEventKind(c: Any, clazz: KClass<T>, ed: EventDispatcher): Closeable {
+		return Closeable { }
 	}
 
 	open fun getDpi(): Double = 96.0

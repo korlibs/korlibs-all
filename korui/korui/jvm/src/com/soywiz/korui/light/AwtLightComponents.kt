@@ -66,7 +66,7 @@ class AwtLightComponents : LightComponents() {
 		}
 	}
 
-	override fun <T : Event> registerEventKind(c: Any, clazz: KClass<T>, ed: EventDispatcher): Cancellable {
+	override fun <T : Event> registerEventKind(c: Any, clazz: KClass<T>, ed: EventDispatcher): Closeable {
 		when (clazz) {
 			KoruiMouseEvent::class -> {
 				val cc = c as Component
@@ -103,7 +103,7 @@ class AwtLightComponents : LightComponents() {
 				return Closeable {
 					cc.removeMouseListener(adapter)
 					cc.removeMouseMotionListener(adapter)
-				}.cancellable()
+				}
 			}
 			com.soywiz.korui.event.ChangeEvent::class -> {
 				var rc = c as Component
@@ -122,7 +122,7 @@ class AwtLightComponents : LightComponents() {
 
 				return Closeable {
 					cc?.document?.removeDocumentListener(adaptor)
-				}.cancellable()
+				}
 			}
 			DropFileEvent::class -> {
 				val cc = c as JFrame
@@ -160,19 +160,21 @@ class AwtLightComponents : LightComponents() {
 				return Closeable {
 					cc.transferHandler = oldTH
 					cc.dropTarget.removeDropTargetListener(adapter)
-				}.cancellable()
+				}
 			}
 			ResizedEvent::class -> {
 				val info = ResizedEvent(0, 0)
-				val cc = c as Frame
+				val cc = c as? Container?
 
 				fun send() {
-					val cc2 = (c as JFrame2)
-					val cp = cc2.contentPane
-					ed.dispatch(info.apply {
-						width = cp.width
-						height = cp.height
-					})
+					val cc2 = (c as? JFrame2?)
+					val cp = cc2?.contentPane
+					if (cp != null) {
+						ed.dispatch(info.apply {
+							width = cp.width
+							height = cp.height
+						})
+					}
 				}
 
 				val adapter = object : ComponentAdapter() {
@@ -181,12 +183,12 @@ class AwtLightComponents : LightComponents() {
 					}
 				}
 
-				cc.addComponentListener(adapter)
+				cc?.addComponentListener(adapter)
 				send()
 
 				return Closeable {
-					cc.removeComponentListener(adapter)
-				}.cancellable()
+					cc?.removeComponentListener(adapter)
+				}
 			}
 			com.soywiz.korui.event.KeyEvent::class -> {
 				val cc = c as Component
@@ -207,10 +209,10 @@ class AwtLightComponents : LightComponents() {
 
 				return Closeable {
 					cc.removeKeyListener(adapter)
-				}.cancellable()
+				}
 			}
 		}
-		TODO()
+		return Closeable { }
 	}
 
 	val Any.actualComponent: Component get() = if (this is JFrame2) this.panel else (this as Component)

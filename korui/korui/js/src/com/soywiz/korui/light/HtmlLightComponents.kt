@@ -229,7 +229,7 @@ class HtmlLightComponents : LightComponents() {
 
 	override fun <T : com.soywiz.korui.event.Event> registerEventKind(
 		c: Any, clazz: KClass<T>, ed: EventDispatcher
-	): Cancellable {
+	): Closeable {
 		val node = c as HTMLElement
 
 		when (clazz) {
@@ -261,7 +261,7 @@ class HtmlLightComponents : LightComponents() {
 
 				return listOf("click", "mouseover", "mousemove", "mouseup", "mousedown")
 					.map { node.addCloseableEventListener(it, { dispatchMouseEvent(it) }) }
-					.closeable().cancellable()
+					.closeable()
 			}
 			com.soywiz.korui.event.ChangeEvent::class -> {
 				val event = com.soywiz.korui.event.ChangeEvent()
@@ -319,7 +319,7 @@ class HtmlLightComponents : LightComponents() {
 							closed = true
 						}
 					}
-				).closeable().cancellable()
+				).closeable()
 			}
 			//om.soywiz.korui.event.GamePadConnectionEvent::class -> {
 			//	val node = c as HTMLElement
@@ -417,7 +417,7 @@ class HtmlLightComponents : LightComponents() {
 					node.addCloseableEventListener(
 						"touchmove",
 						{ for (info in process(TouchEvent.Type.MOVE, it, preventDefault = true)) ed.dispatch(info) })
-				).closeable().cancellable()
+				).closeable()
 			}
 			com.soywiz.korui.event.DropFileEvent::class -> {
 				val node = c as HTMLElement
@@ -456,10 +456,10 @@ class HtmlLightComponents : LightComponents() {
 					node.addCloseableEventListener("dragenter") { ondragenter(it.unsafeCast<DragEvent>()) },
 					node.addCloseableEventListener("dragover") { it.preventDefault() },
 					node.addCloseableEventListener("dragleave") { ondragexit(it.unsafeCast<DragEvent>()) }
-				).closeable().cancellable()
+				).closeable()
 			}
 		}
-		TODO()
+		return Closeable { }
 	}
 
 	override fun <T> callAction(c: Any, key: LightAction<T>, param: T) {

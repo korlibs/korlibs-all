@@ -45,7 +45,7 @@ class KorgeLightComponents(val uiFactory: UIFactory) : LightComponents() {
 		}
 	}
 
-	override fun <T : Event> registerEventKind(c: Any, clazz: KClass<T>, ed: EventDispatcher): Cancellable {
+	override fun <T : Event> registerEventKind(c: Any, clazz: KClass<T>, ed: EventDispatcher): Closeable {
 		val view = c as View
 		val mouseEvent = MouseEvent()
 		when (clazz) {
@@ -59,7 +59,7 @@ class KorgeLightComponents(val uiFactory: UIFactory) : LightComponents() {
 							this.y = 0
 						})
 					}
-				).closeable().cancellable()
+				).closeable()
 			}
 		}
 		return super.registerEventKind(c, clazz, ed)

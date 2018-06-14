@@ -45,7 +45,7 @@ open class Component(val app: Application, val type: LightType) : Styled, Extra 
 	val actualBounds: RectangleInt = RectangleInt()
 	val eventListener by lazy { lc.getEventListener(handle) }
 
-	override fun <T : Event> addEventListener(clazz: KClass<T>, handler: (T) -> Unit): Cancellable = eventListener.addEventListener(clazz, handler)
+	override fun <T : Event> addEventListener(clazz: KClass<T>, handler: (T) -> Unit): Closeable = eventListener.addEventListener(clazz, handler)
 	override fun <T : Event> dispatch(clazz: KClass<T>, event: T) = eventListener.dispatch(clazz, event)
 
 	val actualWidth: Int get() = actualBounds.width
@@ -231,7 +231,7 @@ class Frame(app: Application, title: String) : Container(app, LayeredLayout(app)
 					drop(it.files ?: listOf())
 				}
 			}
-		}.closeable()
+		}
 	}
 
 	override fun toString(): String = "Frame"

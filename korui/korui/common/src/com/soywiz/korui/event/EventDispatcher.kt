@@ -5,7 +5,7 @@ import com.soywiz.korio.lang.*
 import kotlin.reflect.*
 
 interface EventDispatcher {
-	fun <T : Event> addEventListener(clazz: KClass<T>, handler: (T) -> Unit): Cancellable
+	fun <T : Event> addEventListener(clazz: KClass<T>, handler: (T) -> Unit): Closeable
 	fun <T : Event> dispatch(clazz: KClass<T>, event: T)
 
 	open class Mixin : EventDispatcher {
@@ -16,9 +16,9 @@ interface EventDispatcher {
 			return handlers.getOrPut(clazz) { arrayListOf() } as ArrayList<(T) -> Unit>
 		}
 
-		override fun <T : Event> addEventListener(clazz: KClass<T>, handler: (T) -> Unit): Cancellable {
+		override fun <T : Event> addEventListener(clazz: KClass<T>, handler: (T) -> Unit): Closeable {
 			getHandlersFor(clazz) += handler
-			return Cancellable { getHandlersFor(clazz) -= handler }
+			return Closeable { getHandlersFor(clazz) -= handler }
 		}
 
 		private val tempHandlers = Pool<ArrayList<(Event) -> Unit>>(reset = { it.clear() }) { arrayListOf() }
@@ -35,11 +35,11 @@ interface EventDispatcher {
 	}
 }
 
-object DummyEventDispatcher : EventDispatcher, Cancellable {
-	override fun cancel(e: Throwable) {
+object DummyEventDispatcher : EventDispatcher, Closeable {
+	override fun close() {
 	}
 
-	override fun <T : Event> addEventListener(clazz: KClass<T>, handler: (T) -> Unit): Cancellable {
+	override fun <T : Event> addEventListener(clazz: KClass<T>, handler: (T) -> Unit): Closeable {
 		return this
 	}
 
