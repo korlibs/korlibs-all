@@ -97,12 +97,9 @@ object Korge {
 		var moveTime = 0.0
 		var upTime = 0.0
 		var moveMouseOutsideInNextFrame = false
+		val mouseTouchId = -1
 
 		/*
-
-		fun AGInput.KeyEvent.copyTo(e: KeyEvent) {
-			e.keyCode = this.keyCode
-		}
 
 		fun AGInput.GamepadEvent.copyTo(e: GamepadUpdatedEvent) {
 			e.gamepad.copyFrom(this.gamepad)
@@ -112,15 +109,29 @@ object Korge {
 			e.gamepad.copyFrom(this.gamepad)
 		}
 
-		fun updateTouch(id: Int, x: Int, y: Int, start: Boolean, end: Boolean) {
+
+
+		// MOUSE
+		agInput.onMouseDown { e ->
+			mouseDown("onMouseDown", e.x, e.y)
+		}
+		agInput.onMouseUp { e ->
+			mouseUp("onMouseUp", e.x, e.y)
+		}
+		agInput.onMouseOver { e -> mouseMove("onMouseOver", e.x, e.y) }
+		agInput.onMouseDrag { e ->
+			mouseDrag("onMouseDrag", e.x, e.y)
+			updateTouch(mouseTouchId, e.x, e.y, start = false, end = false)
+		}
+		//agInput.onMouseClick { e -> } // Triggered by mouseUp
+		*/
+
+		fun updateTouch(id: Int, x: Double, y: Double, start: Boolean, end: Boolean) {
 			val touch = input.getTouch(id)
 			val now = Klock.currentTimeMillisDouble()
 			val sx = x * ag.pixelDensity
 			val sy = y * ag.pixelDensity
 
-			touchEvent.touch = touch
-			touchEvent.start = start
-			touchEvent.end = end
 			touch.id = id
 			touch.active = !end
 
@@ -133,124 +144,127 @@ object Korge {
 			touch.current.setTo(sx, sy)
 
 			input.updateTouches()
-			views.dispatch(touchEvent)
 		}
 
-		// MOUSE
-		val mouseTouchId = -1
-		agInput.onMouseDown { e ->
-			mouseDown("onMouseDown", e.x, e.y)
-			updateTouch(mouseTouchId, e.x, e.y, start = true, end = false)
+		fun mouseDown(type: String, x: Double, y: Double) {
+			views.input.mouseButtons = 1
+			views.input.mouse.setTo(x * ag.pixelDensity, y * ag.pixelDensity)
+			views.mouseUpdated()
+			downPos.copyFrom(views.input.mouse)
+			downTime = Klock.currentTimeMillisDouble()
 		}
-		agInput.onMouseUp { e ->
-			mouseUp("onMouseUp", e.x, e.y)
-			updateTouch(mouseTouchId, e.x, e.y, start = false, end = true)
-		}
-		agInput.onMouseOver { e -> mouseMove("onMouseOver", e.x, e.y) }
-		agInput.onMouseDrag { e ->
-			mouseDrag("onMouseDrag", e.x, e.y)
-			updateTouch(mouseTouchId, e.x, e.y, start = false, end = false)
-		}
-		//agInput.onMouseClick { e -> } // Triggered by mouseUp
 
-		// TOUCH
-		fun touch(e: AGInput.TouchEvent, start: Boolean, end: Boolean) {
-			updateTouch(e.id, e.x, e.y, start, end)
-			when {
-				start -> {
-					mouseDown("onTouchStart", e.x, e.y)
-				}
-				end -> {
-					mouseUp("onTouchEnd", e.x, e.y)
-					moveMouseOutsideInNextFrame = true
-				}
-				else -> {
-					mouseDrag("onTouchMove", e.x, e.y)
-				}
+		fun mouseUp(type: String, x: Double, y: Double) {
+			//Console.log("mouseUp: $name")
+			views.input.mouseButtons = 0
+			views.input.mouse.setTo(x * ag.pixelDensity, y * ag.pixelDensity)
+			views.mouseUpdated()
+			upPos.copyFrom(views.input.mouse)
+
+			upTime = Klock.currentTimeMillisDouble()
+			if ((downTime - upTime) <= 40.0) {
+				//Console.log("mouseClick: $name")
+				views.dispatch(MouseEvent(MouseEvent.Type.CLICK))
 			}
 		}
 
-		agInput.onTouchStart { e -> touch(e, start = true, end = false) }
-		agInput.onTouchMove { e -> touch(e, start = false, end = false) }
-		agInput.onTouchEnd { e -> touch(e, start = false, end = true) }
-
-		// KEYS
-		agInput.onKeyDown {
-			views.input.setKey(it.keyCode, true)
-			//println("onKeyDown: $it")
-			it.copyTo(keyDownEvent)
-			views.dispatch(keyDownEvent)
+		fun mouseDrag(type: String, x: Double, y: Double) {
+			views.input.mouse.setTo(x * ag.pixelDensity, y * ag.pixelDensity)
+			views.mouseUpdated()
+			moveTime = Klock.currentTimeMillisDouble()
 		}
-		agInput.onKeyUp {
-			views.input.setKey(it.keyCode, false)
-			//println("onKeyUp: $it")
-			it.copyTo(keyUpEvent)
-			views.dispatch(keyUpEvent)
 
-			// DEBUG!
-			if (it.keyCode == Keys.F12) {
-				views.debugViews = !views.debugViews
-			}
+		fun mouseMove(type: String, x: Double, y: Double) {
+			views.input.mouse.setTo(x * ag.pixelDensity, y * ag.pixelDensity)
+			views.mouseUpdated()
+			moveTime = Klock.currentTimeMillisDouble()
 		}
-		agInput.onKeyTyped {
-			//println("onKeyTyped: $it")
-			it.copyTo(keyTypedEvent)
-			views.dispatch(keyTypedEvent)
-		}
-		*/
-
-		//fun mouseUp(name: String, x: Int, y: Int) {
-		//
-		//	views.dispatch(mouseUpEvent)
-		//}
 
 		eventDispatcher.addEventListener<MouseEvent> { e ->
-			val x = e.x
-			val y = e.y
+			val x = e.x.toDouble()
+			val y = e.y.toDouble()
 			when (e.type) {
 				MouseEvent.Type.DOWN -> {
-					views.input.mouseButtons = 1
-					views.input.mouse.setTo(x * ag.pixelDensity, y * ag.pixelDensity)
-					views.mouseUpdated()
-					downPos.copyFrom(views.input.mouse)
-					downTime = Klock.currentTimeMillisDouble()
+					mouseDown("mouseDown", x, y)
+					updateTouch(mouseTouchId, x, y, start = true, end = false)
 				}
 				MouseEvent.Type.UP -> {
-					//Console.log("mouseUp: $name")
-					views.input.mouseButtons = 0
-					views.input.mouse.setTo(x * ag.pixelDensity, y * ag.pixelDensity)
-					views.mouseUpdated()
-					upPos.copyFrom(views.input.mouse)
+					mouseUp("mouseUp", x, y)
+					updateTouch(mouseTouchId, x, y, start = false, end = true)
 				}
 				MouseEvent.Type.MOVE -> {
-					views.input.mouse.setTo(x * ag.pixelDensity, y * ag.pixelDensity)
-					views.mouseUpdated()
-					moveTime = Klock.currentTimeMillisDouble()
+					mouseDrag("mouseMove", x, y)
+				}
+				MouseEvent.Type.DRAG -> {
+					mouseMove("onMouseDrag", x, y)
+					updateTouch(mouseTouchId, x, y, start = false, end = false)
 				}
 			}
 			//println(e)
 			views.dispatch(e)
-			if (e.type == MouseEvent.Type.UP) {
-				upTime = Klock.currentTimeMillisDouble()
-				if ((downTime - upTime) <= 40.0) {
-					//Console.log("mouseClick: $name")
-					views.dispatch(MouseEvent(MouseEvent.Type.CLICK))
-				}
-			}
 		}
 
 		eventDispatcher.addEventListener<KeyEvent> {
 			println(it)
+			when (it.type) {
+				KeyEvent.Type.DOWN -> {
+					views.input.setKey(it.keyCode, true)
+				}
+				KeyEvent.Type.UP -> {
+					views.input.setKey(it.keyCode, false)
+
+					if (it.key == Key.F12) {
+						views.debugViews = !views.debugViews
+					}
+				}
+				KeyEvent.Type.TYPE -> {
+					//println("onKeyTyped: $it")
+				}
+			}
 			views.dispatch(it)
+		}
+
+
+		// TOUCH
+		fun touch(e: TouchEvent, start: Boolean, end: Boolean) {
+			val t = e.touch
+			val x = t.current.x
+			val y = t.current.y
+			updateTouch(t.id, x, y, start, end)
+			when {
+				start -> {
+					mouseDown("onTouchStart", x, y)
+				}
+				end -> {
+					mouseUp("onTouchEnd", x, y)
+					moveMouseOutsideInNextFrame = true
+				}
+				else -> {
+					mouseDrag("onTouchMove", x, y)
+				}
+			}
 		}
 
 		eventDispatcher.addEventListener<TouchEvent> {
 			println(it)
+			val ix = it.touch.current.x.toInt()
+			val iy = it.touch.current.y.toInt()
+			when (it.type) {
+				TouchEvent.Type.START -> {
+					touch(it, start = true, end = false)
+					views.dispatch(MouseEvent(MouseEvent.Type.DOWN, 0, ix, iy, MouseButton.LEFT, 1))
+				}
+				TouchEvent.Type.MOVE -> {
+					touch(it, start = false, end = false)
+					views.dispatch(MouseEvent(MouseEvent.Type.DRAG, 0, ix, iy, MouseButton.LEFT, 1))
+				}
+				TouchEvent.Type.END -> {
+					touch(it, start = false, end = true)
+					views.dispatch(MouseEvent(MouseEvent.Type.UP, 0, ix, iy, MouseButton.LEFT, 0))
+					//println("DISPATCH MouseEvent(MouseEvent.Type.UP)")
+				}
+			}
 			views.dispatch(it)
-		}
-
-		eventDispatcher.addEventListener<ResizedEvent> {
-			println(it)
 		}
 
 		fun gamepadUpdated(gamepad: GamepadInfo) {
@@ -279,11 +293,17 @@ object Korge {
 			//views.dispatch(gamepadConnectionEvent)
 		}
 
+		eventDispatcher.addEventListener<ResizedEvent> {
+			println(it)
+			views.resized(ag.backWidth, ag.backHeight)
+		}
+
 		ag.onResized {
 			//println("ag.onResized: ${ag.backWidth},${ag.backHeight}")
 			views.resized(ag.backWidth, ag.backHeight)
 		}
 		ag.resized()
+		eventDispatcher.dispatch(ResizedEvent(100, 100))
 
 		var lastTime = config.timeProvider.currentTimeMillis()
 		//println("lastTime: $lastTime")

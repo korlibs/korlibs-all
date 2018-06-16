@@ -250,10 +250,18 @@ class HtmlLightComponents : LightComponents() {
 						this.isMetaDown = me.metaKey
 						this.type = when (me.type) {
 							"click" -> com.soywiz.korui.event.MouseEvent.Type.CLICK
-							"mouseover" -> com.soywiz.korui.event.MouseEvent.Type.OVER
-							"mousemove" -> com.soywiz.korui.event.MouseEvent.Type.MOVE
+							"mousemove" -> {
+								if (me.button.toInt() == 0) {
+									com.soywiz.korui.event.MouseEvent.Type.MOVE
+								} else {
+									com.soywiz.korui.event.MouseEvent.Type.DRAG
+								}
+							}
 							"mouseup" -> com.soywiz.korui.event.MouseEvent.Type.UP
 							"mousedown" -> com.soywiz.korui.event.MouseEvent.Type.DOWN
+							"mouseenter" -> com.soywiz.korui.event.MouseEvent.Type.DOWN
+							"mouseover" -> com.soywiz.korui.event.MouseEvent.Type.ENTER
+							"mouseout" -> com.soywiz.korui.event.MouseEvent.Type.EXIT
 							else -> error("Unsupported event type ${me.type}")
 						}
 					})
@@ -321,27 +329,26 @@ class HtmlLightComponents : LightComponents() {
 					}
 				).closeable()
 			}
-			//om.soywiz.korui.event.GamePadConnectionEvent::class -> {
-			//	val node = c as HTMLElement
-			//	val info = GamePadConnectionEvent()
+			com.soywiz.korui.event.GamePadConnectionEvent::class -> {
+				val info = GamePadConnectionEvent()
 
-			//	fun process(e: KeyboardEvent) = info.apply {
-			//		this.keyCode = e.keyCode
-			//	}
+				val rnode: HTMLElement = if (node.tagName.toUpperCase() == "CANVAS") window.asDynamic() else node
 
-			//	val rnode: HTMLElement = if (node.tagName.toUpperCase() == "CANVAS") window.asDynamic() else node
+				fun process(connected: Boolean, e: Event) {
+					ed.dispatch(info.apply {
+						this.type = when {
+							connected -> GamePadConnectionEvent.Type.CONNECTED
+							else -> GamePadConnectionEvent.Type.DISCONNECTED
+						}
+						this.gamepad = e.asDynamic().gamepad.index
+					})
+				}
 
-			//	window.addEventListener("gamepadconnected", { e ->
-			//		info.gamepad.connected = true
-			//		ed.dispatch(info)
-			//	})
-			//	window.addEventListener("gamepaddisconnected", { e ->
-			//		info.gamepad.connected = false
-			//		ed.dispatch(info)
-			//	})
-
-			//	return super.addHandler(c, listener)
-			//
+				return listOf(
+					rnode.addCloseableEventListener("gamepadconnected") { process(true, it) },
+					rnode.addCloseableEventListener("gamepaddisconnected") { process(false, it) }
+				).closeable()
+			}
 			//om.soywiz.korui.event.GamePadButtonEvent::class -> {
 			//	val info = GamePadButtonEvent()
 
@@ -387,8 +394,6 @@ class HtmlLightComponents : LightComponents() {
 			//	return super.addHandler(c, listener)
 			//
 			com.soywiz.korui.event.TouchEvent::class -> {
-				val node = c as HTMLElement
-
 				fun process(type: TouchEvent.Type, e: Event, preventDefault: Boolean): List<TouchEvent> {
 					val out = arrayListOf<TouchEvent>()
 
@@ -420,8 +425,6 @@ class HtmlLightComponents : LightComponents() {
 				).closeable()
 			}
 			com.soywiz.korui.event.DropFileEvent::class -> {
-				val node = c as HTMLElement
-
 				fun ondrop(e: DragEvent) {
 					e.preventDefault()
 					//console.log("ondrop", e)

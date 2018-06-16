@@ -19,7 +19,7 @@ data class MouseEvent(
 	var isMetaDown: Boolean = false
 ) :
 	Event() {
-	enum class Type { MOVE, OVER, OUT, UP, DOWN, CLICK }
+	enum class Type { MOVE, DRAG, UP, DOWN, CLICK, ENTER, EXIT }
 }
 
 data class MouseScrollEvent(
@@ -57,7 +57,7 @@ data class KeyEvent(var type: Type = Type.UP, var id: Int = 0, var key: Key = Ke
 	enum class Type { UP, DOWN, TYPE }
 }
 
-data class GamePadConnectionEvent(var type: Type, var gamepad: Int) : Event() {
+data class GamePadConnectionEvent(var type: Type = Type.CONNECTED, var gamepad: Int = 0) : Event() {
 	enum class Type { CONNECTED, DISCONNECTED }
 }
 
@@ -82,8 +82,10 @@ class MouseEvents(val ed: EventDispatcher) : Closeable {
 	fun click(callback: () -> Unit) = ed.addEventListener<MouseEvent> { if (it.type == MouseEvent.Type.CLICK) callback() }
 	fun up(callback: () -> Unit) = ed.addEventListener<MouseEvent> { if (it.type == MouseEvent.Type.UP) callback() }
 	fun down(callback: () -> Unit) = ed.addEventListener<MouseEvent> { if (it.type == MouseEvent.Type.DOWN) callback() }
-	fun over(callback: () -> Unit) = ed.addEventListener<MouseEvent> { if (it.type == MouseEvent.Type.OVER) callback() }
-	fun out(callback: () -> Unit) = ed.addEventListener<MouseEvent> { if (it.type == MouseEvent.Type.OUT) callback() }
+	fun move(callback: () -> Unit) = ed.addEventListener<MouseEvent> { if (it.type == MouseEvent.Type.MOVE) callback() }
+	fun drag(callback: () -> Unit) = ed.addEventListener<MouseEvent> { if (it.type == MouseEvent.Type.DRAG) callback() }
+	fun enter(callback: () -> Unit) = ed.addEventListener<MouseEvent> { if (it.type == MouseEvent.Type.ENTER) callback() }
+	fun exit(callback: () -> Unit) = ed.addEventListener<MouseEvent> { if (it.type == MouseEvent.Type.EXIT) callback() }
 	override fun close() {
 	}
 }

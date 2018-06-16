@@ -90,7 +90,7 @@ class MouseComponent(view: View) : Component(view) {
 			down {
 				downPos.copyFrom(input.mouse)
 			}
-			over {
+			enter {
 				//println(e)
 			}
 		}

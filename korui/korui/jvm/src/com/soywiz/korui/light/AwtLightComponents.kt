@@ -92,9 +92,9 @@ class AwtLightComponents : LightComponents() {
 					override fun mousePressed(e: MouseEvent) = dispatch(KoruiMouseEventType.DOWN, e)
 					override fun mouseClicked(e: MouseEvent) = dispatch(KoruiMouseEventType.CLICK, e)
 					override fun mouseMoved(e: MouseEvent) = dispatch(KoruiMouseEventType.MOVE, e)
-					override fun mouseDragged(e: MouseEvent) = dispatch(KoruiMouseEventType.MOVE, e)
-					override fun mouseEntered(e: MouseEvent) = dispatch(KoruiMouseEventType.OVER, e)
-					override fun mouseExited(e: MouseEvent) = dispatch(KoruiMouseEventType.OUT, e)
+					override fun mouseDragged(e: MouseEvent) = dispatch(KoruiMouseEventType.DRAG, e)
+					override fun mouseEntered(e: MouseEvent) = dispatch(KoruiMouseEventType.ENTER, e)
+					override fun mouseExited(e: MouseEvent) = dispatch(KoruiMouseEventType.EXIT, e)
 				}
 
 				cc.addMouseListener(adapter)
