@@ -89,7 +89,7 @@ class Views(
 	var scaleMode: ScaleMode = ScaleMode.SHOW_ALL
 	var scaleAnchor = Anchor.MIDDLE_CENTER
 
-	suspend override fun init() {
+	override suspend fun init() {
 		for (plugin in plugins.plugins) plugin.register(this)
 	}
 

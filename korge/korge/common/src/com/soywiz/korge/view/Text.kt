@@ -24,12 +24,21 @@ class Text(views: Views) : View(views), IText, IHtml {
 	var document: Html.Document? = null
 	private var _format: Html.Format = Html.Format()
 	var filtering = true
-	var autoSize = false
+	var autoSize = true
 		set(value) {
 			field = value
 			recalculateBoundsWhenRequired()
 		}
 	var bgcolor = Colors.TRANSPARENT_BLACK
+
+	fun setTextBounds(rect: Rectangle) {
+		this.textBounds.copyFrom(rect)
+		autoSize = false
+	}
+
+	fun unsetTextBounds() {
+		autoSize = true
+	}
 
 	var format: Html.Format
 		get() = _format
