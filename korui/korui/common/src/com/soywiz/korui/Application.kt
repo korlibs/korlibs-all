@@ -75,8 +75,10 @@ suspend fun CanvasApplicationEx(
 	height: Int = 480,
 	icon: Bitmap? = null,
 	light: LightComponents = defaultLight,
+	quality: LightQuality = LightQuality.PERFORMANCE,
 	callback: suspend (AgCanvas, Frame) -> Unit = { c, f -> }
 ): Unit {
+	light.quality = quality
 	val application = Application(getCoroutineContext(), light)
 	application.frame(title, width, height, icon) {
 		val canvas = agCanvas().apply { focus() }

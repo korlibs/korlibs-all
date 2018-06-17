@@ -5,6 +5,7 @@ import com.soywiz.korim.color.*
 import com.soywiz.korim.vector.*
 import com.soywiz.korinject.*
 import com.soywiz.korma.geom.*
+import com.soywiz.korui.light.*
 import kotlin.reflect.*
 
 open class Module {
@@ -13,8 +14,10 @@ open class Module {
 	open val icon: String? = null
 	open val iconImage: Context2d.SizedDrawable? = null
 
-	open val size: SizeInt = SizeInt(640, 480)
-	open val windowSize: SizeInt = size
+	open val quality: LightQuality = LightQuality.PERFORMANCE
+
+	open val size: SizeInt by lazy { SizeInt(640, 480) }
+	open val windowSize: SizeInt get() = size
 	open val plugins: List<KorgePlugin> = listOf()
 
 	open val mainScene: KClass<out Scene> = EmptyScene::class

@@ -596,8 +596,8 @@ class HtmlLightComponents : LightComponents() {
 		childStyle.height = "${height}px"
 
 		if (child is HTMLCanvasElement) {
-			child.width = (width * devicePixelRatio).toInt()
-			child.height = (height * devicePixelRatio).toInt()
+			child.width = if (quality == LightQuality.QUALITY) (width * devicePixelRatio).toInt() else width
+			child.height = if (quality == LightQuality.QUALITY) (height * devicePixelRatio).toInt() else height
 		}
 	}
 

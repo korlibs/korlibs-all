@@ -436,10 +436,11 @@ object Korge {
 
 		logger.trace { "Korge.test pre CanvasApplicationEx" }
 		CanvasApplicationEx(
-			config.module.title,
-			config.module.windowSize.width,
-			config.module.windowSize.height,
-			icon
+			title = module.title,
+			width = module.windowSize.width,
+			height = module.windowSize.height,
+			icon = icon,
+			quality = module.quality
 		) { container, frame ->
 			logger.trace { "Korge.test [1]" }
 			go {

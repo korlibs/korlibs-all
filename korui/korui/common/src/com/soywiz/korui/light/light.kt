@@ -17,11 +17,17 @@ interface LightComponentsFactory {
 	fun create(): LightComponents
 }
 
+enum class LightQuality {
+	QUALITY, PERFORMANCE
+}
+
 open class LightComponents {
 	class LightComponentInfo(val handle: Any) : Extra by Extra.Mixin()
 
 	open fun create(type: LightType): LightComponentInfo = LightComponentInfo(Unit)
 	open fun setParent(c: Any, parent: Any?): Unit = Unit
+
+	var quality = LightQuality.PERFORMANCE
 
 	var insideEventHandler: Boolean = false; private set
 
