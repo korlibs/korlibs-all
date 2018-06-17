@@ -385,6 +385,9 @@ class AwtLightComponents : LightComponents() {
 		val sr = Toolkit.getDefaultToolkit().screenResolution
 		return sr.toDouble()
 	}
+
+	override fun configuredFrame(handle: Any) {
+	}
 }
 
 class JFrame2 : JFrame() {

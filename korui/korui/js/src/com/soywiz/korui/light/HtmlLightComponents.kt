@@ -677,6 +677,10 @@ class HtmlLightComponents : LightComponents() {
 	override fun getDpi(): Double {
 		return (window.devicePixelRatio.toInt() * 96).toDouble()
 	}
+
+	override fun configuredFrame(handle: Any) {
+		getEventListener(handle).dispatch(ResizedEvent(window.innerWidth, window.innerHeight))
+	}
 }
 
 class JsFileAsyncStreamBase(val jsfile: File) : AsyncStreamBase() {

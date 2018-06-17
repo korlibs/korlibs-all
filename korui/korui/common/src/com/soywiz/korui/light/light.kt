@@ -73,6 +73,8 @@ open class LightComponents {
 	open suspend fun dialogOpenFile(c: Any, filter: String): VfsFile = throw UnsupportedOperationException()
 	open fun openURL(url: String): Unit = Unit
 	open fun open(file: VfsFile): Unit = openURL(file.absolutePath)
+	open fun configuredFrame(handle: Any) {
+	}
 }
 
 val defaultLightFactory: LightComponentsFactory by lazy { NativeLightsComponentsFactory }

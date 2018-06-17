@@ -1,6 +1,6 @@
 package com.soywiz.korui
 
-import com.soywiz.korag.*
+import com.soywiz.klogger.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.coroutine.*
@@ -33,6 +33,8 @@ class Application(val coroutineContext: CoroutineContext, val light: LightCompon
 	}
 }
 
+private val koruiApplicationLog = Logger("korui-application")
+
 suspend fun Application.frame(
 	title: String,
 	width: Int = 640,
@@ -44,38 +46,28 @@ suspend fun Application.frame(
 		setBoundsInternal(0, 0, width, height)
 	}
 	frame.icon = icon
-	callback.await(frame)
 	light.setBounds(frame.handle, 0, 0, frame.actualBounds.width, frame.actualBounds.height)
+	koruiApplicationLog.info { "Application.frame: ${frame.actualBounds}" }
 	frame.addEventListener<ResizedEvent> { e ->
+		koruiApplicationLog.info { "Application.frame.ResizedEvent: ${e.width},${e.height}" }
 		frame.setBoundsInternal(0, 0, e.width, e.height)
 		frame.invalidate()
 	}
+	callback.await(frame)
 	frames += frame
 	frame.visible = true
 	frame.invalidate()
 	return frame
 }
 
-
-suspend fun CanvasApplication(
-	title: String,
-	width: Int = 640,
-	height: Int = 480,
-	icon: Bitmap? = null,
-	light: LightComponents = defaultLight,
-	callback: suspend (AGContainer) -> Unit = {}
-): Unit {
-	//if (agFactory.supportsNativeFrame) {
-	//	val win = agFactory.createFastWindow(title, width, height)
-	//	callback(win)
-	//} else {
-	val application = Application(getCoroutineContext(), light)
-	application.frame(title, width, height, icon) {
-		callback(agCanvas().apply { focus() })
-	}
-	//}
-	Unit
-}
+//suspend fun CanvasApplication(
+//	title: String,
+//	width: Int = 640,
+//	height: Int = 480,
+//	icon: Bitmap? = null,
+//	light: LightComponents = defaultLight,
+//	callback: suspend (AGContainer) -> Unit = {}
+//) = CanvasApplicationEx(title, width, height, icon, light) { canvas, _ -> callback(canvas) }
 
 suspend fun CanvasApplicationEx(
 	title: String,
@@ -85,14 +77,11 @@ suspend fun CanvasApplicationEx(
 	light: LightComponents = defaultLight,
 	callback: suspend (AgCanvas, Frame) -> Unit = { c, f -> }
 ): Unit {
-	//if (agFactory.supportsNativeFrame) {
-	//	val win = agFactory.createFastWindow(title, width, height)
-	//	callback(win)
-	//} else {
 	val application = Application(getCoroutineContext(), light)
 	application.frame(title, width, height, icon) {
-		callback(agCanvas().apply { focus() }, this)
+		val canvas = agCanvas().apply { focus() }
+		light.configuredFrame(handle)
+		callback(canvas, this)
 	}
-	//}
 	Unit
 }

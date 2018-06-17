@@ -28,6 +28,7 @@ object Korge {
 	suspend fun setupCanvas(config: Config): SceneContainer {
 		if (config.trace) println("Korge.setupCanvas[1]")
 		val injector = config.injector
+		val frame = config.frame
 
 		val eventDispatcher = config.eventDispatcher
 		val agContainer = config.container ?: error("No agContainer defined")
@@ -47,6 +48,8 @@ object Korge {
 		if (config.frame != null) {
 			injector.mapInstance(Frame::class, config.frame)
 		}
+
+		//println("FRAME: $frame, ${config.frame}")
 
 		logger.trace { "pre plugins" }
 
@@ -296,12 +299,12 @@ object Korge {
 		}
 
 		eventDispatcher.addEventListener<ResizedEvent> { e ->
-			println("eventDispatcher.addEventListener<ResizedEvent>:$e")
+			//println("eventDispatcher.addEventListener<ResizedEvent>:$e - backSize=(${ag.backWidth}, ${ag.backHeight}) :: frame=(${frame?.actualWidth}x${frame?.actualHeight}) :: frame=(${frame?.computedWidth}x${frame?.computedHeight})")
 			views.resized(ag.backWidth, ag.backHeight)
 		}
 
 		ag.onResized { e ->
-			println("ag.onResized:$e")
+			//println("ag.onResized:$e - backSize=(${ag.backWidth}, ${ag.backHeight}) :: ${agContainer.ag} :: frame=(${frame?.width}x${frame?.height})")
 			//println("ag.onResized: ${ag.backWidth},${ag.backHeight}")
 			views.resized(ag.backWidth, ag.backHeight)
 		}
