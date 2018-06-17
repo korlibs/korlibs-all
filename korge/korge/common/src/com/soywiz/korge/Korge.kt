@@ -161,10 +161,12 @@ object Korge {
 			views.mouseUpdated()
 			upPos.copyFrom(views.input.mouse)
 
-			upTime = Klock.currentTimeMillisDouble()
-			if ((downTime - upTime) <= 40.0) {
-				//Console.log("mouseClick: $name")
-				views.dispatch(MouseEvent(MouseEvent.Type.CLICK))
+			if (type == "onTouchEnd") {
+				upTime = Klock.currentTimeMillisDouble()
+				if ((downTime - upTime) <= 40.0) {
+					//Console.log("mouseClick: $name")
+					views.dispatch(MouseEvent(MouseEvent.Type.CLICK))
+				}
 			}
 		}
 
@@ -181,6 +183,7 @@ object Korge {
 		}
 
 		eventDispatcher.addEventListener<MouseEvent> { e ->
+			println("eventDispatcher.addEventListener<MouseEvent>:$e")
 			val x = e.x.toDouble()
 			val y = e.y.toDouble()
 			when (e.type) {
@@ -200,20 +203,19 @@ object Korge {
 					updateTouch(mouseTouchId, x, y, start = false, end = false)
 				}
 			}
-			//println(e)
 			views.dispatch(e)
 		}
 
-		eventDispatcher.addEventListener<KeyEvent> {
-			println(it)
-			when (it.type) {
+		eventDispatcher.addEventListener<KeyEvent> { e ->
+			println("eventDispatcher.addEventListener<KeyEvent>:$e")
+			when (e.type) {
 				KeyEvent.Type.DOWN -> {
-					views.input.setKey(it.keyCode, true)
+					views.input.setKey(e.keyCode, true)
 				}
 				KeyEvent.Type.UP -> {
-					views.input.setKey(it.keyCode, false)
+					views.input.setKey(e.keyCode, false)
 
-					if (it.key == Key.F12) {
+					if (e.key == Key.F12) {
 						views.debugViews = !views.debugViews
 					}
 				}
@@ -221,7 +223,7 @@ object Korge {
 					//println("onKeyTyped: $it")
 				}
 			}
-			views.dispatch(it)
+			views.dispatch(e)
 		}
 
 
@@ -245,26 +247,26 @@ object Korge {
 			}
 		}
 
-		eventDispatcher.addEventListener<TouchEvent> {
-			println(it)
-			val ix = it.touch.current.x.toInt()
-			val iy = it.touch.current.y.toInt()
-			when (it.type) {
+		eventDispatcher.addEventListener<TouchEvent> { e ->
+			println("eventDispatcher.addEventListener<TouchEvent>:$e")
+			val ix = e.touch.current.x.toInt()
+			val iy = e.touch.current.y.toInt()
+			when (e.type) {
 				TouchEvent.Type.START -> {
-					touch(it, start = true, end = false)
+					touch(e, start = true, end = false)
 					views.dispatch(MouseEvent(MouseEvent.Type.DOWN, 0, ix, iy, MouseButton.LEFT, 1))
 				}
 				TouchEvent.Type.MOVE -> {
-					touch(it, start = false, end = false)
+					touch(e, start = false, end = false)
 					views.dispatch(MouseEvent(MouseEvent.Type.DRAG, 0, ix, iy, MouseButton.LEFT, 1))
 				}
 				TouchEvent.Type.END -> {
-					touch(it, start = false, end = true)
+					touch(e, start = false, end = true)
 					views.dispatch(MouseEvent(MouseEvent.Type.UP, 0, ix, iy, MouseButton.LEFT, 0))
 					//println("DISPATCH MouseEvent(MouseEvent.Type.UP)")
 				}
 			}
-			views.dispatch(it)
+			views.dispatch(e)
 		}
 
 		fun gamepadUpdated(gamepad: GamepadInfo) {
@@ -278,27 +280,28 @@ object Korge {
 		//	views.dispatch(gamepadTypedEvent)
 		//}
 
-		eventDispatcher.addEventListener<GamePadButtonEvent> {
-			println(it)
+		eventDispatcher.addEventListener<GamePadButtonEvent> { e ->
+			println("eventDispatcher.addEventListener<GamePadButtonEvent>:$e")
 		}
 
-		eventDispatcher.addEventListener<GamePadStickEvent> {
-			println(it)
+		eventDispatcher.addEventListener<GamePadStickEvent> { e ->
+			println("eventDispatcher.addEventListener<GamePadStickEvent>:$e")
 		}
 
-		eventDispatcher.addEventListener<GamePadConnectionEvent> {
-			println(it)
+		eventDispatcher.addEventListener<GamePadConnectionEvent> { e ->
+			println("eventDispatcher.addEventListener<GamePadConnectionEvent>:$e")
 			//gamepadUpdated(it.gamepad)
 			//it.copyTo(gamepadConnectionEvent)
 			//views.dispatch(gamepadConnectionEvent)
 		}
 
-		eventDispatcher.addEventListener<ResizedEvent> {
-			println(it)
+		eventDispatcher.addEventListener<ResizedEvent> { e ->
+			println("eventDispatcher.addEventListener<ResizedEvent>:$e")
 			views.resized(ag.backWidth, ag.backHeight)
 		}
 
-		ag.onResized {
+		ag.onResized { e ->
+			println("ag.onResized:$e")
 			//println("ag.onResized: ${ag.backWidth},${ag.backHeight}")
 			views.resized(ag.backWidth, ag.backHeight)
 		}
