@@ -25,15 +25,15 @@ interface EventDispatcher {
 
 		override fun <T : Event> dispatch(clazz: KClass<T>, event: T) {
 			tempHandlers.alloc { temp ->
-				try {
+				//try {
 					val rtemp = temp as ArrayList<(T) -> Unit>
 					rtemp += getHandlersFor(clazz)
 					for (handler in rtemp) {
 						handler(event)
 					}
-				} catch (e: PreventDefaultException) {
-					// Do nothing
-				}
+				//} catch (e: PreventDefaultException) {
+				//	// Do nothing
+				//}
 			}
 		}
 	}
