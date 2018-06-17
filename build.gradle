@@ -179,8 +179,6 @@ allprojects {
 		}
 	}
 
-
-
 	afterEvaluate {
 		project.configure(project) {
 			task(type: Jar, 'javadocJar') {

@@ -39,6 +39,21 @@ class HtmlLightComponents : LightComponents() {
 		else -> tDevicePixelRatio
 	}
 
+	val windowWidth: Int get() = document.documentElement?.clientWidth ?: window.innerWidth ?: 128
+	val windowHeight: Int get() = document.documentElement?.clientHeight ?: window.innerHeight ?: 128
+
+	val xScale: Double get() = if (quality == LightQuality.QUALITY) devicePixelRatio else 1.0
+	val yScale: Double get() = if (quality == LightQuality.QUALITY) devicePixelRatio else 1.0
+
+	//val xEventScale: Double get() = 1.0 / xScale
+	//val yEventScale: Double get() = 1.0 / yScale
+
+	val xEventScale: Double get() = xScale
+	val yEventScale: Double get() = yScale
+
+	//val xEventScale: Double get() = 1.0
+	//val yEventScale: Double get() = 1.0
+
 	init {
 		addStyles(
 			"""
@@ -238,10 +253,12 @@ class HtmlLightComponents : LightComponents() {
 
 				fun dispatchMouseEvent(e: Event) {
 					val me = e as MouseEvent
+					//console.error("MOUSE EVENT!")
+					//console.error(me)
 					ed.dispatch(event.apply {
 						this.id = 0
-						this.x = me.offsetX.toInt()
-						this.y = me.offsetY.toInt()
+						this.x = (me.offsetX * xEventScale).toInt()
+						this.y = (me.offsetY * yEventScale).toInt()
 						this.button = MouseButton[me.button.toInt()]
 						this.buttons = me.buttons.toInt()
 						this.isAltDown = me.altKey
@@ -294,9 +311,9 @@ class HtmlLightComponents : LightComponents() {
 				var closed = false
 
 				fun update() {
-					if (lastWidth != window.innerWidth || lastHeight != window.innerHeight) {
-						lastWidth = window.innerWidth
-						lastHeight = window.innerHeight
+					if (lastWidth != windowWidth || lastHeight != windowHeight) {
+						lastWidth = windowWidth
+						lastHeight = windowHeight
 
 						if (mainFrame != null) {
 							mainFrame?.style?.width = "${lastWidth}px"
@@ -395,16 +412,18 @@ class HtmlLightComponents : LightComponents() {
 			//
 			com.soywiz.korui.event.TouchEvent::class -> {
 				fun process(type: TouchEvent.Type, e: Event, preventDefault: Boolean): List<TouchEvent> {
+					//console.error("TOUCH EVENT!")
 					val out = arrayListOf<TouchEvent>()
 
 					val touches = e.unsafeCast<dynamic>().changedTouches
 					val touchesLength: Int = touches.length.unsafeCast<Int>()
 					for (n in 0 until touchesLength) {
 						val touch = touches[n].unsafeCast<dynamic>()
+						//console.error(touch)
 						out += TouchEvent().apply {
 							this.type = type
-							this.touch.current.x = touch.pageX.unsafeCast<Double>()
-							this.touch.current.y = touch.pageY.unsafeCast<Double>()
+							this.touch.current.x = (touch.pageX * xEventScale).unsafeCast<Double>()
+							this.touch.current.y = (touch.pageY * yEventScale).unsafeCast<Double>()
 							this.touch.id = touch.identifier.unsafeCast<Int>()
 						}
 					}
@@ -413,15 +432,15 @@ class HtmlLightComponents : LightComponents() {
 				}
 
 				return listOf(
-					node.addCloseableEventListener(
-						"touchstart",
-						{ for (info in process(TouchEvent.Type.START, it, preventDefault = true)) ed.dispatch(info) }),
-					node.addCloseableEventListener(
-						"touchend",
-						{ for (info in process(TouchEvent.Type.END, it, preventDefault = true)) ed.dispatch(info) }),
-					node.addCloseableEventListener(
-						"touchmove",
-						{ for (info in process(TouchEvent.Type.MOVE, it, preventDefault = true)) ed.dispatch(info) })
+					node.addCloseableEventListener("touchstart") {
+						for (info in process(TouchEvent.Type.START, it, preventDefault = true)) ed.dispatch(info)
+					},
+					node.addCloseableEventListener("touchend") {
+						for (info in process(TouchEvent.Type.END, it, preventDefault = true)) ed.dispatch(info)
+					},
+					node.addCloseableEventListener("touchmove") {
+						for (info in process(TouchEvent.Type.MOVE, it, preventDefault = true)) ed.dispatch(info)
+					}
 				).closeable()
 			}
 			com.soywiz.korui.event.DropFileEvent::class -> {
@@ -596,8 +615,9 @@ class HtmlLightComponents : LightComponents() {
 		childStyle.height = "${height}px"
 
 		if (child is HTMLCanvasElement) {
-			child.width = if (quality == LightQuality.QUALITY) (width * devicePixelRatio).toInt() else width
-			child.height = if (quality == LightQuality.QUALITY) (height * devicePixelRatio).toInt() else height
+			//lightLog.error { "CANVAS size: $x,$y,$width,$height" }
+			child.width = (width * xScale).toInt()
+			child.height = (height * yScale).toInt()
 		}
 	}
 
@@ -679,7 +699,7 @@ class HtmlLightComponents : LightComponents() {
 	}
 
 	override fun configuredFrame(handle: Any) {
-		getEventListener(handle).dispatch(ResizedEvent(window.innerWidth, window.innerHeight))
+		getEventListener(handle).dispatch(ResizedEvent(windowWidth, windowHeight))
 	}
 }
 

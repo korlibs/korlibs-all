@@ -12,7 +12,6 @@ import com.soywiz.korim.color.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.util.*
 import com.soywiz.korma.*
-import java.awt.event.*
 import java.awt.image.*
 import java.io.*
 import java.nio.*
@@ -58,7 +57,7 @@ abstract class AGAwtBase : AG() {
 	lateinit var gl: GL2
 	lateinit var glThread: Thread
 
-	override var pixelDensity: Double = 1.0
+	override var devicePixelRatio: Double = 1.0
 
 	protected fun setAutoDrawable(d: GLAutoDrawable) {
 		glThread = Thread.currentThread()
@@ -709,7 +708,7 @@ class AGAwt : AGAwtBase(), AGContainer {
 			setAutoDrawable(d)
 
 			val (scaleX, scaleY) = glcanvas.getCurrentSurfaceScale(tempFloat4)
-			pixelDensity = (scaleX + scaleY) / 2.0
+			devicePixelRatio = (scaleX + scaleY) / 2.0
 			setViewport(0, 0, width, height)
 
 			resized()

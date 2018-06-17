@@ -63,7 +63,13 @@ class AGWebgl : AG(), AGContainer {
 	}
 
 	override val nativeComponent: Any = canvas
-	override val pixelDensity: Double get() = window.devicePixelRatio ?: 1.0
+	val tDevicePixelRatio get() = window.devicePixelRatio.toDouble();
+	override val devicePixelRatio get() = when {
+		tDevicePixelRatio <= 0.0 -> 1.0
+		tDevicePixelRatio.isNaN() -> 1.0
+		tDevicePixelRatio.isInfinite() -> 1.0
+		else -> tDevicePixelRatio
+	}
 	val onReadyOnce = Once()
 
 	init {

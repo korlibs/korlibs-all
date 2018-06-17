@@ -132,8 +132,8 @@ object Korge {
 		fun updateTouch(id: Int, x: Double, y: Double, start: Boolean, end: Boolean) {
 			val touch = input.getTouch(id)
 			val now = Klock.currentTimeMillisDouble()
-			val sx = x * ag.pixelDensity
-			val sy = y * ag.pixelDensity
+			val sx = x * ag.devicePixelRatio
+			val sy = y * ag.devicePixelRatio
 
 			touch.id = id
 			touch.active = !end
@@ -151,7 +151,7 @@ object Korge {
 
 		fun mouseDown(type: String, x: Double, y: Double) {
 			views.input.mouseButtons = 1
-			views.input.mouse.setTo(x * ag.pixelDensity, y * ag.pixelDensity)
+			views.input.mouse.setTo(x, y)
 			views.mouseUpdated()
 			downPos.copyFrom(views.input.mouse)
 			downTime = Klock.currentTimeMillisDouble()
@@ -160,7 +160,7 @@ object Korge {
 		fun mouseUp(type: String, x: Double, y: Double) {
 			//Console.log("mouseUp: $name")
 			views.input.mouseButtons = 0
-			views.input.mouse.setTo(x * ag.pixelDensity, y * ag.pixelDensity)
+			views.input.mouse.setTo(x, y)
 			views.mouseUpdated()
 			upPos.copyFrom(views.input.mouse)
 
@@ -174,13 +174,13 @@ object Korge {
 		}
 
 		fun mouseDrag(type: String, x: Double, y: Double) {
-			views.input.mouse.setTo(x * ag.pixelDensity, y * ag.pixelDensity)
+			views.input.mouse.setTo(x, y)
 			views.mouseUpdated()
 			moveTime = Klock.currentTimeMillisDouble()
 		}
 
 		fun mouseMove(type: String, x: Double, y: Double) {
-			views.input.mouse.setTo(x * ag.pixelDensity, y * ag.pixelDensity)
+			views.input.mouse.setTo(x, y)
 			views.mouseUpdated()
 			moveTime = Klock.currentTimeMillisDouble()
 		}

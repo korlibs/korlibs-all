@@ -1,6 +1,7 @@
 package com.soywiz.korui.light
 
 import com.soywiz.kds.*
+import com.soywiz.klogger.*
 import com.soywiz.korag.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
@@ -8,6 +9,8 @@ import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korui.event.*
 import kotlin.reflect.*
+
+internal val lightLog = Logger("light")
 
 expect object NativeLightsComponentsFactory : LightComponentsFactory {
 	override fun create(): LightComponents

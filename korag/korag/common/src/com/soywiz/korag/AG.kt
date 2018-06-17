@@ -50,7 +50,7 @@ abstract class AG : Extra by Extra.Mixin() {
 
 	open val maxTextureSize = Size(2048, 2048)
 
-	open val pixelDensity: Double = 1.0
+	open val devicePixelRatio: Double = 1.0
 
 	private val onReadyDeferred = Promise.Deferred<AG>()
 	protected fun ready() {
