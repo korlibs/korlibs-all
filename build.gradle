@@ -29,6 +29,8 @@ buildscript {
 	}
 }
 
+apply plugin: 'idea'
+
 allprojects {
 	apply plugin: 'maven'
 	apply plugin: 'signing'
@@ -270,3 +272,9 @@ static String executeShell(String cmd, File dir = null) {
 
 
 static String capitalize(String str) { return str[0].toUpperCase() + str[1..-1] }
+
+idea {
+	module {
+		excludeDirs = [file("@old")]
+	}
+}

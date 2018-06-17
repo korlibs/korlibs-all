@@ -50,8 +50,11 @@ object KmlBaseJs : KmlBase() {
 
 		if (mustAppendCanvas) {
 			fun resize() {
-				val width = window.innerWidth
-				val height = window.innerHeight
+				//val width = window.innerWidth
+				//val height = window.innerHeight
+				val width = document.documentElement?.clientWidth ?: window.innerWidth ?: 128
+				val height = document.documentElement?.clientHeight ?: window.innerHeight ?: 128
+
 				canvas.width = width
 				canvas.height = height
 				canvas.style.width = "${width}px"

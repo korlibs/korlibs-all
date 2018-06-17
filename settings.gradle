@@ -58,5 +58,5 @@ registerProject2('korge-ext-swf', 'korge', 'Korge: Extension for SWF')
 registerProject1('kbignum', 'KBigNum: Big Numbers for multiplatform Kotlin')
 registerProject1('krypto', 'Krypto: Pure Kotlin cryptography library for JVM, JS and Common')
 
-registerProject1('kmedialayer', 'Kmedialayer: Portable layer for multimedia applications')
-registerProject2Jvm('kmedialayer-generator', 'kmedialayer', 'Kmedialayer generator')
+//registerProject1('kmedialayer', 'Kmedialayer: Portable layer for multimedia applications')
+//registerProject2Jvm('kmedialayer-generator', 'kmedialayer', 'Kmedialayer generator')
