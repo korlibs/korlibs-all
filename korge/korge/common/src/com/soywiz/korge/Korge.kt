@@ -26,7 +26,7 @@ object Korge {
 	val logger = Logger("Korge")
 
 	suspend fun setupCanvas(config: Config): SceneContainer {
-		if (config.trace) println("Korge.setupCanvas[1]")
+		logger.trace { "Korge.setupCanvas[1]" }
 		val injector = config.injector
 		val frame = config.frame
 
@@ -61,11 +61,11 @@ object Korge {
 		logger.trace { "post plugins" }
 
 		injector.mapInstance(AG::class, ag)
-		if (config.trace) println("Korge.setupCanvas[1b]. EventLoop: ${config.eventLoop}")
-		if (config.trace) println("Korge.setupCanvas[1c]. ag: $ag")
-		if (config.trace) println("Korge.setupCanvas[1d]. debug: ${config.debug}")
-		if (config.trace) println("Korge.setupCanvas[1e]. args: ${config.args.toList()}")
-		if (config.trace) println("Korge.setupCanvas[1f]. size: $size")
+		logger.trace { "Korge.setupCanvas[1b]. EventLoop: ${config.eventLoop}" }
+		logger.trace { "Korge.setupCanvas[1c]. ag: $ag" }
+		logger.trace { "Korge.setupCanvas[1d]. debug: ${config.debug}" }
+		logger.trace { "Korge.setupCanvas[1e]. args: ${config.args.toList()}" }
+		logger.trace { "Korge.setupCanvas[1f]. size: $size" }
 		injector.mapInstance(EventLoop::class, config.eventLoop)
 		val views = injector.get(Views::class)
 		val input = views.input
@@ -73,7 +73,7 @@ object Korge {
 		views.debugViews = config.debug
 		config.constructedViews(views)
 		val moduleArgs = ModuleArgs(config.args)
-		if (config.trace) println("Korge.setupCanvas[2]")
+		logger.trace { "Korge.setupCanvas[2]" }
 
 		views.virtualWidth = size.width
 		views.virtualHeight = size.height
@@ -83,16 +83,16 @@ object Korge {
 			plugin.register(views)
 		}
 
-		if (config.trace) println("Korge.setupCanvas[3]")
+		logger.trace { "Korge.setupCanvas[3]" }
 		ag.onReady.await()
 
-		if (config.trace) println("Korge.setupCanvas[4]")
+		logger.trace { "Korge.setupCanvas[4]" }
 		injector.mapInstance(ModuleArgs::class, moduleArgs)
 		injector.mapInstance(TimeProvider::class, config.timeProvider)
 		injector.mapInstance<Module>(Module::class, config.module)
 		config.module.init(injector)
 
-		if (config.trace) println("Korge.setupCanvas[5]")
+		logger.trace { "Korge.setupCanvas[5]" }
 
 		val downPos = Point2d()
 		val upPos = Point2d()
@@ -186,7 +186,7 @@ object Korge {
 		}
 
 		eventDispatcher.addEventListener<MouseEvent> { e ->
-			println("eventDispatcher.addEventListener<MouseEvent>:$e")
+			logger.trace { "eventDispatcher.addEventListener<MouseEvent>:$e" }
 			val x = e.x.toDouble()
 			val y = e.y.toDouble()
 			when (e.type) {
@@ -210,7 +210,7 @@ object Korge {
 		}
 
 		eventDispatcher.addEventListener<KeyEvent> { e ->
-			println("eventDispatcher.addEventListener<KeyEvent>:$e")
+			logger.trace { "eventDispatcher.addEventListener<KeyEvent>:$e" }
 			when (e.type) {
 				KeyEvent.Type.DOWN -> {
 					views.input.setKey(e.keyCode, true)
@@ -251,7 +251,7 @@ object Korge {
 		}
 
 		eventDispatcher.addEventListener<TouchEvent> { e ->
-			println("eventDispatcher.addEventListener<TouchEvent>:$e")
+			logger.trace { "eventDispatcher.addEventListener<TouchEvent>:$e" }
 			val ix = e.touch.current.x.toInt()
 			val iy = e.touch.current.y.toInt()
 			when (e.type) {
@@ -284,15 +284,15 @@ object Korge {
 		//}
 
 		eventDispatcher.addEventListener<GamePadButtonEvent> { e ->
-			println("eventDispatcher.addEventListener<GamePadButtonEvent>:$e")
+			logger.trace { "eventDispatcher.addEventListener<GamePadButtonEvent>:$e" }
 		}
 
 		eventDispatcher.addEventListener<GamePadStickEvent> { e ->
-			println("eventDispatcher.addEventListener<GamePadStickEvent>:$e")
+			logger.trace { "eventDispatcher.addEventListener<GamePadStickEvent>:$e" }
 		}
 
 		eventDispatcher.addEventListener<GamePadConnectionEvent> { e ->
-			println("eventDispatcher.addEventListener<GamePadConnectionEvent>:$e")
+			logger.trace { "eventDispatcher.addEventListener<GamePadConnectionEvent>:$e" }
 			//gamepadUpdated(it.gamepad)
 			//it.copyTo(gamepadConnectionEvent)
 			//views.dispatch(gamepadConnectionEvent)
@@ -314,7 +314,7 @@ object Korge {
 		var lastTime = config.timeProvider.currentTimeMillis()
 		//println("lastTime: $lastTime")
 		ag.onRender {
-			if (config.trace) println("ag.onRender")
+			logger.trace { "ag.onRender" }
 			//println("Render")
 			val currentTime = config.timeProvider.currentTimeMillis()
 			//println("currentTime: $currentTime")
@@ -341,12 +341,12 @@ object Korge {
 			//println("render:$delta,$adelta")
 		}
 
-		if (config.trace) println("Korge.setupCanvas[7]")
+		logger.trace { "Korge.setupCanvas[7]" }
 
 		views.targetFps = config.module.targetFps
 
 		views.animationFrameLoop {
-			if (config.trace) println("views.animationFrameLoop")
+			logger.trace { "views.animationFrameLoop" }
 			//ag.resized()
 			config.container.repaint()
 		}
@@ -355,7 +355,7 @@ object Korge {
 		views.stage += sc
 		sc.changeTo(config.sceneClass, *config.sceneInjects.toTypedArray(), time = 0.seconds)
 
-		if (config.trace) println("Korge.setupCanvas[8]")
+		logger.trace { "Korge.setupCanvas[8]" }
 
 		return sc
 	}
