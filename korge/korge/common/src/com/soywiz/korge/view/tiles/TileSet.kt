@@ -8,7 +8,7 @@ class TileSet(
 	val textures: List<Texture?>,
 	val width: Int,
 	val height: Int,
-	val base: Texture.Base = textures.filterNotNull().first().base
+	val base: Texture.Base = textures.filterNotNull().firstOrNull()?.base ?: error("No textures or base texture set")
 ) {
 	init {
 		if (textures.any { if (it != null) it.base != base else false }) {

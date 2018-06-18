@@ -1,5 +1,6 @@
 package com.soywiz.korge.tiled
 
+import com.soywiz.klogger.*
 import com.soywiz.kmem.*
 import com.soywiz.korge.render.*
 import com.soywiz.korge.resources.*
@@ -16,7 +17,6 @@ import com.soywiz.korio.crypto.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.serialization.xml.*
-import com.soywiz.korio.file.*
 import com.soywiz.korma.geom.*
 import kotlin.collections.Iterable
 import kotlin.collections.List
@@ -89,29 +89,54 @@ inline val Iterable<TiledMap.Layer>.objects get() = this.filterIsInstance<TiledM
 
 private val spaces = Regex("\\s+")
 
+val tilemapLog = Logger("tilemap")
+
 suspend fun VfsFile.readTiledMap(views: Views): TiledMap {
+	val log = tilemapLog
 	val file = this
 	val folder = this.parent.jail()
 	val tiledMap = TiledMap()
 	val mapXml = file.readXml()
+
+	if (mapXml.nameLC != "map") error("Not a TiledMap XML TMX file starting with <map>")
+
 	tiledMap.width = mapXml.getInt("width") ?: 0
 	tiledMap.height = mapXml.getInt("height") ?: 0
 	tiledMap.tilewidth = mapXml.getInt("tilewidth") ?: 32
 	tiledMap.tileheight = mapXml.getInt("tileheight") ?: 32
 
+	tilemapLog.trace { "tilemap: width=${tiledMap.width}, height=${tiledMap.height}, tilewidth=${tiledMap.tilewidth}, tileheight=${tiledMap.tileheight}" }
+	tilemapLog.trace { "tilemap: $tiledMap" }
+
+	val elements = mapXml.allChildrenNoComments
+
+	tilemapLog.trace { "tilemap: elements=${elements.size}" }
+	tilemapLog.trace { "tilemap: elements=$elements" }
+
 	var maxGid = 1
 	//var lastBaseTexture = views.transparentTexture.base
 
-	for (element in mapXml.allChildrenNoComments) {
-		when (element.nameLC) {
-			"tileset" -> {
+	for (element in elements) {
+		val elementName = element.nameLC
+		@Suppress("IntroduceWhenSubject") // @TODO: BUG IN KOTLIN-JS with multicase in suspend functions
+		when {
+			elementName == "tileset" -> {
+				tilemapLog.trace { "tileset" }
 				val firstgid = element.int("firstgid")
-				val name = element.str("name")
-				val tilewidth = element.int("tilewidth")
-				val tileheight = element.int("tileheight")
-				val tilecount = element.int("tilecount", -1)
-				val columns = element.int("columns", -1)
-				val image = element.child("image")
+
+				// TSX file
+				val tsx = if (element.hasAttribute("source")) {
+					folder[element.str("source")].readXml()
+				} else {
+					element
+				}
+
+				val name = tsx.str("name")
+				val tilewidth = tsx.int("tilewidth")
+				val tileheight = tsx.int("tileheight")
+				val tilecount = tsx.int("tilecount", -1)
+				val columns = tsx.int("columns", -1)
+				val image = tsx.child("image")
 				val source = image?.str("source") ?: ""
 				val width = image?.int("width", 0) ?: 0
 				val height = image?.int("height", 0) ?: 0
@@ -127,10 +152,12 @@ suspend fun VfsFile.readTiledMap(views: Views): TiledMap {
 					firstgid = firstgid
 				)
 				//lastBaseTexture = tex.base
+				tilemapLog.trace { "tileset:$tiledTileset" }
 				tiledMap.tilesets += tiledTileset
 				maxGid = max(maxGid, firstgid + tiledTileset.tileset.textures.size)
 			}
-			"layer", "objectgroup", "imagelayer" -> {
+			elementName == "layer" ||elementName ==  "objectgroup" || elementName ==  "imagelayer" -> {
+				tilemapLog.trace { "layer:$elementName" }
 				val layer = when (element.nameLC) {
 					"layer" -> TiledMap.Layer.Patterns()
 					"objectgroup" -> TiledMap.Layer.Objects()
@@ -174,17 +201,18 @@ suspend fun VfsFile.readTiledMap(views: Views): TiledMap {
 						val data = element.child("data")
 						val encoding = data?.str("encoding", "") ?: ""
 						val compression = data?.str("compression", "") ?: ""
-						val tilesArray: IntArray = when (encoding) {
-							"", "xml" -> {
+						@Suppress("IntroduceWhenSubject") // @TODO: BUG IN KOTLIN-JS with multicase in suspend functions
+						val tilesArray: IntArray = when {
+							encoding == "" || encoding == "xml" -> {
 								val items = data?.children("tile")?.map { it.int("gid") } ?: listOf()
 								items.toIntArray()
 							}
-							"csv" -> {
+							encoding == "csv" -> {
 								val content = data?.text ?: ""
 								val items = content.replace(spaces, "").split(',').map(String::toInt)
 								items.toIntArray()
 							}
-							"base64" -> {
+							encoding == "base64" -> {
 								val base64Content = (data?.text ?: "").trim()
 								val rawContent = Base64.decode(base64Content)
 
@@ -218,22 +246,22 @@ suspend fun VfsFile.readTiledMap(views: Views): TiledMap {
 							val bounds = IRectangleInt(x, y, width, height)
 							val kind = obj.allNodeChildren.firstOrNull()
 							val kindType = kind?.nameLC ?: ""
-							layer.objects += when (kindType) {
-								"" -> TiledMap.Layer.Objects.Rect(bounds)
-								"ellipse" -> TiledMap.Layer.Objects.Ellipse(bounds)
-								"polyline", "polygon" -> {
+							@Suppress("IntroduceWhenSubject") // @TODO: BUG IN KOTLIN-JS with multicase in suspend functions
+							layer.objects += when {
+								kindType == "" -> TiledMap.Layer.Objects.Rect(bounds)
+								kindType == "ellipse" -> TiledMap.Layer.Objects.Ellipse(bounds)
+								kindType == "polyline" || kindType ==  "polygon" -> {
 									val pointsStr = kind!!.str("points")
 									val points = pointsStr.split(spaces).map {
-										val parts = it.split(',').map { it.trim().toDoubleOrNull() ?: 0.0 }; Point2d(
-										parts[0],
-										parts[1]
-									)
+										val parts = it.split(',').map { it.trim().toDoubleOrNull() ?: 0.0 }
+										Point2d(parts[0], parts[1])
 									}
 
-									if (kindType == "polyline") TiledMap.Layer.Objects.Polyline(
-										bounds,
-										points
-									) else TiledMap.Layer.Objects.Polygon(bounds, points)
+									if (kindType == "polyline") {
+										TiledMap.Layer.Objects.Polyline(bounds, points)
+									} else {
+										TiledMap.Layer.Objects.Polygon(bounds, points)
+									}
 								}
 								else -> invalidOp("Invalid object kind $kindType")
 							}

@@ -1,6 +1,5 @@
 package com.soywiz.korio.file
 
-import com.soywiz.kds.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.net.*
 
@@ -13,7 +12,7 @@ object PathInfoExt {
 	/**
 	 * /path\to/file.ext -> /path/to/file.ext
 	 */
-	val String.fullpathNormalized: String by WeakPropertyThis<String, String> { this.replace('\\', '/') }
+	val String.fullpathNormalized: String get() = this.replace('\\', '/')
 
 	/**
 	 * /path\to/file.ext -> /path/to
@@ -143,14 +142,17 @@ val Path.basename: String get() = PathInfo { fullPath.basename }
 val Path.pathWithoutExtension: String get() = PathInfo { fullPath.fullPathWithoutExtension }
 fun Path.fullPathWithExtension(ext: String): String =
 	PathInfo { fullPath.fullPathWithExtension(ext) }
+
 val Path.fullnameWithoutExtension: String get() = PathInfo { fullPath.fullnameWithoutExtension }
 val Path.basenameWithoutExtension: String get() = PathInfo { fullPath.basenameWithoutExtension }
 val Path.fullnameWithoutCompoundExtension: String get() = PathInfo { fullPath.fullnameWithoutCompoundExtension }
 val Path.basenameWithoutCompoundExtension: String get() = PathInfo { fullPath.basenameWithoutCompoundExtension }
 fun Path.basenameWithExtension(ext: String): String =
 	PathInfo { fullPath.basenameWithExtension(ext) }
+
 fun Path.basenameWithCompoundExtension(ext: String): String =
 	PathInfo { fullPath.basenameWithCompoundExtension(ext) }
+
 val Path.extension: String get() = PathInfo { fullPath.extension }
 val Path.extensionLC: String get() = PathInfo { fullPath.extensionLC }
 val Path.compoundExtension: String get() = PathInfo { fullPath.compoundExtension }
@@ -158,8 +160,10 @@ val Path.compoundExtensionLC: String get() = PathInfo { fullPath.compoundExtensi
 val Path.mimeTypeByExtension: MimeType get() = PathInfo { fullPath.mimeTypeByExtension }
 fun Path.getPathComponents(): List<String> =
 	PathInfo { fullPath.getPathComponents() }
+
 fun Path.getPathFullComponents(): List<String> =
 	PathInfo { fullPath.getPathFullComponents() }
+
 val Path.fullname: String get() = fullPath
 
 open class VfsNamed(override val fullPath: String) : Path
