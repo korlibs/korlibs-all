@@ -248,8 +248,6 @@ class Stage(views: Views) : Container(views) {
 
 	override fun render(ctx: RenderContext, m: Matrix2d) {
 		if (views.clipBorders) {
-			super.render(ctx, m)
-		} else {
 			ctx.ctx2d.scissor(
 				AG.Scissor(
 					x.toInt(), y.toInt(), (views.virtualWidth * scaleX).toInt(),
@@ -258,6 +256,8 @@ class Stage(views: Views) : Container(views) {
 			) {
 				super.render(ctx, m)
 			}
+		} else {
+			super.render(ctx, m)
 		}
 	}
 }
