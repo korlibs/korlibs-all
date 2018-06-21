@@ -24,6 +24,9 @@ enum class Language(val iso6391: String, val iso6392: String) {
 						values().map { it.iso6392 to it })
 				).toMap()
 
+		operator fun get(id: String): Language? = BY_ID[id]
+		//operator fun invoke(id: String): Language? = BY_ID[id]
+
 		val SYSTEM_LANGS = KorioNative.systemLanguageStrings.map { BY_ID[it.split("-").firstOrNull()] }.filterNotNull()
 		val SYSTEM = SYSTEM_LANGS.firstOrNull() ?: ENGLISH
 		var CURRENT = SYSTEM
