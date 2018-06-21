@@ -88,6 +88,7 @@ class VfsFile(
 	suspend fun readBytes(): ByteArray = readAll()
 
 	suspend fun readLines(charset: Charset = UTF8): List<String> = readString(charset).lines()
+	suspend fun writeLines(lines: List<String>, charset: Charset = UTF8) = writeString(lines.joinToString("\n"), charset)
 	suspend fun readString(charset: Charset = UTF8): String = read().toString(charset)
 	suspend fun writeString(data: String, vararg attributes: Vfs.Attribute): Unit =
 		run { write(data.toByteArray(UTF8), *attributes) }
