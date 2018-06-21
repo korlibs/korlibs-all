@@ -77,6 +77,9 @@ object Korge {
 
 		views.virtualWidth = size.width
 		views.virtualHeight = size.height
+		views.scaleAnchor = config.module.scaleAnchor
+		views.scaleMode = config.module.scaleMode
+		views.clipBorders = config.module.clipBorders
 
 		// Inject all modules
 		for (plugin in defaultKorgePlugins.plugins) {

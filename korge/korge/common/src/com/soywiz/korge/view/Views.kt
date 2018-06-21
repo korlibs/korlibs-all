@@ -18,6 +18,7 @@ import com.soywiz.korio.async.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
+import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 import com.soywiz.korui.event.*
 import kotlin.reflect.*
@@ -88,6 +89,7 @@ class Views(
 	//var scaleMode: ScaleMode = ScaleMode.NO_SCALE
 	var scaleMode: ScaleMode = ScaleMode.SHOW_ALL
 	var scaleAnchor = Anchor.MIDDLE_CENTER
+	var clipBorders = true
 
 	override suspend fun init() {
 		for (plugin in plugins.plugins) plugin.register(this)
@@ -242,6 +244,21 @@ class Stage(views: Views) : Container(views) {
 
 	override fun hitTestBoundingInternal(x: Double, y: Double): View? {
 		return super.hitTestBoundingInternal(x, y) ?: this
+	}
+
+	override fun render(ctx: RenderContext, m: Matrix2d) {
+		if (views.clipBorders) {
+			super.render(ctx, m)
+		} else {
+			ctx.ctx2d.scissor(
+				AG.Scissor(
+					x.toInt(), y.toInt(), (views.virtualWidth * scaleX).toInt(),
+					(views.virtualHeight * scaleY).toInt()
+				)
+			) {
+				super.render(ctx, m)
+			}
+		}
 	}
 }
 

@@ -31,7 +31,7 @@ import kotlin.collections.set
 import kotlin.collections.toMap
 
 object BitmapFontPlugin : KorgePlugin() {
-	suspend override fun register(views: Views) {
+	override suspend fun register(views: Views) {
 		views.injector
 			.mapFactory {
 				BitmapFontAsyncFactory(

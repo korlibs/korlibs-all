@@ -429,7 +429,8 @@ class AGWebgl : AG(), AGContainer {
 		uniforms: Map<Uniform, Any>,
 		stencil: StencilState,
 		colorMask: ColorMaskState,
-		renderState: RenderState
+		renderState: RenderState,
+		scissor: Scissor?
 	) {
 		val mustFreeIndices = indices == null
 		val aindices = indices ?: createIndexBuffer((0 until vertexCount).map(Int::toShort).toShortArray())
@@ -438,6 +439,12 @@ class AGWebgl : AG(), AGContainer {
 		(vertices as WebglBuffer).bind()
 		(aindices as WebglBuffer).bind()
 		checkErrors { glProgram.bind() }
+		if (scissor != null) {
+			gl.enable(GL.SCISSOR_TEST)
+			gl.scissor(scissor.x, backHeight - scissor.y - scissor.height, scissor.width, scissor.height)
+		} else {
+			gl.disable(GL.SCISSOR_TEST)
+		}
 
 		val totalSize = vertexLayout.totalSize
 		for (n in vertexLayout.attributePositions.indices) {

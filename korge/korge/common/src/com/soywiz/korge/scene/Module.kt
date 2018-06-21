@@ -24,6 +24,10 @@ open class Module {
 	open val clearEachFrame = true
 
 	open val targetFps: Double = 0.0
+	open val scaleAnchor: Anchor = Anchor.MIDDLE_CENTER
+	open val scaleMode: ScaleMode = ScaleMode.SHOW_ALL
+	open val clipBorders: Boolean = true
+
 
 	open suspend fun init(injector: AsyncInjector) {
 	}

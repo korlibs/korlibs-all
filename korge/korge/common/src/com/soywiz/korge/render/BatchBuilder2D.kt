@@ -26,6 +26,7 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 
 	var stencil = AG.StencilState()
 	var colorMask = AG.ColorMaskState()
+	var scissor: AG.Scissor? = null
 
 	private fun addVertex(x: Float, y: Float, u: Float, v: Float, colorMul: Int, colorAdd: Int) {
 		vertices.setAlignedFloat32(vertexPos++, x)
@@ -318,7 +319,8 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 				blending = factors,
 				uniforms = uniforms,
 				stencil = stencil,
-				colorMask = colorMask
+				colorMask = colorMask,
+				scissor = scissor
 			)
 		}
 

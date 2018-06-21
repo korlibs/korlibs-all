@@ -111,6 +111,16 @@ abstract class AG : Extra by Extra.Mixin() {
 		ZERO;
 	}
 
+	data class Scissor(
+		val x: Int, val y: Int,
+		val width: Int, val height: Int
+	) {
+		val top get() = y
+		val left get() = x
+		val right get() = x + width
+		val bottom get() = y + height
+	}
+
 	data class Blending(
 		val srcRGB: BlendFactor,
 		val dstRGB: BlendFactor,
@@ -473,7 +483,8 @@ abstract class AG : Extra by Extra.Mixin() {
 		blending: Blending = Blending.NORMAL,
 		uniforms: Map<Uniform, Any> = mapOf(),
 		stencil: StencilState = dummyStencilState,
-		colorMask: ColorMaskState = dummyColorMaskState
+		colorMask: ColorMaskState = dummyColorMaskState,
+		scissor: Scissor? = null
 	) = draw(
 		vertices,
 		program,
@@ -486,7 +497,8 @@ abstract class AG : Extra by Extra.Mixin() {
 		uniforms,
 		stencil,
 		colorMask,
-		dummyRenderState
+		dummyRenderState,
+		scissor
 	)
 
 	open fun draw(
@@ -501,7 +513,8 @@ abstract class AG : Extra by Extra.Mixin() {
 		uniforms: Map<Uniform, Any> = mapOf(),
 		stencil: StencilState = dummyStencilState,
 		colorMask: ColorMaskState = dummyColorMaskState,
-		renderState: RenderState = dummyRenderState
+		renderState: RenderState = dummyRenderState,
+		scissor: Scissor? = null
 	) {
 	}
 

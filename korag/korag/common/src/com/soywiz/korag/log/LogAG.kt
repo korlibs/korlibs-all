@@ -95,7 +95,8 @@ open class LogAG(
 		uniforms: Map<Uniform, Any>,
 		stencil: StencilState,
 		colorMask: ColorMaskState,
-		renderState: RenderState
+		renderState: RenderState,
+		scissor: Scissor?
 	) {
 		try {
 			log("draw(vertices=$vertices, indices=$indices, program=$program, type=$type, vertexLayout=$vertexLayout, vertexCount=$vertexCount, offset=$offset, blending=$blending, uniforms=$uniforms, stencil=$stencil, colorMask=$colorMask)")

@@ -81,4 +81,27 @@ class RenderContext2D(val batch: BatchBuilder2D) : Extra by Extra.Mixin() {
 			blendFactors = blendFactors
 		)
 	}
+
+	inline fun scissor(scissor: AG.Scissor?, block: () -> Unit) {
+		val oldScissor = batch.scissor
+
+		batch.flush()
+		if (scissor != null) {
+			val left = m.transformX(scissor.left.toDouble(), scissor.top.toDouble()).toInt()
+			val top = m.transformY(scissor.left.toDouble(), scissor.top.toDouble()).toInt()
+			val right = m.transformX(scissor.right.toDouble(), scissor.bottom.toDouble()).toInt()
+			val bottom = m.transformY(scissor.right.toDouble(), scissor.bottom.toDouble()).toInt()
+
+			batch.scissor = AG.Scissor(left, top, right - left, bottom - top)
+			println("batch.scissor: ${batch.scissor}")
+		} else {
+			batch.scissor = null
+		}
+		try {
+			block()
+		} finally {
+			batch.flush()
+			batch.scissor = oldScissor
+		}
+	}
 }

@@ -215,10 +215,19 @@ abstract class AGAwtBase : AG() {
 		uniforms: Map<Uniform, Any>,
 		stencil: StencilState,
 		colorMask: ColorMaskState,
-		renderState: RenderState
+		renderState: RenderState,
+		scissor: Scissor?
 	) {
 		val mustFreeIndices = indices == null
 		val aindices = indices ?: createIndexBuffer((0 until vertexCount).map(Int::toShort).toShortArray())
+
+		if (scissor != null) {
+			gl.glEnable(GL.GL_SCISSOR_TEST)
+			gl.glScissor(scissor.x, backHeight - scissor.y - scissor.height, scissor.width, scissor.height)
+		} else {
+			gl.glDisable(GL.GL_SCISSOR_TEST)
+		}
+
 		checkBuffers(vertices, aindices)
 		val glProgram = getProgram(program)
 		(vertices as AwtBuffer).bind(gl)
