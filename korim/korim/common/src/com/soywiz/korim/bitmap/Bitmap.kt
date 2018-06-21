@@ -10,7 +10,8 @@ abstract class Bitmap(
 	val width: Int,
 	val height: Int,
 	val bpp: Int,
-	var premult: Boolean
+	var premult: Boolean,
+	val backingArray: Any?
 ) : Sizeable, Extra by Extra.Mixin() {
 	val stride: Int get() = (width * bpp) / 8
 	val area: Int get() = width * height
@@ -21,6 +22,14 @@ abstract class Bitmap(
 	open fun get32(x: Int, y: Int): Int = 0
 	open operator fun set(x: Int, y: Int, color: Int): Unit = Unit
 	open operator fun get(x: Int, y: Int) = 0
+
+	open fun copy(srcX: Int, srcY: Int, dst: Bitmap, dstX: Int, dstY: Int, width: Int, height: Int) {
+		for (y in 0 until height) {
+			for (x in 0 until width) {
+				dst[dstX + x, dstY] = this[srcX + x, srcY]
+			}
+		}
+	}
 
 	fun inBoundsX(x: Int) = (x >= 0) && (x < width)
 	fun inBoundsY(y: Int) = (y >= 0) && (y < height)
@@ -51,12 +60,14 @@ abstract class Bitmap(
 	fun toBMP32(): Bitmap32 = when (this) {
 		is Bitmap32 -> this
 		is NativeImage -> this.toBmp32()
-		else -> {
-			val out = Bitmap32(width, height, 0, premult = premult)
-			for (y in 0 until height) for (x in 0 until width) out[x, y] = this.get32(x, y)
-			out
-		}
+		else -> Bitmap32(width, height, premult = premult) { x, y -> get32(x, y) }
 	}
 }
 
 fun <T : Bitmap> T.createWithThisFormatTyped(width: Int, height: Int): T = this.createWithThisFormat(width, height) as T
+
+fun <T : Bitmap> T.extract(x: Int, y: Int, width: Int, height: Int): T {
+	val out = this.createWithThisFormatTyped(width, height)
+	this.copy(x, y, out, 0, 0, width, height)
+	return out
+}

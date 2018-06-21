@@ -9,7 +9,7 @@ abstract class BitmapIndexed(
 	width: Int, height: Int,
 	var data: ByteArray = ByteArray(width * height / (8 / bpp)),
 	var palette: IntArray = IntArray(1 shl bpp)
-) : Bitmap(width, height, bpp, false) {
+) : Bitmap(width, height, bpp, false, data) {
 	init {
 		if (data.size < width * height / (8 / bpp)) throw RuntimeException("Bitmap data is too short: width=$width, height=$height, data=ByteArray(${data.size}), area=${width * height}")
 	}

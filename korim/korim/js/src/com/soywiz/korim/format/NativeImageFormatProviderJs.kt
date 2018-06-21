@@ -4,11 +4,10 @@ import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
 import com.soywiz.korim.vector.*
 import com.soywiz.korio.coroutine.*
+import com.soywiz.korio.crypto.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.file.std.*
 import com.soywiz.korio.util.*
-import com.soywiz.korio.file.*
-import com.soywiz.korio.file.std.*
 import com.soywiz.korma.*
 import org.w3c.dom.*
 import org.w3c.dom.url.*
@@ -24,7 +23,7 @@ class CanvasNativeImage(val canvas: HTMLCanvasElement) :
 
 	override fun toNonNativeBmp(): Bitmap {
 		val data = IntArray(width * height)
-		BrowserImage.imgData(canvas, data)
+		HtmlImage.renderHtmlCanvasIntoBitmap(canvas, data)
 		return Bitmap32(width, height, data)
 	}
 
@@ -64,9 +63,15 @@ object HtmlNativeImageFormatProvider : NativeImageFormatProvider() {
 		return CanvasNativeImage(HtmlImage.bitmapToHtmlCanvas(bmp.toBMP32()))
 	}
 
-	override suspend fun display(bitmap: Bitmap) {
-		val img = bitmap.toHtmlNative()
-		document.body?.appendChild(img.canvas)
+	override suspend fun display(bitmap: Bitmap, kind: Int) {
+		if (kind == 1) {
+			val img = document.createElement("img")
+			img.setAttribute("src", "data:image/png;base64," + PNG.encode(bitmap).toBase64())
+			document.body?.appendChild(img)
+		} else {
+			val img = bitmap.toHtmlNative()
+			document.body?.appendChild(img.canvas)
+		}
 	}
 
 	override fun mipmap(bmp: Bitmap, levels: Int): NativeImage {
@@ -132,10 +137,6 @@ object BrowserImage {
 			//println("[e]")
 			Unit
 		}
-	}
-
-	fun imgData(canvas: HTMLCanvasElement, out: IntArray): Unit {
-		HtmlImage.renderHtmlCanvasIntoBitmap(canvas, out)
 	}
 }
 

@@ -9,7 +9,7 @@ abstract class NativeImageFormatProvider {
 	open suspend fun decode(vfs: Vfs, path: String): NativeImage = decode(vfs.file(path).readBytes())
 	suspend fun decode(file: FinalVfsFile): Bitmap = decode(file.vfs, file.path)
 	suspend fun decode(file: VfsFile): Bitmap = decode(file.getUnderlyingUnscapedFile())
-	abstract suspend fun display(bitmap: Bitmap): Unit
+	abstract suspend fun display(bitmap: Bitmap, kind: Int): Unit
 
 	abstract fun create(width: Int, height: Int): NativeImage
 	abstract fun copy(bmp: Bitmap): NativeImage

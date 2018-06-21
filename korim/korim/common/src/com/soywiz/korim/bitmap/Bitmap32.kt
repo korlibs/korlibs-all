@@ -11,7 +11,7 @@ class Bitmap32(
 	height: Int,
 	val data: IntArray = IntArray(width * height),
 	premult: Boolean = false
-) : Bitmap(width, height, 32, premult), Iterable<Int> {
+) : Bitmap(width, height, 32, premult, data), Iterable<Int> {
 	init {
 		if (data.size < width * height) throw RuntimeException("Bitmap data is too short: width=$width, height=$height, data=ByteArray(${data.size}), area=${width * height}")
 	}
@@ -38,6 +38,23 @@ class Bitmap32(
 
 	override fun createWithThisFormat(width: Int, height: Int): Bitmap = Bitmap32(width, height, premult = premult)
 
+	override fun copy(srcX: Int, srcY: Int, dst: Bitmap, dstX: Int, dstY: Int, width: Int, height: Int) {
+		val src = this
+
+		val srcArray = src.data
+		var srcIndex = src.index(srcX, srcY)
+		val srcAdd = src.width
+
+		val dstArray = (dst as Bitmap32).data
+		var dstIndex = dst.index(dstX, dstY)
+		val dstAdd = dst.width
+
+		for (y in 0 until height) {
+			arraycopy(srcArray, srcIndex, dstArray, dstIndex, width)
+			srcIndex += srcAdd
+			dstIndex += dstAdd
+		}
+	}
 	override operator fun set(x: Int, y: Int, color: Int) = run { data[index(x, y)] = color }
 	override operator fun get(x: Int, y: Int): Int = data[index(x, y)]
 	override fun get32(x: Int, y: Int): Int = get(x, y)
@@ -444,3 +461,4 @@ class Bitmap32(
 		for (n in 0 until area) this.data[n] = YCbCr.yCbCrToRgba(this@Bitmap32.data[n])
 	}
 }
+

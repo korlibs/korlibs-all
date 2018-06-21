@@ -6,9 +6,9 @@ import com.soywiz.korim.vector.*
 suspend fun Bitmap.showImageAndWaitExt() = showImageAndWait(this)
 suspend fun ImageData.showImagesAndWaitExt() = showImagesAndWait(this)
 
-suspend fun showImageAndWait(image: Bitmap): Unit {
+suspend fun showImageAndWait(image: Bitmap, kind: Int = 0): Unit {
 	println("Showing... $image")
-	nativeImageFormatProvider.display(image)
+	nativeImageFormatProvider.display(image, kind)
 }
 
 suspend fun showImageAndWait(image: Context2d.SizedDrawable): Unit {

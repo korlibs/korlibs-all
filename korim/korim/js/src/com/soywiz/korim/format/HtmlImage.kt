@@ -1,6 +1,7 @@
 package com.soywiz.korim.format
 
 import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
 import org.khronos.webgl.get
 import org.khronos.webgl.set
 import org.w3c.dom.*
@@ -19,25 +20,31 @@ object HtmlImage {
 		bmpHeight: Int,
 		canvas: HTMLCanvasElement
 	): HTMLCanvasElement {
-		val bmpDataData = bmpData
 		val pixelCount = bmpData.size
 		val ctx = canvas.getContext("2d").unsafeCast<CanvasRenderingContext2D>()
 		val idata = ctx.createImageData(bmpWidth.toDouble(), bmpHeight.toDouble())
 		val idataData = idata.data
 		var m = 0
 		for (n in 0 until pixelCount) {
-			val c = bmpDataData[n]
-			idataData[m++] = ((c ushr 0) and 0xFF).toByte()
-			idataData[m++] = ((c ushr 8) and 0xFF).toByte()
-			idataData[m++] = ((c ushr 16) and 0xFF).toByte()
-			idataData[m++] = ((c ushr 24) and 0xFF).toByte()
+			val c = bmpData[n]
+
+			// @TODO: Kotlin.JS bug Clamped Array should be int inst@TODO: Kotlin.JS bug Clamped Array should be int instead of Byte
+			idataData[m++] = RGBA.getFastR(c).asDynamic()
+			idataData[m++] = RGBA.getFastG(c).asDynamic()
+			idataData[m++] = RGBA.getFastB(c).asDynamic()
+			idataData[m++] = RGBA.getFastA(c).asDynamic()
 		}
 		ctx.putImageData(idata, 0.0, 0.0)
 		return canvas
 	}
 
 	fun renderToHtmlCanvas(bmp: Bitmap32, canvas: HTMLCanvasElement): HTMLCanvasElement {
-		return renderToHtmlCanvas(bmp.data, bmp.width, bmp.height, canvas)
+		val data = if (bmp.premult) {
+			RGBA.depremultiplyFast(bmp.data.copyOf())
+		} else {
+			bmp.data
+		}
+		return renderToHtmlCanvas(data, bmp.width, bmp.height, canvas)
 	}
 
 	fun renderHtmlCanvasIntoBitmap(canvas: HTMLCanvasElement, out: IntArray): Unit {
@@ -49,11 +56,11 @@ object HtmlImage {
 		val ddata = data.data
 		var m = 0
 		for (n in 0 until len) {
-			val r = ddata[m++].toInt()
-			val g = ddata[m++].toInt()
-			val b = ddata[m++].toInt()
-			val a = ddata[m++].toInt()
-			out[n] = (r shl 0) or (g shl 8) or (b shl 16) or (a shl 24)
+			val r = ddata[m++].toInt() and 0xFF
+			val g = ddata[m++].toInt() and 0xFF
+			val b = ddata[m++].toInt() and 0xFF
+			val a = ddata[m++].toInt() and 0xFF
+			out[n] = RGBA.pack(r, g, b, a)
 		}
 		//console.log(out);
 	}

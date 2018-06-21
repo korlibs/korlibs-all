@@ -135,6 +135,14 @@ object RGBA : ColorFormat32() {
 		return packFast(R, G, B, A)
 	}
 
+	fun depremultiplyFast(data: IntArray, start: Int = 0, end: Int = data.size): IntArray = data.apply {
+		for (n in start until end) data[n] = depremultiplyFast(data[n])
+	}
+
+	fun premultiplyFast(data: IntArray, start: Int = 0, end: Int = data.size): IntArray = data.apply {
+		for (n in start until end) data[n] = premultiplyFast(data[n])
+	}
+
 	@JvmStatic
 	fun depremultiplyFastOld(v: Int): Int {
 		val A = (v ushr 24)
@@ -297,4 +305,6 @@ object RGBA : ColorFormat32() {
 	//		}
 	//	}
 	//}
+
+	fun toString(c: Int): String = "RGBA(${getR(c)},${getG(c)},${getB(c)},${getAf(c)})"
 }

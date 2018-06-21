@@ -18,6 +18,18 @@ class NumberExtTest {
 	}
 
 	@Test
+	fun testPrevAligned() {
+		assertEquals(0L, 0L.prevAlignedTo(15L))
+		assertEquals(0L, 1L.prevAlignedTo(15L))
+		assertEquals(0L, 14L.prevAlignedTo(15L))
+		assertEquals(15L, 15L.prevAlignedTo(15L))
+		assertEquals(15L, 16L.prevAlignedTo(15L))
+
+		assertEquals(3L, 3L.prevAlignedTo(0L))
+		assertEquals(3L, 3L.prevAlignedTo(1L))
+	}
+
+	@Test
 	fun insert() {
 		val v = 0x12345678
 		assertEquals("FF345678", "%08X".format(v.insert(0xFF, 24, 8)))

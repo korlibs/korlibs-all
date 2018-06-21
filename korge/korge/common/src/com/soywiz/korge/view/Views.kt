@@ -286,6 +286,10 @@ fun Views.texture(bmp: Bitmap, mipmaps: Boolean = false): Texture {
 	return Texture(Texture.Base(ag.createTexture(bmp, mipmaps), bmp.width, bmp.height))
 }
 
+fun Views.texture(width: Int, height: Int, mipmaps: Boolean = false): Texture {
+	return texture(Bitmap32(width, height), mipmaps)
+}
+
 suspend fun Views.texture(bmp: ByteArray, mipmaps: Boolean = false): Texture {
 	return texture(nativeImageFormatProvider.decode(bmp), mipmaps)
 }

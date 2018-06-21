@@ -31,7 +31,7 @@ object AwtNativeImageFormatProvider : NativeImageFormatProvider() {
 		AwtNativeImage(BufferedImage(Math.max(width, 1), Math.max(height, 1), BufferedImage.TYPE_INT_ARGB_PRE))
 
 	override fun copy(bmp: Bitmap): NativeImage = AwtNativeImage(bmp.toAwt())
-	override suspend fun display(bitmap: Bitmap): Unit = awtShowImageAndWait(bitmap)
+	override suspend fun display(bitmap: Bitmap, kind: Int): Unit = awtShowImageAndWait(bitmap)
 	override fun mipmap(bmp: Bitmap, levels: Int): NativeImage = bmp.toBMP32().mipmap(levels).ensureNative()
 
 	//actual fun mipmap(bmp: Bitmap, levels: Int): NativeImage {

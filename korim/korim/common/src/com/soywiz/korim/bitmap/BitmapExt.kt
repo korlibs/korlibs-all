@@ -27,3 +27,23 @@ fun Bitmap.matchContents(that: Bitmap): Boolean {
 fun Bitmap32.setAlpha(value: Int) {
 	for (n in 0 until this.data.size) this.data[n] = (this.data[n] and 0x00FFFFFF) or (value shl 24)
 }
+
+fun <T : Bitmap> T.putWithBorder(x: Int, y: Int, bmp: T, border: Int = 1) {
+	val width = bmp.width
+	val height = bmp.height
+
+	// Block copy
+	bmp.copy(0, 0, this, x, y, width, height)
+
+	// Horizontal replicate
+	for (n in 1..border) {
+		this.copy(x, y, this, x - n, y, 1, height)
+		this.copy(x + width - 1, y, this, x + width - 1 + n, y, 1, height)
+	}
+	// Vertical replicate
+	for (n in 1..border) {
+		val rwidth = width + border * 2
+		this.copy(x, y, this, x, y - n, rwidth, 1)
+		this.copy(x, y + height - 1, this, x, y + height - 1 + n, rwidth, 1)
+	}
+}

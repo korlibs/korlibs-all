@@ -21,6 +21,9 @@ object Colors {
 	@JvmField
 	val TRANSPARENT_WHITE = RGBA.packFast(0x00, 0x00, 0x00, 0x00)
 
+	@JvmField
+	val FUCHSIA = RGBA(0xFF, 0x00, 0xFF, 0xFF)
+
 	operator fun get(s: String): Int {
 		if (s.startsWith("#")) {
 			val ss = s.substr(1)

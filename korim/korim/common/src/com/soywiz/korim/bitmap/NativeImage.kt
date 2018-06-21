@@ -6,7 +6,7 @@ import com.soywiz.korio.crypto.*
 import com.soywiz.korio.lang.*
 
 abstract class NativeImage(width: Int, height: Int, val data: Any?, premultiplied: Boolean) :
-	Bitmap(width, height, 32, premultiplied) {
+	Bitmap(width, height, 32, premultiplied, null) {
 	open val name: String = "NativeImage"
 	abstract fun toNonNativeBmp(): Bitmap
 	override fun swapRows(y0: Int, y1: Int) = throw UnsupportedOperationException()

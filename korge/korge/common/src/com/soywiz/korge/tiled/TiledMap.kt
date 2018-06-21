@@ -11,6 +11,7 @@ import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
 import com.soywiz.korim.format.*
 import com.soywiz.korinject.*
+import com.soywiz.korio.async.*
 import com.soywiz.korio.compression.*
 import com.soywiz.korio.compression.deflate.*
 import com.soywiz.korio.crypto.*
@@ -18,18 +19,8 @@ import com.soywiz.korio.error.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.serialization.xml.*
 import com.soywiz.korma.geom.*
-import kotlin.collections.Iterable
-import kotlin.collections.List
-import kotlin.collections.arrayListOf
-import kotlin.collections.filterIsInstance
-import kotlin.collections.firstOrNull
-import kotlin.collections.hashMapOf
-import kotlin.collections.listOf
-import kotlin.collections.map
-import kotlin.collections.plusAssign
 import kotlin.collections.set
-import kotlin.collections.toIntArray
-import kotlin.collections.toList
+import kotlin.coroutines.experimental.*
 import kotlin.math.*
 
 //e: java.lang.UnsupportedOperationException: Class literal annotation arguments are not yet supported: Factory
@@ -91,7 +82,12 @@ private val spaces = Regex("\\s+")
 
 val tilemapLog = Logger("tilemap")
 
-suspend fun VfsFile.readTiledMap(views: Views): TiledMap {
+suspend fun VfsFile.readTiledMap(
+	views: Views,
+	hasTransparentColor: Boolean = false,
+	transparentColor: Int = Colors.FUCHSIA,
+	createBorder: Int = 1
+): TiledMap {
 	val log = tilemapLog
 	val file = this
 	val folder = this.parent.jail()
@@ -125,38 +121,60 @@ suspend fun VfsFile.readTiledMap(views: Views): TiledMap {
 				val firstgid = element.int("firstgid")
 
 				// TSX file
-				val tsx = if (element.hasAttribute("source")) {
+				val element = if (element.hasAttribute("source")) {
 					folder[element.str("source")].readXml()
 				} else {
 					element
 				}
 
-				val name = tsx.str("name")
-				val tilewidth = tsx.int("tilewidth")
-				val tileheight = tsx.int("tileheight")
-				val tilecount = tsx.int("tilecount", -1)
-				val columns = tsx.int("columns", -1)
-				val image = tsx.child("image")
+				val name = element.str("name")
+				val tilewidth = element.int("tilewidth")
+				val tileheight = element.int("tileheight")
+				val tilecount = element.int("tilecount", -1)
+				val columns = element.int("columns", -1)
+				val image = element.child("image")
 				val source = image?.str("source") ?: ""
 				val width = image?.int("width", 0) ?: 0
 				val height = image?.int("height", 0) ?: 0
-				val bmp = folder[source].readBitmapOptimized().toBMP32()
+				var bmp = folder[source].readBitmapOptimized()
+				//var bmp = folder[source].readBitmap()
+
 				// @TODO: Preprocess this, so in JS we don't have to do anything!
-				val FUCSIA = RGBA(0xFF, 0x00, 0xFF, 0xFF)
-				for (n in 0 until bmp.area) {
-					if (bmp.data[n] == FUCSIA) bmp.data[n] = Colors.TRANSPARENT_BLACK
+				if (hasTransparentColor) {
+					bmp = bmp.toBMP32()
+					for (n in 0 until bmp.area) {
+						if (bmp.data[n] == transparentColor) bmp.data[n] = Colors.TRANSPARENT_BLACK
+					}
 				}
-				val tex = views.texture(bmp, mipmaps = true)
+
+				val tileset = if (createBorder > 0) {
+					bmp = bmp.toBMP32()
+
+					val slices = TileSet.extractBitmaps(bmp, tilewidth, tileheight, columns, tilecount)
+
+					TileSet.fromBitmaps(
+						views,
+						tilewidth, tileheight,
+						slices,
+						border = createBorder,
+						mipmaps = false
+					)
+				} else {
+					val tex = views.texture(bmp, mipmaps = true)
+					TileSet(views, Texture(tex.base), tilewidth, tileheight, columns, tilecount)
+				}
+
 				val tiledTileset = TiledMap.TiledTileset(
-					tileset = TileSet(views, Texture(tex.base), tilewidth, tileheight, columns, tilecount),
+					tileset = tileset,
 					firstgid = firstgid
 				)
+
 				//lastBaseTexture = tex.base
 				tilemapLog.trace { "tileset:$tiledTileset" }
 				tiledMap.tilesets += tiledTileset
 				maxGid = max(maxGid, firstgid + tiledTileset.tileset.textures.size)
 			}
-			elementName == "layer" ||elementName ==  "objectgroup" || elementName ==  "imagelayer" -> {
+			elementName == "layer" || elementName == "objectgroup" || elementName == "imagelayer" -> {
 				tilemapLog.trace { "layer:$elementName" }
 				val layer = when (element.nameLC) {
 					"layer" -> TiledMap.Layer.Patterns()
@@ -250,7 +268,7 @@ suspend fun VfsFile.readTiledMap(views: Views): TiledMap {
 							layer.objects += when {
 								kindType == "" -> TiledMap.Layer.Objects.Rect(bounds)
 								kindType == "ellipse" -> TiledMap.Layer.Objects.Ellipse(bounds)
-								kindType == "polyline" || kindType ==  "polygon" -> {
+								kindType == "polyline" || kindType == "polygon" -> {
 									val pointsStr = kind!!.str("points")
 									val points = pointsStr.split(spaces).map {
 										val parts = it.split(',').map { it.trim().toDoubleOrNull() ?: 0.0 }

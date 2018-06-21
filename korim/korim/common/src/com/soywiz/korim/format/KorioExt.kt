@@ -17,7 +17,7 @@ val nativeImageFormatProviders: List<NativeImageFormatProvider> by lazy {
 	listOf(nativeImageFormatProvider)
 }
 
-suspend fun displayImage(bmp: Bitmap) = nativeImageFormatProvider.display(bmp)
+suspend fun displayImage(bmp: Bitmap, kind: Int = 0) = nativeImageFormatProvider.display(bmp, kind)
 
 suspend fun decodeImageBytes(bytes: ByteArray): NativeImage {
 	for (nip in nativeImageFormatProviders) {
