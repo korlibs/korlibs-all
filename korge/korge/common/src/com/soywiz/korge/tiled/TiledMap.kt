@@ -63,6 +63,7 @@ data class TileSetData(
 //@AsyncFactoryClass(TiledMapFactory::class)
 class TiledMap(
 	val data: TiledMapData,
+	val tilesets: List<TiledTileset>,
 	val tileset: TileSet
 ) {
 	val width get() = data.width
@@ -357,6 +358,8 @@ suspend fun VfsFile.readTiledMap(
 		layer.image = folder[layer.source].readBitmapOptimized()
 	}
 
+	val tiledTilesets = arrayListOf<TiledMap.TiledTileset>()
+
 	for (tileset in data.tilesets) {
 		var bmp = folder[tileset.source].readBitmapOptimized()
 
@@ -391,6 +394,8 @@ suspend fun VfsFile.readTiledMap(
 			firstgid = tileset.firstgid
 		)
 
+		tiledTilesets += tiledTileset
+
 		//lastBaseTexture = tex.base
 		tilemapLog.trace { "tileset:$tiledTileset" }
 
@@ -399,7 +404,7 @@ suspend fun VfsFile.readTiledMap(
 		}
 	}
 
-	return TiledMap(data, TileSet(views, combinedTileset.toList(), data.tilewidth, data.tileheight))
+	return TiledMap(data, tiledTilesets, TileSet(views, combinedTileset.toList(), data.tilewidth, data.tileheight))
 }
 
 private enum class RKind {

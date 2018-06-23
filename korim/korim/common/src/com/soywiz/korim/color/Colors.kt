@@ -65,4 +65,8 @@ object Colors {
 		"RGBA(" + RGBA.getR(color) + "," + RGBA.getG(color) + "," + RGBA.getB(color) + "," + RGBA.getAf(color) + ")"
 
 	fun toHtmlStringSimple(color: Int) = "#%02x%02x%02x".format(RGBA.getR(color), RGBA.getG(color), RGBA.getB(color))
+
+	object Default {
+		operator fun get(str: String): Int = get(str, default = Colors.RED)
+	}
 }
