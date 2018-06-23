@@ -20,6 +20,7 @@ import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
+import com.soywiz.korui.*
 import com.soywiz.korui.event.*
 import kotlin.reflect.*
 

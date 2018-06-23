@@ -103,7 +103,7 @@ data class Vector2(override var x: Double = 0.0, override var y: Double = x) : M
 			points.sortWith(Comparator({ l, r -> cmpPoints(l, r) }))
 		}
 
-		protected fun cmpPoints(l: IVector2, r: IVector2): Int {
+		private fun cmpPoints(l: IVector2, r: IVector2): Int {
 			var ret: Double = l.y - r.y
 			if (ret == 0.0) ret = l.x - r.x
 			if (ret < 0) return -1
@@ -128,7 +128,11 @@ data class Vector2(override var x: Double = 0.0, override var y: Double = x) : M
 // @TODO: Check if this avoid boxing!
 inline fun Vector2(x: Number, y: Number) = Vector2(x.toDouble(), y.toDouble())
 
+// @TODO: mul instead of dot
 operator fun IVector2.times(that: IVector2) = this.x * that.x + this.y * that.y
+
+infix fun IVector2.dot(that: IVector2) = this.x * that.x + this.y * that.y
+infix fun IVector2.mul(that: IVector2) = IVector2(this.x * that.x, this.y * that.y)
 fun IVector2.distanceTo(x: Double, y: Double) = Math.hypot(x - this.x, y - this.y)
 fun IVector2.distanceTo(that: IVector2) = distanceTo(that.x, that.y)
 

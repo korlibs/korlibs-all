@@ -60,7 +60,7 @@ class SVG(val root: Xml) : Context2d.SizedDrawable {
 		val out = arrayListOf<Pair<Double, Int>>()
 		for (stop in xml.children("stop")) {
 			val offset = parsePercent(stop.str("offset"))
-			val colorStop = NamedColors[stop.str("stop-color")]
+			val colorStop = Colors[stop.str("stop-color")]
 			val alphaStop = stop.double("stop-opacity", 1.0)
 			out += Pair(offset, RGBA.packRGB_A(colorStop, (alphaStop * 255).toInt()))
 		}
@@ -160,7 +160,7 @@ class SVG(val root: Xml) : Context2d.SizedDrawable {
 		} else {
 			when (str) {
 				"none" -> c.none
-				else -> c.createColor(NamedColors[str])
+				else -> c.createColor(Colors[str])
 			}
 		}
 		if (res is Context2d.Gradient) {

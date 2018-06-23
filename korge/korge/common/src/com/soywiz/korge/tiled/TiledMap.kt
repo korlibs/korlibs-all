@@ -11,7 +11,6 @@ import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
 import com.soywiz.korim.format.*
 import com.soywiz.korinject.*
-import com.soywiz.korio.async.*
 import com.soywiz.korio.compression.*
 import com.soywiz.korio.compression.deflate.*
 import com.soywiz.korio.crypto.*
@@ -20,24 +19,62 @@ import com.soywiz.korio.file.*
 import com.soywiz.korio.serialization.xml.*
 import com.soywiz.korma.geom.*
 import kotlin.collections.set
-import kotlin.coroutines.experimental.*
-import kotlin.math.*
 
-//e: java.lang.UnsupportedOperationException: Class literal annotation arguments are not yet supported: Factory
-//@AsyncFactoryClass(TiledMapFactory::class)
-class TiledMap {
+class TiledMapData {
 	var width = 0
 	var height = 0
 	var tilewidth = 0
 	var tileheight = 0
 	val pixelWidth: Int get() = width * tilewidth
 	val pixelHeight: Int get() = height * tileheight
-	val tilesets = arrayListOf<TiledTileset>()
-	val allLayers = arrayListOf<Layer>()
-	lateinit var tileset: TileSet
+	val allLayers = arrayListOf<TiledMap.Layer>()
 	inline val patternLayers get() = allLayers.patterns
 	inline val imageLayers get() = allLayers.images
 	inline val objectLayers get() = allLayers.objects
+	val tilesets = arrayListOf<TileSetData>()
+
+	fun getObjectByName(name: String) = objectLayers.mapNotNull { it.getByName(name) }.firstOrNull()
+
+	val maxGid get() = tilesets.map { it.firstgid + it.tilecount }.max() ?: 0
+}
+
+fun TiledMap.Layer.Objects.Object.getPos(map: TiledMapData): IPoint2d =
+	IPoint2d(bounds.x / map.tilewidth, bounds.y / map.tileheight)
+
+fun TiledMapData?.getObjectPosByName(name: String): IPoint2d? {
+	val obj = this?.getObjectByName(name) ?: return null
+	return obj.getPos(this)
+}
+
+data class TileSetData(
+	val name: String,
+	val firstgid: Int,
+	val tilewidth: Int,
+	val tileheight: Int,
+	val tilecount: Int,
+	val columns: Int,
+	val image: Xml?,
+	val source: String,
+	val width: Int,
+	val height: Int
+)
+
+//e: java.lang.UnsupportedOperationException: Class literal annotation arguments are not yet supported: Factory
+//@AsyncFactoryClass(TiledMapFactory::class)
+class TiledMap(
+	val data: TiledMapData,
+	val tileset: TileSet
+) {
+	val width get() = data.width
+	val height get() = data.height
+	val tilewidth get() = data.tilewidth
+	val tileheight get() = data.tileheight
+	val pixelWidth: Int get() = data.pixelWidth
+	val pixelHeight: Int get() = data.pixelHeight
+	val allLayers get() = data.allLayers
+	val patternLayers get() = data.patternLayers
+	val imageLayers get() = data.imageLayers
+	val objectLayers get() = data.objectLayers
 
 	class TiledTileset(val tileset: TileSet, val firstgid: Int = 0) {
 	}
@@ -57,22 +94,43 @@ class TiledMap {
 			var map: Bitmap32 = Bitmap32(0, 0)
 		}
 
+		data class ObjectInfo(val id: Int, val name: String, val bounds: IRectangleInt, val objprops: Map<String, Any>)
+
 		class Objects : Layer() {
-			open class Object(val bounds: IRectangleInt)
-			open class Poly(bounds: IRectangleInt, val points: List<Point2d>) : Object(bounds)
-			class Rect(bounds: IRectangleInt) : Object(bounds)
-			class Ellipse(bounds: IRectangleInt) : Object(bounds)
-			class Polyline(bounds: IRectangleInt, points: List<Point2d>) : Poly(bounds, points)
-			class Polygon(bounds: IRectangleInt, points: List<Point2d>) : Poly(bounds, points)
+			interface Object {
+				val info: ObjectInfo
+			}
+
+			interface Poly : Object {
+				val points: List<Point2d>
+			}
+
+			data class Rect(override val info: ObjectInfo) : Object
+			data class Ellipse(override val info: ObjectInfo) : Object
+			data class Polyline(override val info: ObjectInfo, override val points: List<Point2d>) : Poly
+			data class Polygon(override val info: ObjectInfo, override val points: List<Point2d>) : Poly
 
 			val objects = arrayListOf<Object>()
+			val objectsById by lazy { objects.associateBy { it.id } }
+			val objectsByName by lazy { objects.associateBy { it.name } }
+
+			fun getById(id: Int): Object? = objectsById[id]
+			fun getByName(name: String): Object? = objectsByName[name]
 		}
 
 		class Image : Layer() {
+			var width = 0
+			var height = 0
+			var source = ""
 			var image: Bitmap = Bitmap32(0, 0)
 		}
 	}
 }
+
+val TiledMap.Layer.Objects.Object.id get() = this.info.id
+val TiledMap.Layer.Objects.Object.name get() = this.info.name
+val TiledMap.Layer.Objects.Object.bounds get() = this.info.bounds
+val TiledMap.Layer.Objects.Object.objprops get() = this.info.objprops
 
 inline val Iterable<TiledMap.Layer>.patterns get() = this.filterIsInstance<TiledMap.Layer.Patterns>()
 inline val Iterable<TiledMap.Layer>.images get() = this.filterIsInstance<TiledMap.Layer.Image>()
@@ -82,16 +140,34 @@ private val spaces = Regex("\\s+")
 
 val tilemapLog = Logger("tilemap")
 
-suspend fun VfsFile.readTiledMap(
-	views: Views,
-	hasTransparentColor: Boolean = false,
-	transparentColor: Int = Colors.FUCHSIA,
-	createBorder: Int = 1
-): TiledMap {
+class TiledFile(val name: String)
+
+private fun Xml.parseProperties(): Map<String, Any> {
+	val out = LinkedHashMap<String, Any>()
+	for (property in this.children("property")) {
+		val pname = property.str("name")
+		val rawValue = property.str("rawValue")
+		val type = property.str("type", "text")
+		val pvalue: Any = when (type) {
+			"bool" -> rawValue == "true"
+			"color" -> Colors[rawValue]
+			"text" -> rawValue
+			"int" -> rawValue.toIntOrNull() ?: 0
+			"float" -> rawValue.toDoubleOrNull() ?: 0.0
+			"file" -> TiledFile(pname)
+			else -> rawValue
+		}
+		out[pname] = pvalue
+		//println("$pname: $pvalue")
+	}
+	return out
+}
+
+suspend fun VfsFile.readTiledMapData(): TiledMapData {
 	val log = tilemapLog
 	val file = this
 	val folder = this.parent.jail()
-	val tiledMap = TiledMap()
+	val tiledMap = TiledMapData()
 	val mapXml = file.readXml()
 
 	if (mapXml.nameLC != "map") error("Not a TiledMap XML TMX file starting with <map>")
@@ -136,43 +212,21 @@ suspend fun VfsFile.readTiledMap(
 				val source = image?.str("source") ?: ""
 				val width = image?.int("width", 0) ?: 0
 				val height = image?.int("height", 0) ?: 0
-				var bmp = folder[source].readBitmapOptimized()
-				//var bmp = folder[source].readBitmap()
 
-				// @TODO: Preprocess this, so in JS we don't have to do anything!
-				if (hasTransparentColor) {
-					bmp = bmp.toBMP32()
-					for (n in 0 until bmp.area) {
-						if (bmp.data[n] == transparentColor) bmp.data[n] = Colors.TRANSPARENT_BLACK
-					}
-				}
-
-				val tileset = if (createBorder > 0) {
-					bmp = bmp.toBMP32()
-
-					val slices = TileSet.extractBitmaps(bmp, tilewidth, tileheight, columns, tilecount)
-
-					TileSet.fromBitmaps(
-						views,
-						tilewidth, tileheight,
-						slices,
-						border = createBorder,
-						mipmaps = false
-					)
-				} else {
-					val tex = views.texture(bmp, mipmaps = true)
-					TileSet(views, Texture(tex.base), tilewidth, tileheight, columns, tilecount)
-				}
-
-				val tiledTileset = TiledMap.TiledTileset(
-					tileset = tileset,
-					firstgid = firstgid
+				tiledMap.tilesets += TileSetData(
+					name = name,
+					firstgid = firstgid,
+					tilewidth = tilewidth,
+					tileheight = tileheight,
+					tilecount = tilecount,
+					columns = columns,
+					image = image,
+					source = source,
+					width = width,
+					height = height
 				)
 
 				//lastBaseTexture = tex.base
-				tilemapLog.trace { "tileset:$tiledTileset" }
-				tiledMap.tilesets += tiledTileset
-				maxGid = max(maxGid, firstgid + tiledTileset.tileset.textures.size)
 			}
 			elementName == "layer" || elementName == "objectgroup" || elementName == "imagelayer" -> {
 				tilemapLog.trace { "layer:$elementName" }
@@ -186,29 +240,14 @@ suspend fun VfsFile.readTiledMap(
 				layer.name = element.str("name")
 				layer.visible = element.int("visible", 1) != 0
 				layer.draworder = element.str("draworder", "")
-				layer.color = NamedColors[element.str("color", "#ffffff")]
+				layer.color = Colors[element.str("color", "#ffffff")]
 				layer.opacity = element.double("opacity", 1.0)
 				layer.offsetx = element.double("offsetx", 0.0)
 				layer.offsety = element.double("offsety", 0.0)
 
-				val propertiesXml = element.child("properties")
-				if (propertiesXml != null) {
-					for (property in propertiesXml.children("property")) {
-						val pname = property.str("name")
-						val rawValue = property.str("rawValue")
-						val type = property.str("type", "text")
-						val pvalue: Any = when (type) {
-							"bool" -> rawValue == "true"
-							"color" -> NamedColors[rawValue]
-							"text" -> rawValue
-							"int" -> rawValue.toIntOrNull() ?: 0
-							"float" -> rawValue.toDoubleOrNull() ?: 0.0
-							"file" -> folder[pname]
-							else -> rawValue
-						}
-						layer.properties[pname] = pvalue
-						//println("$pname: $pvalue")
-					}
+				val properties = element.child("properties")?.parseProperties()
+				if (properties != null) {
+					layer.properties.putAll(properties)
 				}
 
 				when (layer) {
@@ -249,39 +288,49 @@ suspend fun VfsFile.readTiledMap(
 					}
 					is TiledMap.Layer.Image -> {
 						for (image in element.children("image")) {
-							val source = image.str("source")
-							val width = image.int("width")
-							val height = image.int("height")
-							layer.image = folder[source].readBitmapOptimized()
+							layer.source = image.str("source")
+							layer.width = image.int("width")
+							layer.height = image.int("height")
 						}
 					}
 					is TiledMap.Layer.Objects -> {
 						for (obj in element.children("object")) {
-							val x = obj.int("x")
-							val y = obj.int("y")
-							val width = obj.int("width")
-							val height = obj.int("height")
-							val bounds = IRectangleInt(x, y, width, height)
-							val kind = obj.allNodeChildren.firstOrNull()
-							val kindType = kind?.nameLC ?: ""
-							@Suppress("IntroduceWhenSubject") // @TODO: BUG IN KOTLIN-JS with multicase in suspend functions
-							layer.objects += when {
-								kindType == "" -> TiledMap.Layer.Objects.Rect(bounds)
-								kindType == "ellipse" -> TiledMap.Layer.Objects.Ellipse(bounds)
-								kindType == "polyline" || kindType == "polygon" -> {
-									val pointsStr = kind!!.str("points")
-									val points = pointsStr.split(spaces).map {
-										val parts = it.split(',').map { it.trim().toDoubleOrNull() ?: 0.0 }
-										Point2d(parts[0], parts[1])
-									}
+							val id = obj.int("id")
+							val name = obj.str("name")
+							val bounds = obj.run { IRectangleInt(int("x"), int("y"), int("width"), int("height")) }
+							var rkind = RKind.RECT
+							var points = listOf<Point2d>()
+							var objprops: Map<String, Any> = LinkedHashMap()
 
-									if (kindType == "polyline") {
-										TiledMap.Layer.Objects.Polyline(bounds, points)
-									} else {
-										TiledMap.Layer.Objects.Polygon(bounds, points)
+							for (kind in obj.allNodeChildren) {
+								val kindType = kind.nameLC
+								@Suppress("IntroduceWhenSubject") // @TODO: BUG IN KOTLIN-JS with multicase in suspend functions
+								when {
+									kindType == "ellipse" -> {
+										rkind = RKind.ELLIPSE
 									}
+									kindType == "polyline" || kindType == "polygon" -> {
+										val pointsStr = kind.str("points")
+										points = pointsStr.split(spaces).map {
+											val parts = it.split(',').map { it.trim().toDoubleOrNull() ?: 0.0 }
+											Point2d(parts[0], parts[1])
+										}
+
+										rkind = (if (kindType == "polyline") RKind.POLYLINE else RKind.POLYGON)
+									}
+									kindType == "properties" -> {
+										objprops = kind.parseProperties()
+									}
+									else -> invalidOp("Invalid object kind '$kindType'")
 								}
-								else -> invalidOp("Invalid object kind $kindType")
+							}
+
+							val info = TiledMap.Layer.ObjectInfo(id, name, bounds, objprops)
+							layer.objects += when (rkind) {
+								RKind.RECT -> TiledMap.Layer.Objects.Rect(info)
+								RKind.ELLIPSE -> TiledMap.Layer.Objects.Ellipse(info)
+								RKind.POLYLINE -> TiledMap.Layer.Objects.Polyline(info, points)
+								RKind.POLYGON -> TiledMap.Layer.Objects.Polygon(info, points)
 							}
 						}
 					}
@@ -290,17 +339,71 @@ suspend fun VfsFile.readTiledMap(
 		}
 	}
 
-	val combinedTileset = kotlin.arrayOfNulls<Texture>(maxGid + 1)
+	return tiledMap
+}
 
-	for (tileset in tiledMap.tilesets) {
-		for (n in 0 until tileset.tileset.textures.size) {
-			combinedTileset[tileset.firstgid + n] = tileset.tileset.textures[n]
+suspend fun VfsFile.readTiledMap(
+	views: Views,
+	hasTransparentColor: Boolean = false,
+	transparentColor: Int = Colors.FUCHSIA,
+	createBorder: Int = 1
+): TiledMap {
+	val folder = this.parent.jail()
+	val data = readTiledMapData()
+
+	val combinedTileset = kotlin.arrayOfNulls<Texture>(data.maxGid + 1)
+
+	for (layer in data.imageLayers) {
+		layer.image = folder[layer.source].readBitmapOptimized()
+	}
+
+	for (tileset in data.tilesets) {
+		var bmp = folder[tileset.source].readBitmapOptimized()
+
+		// @TODO: Preprocess this, so in JS we don't have to do anything!
+		if (hasTransparentColor) {
+			bmp = bmp.toBMP32()
+			for (n in 0 until bmp.area) {
+				if (bmp.data[n] == transparentColor) bmp.data[n] = Colors.TRANSPARENT_BLACK
+			}
+		}
+
+		val ptileset = if (createBorder > 0) {
+			bmp = bmp.toBMP32()
+
+			val slices =
+				TileSet.extractBitmaps(bmp, tileset.tilewidth, tileset.tileheight, tileset.columns, tileset.tilecount)
+
+			TileSet.fromBitmaps(
+				views,
+				tileset.tilewidth, tileset.tileheight,
+				slices,
+				border = createBorder,
+				mipmaps = false
+			)
+		} else {
+			val tex = views.texture(bmp, mipmaps = true)
+			TileSet(views, Texture(tex.base), tileset.tilewidth, tileset.tileheight, tileset.columns, tileset.tilecount)
+		}
+
+		val tiledTileset = TiledMap.TiledTileset(
+			tileset = ptileset,
+			firstgid = tileset.firstgid
+		)
+
+		//lastBaseTexture = tex.base
+		tilemapLog.trace { "tileset:$tiledTileset" }
+
+		for (n in 0 until ptileset.textures.size) {
+			combinedTileset[tileset.firstgid + n] = ptileset.textures[n]
 		}
 	}
 
-	tiledMap.tileset = TileSet(views, combinedTileset.toList(), tiledMap.tilewidth, tiledMap.tileheight)
+	return TiledMap(data, TileSet(views, combinedTileset.toList(), data.tilewidth, data.tileheight))
+}
 
-	return tiledMap
+private enum class RKind {
+	RECT, ELLIPSE, POLYLINE, POLYGON
 }
 
 class TiledMapFactory(
@@ -308,5 +411,5 @@ class TiledMapFactory(
 	val resourcesRoot: ResourcesRoot,
 	val path: Path
 ) : AsyncFactory<TiledMap> {
-	suspend override fun create(): TiledMap = resourcesRoot[path].readTiledMap(views)
+	override suspend fun create(): TiledMap = resourcesRoot[path].readTiledMap(views)
 }

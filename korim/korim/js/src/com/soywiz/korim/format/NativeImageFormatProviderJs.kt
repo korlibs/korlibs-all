@@ -149,7 +149,7 @@ class CanvasContext2dRenderer(private val canvas: HTMLCanvasElement) : Context2d
 	fun Context2d.Paint.toJsStr(): Any? {
 		return when (this) {
 			is Context2d.None -> "none"
-			is Context2d.Color -> NamedColors.toHtmlStringSimple(this.color)
+			is Context2d.Color -> Colors.toHtmlStringSimple(this.color)
 			is Context2d.Gradient -> {
 				when (kind) {
 					Context2d.Gradient.Kind.LINEAR -> {
@@ -157,7 +157,7 @@ class CanvasContext2dRenderer(private val canvas: HTMLCanvasElement) : Context2d
 						for (n in 0 until this.stops.size) {
 							val stop = this.stops[n]
 							val color = this.colors[n]
-							grad.addColorStop(stop, NamedColors.toHtmlStringSimple(color))
+							grad.addColorStop(stop, Colors.toHtmlStringSimple(color))
 						}
 						grad
 					}
@@ -166,7 +166,7 @@ class CanvasContext2dRenderer(private val canvas: HTMLCanvasElement) : Context2d
 						for (n in 0 until this.stops.size) {
 							val stop = this.stops[n]
 							val color = this.colors[n]
-							grad.addColorStop(stop, NamedColors.toHtmlStringSimple(color))
+							grad.addColorStop(stop, Colors.toHtmlStringSimple(color))
 						}
 						grad
 					}

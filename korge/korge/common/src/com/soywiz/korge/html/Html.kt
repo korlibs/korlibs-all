@@ -4,7 +4,6 @@ import com.soywiz.kds.Computed
 import com.soywiz.kds.Extra
 import com.soywiz.korge.bitmapfont.BitmapFont
 import com.soywiz.korim.color.Colors
-import com.soywiz.korim.color.NamedColors
 import com.soywiz.korio.serialization.xml.Xml
 import com.soywiz.korio.serialization.xml.isComment
 import com.soywiz.korio.serialization.xml.isNode
@@ -203,7 +202,7 @@ object Html {
 					format.size = xml.intNull("size") ?: format.size
 					format.letterSpacing = xml.doubleNull("letterSpacing") ?: format.letterSpacing
 					format.kerning = xml.intNull("kerning") ?: format.kerning
-					format.color = NamedColors[xml.strNull("color") ?: "white"]
+					format.color = Colors[xml.strNull("color") ?: "white"]
 					for (child in xml.allChildrenNoComments) {
 						// @TODO: Change .copy for an inline format.keep { parse(xml, format) } that doesn't allocate at all
 						parse(child, Format(format))

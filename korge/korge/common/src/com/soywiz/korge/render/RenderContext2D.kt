@@ -93,7 +93,7 @@ class RenderContext2D(val batch: BatchBuilder2D) : Extra by Extra.Mixin() {
 			val bottom = m.transformY(scissor.right.toDouble(), scissor.bottom.toDouble()).toInt()
 
 			batch.scissor = AG.Scissor(left, top, right - left, bottom - top)
-			println("batch.scissor: ${batch.scissor}")
+			//println("batch.scissor: ${batch.scissor}")
 		} else {
 			batch.scissor = null
 		}

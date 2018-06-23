@@ -105,10 +105,6 @@ class TileSet(
 				}
 			}
 
-			launch(views.coroutineContext) {
-				showImageAndWait(out)
-			}
-
 			return TileSet(views, texs, tilewidth, tileheight, tex.base)
 		}
 	}
