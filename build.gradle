@@ -16,6 +16,9 @@ buildscript {
 	ext.projectDevelName = 'Carlos Ballesteros Velasco'
 	ext.projectInceptionYear = 2017
 
+	//ext.nativeTargets = ['iphone', 'iphone_sim', 'macbook', 'linux', 'raspberrypi', 'android_arm32', 'android_arm64']
+	ext.nativeTargets = ['macbook']
+
 	repositories {
 		mavenLocal()
 		jcenter()
@@ -52,6 +55,10 @@ allprojects {
 	def kotlinProject = false
 
 	it.afterEvaluate {
+		if (it.plugins.hasPlugin("konan")) {
+			//kotlinProject = true
+		}
+
 		if (it.plugins.hasPlugin("kotlin-platform-common")) {
 			kotlinProject = true
 			dependencies {
