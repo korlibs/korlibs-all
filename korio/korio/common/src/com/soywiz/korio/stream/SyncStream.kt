@@ -216,6 +216,7 @@ fun SyncStream.slice(): SyncStream = SyncStream(SliceSyncStreamBase(this.base, 0
 fun SyncStream.sliceWithStart(start: Long): SyncStream = sliceWithBounds(start, this.length)
 
 fun SyncStream.sliceStart(): SyncStream = sliceWithBounds(0L, this.length)
+fun SyncStream.sliceStart(start: Long): SyncStream = sliceWithBounds(start, this.length)
 
 fun SyncStream.sliceHere(): SyncStream = SyncStream(SliceSyncStreamBase(this.base, position, length))
 

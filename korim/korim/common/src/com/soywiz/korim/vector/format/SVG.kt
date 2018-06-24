@@ -174,7 +174,7 @@ class SVG(val root: Xml) : Context2d.SizedDrawable {
 		}
 	}
 
-	fun drawElement(xml: Xml, c: Context2d) = c.keepApply {
+	fun drawElement(xml: Xml, c: Context2d): Context2d = c.keepApply {
 		val bounds = Rectangle()
 		val nodeName = xml.nameLC
 
@@ -452,10 +452,10 @@ class SVG(val root: Xml) : Context2d.SizedDrawable {
 			while (sr.hasMore) {
 				sr.skipSeparators()
 				val c = sr.peekChar()
-				if (c in '0'..'9' || c == '-' || c == '+') {
-					out += PathTokenNumber(sr.readNumber())
+				out += if (c in '0'..'9' || c == '-' || c == '+') {
+					PathTokenNumber(sr.readNumber())
 				} else {
-					out += PathTokenCmd(sr.readChar())
+					PathTokenCmd(sr.readChar())
 				}
 			}
 			return out

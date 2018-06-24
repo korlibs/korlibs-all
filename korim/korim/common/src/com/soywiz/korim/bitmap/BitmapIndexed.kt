@@ -21,8 +21,8 @@ abstract class BitmapIndexed(
 	val datau = UByteArray(data)
 	val n8_dbpp: Int = 8 / bpp
 	val mask = ((1 shl bpp) - 1)
-	operator override fun get(x: Int, y: Int): Int = (datau[index_d(x, y)] ushr (bpp * index_m(x, y))) and mask
-	operator override fun set(x: Int, y: Int, color: Int): Unit {
+	override operator fun get(x: Int, y: Int): Int = (datau[index_d(x, y)] ushr (bpp * index_m(x, y))) and mask
+	override operator fun set(x: Int, y: Int, color: Int): Unit {
 		val i = index_d(x, y)
 		datau[i] = datau[i].insert(color, bpp * index_m(x, y), bpp)
 	}

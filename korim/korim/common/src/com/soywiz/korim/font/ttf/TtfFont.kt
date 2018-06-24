@@ -131,7 +131,29 @@ class TtfFont private constructor(val s: SyncStream) {
 		//for (table in tables) println(table)
 	}
 
-	fun readNames() = openTable("name")?.run {
+	// @TODO: kotlin-native openTable(name)?.run { } : runTableUnit : TtfFont :  exception: java.lang.IllegalStateException: org.jetbrains.kotlin.ir.declarations.impl.IrFunctionImpl@3b5fc728
+	//inline fun runTableUnit(name: String, callback: SyncStream.() -> Unit): Unit {
+	fun runTableUnit(name: String, callback: SyncStream.() -> Unit): Unit {
+		val table = openTable(name)
+		if (table != null) {
+			table.callback()
+		}
+	}
+
+	// @TODO: kotlin-native openTable(name)?.run { } : runTable : TtfFont :  exception: java.lang.IllegalStateException: org.jetbrains.kotlin.ir.declarations.impl.IrFunctionImpl@3b5fc728
+	//inline fun <T> runTable(name: String, callback: SyncStream.() -> T): T? {
+	fun <T> runTable(name: String, callback: SyncStream.() -> T): T? {
+		val table = openTable(name)
+		if (table != null) {
+			return callback(table)
+		} else {
+			return null
+		}
+		//return openTable(name)?.run { callback() }
+		//TODO()
+	}
+
+	fun readNames() = runTableUnit("name") {
 		val format = readU16_be()
 		val count = readU16_be()
 		val stringOffset = readU16_be()
@@ -155,7 +177,7 @@ class TtfFont private constructor(val s: SyncStream) {
 		}
 	}
 
-	fun readLoca() = openTable("loca")?.run {
+	fun readLoca() = runTableUnit("loca") {
 		val bytesPerEntry = when (indexToLocFormat) {
 			0 -> 2
 			1 -> 4
@@ -175,7 +197,7 @@ class TtfFont private constructor(val s: SyncStream) {
 		println("locs: ${locs.toList()}")
 	}
 
-	fun readHead() = openTable("head")?.run {
+	fun readHead() = runTableUnit("head") {
 		readU16_be().apply { if (this != 1) invalidOp("Invalid TTF") }
 		readU16_be().apply { if (this != 0) invalidOp("Invalid TTF") }
 		fontRev = readFixed()
@@ -201,7 +223,7 @@ class TtfFont private constructor(val s: SyncStream) {
 		println("bounds: ($xMin, $yMin)-($xMax, $yMax)")
 	}
 
-	fun readMaxp() = openTable("maxp")?.run {
+	fun readMaxp() = runTableUnit("maxp") {
 		val version = readFixed()
 		numGlyphs = readU16_be()
 		maxPoints = readU16_be()
@@ -219,7 +241,7 @@ class TtfFont private constructor(val s: SyncStream) {
 		maxComponentDepth = readU16_be()
 	}
 
-	fun readHhea() = openTable("hhea")?.run {
+	fun readHhea() = runTableUnit("hhea") {
 		hheaVersion = readFixed()
 		ascender = readS16_be()
 		descender = readS16_be()
@@ -239,7 +261,7 @@ class TtfFont private constructor(val s: SyncStream) {
 		numberOfHMetrics = readU16_be()
 	}
 
-	fun readHmtx() = openTable("hmtx")?.run {
+	fun readHmtx() = runTableUnit("hmtx") {
 		val firstMetrics = (0 until numberOfHMetrics).map { HorMetric(readU16_be(), readS16_be()) }
 		val lastAdvanceWidth = firstMetrics.last().advanceWidth
 		val compressedMetrics =
@@ -247,7 +269,7 @@ class TtfFont private constructor(val s: SyncStream) {
 		horMetrics = firstMetrics + compressedMetrics
 	}
 
-	fun readCmap() = openTable("cmap")?.run {
+	fun readCmap() = runTableUnit("cmap") {
 		data class EncodingRecord(val platformId: Int, val encodingId: Int, val offset: Int)
 
 		val version = readU16_be()
@@ -255,7 +277,7 @@ class TtfFont private constructor(val s: SyncStream) {
 		val tables = (0 until numTables).map { EncodingRecord(readU16_be(), readU16_be(), readS32_be()) }
 
 		for (table in tables) {
-			sliceWithStart(table.offset.toLong()).run {
+			sliceStart(table.offset.toLong()).run {
 				val format = readU16_be()
 				when (format) {
 					4 -> {
@@ -335,7 +357,7 @@ class TtfFont private constructor(val s: SyncStream) {
 	fun getGlyphByCodePoint(codePoint: Int): IGlyph? = characterMaps[codePoint]?.let { getGlyphByIndex(it) }
 	fun getGlyphByChar(char: Char): IGlyph? = getGlyphByCodePoint(char.toInt())
 
-	fun getGlyphByIndex(index: Int): IGlyph? = openTable("glyf")?.run {
+	fun getGlyphByIndex(index: Int): IGlyph? = runTable("glyf") {
 		val start = locs.getOrNull(index)?.toUnsigned() ?: 0
 		val end = locs.getOrNull(index + 1)?.toUnsigned() ?: start
 		val size = end - start
@@ -660,3 +682,4 @@ fun Context2d.fillText(
 ) {
 	font.fillText(this, text, size, x, y, color, origin)
 }
+
