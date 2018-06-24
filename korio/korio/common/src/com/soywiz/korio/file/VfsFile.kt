@@ -5,6 +5,7 @@ package com.soywiz.korio.file
 import com.soywiz.kds.*
 import com.soywiz.klogger.*
 import com.soywiz.korio.async.*
+import com.soywiz.korio.coroutine.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.file.std.*
 import com.soywiz.korio.lang.*
@@ -217,7 +218,8 @@ class VfsFile(
 	): Int = passthru(cmdAndArgs.toList(), env, charset)
 
 	suspend fun watch(handler: suspend (Vfs.FileEvent) -> Unit): Closeable {
-		val cc = coroutineContext
+		//val cc = coroutineContext
+		val cc = getCoroutineContext()
 		return vfs.watch(path) { event -> launch(cc) { handler(event) } }
 	}
 

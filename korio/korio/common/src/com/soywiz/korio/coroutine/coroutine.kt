@@ -4,7 +4,10 @@ import com.soywiz.korio.*
 import com.soywiz.korio.async.*
 import kotlin.coroutines.experimental.*
 
-suspend fun getCoroutineContext(): CoroutineContext = coroutineContext
+// @TODO: coroutineContext/suspendCoroutineUninterceptedOrReturn Not supported in kotlin-native 0.7.1
+//suspend fun getCoroutineContext(): CoroutineContext = coroutineContext
+//suspend fun getCoroutineContext(): CoroutineContext = kotlin.coroutines.experimental.intrinsics.suspendCoroutineUninterceptedOrReturn { it.context }
+suspend fun getCoroutineContext(): CoroutineContext = suspendCoroutine { it.context }
 
 suspend fun eventLoop(): EventLoop = getCoroutineContext().eventLoop
 

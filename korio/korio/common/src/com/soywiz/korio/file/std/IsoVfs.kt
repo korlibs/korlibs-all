@@ -14,37 +14,63 @@ suspend fun IsoVfs(s: AsyncStream): VfsFile = ISO.openVfs(s)
 suspend fun AsyncStream.openAsIso() = IsoVfs(this)
 suspend fun VfsFile.openAsIso() = IsoVfs(this)
 
+class IsoOpenVfs(val isoFile: ISO.IsoFile) : Vfs() {
+	val vfs = this
+
+	fun getVfsStat(file: ISO.IsoFile): VfsStat =
+		createExistsStat(file.fullname, isDirectory = file.isDirectory, size = file.size)
+
+	override suspend fun stat(path: String): VfsStat = try {
+		getVfsStat(isoFile[path])
+	} catch (e: Throwable) {
+		createNonExistsStat(path)
+	}
+
+	override suspend fun open(path: String, mode: VfsOpenMode): AsyncStream = isoFile[path].open2(mode)
+
+	override suspend fun list(path: String) = asyncGenerate {
+		val file = isoFile[path]
+		for (c in file.children) {
+			//yield(getVfsStat(c))
+			yield(vfs[c.fullname])
+		}
+	}
+}
+
 object ISO {
 	const val SECTOR_SIZE = 0x800L
 
 	suspend fun read(s: AsyncStream): IsoFile = IsoReader(s).read()
+	suspend fun openVfs(s: AsyncStream): VfsFile = IsoOpenVfs(read(s)).root
 
-	suspend fun openVfs(s: AsyncStream): VfsFile {
-		val iso = read(s)
-		return (object : Vfs() {
-			val vfs = this
-			val isoFile = iso
-
-			fun getVfsStat(file: IsoFile): VfsStat =
-				createExistsStat(file.fullname, isDirectory = file.isDirectory, size = file.size)
-
-			suspend override fun stat(path: String): VfsStat = try {
-				getVfsStat(isoFile[path])
-			} catch (e: Throwable) {
-				createNonExistsStat(path)
-			}
-
-			suspend override fun open(path: String, mode: VfsOpenMode): AsyncStream = isoFile[path].open2(mode)
-
-			suspend override fun list(path: String) = asyncGenerate {
-				val file = isoFile[path]
-				for (c in file.children) {
-					//yield(getVfsStat(c))
-					yield(vfs[c.fullname])
-				}
-			}
-		}).root
-	}
+	// @TODO: Kotlin-native exception: java.lang.Error: Non-local callable reference to suspend lambda: private final
+	// @TODO: suspend fun com.soywiz.korio.async.SuspendingSequenceBuilder<com.soywiz.korio.file.VfsFile>.`openVfs$<no name provided>$list$lambda-0`(`$this`: com.soywiz.korio.file.std.ISO.openVfs.<no name provided>, path: kotlin.String): kotlin.Unit defined in com.soywiz.korio.file.std.ISO[SimpleFunctionDescriptorImpl@3da64e00]
+	//suspend fun openVfs(s: AsyncStream): VfsFile {
+	//	val iso = read(s)
+	//	return (object : Vfs() {
+	//		val vfs = this
+	//		val isoFile = iso
+	//
+	//		fun getVfsStat(file: IsoFile): VfsStat =
+	//			createExistsStat(file.fullname, isDirectory = file.isDirectory, size = file.size)
+	//
+	//		override suspend fun stat(path: String): VfsStat = try {
+	//			getVfsStat(isoFile[path])
+	//		} catch (e: Throwable) {
+	//			createNonExistsStat(path)
+	//		}
+	//
+	//		override suspend fun open(path: String, mode: VfsOpenMode): AsyncStream = isoFile[path].open2(mode)
+	//
+	//		override suspend fun list(path: String) = asyncGenerate {
+	//			val file = isoFile[path]
+	//			for (c in file.children) {
+	//				//yield(getVfsStat(c))
+	//				yield(vfs[c.fullname])
+	//			}
+	//		}
+	//	}).root
+	//}
 
 	class IsoReader(val s: AsyncStream) {
 		suspend fun getSector(sector: Int, size: Int): AsyncStream =
@@ -104,8 +130,8 @@ object ISO {
 			for (part in name.split("/")) {
 				when (part) {
 					"" -> Unit
-					"" -> Unit
-					"" -> current = current.parent!!
+					"." -> Unit
+					".." -> current = current.parent!!
 					else -> current = current.children.firstOrNull { it.name.toUpperCase() == part.toUpperCase() } ?:
 							throw IllegalStateException("Can't find part $part for accessing path $name children: ${current.children}")
 				}

@@ -4,6 +4,7 @@ package com.soywiz.korio.file
 
 import com.soywiz.klock.*
 import com.soywiz.korio.async.*
+import com.soywiz.korio.coroutine.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.file.std.*
 import com.soywiz.korio.lang.*
@@ -189,7 +190,7 @@ abstract class Vfs {
 		override suspend fun watch(path: String, handler: (FileEvent) -> Unit): Closeable {
 			initOnce()
 			return access(path).watch { e ->
-				launch(coroutineContext) {
+				launch(getCoroutineContext()) {
 					val f1 = e.file.transform()
 					val f2 = e.other?.transform()
 					handler(e.copy(file = f1, other = f2))

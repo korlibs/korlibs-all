@@ -60,7 +60,7 @@ class AsyncThread {
 	suspend fun <T> queue(func: suspend () -> T): T = invoke(func)
 
 	suspend operator fun <T> invoke(func: suspend () -> T): T {
-		if (coroutineContext.tryEventLoop == null) {
+		if (getCoroutineContext().tryEventLoop == null) {
 			return func()
 		} else {
 			val ctx = getCoroutineContext()

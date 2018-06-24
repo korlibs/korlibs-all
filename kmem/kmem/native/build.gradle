@@ -7,10 +7,6 @@ konanArtifacts {
 		srcDir 'src'
 		enableMultiplatform true
 
-		libraries {
-			artifact project(":kds-native"), "kds"
-		}
-
 		pom {
 			withXml {
 				def root = asNode()

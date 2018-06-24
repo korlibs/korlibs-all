@@ -8,7 +8,10 @@ konanArtifacts {
 		enableMultiplatform true
 
 		libraries {
+			artifact project(":klock-native"), "klock"
+			artifact project(":kmem-native"), "kmem"
 			artifact project(":kds-native"), "kds"
+			artifact project(":klogger-native"), "klogger"
 		}
 
 		pom {
