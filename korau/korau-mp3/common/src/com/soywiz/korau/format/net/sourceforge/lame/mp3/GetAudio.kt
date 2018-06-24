@@ -35,7 +35,6 @@ import kotlin.FloatArray
 import kotlin.Int
 import kotlin.RuntimeException
 import kotlin.charArrayOf
-import kotlin.experimental.and
 import kotlin.run
 
 class GetAudio(internal var parse: Parse, internal var mpg: MPGLib) {
@@ -199,10 +198,10 @@ class GetAudio(internal var parse: Parse, internal var mpg: MPGLib) {
 				return -1 /* failed */
 			}
 
-			buf[2] = buf[2] and 127
-			buf[3] = buf[3] and 127
-			buf[4] = buf[4] and 127
-			buf[5] = buf[5] and 127
+			buf[2] = (buf[2].toInt() and 127).toByte()
+			buf[3] = (buf[3].toInt() and 127).toByte()
+			buf[4] = (buf[4].toInt() and 127).toByte()
+			buf[5] = (buf[5].toInt() and 127).toByte()
 			len = (((buf[2].toUnsigned() shl 7) + buf[3] shl 7) + buf[4] shl 7) + buf[5]
 			try {
 				fd.skip(len)
