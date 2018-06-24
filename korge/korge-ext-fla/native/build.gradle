@@ -1,0 +1,27 @@
+apply plugin: 'konan'
+
+konan.targets = nativeTargets
+
+konanArtifacts {
+	library(project.name.replace("-native", "")) {
+		srcDir 'src'
+		enableMultiplatform true
+
+		libraries {
+			artifact project(":korge-native"), "korge"
+		}
+
+		pom {
+			withXml {
+				def root = asNode()
+				root.appendNode('name', project.name)
+				root.appendNode('description', project.description)
+			}
+		}
+	}
+}
+
+dependencies {
+	expectedBy project(':' + project.name.replace("-native", "-common"))
+	//testImplementation project(':' + project.name.replace("-native", "-common"))
+}
