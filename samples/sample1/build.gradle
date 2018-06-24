@@ -10,6 +10,7 @@ sourceSets {
 }
 
 dependencies {
+    //compile "com.soywiz:korio-common:$korgeVersion"
     compile "com.soywiz:korge-common:$korgeVersion"
 }
 

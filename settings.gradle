@@ -14,7 +14,7 @@ def registerProject1(name, desc, rootPath = name) {
 	registerVersion("$name", file("$rootPath/$name/jvm"))
 	registerVersion("$name-js", file("$rootPath/$name/js"))
 	//registerVersion("$name-android", file("$rootPath/$name/android"))
-	//registerVersion("$name-native", file("$rootPath/$name/native"))
+	registerVersion("$name-native", file("$rootPath/$name/native"))
 }
 
 def registerProject2(name, rootPath, desc) {
@@ -46,6 +46,7 @@ registerProject2('korau-mod', 'korau', 'Korau: MOD extension (XM) and WIP (MOD,M
 registerProject2('korau-mp3', 'korau', 'Korau: MP3 extension')
 registerProject2('korau-ogg-vorbis', 'korau', 'Korau: OGG Vorbis extension')
 registerProject2('korau-atrac3plus', 'korau', 'Korau: atrac3plus extension')
+//registerProject2('korau-opus', 'korau', 'Korau: opus extension')
 
 registerProject1('korag', 'Korag: Kotlin cORoutines Accelerated Graphics')
 registerProject1('korui', 'Korui: Kotlin cORoutines User Interfaces for Kotlin Common')

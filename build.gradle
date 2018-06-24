@@ -5,6 +5,7 @@ buildscript {
 
 	ext.kotlinVersion = '1.2.50'
 	ext.kotlinNativeVersion = '0.7.1'
+	//ext.kotlinNativeVersion = '0.8'
 	ext.joglVersion = '2.3.2'
 	ext.gluegenVersion = '2.3.2'
 
