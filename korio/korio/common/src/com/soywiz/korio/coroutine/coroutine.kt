@@ -6,9 +6,10 @@ import kotlin.coroutines.experimental.*
 
 // @TODO: coroutineContext/suspendCoroutineUninterceptedOrReturn Not supported in kotlin-native 0.7.1
 //suspend fun getCoroutineContext(): CoroutineContext = coroutineContext
-//suspend fun getCoroutineContext(): CoroutineContext = kotlin.coroutines.experimental.intrinsics.suspendCoroutineUninterceptedOrReturn { it.context }
-suspend fun getCoroutineContext(): CoroutineContext = suspendCoroutine { it.context }
-
+//suspend fun getCoroutineContext(): CoroutineContext = kotlin.coroutines.experimental.intrinsics.suspendCoroutineUninterceptedOrReturn { it.resume(it.context) }
+suspend fun getCoroutineContext(): CoroutineContext = korioSuspendCoroutine<CoroutineContext> { c ->
+	c.resume(c.context)
+}
 suspend fun eventLoop(): EventLoop = getCoroutineContext().eventLoop
 
 val currentThreadId: Long get() = KorioNative.currentThreadId
