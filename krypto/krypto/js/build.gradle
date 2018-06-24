@@ -2,5 +2,4 @@ apply plugin: 'kotlin-platform-js'
 
 dependencies {
 	expectedBy project(":krypto-common")
-	compile project(":kmem-js")
 }

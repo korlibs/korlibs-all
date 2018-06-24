@@ -2,5 +2,4 @@ apply plugin: 'kotlin-platform-jvm'
 
 dependencies {
 	expectedBy project(":krypto-common")
-	compile project(":kmem")
 }
