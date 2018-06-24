@@ -4,5 +4,5 @@ dependencies {
 	expectedBy project(":korma-common")
 
 	compile project(":kds-js")
-	compile project(":klogger-js")
+	//compile project(":klogger-js")
 }

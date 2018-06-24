@@ -7,6 +7,10 @@ konanArtifacts {
 		srcDir 'src'
 		enableMultiplatform true
 
+		libraries {
+			artifact project(":kds-native"), "kds"
+		}
+
 		pom {
 			withXml {
 				def root = asNode()
@@ -19,8 +23,5 @@ konanArtifacts {
 
 dependencies {
 	expectedBy project(':' + project.name.replace("-native", "-common"))
-	testImplementation project(":korma-common")
-
-	compile project(":kds-native")
-	compile project(":klogger-native")
+	testImplementation project(':' + project.name.replace("-native", "-common"))
 }

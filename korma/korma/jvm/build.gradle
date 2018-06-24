@@ -5,5 +5,5 @@ dependencies {
 	testImplementation project(":korma-common")
 
 	compile project(":kds")
-	compile project(":klogger")
+	//compile project(":klogger")
 }

@@ -2,5 +2,5 @@ apply plugin: 'kotlin-platform-common'
 
 dependencies {
 	compile project(":kds-common")
-	compile project(":klogger-common")
+	//compile project(":klogger-common")
 }
