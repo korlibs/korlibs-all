@@ -1,0 +1,9 @@
+apply plugin: 'kotlin-platform-jvm'
+apply plugin: 'application'
+
+mainClassName = 'example.Example1Kt'
+
+dependencies {
+    expectedBy project(":sample1-common")
+    compile "com.soywiz:korge:$korgeVersion"
+}
