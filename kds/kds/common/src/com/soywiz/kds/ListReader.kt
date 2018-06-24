@@ -17,3 +17,10 @@ class ListReader<T>(val list: List<T>) {
 }
 
 fun <T> List<T>.reader() = ListReader(this)
+
+fun <T> ListReader<T>.expect(value: T): T {
+	val v = read()
+	if (v != value) error("Expecting '$value' but found '$v'")
+	return v
+}
+

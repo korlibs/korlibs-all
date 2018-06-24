@@ -522,21 +522,3 @@ class SVG(val root: Xml) : Context2d.SizedDrawable {
 		}
 	}
 }
-
-fun <T> ListReader<T>.expect(value: T): T {
-	val v = read()
-	if (v != value) invalidOp("Expecting '$value' but found '$v'")
-	return v
-}
-
-fun VectorPath.getPoints(): List<Point2d> {
-	val points = arrayListOf<Point2d>()
-	this.visitCmds(
-		moveTo = { x, y -> points += Point2d(x, y) },
-		lineTo = { x, y -> points += Point2d(x, y) },
-		quadTo = { x1, y1, x2, y2 -> points += Point2d(x2, y2) },
-		cubicTo = { x1, y1, x2, y2, x3, y3 -> points += Point2d(x3, y3) },
-		close = { }
-	)
-	return points
-}
