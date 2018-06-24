@@ -1,20 +1,32 @@
 apply plugin: 'konan'
 
 // https://github.com/JetBrains/kotlin-native/issues/1507
+// https://github.com/JetBrains/kotlin-native/blob/master/GRADLE_PLUGIN.md
 konanArtifacts {
     program("Game") {
         srcDir 'src'
         enableMultiplatform true
 //
-        //libraries {
-        //    artifact "com.soywiz:korge-native:$korgeVersion", "korge"
-        //}
+        libraries {
+            //artifact "com.soywiz:korge-native:$korgeVersion", "korge"
+            //artifact "korge-native"
+        }
 //
         //dependencies {
         //    artifactGame "com.soywiz:korge-native:$korgeVersion"
         //    //compile "com.soywiz:korge-native:$korgeVersion"
         //}
+
+        dependencies {
+            artifactGame "com.soywiz:korge-native:$korgeVersion"
+            //artifact "com.soywiz:korge-native:$korgeVersion", "korge"
+            //artifact "com.soywiz:korge-native:$korgeVersion"
+        }
     }
+}
+
+repositories {
+    mavenLocal()
 }
 
 dependencies {
