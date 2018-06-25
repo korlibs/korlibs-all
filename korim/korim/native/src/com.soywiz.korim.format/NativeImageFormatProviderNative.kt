@@ -30,5 +30,6 @@ object NativeNativeImageFormatProvider : NativeImageFormatProvider() {
 }
 
 data class BitmapNativeImage(val bitmap: Bitmap) : NativeImage(bitmap.width, bitmap.height, bitmap, bitmap.premult) {
+	override fun getContext2d(antialiasing: Boolean): Context2d = bitmap.getContext2d(antialiasing)
 	override fun toNonNativeBmp(): Bitmap = bitmap
 }
