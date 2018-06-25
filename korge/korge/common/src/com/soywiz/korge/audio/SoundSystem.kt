@@ -6,26 +6,13 @@ import com.soywiz.kmem.*
 import com.soywiz.korau.format.*
 import com.soywiz.korau.sound.*
 import com.soywiz.korge.plugin.*
-import com.soywiz.korge.resources.*
-import com.soywiz.korge.resources.Path
 import com.soywiz.korge.view.*
 import com.soywiz.korinject.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.file.*
-import com.soywiz.korio.file.*
 
 object SoundPlugin : KorgePlugin() {
 	override suspend fun register(views: Views) {
-		views.injector
-			.mapFactory(SoundFile::class) {
-				//AnLibrary.Factory(getOrNull(), getOrNull(), get(), get(), get()) // @TODO: Kotlin.js bug
-				SoundFile.Factory(
-					getOrNull(Path::class),
-					getOrNull(VPath::class),
-					get(ResourcesRoot::class),
-					get(SoundSystem::class)
-				)
-			}
 	}
 }
 
@@ -142,18 +129,6 @@ class SoundFile(
 	val soundSystem: SoundSystem
 ) {
 	fun play() = soundSystem.play(this.nativeSound)
-
-	class Factory(
-		val path: Path?,
-		val vpath: VPath?,
-		val resourcesRoot: ResourcesRoot,
-		val soundSystem: SoundSystem
-	) : AsyncFactory<SoundFile> {
-		override suspend fun create(): SoundFile {
-			val rpath = path?.path ?: vpath?.path ?: ""
-			return SoundFile(resourcesRoot[rpath].readNativeSoundOptimized(), soundSystem)
-		}
-	}
 }
 
 // @TODO: Could end having two instances!

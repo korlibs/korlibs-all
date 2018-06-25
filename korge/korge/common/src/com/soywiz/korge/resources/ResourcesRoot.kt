@@ -15,7 +15,6 @@ class ResourcesRoot : AsyncDependency {
 	}
 
 	operator fun get(path: String) = root[path]
-	operator fun get(path: Path) = root[path.path]
 	operator fun get(path: VPath) = root[path.path]
 
 	override suspend fun init() {

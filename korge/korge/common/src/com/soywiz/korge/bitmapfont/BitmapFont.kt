@@ -2,48 +2,18 @@ package com.soywiz.korge.bitmapfont
 
 import com.soywiz.kds.*
 import com.soywiz.korag.*
-import com.soywiz.korge.plugin.*
 import com.soywiz.korge.render.*
-import com.soywiz.korge.resources.*
-import com.soywiz.korge.resources.Path
 import com.soywiz.korge.view.*
 import com.soywiz.korim.color.*
 import com.soywiz.korim.font.*
-import com.soywiz.korinject.*
-import com.soywiz.korio.error.*
-import com.soywiz.korio.file.*
-import com.soywiz.korio.serialization.xml.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
+import com.soywiz.korio.serialization.xml.*
 import com.soywiz.korio.util.*
 import com.soywiz.korma.*
-import kotlin.collections.Map
-import kotlin.collections.arrayListOf
 import kotlin.collections.component1
 import kotlin.collections.component2
-import kotlin.collections.first
-import kotlin.collections.firstOrNull
-import kotlin.collections.hashMapOf
-import kotlin.collections.iterator
-import kotlin.collections.map
-import kotlin.collections.plusAssign
 import kotlin.collections.set
-import kotlin.collections.toMap
-
-object BitmapFontPlugin : KorgePlugin() {
-	override suspend fun register(views: Views) {
-		views.injector
-			.mapFactory {
-				BitmapFontAsyncFactory(
-					getOrNull(Path::class),
-					getOrNull(VPath::class),
-					getOrNull(FontDescriptor::class),
-					get(ResourcesRoot::class),
-					get(AG::class)
-				)
-			}
-	}
-}
 
 //e: java.lang.UnsupportedOperationException: Class literal annotation arguments are not yet supported: Factory
 //@AsyncFactoryClass(BitmapFontAsyncFactory::class)
@@ -204,6 +174,7 @@ suspend fun VfsFile.readBitmapFont(ag: AG): BitmapFont {
 				val xoffset: Int, var yoffset: Int, val xadvance: Int,
 				val page: Int, val chnl: Int
 			)
+
 			val kernings = arrayListOf<BitmapFont.Kerning>()
 			val glyphs = arrayListOf<BitmapFont.Glyph>()
 			var lineHeight = 16
@@ -257,7 +228,7 @@ suspend fun VfsFile.readBitmapFont(ag: AG): BitmapFont {
 				kernings = kernings.map { BitmapFont.Kerning.buildKey(it.first, it.second) to it }.toMap().toIntMap()
 			)
 		}
-		else ->TODO("Unsupported font type starting with ${content.substr(0, 16)}")
+		else -> TODO("Unsupported font type starting with ${content.substr(0, 16)}")
 	}
 }
 
@@ -266,27 +237,6 @@ fun <T> Map<Int, T>.toIntMap(): IntMap<T> {
 	val out = IntMap<T>()
 	for ((k, v) in this) out.set(k, v)
 	return out
-}
-
-annotation class FontDescriptor(val face: String, val size: Int, val chars: String = "0123456789")
-
-class BitmapFontAsyncFactory(
-	@Optional private val path: Path?,
-	@Optional private val vpath: VPath?,
-	@Optional private val descriptor: FontDescriptor?,
-	private val resourcesRoot: ResourcesRoot,
-	private val ag: AG
-) : AsyncFactory<BitmapFont> {
-	override suspend fun create() = if (path != null) {
-		resourcesRoot[path].readBitmapFont(ag)
-	} else if (vpath != null) {
-		resourcesRoot[vpath.path].readBitmapFont(ag)
-	} else if (descriptor != null) {
-		com.soywiz.korim.font.BitmapFontGenerator.generate(descriptor.face, descriptor.size, descriptor.chars)
-			.convert(ag)
-	} else {
-		invalidOp("BitmapFont injection requires @Path or @FontDescriptor annotations")
-	}
 }
 
 fun com.soywiz.korim.font.BitmapFont.toKorge(views: Views, mipmaps: Boolean = true): BitmapFont =

@@ -1,9 +1,6 @@
 package com.soywiz.korge.atlas
 
-import com.soywiz.korge.resources.*
 import com.soywiz.korge.util.*
-import com.soywiz.korge.view.*
-import com.soywiz.korinject.*
 import com.soywiz.korio.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.serialization.*
@@ -113,13 +110,5 @@ data class AtlasInfo(
 			val info = Json.decodeToType(AtlasInfo::class, json)
 			return info.copy(frames = info.frames.mapValues { it.value.applyRotation() })
 		}
-	}
-
-	class Factory(
-		val path: Path,
-		val views: Views,
-		val resourcesRoot: ResourcesRoot
-	) : AsyncFactory<AtlasInfo> {
-		suspend override fun create(): AtlasInfo = AtlasInfo.loadJsonSpriter(resourcesRoot[path].readString())
 	}
 }

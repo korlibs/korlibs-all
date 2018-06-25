@@ -2,15 +2,11 @@ package com.soywiz.korge.ext.particle
 
 import com.soywiz.korag.*
 import com.soywiz.korge.render.*
-import com.soywiz.korge.resources.*
-import com.soywiz.korge.resources.Path
 import com.soywiz.korge.view.*
 import com.soywiz.korim.color.*
-import com.soywiz.korinject.*
 import com.soywiz.korio.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.serialization.xml.*
-import com.soywiz.korio.file.*
 import com.soywiz.korma.geom.*
 import com.soywiz.korma.random.*
 import kotlin.math.*
@@ -299,14 +295,6 @@ class ParticleEmitter(val views: Views) {
 
 			for (p in particles) advance(p, time)
 		}
-	}
-
-	class Factory(
-		val path: Path,
-		val views: Views,
-		val resourcesRoot: ResourcesRoot
-	) : AsyncFactory<ParticleEmitter> {
-		suspend override fun create(): ParticleEmitter = resourcesRoot[path].readParticle(views)
 	}
 }
 

@@ -11,7 +11,8 @@ class TiledMapTest : ViewsForTesting() {
 	@Ignore // Must fix mapping first
 	fun name() = suspendTest {
 		disableNativeImageLoading {
-			class Demo(@Path("sample.tmx") val map: TiledMap)
+			//class Demo(@Path("sample.tmx") val map: TiledMap)
+			class Demo(val map: TiledMap)
 
 			val demo = injector.get<Demo>()
 			val map = demo.map

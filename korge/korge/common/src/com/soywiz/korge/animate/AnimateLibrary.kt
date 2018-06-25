@@ -4,15 +4,11 @@ import com.soywiz.kds.*
 import com.soywiz.korau.format.*
 import com.soywiz.korau.sound.*
 import com.soywiz.korge.animate.serialization.*
-import com.soywiz.korge.plugin.*
 import com.soywiz.korge.render.*
-import com.soywiz.korge.resources.*
 import com.soywiz.korge.view.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
-import com.soywiz.korinject.*
 import com.soywiz.korio.error.*
-import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
@@ -289,22 +285,6 @@ val Views.animateLibraryLoaders by Extra.Property {
 	)
 }
 
-object AnLibraryPlugin : KorgePlugin() {
-	override suspend fun register(views: Views) {
-		views.injector
-			.mapFactory(AnLibrary::class) {
-				//AnLibrary.Factory(getOrNull(), getOrNull(), get(), get(), get()) // @TODO: Kotlin.js bug
-				AnLibrary.Factory(
-					getOrNull(Path::class),
-					getOrNull(VPath::class),
-					get(Views::class),
-					get(AsyncInjector::class),
-					get(ResourcesRoot::class)
-				)
-			}
-	}
-}
-
 //e: java.lang.UnsupportedOperationException: Class literal annotation arguments are not yet supported: Factory
 //@AsyncFactoryClass(AnLibrary.Factory::class)
 class AnLibrary(val views: Views, val width: Int, val height: Int, val fps: Double) : Extra by Extra.Mixin() {
@@ -360,26 +340,5 @@ class AnLibrary(val views: Views, val width: Int, val height: Int, val fps: Doub
 	fun getBitmap(name: String) = (symbolsByName[name] as AnSymbolBitmap).bmp
 
 	fun createMainTimeLine() = createMovieClip(0)
-
-	class Factory(
-		//val path: Path,
-		val path: Path?,
-		val vpath: VPath?,
-		val views: Views,
-		val injector: AsyncInjector,
-		val resourcesRoot: ResourcesRoot
-	) : AsyncFactory<AnLibrary> {
-		override suspend fun create(): AnLibrary {
-			val file = resourcesRoot[path?.path ?: vpath?.path ?: invalidOp("Invalid path")]
-			val content = file.readAll()
-
-			for (loader in views.animateLibraryLoaders) {
-				val aloader = loader(FastByteArrayInputStream(content), injector) ?: continue
-				return aloader.loader(file, FastByteArrayInputStream(content), views)
-			}
-
-			throw IllegalArgumentException("Don't know how to load an AnLibrary for file $file using loaders: ${views.animateLibraryLoaders}")
-		}
-	}
 }
 

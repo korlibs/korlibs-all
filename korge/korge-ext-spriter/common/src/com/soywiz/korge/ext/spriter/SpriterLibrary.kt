@@ -3,11 +3,7 @@ package com.soywiz.korge.ext.spriter
 import com.soywiz.korge.atlas.*
 import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.*
 import com.soywiz.korge.render.*
-import com.soywiz.korge.resources.*
-import com.soywiz.korge.resources.Path
 import com.soywiz.korge.view.*
-import com.soywiz.korinject.*
-import com.soywiz.korio.file.*
 import com.soywiz.korio.file.*
 import kotlin.collections.set
 
@@ -29,14 +25,6 @@ class SpriterLibrary(val views: Views, val data: Data, val atlas: Map<String, Tr
 			animationName1 ?: entity.getAnimation(0).name,
 			animationName2 ?: entity.getAnimation(0).name
 		)
-	}
-
-	class Loader(
-		val views: Views,
-		val path: Path,
-		val resourcesRoot: ResourcesRoot
-	) : AsyncFactory<SpriterLibrary> {
-		suspend override fun create(): SpriterLibrary = resourcesRoot[path].readSpriterLibrary(views)
 	}
 }
 

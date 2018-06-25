@@ -14,14 +14,13 @@ class UISkin(val views: Views, val texture: Texture) {
 	val buttonDown: Texture = texture.slice(128, 0, 64, 64)
 
 	class Factory(
-		private val path: Path?,
-		private val vpath: VPath?,
+		private val vpath: VPath,
 		private val resourcesRoot: ResourcesRoot,
 		internal val views: Views
 	) : AsyncFactory<UISkin> {
-		suspend override fun create(): UISkin {
+		override suspend fun create(): UISkin {
 			val texture = try {
-				val rpath = path?.path ?: vpath?.path ?: ""
+				val rpath = vpath.path
 				val tex = resourcesRoot[rpath].readTexture(views, mipmaps = true)
 				println("UISkin.Factory: $rpath")
 				tex
@@ -35,4 +34,4 @@ class UISkin(val views: Views, val texture: Texture) {
 	}
 }
 
-suspend fun AsyncInjector.getUISkin(path: String) = UISkin.Factory(null, VPath(path), get(), get())
+suspend fun AsyncInjector.getUISkin(path: String) = UISkin.Factory(VPath(path), get(), get())

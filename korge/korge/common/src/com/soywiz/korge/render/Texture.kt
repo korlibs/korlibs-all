@@ -2,16 +2,12 @@ package com.soywiz.korge.render
 
 import com.soywiz.kmem.*
 import com.soywiz.korag.*
-import com.soywiz.korge.resources.*
-import com.soywiz.korge.resources.Path
 import com.soywiz.korge.view.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.format.*
-import com.soywiz.korinject.*
 import com.soywiz.korio.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
-import com.soywiz.korio.file.*
 import com.soywiz.korma.geom.*
 
 //e: java.lang.UnsupportedOperationException: Class literal annotation arguments are not yet supported: Factory
@@ -87,13 +83,4 @@ suspend fun VfsFile.readTexture(ag: AG, mipmaps: Boolean = true): Texture {
 	tex.upload(bmp, mipmaps = canHasMipmaps && mipmaps)
 	//println("VfsFile.readTexture[5]")
 	return Texture(tex, bmp.width, bmp.height)
-}
-
-//@JTranscKeep
-class TextureAsyncFactory(
-	private val ag: AG,
-	private val resourcesRoot: ResourcesRoot,
-	private val path: Path
-) : AsyncFactory<Texture> {
-	override suspend fun create() = resourcesRoot[path].readTexture(ag)
 }

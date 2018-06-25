@@ -5,10 +5,7 @@ import com.soywiz.korau.sound.*
 import com.soywiz.korge.animate.*
 import com.soywiz.korge.audio.*
 import com.soywiz.korge.component.*
-import com.soywiz.korge.resources.*
-import com.soywiz.korge.resources.Path
 import com.soywiz.korge.view.*
-import com.soywiz.korinject.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
@@ -37,14 +34,6 @@ class Voice(val views: Views, val voice: NativeSound, val lipsync: LipSync) {
 
 	suspend fun play(name: String) {
 		views.lipSync.play(this, name)
-	}
-
-	class Factory(
-		val path: Path,
-		val resourcesRoot: ResourcesRoot,
-		val views: Views
-	) : AsyncFactory<Voice> {
-		suspend override fun create(): Voice = resourcesRoot[path].readVoice(views)
 	}
 }
 

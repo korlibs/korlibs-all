@@ -11,7 +11,7 @@ abstract class KorgePlugin {
 }
 
 val defaultKorgePlugins = KorgePlugins().apply {
-	register(AtlasPlugin, BitmapFontPlugin, SoundPlugin)
+	register(AtlasPlugin, SoundPlugin)
 }
 
 @Singleton

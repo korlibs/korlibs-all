@@ -3,14 +3,11 @@ package com.soywiz.korge.tiled
 import com.soywiz.klogger.*
 import com.soywiz.kmem.*
 import com.soywiz.korge.render.*
-import com.soywiz.korge.resources.*
-import com.soywiz.korge.resources.Path
 import com.soywiz.korge.view.*
 import com.soywiz.korge.view.tiles.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
 import com.soywiz.korim.format.*
-import com.soywiz.korinject.*
 import com.soywiz.korio.compression.*
 import com.soywiz.korio.compression.deflate.*
 import com.soywiz.korio.crypto.*
@@ -410,12 +407,4 @@ suspend fun VfsFile.readTiledMap(
 
 private enum class RKind {
 	RECT, ELLIPSE, POLYLINE, POLYGON
-}
-
-class TiledMapFactory(
-	val views: Views,
-	val resourcesRoot: ResourcesRoot,
-	val path: Path
-) : AsyncFactory<TiledMap> {
-	override suspend fun create(): TiledMap = resourcesRoot[path].readTiledMap(views)
 }
