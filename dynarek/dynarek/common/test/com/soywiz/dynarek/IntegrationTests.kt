@@ -127,16 +127,25 @@ class IntegrationTests {
 		assertEquals(3, state.b)
 	}
 
-	@Test
-	fun testLocal() {
+	private fun testLocal(interpreter: Boolean) {
 		val function = function(DClass(State::class), DINT, DVOID) {
 			val local1 = DLocal(Int::class, 9.lit)
 			SET(local1, local1 * 7.lit)
 			SET(p0[State::a], local1)
 		}
 		val state = State(a = 7, b = 3)
-		function.generateDynarek()(state, 3)
+		function.generateDynarek(interpreted = interpreter)(state, 3)
 		assertEquals(9 * 7, state.a)
+	}
+
+	@Test
+	fun testLocal() {
+		testLocal(false)
+	}
+
+	@Test
+	fun testLocalInterpreted() {
+		testLocal(true)
 	}
 
 	@Test
