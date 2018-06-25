@@ -265,7 +265,7 @@ class SwfLoaderMethod(val views: Views, val config: SWFExportConfig) {
 			val totalDepths = symbol.limits.totalDepths
 			var currentSubTimeline = AnSymbolMovieClipSubTimeline(totalDepths)
 
-			val lastDepths = kotlin.arrayOfNulls<AnSymbolTimelineFrame?>(totalDepths)
+			val lastDepths = arrayOfNulls<AnSymbolTimelineFrame?>(totalDepths)
 
 			//println("-------------")
 			for (frame in swfTimeline.frames) {

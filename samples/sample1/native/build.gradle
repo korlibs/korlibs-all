@@ -1,5 +1,14 @@
-apply plugin: 'konan'
+//apply plugin: 'konan'
+apply plugin: 'kotlin-platform-native'
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
 
+repositories {
+    mavenLocal()
+}
+
+/*
 // https://github.com/JetBrains/kotlin-native/issues/1507
 // https://github.com/JetBrains/kotlin-native/blob/master/GRADLE_PLUGIN.md
 konanArtifacts {
@@ -24,13 +33,47 @@ konanArtifacts {
         }
     }
 }
+*/
+/*
 
-repositories {
-    mavenLocal()
+sourceSets {
+    main {
+        component {
+            target 'ios_arm64', 'ios_x64'
+            //target 'macbook'
+            outputKinds = [EXECUTABLE]
+        }
+    }
+}
+
+project.plugins.each {
+    println it
 }
 
 dependencies {
+    println(project(":sample1-common"))
     expectedBy project(":sample1-common")
-    artifactGame "com.soywiz:korge-native:$korgeVersion"
+    compile "com.soywiz:korge-native:$korgeVersion"
+
+    //expectedBy project(":sample1-common")
+    //artifactGame "com.soywiz:korge-native:$korgeVersion"
     //compile "com.soywiz:korge-native:$korgeVersion"
+}
+*/
+
+sourceSets.main {
+    kotlin.srcDir 'src'
+
+    component {
+        target nativeTargets
+        outputKinds = [EXECUTABLE]
+    }
+}
+sourceSets.test {
+    kotlin.srcDir 'test'
+}
+
+dependencies {
+    expectedBy project(':' + project.name.replace("-native", "-common"))
+    implementation "com.soywiz:korio-native:$korgeVersion"
 }

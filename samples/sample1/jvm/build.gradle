@@ -6,4 +6,5 @@ mainClassName = 'example.Example1Kt'
 dependencies {
     expectedBy project(":sample1-common")
     compile "com.soywiz:korge:$korgeVersion"
+    //compile "com.soywiz:korio:$korgeVersion"
 }

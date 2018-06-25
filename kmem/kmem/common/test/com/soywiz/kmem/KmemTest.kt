@@ -42,8 +42,13 @@ class KmemTest {
 		assertEquals(0x00000000, i32[4])
 
 		val fast = FastMemory(i32.mem)
+
+		assertEquals(listOf(4, 3, 2, 1, 4, 3, 2, 1, 8, 7, 6, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), (0 until (10 * 4)).map { fast.i8[it].toInt() }.toList())
+
 		val out = ByteArray(10)
 		fast.getArrayInt8(1, out, 1, 5)
+
+		assertEquals(listOf(0, 3, 2, 1, 4, 3, 0, 0, 0, 0), out.toList().map { it.toInt() })
 
 		val outS = ShortArray(10)
 		fast.getAlignedArrayInt16(1, outS, 1, 5)

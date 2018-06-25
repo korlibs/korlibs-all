@@ -88,6 +88,8 @@ class PriorityQueue<T>(
 
 	val head: T get() = _sortedList[if (this.reversed) (_sortedList.size - 1) else 0]
 
+	fun peek(): T = head
+
 	fun removeHead(): T {
 		if (this.reversed) {
 			return _sortedList.removeAt(_sortedList.size - 1)

@@ -6,8 +6,7 @@ import com.soywiz.korma.*
 import kotlin.test.*
 
 class ShapeTest {
-	//@kotlin.test.Test
-	@org.junit.Test
+	@Test
 	@Ignore
 	fun name() {
 		val shape = FillShape(
@@ -27,6 +26,4 @@ class ShapeTest {
 			shape.toSvg().outerXml
 		)
 	}
-
-
 }

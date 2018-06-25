@@ -18,6 +18,9 @@ import kotlin.collections.set
 import kotlin.reflect.*
 import kotlin.coroutines.experimental.*
 
+import kotlinx.cinterop.*
+import platform.posix.*
+
 actual annotation class Synchronized
 actual annotation class JvmField
 actual annotation class JvmStatic
@@ -33,8 +36,8 @@ actual open class IllegalStateException actual constructor(msg: String) : Runtim
 actual open class CancellationException actual constructor(msg: String) : IllegalStateException(msg)
 
 actual class Semaphore actual constructor(initial: Int) {
-	actual fun acquire(): Unit = TODO()
-	actual fun release(): Unit = TODO()
+	actual fun acquire(): Unit = Unit
+	actual fun release(): Unit = Unit
 }
 
 object NativeDelay : Delay {
@@ -44,7 +47,7 @@ object NativeDelay : Delay {
 actual val nativeDelay: Delay = NativeDelay
 
 actual object KorioNative {
-	actual val currentThreadId: Long get() = TODO()
+	actual val currentThreadId: Long get() = -1L // @TODO
 	actual fun getClassSimpleName(clazz: KClass<*>): String = clazz.simpleName ?: "unknown"
 
 	actual abstract class NativeThreadLocal<T> {
@@ -57,24 +60,40 @@ actual object KorioNative {
 	actual val platformName: String get() = "native"
 	actual val rawOsName: String = "unknown"
 
-	actual fun getRandomValues(data: ByteArray): Unit = TODO()
+	actual fun getRandomValues(data: ByteArray): Unit {
+		for (n in 0 until data.size) {
+			data[n] = platform.posix.rand().toByte()
+		}
+	}
 
-	actual fun rootLocalVfs(): VfsFile = TODO()
-	actual fun applicationVfs(): VfsFile = TODO()
-	actual fun applicationDataVfs(): VfsFile = TODO()
-	actual fun cacheVfs(): VfsFile = TODO()
-	actual fun externalStorageVfs(): VfsFile = TODO()
-	actual fun userHomeVfs(): VfsFile = TODO()
-	actual fun tempVfs(): VfsFile = TODO()
-	actual fun localVfs(path: String): VfsFile = TODO()
-	actual val File_separatorChar: Char get() = TODO()
-	actual val asyncSocketFactory: AsyncSocketFactory get() = TODO()
-	actual val websockets: WebSocketClientFactory get() = TODO()
-	actual val eventLoopFactoryDefaultImpl: EventLoopFactory = TODO()
-	actual val systemLanguageStrings: List<String> get() = TODO()
-	actual suspend fun <T> executeInNewThread(callback: suspend () -> T): T = TODO()
-	actual suspend fun <T> executeInWorker(callback: suspend () -> T): T = TODO()
-	actual fun Thread_sleep(time: Long): Unit = TODO()
+	val tmpdir: String by lazy { getenv("TMPDIR") ?: getenv("TEMP") ?: getenv("TMP") ?: "/tmp" }
+
+	actual fun rootLocalVfs(): VfsFile = localVfs(".")
+	actual fun applicationVfs(): VfsFile = localVfs(".")
+	actual fun applicationDataVfs(): VfsFile = localVfs(".")
+	actual fun cacheVfs(): VfsFile = MemoryVfs()
+	actual fun externalStorageVfs(): VfsFile = localVfs(".")
+	actual fun userHomeVfs(): VfsFile = localVfs(".")
+	actual fun tempVfs(): VfsFile = localVfs(tmpdir)
+	actual fun localVfs(path: String): VfsFile = LocalVfsNative()[path]
+	actual val ResourcesVfs: VfsFile get() = applicationDataVfs()
+
+	actual val File_separatorChar: Char get() = '/'
+
+	actual val asyncSocketFactory: AsyncSocketFactory get() = NativeAsyncSocketFactory
+	actual val websockets: WebSocketClientFactory get() = NativeWebSocketClientFactory
+	actual val eventLoopFactoryDefaultImpl: EventLoopFactory get() = BaseEventLoopFactoryNative
+	actual val systemLanguageStrings: List<String> get() = listOf("english")
+
+	// @TODO
+	actual suspend fun <T> executeInNewThread(callback: suspend () -> T): T = callback()
+
+	actual suspend fun <T> executeInWorker(callback: suspend () -> T): T = callback()
+
+	actual fun Thread_sleep(time: Long): Unit {
+		platform.posix.usleep((time * 1000L).toInt())
+	}
+
 	actual class SimplerMessageDigest actual constructor(name: String) {
 		actual suspend fun update(data: ByteArray, offset: Int, size: Int): Unit = TODO()
 		actual suspend fun digest(): ByteArray = TODO()
@@ -87,14 +106,168 @@ actual object KorioNative {
 
 	actual val httpFactory: HttpFactory by lazy {
 		object : HttpFactory {
-			override fun createClient(): HttpClient = TODO()
-			override fun createServer(): HttpServer = TODO()
+			override fun createClient(): HttpClient = NativeHttpClient()
+			override fun createServer(): HttpServer = KorioHttpServer()
 		}
 	}
 
-	actual val ResourcesVfs: VfsFile get() = TODO()
-	actual fun enterDebugger(): Unit = TODO()
-	actual fun printStackTrace(e: Throwable): Unit = TODO()
-	actual fun syncTest(block: suspend EventLoopTest.() -> Unit): Unit = TODO()
-	actual fun getenv(key: String): String? = TODO()
+	actual fun enterDebugger(): Unit {
+		println("enterDebugger")
+	}
+
+	actual fun printStackTrace(e: Throwable): Unit {
+		println("Exception: $e")
+	}
+
+	actual fun syncTest(block: suspend EventLoopTest.() -> Unit): Unit {
+		sync(el = EventLoopTest(), step = 10, block = block)
+	}
+
+	actual fun getenv(key: String): String? = platform.posix.getenv(key)?.toKString()
+}
+
+class NativeHttpClient : HttpClient() {
+	suspend override fun requestInternal(
+		method: Http.Method, url: String, headers: Http.Headers, content: AsyncStream?
+	): Response = TODO()
+}
+
+object NativeAsyncSocketFactory : AsyncSocketFactory() {
+	override suspend fun createClient(): AsyncClient = TODO()
+	override suspend fun createServer(port: Int, host: String, backlog: Int): AsyncServer = TODO()
+}
+
+object NativeWebSocketClientFactory : WebSocketClientFactory() {
+	override suspend fun create(
+		url: String,
+		protocols: List<String>?,
+		origin: String?,
+		wskey: String?,
+		debug: Boolean
+	): WebSocketClient {
+		TODO()
+	}
+}
+
+class LocalVfsNative : LocalVfs() {
+	val that = this
+	override val absolutePath: String = ""
+
+	fun resolve(path: String) = path
+
+	override suspend fun exec(
+		path: String, cmdAndArgs: List<String>, env: Map<String, String>, handler: VfsProcessHandler
+	): Int = executeInWorker {
+		TODO("LocalVfsNative.exec")
+	}
+
+	override suspend fun open(path: String, mode: VfsOpenMode): AsyncStream {
+		val rpath = resolve(path)
+		var fd = platform.posix.fopen(rpath, mode.cmode)
+
+		if (fd == null) throw FileNotFoundException("Can't find $path")
+
+		fun checkFd() {
+			if (fd == null) error("Error with file $path")
+		}
+
+		return object : AsyncStreamBase() {
+			override suspend fun read(position: Long, buffer: ByteArray, offset: Int, len: Int): Int {
+				checkFd()
+				return buffer.usePinned { pin ->
+					platform.posix.fseek(fd, position.uncheckedCast(), platform.posix.SEEK_SET)
+					platform.posix.fread(pin.addressOf(offset), 1, len.uncheckedCast(), fd).toInt()
+				}
+			}
+
+			override suspend fun write(position: Long, buffer: ByteArray, offset: Int, len: Int) {
+				checkFd()
+				return buffer.usePinned { pin ->
+					platform.posix.fseek(fd, position.uncheckedCast(), platform.posix.SEEK_SET)
+					platform.posix.fwrite(pin.addressOf(offset), 1, len.uncheckedCast(), fd)
+					Unit
+				}
+			}
+
+			override suspend fun setLength(value: Long): Unit {
+				checkFd()
+				platform.posix.truncate(rpath, value)
+			}
+
+			override suspend fun getLength(): Long {
+				checkFd()
+				platform.posix.fseek(fd, 0L, platform.posix.SEEK_END)
+				return platform.posix.ftell(fd)
+			}
+			override suspend fun close() {
+				checkFd()
+				platform.posix.fclose(fd)
+				fd = null
+			}
+
+			override fun toString(): String = "$that($path)"
+		}.toAsyncStream()
+	}
+
+	override suspend fun setSize(path: String, size: Long): Unit = executeInWorker {
+		platform.posix.truncate(resolve(path), size)
+		Unit
+	}
+
+	override suspend fun stat(path: String): VfsStat = executeInWorker {
+		val rpath = resolve(path)
+		memScoped {
+			val s = alloc<stat>()
+			if (platform.posix.stat(rpath, s.ptr) == 0) {
+				val size = s.st_size
+				val isDirectory = (s.st_mode.toInt() and S_IFDIR) != 0
+				createExistsStat(rpath, isDirectory, size)
+			} else {
+				createNonExistsStat(rpath)
+			}
+		}
+	}
+
+	override suspend fun list(path: String): SuspendingSequence<VfsFile> = executeInWorker {
+		val dir = opendir(resolve(path))
+		val out = ArrayList<VfsFile>()
+		if (dir != null) {
+			while (true) {
+				val dent = readdir(dir) ?: break
+				val name = dent.pointed.d_name.toKString()
+				out += file(name)
+			}
+			closedir(dir)
+		}
+		SuspendingSequence(out)
+	}
+
+	override suspend fun mkdir(path: String, attributes: List<Attribute>): Boolean = executeInWorker {
+		platform.posix.mkdir(resolve(path), "0777".toInt(8).uncheckedCast()) == 0
+	}
+
+	override suspend fun touch(path: String, time: Long, atime: Long): Unit = executeInWorker {
+		// @TODO:
+		println("TODO:LocalVfsNative.touch")
+	}
+
+	override suspend fun delete(path: String): Boolean = executeInWorker {
+		platform.posix.unlink(resolve(path)) == 0
+	}
+
+	override suspend fun rmdir(path: String): Boolean = executeInWorker {
+		platform.posix.rmdir(resolve(path)) == 0
+	}
+
+	override suspend fun rename(src: String, dst: String): Boolean = executeInWorker {
+		platform.posix.rename(resolve(src), resolve(dst)) == 0
+	}
+
+	override suspend fun watch(path: String, handler: (FileEvent) -> Unit): Closeable {
+		// @TODO:
+		println("TODO:LocalVfsNative.watch")
+		return Closeable { }
+	}
+
+	override fun toString(): String = "LocalVfs"
 }

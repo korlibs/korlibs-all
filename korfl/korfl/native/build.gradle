@@ -1,29 +1,18 @@
-apply plugin: 'konan'
+sourceSets.main {
+	kotlin.srcDir 'src'
 
-konan.targets = nativeTargets
-
-konanArtifacts {
-	library(project.name.replace("-native", "")) {
-		srcDir 'src'
-		enableMultiplatform true
-
-		libraries {
-			artifact project(":korim-native"), "korim"
-			artifact project(":korau-native"), "korau"
-			artifact project(":korau-mp3-native"), "korau-mp3"
-		}
-
-		pom {
-			withXml {
-				def root = asNode()
-				root.appendNode('name', project.name)
-				root.appendNode('description', project.description)
-			}
-		}
+	component {
+		target nativeTargets
+		outputKinds = [KLIBRARY]
 	}
+}
+sourceSets.test {
+	kotlin.srcDir 'test'
 }
 
 dependencies {
 	expectedBy project(':' + project.name.replace("-native", "-common"))
-	//testImplementation project(':' + project.name.replace("-native", "-common"))
+	implementation project(":korim-native")
+	implementation project(":korau-native")
+	implementation project(":korau-mp3-native")
 }

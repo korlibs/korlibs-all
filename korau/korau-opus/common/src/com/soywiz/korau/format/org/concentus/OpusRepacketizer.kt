@@ -54,7 +54,7 @@ class OpusRepacketizer {
      */
     var numFrames = 0
         internal set
-    internal val frames = kotlin.arrayOfNulls<ByteArray>(48)
+    internal val frames = arrayOfNulls<ByteArray>(48)
     internal val len = ShortArray(48)
     internal var framesize = 0
 

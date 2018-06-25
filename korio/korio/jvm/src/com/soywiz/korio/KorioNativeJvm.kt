@@ -152,7 +152,8 @@ actual object KorioNative {
 
 	actual fun Thread_sleep(time: Long) = Thread.sleep(time)
 
-	actual val eventLoopFactoryDefaultImpl: EventLoopFactory = EventLoopFactoryJvmAndCSharp()
+	//actual val eventLoopFactoryDefaultImpl: EventLoopFactory = EventLoopFactoryJvmAndCSharp()
+	actual val eventLoopFactoryDefaultImpl: EventLoopFactory = BaseEventLoopFactoryNative
 
 	actual val asyncSocketFactory: AsyncSocketFactory by lazy { JvmAsyncSocketFactory() }
 	actual val websockets: WebSocketClientFactory by lazy { JvmWebSocketClientFactory() }

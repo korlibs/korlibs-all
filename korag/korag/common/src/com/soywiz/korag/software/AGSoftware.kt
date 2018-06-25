@@ -2,7 +2,7 @@ package com.soywiz.korag.software
 
 import com.soywiz.korag.*
 
-class AGFactorySoftware() : AGFactory {
+open class AGFactorySoftware() : AGFactory {
 	override val supportsNativeFrame: Boolean = false
 	override fun create(): AG = AGSoftware()
 	override fun createFastWindow(title: String, width: Int, height: Int): AGWindow {
@@ -10,7 +10,7 @@ class AGFactorySoftware() : AGFactory {
 	}
 }
 
-class AGSoftware : AG() {
+open class AGSoftware : AG() {
 	override val nativeComponent: Any = Any()
 
 	init {

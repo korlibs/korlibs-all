@@ -352,7 +352,8 @@ suspend fun VfsFile.readTiledMap(
 	val folder = this.parent.jail()
 	val data = readTiledMapData()
 
-	val combinedTileset = kotlin.arrayOfNulls<Texture>(data.maxGid + 1)
+	//val combinedTileset = kotlin.arrayOfNulls<Texture>(data.maxGid + 1)
+	val combinedTileset = arrayOfNulls<Texture>(data.maxGid + 1)
 
 	for (layer in data.imageLayers) {
 		layer.image = folder[layer.source].readBitmapOptimized()

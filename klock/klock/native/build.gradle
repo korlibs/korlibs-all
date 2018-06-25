@@ -1,51 +1,15 @@
-apply plugin: 'konan'
+sourceSets.main {
+	kotlin.srcDir 'src'
 
-//konan.targets = ['iphone', 'iphone_sim', 'macbook', 'linux', 'raspberrypi', 'android_arm32', 'android_arm64', 'wasm32']
-//konan.targets = ['macbook']
-konan.targets = nativeTargets
-
-konanArtifacts {
-	//interop('mytest') {
-	//	defFile 'c_interop/mytest.def'
-	//}
-
-	library(project.name.replace("-native", "")) {
-		srcDir 'src'
-		enableMultiplatform true
-
-		libraries {
-			//artifact 'mytest'
-		}
-
-		//target('linux') {
-		//}
-
-		target('macbook') {
-		}
-
-		pom {
-			withXml {
-				def root = asNode()
-				root.appendNode('name', project.name)
-				root.appendNode('description', project.description)
-			}
-		}
+	component {
+		target nativeTargets
+		outputKinds = [KLIBRARY]
 	}
-
-	//program('klock-native-test') {
-	//	srcDir 'test'
-	//	commonSourceSet 'test'
-	//	libraries {
-	//		artifact 'klock'
-	//	}
-	//	extraOpts '-tr'
-	//}
+}
+sourceSets.test {
+	kotlin.srcDir 'test'
 }
 
 dependencies {
 	expectedBy project(':' + project.name.replace("-native", "-common"))
 }
-
-//test.dependsOn(run)
-//task test(dependsOn: run)
-//check.dependsOn(run)

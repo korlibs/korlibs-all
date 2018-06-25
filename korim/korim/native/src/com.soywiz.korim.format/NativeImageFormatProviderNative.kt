@@ -14,11 +14,21 @@ import kotlin.math.*
 actual val nativeImageFormatProvider: NativeImageFormatProvider = NativeNativeImageFormatProvider
 
 object NativeNativeImageFormatProvider : NativeImageFormatProvider() {
-	override suspend fun decode(data: ByteArray): NativeImage = TODO()
-	override suspend fun decode(vfs: Vfs, path: String): NativeImage = TODO()
-	override fun create(width: Int, height: Int): NativeImage = TODO()
-	override fun copy(bmp: Bitmap): NativeImage = TODO()
-	override suspend fun display(bitmap: Bitmap, kind: Int) = TODO()
-	override fun mipmap(bmp: Bitmap, levels: Int): NativeImage = TODO()
-	override fun mipmap(bmp: Bitmap): NativeImage = TODO()
+	override suspend fun decode(data: ByteArray): NativeImage {
+		return BitmapNativeImage(defaultImageFormats.decode(data))
+	}
+	override suspend fun decode(vfs: Vfs, path: String): NativeImage {
+		return BitmapNativeImage(defaultImageFormats.decode(vfs[path]))
+	}
+	override fun create(width: Int, height: Int): NativeImage = BitmapNativeImage(Bitmap32(width, height))
+	override fun copy(bmp: Bitmap): NativeImage = BitmapNativeImage(bmp)
+	override suspend fun display(bitmap: Bitmap, kind: Int) {
+		println("TODO: NativeNativeImageFormatProvider.display(bitmap=$bitmap, kind=$kind)")
+	}
+	override fun mipmap(bmp: Bitmap, levels: Int): NativeImage = BitmapNativeImage(bmp)
+	override fun mipmap(bmp: Bitmap): NativeImage = BitmapNativeImage(bmp)
+}
+
+data class BitmapNativeImage(val bitmap: Bitmap) : NativeImage(bitmap.width, bitmap.height, bitmap, bitmap.premult) {
+	override fun toNonNativeBmp(): Bitmap = bitmap
 }

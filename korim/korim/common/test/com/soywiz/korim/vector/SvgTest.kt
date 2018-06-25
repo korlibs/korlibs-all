@@ -2,7 +2,7 @@ package com.soywiz.korim.vector
 
 import com.soywiz.korim.vector.format.*
 import com.soywiz.korio.async.*
-import org.junit.*
+import kotlin.test.*
 
 class SvgTest {
 	@Test

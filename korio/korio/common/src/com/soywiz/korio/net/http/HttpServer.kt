@@ -10,7 +10,6 @@ import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
 import kotlin.coroutines.experimental.*
 
-
 open class HttpServer protected constructor() : AsyncCloseable {
 	companion object {
 		operator fun invoke() = defaultHttpFactory.createServer()

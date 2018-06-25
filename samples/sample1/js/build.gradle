@@ -3,4 +3,5 @@ apply plugin: 'kotlin-platform-js'
 dependencies {
     expectedBy project(":sample1-common")
     compile "com.soywiz:korge-js:$korgeVersion"
+    //compile "com.soywiz:korio-js:$korgeVersion"
 }

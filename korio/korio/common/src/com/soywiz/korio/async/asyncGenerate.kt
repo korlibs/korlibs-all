@@ -132,6 +132,8 @@ fun <T> Iterator<T>.toAsync(): SuspendingIterator<T> = object : SuspendingIterat
 	suspend override fun next(): T = this@toAsync.next()
 }
 
+fun <T> SuspendingSequence(items: Iterable<T>) = items.toAsync()
+
 fun <T> Iterable<T>.toAsync(): SuspendingSequence<T> = object : SuspendingSequence<T> {
 	override fun iterator(): SuspendingIterator<T> = this@toAsync.iterator().toAsync()
 }

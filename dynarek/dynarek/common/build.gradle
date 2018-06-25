@@ -2,3 +2,5 @@ apply plugin: 'kotlin-platform-common'
 
 dependencies {
 }
+
+kotlin.experimental.coroutines 'enable'

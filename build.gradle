@@ -3,9 +3,11 @@ import org.apache.tools.ant.taskdefs.condition.Os
 buildscript {
 	ext.projectVersion = '0.31.0'
 
-	ext.kotlinVersion = '1.2.50'
-	ext.kotlinNativeVersion = '0.7.1'
+	//ext.kotlinVersion = '1.2.50' // with this version, kotlin-platform-native doesn't work since it requires the java plugin because of https://github.com/JetBrains/kotlin/blob/0dc12fc5605b170b0eb93ad4bec20bf429208db3/libraries/tools/kotlin-gradle-plugin/src/main/kotlin/org/jetbrains/kotlin/gradle/plugin/KotlinMultiplatformPlugin.kt#L216
+	ext.kotlinVersion = '1.2.41'
+	//ext.kotlinNativeVersion = '0.7.1'
 	//ext.kotlinNativeVersion = '0.8'
+	ext.kotlinNativeVersion = '0.8-dev-2494'
 	ext.joglVersion = '2.3.2'
 	ext.gluegenVersion = '2.3.2'
 
@@ -36,12 +38,20 @@ buildscript {
 apply plugin: 'idea'
 
 allprojects {
+	def nativeProject = project.name.endsWith("-native")
+	//def nativeProject = project.name.endsWith("kds-native")
+
+	if (nativeProject) {
+		apply plugin: 'kotlin-platform-native'
+	} else {
+		apply plugin: 'java'
+	}
+
 	apply plugin: 'maven'
 	apply plugin: 'signing'
 	apply plugin: 'maven-publish'
 	apply plugin: 'idea'
 	apply plugin: 'com.jfrog.bintray'
-	apply plugin: 'java'
 
 	group projectGroup
 	version projectVersion
@@ -49,6 +59,7 @@ allprojects {
 	repositories {
 		mavenLocal()
 		jcenter()
+		mavenCentral()
 		maven { url "https://plugins.gradle.org/m2/" }
 		maven { url "https://dl.bintray.com/jetbrains/kotlin-native-dependencies" }
 	}
@@ -68,9 +79,7 @@ allprojects {
 				testCompile "org.jetbrains.kotlin:kotlin-test-annotations-common:$kotlinVersion"
 			}
 
-			kotlin {
-				experimental { coroutines 'enable' }
-			}
+			kotlin.experimental.coroutines 'enable'
 		}
 		if (it.plugins.hasPlugin("kotlin-platform-jvm") || it.plugins.hasPlugin("kotlin")) {
 			kotlinProject = true
@@ -194,16 +203,19 @@ allprojects {
 				from 'build/docs/javadoc'
 			}
 
-			task(type: Jar, 'sourcesJar') {
-				classifier = 'sources'
-				from sourceSets.main.allSource
-				if (project != rootProject) {
-					if (!plugins.hasPlugin("kotlin-platform-common")) {
-						ProjectDependency pd = (ProjectDependency) (configurations
-								.findByName("expectedBy")?.dependencies
-								?.find { it instanceof ProjectDependency })
-						if (pd != null) {
-							from pd.dependencyProject.sourceSets.main.allSource
+			// @TODO: from sourceSets.main.allSource requires Java plugin
+			if (!nativeProject) {
+				task(type: Jar, 'sourcesJar') {
+					classifier = 'sources'
+					from sourceSets.main.allSource
+					if (project != rootProject) {
+						if (!plugins.hasPlugin("kotlin-platform-common")) {
+							ProjectDependency pd = (ProjectDependency) (configurations
+									.findByName("expectedBy")?.dependencies
+									?.find { it instanceof ProjectDependency })
+							if (pd != null) {
+								from pd.dependencyProject.sourceSets.main.allSource
+							}
 						}
 					}
 				}
@@ -211,18 +223,22 @@ allprojects {
 
 			artifacts {
 				archives javadocJar
-				archives sourcesJar
+				if (!nativeProject) {
+					archives sourcesJar // @TODO: from sourceSets.main.allSource requires Java plugin
+				}
 			}
 		}
 	}
 
 	publishing {
 		publications {
-			MyPublication(MavenPublication) {
-				from components.java
-				groupId project.group
-				artifactId project.name
-				version "$project.version"
+			if (!nativeProject) {
+				MyPublication(MavenPublication) {
+					from components.java
+					groupId project.group
+					artifactId project.name
+					version "$project.version"
+				}
 			}
 		}
 	}

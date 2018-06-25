@@ -7,11 +7,19 @@ import com.soywiz.korio.coroutine.*
 import com.soywiz.korio.lang.*
 import kotlin.coroutines.experimental.*
 
-actual val nativeSoundProvider: NativeSoundProvider by lazy { TODO() }
+actual val nativeSoundProvider: NativeSoundProvider by lazy { DummyNativeSoundProvider() }
 
 actual class NativeAudioStream actual constructor(val freq: Int) {
-	actual fun start(): Unit = TODO()
-	actual fun stop(): Unit = TODO()
+	actual fun start(): Unit {
+
+	}
+	actual fun stop(): Unit {
+
+	}
 	actual val availableSamples: Int get() = TODO()
-	actual suspend fun addSamples(samples: ShortArray, offset: Int, size: Int): Unit = TODO()
+
+	actual suspend fun addSamples(samples: ShortArray, offset: Int, size: Int): Unit {
+		println("NativeAudioStream.addSamples: $offset,$size")
+		getCoroutineContext().sleep(1)
+	}
 }
