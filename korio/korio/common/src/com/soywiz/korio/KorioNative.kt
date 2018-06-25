@@ -349,46 +349,7 @@ fun createBase64URLForData(data: ByteArray, contentType: String): String {
 	return "data:$contentType;base64," + Base64.encode(data)
 }
 
-interface BaseCoroutineContext : CoroutineContext {
-	// @TODO: Required for kotlin-native
-	override operator fun plus(context: CoroutineContext): CoroutineContext =
-		if (context === EmptyCoroutineContext) this else // fast path -- avoid lambda creation
-			context.fold(this as CoroutineContext) { acc, element ->
-				val removed = acc.minusKey(element.key)
-				if (removed === EmptyCoroutineContext) element else {
-					// make sure interceptor is always last in the context (and thus is fast to get when present)
-					val interceptor = removed[ContinuationInterceptor]
-					if (interceptor == null) CombinedContext(removed, element) else {
-						val left = removed.minusKey(ContinuationInterceptor)
-						if (left === EmptyCoroutineContext) CombinedContext(
-							element,
-							interceptor
-						) else
-							CombinedContext(
-								CombinedContext(
-									left,
-									element
-								), interceptor
-							)
-					}
-				}
-			}
-
-}
-
-interface BaseCoroutineElement : BaseCoroutineContext, CoroutineContext.Element {
-	@Suppress("UNCHECKED_CAST")
-	override operator fun <E : CoroutineContext.Element> get(key: CoroutineContext.Key<E>): E? =
-		if (this.key === key) this as E else null
-
-	override fun <R> fold(initial: R, operation: (R, CoroutineContext.Element) -> R): R =
-		operation(initial, this)
-
-	override fun minusKey(key: CoroutineContext.Key<*>): CoroutineContext =
-		if (this.key === key) EmptyCoroutineContext else this
-}
-
-interface Delay : BaseCoroutineElement {
+interface Delay : CoroutineContext.Element {
 	object KEY : CoroutineContext.Key<Delay>
 
 	override val key get() = KEY
@@ -396,61 +357,3 @@ interface Delay : BaseCoroutineElement {
 }
 
 val CoroutineContext.delay: Delay get() = this[Delay.KEY]?.delay ?: nativeDelay
-
-
-internal class CombinedContext(val left: CoroutineContext, val element: CoroutineContext.Element) : BaseCoroutineContext {
-	override fun <E : CoroutineContext.Element> get(key: CoroutineContext.Key<E>): E? {
-		var cur = this
-		while (true) {
-			cur.element[key]?.let { return it }
-			val next = cur.left
-			if (next is CombinedContext) {
-				cur = next
-			} else {
-				return next[key]
-			}
-		}
-	}
-
-	public override fun <R> fold(initial: R, operation: (R, CoroutineContext.Element) -> R): R =
-		operation(left.fold(initial, operation), element)
-
-	public override fun minusKey(key: CoroutineContext.Key<*>): CoroutineContext {
-		element[key]?.let { return left }
-		val newLeft = left.minusKey(key)
-		return when {
-			newLeft === left -> this
-			newLeft === EmptyCoroutineContext -> element
-			else -> CombinedContext(newLeft, element)
-		}
-	}
-
-	private fun size(): Int =
-		if (left is CombinedContext) left.size() + 1 else 2
-
-	private fun contains(element: CoroutineContext.Element): Boolean =
-		get(element.key) == element
-
-	private fun containsAll(context: CombinedContext): Boolean {
-		var cur = context
-		while (true) {
-			if (!contains(cur.element)) return false
-			val next = cur.left
-			if (next is CombinedContext) {
-				cur = next
-			} else {
-				return contains(next as CoroutineContext.Element)
-			}
-		}
-	}
-
-	override fun equals(other: Any?): Boolean =
-		this === other || other is CombinedContext && other.size() == size() && other.containsAll(this)
-
-	override fun hashCode(): Int = left.hashCode() + element.hashCode()
-
-	override fun toString(): String =
-		"[" + fold("") { acc, element ->
-			if (acc.isEmpty()) element.toString() else acc + ", " + element
-		} + "]"
-}
