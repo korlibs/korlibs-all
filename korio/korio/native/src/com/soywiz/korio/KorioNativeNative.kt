@@ -75,7 +75,7 @@ actual object KorioNative {
 	actual fun externalStorageVfs(): VfsFile = localVfs(".")
 	actual fun userHomeVfs(): VfsFile = localVfs(".")
 	actual fun tempVfs(): VfsFile = localVfs(tmpdir)
-	actual fun localVfs(path: String): VfsFile = LocalVfsNative()[path]
+	actual fun localVfs(path: String): VfsFile = LocalVfsNative(path).root
 	actual val ResourcesVfs: VfsFile get() = applicationDataVfs()
 
 	actual val File_separatorChar: Char get() = '/'
@@ -149,11 +149,11 @@ object NativeWebSocketClientFactory : WebSocketClientFactory() {
 	}
 }
 
-class LocalVfsNative : LocalVfs() {
+class LocalVfsNative(val base: String) : LocalVfs() {
 	val that = this
 	override val absolutePath: String = ""
 
-	fun resolve(path: String) = path
+	fun resolve(path: String) = if (base.isEmpty()) path else "$base/" + path.trimStart('/')
 
 	override suspend fun exec(
 		path: String, cmdAndArgs: List<String>, env: Map<String, String>, handler: VfsProcessHandler
