@@ -10,6 +10,7 @@ class NativeLightComponents : LightComponents() {
 	override fun create(type: LightType): LightComponentInfo {
 		var agg: AG? = null
 		val handle: Any = when (type) {
+			LightType.FRAME -> Any()
 			LightType.CONTAINER -> Any()
 			LightType.BUTTON -> Any()
 			LightType.IMAGE -> Any()
