@@ -17,4 +17,5 @@ object OS {
 	val isJs: Boolean by lazy { platformNameLC.contains("js") }
 	val isNodejs: Boolean by lazy { (platformNameLC.contains("node.js")) }
 	val isBrowserJs: Boolean get() = isJs && !isNodejs
+	val isNative: Boolean get() = platformNameLC == "native"
 }

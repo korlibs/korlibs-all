@@ -14,13 +14,3 @@ install:
 script:
   - jdk_switcher use oraclejdk8
   - ./gradlew -s -i check test install
-
-before_cache:
-  - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
-
-cache:
-  directories:
-    - $HOME/.gradle/caches/
-    - $HOME/.gradle/wrapper/
-    - $HOME/.konan
-    
