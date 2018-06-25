@@ -68,12 +68,20 @@ actual object KorioNative {
 
 	val tmpdir: String by lazy { getenv("TMPDIR") ?: getenv("TEMP") ?: getenv("TMP") ?: "/tmp" }
 
-	actual fun rootLocalVfs(): VfsFile = localVfs(".")
-	actual fun applicationVfs(): VfsFile = localVfs(".")
-	actual fun applicationDataVfs(): VfsFile = localVfs(".")
+	val cwd by lazy {
+		memScoped {
+			val data = allocArray<ByteVar>(1024)
+			getcwd(data, 1024)
+			data.toKString()
+		}
+	}
+
+	actual fun rootLocalVfs(): VfsFile = localVfs(cwd)
+	actual fun applicationVfs(): VfsFile = localVfs(cwd)
+	actual fun applicationDataVfs(): VfsFile = localVfs(cwd)
 	actual fun cacheVfs(): VfsFile = MemoryVfs()
-	actual fun externalStorageVfs(): VfsFile = localVfs(".")
-	actual fun userHomeVfs(): VfsFile = localVfs(".")
+	actual fun externalStorageVfs(): VfsFile = localVfs(cwd)
+	actual fun userHomeVfs(): VfsFile = localVfs(cwd)
 	actual fun tempVfs(): VfsFile = localVfs(tmpdir)
 	actual fun localVfs(path: String): VfsFile = LocalVfsNative(path).root
 	actual val ResourcesVfs: VfsFile get() = applicationDataVfs()
@@ -165,10 +173,10 @@ class LocalVfsNative(val base: String) : LocalVfs() {
 		val rpath = resolve(path)
 		var fd = platform.posix.fopen(rpath, mode.cmode)
 
-		if (fd == null) throw FileNotFoundException("Can't find $path")
+		if (fd == null) throw FileNotFoundException("Can't find '$rpath'")
 
 		fun checkFd() {
-			if (fd == null) error("Error with file $path")
+			if (fd == null) error("Error with file '$rpath'")
 		}
 
 		return object : AsyncStreamBase() {

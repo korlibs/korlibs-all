@@ -14,12 +14,3 @@ dependencies {
 	expectedBy project(':' + project.name.replace("-native", "-common"))
 	implementation project(":korau-native")
 }
-
-task copyResources(type: Copy) {
-	from file("../common/testresources")
-	into file("build/exe/test/debug")
-}
-
-afterEvaluate {
-	compileTestDebugKotlinNative.dependsOn(copyResources)
-}

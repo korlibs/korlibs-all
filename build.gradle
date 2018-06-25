@@ -43,6 +43,15 @@ allprojects {
 
 	if (nativeProject) {
 		apply plugin: 'kotlin-platform-native'
+
+		task copyResources(type: Copy) {
+			from file("testresources"), file("../common/testresources")
+			into file("build/test-results/test/debug") // This is the CWD
+		}
+
+		afterEvaluate {
+			compileTestDebugKotlinNative.dependsOn(copyResources)
+		}
 	} else {
 		apply plugin: 'java'
 	}
