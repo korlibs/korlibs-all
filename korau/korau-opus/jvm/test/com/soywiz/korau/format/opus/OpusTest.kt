@@ -3,7 +3,7 @@ package com.soywiz.korau.format.opus
 import com.soywiz.korio.async.*
 import com.soywiz.korio.crypto.*
 import com.soywiz.korio.stream.*
-import org.junit.*
+import kotlin.test.*
 
 class OpusTest {
 	val smallFile = "T2dnUwACAAAAAAAAAABxNV5nAAAAAIjXVq0BE09wdXNIZWFkAQI4AUSsAAAAAABP" +

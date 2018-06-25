@@ -3,8 +3,7 @@ package com.soywiz.korau.format.atrac3plus
 import jpcsp.Memory
 import jpcsp.media.codec.atrac3plus.Atrac3plusDecoder
 import jpcsp.media.codec.atrac3plus.util.Atrac3Util
-import org.junit.Ignore
-import org.junit.Test
+import kotlin.test.*
 import java.io.File
 
 class TestAgainstJavaImpl {

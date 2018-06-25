@@ -1,7 +1,7 @@
 package com.soywiz.korge.render
 
 import com.soywiz.korag.log.*
-import org.junit.*
+import kotlin.test.*
 
 class BatchBuilderTest {
 	val ag = LogAG(16, 16)
@@ -13,7 +13,7 @@ class BatchBuilderTest {
 		bb.drawQuad(tex, 0f, 0f)
 		bb.flush()
 
-		Assert.assertEquals(
+		assertEquals(
 			"""
 			createBuffer(VERTEX):0
 			createBuffer(INDEX):1
@@ -38,7 +38,7 @@ class BatchBuilderTest {
 		bb.drawQuad(tex, 100f, 0f)
 		bb.flush()
 
-		Assert.assertEquals(
+		assertEquals(
 			"""
 			createBuffer(VERTEX):0
 			createBuffer(INDEX):1

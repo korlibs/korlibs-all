@@ -2,7 +2,7 @@ package com.soywiz.korag
 
 import com.soywiz.korag.software.*
 import com.soywiz.korio.async.*
-import org.junit.*
+import kotlin.test.*
 
 class AGTest {
 	@Test

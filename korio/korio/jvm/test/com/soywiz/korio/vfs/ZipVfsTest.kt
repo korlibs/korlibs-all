@@ -6,8 +6,6 @@ import com.soywiz.korio.file.*
 import com.soywiz.korio.file.std.*
 import com.soywiz.korio.serialization.xml.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korio.file.std.*
-import org.junit.Ignore
 import kotlin.test.*
 
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")

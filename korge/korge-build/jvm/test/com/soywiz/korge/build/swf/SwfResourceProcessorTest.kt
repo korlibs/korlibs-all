@@ -5,17 +5,17 @@ import com.soywiz.korge.build.ResourceVersion
 import com.soywiz.korio.async.syncTest
 import com.soywiz.korio.vfs.MemoryVfs
 import com.soywiz.korio.vfs.ResourcesVfs
-import org.junit.Assert
+import kotlin.test.*
 
 class SwfResourceProcessorTest {
 	@Test
 	fun name() = suspendTest {
 		val memoryVfs = MemoryVfs()
 		val processed1 = SwfResourceProcessor.process(ResourcesVfs["shapes.swf"], memoryVfs)
-		Assert.assertEquals(true, processed1)
-		Assert.assertEquals(true, memoryVfs["shapes.ani"].exists())
-		Assert.assertEquals(true, memoryVfs["shapes.ani.meta"].exists())
-		Assert.assertEquals(
+		assertEquals(true, processed1)
+		assertEquals(true, memoryVfs["shapes.ani"].exists())
+		assertEquals(true, memoryVfs["shapes.ani.meta"].exists())
+		assertEquals(
 			ResourceVersion(
 				name = "shapes.swf",
 				loaderVersion = AniFile.VERSION,
@@ -25,6 +25,6 @@ class SwfResourceProcessorTest {
 			ResourceVersion.readMeta(memoryVfs["shapes.ani.meta"])
 		)
 		val processed2 = SwfResourceProcessor.process(ResourcesVfs["shapes.swf"], memoryVfs)
-		Assert.assertEquals(false, processed2)
+		assertEquals(false, processed2)
 	}
 }

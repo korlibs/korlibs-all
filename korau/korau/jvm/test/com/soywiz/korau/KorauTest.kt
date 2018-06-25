@@ -3,7 +3,7 @@ package com.soywiz.korau
 import com.soywiz.korau.format.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.file.std.*
-import org.junit.*
+import kotlin.test.*
 
 class KorauTest {
 	val formats = AudioFormats().registerStandard()

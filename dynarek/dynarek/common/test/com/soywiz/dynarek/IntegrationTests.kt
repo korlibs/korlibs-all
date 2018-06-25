@@ -25,7 +25,7 @@ class IntegrationTests {
 		}
 		val state = State(a = 7)
 		val func = function.generateDynarek()
-		val ret = func(state, 2)
+		func(state, 2)
 
 		assertEquals(15, state.a)
 	}
@@ -51,7 +51,7 @@ class IntegrationTests {
 		}
 		val state = State(a = 7)
 		val func = function.generateDynarek()
-		val ret = func(state, 3)
+		func(state, 3)
 
 		assertEquals(73, state.a)
 	}
