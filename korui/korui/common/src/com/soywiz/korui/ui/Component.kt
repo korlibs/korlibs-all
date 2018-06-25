@@ -238,7 +238,7 @@ class Frame(app: Application, title: String) : Container(app, LayeredLayout(app)
 }
 
 class AgCanvas(app: Application) : Component(app, LightType.AGCANVAS), AGContainer {
-	override val ag = componentInfo.ag!!
+	override val ag = componentInfo.ag ?: error("AgCanvas:componentInfo.ag == null")
 
 	override fun repaint() {
 		ag.repaint()

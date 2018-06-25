@@ -1,5 +1,6 @@
 package example
 
+import com.soywiz.klogger.*
 import com.soywiz.korge.*
 import com.soywiz.korge.scene.*
 import com.soywiz.korge.view.*
@@ -11,7 +12,10 @@ import com.soywiz.korinject.*
 //}
 
 
-fun main(args: Array<String>): Unit = Korge(MyModule)
+fun main(args: Array<String>): Unit {
+    Logger("Korge").level = Logger.Level.TRACE
+    Korge(MyModule)
+}
 
 object MyModule : Module() {
     override val mainScene = MyScene::class
