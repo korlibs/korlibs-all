@@ -131,27 +131,11 @@ class TtfFont private constructor(val s: SyncStream) {
 		//for (table in tables) println(table)
 	}
 
-	// @TODO: kotlin-native openTable(name)?.run { } : runTableUnit : TtfFont :  exception: java.lang.IllegalStateException: org.jetbrains.kotlin.ir.declarations.impl.IrFunctionImpl@3b5fc728
-	//inline fun runTableUnit(name: String, callback: SyncStream.() -> Unit): Unit {
-	fun runTableUnit(name: String, callback: SyncStream.() -> Unit): Unit {
-		val table = openTable(name)
-		if (table != null) {
-			table.callback()
-		}
+	inline fun runTableUnit(name: String, callback: SyncStream.() -> Unit): Unit {
+		openTable(name)?.callback()
 	}
 
-	// @TODO: kotlin-native openTable(name)?.run { } : runTable : TtfFont :  exception: java.lang.IllegalStateException: org.jetbrains.kotlin.ir.declarations.impl.IrFunctionImpl@3b5fc728
-	//inline fun <T> runTable(name: String, callback: SyncStream.() -> T): T? {
-	fun <T> runTable(name: String, callback: SyncStream.() -> T): T? {
-		val table = openTable(name)
-		if (table != null) {
-			return callback(table)
-		} else {
-			return null
-		}
-		//return openTable(name)?.run { callback() }
-		//TODO()
-	}
+	inline fun <T> runTable(name: String, callback: SyncStream.() -> T): T? = openTable(name)?.let { callback(it) }
 
 	fun readNames() = runTableUnit("name") {
 		val format = readU16_be()
