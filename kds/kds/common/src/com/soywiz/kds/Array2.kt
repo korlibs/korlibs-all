@@ -17,7 +17,8 @@ data class Array2<T>(val width: Int, val height: Int, val data: Array<T>) : Iter
 
 		inline operator fun <reified T> invoke(
 			map: String,
-			marginChar: Char = '\u0000',
+			//marginChar: Char = '\u0000',
+			marginChar: Char = 0.toChar(),
 			gen: (char: Char, x: Int, y: Int) -> T
 		): Array2<T> {
 			val lines = map.lines()
@@ -36,7 +37,8 @@ data class Array2<T>(val width: Int, val height: Int, val data: Array<T>) : Iter
 			return Array2(width, height) { n ->
 				val x = n % width
 				val y = n / width
-				gen(lines.getOrNull(y)?.getOrNull(x) ?: ' ', x, y)
+				//gen(lines.getOrNull(y)?.getOrNull(x) ?: ' ', x, y)
+				gen(lines.getOrNull(y)?.getOrNull(x) ?: 32.toChar(), x, y)
 			}
 		}
 
@@ -48,7 +50,8 @@ data class Array2<T>(val width: Int, val height: Int, val data: Array<T>) : Iter
 			maps: Map<Char, T>,
 			default: T,
 			code: String,
-			marginChar: Char = '\u0000'
+			//marginChar: Char = '\u0000' // @TODO: kotlin-native bug
+			marginChar: Char = 0.toChar()
 		): Array2<T> {
 			return invoke(code, marginChar = marginChar) { c, _, _ -> maps[c] ?: default }
 		}
@@ -134,5 +137,6 @@ data class Array2<T>(val width: Int, val height: Int, val data: Array<T>) : Iter
 	fun toString(margin: String = "", charMap: (T) -> Char): String =
 		toStringList(charMap, margin = margin).joinToString("\n")
 
-	fun toString(map: Map<T, Char>, margin: String = ""): String = toString(margin = margin) { map[it] ?: ' ' }
+	//fun toString(map: Map<T, Char>, margin: String = ""): String = toString(margin = margin) { map[it] ?: ' ' }
+	fun toString(map: Map<T, Char>, margin: String = ""): String = toString(margin = margin) { map[it] ?: 32.toChar() }
 }
