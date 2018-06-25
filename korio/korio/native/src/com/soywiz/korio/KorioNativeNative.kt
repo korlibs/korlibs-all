@@ -182,17 +182,24 @@ class LocalVfsNative(val base: String) : LocalVfs() {
 		return object : AsyncStreamBase() {
 			override suspend fun read(position: Long, buffer: ByteArray, offset: Int, len: Int): Int {
 				checkFd()
+				//println("AsyncStreamBase.read($position, buffer=${buffer.size}, offset=$offset, len=$len)")
 				return buffer.usePinned { pin ->
-					platform.posix.fseek(fd, position.uncheckedCast(), platform.posix.SEEK_SET)
-					platform.posix.fread(pin.addressOf(offset), 1, len.uncheckedCast(), fd).toInt()
+					if (len > 0) {
+						platform.posix.fseek(fd, position.uncheckedCast(), platform.posix.SEEK_SET)
+						platform.posix.fread(pin.addressOf(offset), 1, len.uncheckedCast(), fd).toInt()
+					} else {
+						0
+					}
 				}
 			}
 
 			override suspend fun write(position: Long, buffer: ByteArray, offset: Int, len: Int) {
 				checkFd()
 				return buffer.usePinned { pin ->
-					platform.posix.fseek(fd, position.uncheckedCast(), platform.posix.SEEK_SET)
-					platform.posix.fwrite(pin.addressOf(offset), 1, len.uncheckedCast(), fd)
+					if (len > 0) {
+						platform.posix.fseek(fd, position.uncheckedCast(), platform.posix.SEEK_SET)
+						platform.posix.fwrite(pin.addressOf(offset), 1, len.uncheckedCast(), fd)
+					}
 					Unit
 				}
 			}
