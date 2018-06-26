@@ -245,6 +245,14 @@ open class VectorPath(
 		close()
 	}
 
+	fun rectHole(x: Double, y: Double, width: Double, height: Double) {
+		moveTo(x, y)
+		lineTo(x, y + height)
+		lineTo(x + width, y + height)
+		lineTo(x + width, y)
+		close()
+	}
+
 	fun roundRect(x: Double, y: Double, w: Double, h: Double, rx: Double, ry: Double = rx) {
 		if (rx == 0.0 && ry == 0.0) {
 			rect(x, y, w, h)

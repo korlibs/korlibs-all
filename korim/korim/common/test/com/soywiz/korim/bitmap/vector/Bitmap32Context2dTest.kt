@@ -6,7 +6,6 @@ import com.soywiz.korim.color.*
 import com.soywiz.korim.format.*
 import com.soywiz.korim.vector.*
 import com.soywiz.korio.async.*
-import kotlin.coroutines.experimental.*
 import kotlin.test.*
 
 class Bitmap32Context2dTest {
@@ -19,7 +18,7 @@ class Bitmap32Context2dTest {
 				//fill(Context2d.Color(Colors.BLUE))
 				keep {
 					scale(2.0, 1.0)
-					//rotateDeg(45.0)
+					rotateDeg(15.0)
 					fill(
 						Context2d.Gradient(
 							Context2d.Gradient.Kind.LINEAR,
@@ -31,14 +30,19 @@ class Bitmap32Context2dTest {
 					)
 					if (true) {
 						keep {
+							beginPath()
 							moveTo(8, 8)
-							lineTo(32, 16)
-							lineTo(8, 32)
+							quadraticCurveTo(40, 0, 64, 32)
+							lineTo(8, 64)
 							closePath()
+
+							//fillRect(8, 8, 32, 64)
+							rect(8, 8, 32, 64)
+							rectHole(16, 16, 16, 32)
+
 							fill()
 						}
 					} else {
-						fillRect(8, 8, 32, 32)
 					}
 				}
 			}

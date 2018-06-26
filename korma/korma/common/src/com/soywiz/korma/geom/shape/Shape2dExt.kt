@@ -73,26 +73,30 @@ fun Shape2d.extend(size: Double): Shape2d {
 }
 
 fun VectorPath.toPaths(): Paths {
-	val paths = Paths()
-	var path = Path()
+	return Paths(toPaths2().map { Path(it) })
+}
+
+fun VectorPath.toPaths2(): List<List<Point2d>> {
+	val paths = arrayListOf<ArrayList<Point2d>>()
+	var path = arrayListOf<Point2d>()
 	var lx = 0.0
 	var ly = 0.0
 	fun flushPath() {
 		if (path.isNotEmpty()) {
 			paths += path
-			path = Path()
+			path = arrayListOf<Point2d>()
 		}
 	}
 	this.visitCmds(
 		moveTo = { x, y ->
 			//kotlin.io.println("moveTo")
-			path.addPoint(x, y)
+			path.add(Point2d(x, y))
 			lx = x
 			ly = y
 		},
 		lineTo = { x, y ->
 			//kotlin.io.println("lineTo")
-			path.addPoint(x, y)
+			path.add(Point2d(x, y))
 			lx = x
 			ly = y
 		},

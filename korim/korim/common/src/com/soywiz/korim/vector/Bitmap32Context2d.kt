@@ -5,7 +5,7 @@ import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
-import com.soywiz.korma.interpolation.*
+import com.soywiz.korma.geom.shape.*
 
 // References:
 // - https://github.com/memononen/nanosvg/blob/master/src/nanosvgrast.h
@@ -18,17 +18,19 @@ class Bitmap32Context2d(val bmp: Bitmap32) : Context2d.Renderer() {
 
 	val colorFiller = ColorFiller()
 	val gradientFiller = GradientFiller()
+	val noneFiller = NoneFiller()
 
 	// Super slow
 	override fun render(state: Context2d.State, fill: Boolean) {
 		//println("RENDER")
 		val fillStyle = state.fillStyle
 		val filler = when (fillStyle) {
+			is Context2d.None -> noneFiller.apply { this.set(fillStyle) }
 			is Context2d.Color -> colorFiller.apply { this.set(fillStyle) }
 			is Context2d.Gradient -> gradientFiller.apply { this.set(fillStyle) }
 			else -> TODO()
 		}
-		val points = state.path.getPoints().map { it.transformed(state.transform) }
+		val points = state.path.getApproximatedPoints().map { it.transformed(state.transform) }
 		val edges = arrayListOf<Edge>()
 		for (n in 0 until points.size) {
 			val a = points[n]
@@ -40,21 +42,28 @@ class Bitmap32Context2d(val bmp: Bitmap32) : Context2d.Renderer() {
 		}
 		val bounds = points.bounds()
 		//println("bounds:$bounds")
-		for (y in bounds.top.toInt() .. bounds.bottom.toInt()) {
+		for (y in bounds.top.toInt()..bounds.bottom.toInt()) {
 			if (y !in 0 until bmp.height) continue // Calculate right range instead of skipping
 
 			// @TODO: Optimize
-			val xx = edges.filter { it.containsY(y) }.map { Point2d(it.intersectX(y), y) }.sortedBy { it.x }.map { it.x.toInt() }
+			val xx = edges.filter { it.containsY(y) }.map { Point2d(it.intersectX(y), y) }.sortedBy { it.x }
+				.map { it.x.toInt() }
 			for (n in 0 until xx.size - 1) {
 				val a = xx[n + 0].clamp(0, bmp.width)
 				val b = xx[n + 1].clamp(0, bmp.width)
 
-				filler.fill(bmp.data, bmp.index(a, y), a, y, b - a)
+				// @TODO: Use winding information?
+				if (n % 2 == 0) {
+					filler.fill(bmp.data, bmp.index(a, y), a, y, b - a)
+				}
 			}
 			//println("y:$y -- $xx")
 		}
-		//println("WARNING: Not implemented context2d on Bitmap32, please use NativeImage instead. Filled the image with PINK.")
 		//bmp.fill(Colors.PINK)
+	}
+
+	fun VectorPath.getApproximatedPoints(): List<Point2d> {
+		return this.toPaths2().flatMap { it }
 	}
 
 	data class Edge(val a: IPoint2d, val b: IPoint2d, val wind: Int) {
@@ -67,10 +76,10 @@ class Bitmap32Context2d(val bmp: Bitmap32) : Context2d.Renderer() {
 		private val h = a.y - (a.x * slope)
 
 		//init {
-			//println("a=$a,b=$b :: h=$h,slope=$slope, coplanaer=")
+		//println("a=$a,b=$b :: h=$h,slope=$slope, coplanaer=")
 		//}
 
-		fun containsY(y: Int): Boolean = y in (a.y .. b.y)
+		fun containsY(y: Int): Boolean = y in (a.y..b.y)
 		fun intersectX(y: Int): Double = if (isCoplanarY) a.x else ((y - h) / slope)
 	}
 
@@ -80,9 +89,16 @@ class Bitmap32Context2d(val bmp: Bitmap32) : Context2d.Renderer() {
 			fill = paint
 			updated()
 		}
+
 		open fun updated() {
 		}
+
 		abstract fun fill(data: IntArray, offset: Int, x: Int, y: Int, count: Int)
+	}
+
+	class NoneFiller : Filler<Context2d.None>() {
+		override fun fill(data: IntArray, offset: Int, x: Int, y: Int, count: Int) {
+		}
 	}
 
 	class ColorFiller : Filler<Context2d.Color>() {
@@ -118,14 +134,14 @@ class Bitmap32Context2d(val bmp: Bitmap32) : Context2d.Renderer() {
 
 		override fun fill(data: IntArray, offset: Int, x: Int, y: Int, count: Int) {
 			//val mat = Matrix2d().scale(1.0 / 64.0, 1.0)
+
 			val mat = Matrix2d().apply {
+				premultiply(fill.transform)
 				pretranslate(fill.x0, fill.y0)
 				prescale((fill.x1 - fill.x0), (fill.y1 - fill.y0))
 				prerotate(Angle.betweenRad(fill.x0, fill.y0, fill.x1, fill.y1))
 				setToInverse()
 			}
-
-			//println(mat)
 
 			for (n in 0 until count) {
 				val ratio = mat.transformY((x + n).toDouble(), y.toDouble()).clamp01()

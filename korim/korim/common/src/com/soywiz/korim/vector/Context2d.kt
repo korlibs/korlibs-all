@@ -201,6 +201,8 @@ class Context2d(val renderer: Renderer) {
 		run { state.path.rCubicTo(cx1, cy1, cx2, cy2, x, y) }
 
 	fun rect(x: Double, y: Double, width: Double, height: Double) = run { state.path.rect(x, y, width, height) }
+	inline fun rectHole(x: Number, y: Number, width: Number, height: Number) = run { state.path.rectHole(x.toDouble(), y.toDouble(), width.toDouble(), height.toDouble()) }
+
 	fun roundRect(x: Double, y: Double, w: Double, h: Double, rx: Double, ry: Double = rx) =
 		run { this.beginPath(); state.path.roundRect(x, y, w, h, rx, ry); this.closePath() }
 
