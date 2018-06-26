@@ -12,7 +12,7 @@ class DoubleArrayList(capacity: Int = 7) : Collection<Double> {
 		add(other)
 	}
 
-	constructor(other: DoubleArray) : this() {
+	constructor(vararg other: Double) : this() {
 		add(other)
 	}
 

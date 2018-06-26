@@ -66,4 +66,3 @@ registerProject2('korge-ext-swf', 'korge', 'Korge: Extension for SWF')
 //registerProject1('korte', 'Korte: Asynchronous Template Engine for Kotlin')
 //registerProject1('kmedialayer', 'Kmedialayer: Portable layer for multimedia applications')
 //registerProject2Jvm('kmedialayer-generator', 'kmedialayer', 'Kmedialayer generator')
-

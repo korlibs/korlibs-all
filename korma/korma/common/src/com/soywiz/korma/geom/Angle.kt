@@ -61,5 +61,13 @@ data class Angle private constructor(val radians: Double) {
 			val diff = (r1 - r0 + HALF_RADIANS) % MAX_RADIANS - HALF_RADIANS
 			return if (diff < -HALF_RADIANS) diff + MAX_RADIANS else diff
 		}
+
+		fun betweenRad(x0: Double, y0: Double, x1: Double, y1: Double): Double {
+			//val angle = atan2(other.y, other.x) - atan2(this.y, this.x);
+			val angle = atan2(y1 - y0, x1 - x0)
+			return if (angle < 0) angle + 2 * PI else angle
+		}
+
+		fun between(x0: Double, y0: Double, x1: Double, y1: Double): Angle = Angle.fromRadians(betweenRad(x0, y0, x1, y1))
 	}
 }

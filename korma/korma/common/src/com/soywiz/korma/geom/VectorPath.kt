@@ -380,16 +380,7 @@ open class VectorPath(
 			},
 			cubic = { x0, y0, x1, y1, x2, y2, x3, y3 ->
 				intersections += HorizontalLine.intersectionsWithCubicBezier(
-					testx,
-					testy,
-					x0,
-					y0,
-					x1,
-					y1,
-					x2,
-					y2,
-					x3,
-					y3
+					testx, testy, x0, y0, x1, y1, x2, y2, x3, y3
 				)
 			},
 			close = {

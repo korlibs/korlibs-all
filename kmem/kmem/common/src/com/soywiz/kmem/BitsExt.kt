@@ -141,6 +141,8 @@ fun Float.clamp(min: Float, max: Float) = when {
 	else -> this
 }
 
+fun Double.clamp01() = clamp(0.0, 1.0)
+
 fun Float.isAlmostZero(): Boolean = abs(this) <= 1e-19
 fun Float.isNanOrInfinite() = this.isNaN() || this.isInfinite()
 

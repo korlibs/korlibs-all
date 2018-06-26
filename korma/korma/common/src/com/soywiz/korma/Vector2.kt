@@ -51,6 +51,8 @@ data class Vector2(override var x: Double = 0.0, override var y: Double = x) : M
 
 	fun copyFrom(that: IVector2) = setTo(that.x, that.y)
 
+	fun transformed(mat: IMatrix2d): Vector2 = Vector2().setToTransform(mat, this)
+
 	fun setToTransform(mat: IMatrix2d, p: IVector2): Vector2 = setToTransform(mat, p.x, p.y)
 
 	fun setToTransform(mat: IMatrix2d, x: Double, y: Double): Vector2 = setTo(
@@ -136,10 +138,5 @@ infix fun IVector2.mul(that: IVector2) = IVector2(this.x * that.x, this.y * that
 fun IVector2.distanceTo(x: Double, y: Double) = Math.hypot(x - this.x, y - this.y)
 fun IVector2.distanceTo(that: IVector2) = distanceTo(that.x, that.y)
 
-fun IVector2.angleToRad(other: IVector2): Double {
-	//val angle = atan2(other.y, other.x) - atan2(this.y, this.x);
-	val angle = atan2(other.y - this.y, other.x - this.x)
-	return if (angle < 0) angle + 2 * PI else angle
-}
-
-fun IVector2.angleTo(other: IVector2): Angle = Angle.fromRadians(angleToRad(other))
+fun IVector2.angleToRad(other: IVector2): Double = Angle.betweenRad(this.x, this.y, other.x, other.y)
+fun IVector2.angleTo(other: IVector2): Angle = Angle.between(this.x, this.y, other.x, other.y)

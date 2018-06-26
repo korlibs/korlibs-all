@@ -12,7 +12,7 @@ class IntArrayList(capacity: Int = 7) : Collection<Int> {
 		add(other)
 	}
 
-	constructor(other: IntArray) : this() {
+	constructor(vararg other: Int) : this() {
 		add(other)
 	}
 

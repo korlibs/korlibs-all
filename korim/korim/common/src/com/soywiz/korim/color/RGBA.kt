@@ -249,6 +249,16 @@ object RGBA : ColorFormat32() {
 	}
 
 	@JvmStatic
+	fun interpolate(src: Int, dst: Int, ratio: Double): Int {
+		return RGBA.pack(
+			com.soywiz.korma.interpolation.interpolate(RGBA.getR(src), RGBA.getR(dst), ratio),
+			com.soywiz.korma.interpolation.interpolate(RGBA.getG(src), RGBA.getG(dst), ratio),
+			com.soywiz.korma.interpolation.interpolate(RGBA.getB(src), RGBA.getB(dst), ratio),
+			com.soywiz.korma.interpolation.interpolate(RGBA.getA(src), RGBA.getA(dst), ratio)
+		)
+	}
+
+	@JvmStatic
 	fun multiply(c1: Int, c2: Int): Int {
 		return RGBA.pack(
 			(RGBA.getFastR(c1) * RGBA.getFastR(c2)) / 0xFF,

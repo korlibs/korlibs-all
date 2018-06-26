@@ -137,6 +137,7 @@ class Context2d(val renderer: Renderer) {
 
 	fun scale(sx: Double, sy: Double = sx) = run { state.transform.prescale(sx, sy) }
 	fun rotate(angle: Double) = run { state.transform.prerotate(angle) }
+	fun rotateDeg(degs: Double) = run { state.transform.prerotate(Angle.degreesToRadians(degs)) }
 	fun translate(tx: Double, ty: Double) = run { state.transform.pretranslate(tx, ty) }
 	fun transform(m: Matrix2d) = run { state.transform.premultiply(m) }
 	fun transform(a: Double, b: Double, c: Double, d: Double, tx: Double, ty: Double) =
