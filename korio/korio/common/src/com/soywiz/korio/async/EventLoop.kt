@@ -32,6 +32,7 @@ abstract class EventLoop(val captureCloseables: Boolean) : Closeable {
 				globalEventLoop = eventLoop
 			}
 			tasksInProgress.incrementAndGet()
+			eventLoop.start()
 			eventLoop.setImmediate {
 				entry.korioStartCoroutine(eventLoop, object : Continuation<Unit> {
 					override val context: CoroutineContext = EventLoopCoroutineContext(eventLoop)
@@ -57,6 +58,9 @@ abstract class EventLoop(val captureCloseables: Boolean) : Closeable {
 	}
 
 	protected abstract fun setTimeoutInternal(ms: Int, callback: () -> Unit): Closeable
+
+	open fun start() {
+	}
 
 	protected open fun setIntervalInternal(ms: Int, callback: () -> Unit): Closeable {
 		var cancelled = false
@@ -294,7 +298,7 @@ open class BaseEventLoopNative() : EventLoop(captureCloseables = false) {
 
 		while (synchronized(lock) { immediateTasks.isNotEmpty() || timedTasks.isNotEmpty() } || (tasksInProgress.get() != 0)) {
 			step(1)
-			KorioNative.Thread_sleep(1L)
+			nativeSleep(1)
 
 			//println("immediateTasks: ${immediateTasks.size}, timedTasks: ${timedTasks.size}, tasksInProgress: ${tasksInProgress.get()}")
 		}
@@ -302,6 +306,10 @@ open class BaseEventLoopNative() : EventLoop(captureCloseables = false) {
 		//_workerLazyPool?.shutdownNow()
 		//_workerLazyPool?.shutdown()
 		//_workerLazyPool?.awaitTermination(5, TimeUnit.SECONDS);
+	}
+
+	open fun nativeSleep(time: Int) {
+		KorioNative.Thread_sleep(time.toLong())
 	}
 }
 
