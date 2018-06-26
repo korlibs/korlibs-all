@@ -69,5 +69,8 @@ data class Angle private constructor(val radians: Double) {
 		}
 
 		fun between(x0: Double, y0: Double, x1: Double, y1: Double): Angle = Angle.fromRadians(betweenRad(x0, y0, x1, y1))
+
+		fun betweenRad(p0: Point2d, p1: Point2d): Double = betweenRad(p0.x, p0.y, p1.x, p1.y)
+		fun between(p0: Point2d, p1: Point2d): Angle = Angle.fromRadians(betweenRad(p0, p1))
 	}
 }

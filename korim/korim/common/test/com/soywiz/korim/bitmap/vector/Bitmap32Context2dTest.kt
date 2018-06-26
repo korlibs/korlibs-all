@@ -6,6 +6,7 @@ import com.soywiz.korim.color.*
 import com.soywiz.korim.format.*
 import com.soywiz.korim.vector.*
 import com.soywiz.korio.async.*
+import com.soywiz.korma.*
 import kotlin.test.*
 
 class Bitmap32Context2dTest {
@@ -24,8 +25,10 @@ class Bitmap32Context2dTest {
 							Context2d.Gradient.Kind.LINEAR,
 							8.0, 8.0, 0.0,
 							32.0, 32.0, 1.0,
+							//32.0, 8.0, 1.0,
 							stops = DoubleArrayList(0.0, 1.0),
-							colors = IntArrayList(Colors.BLUE, Colors.RED)
+							colors = IntArrayList(Colors.BLUE, Colors.RED),
+							transform = Matrix2d().scale(2.0, 0.75)
 						)
 					)
 					if (true) {

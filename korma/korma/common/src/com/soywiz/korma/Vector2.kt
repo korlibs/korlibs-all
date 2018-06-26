@@ -51,7 +51,7 @@ data class Vector2(override var x: Double = 0.0, override var y: Double = x) : M
 
 	fun copyFrom(that: IVector2) = setTo(that.x, that.y)
 
-	fun transformed(mat: IMatrix2d): Vector2 = Vector2().setToTransform(mat, this)
+	fun transformed(mat: IMatrix2d, out: Vector2 = Vector2()): Vector2 = out.setToTransform(mat, this)
 
 	fun setToTransform(mat: IMatrix2d, p: IVector2): Vector2 = setToTransform(mat, p.x, p.y)
 

@@ -25,9 +25,9 @@ class Bitmap32Context2d(val bmp: Bitmap32) : Context2d.Renderer() {
 		//println("RENDER")
 		val fillStyle = state.fillStyle
 		val filler = when (fillStyle) {
-			is Context2d.None -> noneFiller.apply { this.set(fillStyle) }
-			is Context2d.Color -> colorFiller.apply { this.set(fillStyle) }
-			is Context2d.Gradient -> gradientFiller.apply { this.set(fillStyle) }
+			is Context2d.None -> noneFiller.apply { this.set(fillStyle, state) }
+			is Context2d.Color -> colorFiller.apply { this.set(fillStyle, state) }
+			is Context2d.Gradient -> gradientFiller.apply { this.set(fillStyle, state) }
 			else -> TODO()
 		}
 		val points = state.path.getApproximatedPoints().map { it.transformed(state.transform) }
@@ -85,8 +85,11 @@ class Bitmap32Context2d(val bmp: Bitmap32) : Context2d.Renderer() {
 
 	abstract class Filler<T : Context2d.Paint> {
 		protected lateinit var fill: T
-		fun set(paint: T) {
-			fill = paint
+		protected lateinit var state: Context2d.State
+
+		fun set(paint: T, state: Context2d.State) {
+			this.fill = paint
+			this.state = state
 			updated()
 		}
 
@@ -133,18 +136,22 @@ class Bitmap32Context2d(val bmp: Bitmap32) : Context2d.Renderer() {
 		}
 
 		override fun fill(data: IntArray, offset: Int, x: Int, y: Int, count: Int) {
-			//val mat = Matrix2d().scale(1.0 / 64.0, 1.0)
+			val stateTrans = state.transform.inverted()
+			val fillTrans = fill.transform.inverted()
+
+			val p0 = Point2d(fill.x0, fill.y0)
+			val p1 = Point2d(fill.x1, fill.y1)
 
 			val mat = Matrix2d().apply {
-				premultiply(fill.transform)
-				pretranslate(fill.x0, fill.y0)
-				prescale((fill.x1 - fill.x0), (fill.y1 - fill.y0))
-				prerotate(Angle.betweenRad(fill.x0, fill.y0, fill.x1, fill.y1))
-				setToInverse()
+				multiply(this, stateTrans)
+				multiply(this, fillTrans)
+				translate(-p0.x, -p0.y)
+				scale(1.0 / (p0.distanceTo(p1)).clamp(1.0, 16000.0))
+				rotate(-Angle.betweenRad(p0, p1))
 			}
 
 			for (n in 0 until count) {
-				val ratio = mat.transformY((x + n).toDouble(), y.toDouble()).clamp01()
+				val ratio = mat.transformX((x + n).toDouble(), y.toDouble()).clamp01()
 				data[offset + n] = colors[(ratio * (NCOLORS - 1)).toInt()]
 			}
 		}

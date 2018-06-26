@@ -91,6 +91,8 @@ data class Matrix2d(
 		setTo(that.a, that.b, that.c, that.d, that.tx, that.ty)
 	}
 
+	fun rotateDeg(thetaDeg: Double) = rotate(Angle.toRadians(thetaDeg))
+
 	fun rotate(theta: Double) = this.apply {
 		val cos = cos(theta)
 		val sin = sin(theta)
@@ -124,8 +126,8 @@ data class Matrix2d(
 		)
 	}
 
-	fun scale(sx: Double, sy: Double) = setTo(a * sx, b * sx, c * sy, d * sy, tx * sx, ty * sy)
-	fun prescale(sx: Double, sy: Double) = setTo(a * sx, b * sx, c * sy, d * sy, tx, ty)
+	fun scale(sx: Double, sy: Double = sx) = setTo(a * sx, b * sx, c * sy, d * sy, tx * sx, ty * sy)
+	fun prescale(sx: Double, sy: Double = sx) = setTo(a * sx, b * sx, c * sy, d * sy, tx, ty)
 	fun translate(dx: Double, dy: Double) = this.apply { this.tx += dx; this.ty += dy }
 	fun pretranslate(dx: Double, dy: Double) = this.apply { tx += a * dx + c * dy; ty += b * dx + d * dy }
 
@@ -199,6 +201,8 @@ data class Matrix2d(
 
 		return this
 	}
+
+	fun inverted(out: Matrix2d = Matrix2d()) = out.setToInverse(this)
 
 	fun identity() = setTo(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)
 
