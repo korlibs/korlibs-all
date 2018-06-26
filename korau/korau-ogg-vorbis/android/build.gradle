@@ -8,7 +8,3 @@ dependencies {
 	compile project(":korio-android")
 	compile project(":korma")
 }
-
-sourceSets {
-	test.resources.srcDirs += ['../common/src/test/resources'] // @TODO: @BUG: Hack. No common resources are copied
-}

@@ -21,6 +21,7 @@ apply plugin: 'idea'
 
 allprojects {
 	def nativeProject = project.name.endsWith("-native")
+	def isCommonProject = project.name.endsWith("-common")
 	//def nativeProject = project.name.endsWith("kds-native")
 
 	if (nativeProject) {
@@ -179,10 +180,13 @@ allprojects {
 			sourceSets {
 				main.kotlin.srcDirs += "src"
 				main.resources.srcDirs += "resources"
-				main.resources.srcDirs += ['../common/resources'] // @TODO: @BUG: Hack. No common resources are copied
 				test.kotlin.srcDirs += "test"
 				test.resources.srcDirs += "testresources"
-				test.resources.srcDirs += ['../common/testresources'] // @TODO: @BUG: Hack. No common resources are copied
+				if (!isCommonProject) {
+					// @TODO: @BUG: Hack. No common resources are copied
+					main.resources.srcDirs += ['../common/resources']
+					test.resources.srcDirs += ['../common/testresources']
+				}
 			}
 		}
 	}

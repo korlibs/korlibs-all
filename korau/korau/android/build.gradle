@@ -8,7 +8,3 @@ dependencies {
 	compile project(":korma")
 	compile "com.google.android:android:4.1.1.4"
 }
-
-sourceSets {
-	test.resources.srcDirs += ['../common/src/test/resources'] // @TODO: @BUG: Hack. No common resources are copied
-}
