@@ -130,7 +130,7 @@ object AnLibraryDeserializer {
 
 						//val cmds = (0 until readU_VL()).map { readU8() }.toIntArray()
 						//val data = (0 until readU_VL()).map { readF32_le().toDouble() }.toDoubleArray()
-						VectorPath(IntArrayList(cmds), DoubleArrayList(data))
+						VectorPath(IntArrayList(*cmds), DoubleArrayList(*data))
 					}
 					else -> null
 				}
