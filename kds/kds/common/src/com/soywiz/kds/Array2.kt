@@ -17,8 +17,7 @@ data class Array2<T>(val width: Int, val height: Int, val data: Array<T>) : Iter
 
 		inline operator fun <reified T> invoke(
 			map: String,
-			//marginChar: Char = '\u0000',
-			marginChar: Char = 0.toChar(),
+			marginChar: Char = '\u0000',
 			gen: (char: Char, x: Int, y: Int) -> T
 		): Array2<T> {
 			val lines = map.lines()
@@ -37,8 +36,7 @@ data class Array2<T>(val width: Int, val height: Int, val data: Array<T>) : Iter
 			return Array2(width, height) { n ->
 				val x = n % width
 				val y = n / width
-				//gen(lines.getOrNull(y)?.getOrNull(x) ?: ' ', x, y)
-				gen(lines.getOrNull(y)?.getOrNull(x) ?: 32.toChar(), x, y)
+				gen(lines.getOrNull(y)?.getOrNull(x) ?: ' ', x, y)
 			}
 		}
 
@@ -50,8 +48,7 @@ data class Array2<T>(val width: Int, val height: Int, val data: Array<T>) : Iter
 			maps: Map<Char, T>,
 			default: T,
 			code: String,
-			//marginChar: Char = '\u0000' // @TODO: kotlin-native bug
-			marginChar: Char = 0.toChar()
+			marginChar: Char = '\u0000'
 		): Array2<T> {
 			return invoke(code, marginChar = marginChar) { c, _, _ -> maps[c] ?: default }
 		}
@@ -127,16 +124,12 @@ data class Array2<T>(val width: Int, val height: Int, val data: Array<T>) : Iter
 
 	fun toStringList(charMap: (T) -> Char, margin: String = ""): List<String> {
 		return (0 until height).map { y ->
-			margin + (0 until width)
-				.map { x -> charMap(this[x, y]) }
-				.toCharArray() // Required for Kotlin.JS (or it will concatenate integers)
-				.joinToString("")
+			margin + String(CharArray(width) { x -> charMap(this[x, y]) })
 		}
 	}
 
 	fun toString(margin: String = "", charMap: (T) -> Char): String =
 		toStringList(charMap, margin = margin).joinToString("\n")
 
-	//fun toString(map: Map<T, Char>, margin: String = ""): String = toString(margin = margin) { map[it] ?: ' ' }
-	fun toString(map: Map<T, Char>, margin: String = ""): String = toString(margin = margin) { map[it] ?: 32.toChar() }
+	fun toString(map: Map<T, Char>, margin: String = ""): String = toString(margin = margin) { map[it] ?: ' ' }
 }
