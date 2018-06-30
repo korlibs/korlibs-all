@@ -1,5 +1,6 @@
 package com.soywiz.korim.vector
 
+import com.soywiz.kds.*
 import com.soywiz.kmem.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
@@ -46,7 +47,7 @@ class Bitmap32Context2d(val bmp: Bitmap32) : Context2d.Renderer() {
 			if (y !in 0 until bmp.height) continue // Calculate right range instead of skipping
 
 			// @TODO: Optimize
-			val xx = edges.filter { it.containsY(y) }.map { Point2d(it.intersectX(y), y) }.sortedBy { it.x }
+			val xx = edges.filter { it.containsY(y) }.map { Point2d(it.intersectX(y), y) }.sortedBy2 { it.x }
 				.map { it.x.toInt() }
 			for (n in 0 until xx.size - 1) {
 				val a = xx[n + 0].clamp(0, bmp.width)
