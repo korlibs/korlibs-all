@@ -32,6 +32,35 @@ suspend fun ZipVfs(s: AsyncStream, zipFile: VfsFile? = null, caseSensitive: Bool
 		if (pk_endIndex >= 0) break
 	}
 
+	class ZipEntry2(
+		val path: String,
+		val compressionMethod: Int,
+		val isDirectory: Boolean,
+		val time: DosFileDateTime,
+		val offset: Int,
+		val inode: Long,
+		val headerEntry: AsyncStream,
+		val compressedSize: Long,
+		val uncompressedSize: Long
+	)
+
+	fun ZipEntry2?.toStat(file: VfsFile): VfsStat {
+		val vfs = file.vfs
+		return if (this != null) {
+			vfs.createExistsStat(
+				file.path,
+				isDirectory = isDirectory,
+				size = uncompressedSize,
+				inode = inode,
+				createTime = this.time.utcTimestamp
+			)
+		} else {
+			vfs.createNonExistsStat(file.path)
+		}
+	}
+
+	fun String.normalizeName() = if (caseSensitive) this.trim('/') else this.trim('/').toLowerCase()
+
 	if (pk_endIndex < 0) throw IllegalArgumentException("Not a zip file")
 
 	val data = endBytes.copyOfRange(pk_endIndex, endBytes.size).openSync()
@@ -77,7 +106,7 @@ suspend fun ZipVfs(s: AsyncStream, zipFile: VfsFile? = null, caseSensitive: Bool
 				val extra = readBytes(extraLength)
 
 				val isDirectory = name.endsWith("/")
-				val normalizedName = name.normalizeName(caseSensitive)
+				val normalizedName = name.normalizeName()
 
 				val baseFolder = normalizedName.substringBeforeLast('/', "")
 				val baseName = normalizedName.substringAfterLast('/')
@@ -134,184 +163,67 @@ suspend fun ZipVfs(s: AsyncStream, zipFile: VfsFile? = null, caseSensitive: Bool
 		Unit
 	}
 
-	// @TODO: exception: java.lang.Error: Non-local callable reference to suspend lambda: private suspend fun com.soywiz.korio.async.SuspendingSequenceBuilder<com.soywiz.korio.file.VfsFile>.`ZipVfs$Impl$list$lambda-0`(filesPerFolder: kotlin.collections.LinkedHashMap<kotlin.String, kotlin.collections.MutableMap<kotlin.String, com.soywiz.korio.file.std.ZipVfs.ZipEntry>> /* = kotlin.collections.HashMap<kotlin.String, kotlin.collections.MutableMap<kotlin.String, com.soywiz.korio.file.std.ZipVfs.ZipEntry>> */, path: kotlin.String, `$this`: com.soywiz.korio.file.std.ZipVfs.Impl, caseSensitive: kotlin.Boolean): kotlin.Unit defined in com.soywiz.korio.file.std in file ZipVfs.kt[SimpleFunctionDescriptorImpl@203003f4]
-	//class Impl : Vfs() {
-	//	val vfs = this
-	//
-	//	override suspend fun open(path: String, mode: VfsOpenMode): AsyncStream {
-	//		val entry = files[path.normalizeName()] ?: throw com.soywiz.korio.FileNotFoundException("Path: '$path'")
-	//		if (entry.isDirectory) throw com.soywiz.korio.IOException("Can't open a zip directory for $mode")
-	//		val base = entry.headerEntry.sliceStart()
-	//		@Suppress("UNUSED_VARIABLE")
-	//		return base.run {
-	//			if (this.getAvailable() < 16) throw IllegalStateException("Chunk to small to be a ZIP chunk")
-	//			if (readS32_be() != 0x504B_0304) throw IllegalStateException("Not a zip file")
-	//			val version = readU16_le()
-	//			val flags = readU16_le()
-	//			val compressionType = readU16_le()
-	//			val fileTime = readU16_le()
-	//			val fileDate = readU16_le()
-	//			val crc = readS32_le()
-	//			val compressedSize = readS32_le()
-	//			val uncompressedSize = readS32_le()
-	//			val fileNameLength = readU16_le()
-	//			val extraLength = readU16_le()
-	//			val name = readString(fileNameLength)
-	//			val extra = readBytesExact(extraLength)
-	//			val compressedData = readSlice(entry.compressedSize)
-	//
-	//			when (entry.compressionMethod) {
-	//				0 -> compressedData
-	//				else -> {
-	//					val compressed = UncompressAsyncStream(
-	//						when (entry.compressionMethod) {
-	//							8 -> Deflate
-	//							else -> TODO("Not implemented zip method ${entry.compressionMethod}")
-	//						}, compressedData, uncompressedSize.toLong()
-	//					).readAll()
-	//
-	//					val computedCrc = CRC32.compute(compressed)
-	//					if (computedCrc != crc) error("Uncompressed file crc doesn't match: expected=${crc.hex}, actual=${computedCrc.hex}")
-	//
-	//					compressed.openAsync()
-	//				}
-	//			}
-	//		}
-	//	}
-	//
-	//	override suspend fun stat(path: String): VfsStat {
-	//		return files[path.normalizeName()].toStat(this@Impl[path])
-	//	}
-	//
-	//	// @TODO: kotlin-native error exception: java.lang.Error: Non-local callable reference to suspend lambda:
-	//	// @TODO: private suspend fun com.soywiz.korio.async.SuspendingSequenceBuilder<com.soywiz.korio.file.VfsFile>.
-	//	// @TODO: `ZipVfs$Impl$list$lambda-0`(filesPerFolder: kotlin.collections.LinkedHashMap<kotlin.String, kotlin.collections.MutableMap<kotlin.String,
-	//	// @TODO: com.soywiz.korio.file.std.ZipVfs.ZipEntry>> /* = kotlin.collections.HashMap<kotlin.String, kotlin.collections.MutableMap<kotlin.String,
-	//	// @TODO: com.soywiz.korio.file.std.ZipVfs.ZipEntry>> */, path: kotlin.String, `$this`: com.soywiz.korio.file.std.ZipVfs.Impl, caseSensitive: kotlin.Boolean): kotlin.Unit
-	//	// @TODO: defined in com.soywiz.korio.file.std in file ZipVfs.kt[SimpleFunctionDescriptorImpl@4a4be085]
-	//	//override suspend fun list(path: String): SuspendingSequence<VfsFile> {
-	//	//	return asyncGenerate(getCoroutineContext()) {
-	//	//		for ((name, entry) in filesPerFolder[path.normalizeName()] ?: LinkedHashMap()) {
-	//	//			//yield(entry.toStat(this@Impl[entry.path]))
-	//	//			yield(vfs[entry.path])
-	//	//		}
-	//	//	}
-	//	//}
-	//
-	//	override suspend fun list(path: String): SuspendingSequence<VfsFile> = asyncGenerate {
-	//		for ((name, entry) in filesPerFolder[path.normalizeName()] ?: LinkedHashMap()) {
-	//			//yield(entry.toStat(this@Impl[entry.path]))
-	//			yield(vfs[entry.path])
-	//		}
-	//	}
-	//
-	//	override fun toString(): String = "ZipVfs($zipFile)"
-	//}
+	class Impl : Vfs() {
+		val vfs = this
 
-	return Impl(files, filesPerFolder, caseSensitive, zipFile).root
-}
+		override suspend fun open(path: String, mode: VfsOpenMode): AsyncStream {
+			val entry = files[path.normalizeName()] ?: throw com.soywiz.korio.FileNotFoundException("Path: '$path'")
+			if (entry.isDirectory) throw com.soywiz.korio.IOException("Can't open a zip directory for $mode")
+			val base = entry.headerEntry.sliceStart()
+			@Suppress("UNUSED_VARIABLE")
+			return base.run {
+				if (this.getAvailable() < 16) throw IllegalStateException("Chunk to small to be a ZIP chunk")
+				if (readS32_be() != 0x504B_0304) throw IllegalStateException("Not a zip file")
+				val version = readU16_le()
+				val flags = readU16_le()
+				val compressionType = readU16_le()
+				val fileTime = readU16_le()
+				val fileDate = readU16_le()
+				val crc = readS32_le()
+				val compressedSize = readS32_le()
+				val uncompressedSize = readS32_le()
+				val fileNameLength = readU16_le()
+				val extraLength = readU16_le()
+				val name = readString(fileNameLength)
+				val extra = readBytesExact(extraLength)
+				val compressedData = readSlice(entry.compressedSize)
 
-private class ZipEntry2(
-	val path: String,
-	val compressionMethod: Int,
-	val isDirectory: Boolean,
-	val time: DosFileDateTime,
-	val offset: Int,
-	val inode: Long,
-	val headerEntry: AsyncStream,
-	val compressedSize: Long,
-	val uncompressedSize: Long
-)
+				when (entry.compressionMethod) {
+					0 -> compressedData
+					else -> {
+						val compressed = UncompressAsyncStream(
+							when (entry.compressionMethod) {
+								8 -> Deflate
+								else -> TODO("Not implemented zip method ${entry.compressionMethod}")
+							}, compressedData, uncompressedSize.toLong()
+						).readAll()
 
-private fun ZipEntry2?.toStat(file: VfsFile): VfsStat {
-	val vfs = file.vfs
-	return if (this != null) {
-		vfs.createExistsStat(
-			file.path,
-			isDirectory = isDirectory,
-			size = uncompressedSize,
-			inode = inode,
-			createTime = this.time.utcTimestamp
-		)
-	} else {
-		vfs.createNonExistsStat(file.path)
-	}
-}
+						val computedCrc = CRC32.compute(compressed)
+						if (computedCrc != crc) error("Uncompressed file crc doesn't match: expected=${crc.hex}, actual=${computedCrc.hex}")
 
-private fun String.normalizeName(caseSensitive: Boolean) = if (caseSensitive) this.trim('/') else this.trim('/').toLowerCase()
-
-
-private class Impl(val files: LinkedHashMap<String, ZipEntry2>, val filesPerFolder: LinkedHashMap<String, MutableMap<String, ZipEntry2>>, val caseSensitive: Boolean, val zipFile: VfsFile?) : Vfs() {
-	val vfs = this
-
-	override suspend fun open(path: String, mode: VfsOpenMode): AsyncStream {
-		val entry = files[path.normalizeName(caseSensitive)] ?: throw com.soywiz.korio.FileNotFoundException("Path: '$path'")
-		if (entry.isDirectory) throw com.soywiz.korio.IOException("Can't open a zip directory for $mode")
-		val base = entry.headerEntry.sliceStart()
-		@Suppress("UNUSED_VARIABLE")
-		return base.run {
-			if (this.getAvailable() < 16) throw IllegalStateException("Chunk to small to be a ZIP chunk")
-			if (readS32_be() != 0x504B_0304) throw IllegalStateException("Not a zip file")
-			val version = readU16_le()
-			val flags = readU16_le()
-			val compressionType = readU16_le()
-			val fileTime = readU16_le()
-			val fileDate = readU16_le()
-			val crc = readS32_le()
-			val compressedSize = readS32_le()
-			val uncompressedSize = readS32_le()
-			val fileNameLength = readU16_le()
-			val extraLength = readU16_le()
-			val name = readString(fileNameLength)
-			val extra = readBytesExact(extraLength)
-			val compressedData = readSlice(entry.compressedSize)
-
-			when (entry.compressionMethod) {
-				0 -> compressedData
-				else -> {
-					val compressed = UncompressAsyncStream(
-						when (entry.compressionMethod) {
-							8 -> Deflate
-							else -> TODO("Not implemented zip method ${entry.compressionMethod}")
-						}, compressedData, uncompressedSize.toLong()
-					).readAll()
-
-					val computedCrc = CRC32.compute(compressed)
-					if (computedCrc != crc) error("Uncompressed file crc doesn't match: expected=${crc.hex}, actual=${computedCrc.hex}")
-
-					compressed.openAsync()
+						compressed.openAsync()
+					}
 				}
 			}
 		}
-	}
 
-	override suspend fun stat(path: String): VfsStat {
-		return files[path.normalizeName(caseSensitive)].toStat(this@Impl[path])
-	}
-
-	// @TODO: kotlin-native error exception: java.lang.Error: Non-local callable reference to suspend lambda:
-	// @TODO: private suspend fun com.soywiz.korio.async.SuspendingSequenceBuilder<com.soywiz.korio.file.VfsFile>.
-	// @TODO: `ZipVfs$Impl$list$lambda-0`(filesPerFolder: kotlin.collections.LinkedHashMap<kotlin.String, kotlin.collections.MutableMap<kotlin.String,
-	// @TODO: com.soywiz.korio.file.std.ZipVfs.ZipEntry>> /* = kotlin.collections.HashMap<kotlin.String, kotlin.collections.MutableMap<kotlin.String,
-	// @TODO: com.soywiz.korio.file.std.ZipVfs.ZipEntry>> */, path: kotlin.String, `$this`: com.soywiz.korio.file.std.ZipVfs.Impl, caseSensitive: kotlin.Boolean): kotlin.Unit
-	// @TODO: defined in com.soywiz.korio.file.std in file ZipVfs.kt[SimpleFunctionDescriptorImpl@4a4be085]
-	//override suspend fun list(path: String): SuspendingSequence<VfsFile> {
-	//	return asyncGenerate(getCoroutineContext()) {
-	//		for ((name, entry) in filesPerFolder[path.normalizeName()] ?: LinkedHashMap()) {
-	//			//yield(entry.toStat(this@Impl[entry.path]))
-	//			yield(vfs[entry.path])
-	//		}
-	//	}
-	//}
-
-	override suspend fun list(path: String): SuspendingSequence<VfsFile> = asyncGenerate {
-		for ((name, entry) in filesPerFolder[path.normalizeName(caseSensitive)] ?: LinkedHashMap()) {
-			//yield(entry.toStat(this@Impl[entry.path]))
-			yield(vfs[entry.path])
+		override suspend fun stat(path: String): VfsStat {
+			return files[path.normalizeName()].toStat(this@Impl[path])
 		}
+
+		override suspend fun list(path: String): SuspendingSequence<VfsFile> {
+			return asyncGenerate(getCoroutineContext()) {
+				for ((_, entry) in filesPerFolder[path.normalizeName()] ?: LinkedHashMap()) {
+					//yield(entry.toStat(this@Impl[entry.path]))
+					yield(vfs[entry.path])
+				}
+			}
+		}
+
+		override fun toString(): String = "ZipVfs($zipFile)"
 	}
 
-	override fun toString(): String = "ZipVfs($zipFile)"
+	return Impl().root
 }
 
 private class DosFileDateTime(var dosTime: Int, var dosDate: Int) {

@@ -2,16 +2,6 @@ package com.soywiz.kds
 
 fun <K, V> Map<K, V>.flip(): Map<V, K> = this.map { Pair(it.value, it.key) }.toMap()
 
-fun <K, V> Map<K, V>.toTreeMap(comparator: Comparator<K>): Map<K, V> {
-	/*
-	val tm = TreeMap<K, V>(comparator)
-	tm.putAll(this)
-	//return tm
-	return tm
-	*/
-	TODO()
-}
-
 fun <T> Map<String, T>.toCaseInsensitiveTreeMap(): Map<String, T> {
 	val res = CaseInsensitiveHashMap<T>()
 	res.putAll(this)

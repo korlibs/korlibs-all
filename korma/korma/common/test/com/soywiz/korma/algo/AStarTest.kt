@@ -104,8 +104,8 @@ class AStarTest {
 		)
 		val pointsMap = points.withIndex().map { it.value to it.index }.toMap()
 		val res = input2.map.map2 { x, y, c ->
-			pointsMap[PointInt(x, y)]?.let { xdigits[it] } ?: (if (c) '#' else '.')
-			//pointsMap[PointInt(x, y)]?.toString()?.firstOrNull() ?: (if (c) '#' else '.')
+			//pointsMap[PointInt(x, y)]?.let { xdigits[it] } ?: (if (c) '#' else '.') // @TODO: Kotlin-native: Regression Crashes BUG in runtime - https://github.com/JetBrains/kotlin-native/issues/1736
+			(pointsMap[PointInt(x, y)]?.let { "" + xdigits[it] } ?: (if (c) "#" else ".")).first()
 		}
 		val output = res.toString { it }
 		assertEquals(expected.trimIndent(), output)

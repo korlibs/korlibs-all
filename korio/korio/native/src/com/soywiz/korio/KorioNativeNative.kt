@@ -115,7 +115,7 @@ actual object KorioNative {
 	actual val httpFactory: HttpFactory by lazy {
 		object : HttpFactory {
 			override fun createClient(): HttpClient = NativeHttpClient()
-			override fun createServer(): HttpServer = KorioHttpServer()
+			override fun createServer(): HttpServer = KorioNativeDefaults.createServer()
 		}
 	}
 

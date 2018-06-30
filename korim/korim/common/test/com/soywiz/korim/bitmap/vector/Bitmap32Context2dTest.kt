@@ -53,8 +53,8 @@ class Bitmap32Context2dTest {
 		val out = Bitmap32(256, 128)
 		out.put(bitmaps[0].toBMP32(), 0, 0)
 		out.put(bitmaps[1].toBMP32(), 128, 0)
-		runBlocking {
-			showImageAndWait(out)
-		}
+		//runBlocking {
+		//	showImageAndWait(out)
+		//}
 	}
 }

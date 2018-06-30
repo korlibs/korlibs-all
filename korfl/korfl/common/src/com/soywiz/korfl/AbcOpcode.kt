@@ -194,133 +194,57 @@ enum class AbcOpcode(val id: Int, val type: Kind) {
 		val multinames get() = cpool.multinames
 	}
 
-	enum class Kind {
-		BasicOperation,
-		LabelOperation,
-		IntOperation,
-		UIntOperation,
-		NumberOperation,
-		IntIntOperation,
-		IntStringIntIntOperation,
-		StringOperation,
-		MultinameOperation,
-		MultinameIntOperation,
-		ConditionalJumpOperation,
-		JumpOperation,
-		NewClassOperation,
-		LookupSwitchOperation,
-		NamespaceOperation,
-		NewFunctionOperation,
-		MethodOperation,
-		NewCatchOperation;
-
-		//val read: KindContext.() -> AbcOperation by lazy {
-		//	when (this) {
-		//		BasicOperation -> KindContext({ AbcBasicOperation(op) })
-		//		else -> TODO()
-		//	}
-		//}
-
-		fun read(context: KindContext): AbcOperation = context.run {
-			return when (this@Kind) {
-				BasicOperation -> AbcBasicOperation(op)
-				LabelOperation -> AbcLabelOperation(op, s.position)
-				IntOperation -> AbcIntOperation(
-					op, when (op) {
-						GetScopeObject -> s.readU8()
-						PushByte -> s.readS8()
-						PushShort -> (s.readU30() shl 2) shr 2
-						else -> s.readU30()
-					}
-				)
-				UIntOperation -> AbcIntOperation(op, uints[s.readU30()])
-				NumberOperation -> AbcDoubleOperation(op, doubles[s.readU30()])
-				IntIntOperation ->
-					if (op == HasNext2) {
-						AbcIntIntOperation(op, s.readS32_le(), s.readS32_le())
-					} else {
-						AbcIntIntOperation(op, s.readU30(), s.readU30())
-					}
-				IntStringIntIntOperation ->
-					AbcIntStringIntIntOperation(
-						op,
-						s.readU8(),
-						strings[s.readU30()],
-						s.readU8(),
-						s.readU30()
-					)
-
-				StringOperation -> AbcStringOperation(op, strings[s.readU30()])
-				MultinameOperation -> AbcMultinameOperation(op, multinames[s.readU30()])
-				MultinameIntOperation -> AbcMultinameIntOperation(op, multinames[s.readU30()], s.readU30())
-				ConditionalJumpOperation -> AbcJumpOperation(op, s.position + 0x04 + s.readS24_le())
-				JumpOperation -> AbcJumpOperation(op, s.position + 0x04 + s.readS24_le())
-				NewClassOperation -> AbcNewClassOperation(op, s.readU30())
-				LookupSwitchOperation -> {
-					val defaultMarker = s.position + s.readS24_le()
-					val markers = (0 until (s.readU30() + 1)).map { s.position + s.readS24_le() }.toLongArray()
-					AbcLookupSwitchOperation(op, defaultMarker, markers)
+	enum class Kind(val read: KindContext.() -> AbcOperation = {
+		AbcBasicOperation(
+			op
+		)
+	}) {
+		BasicOperation({ AbcBasicOperation(op) }),
+		LabelOperation({ AbcLabelOperation(op, s.position) }),
+		IntOperation({
+			AbcIntOperation(
+				op, when (op) {
+					GetScopeObject -> s.readU8()
+					PushByte -> s.readS8()
+					PushShort -> (s.readU30() shl 2) shr 2
+					else -> s.readU30()
 				}
-				NamespaceOperation -> AbcNamespaceOperation(op, namespaces[s.readU30()])
-				NewFunctionOperation -> AbcIntOperation(op, s.readU30())
-				MethodOperation -> AbcIntIntOperation(op, s.readU30(), s.readU30())
-				NewCatchOperation -> AbcIntOperation(op, s.readU30())
+			)
+		}),
+		UIntOperation({ AbcIntOperation(op, uints[s.readU30()]) }),
+		NumberOperation({ AbcDoubleOperation(op, doubles[s.readU30()]) }),
+		IntIntOperation({
+			if (op == HasNext2) {
+				AbcIntIntOperation(op, s.readS32_le(), s.readS32_le())
+			} else {
+				AbcIntIntOperation(op, s.readU30(), s.readU30())
 			}
-		}
+		}),
+		IntStringIntIntOperation({
+			AbcIntStringIntIntOperation(
+				op,
+				s.readU8(),
+				strings[s.readU30()],
+				s.readU8(),
+				s.readU30()
+			)
+		}),
+		StringOperation({ AbcStringOperation(op, strings[s.readU30()]) }),
+		MultinameOperation({ AbcMultinameOperation(op, multinames[s.readU30()]) }),
+		MultinameIntOperation({ AbcMultinameIntOperation(op, multinames[s.readU30()], s.readU30()) }),
+		ConditionalJumpOperation({ AbcJumpOperation(op, s.position + 0x04 + s.readS24_le()) }),
+		JumpOperation({ AbcJumpOperation(op, s.position + 0x04 + s.readS24_le()) }),
+		NewClassOperation({ AbcNewClassOperation(op, s.readU30()) }),
+		LookupSwitchOperation({
+			val defaultMarker = s.position + s.readS24_le()
+			val markers = (0 until (s.readU30() + 1)).map { s.position + s.readS24_le() }.toLongArray()
+			AbcLookupSwitchOperation(op, defaultMarker, markers)
+		}),
+		NamespaceOperation({ AbcNamespaceOperation(op, namespaces[s.readU30()]) }),
+		NewFunctionOperation({ AbcIntOperation(op, s.readU30()) }),
+		MethodOperation({ AbcIntIntOperation(op, s.readU30(), s.readU30()) }),
+		NewCatchOperation({ AbcIntOperation(op, s.readU30()) }),
 	}
-
-	// @TODO: kotlin-native KORFL: exception: kotlin.UninitializedPropertyAccessException: lateinit property parent has not been initialized
-	//enum class Kind(val read: KindContext.() -> AbcOperation = {
-	//	AbcBasicOperation(
-	//		op
-	//	)
-	//}) {
-	//	BasicOperation({ AbcBasicOperation(op) }),
-	//	LabelOperation({ AbcLabelOperation(op, s.position) }),
-	//	IntOperation({
-	//		AbcIntOperation(
-	//			op, when (op) {
-	//				GetScopeObject -> s.readU8()
-	//				PushByte -> s.readS8()
-	//				PushShort -> (s.readU30() shl 2) shr 2
-	//				else -> s.readU30()
-	//			}
-	//		)
-	//	}),
-	//	UIntOperation({ AbcIntOperation(op, uints[s.readU30()]) }),
-	//	NumberOperation({ AbcDoubleOperation(op, doubles[s.readU30()]) }),
-	//	IntIntOperation({
-	//		if (op == HasNext2) {
-	//			AbcIntIntOperation(op, s.readS32_le(), s.readS32_le())
-	//		} else {
-	//			AbcIntIntOperation(op, s.readU30(), s.readU30())
-	//		}
-	//	}),
-	//	IntStringIntIntOperation({
-	//		AbcIntStringIntIntOperation(
-	//			op,
-	//			s.readU8(),
-	//			strings[s.readU30()],
-	//			s.readU8(),
-	//			s.readU30()
-	//		)
-	//	}),
-	//	StringOperation({ AbcStringOperation(op, strings[s.readU30()]) }),
-	//	MultinameOperation({ AbcMultinameOperation(op, multinames[s.readU30()]) }),
-	//	MultinameIntOperation({ AbcMultinameIntOperation(op, multinames[s.readU30()], s.readU30()) }),
-	//	ConditionalJumpOperation({ AbcJumpOperation(op, s.position + 0x04 + s.readS24_le()) }),
-	//	JumpOperation({ AbcJumpOperation(op, s.position + 0x04 + s.readS24_le()) }),
-	//	NewClassOperation({ AbcNewClassOperation(op, s.readU30()) }),
-	//	LookupSwitchOperation({
-	//		val defaultMarker = s.position + s.readS24_le()
-	//		val markers = (0 until (s.readU30() + 1)).map { s.position + s.readS24_le() }.toLongArray()
-	//		AbcLookupSwitchOperation(op, defaultMarker, markers)
-	//	}),
-	//	NamespaceOperation({ AbcNamespaceOperation(op, namespaces[s.readU30()]) }),
-	//	NewFunctionOperation({ AbcIntOperation(op, s.readU30()) }),
-	//	MethodOperation({ AbcIntIntOperation(op, s.readU30(), s.readU30()) }),
-	//	NewCatchOperation({ AbcIntOperation(op, s.readU30()) }),
-	//}
 
 	companion object {
 		val BY_ID = values().map { it.id to it }.toMap()
