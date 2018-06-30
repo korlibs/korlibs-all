@@ -1,5 +1,6 @@
 package com.soywiz.korma.geom.binpack
 
+import com.soywiz.kds.*
 import com.soywiz.korma.geom.*
 
 class BinPacker(val width: Double, val height: Double, val algo: BinPack = MaxRects(width, height)) {
@@ -44,7 +45,7 @@ class BinPacker(val width: Double, val height: Double, val algo: BinPack = MaxRe
 		): List<Result<T>> {
 			var currentBinPacker = BinPacker(maxWidth, maxHeight)
 			var currentPairs = arrayListOf<Pair<T, Rectangle>>()
-			val sortedItems = items.sortedByDescending { getSize(it).area }
+			val sortedItems = items.sortedByDescending2 { getSize(it).area }
 			if (sortedItems.any {
 					val size = getSize(it)
 					size.width > maxWidth || size.height > maxHeight

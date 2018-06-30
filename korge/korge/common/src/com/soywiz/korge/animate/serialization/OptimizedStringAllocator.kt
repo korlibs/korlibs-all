@@ -1,5 +1,7 @@
 package com.soywiz.korge.animate.serialization
 
+import com.soywiz.kds.*
+
 class OptimizedStringAllocator {
 	private var finalized = false
 	private val stringsCount = hashMapOf<String, Int>()
@@ -29,7 +31,7 @@ class OptimizedStringAllocator {
 
 	fun finalize() {
 		this.strings = arrayOf<String?>(null) +
-				stringsCount.entries.sortedByDescending { it.value }.map { it.key }.toTypedArray()
+				stringsCount.entries.sortedByDescending2 { it.value }.map { it.key }.toTypedArray()
 		for (n in 1 until this.strings.size) {
 			stringsToIndex[this.strings[n]!!] = n
 		}
