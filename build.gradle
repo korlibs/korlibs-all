@@ -327,6 +327,10 @@ allprojects {
 			}
 		}
 	}
+	if (!project.tasks.findByName("install")) {
+		task("install")
+	}
+	tasks.install.dependsOn('publishToMavenLocal')
 }
 
 static String executeShell(String cmd, File dir = null) {
