@@ -57,6 +57,10 @@ open class LightComponents {
 					}
 					return super.addEventListener(clazz, handler)
 				}
+
+				override fun <T : Event> dispatch(clazz: KClass<T>, event: T) {
+					insideEventHandler { super.dispatch(clazz, event) }
+				}
 			}
 		}
 	}

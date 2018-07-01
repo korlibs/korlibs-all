@@ -38,6 +38,7 @@ class AwtLightComponents : LightComponents() {
 
 	override fun create(type: LightType): LightComponentInfo {
 		var agg: AG? = null
+		@Suppress("REDUNDANT_ELSE_IN_WHEN")
 		val handle: Component = when (type) {
 			LightType.FRAME -> JFrame2().apply {
 				defaultCloseOperation = JFrame.EXIT_ON_CLOSE
@@ -61,7 +62,7 @@ class AwtLightComponents : LightComponents() {
 		}
 		return LightComponentInfo(handle).apply {
 			if (agg != null) {
-				this.ag = agg!!
+				this.ag = agg
 			}
 		}
 	}
