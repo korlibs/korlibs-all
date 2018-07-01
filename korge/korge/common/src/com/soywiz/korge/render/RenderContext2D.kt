@@ -1,15 +1,25 @@
 package com.soywiz.korge.render
 
 import com.soywiz.kds.*
+import com.soywiz.klogger.*
 import com.soywiz.korag.*
 import com.soywiz.korim.color.*
 import com.soywiz.korma.*
 
+private val logger = Logger("RenderContext2D")
+
 class RenderContext2D(val batch: BatchBuilder2D) : Extra by Extra.Mixin() {
+	init { logger.trace { "RenderContext2D[0]" } }
+
 	val mpool = Pool<Matrix2d> { Matrix2d() }
+
+	init { logger.trace { "RenderContext2D[1]" } }
+
 	val m = Matrix2d()
 	var blendFactors = AG.Blending.NORMAL
 	var multiplyColor = Colors.WHITE
+
+	init { logger.trace { "RenderContext2D[2]" } }
 
 	inline fun <T> keepMatrix(crossinline callback: () -> T) = mpool.alloc { matrix ->
 		matrix.copyFrom(m)

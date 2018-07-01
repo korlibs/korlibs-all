@@ -1,9 +1,16 @@
 package com.soywiz.korag
 
+import com.soywiz.klogger.*
 import com.soywiz.korag.shader.*
 
+private val logger = Logger("DefaultShaders")
+
 object DefaultShaders {
+	init { logger.trace { "DefaultShaders[0]" } }
+
 	val u_Tex = Uniform("u_Tex", VarType.TextureUnit)
+
+	init { logger.trace { "DefaultShaders[1]" } }
 
 	val u_ProjMat = Uniform("u_ProjMat", VarType.Mat4)
 	val a_Pos = Attribute("a_Pos", VarType.Float2, normalized = false)
@@ -14,7 +21,11 @@ object DefaultShaders {
 
 	val t_Temp1 = Temp(0, VarType.Float4)
 
+	init { logger.trace { "DefaultShaders[2]" } }
+
 	val textureUnit = AG.TextureUnit()
+
+	init { logger.trace { "DefaultShaders[3]" } }
 
 	@Deprecated("Use LAYOUT_DEFAULT", ReplaceWith("DefaultShaders.LAYOUT_DEFAULT"))
 	val FORMAT_DEFAULT = VertexLayout(a_Pos, a_Tex, a_Col)
@@ -63,6 +74,9 @@ object DefaultShaders {
 		name = "PROGRAM_SOLID_COLOR"
 	)
 
+	init { logger.trace { "DefaultShaders[4]" } }
+
+
 	@Deprecated("Use LAYOUT_DEBUG", ReplaceWith("DefaultShaders.LAYOUT_DEBUG"))
 	val FORMAT_DEBUG = VertexLayout(a_Pos)
 	val LAYOUT_DEBUG = VertexLayout(a_Pos)
@@ -88,4 +102,6 @@ object DefaultShaders {
 	)
 
 	val PROGRAM_DEFAULT by lazy { PROGRAM_TINTED_TEXTURE_PREMULT }
+
+	init { logger.trace { "DefaultShaders[5]" } }
 }

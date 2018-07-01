@@ -1,6 +1,7 @@
 package com.soywiz.korge.view
 
 import com.soywiz.kds.*
+import com.soywiz.klogger.*
 import com.soywiz.korag.*
 import com.soywiz.korag.log.*
 import com.soywiz.korge.audio.*
@@ -24,6 +25,8 @@ import com.soywiz.korui.*
 import com.soywiz.korui.event.*
 import kotlin.reflect.*
 
+private val logger = Logger("Views")
+
 @Singleton
 class Views(
 	val eventLoop: EventLoop,
@@ -33,11 +36,34 @@ class Views(
 	val plugins: KorgePlugins
 ) : AsyncDependency, Updatable, Extra by Extra.Mixin(), EventDispatcher by EventDispatcher.Mixin(),
 	CoroutineContextHolder {
+	init {
+		logger.trace { "Views[0]" }
+	}
+
 	override val coroutineContext = eventLoop.coroutineContext
+
+	init {
+		logger.trace { "Views[1]" }
+	}
+
 	var lastId = 0
+
+	init {
+		logger.trace { "Views[2]" }
+	}
+
 	val renderContext = RenderContext(ag)
+
+	init {
+		logger.trace { "Views[3]" }
+	}
+
 	var clearEachFrame = true
 	val views = this
+
+	init {
+		logger.trace { "Views[4]" }
+	}
 
 	init {
 		injector.mapInstance(EventLoop::class, eventLoop)
@@ -45,6 +71,11 @@ class Views(
 		injector.mapInstance(Views::class, this)
 		injector.mapInstance(SoundSystem::class, soundSystem)
 	}
+
+	init {
+		logger.trace { "Views[5]" }
+	}
+
 
 	val propsTriggers = hashMapOf<String, (View, String, String) -> Unit>()
 

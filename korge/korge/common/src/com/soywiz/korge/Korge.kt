@@ -67,11 +67,17 @@ object Korge {
 		logger.trace { "Korge.setupCanvas[1e]. args: ${config.args.toList()}" }
 		logger.trace { "Korge.setupCanvas[1f]. size: $size" }
 		injector.mapInstance(EventLoop::class, config.eventLoop)
+		logger.trace { "Korge.setupCanvas[1g]" }
 		val views = injector.get(Views::class)
+		logger.trace { "Korge.setupCanvas[1h]" }
 		val input = views.input
+		logger.trace { "Korge.setupCanvas[1i]" }
 		input._isTouchDeviceGen = { AGFactoryFactory.isTouchDevice }
+		logger.trace { "Korge.setupCanvas[1j]" }
 		views.debugViews = config.debug
+		logger.trace { "Korge.setupCanvas[1k]" }
 		config.constructedViews(views)
+		logger.trace { "Korge.setupCanvas[1l]" }
 		val moduleArgs = ModuleArgs(config.args)
 		logger.trace { "Korge.setupCanvas[2]" }
 

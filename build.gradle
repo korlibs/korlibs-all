@@ -44,7 +44,9 @@ buildscript {
 			"korge-ext-fla"    : ["korge"],
 			"korge-ext-spriter": ["korge"],
 			"korge-build"      : ["korge", "korge-ext-swf", "korge-ext-tiled", "korge-ext-spriter", "korge-ext-lipsync", "korge-ext-ui", "korau-mp3", "korau-ogg-vorbis"],
-
+	]
+	ext.libExecutables = [
+			//"sample1": true
 	]
 }
 
@@ -67,6 +69,9 @@ allprojects {
 	}
 	if (isNative) jsuffix = suffix = "-native"
 	if (isCommon) jsuffix = suffix = "-common"
+
+	ext.suffix = suffix
+	ext.jsuffix = jsuffix
 
 	if (suffix != "") {
 		apply plugin: "kotlin-platform$suffix"
@@ -95,11 +100,9 @@ allprojects {
 			testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
 			testCompile "junit:junit:4.12"
 		}
-	}
 
-	if (isKotlin) {
-		//println("----")
-		dependencies {
+		if (isKotlin) {
+			//println("----")
 			if (!isCommon) {
 				def expect = ":${projectNameWithoutSuffix}-common"
 				expectedBy project(expect)
@@ -110,19 +113,25 @@ allprojects {
 			}
 
 			for (dep in libDependencies[projectNameWithoutSuffix]) {
-				def depm = ":${dep}${suffix}"
-				if (isNative) {
-					implementation project(":${depm}")
+				String rdep = dep.replace("{SUFFIX}", suffix).replace("{JSUFFIX}", jsuffix)
+				def rdepm
+				if (dep.contains(":")) {
+					rdepm = rdep
 				} else {
-					compile project(":${depm}")
+					rdepm = project(":${rdep}${suffix}")
+				}
+				if (isNative) {
+					implementation rdepm
+				} else {
+					compile rdepm
 				}
 				//println("DEP: ${project.name}: ${depm}")
 			}
 		}
 	}
 
-	if (isKotlin) {
-		sourceSets {
+	sourceSets {
+		if (isKotlin) {
 			main.kotlin.srcDirs += "src"
 			test.kotlin.srcDirs += "test"
 			if (!isNative) {
@@ -134,18 +143,24 @@ allprojects {
 				main.resources.srcDirs += ['../common/resources']
 				test.resources.srcDirs += ['../common/testresources']
 			}
-		}
 
-		if (isNative) {
-			sourceSets.main {
-				component {
-					target nativeTargets
-					outputKinds = [KLIBRARY]
+			if (isNative) {
+				main {
+					component {
+						target nativeTargets
+						if (libExecutables[projectNameWithoutSuffix]) {
+							outputKinds = [EXECUTABLE]
+						} else {
+							outputKinds = [KLIBRARY]
+						}
+					}
 				}
 			}
-		} else {
-			kotlin.experimental.coroutines 'enable'
 		}
+	}
+
+	if (isKotlin && !isNative) {
+		kotlin.experimental.coroutines 'enable'
 	}
 
 	if (isNative) {

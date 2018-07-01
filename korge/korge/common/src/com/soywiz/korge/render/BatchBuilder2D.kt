@@ -1,5 +1,6 @@
 package com.soywiz.korge.render
 
+import com.soywiz.klogger.*
 import com.soywiz.kmem.*
 import com.soywiz.korag.*
 import com.soywiz.korag.shader.*
@@ -7,13 +8,23 @@ import com.soywiz.korge.view.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 
+private val logger = Logger("BatchBuilder2D")
+
 class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
+	init { logger.trace { "BatchBuilder2D[0]" } }
+
 	var flipRenderTexture = true
 	val maxQuadsMargin = maxQuads + 9
 	val maxVertices = maxQuads * 4
 	val maxIndices = maxQuads * 6
+
+	init { logger.trace { "BatchBuilder2D[1]" } }
+
 	private val vertices = FastMemory.alloc(6 * 4 * maxVertices)
 	private val indices = FastMemory.alloc(2 * maxIndices)
+
+	init { logger.trace { "BatchBuilder2D[2]" } }
+
 	private var vertexCount = 0
 	private var vertexPos = 0
 	private var indexPos = 0
@@ -21,12 +32,63 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 	private var currentSmoothing: Boolean = false
 	private var currentBlendFactors: AG.Blending = BlendMode.NORMAL.factors
 
+	init { logger.trace { "BatchBuilder2D[3]" } }
+
 	private val vertexBuffer = ag.createVertexBuffer()
 	private val indexBuffer = ag.createIndexBuffer()
 
+	init { logger.trace { "BatchBuilder2D[4]" } }
+
 	var stencil = AG.StencilState()
+
+	init { logger.trace { "BatchBuilder2D[5]" } }
+
 	var colorMask = AG.ColorMaskState()
+
+	init { logger.trace { "BatchBuilder2D[6]" } }
+
 	var scissor: AG.Scissor? = null
+
+	private val identity = Matrix2d()
+
+	init { logger.trace { "BatchBuilder2D[7]" } }
+
+	private val ptt1 = Point2d()
+	private val ptt2 = Point2d()
+
+	private val pt1 = Point2d()
+	private val pt2 = Point2d()
+	private val pt3 = Point2d()
+	private val pt4 = Point2d()
+	private val pt5 = Point2d()
+
+	private val pt6 = Point2d()
+	private val pt7 = Point2d()
+	private val pt8 = Point2d()
+
+	init { logger.trace { "BatchBuilder2D[8]" } }
+
+	private val projMat = Matrix4()
+
+	init { logger.trace { "BatchBuilder2D[9]" } }
+
+	private val textureUnit = AG.TextureUnit(null, linear = false)
+
+	init { logger.trace { "BatchBuilder2D[10]" } }
+
+	// @TODO: kotlin-native crash: [1]    80122 segmentation fault  ./sample1-native.kexe
+	//private val uniforms = mapOf<Uniform, Any>(
+	//	DefaultShaders.u_ProjMat to projMat,
+	//	DefaultShaders.u_Tex to textureUnit
+	//)
+	private val uniforms by lazy {
+		mapOf<Uniform, Any>(
+			DefaultShaders.u_ProjMat to projMat,
+			DefaultShaders.u_Tex to textureUnit
+		)
+	}
+
+	init { logger.trace { "BatchBuilder2D[11]" } }
 
 	private fun addVertex(x: Float, y: Float, u: Float, v: Float, colorMul: Int, colorAdd: Int) {
 		vertices.setAlignedFloat32(vertexPos++, x)
@@ -100,21 +162,6 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 			currentBlendFactors = blendFactors
 		}
 	}
-
-	private val identity = Matrix2d()
-
-	private val ptt1 = Point2d()
-	private val ptt2 = Point2d()
-
-	private val pt1 = Point2d()
-	private val pt2 = Point2d()
-	private val pt3 = Point2d()
-	private val pt4 = Point2d()
-	private val pt5 = Point2d()
-
-	private val pt6 = Point2d()
-	private val pt7 = Point2d()
-	private val pt8 = Point2d()
 
 	fun drawNinePatch(
 		tex: Texture,
@@ -222,11 +269,17 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 	}
 
 	companion object {
+		init { logger.trace { "BatchBuilder2D.Companion[0]" } }
+
 		val a_ColMul = DefaultShaders.a_Col
 		val a_ColAdd = Attribute("a_Col2", VarType.Byte4, normalized = true)
 
+		init { logger.trace { "BatchBuilder2D.Companion[1]" } }
+
 		val v_ColMul = DefaultShaders.v_Col
 		val v_ColAdd = Varying("v_Col2", VarType.Byte4)
+
+		init { logger.trace { "BatchBuilder2D.Companion[2]" } }
 
 		val LAYOUT = VertexLayout(DefaultShaders.a_Pos, DefaultShaders.a_Tex, a_ColMul, a_ColAdd)
 		val VERTEX = VertexShader {
@@ -235,6 +288,22 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 			SET(v_ColAdd, a_ColAdd)
 			SET(out, DefaultShaders.u_ProjMat * vec4(DefaultShaders.a_Pos, 0f.lit, 1f.lit))
 		}
+
+		init { logger.trace { "BatchBuilder2D.Companion[3]" } }
+
+		val PROGRAM_PRE = Program(
+			vertex = VERTEX,
+			fragment = buildFragment(premultiplied = true),
+			name = "BatchBuilder2D.Premultiplied.Tinted"
+		)
+
+		val PROGRAM_NOPRE = Program(
+			vertex = VERTEX,
+			fragment = buildFragment(premultiplied = false),
+			name = "BatchBuilder2D.NoPremultiplied.Tinted"
+		)
+
+		init { logger.trace { "BatchBuilder2D.Companion[4]" } }
 
 		//val PROGRAM_NORMAL = Program(
 		//	vertex = VERTEX,
@@ -270,27 +339,8 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 			}
 		}
 
-		val PROGRAM_PRE = Program(
-			vertex = VERTEX,
-			fragment = buildFragment(premultiplied = true),
-			name = "BatchBuilder2D.Premultiplied.Tinted"
-		)
-
-		val PROGRAM_NOPRE = Program(
-			vertex = VERTEX,
-			fragment = buildFragment(premultiplied = false),
-			name = "BatchBuilder2D.NoPremultiplied.Tinted"
-		)
-
 		//init { println(PROGRAM_PRE.fragment.toGlSl()) }
 	}
-
-	private val projMat = Matrix4()
-	private val textureUnit = AG.TextureUnit(null, linear = false)
-	private val uniforms = mapOf<Uniform, Any>(
-		DefaultShaders.u_ProjMat to projMat,
-		DefaultShaders.u_Tex to textureUnit
-	)
 
 	fun flush() {
 		if (vertexCount > 0) {
