@@ -10,7 +10,7 @@ buildscript {
 	}
 	dependencies {
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-		//classpath "org.jetbrains.kotlin:kotlin-native-gradle-plugin:$kotlinNativeVersion"
+		classpath "org.jetbrains.kotlin:kotlin-native-gradle-plugin:$kotlinNativeVersion"
 		classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
 	}
 
@@ -103,7 +103,9 @@ allprojects {
 			if (!isCommon) {
 				def expect = ":${projectNameWithoutSuffix}-common"
 				expectedBy project(expect)
-				testImplementation project(expect)
+				if (!isNative) {
+					testImplementation project(expect)
+				}
 				//println("EXP: ${project.name}: ${expect}")
 			}
 
@@ -127,7 +129,7 @@ allprojects {
 				main.resources.srcDirs += "resources"
 				test.resources.srcDirs += "testresources"
 			}
-			if (!isCommon) {
+			if (!isCommon && !isNative) {
 				// @TODO: @BUG: Hack. No common resources are copied
 				main.resources.srcDirs += ['../common/resources']
 				test.resources.srcDirs += ['../common/testresources']
