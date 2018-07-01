@@ -26,7 +26,4 @@ sourceSets.test {
 dependencies {
     expectedBy project(':' + project.name.replace("-native", "-common"))
     implementation "com.soywiz:korio-native:$korgeVersion"
-    //implementation "org.jetbrains.kotlin:kotlin-stdlib-native:$kotlinVersion"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-runtime:$kotlinVersion"
-    //implementation "com.soywiz:korge-native:$korgeVersion"
 }
