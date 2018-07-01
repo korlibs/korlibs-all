@@ -47,6 +47,8 @@ expect object KorioNative {
 		fun set(value: T): Unit
 	}
 
+	fun gc()
+
 	fun getClassSimpleName(clazz: KClass<*>): String
 
 	val currentThreadId: Long

@@ -6,7 +6,7 @@ class LinkedList<T>(private val debug: Boolean) : MutableCollection<T> {
 	constructor() : this(false)
 
 	companion object {
-		const private val NONE = -1
+		private const val NONE = -1
 	}
 
 	private var firstSlot = NONE
@@ -178,8 +178,8 @@ class LinkedList<T>(private val debug: Boolean) : MutableCollection<T> {
 		return NONE
 	}
 
-	override fun remove(item: T): Boolean {
-		val slot = slotOf(item)
+	override fun remove(element: T): Boolean {
+		val slot = slotOf(element)
 		if (slot != NONE) removeSlot(slot)
 		return slot != NONE
 	}
@@ -296,18 +296,10 @@ class LinkedList<T>(private val debug: Boolean) : MutableCollection<T> {
 		val slotsReversed = _getAllocatedSlotsReverse().reversed()
 		val freeSlots = _getFreeSlots()
 		val freeSlotsReverse = _getFreeSlotsReverse().reversed()
-		if (slots != slotsReversed) {
-			throw IllegalStateException()
-		}
-		if (freeSlots != freeSlotsReverse) {
-			throw IllegalStateException()
-		}
-		if (slots.size != size) {
-			throw IllegalStateException()
-		}
-		if (slots.size + freeSlots.size != capacity) {
-			throw IllegalStateException()
-		}
+		if (slots != slotsReversed) throw IllegalStateException()
+		if (freeSlots != freeSlotsReverse) throw IllegalStateException()
+		if (slots.size != size) throw IllegalStateException()
+		if (slots.size + freeSlots.size != capacity) throw IllegalStateException()
 	}
 
 	private fun _getAllocatedSlots(): List<Int> {

@@ -4,6 +4,7 @@ package com.soywiz.korio.async
 
 import com.soywiz.kds.*
 import com.soywiz.klock.*
+import com.soywiz.klogger.*
 import com.soywiz.kmem.*
 import com.soywiz.korio.*
 import com.soywiz.korio.coroutine.*
@@ -20,6 +21,8 @@ val eventLoopFactoryDefaultImpl: EventLoopFactory get() = KorioNative.eventLoopF
 
 val tasksInProgress = AtomicInteger(0)
 
+private var logger = Logger("EventLoop")
+
 // @TODO: Check CoroutineDispatcher
 abstract class EventLoop(val captureCloseables: Boolean) : Closeable {
 	constructor() : this(captureCloseables = true)
@@ -28,12 +31,20 @@ abstract class EventLoop(val captureCloseables: Boolean) : Closeable {
 
 	companion object {
 		fun main(eventLoop: EventLoop, entry: suspend EventLoop.() -> Unit) {
+			println(Logger.defaultLevel)
+			println(logger.level)
+			logger.trace { "EventLoop.main[0]" }
 			if (globalEventLoop == null) {
 				globalEventLoop = eventLoop
 			}
+			logger.trace { "EventLoop.main[1]" }
 			tasksInProgress.incrementAndGet()
 			eventLoop.start()
+			logger.trace { "EventLoop.main[2]" }
+			println("EventLoop.main[2]")
 			eventLoop.setImmediate {
+				logger.trace { "EventLoop.main.immediate" }
+				println("EventLoop.main.immediate")
 				entry.korioStartCoroutine(eventLoop, object : Continuation<Unit> {
 					override val context: CoroutineContext = EventLoopCoroutineContext(eventLoop)
 
@@ -47,13 +58,19 @@ abstract class EventLoop(val captureCloseables: Boolean) : Closeable {
 					}
 				})
 			}
+			logger.trace { "EventLoop.main[3]" }
 			eventLoop.loop()
+			logger.trace { "EventLoop.main[4]" }
 		}
 
-		operator fun invoke(entry: suspend EventLoop.() -> Unit): Unit = main(entry)
+		operator fun invoke(entry: suspend EventLoop.() -> Unit): Unit {
+			main(entry)
+		}
 
-		fun main(entry: suspend EventLoop.() -> Unit): Unit = main(eventLoopFactoryDefaultImpl.createEventLoop()) {
-			this.entry()
+		fun main(entry: suspend EventLoop.() -> Unit): Unit {
+			main(eventLoopFactoryDefaultImpl.createEventLoop()) {
+				this.entry()
+			}
 		}
 	}
 
@@ -199,9 +216,16 @@ object BaseEventLoopFactoryNative : EventLoopFactory() {
 }
 
 open class BaseEventLoopNative() : EventLoop(captureCloseables = false) {
+	companion object {
+	    val logger = Logger("BaseEventLoopNative")
+	}
 	private class AnyObj
-
 	private val lock = AnyObj()
+	private val immediateTasksPool = Pool({ it.reset() }) { ImmediateTask() }
+	private val immediateTasks = LinkedList<ImmediateTask>()
+	//private val immediateTasks = arrayListOf<ImmediateTask>()
+	var loopThread: Long = 0L
+
 	class Task(val time: Long, val callback: () -> Unit)
 
 	private val timedTasks = PriorityQueue<Task> { a, b ->
@@ -220,85 +244,147 @@ open class BaseEventLoopNative() : EventLoop(captureCloseables = false) {
 			continuationException = null
 			callback = null
 		}
+
+		override fun toString(): String = "ImmediateTask(continuation=${continuation != null}, continuationResult=${continuationResult != null}, continuationException=${continuationException != null}, callback=${callback != null})"
 	}
 
-	private val immediateTasksPool = Pool({ it.reset() }) { ImmediateTask() }
-	private val immediateTasks = LinkedList<ImmediateTask>()
-
 	override fun setImmediateInternal(handler: () -> Unit) {
-		synchronized(lock) {
+		logger.trace { "setImmediateInternal[0]" }
+		//synchronized(lock) {
+		run {
 			immediateTasks += immediateTasksPool.alloc().apply {
 				this.callback = handler
 			}
 		}
+		logger.trace { "setImmediateInternal[1]" }
 	}
 
 	override fun <T> queueContinuation(continuation: Continuation<T>, result: T): Unit {
-		synchronized(lock) {
+		logger.trace { "queueContinuation[0]" }
+		//synchronized(lock) {
+		run {
 			immediateTasks += immediateTasksPool.alloc().apply {
 				this.continuation = continuation
 				this.continuationResult = result
 			}
 		}
+		logger.trace { "queueContinuation[1]" }
 	}
 
 	override fun <T> queueContinuationException(continuation: Continuation<T>, result: Throwable): Unit {
-		synchronized(lock) {
+		logger.trace { "queueContinuationException[0]" }
+		//synchronized(lock) {
+		run {
 			immediateTasks += immediateTasksPool.alloc().apply {
 				this.continuation = continuation
 				this.continuationException = result
 			}
 		}
+		logger.trace { "queueContinuationException[1]" }
 	}
 
 	override fun setTimeoutInternal(ms: Int, callback: () -> Unit): Closeable {
+		logger.trace { "setTimeoutInternal[0]" }
 		val task = Task(Klock.currentTimeMillis() + ms, callback)
-		synchronized(lock) { timedTasks += task }
-		return Closeable { synchronized(timedTasks) { timedTasks -= task } }
+		//synchronized(lock) {
+		run {
+			timedTasks += task
+		}
+		val out = Closeable {
+			//synchronized(timedTasks) {
+			run {
+				timedTasks -= task
+			}
+		}
+		logger.trace { "setTimeoutInternal[1]" }
+		return out
 	}
 
 	override fun step(ms: Int) {
+		logger.trace { "step[0]" }
 		timer@ while (true) {
+			logger.trace { "step[1]" }
 			val startTime = Klock.currentTimeMillis()
 			while (true) {
+				logger.trace { "step[2]" }
 				val currentTime = Klock.currentTimeMillis()
-				val item = synchronized(lock) { if (timedTasks.isNotEmpty() && currentTime >= timedTasks.peek().time) timedTasks.remove() else null }
-							?: break
-				item.callback()
+				//val item = synchronized(lock) {
+				val item = if (timedTasks.isNotEmpty() && currentTime >= timedTasks.peek().time) timedTasks.remove() else null
+				logger.trace { "step[3]" }
+				if (item == null) break
+				item?.callback()
+				logger.trace { "step[4]" }
 			}
 			while (true) {
+				logger.trace { "step[5]" }
 				if ((Klock.currentTimeMillis() - startTime) >= 50) {
 					continue@timer
 				}
-				val task =
-					synchronized(lock) { if (immediateTasks.isNotEmpty()) immediateTasks.removeFirst() else null }
-							?: break
-				if (task.callback != null) {
-					task.callback?.invoke()
-				} else if (task.continuation != null) {
-					val cont = (task.continuation as? Continuation<Any?>)!!
-					if (task.continuationException != null) {
-						cont.resumeWithException(task.continuationException!!)
-					} else {
-						cont.resume(task.continuationResult)
-					}
+				logger.trace { "step[6]" }
+				/*
+				val task = synchronized(lock) {
+					if (immediateTasks.isNotEmpty()) immediateTasks.removeFirst() else null
+				} ?: break
+				*/
+				//val task = (if (immediateTasks.isNotEmpty()) immediateTasks.removeFirst() else null) ?: break
+				//val task = if (immediateTasks.isNotEmpty()) immediateTasks.removeFirst() else null
+				logger.trace { "step[6b]" }
+				val task = if (immediateTasks.isNotEmpty()) {
+					logger.trace { "step[6c]" }
+					immediateTasks.removeAt(0)
+				} else {
+					logger.trace { "step[6d]" }
+					null
 				}
-				synchronized(lock) {
-					immediateTasksPool.free(task)
+				logger.trace { "step[7.1] $task" }
+				if (task != null) {
+					logger.trace { "step[7.2]" }
+					val callback = task.callback
+					val continuation = task.continuation
+					val continuationException = task.continuationException
+					logger.trace { "step[7.3] $task" }
+					if (callback != null) {
+						logger.trace { "step[7a]" }
+						logger.trace { "step[7aa]" }
+						callback()
+					} else if (continuation != null) {
+						logger.trace { "step[7b]" }
+						val cont = (continuation as? Continuation<Any?>)
+						logger.trace { "step[7c]" }
+						if (continuationException != null) {
+							logger.trace { "step[7d]" }
+							cont?.resumeWithException(continuationException)
+						} else {
+							logger.trace { "step[7e]" }
+							cont?.resume(task.continuationResult)
+						}
+						logger.trace { "step[7f]" }
+					}
+					logger.trace { "step[8]" }
+					//synchronized(lock) {
+					run {
+						immediateTasksPool.free(task)
+					}
+					logger.trace { "step[9]" }
 				}
 			}
+			logger.trace { "step[10]" }
 			break
 		}
+		logger.trace { "step[11]" }
 	}
 
-	var loopThread: Long = 0L
-
 	override fun loop() {
+		logger.trace { "BaseEventLoopNative.loop[0]" }
 		loopThread = KorioNative.currentThreadId
 
-		while (synchronized(lock) { immediateTasks.isNotEmpty() || timedTasks.isNotEmpty() } || (tasksInProgress.get() != 0)) {
+		logger.trace { "BaseEventLoopNative.loop[1]" }
+		//while (synchronized(lock) { immediateTasks.isNotEmpty() || timedTasks.isNotEmpty() } || (tasksInProgress.get() != 0)) {
+		while (run { immediateTasks.isNotEmpty() || timedTasks.isNotEmpty() } || (tasksInProgress.get() != 0)) {
+			logger.trace { "BaseEventLoopNative.loop[2]" }
 			step(1)
 			nativeSleep(1)
+			logger.trace { "BaseEventLoopNative.loop[3]" }
 
 			//println("immediateTasks: ${immediateTasks.size}, timedTasks: ${timedTasks.size}, tasksInProgress: ${tasksInProgress.get()}")
 		}
@@ -309,7 +395,9 @@ open class BaseEventLoopNative() : EventLoop(captureCloseables = false) {
 	}
 
 	open fun nativeSleep(time: Int) {
+		logger.trace { "BaseEventLoopNative.nativeSleep[0]" }
 		KorioNative.Thread_sleep(time.toLong())
+		logger.trace { "BaseEventLoopNative.nativeSleep[1]" }
 	}
 }
 

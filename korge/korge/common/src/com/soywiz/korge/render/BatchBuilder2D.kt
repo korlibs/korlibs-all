@@ -66,6 +66,13 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 	private val pt7 = Point2d()
 	private val pt8 = Point2d()
 
+	private val uniforms by lazy {
+		mapOf<Uniform, Any>(
+			DefaultShaders.u_ProjMat to projMat,
+			DefaultShaders.u_Tex to textureUnit
+		)
+	}
+
 	init { logger.trace { "BatchBuilder2D[8]" } }
 
 	private val projMat = Matrix4()
@@ -81,13 +88,6 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 	//	DefaultShaders.u_ProjMat to projMat,
 	//	DefaultShaders.u_Tex to textureUnit
 	//)
-	private val uniforms by lazy {
-		mapOf<Uniform, Any>(
-			DefaultShaders.u_ProjMat to projMat,
-			DefaultShaders.u_Tex to textureUnit
-		)
-	}
-
 	init { logger.trace { "BatchBuilder2D[11]" } }
 
 	private fun addVertex(x: Float, y: Float, u: Float, v: Float, colorMul: Int, colorAdd: Int) {

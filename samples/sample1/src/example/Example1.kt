@@ -13,12 +13,17 @@ import com.soywiz.korinject.*
 
 fun main(args: Array<String>): Unit {
 	Logger.defaultLevel = Logger.Level.TRACE
-	Logger("Views").level = Logger.Level.TRACE
-	Logger("Korge").level = Logger.Level.TRACE
-	Logger("RenderContext").level = Logger.Level.TRACE
-	Logger("BatchBuilder2D").level = Logger.Level.TRACE
-	Logger("DefaultShaders").level = Logger.Level.TRACE
-	Logger("RenderContext2D").level = Logger.Level.TRACE
+	//Logger("BaseEventLoopNative").level = Logger.Level.TRACE
+	//Logger("EventLoop").level = Logger.Level.TRACE
+	//Logger("Views").level = Logger.Level.TRACE
+	//Logger("Korge").level = Logger.Level.TRACE
+	//Logger("RenderContext").level = Logger.Level.TRACE
+	//Logger("BatchBuilder2D").level = Logger.Level.TRACE
+	//Logger("DefaultShaders").level = Logger.Level.TRACE
+	//Logger("RenderContext2D").level = Logger.Level.TRACE
+	//Logger("coroutine").level = Logger.Level.TRACE
+	//println(Logger.defaultLevel)
+	//println(Logger("EventLoop").level)
 	Korge(MyModule)
 }
 

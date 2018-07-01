@@ -382,23 +382,26 @@ object Korge {
 		trace: Boolean = false,
 		constructedViews: (Views) -> Unit = {},
 		eventLoop: EventLoop = KoruiEventLoop.instance
-	) = EventLoop.main(eventLoop) {
-		logger.trace { "Korge.invoke" }
-		test(
-			Config(
-				module = module,
-				args = args,
-				container = container,
-				eventDispatcher = eventDispatcher,
-				sceneClass = sceneClass,
-				sceneInjects = sceneInjects,
-				injector = injector,
-				timeProvider = timeProvider,
-				debug = debug,
-				trace = trace,
-				constructedViews = constructedViews
+	) {
+		logger.trace { "Korge.pre eventLoop" }
+		EventLoop.main(eventLoop) {
+			logger.trace { "Korge.invoke" }
+			test(
+				Config(
+					module = module,
+					args = args,
+					container = container,
+					eventDispatcher = eventDispatcher,
+					sceneClass = sceneClass,
+					sceneInjects = sceneInjects,
+					injector = injector,
+					timeProvider = timeProvider,
+					debug = debug,
+					trace = trace,
+					constructedViews = constructedViews
+				)
 			)
-		)
+		}
 	}
 
 	data class Config(

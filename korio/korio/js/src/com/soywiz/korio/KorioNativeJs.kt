@@ -73,6 +73,9 @@ actual val nativeDelay: Delay = HtmlDelay
 actual object KorioNative {
 	actual val currentThreadId: Long = 1L
 
+	actual fun gc() {
+	}
+
 	actual fun getClassSimpleName(clazz: KClass<*>): String = clazz.simpleName ?: "unknown"
 
 	actual abstract class NativeThreadLocal<T> {

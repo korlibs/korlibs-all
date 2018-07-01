@@ -1,8 +1,12 @@
 package com.soywiz.korio.coroutine
 
+import com.soywiz.klogger.*
 import com.soywiz.korio.*
 import com.soywiz.korio.async.*
 import kotlin.coroutines.experimental.*
+
+@PublishedApi
+internal val coroutineLogger = Logger("coroutine")
 
 suspend fun getCoroutineContext(): CoroutineContext = coroutineContext
 //suspend fun getCoroutineContext(): CoroutineContext = kotlin.coroutines.experimental.intrinsics.suspendCoroutineUninterceptedOrReturn { it.resume(it.context) }
@@ -12,21 +16,32 @@ suspend fun eventLoop(): EventLoop = getCoroutineContext().eventLoop
 val currentThreadId: Long get() = KorioNative.currentThreadId
 
 @Deprecated("Use getCoroutineContext() instead")
-suspend fun <T> withCoroutineContext(callback: suspend CoroutineContext.() -> T) = korioSuspendCoroutine<T> { c ->
-	callback.startCoroutine(c.context, c)
+suspend fun <T> withCoroutineContext(callback: suspend CoroutineContext.() -> T): T {
+	coroutineLogger.trace { "withCoroutineContext[0]" }
+	return korioSuspendCoroutine<T> { c ->
+		coroutineLogger.trace { "withCoroutineContext[1]" }
+		callback.startCoroutine(c.context, c)
+	}
 }
 
 @Deprecated("Use eventLoop() instead")
-suspend fun <T> withEventLoop(callback: suspend EventLoop.() -> T) = korioSuspendCoroutine<T> { c ->
-	callback.startCoroutine(c.context.eventLoop, c)
+suspend fun <T> withEventLoop(callback: suspend EventLoop.() -> T): T {
+	coroutineLogger.trace { "withEventLoop[0]" }
+	return korioSuspendCoroutine<T> { c ->
+		coroutineLogger.trace { "withEventLoop[1]" }
+		callback.startCoroutine(c.context.eventLoop, c)
+	}
 }
 
-suspend inline fun <T> korioSuspendCoroutine(crossinline block: (Continuation<T>) -> Unit): T =
-	_korioSuspendCoroutine { c ->
+suspend inline fun <T> korioSuspendCoroutine(crossinline block: (Continuation<T>) -> Unit): T {
+	coroutineLogger.trace { "korioSuspendCoroutine[1]" }
+	return _korioSuspendCoroutine { c ->
 		block(c.toEventLoop())
 	}
+}
 
 suspend inline fun <T> _korioSuspendCoroutine(crossinline block: (Continuation<T>) -> Unit): T {
+	coroutineLogger.trace { "_korioSuspendCoroutine[1]" }
 	return suspendCoroutine<T> { c: Continuation<T> ->
 		block(c)
 	}
@@ -39,15 +54,24 @@ suspend inline fun <T> _korioSuspendCoroutine(crossinline block: (Continuation<T
 	//}
 }
 
-fun <R, T> (suspend R.() -> T).korioStartCoroutine(receiver: R, completion: Continuation<T>) =
+fun <R, T> (suspend R.() -> T).korioStartCoroutine(receiver: R, completion: Continuation<T>) {
+	coroutineLogger.trace { "korioStartCoroutine[1]" }
 	this.startCoroutine(receiver, completion)
+}
 
-fun <T> (suspend () -> T).korioStartCoroutine(completion: Continuation<T>) = this.startCoroutine(completion)
-fun <T> (suspend () -> T).korioCreateCoroutine(completion: Continuation<T>): Continuation<Unit> =
-	this.createCoroutine(completion)
+fun <T> (suspend () -> T).korioStartCoroutine(completion: Continuation<T>) {
+	coroutineLogger.trace { "korioStartCoroutine[2]" }
+	this.startCoroutine(completion)
+}
+fun <T> (suspend () -> T).korioCreateCoroutine(completion: Continuation<T>): Continuation<Unit> {
+	coroutineLogger.trace { "korioCreateCoroutine[1]" }
+	return this.createCoroutine(completion)
+}
 
-fun <R, T> (suspend R.() -> T).korioCreateCoroutine(receiver: R, completion: Continuation<T>): Continuation<Unit> =
-	this.createCoroutine(receiver, completion)
+fun <R, T> (suspend R.() -> T).korioCreateCoroutine(receiver: R, completion: Continuation<T>): Continuation<Unit> {
+	coroutineLogger.trace { "korioCreateCoroutine[2]" }
+	return this.createCoroutine(receiver, completion)
+}
 
 //private val UNDECIDED: Any? = Any()
 //private val RESUMED: Any? = Any()

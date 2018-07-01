@@ -50,6 +50,10 @@ actual object KorioNative {
 	actual val currentThreadId: Long get() = -1L // @TODO
 	actual fun getClassSimpleName(clazz: KClass<*>): String = clazz.simpleName ?: "unknown"
 
+	actual fun gc() {
+		konan.internal.GC.collect()
+	}
+
 	actual abstract class NativeThreadLocal<T> {
 		actual abstract fun initialValue(): T
 		private var value = initialValue()
