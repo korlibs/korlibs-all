@@ -7,6 +7,9 @@ expect class NativeAudioStream(freq: Int) {
 	fun stop()
 }
 
-fun NativeAudioStream(): NativeAudioStream = NativeAudioStream(44100)
+// @TODO: kotlin-js BUG: https://youtrack.jetbrains.com/issue/KT-25210
+//fun NativeAudioStream(): NativeAudioStream = NativeAudioStream(44100)
+
+fun NewNativeAudioStream(): NativeAudioStream = NativeAudioStream(44100)
 
 suspend fun NativeAudioStream.addSamples(samples: ShortArray): Unit = addSamples(samples, 0, samples.size)
