@@ -1,9 +1,0 @@
-apply plugin: 'kotlin-platform-common'
-
-dependencies {
-	compile project(":korge-common")
-
-	testCompile project(":korio-common")
-	compile project(":korfl-common")
-	//testCompile project(":korge-tests-common")
-}

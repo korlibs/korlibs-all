@@ -1,7 +1,0 @@
-apply plugin: 'kotlin-platform-jvm'
-
-dependencies {
-    expectedBy project(":korau-opus-common")
-
-    compile project(":korau")
-}

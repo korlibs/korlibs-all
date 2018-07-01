@@ -1,9 +1,6 @@
 import org.apache.tools.ant.taskdefs.condition.Os
 
 buildscript {
-	//ext.nativeTargets = ['iphone', 'iphone_sim', 'macbook', 'linux', 'raspberrypi', 'android_arm32', 'android_arm64']
-	ext.nativeTargets = ['macbook']
-
 	repositories {
 		mavenLocal()
 		jcenter()
@@ -13,22 +10,143 @@ buildscript {
 	}
 	dependencies {
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-		classpath "org.jetbrains.kotlin:kotlin-native-gradle-plugin:$kotlinNativeVersion"
+		//classpath "org.jetbrains.kotlin:kotlin-native-gradle-plugin:$kotlinNativeVersion"
 		classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
 	}
+
+	//ext.nativeTargets = ['iphone', 'iphone_sim', 'macbook', 'linux', 'raspberrypi', 'android_arm32', 'android_arm64']
+	ext.nativeTargets = ['macbook']
+
+	ext.libDependencies = [
+			"dynarek"          : [],
+			"kbignum"          : [],
+			"kds"              : [],
+			"klock"            : [],
+			"klogger"          : [],
+			"kmem"             : [],
+			"krypto"           : [],
+			"korinject"        : [],
+			"korma"            : ["kds"],
+			"korio"            : ["klock", "kmem", "kds", "klogger"],
+			"korim"            : ["korio", "korma"],
+			"korim-qr"         : ["korim"],
+			"korag"            : ["korim"],
+			"korau"            : ["klogger", "korio", "korma"],
+			"korui"            : ["korag"],
+			"korau-atrac3plus" : ["korau"],
+			"korau-mod"        : ["korau"],
+			"korau-mp3"        : ["korau"],
+			"korau-ogg-vorbis" : ["korau"],
+			"korau-opus"       : ["korau"],
+			"korge"            : ["korio", "korau", "korui", "korag", "korinject"],
+			"korfl"            : ["korio", "korma", "korim", "korau-mp3"],
+			"korge-ext-swf"    : ["korge", "korfl"],
+			"korge-ext-fla"    : ["korge"],
+			"korge-ext-spriter": ["korge"],
+			"korge-build"      : ["korge", "korge-ext-swf", "korge-ext-tiled", "korge-ext-spriter", "korge-ext-lipsync", "korge-ext-ui", "korau-mp3", "korau-ogg-vorbis"],
+
+	]
 }
 
 apply plugin: 'idea'
 
 allprojects {
-	def nativeProject = project.name.endsWith("-native")
-	def isCommonProject = project.name.endsWith("-common")
-	//def nativeProject = project.name.endsWith("kds-native")
+	def isJs = project.name.endsWith("-js")
+	def isJvm = project.name.endsWith("-jvm")
+	def isNative = project.name.endsWith("-native")
+	def isCommon = project.name.endsWith("-common")
+	def isKotlin = isJs || isJvm || isNative || isCommon
 
-	if (nativeProject) {
-		//apply plugin: 'java' // Should no apply java plugin or won't work
-		apply plugin: 'kotlin-platform-native'
+	String suffix = ""
+	String jsuffix = ""
+	String projectNameWithoutSuffix = project.name[0..<project.name.lastIndexOf('-')]
 
+	if (isJs) jsuffix = suffix = "-js"
+	if (isJvm) {
+		suffix = "-jvm"; jsuffix = ""
+	}
+	if (isNative) jsuffix = suffix = "-native"
+	if (isCommon) jsuffix = suffix = "-common"
+
+	if (suffix != "") {
+		apply plugin: "kotlin-platform$suffix"
+	}
+	if (!isNative) {
+		apply plugin: "java"
+	}
+
+	repositories {
+		mavenLocal()
+		jcenter()
+		mavenCentral()
+		maven { url "https://plugins.gradle.org/m2/" }
+		maven { url "https://dl.bintray.com/jetbrains/kotlin-native-dependencies" }
+		maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
+	}
+
+	dependencies {
+		if (isKotlin && !isNative) {
+			compile "org.jetbrains.kotlin:kotlin-stdlib${jsuffix}:$kotlinVersion"
+
+			testCompile "org.jetbrains.kotlin:kotlin-test${jsuffix}:$kotlinVersion"
+			//testCompile "org.jetbrains.kotlin:kotlin-test-annotations${jsuffix}:$kotlinVersion"
+		}
+		if (isJvm) {
+			testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
+			testCompile "junit:junit:4.12"
+		}
+	}
+
+	if (isKotlin) {
+		//println("----")
+		dependencies {
+			if (!isCommon) {
+				def expect = ":${projectNameWithoutSuffix}-common"
+				expectedBy project(expect)
+				testImplementation project(expect)
+				//println("EXP: ${project.name}: ${expect}")
+			}
+
+			for (dep in libDependencies[projectNameWithoutSuffix]) {
+				def depm = ":${dep}${suffix}"
+				if (isNative) {
+					implementation project(":${depm}")
+				} else {
+					compile project(":${depm}")
+				}
+				//println("DEP: ${project.name}: ${depm}")
+			}
+		}
+	}
+
+	if (isKotlin) {
+		sourceSets {
+			main.kotlin.srcDirs += "src"
+			test.kotlin.srcDirs += "test"
+			if (!isNative) {
+				main.resources.srcDirs += "resources"
+				test.resources.srcDirs += "testresources"
+			}
+			if (!isCommon) {
+				// @TODO: @BUG: Hack. No common resources are copied
+				main.resources.srcDirs += ['../common/resources']
+				test.resources.srcDirs += ['../common/testresources']
+			}
+		}
+
+		if (isNative) {
+			sourceSets.main {
+				component {
+					target nativeTargets
+					outputKinds = [KLIBRARY]
+				}
+			}
+		} else {
+			kotlin.experimental.coroutines 'enable'
+		}
+	}
+
+	if (isNative) {
 		task copyResources(type: Copy) {
 			from file("testresources"), file("../common/testresources")
 			into file("build/test-results/test/debug") // This is the CWD
@@ -37,8 +155,97 @@ allprojects {
 		afterEvaluate {
 			compileTestDebugKotlinNative.dependsOn(copyResources)
 		}
-	} else {
-		apply plugin: 'java'
+	}
+
+	if (isJvm) {
+		compileJava.options.encoding = 'UTF-8'
+		compileTestJava.options.encoding = 'UTF-8'
+		sourceCompatibility = 1.7
+		targetCompatibility = 1.7
+	}
+
+	if (isCommon) {
+		dependencies {
+			compile "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion"
+			testCompile "org.jetbrains.kotlin:kotlin-test-common:$kotlinVersion"
+			testCompile "org.jetbrains.kotlin:kotlin-test-annotations-common:$kotlinVersion"
+		}
+	}
+
+	if (isJs) {
+		[compileKotlin2Js, compileTestKotlin2Js]*.configure {
+			kotlinOptions.moduleKind = "umd"
+			kotlinOptions.sourceMap = true
+		}
+	}
+
+	if (isJs) {
+		/*
+		project.task(type: Copy, dependsOn: compileKotlin2Js, 'populateNodeModules') {
+			from compileKotlin2Js.destinationDir
+
+			configurations.testCompile.each {
+				from zipTree(it.absolutePath).matching { include '*.js' }
+			}
+
+			into "${buildDir}/node_modules"
+		}
+
+		project.task(type: Task, dependsOn: [compileTestKotlin2Js, populateNodeModules], 'fixJsForAsync') {
+			doLast {
+				def k2jsOutputFile = compileTestKotlin2Js.outputFile
+				File file = (k2jsOutputFile instanceof File) ? k2jsOutputFile : new File("$k2jsOutputFile")
+				if (file.exists()) {
+					File fileOut = new File(file.absolutePath + ".fix.js")
+					def timeout = 2000
+					fileOut.text = file.text.replaceAll(/(?m)(?s)test\('(.*?)', (false|true), function \(\) \{\s*(.*?);\s*\}\);/) { c ->
+						String name = c[1]
+						String disabled = c[2]
+						String body = c[3]
+						def rbody = body.startsWith("return") ? body.substring(6) : body
+						return 'test("' + name + '", ' + disabled + ', function() { this.timeout(' + timeout + '); global.testPromise = null; var res = (' + rbody + ') || (global.testPromise); return (res instanceof Promise) ? res : undefined; });'
+					}
+				}
+			}
+		}
+
+		project.task(type: Task, dependsOn: [fixJsForAsync], 'runMocha') {
+			doLast {
+				def k2jsOutputFile = compileTestKotlin2Js.outputFile
+				File fileOut = (k2jsOutputFile instanceof File) ? k2jsOutputFile : new File("$k2jsOutputFile")
+
+				if (fileOut.exists()) {
+					String[] cmd
+					if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+						cmd = ["cmd", "/c", "mocha.cmd" as String, "${fileOut}.fix.js"]
+					} else {
+						cmd = ["/bin/bash", '-c', "mocha '${fileOut}.fix.js'"]
+					}
+
+					if (project.hasProperty('projectNodeModules')) {
+						for (nodeModule in projectNodeModules) {
+							if (!(new File("$buildDir/node_modules/$nodeModule")).exists()) {
+								executeShell("npm link $nodeModule", buildDir)
+							}
+						}
+					}
+
+					ProcessBuilder pb = new ProcessBuilder(cmd as String[])
+					pb.environment().putAll(System.getenv())
+					pb.directory(new File("$buildDir/node_modules"))
+					def p = pb.start()
+					p.in.eachLine { System.out.println(it) }
+					p.err.eachLine { System.err.println(it) }
+					if (p.waitFor() != 0) {
+						throw new GradleException('error occurred running ' + cmd)
+					}
+				}
+			}
+		}
+		*/
+
+		// @TODO: Enable mocha again!
+		//test.dependsOn runMocha
 	}
 
 	apply plugin: 'maven'
@@ -50,187 +257,39 @@ allprojects {
 	group projectGroup
 	version projectVersion
 
-	repositories {
-		mavenLocal()
-		jcenter()
-		mavenCentral()
-		maven { url "https://plugins.gradle.org/m2/" }
-		maven { url "https://dl.bintray.com/jetbrains/kotlin-native-dependencies" }
-		maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
+	task(type: Jar, 'javadocJar') {
+		classifier = 'javadoc'
+		from 'build/docs/javadoc'
 	}
 
-	def kotlinProject = false
-
-	it.afterEvaluate {
-		if (it.plugins.hasPlugin("konan")) {
-			//kotlinProject = true
-		}
-
-		if (it.plugins.hasPlugin("kotlin-platform-common")) {
-			kotlinProject = true
-			dependencies {
-				compile "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVersion"
-				testCompile "org.jetbrains.kotlin:kotlin-test-common:$kotlinVersion"
-				testCompile "org.jetbrains.kotlin:kotlin-test-annotations-common:$kotlinVersion"
-			}
-
-			kotlin.experimental.coroutines 'enable'
-		}
-		if (it.plugins.hasPlugin("kotlin-platform-jvm") || it.plugins.hasPlugin("kotlin")) {
-			kotlinProject = true
-			dependencies {
-				compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-				testCompile "org.jetbrains.kotlin:kotlin-test:$kotlinVersion"
-				testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
-				testCompile "junit:junit:4.12"
-			}
-
-			kotlin {
-				experimental { coroutines 'enable' }
-			}
-
-			compileJava.options.encoding = 'UTF-8'
-			compileTestJava.options.encoding = 'UTF-8'
-
-			sourceCompatibility = 1.7
-			targetCompatibility = 1.7
-		}
-
-		if (it.plugins.hasPlugin("kotlin-platform-js") || it.plugins.hasPlugin("kotlin2js")) {
-			kotlinProject = true
-			dependencies {
-				compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlinVersion"
-				testCompile "org.jetbrains.kotlin:kotlin-test-js:$kotlinVersion"
-			}
-
-			kotlin {
-				experimental { coroutines 'enable' }
-			}
-
-			[compileKotlin2Js, compileTestKotlin2Js]*.configure {
-				kotlinOptions.moduleKind = "umd"
-				kotlinOptions.sourceMap = true
-			}
-
-			project.task(type: Copy, dependsOn: compileKotlin2Js, 'populateNodeModules') {
-				from compileKotlin2Js.destinationDir
-
-				configurations.testCompile.each {
-					from zipTree(it.absolutePath).matching { include '*.js' }
-				}
-
-				into "${buildDir}/node_modules"
-			}
-
-			project.task(type: Task, dependsOn: [compileTestKotlin2Js, populateNodeModules], 'fixJsForAsync') {
-				doLast {
-					def k2jsOutputFile = compileTestKotlin2Js.outputFile
-					File file = (k2jsOutputFile instanceof File) ? k2jsOutputFile : new File("$k2jsOutputFile")
-					if (file.exists()) {
-						File fileOut = new File(file.absolutePath + ".fix.js")
-						def timeout = 2000
-						fileOut.text = file.text.replaceAll(/(?m)(?s)test\('(.*?)', (false|true), function \(\) \{\s*(.*?);\s*\}\);/) { c ->
-							String name = c[1]
-							String disabled = c[2]
-							String body = c[3]
-							def rbody = body.startsWith("return") ? body.substring(6) : body
-							return 'test("' + name + '", ' + disabled + ', function() { this.timeout(' + timeout + '); global.testPromise = null; var res = (' + rbody + ') || (global.testPromise); return (res instanceof Promise) ? res : undefined; });'
-						}
+	// @TODO: from sourceSets.main.allSource requires Java plugin
+	if (isKotlin && !isNative) {
+		task(type: Jar, 'sourcesJar') {
+			classifier = 'sources'
+			from sourceSets.main.allSource
+			if (project != rootProject) {
+				if (!plugins.hasPlugin("kotlin-platform-common")) {
+					ProjectDependency pd = (ProjectDependency) (configurations
+							.findByName("expectedBy")?.dependencies
+							?.find { it instanceof ProjectDependency })
+					if (pd != null) {
+						from pd.dependencyProject.sourceSets.main.allSource
 					}
-				}
-			}
-
-			project.task(type: Task, dependsOn: [fixJsForAsync], 'runMocha') {
-				doLast {
-					def k2jsOutputFile = compileTestKotlin2Js.outputFile
-					File fileOut = (k2jsOutputFile instanceof File) ? k2jsOutputFile : new File("$k2jsOutputFile")
-
-					if (fileOut.exists()) {
-						String[] cmd
-						if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-							cmd = ["cmd", "/c", "mocha.cmd" as String, "${fileOut}.fix.js"]
-						} else {
-							cmd = ["/bin/bash", '-c', "mocha '${fileOut}.fix.js'"]
-						}
-
-						if (project.hasProperty('projectNodeModules')) {
-							for (nodeModule in projectNodeModules) {
-								if (!(new File("$buildDir/node_modules/$nodeModule")).exists()) {
-									executeShell("npm link $nodeModule", buildDir)
-								}
-							}
-						}
-
-						ProcessBuilder pb = new ProcessBuilder(cmd as String[])
-						pb.environment().putAll(System.getenv())
-						pb.directory(new File("$buildDir/node_modules"))
-						def p = pb.start()
-						p.in.eachLine { System.out.println(it) }
-						p.err.eachLine { System.err.println(it) }
-						if (p.waitFor() != 0) {
-							throw new GradleException('error occurred running ' + cmd)
-						}
-					}
-				}
-			}
-
-			// @TODO: Enable mocha again!
-			//test.dependsOn runMocha
-		}
-
-		//println("kotlinProject")
-		if (kotlinProject) {
-			sourceSets {
-				main.kotlin.srcDirs += "src"
-				main.resources.srcDirs += "resources"
-				test.kotlin.srcDirs += "test"
-				test.resources.srcDirs += "testresources"
-				if (!isCommonProject) {
-					// @TODO: @BUG: Hack. No common resources are copied
-					main.resources.srcDirs += ['../common/resources']
-					test.resources.srcDirs += ['../common/testresources']
 				}
 			}
 		}
 	}
 
-	afterEvaluate {
-		project.configure(project) {
-			task(type: Jar, 'javadocJar') {
-				classifier = 'javadoc'
-				from 'build/docs/javadoc'
-			}
-
-			// @TODO: from sourceSets.main.allSource requires Java plugin
-			if (!nativeProject) {
-				task(type: Jar, 'sourcesJar') {
-					classifier = 'sources'
-					from sourceSets.main.allSource
-					if (project != rootProject) {
-						if (!plugins.hasPlugin("kotlin-platform-common")) {
-							ProjectDependency pd = (ProjectDependency) (configurations
-									.findByName("expectedBy")?.dependencies
-									?.find { it instanceof ProjectDependency })
-							if (pd != null) {
-								from pd.dependencyProject.sourceSets.main.allSource
-							}
-						}
-					}
-				}
-			}
-
-			artifacts {
-				archives javadocJar
-				if (!nativeProject) {
-					archives sourcesJar // @TODO: from sourceSets.main.allSource requires Java plugin
-				}
-			}
+	artifacts {
+		archives javadocJar
+		if (isKotlin && !isNative) {
+			archives sourcesJar // @TODO: from sourceSets.main.allSource requires Java plugin
 		}
 	}
 
 	publishing {
 		publications {
-			if (!nativeProject) {
+			if (!isNative) {
 				MyPublication(MavenPublication) {
 					from components.java
 					groupId project.group

@@ -1,7 +1,0 @@
-apply plugin: 'kotlin-platform-common'
-
-dependencies {
-	compile project(":korim-common")
-	compile project(":korau-common")
-	compile project(":korau-mp3-common")
-}

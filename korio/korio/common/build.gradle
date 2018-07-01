@@ -1,8 +1,3 @@
-apply plugin: 'kotlin-platform-common'
-
 dependencies {
-	compile project(":klock-common")
-	compile project(":kmem-common")
-	compile project(":kds-common")
-	compile project(":klogger-common")
+	compile "org.java-websocket:Java-WebSocket:1.3.8"
 }

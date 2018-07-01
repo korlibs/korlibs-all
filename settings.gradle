@@ -11,10 +11,9 @@ def registerVersion(artifactName, path) {
 
 def registerProject1(name, desc, rootPath = name) {
 	registerVersion("$name-common", file("$rootPath/$name/common"))
-	registerVersion("$name", file("$rootPath/$name/jvm"))
+	registerVersion("$name-jvm", file("$rootPath/$name/jvm"))
 	registerVersion("$name-js", file("$rootPath/$name/js"))
-	//registerVersion("$name-android", file("$rootPath/$name/android"))
-	registerVersion("$name-native", file("$rootPath/$name/native"))
+	//registerVersion("$name-native", file("$rootPath/$name/native"))
 }
 
 def registerProject2(name, rootPath, desc) {

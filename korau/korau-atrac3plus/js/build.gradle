@@ -1,7 +1,0 @@
-apply plugin: 'kotlin-platform-js'
-
-dependencies {
-    expectedBy project(":korau-atrac3plus-common")
-
-    compile project(":korau-js")
-}

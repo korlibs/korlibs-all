@@ -1,9 +1,0 @@
-apply plugin: 'kotlin-platform-jvm'
-
-dependencies {
-	expectedBy project(":korim-common")
-	testImplementation project(":korim-common")
-
-	compile project(":korio")
-	compile project(":korma")
-}

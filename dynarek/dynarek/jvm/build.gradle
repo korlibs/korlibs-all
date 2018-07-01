@@ -1,6 +1,3 @@
-apply plugin: 'kotlin-platform-jvm'
-
 dependencies {
-	expectedBy project(":dynarek-common")
 	compile "org.ow2.asm:asm:6.0_BETA"
 }

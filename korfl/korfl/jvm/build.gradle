@@ -1,9 +1,0 @@
-apply plugin: 'kotlin-platform-jvm'
-
-dependencies {
-	expectedBy project(":korfl-common")
-
-	compile project(":korim")
-	compile project(":korau")
-	compile project(":korau-mp3")
-}

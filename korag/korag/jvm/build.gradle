@@ -1,12 +1,4 @@
-apply plugin: 'kotlin-platform-jvm'
-
 dependencies {
-	expectedBy project(":korag-common")
-	testImplementation project(":korag-common")
-
-	testCompile "junit:junit:4.12"
-	compile project(":korim")
-
 	compile "org.jogamp.gluegen:gluegen-rt:$gluegenVersion"
 	compile "org.jogamp.jogl:jogl-all:$joglVersion"
 
