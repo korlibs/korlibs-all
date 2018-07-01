@@ -1,17 +1,14 @@
 package example
 
-import com.soywiz.klogger.*
-import com.soywiz.korge.*
-import com.soywiz.korge.scene.*
-import com.soywiz.korge.view.*
-import com.soywiz.korinject.*
+import com.soywiz.korio.*
+import com.soywiz.korio.file.std.*
 
-//fun main(args: Array<String>): Unit = Korio {
-//    val vfs = MemoryVfsMix("hello" to "WORLD")
-//    println("HELLO ${vfs["hello"].readString()} FROM KORIO")
-//}
+fun main(args: Array<String>): Unit = Korio {
+    val vfs = MemoryVfsMix("hello" to "WORLD")
+    println("HELLO ${vfs["hello"].readString()} FROM KORIO")
+}
 
-
+/*
 fun main(args: Array<String>): Unit {
     Logger("Korge").level = Logger.Level.TRACE
     Korge(MyModule)
@@ -29,3 +26,4 @@ class MyScene : Scene() {
     override suspend fun sceneInit(sceneView: Container) {
     }
 }
+*/

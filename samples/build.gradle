@@ -1,10 +1,4 @@
 buildscript {
-	ext.korgeVersion = '0.31.0'
-	ext.kotlinVersion = '1.2.41'
-	//ext.kotlinNativeVersion = '0.7.1'
-	ext.kotlinNativeVersion = '0.8-dev-2494'
-
-
 	//ext.nativeTargets = ['iphone', 'iphone_sim', 'macbook', 'linux', 'raspberrypi', 'android_arm32', 'android_arm64']
 	ext.nativeTargets = ['macbook']
 
