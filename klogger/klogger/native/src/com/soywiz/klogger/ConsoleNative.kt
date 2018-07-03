@@ -1,6 +1,6 @@
 package com.soywiz.klogger
 
-import platform.posix.*
+//import platform.posix.*
 import konan.internal.GC
 
 actual inline fun Console.error(vararg msg: Any?) {
@@ -8,7 +8,7 @@ actual inline fun Console.error(vararg msg: Any?) {
 	//fflush(__stdoutp)
 	//GC.collect()
 	println(msg.joinToString(", "))
-	fflush(__stdoutp)
+	//fflush(__stdoutp)
 	GC.collect()
 }
 
@@ -17,6 +17,6 @@ actual inline fun Console.log(vararg msg: Any?) {
 	//fflush(__stdoutp)
 	//GC.collect()
 	println(msg.joinToString(", "))
-	fflush(__stdoutp)
+	//fflush(__stdoutp)
 	GC.collect()
 }
