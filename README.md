@@ -7,3 +7,15 @@ To make development, evolution and deployment easier, all the korlibs libraries 
 
 Once relevant functionality is available as standard Kotlin libraries, I will deprecate the specific korlibs libraries
 and will provide a relevant migration utilities for them. 
+
+### Extra
+
+To test bleeding-edge kotlin-native:
+
+```
+export KONAN_REPO=$PWD/../kotlin-native
+#pushd $KONAN_REPO && git pull && ./gradlew clean dependencies:update dist distPlatformLibs && popd
+./gradlew install -Pkonan.home=$KONAN_REPO/dist --include-build $KONAN_REPO/shared --include-build $KONAN_REPO/tools/kotlin-native-gradle-plugin
+./gradlew :sample1-native:compileDebugKotlinNative -Pkonan.home=$KONAN_REPO/dist --include-build $KONAN_REPO/shared --include-build $KONAN_REPO/tools/kotlin-native-gradle-plugin
+```
+
