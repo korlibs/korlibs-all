@@ -13,3 +13,5 @@ fun arraycopyAny(src: Any, srcPos: Int, dst: Any, dstPos: Int, size: Int): Unit 
 		else -> error("Not a valid array $src")
 	}
 }
+
+fun DataBufferAlloc(size: Int) = MemBufferAlloc(size).getData()
