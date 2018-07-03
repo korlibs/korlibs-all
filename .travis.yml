@@ -14,7 +14,8 @@ install:
 
 script:
   - jdk_switcher use oraclejdk8
-  - ./gradlew :korge-native:install
+  #- ./gradlew :korge-native:install
+  - ./gradlew :korge-native:publishToMavenLocal
   - cd samples
   - find ~/.m2/repository/com/soywiz
   - ./gradlew :sample1-native:compileDebugKotlinNative
