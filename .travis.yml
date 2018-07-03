@@ -14,5 +14,7 @@ install:
 
 script:
   - jdk_switcher use oraclejdk8
-  - ./gradlew -s -i check install
-  - pushd samples && ../gradlew -s -i check && popd
+  - ./gradlew :korge-native:install
+  - cd samples
+  - find ~/.m2/repository/com/soywiz
+  - ./gradlew :sample1-native:compileDebugKotlinNative
