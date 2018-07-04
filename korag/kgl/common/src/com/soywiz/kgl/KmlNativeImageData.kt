@@ -1,6 +1,6 @@
 package com.soywiz.kgl
 
-interface KmlGlNativeImageData {
+interface KmlNativeImageData {
 	val width: Int
 	val height: Int
 }

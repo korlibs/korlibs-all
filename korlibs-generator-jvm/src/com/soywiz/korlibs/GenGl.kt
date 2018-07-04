@@ -7,7 +7,7 @@ object GenGl {
 		printToFile("$root/common/src/com/soywiz/kgl/KmlGlProxy.kt") { generateProxy() }
 		printToFile("$root/common/src/com/soywiz/kgl/KmlGlDummy.kt") { generateDummy() }
 		printToFile("$root/android/src/com/soywiz/kgl/KmlGlAndroid.kt") { generateAndroid() }
-		printToFile("$root/jvm/src/com/soywiz/kgl/KmlGlJvm.kt") { generateJvm() } // Manually modified
+		//printToFile("$root/jvm/src/com/soywiz/kgl/KmlGlJvm.kt") { generateJvm() } // Manually modified
 		printToFile("$root/js/src/com/soywiz/kgl/KmlGlJsCanvas.kt") { generateJs() }
 		printToFile("$root/native/src_macos/com/soywiz/kgl/KmlGlNative.kt") {
 			generateNative(NativeTarget.MACOS)
@@ -172,9 +172,9 @@ object GenGl {
 			val funcDecl =
 				"override fun ${func.unprefixedName}(${func.args.joinToString(", ") { it.name + ": " + it.type.ktname }}): ${func.rettype.ktname}"
 			if (hasStrings) {
-				println("    $funcDecl = memScoped { $call }")
+				println("    $funcDecl = memScoped { tempBufferAddress { $call } }")
 			} else {
-				println("    $funcDecl = $call")
+				println("    $funcDecl = tempBufferAddress { $call }")
 			}
 		}
 		println("}")
@@ -254,7 +254,7 @@ object GenGl {
 }
 
 val KmlNativeBuffer = "KmlNativeBuffer"
-val KmlNativeImageData = "KmlGlNativeImageData"
+val KmlNativeImageData = "KmlNativeImageData"
 
 object OpenglDesc {
 	data class FunctionName(val name: String, val jsName: String = name, val nativeName: String = name)

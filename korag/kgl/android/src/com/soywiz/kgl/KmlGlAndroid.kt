@@ -114,7 +114,7 @@ class KmlGlAndroid : KmlGl() {
     override fun stencilOp(fail: Int, zfail: Int, zpass: Int): Unit = glStencilOp(fail, zfail, zpass)
     override fun stencilOpSeparate(face: Int, sfail: Int, dpfail: Int, dppass: Int): Unit = glStencilOpSeparate(face, sfail, dpfail, dppass)
     override fun texImage2D(target: Int, level: Int, internalformat: Int, width: Int, height: Int, border: Int, format: Int, type: Int, pixels: KmlNativeBuffer): Unit = glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels.nioBuffer)
-    override fun texImage2D(target: Int, level: Int, internalformat: Int, format: Int, type: Int, data: KmlGlNativeImageData): Unit = TODO()
+    override fun texImage2D(target: Int, level: Int, internalformat: Int, format: Int, type: Int, data: KmlNativeImageData): Unit = TODO()
     override fun texParameterf(target: Int, pname: Int, param: Float): Unit = glTexParameterf(target, pname, param)
     override fun texParameterfv(target: Int, pname: Int, params: KmlNativeBuffer): Unit = glTexParameterfv(target, pname, params.nioFloatBuffer)
     override fun texParameteri(target: Int, pname: Int, param: Int): Unit = glTexParameteri(target, pname, param)

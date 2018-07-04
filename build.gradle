@@ -30,7 +30,7 @@ buildscript {
 			"korio"            : ["klock", "kmem", "kds", "klogger"],
 			"korim"            : ["korio", "korma"],
 			"korim-qr"         : ["korim"],
-			//"kgl"              : ["kmem"],
+			"kgl"              : ["kmem"],
 			"korag"            : ["korim"],
 			//"korag-opengl"     : ["korag", "kgl"],
 			"korau"            : ["klogger", "korio", "korma"],

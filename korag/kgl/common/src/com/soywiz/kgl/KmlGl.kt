@@ -417,7 +417,7 @@ abstract class KmlGl {
     abstract fun stencilOp(fail: Int, zfail: Int, zpass: Int): Unit
     abstract fun stencilOpSeparate(face: Int, sfail: Int, dpfail: Int, dppass: Int): Unit
     abstract fun texImage2D(target: Int, level: Int, internalformat: Int, width: Int, height: Int, border: Int, format: Int, type: Int, pixels: KmlNativeBuffer): Unit
-    abstract fun texImage2D(target: Int, level: Int, internalformat: Int, format: Int, type: Int, data: KmlGlNativeImageData): Unit
+    abstract fun texImage2D(target: Int, level: Int, internalformat: Int, format: Int, type: Int, data: KmlNativeImageData): Unit
     abstract fun texParameterf(target: Int, pname: Int, param: Float): Unit
     abstract fun texParameterfv(target: Int, pname: Int, params: KmlNativeBuffer): Unit
     abstract fun texParameteri(target: Int, pname: Int, param: Int): Unit

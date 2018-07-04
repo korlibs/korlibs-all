@@ -751,7 +751,7 @@ open class KmlGlProxy(val parent: KmlGl) : KmlGl() {
        after("texImage2D", sparams, "$res")
        return res
     }
-    override fun texImage2D(target: Int, level: Int, internalformat: Int, format: Int, type: Int, data: KmlGlNativeImageData): Unit {
+    override fun texImage2D(target: Int, level: Int, internalformat: Int, format: Int, type: Int, data: KmlNativeImageData): Unit {
        val sparams = "$target, $level, $internalformat, $format, $type, $data"
        before("texImage2D", sparams)
        val res = parent.texImage2D(target, level, internalformat, format, type, data)

@@ -135,7 +135,7 @@ class KmlGlJsCanvas(val canvas: HTMLCanvasElement) : KmlGl() {
     override fun stencilOp(fail: Int, zfail: Int, zpass: Int): Unit = gl.stencilOp(fail, zfail, zpass)
     override fun stencilOpSeparate(face: Int, sfail: Int, dpfail: Int, dppass: Int): Unit = gl.stencilOpSeparate(face, sfail, dpfail, dppass)
     override fun texImage2D(target: Int, level: Int, internalformat: Int, width: Int, height: Int, border: Int, format: Int, type: Int, pixels: KmlNativeBuffer): Unit = gl.texImage2D(target, level, internalformat, width, height, border, format, type, pixels.arrayUByte)
-    override fun texImage2D(target: Int, level: Int, internalformat: Int, format: Int, type: Int, data: KmlGlNativeImageData): Unit = gl.texImage2D(target, level, internalformat, format, type, (data as KmlImgNativeImageData).img)
+    override fun texImage2D(target: Int, level: Int, internalformat: Int, format: Int, type: Int, data: KmlNativeImageData): Unit = gl.texImage2D(target, level, internalformat, format, type, (data as KmlImgNativeImageData).img)
     override fun texParameterf(target: Int, pname: Int, param: Float): Unit = gl.texParameterf(target, pname, param)
     override fun texParameterfv(target: Int, pname: Int, params: KmlNativeBuffer): Unit = gl.texParameterf(target, pname, params.arrayFloat[0])
     override fun texParameteri(target: Int, pname: Int, param: Int): Unit = gl.texParameteri(target, pname, param)

@@ -113,7 +113,7 @@ object KmlGlDummy : KmlGl() {
     override fun stencilOp(fail: Int, zfail: Int, zpass: Int): Unit = Unit
     override fun stencilOpSeparate(face: Int, sfail: Int, dpfail: Int, dppass: Int): Unit = Unit
     override fun texImage2D(target: Int, level: Int, internalformat: Int, width: Int, height: Int, border: Int, format: Int, type: Int, pixels: KmlNativeBuffer): Unit = Unit
-    override fun texImage2D(target: Int, level: Int, internalformat: Int, format: Int, type: Int, data: KmlGlNativeImageData): Unit = Unit
+    override fun texImage2D(target: Int, level: Int, internalformat: Int, format: Int, type: Int, data: KmlNativeImageData): Unit = Unit
     override fun texParameterf(target: Int, pname: Int, param: Float): Unit = Unit
     override fun texParameterfv(target: Int, pname: Int, params: KmlNativeBuffer): Unit = Unit
     override fun texParameteri(target: Int, pname: Int, param: Int): Unit = Unit

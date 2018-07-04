@@ -226,7 +226,7 @@ class KmlGlTex(val gl: KmlGl, val tex: Int) {
 		return data.toTempBuffer { upload(width, height, it, format, type) }
 	}
 
-	fun upload(data: KmlGlNativeImageData, format: Int = gl.RGBA, type: Int = gl.UNSIGNED_BYTE): KmlGlTex {
+	fun upload(data: KmlNativeImageData, format: Int = gl.RGBA, type: Int = gl.UNSIGNED_BYTE): KmlGlTex {
 		bind(0)
 		gl.texImage2D(gl.TEXTURE_2D, 0, format, format, type, data)
 		this.width = data.width

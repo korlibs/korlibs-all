@@ -1,0 +1,10 @@
+sourceSets {
+	main.kotlin.srcDirs += "src_macos"
+	main {
+		component {
+			target "macbook"
+			//srcDir "src_macos"
+			outputKinds = [KLIBRARY]
+		}
+	}
+}
