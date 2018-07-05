@@ -140,9 +140,10 @@ interface DateTime : Comparable<DateTime> {
 	override fun hashCode(): Int
 	override fun equals(other: Any?): Boolean
 
+	@KlockThreadLocal
 	companion object {
 		val EPOCH by lazy { DateTime(1970, 1, 1, 0, 0, 0) as UtcDateTime }
-		internal val EPOCH_INTERNAL_MILLIS by lazy { EPOCH.internalMillis }
+		private val EPOCH_INTERNAL_MILLIS by lazy { EPOCH.internalMillis }
 
 		// Can produce errors on invalid dates
 		operator fun invoke(

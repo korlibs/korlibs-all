@@ -1,5 +1,7 @@
 package com.soywiz.klock
 
+expect annotation class KlockThreadLocal()
+
 /**
  * Exposed per-platform klock utilities.
  */

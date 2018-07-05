@@ -3,6 +3,8 @@ package com.soywiz.klock
 import kotlinx.cinterop.*
 import platform.posix.*
 
+actual typealias KlockThreadLocal = konan.ThreadLocal
+
 actual object Klock {
 	actual fun currentTimeMillis(): Long = memScoped {
 		val timeVal = alloc<timeval>()
