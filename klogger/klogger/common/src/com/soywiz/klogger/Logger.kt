@@ -1,6 +1,7 @@
 package com.soywiz.klogger
 
 class Logger internal constructor(val name: String, val dummy: Boolean) {
+	@ConsoleThreadLocal
 	companion object {
 		val loggers = LinkedHashMap<String, Logger>()
 		var defaultLevel: Level? = null

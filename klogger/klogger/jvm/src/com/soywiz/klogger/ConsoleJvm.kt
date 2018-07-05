@@ -7,3 +7,5 @@ actual inline fun Console.error(vararg msg: Any?) {
 actual inline fun Console.log(vararg msg: Any?) {
 	System.out.println("#" + Thread.currentThread().id + ": " + msg.joinToString(", "))
 }
+
+actual annotation class ConsoleThreadLocal

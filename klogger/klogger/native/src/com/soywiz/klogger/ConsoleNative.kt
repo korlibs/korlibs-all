@@ -11,3 +11,5 @@ actual inline fun Console.log(vararg msg: Any?) {
 	println(msg.joinToString(", "))
 	fflush(__stdoutp)
 }
+
+actual typealias ConsoleThreadLocal = konan.ThreadLocal
