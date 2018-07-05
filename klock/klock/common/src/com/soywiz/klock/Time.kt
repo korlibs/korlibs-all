@@ -1,6 +1,7 @@
 package com.soywiz.klock
 
 import kotlin.math.*
+import kotlin.reflect.*
 
 enum class DayOfWeek(val index: Int) {
 	Sunday(0), Monday(1), Tuesday(2), Wednesday(3), Thursday(4), Friday(5), Saturday(6);
@@ -91,6 +92,28 @@ private const val DAYS_PER_4_YEARS = DAYS_PER_YEAR * 4 + 1
 private const val DAYS_PER_100_YEARS = DAYS_PER_4_YEARS * 25 - 1
 private const val DAYS_PER_400_YEARS = DAYS_PER_100_YEARS * 4 + 1
 
+expect class AtomicReference<T>
+expect fun <T> NewAtomicReference(): AtomicReference<T>
+expect fun <T> AtomicReference<T>.get(): T?
+expect fun <T> AtomicReference<T>.set(value: T?)
+
+class lazy2<T>(val initializer: () -> T) {
+	private val value = NewAtomicReference<T?>()
+
+	operator fun getValue(obj: Any?, property: KProperty<*>): T {
+		val result = value.get()
+		if (result == null) {
+			synchronized(value) {
+				if (value.get() == null) {
+					value.set(initializer())
+				}
+			}
+		}
+		return result ?: value.get()!!
+	}
+
+}
+
 interface DateTime : Comparable<DateTime> {
 	val year: Int
 	val month: Int
@@ -141,8 +164,8 @@ interface DateTime : Comparable<DateTime> {
 	override fun equals(other: Any?): Boolean
 
 	companion object {
-		val EPOCH by lazy { DateTime(1970, 1, 1, 0, 0, 0) as UtcDateTime }
-		internal val EPOCH_INTERNAL_MILLIS by lazy { EPOCH.internalMillis }
+		val EPOCH by lazy2 { DateTime(1970, 1, 1, 0, 0, 0) as UtcDateTime }
+		internal val EPOCH_INTERNAL_MILLIS by lazy2 { EPOCH.internalMillis }
 
 		// Can produce errors on invalid dates
 		operator fun invoke(
