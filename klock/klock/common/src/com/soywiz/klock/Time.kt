@@ -97,6 +97,8 @@ expect fun <T> NewAtomicReference(): AtomicReference<T>
 expect fun <T> AtomicReference<T>.get(): T?
 expect fun <T> AtomicReference<T>.set(value: T?)
 
+expect annotation class ThreadLocal()
+
 class lazy2<T>(val initializer: () -> T) {
 	private val value = NewAtomicReference<T?>()
 
@@ -163,9 +165,10 @@ interface DateTime : Comparable<DateTime> {
 	override fun hashCode(): Int
 	override fun equals(other: Any?): Boolean
 
+	@ThreadLocal
 	companion object {
-		val EPOCH by lazy2 { DateTime(1970, 1, 1, 0, 0, 0) as UtcDateTime }
-		internal val EPOCH_INTERNAL_MILLIS by lazy2 { EPOCH.internalMillis }
+		val EPOCH by lazy { DateTime(1970, 1, 1, 0, 0, 0) as UtcDateTime }
+		internal val EPOCH_INTERNAL_MILLIS by lazy { EPOCH.internalMillis }
 
 		// Can produce errors on invalid dates
 		operator fun invoke(

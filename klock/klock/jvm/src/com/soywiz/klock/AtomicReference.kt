@@ -10,3 +10,5 @@ actual fun <T> AtomicReference<T>.get(): T? {
 actual fun <T> AtomicReference<T>.set(value: T?) {
 	(this as java.util.concurrent.atomic.AtomicReference<T>).set(value)
 }
+
+actual annotation class ThreadLocal

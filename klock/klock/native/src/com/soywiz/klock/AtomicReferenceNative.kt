@@ -10,3 +10,5 @@ actual fun <T> AtomicReference<T>.get(): T? {
 actual fun <T> AtomicReference<T>.set(value: T?) {
 	(this as konan.worker.AtomicReference<T>).set(value)
 }
+
+actual typealias ThreadLocal = konan.ThreadLocal
