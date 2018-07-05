@@ -50,7 +50,6 @@ registerProject1('korag', 'Korag: Kotlin cORoutines Accelerated Graphics')
 registerProject2('kgl', 'korag', 'Kgl: OpenGL bindings for Kotlin')
 //registerProject2('korag-opengl', 'korag', 'Korag-opengl: Korag OpenGL implementation')
 
-/*
 registerProject2('korau-mp3', 'korau', 'Korau: MP3 extension')
 
 registerProject1('korui', 'Korui: Kotlin cORoutines User Interfaces for Kotlin Common')
@@ -73,7 +72,6 @@ registerProject2('korau-atrac3plus', 'korau', 'Korau: atrac3plus extension')
 registerProject2('korge-ext-fla', 'korge', 'Korge: Extension for fla files')
 registerProject1('korfl', 'Korfl: Parse Adobe Animate SWF files in JVM and JS')
 registerProject2('korge-ext-swf', 'korge', 'Korge: Extension for SWF')
-*/
 
 // Deprecated (@old folder)
 //registerProject1('korte', 'Korte: Asynchronous Template Engine for Kotlin')
