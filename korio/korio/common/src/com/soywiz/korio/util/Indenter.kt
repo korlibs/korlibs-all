@@ -2,17 +2,16 @@ package com.soywiz.korio.util
 
 class Indenter(internal val actions: ArrayList<Action> = arrayListOf<Indenter.Action>()) {
 	object INDENTS {
-		private val INDENTS = arrayListOf("")
+		private val INDENTS: Array<String> = Array(1024) { "" }.apply {
+			val indent = StringBuilder()
+			for (n in 0 until this.size) {
+				this[n] = indent.toString()
+				indent.append("\t")
+			}
+		}
 
 		operator fun get(index: Int): String {
-			if (index >= INDENTS.size) {
-				val calculate = INDENTS.size * 10
-				var indent = INDENTS[INDENTS.size - 1]
-				while (calculate >= INDENTS.size) {
-					indent += "\t"
-					INDENTS.add(indent)
-				}
-			}
+			if (index >= INDENTS.size) TODO("Too much indentation $index")
 			return if (index <= 0) "" else INDENTS[index]
 		}
 	}

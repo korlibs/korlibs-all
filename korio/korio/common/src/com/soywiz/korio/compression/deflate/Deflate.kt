@@ -7,8 +7,6 @@ import com.soywiz.korio.stream.*
 import kotlin.math.*
 
 open class Deflate(val windowBits: Int) : CompressionMethod {
-	private val tempResult = HuffmanTree.Result(0, 0, 0)
-
 	override suspend fun compress(
 		i: AsyncInputWithLengthStream,
 		o: AsyncOutputStream,
@@ -30,6 +28,7 @@ open class Deflate(val windowBits: Int) : CompressionMethod {
 	}
 
 	suspend fun uncompress(reader: BitReader, out: AsyncOutputStream) {
+		val tempResult = HuffmanTree.Result(0, 0, 0)
 		val ring = SlidingWindow(windowBits)
 		val sout = SlidingWindowWithOutput(ring, out)
 		var lastBlock = false
@@ -76,6 +75,7 @@ open class Deflate(val windowBits: Int) : CompressionMethod {
 	}
 
 	private fun readDynamicTree(reader: BitReader): Pair<HuffmanTree, HuffmanTree> {
+		val tempResult = HuffmanTree.Result(0, 0, 0)
 		val hlit = reader.readBits(5) + 257
 		val hdist = reader.readBits(5) + 1
 		val hclen = reader.readBits(4) + 4

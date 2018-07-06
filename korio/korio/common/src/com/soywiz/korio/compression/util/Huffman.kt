@@ -7,8 +7,7 @@ class HuffmanTree(val root: Node, val symbolLimit: Int) {
 
 		companion object {
 			fun leaf(value: Int, len: Int) = Node(value, len, null, null)
-			fun int(left: Node, right: Node) =
-				Node(-1, 0, left, right)
+			fun int(left: Node, right: Node) = Node(-1, 0, left, right)
 		}
 	}
 
@@ -44,27 +43,16 @@ class HuffmanTree(val root: Node, val symbolLimit: Int) {
 			for (i in (codeLengths.max() ?: 0) downTo 1) {
 				val newNodes = arrayListOf<Node>()
 				for (j in 0 until codeLengths.size) if (codeLengths[j] == i) newNodes.add(
-					Node.leaf(
-						j,
-						i
-					)
+					Node.leaf(j, i)
 				)
 				for (j in 0 until nodes.size step 2) newNodes.add(
-					Node.int(
-						nodes[j],
-						nodes[j + 1]
-					)
+					Node.int(nodes[j], nodes[j + 1])
 				)
 				nodes = newNodes
 				if (nodes.size % 2 != 0) error("This canonical code does not represent a Huffman code tree: ${nodes.size}")
 			}
 			if (nodes.size != 2) error("This canonical code does not represent a Huffman code tree")
-			return HuffmanTree(
-				Node.int(
-					nodes[0],
-					nodes[1]
-				), codeLengths.size
-			)
+			return HuffmanTree(Node.int(nodes[0], nodes[1]), codeLengths.size)
 		}
 	}
 }

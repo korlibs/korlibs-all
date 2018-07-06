@@ -5,13 +5,11 @@ import com.soywiz.korio.lang.*
 
 object Base64 {
 	private val TABLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="
-	private val DECODE by lazy {
-		val out = IntArray(0x100)
-		for (n in 0..255) out[n] = -1
+	private val DECODE = IntArray(0x100).apply {
+		for (n in 0..255) this[n] = -1
 		for (n in 0 until TABLE.length) {
-			out[TABLE[n].toInt()] = n
+			this[TABLE[n].toInt()] = n
 		}
-		out
 	}
 
 	fun decode(str: String): ByteArray {

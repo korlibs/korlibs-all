@@ -19,7 +19,7 @@ class JsonPrettyTest {
 	}
 
 
-	@kotlin.test.Test
+	@Test
 	fun encode1() {
 		assertEquals("1", Json.encodePretty(1, mapper))
 		//assertEquals("null", Json.encodePretty(null, mapper))
@@ -30,7 +30,7 @@ class JsonPrettyTest {
 		assertEquals("\"a\"", Json.encodePretty("a", mapper))
 	}
 
-	@kotlin.test.Test
+	@Test
 	fun encode2() {
 		assertEquals(
 			"""
@@ -52,7 +52,7 @@ class JsonPrettyTest {
 		)
 	}
 
-	@kotlin.test.Test
+	@Test
 	fun encodeTyped() {
 		assertEquals(
 			"""
@@ -64,7 +64,7 @@ class JsonPrettyTest {
 		)
 	}
 
-	@kotlin.test.Test
+	@Test
 	fun encodeMix() {
 		assertEquals(
 			"""
