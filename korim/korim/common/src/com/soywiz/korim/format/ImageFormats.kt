@@ -5,6 +5,7 @@ import com.soywiz.korio.crypto.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
+import com.soywiz.std.*
 
 class ImageFormats(formats: Iterable<ImageFormat>) : ImageFormat("") {
 	val formats = formats.toSet()
@@ -43,5 +44,9 @@ suspend fun Bitmap.writeTo(
 	formats: ImageFormat = defaultImageFormats
 ) = file.writeBytes(formats.encode(this, props.copy(filename = file.basename)))
 
-val defaultImageFormats = ImageFormats(StandardImageFormats.toSet())
+// @TODO: kotlin-native bug: https://github.com/JetBrains/kotlin-native/issues/1770
+//val defaultImageFormats = ImageFormats(StandardImageFormats)
+
+val defaultImageFormats by atomicLazy { ImageFormats(StandardImageFormats) }
+
 //val defaultImageFormats = ImageFormats()
