@@ -29,9 +29,6 @@ class CustomView(views: Views, override val autoFlush: Boolean = true) : View(vi
 open class View(val views: Views) : Renderable, Updatable, Extra by Extra.Mixin(),
 	EventDispatcher by EventDispatcher.Mixin(), CoroutineContextHolder {
 	companion object {
-		private val tempTransform = Matrix2d.Transform()
-		//private val tempMatrix = Matrix2d()
-
 		fun commonAncestor(left: View?, right: View?): View? {
 			var l: View? = left
 			var r: View? = right
@@ -201,6 +198,9 @@ open class View(val views: Views) : Renderable, Updatable, Extra by Extra.Mixin(
 	fun addProps(values: Map<String, String>) {
 		for (pair in values) addProp(pair.key, pair.value)
 	}
+
+	private val tempTransform = Matrix2d.Transform()
+	//private val tempMatrix = Matrix2d()
 
 	private fun ensureTransform() = this.apply {
 		if (!validLocalProps) {
