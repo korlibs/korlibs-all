@@ -17,6 +17,7 @@ import com.soywiz.korio.util.*
 import kotlin.collections.set
 import kotlin.reflect.*
 import kotlin.coroutines.experimental.*
+import com.soywiz.std.*
 
 import kotlinx.cinterop.*
 import platform.posix.*
@@ -66,14 +67,23 @@ actual object KorioNative {
 		}
 	}
 
-	val tmpdir: String by lazy { getenv("TMPDIR") ?: getenv("TEMP") ?: getenv("TMP") ?: "/tmp" }
+	// @TODO: kotlin-native by lazy/atomicLazy
+	//val tmpdir: String by atomicLazy { getenv("TMPDIR") ?: getenv("TEMP") ?: getenv("TMP") ?: "/tmp" }
+	//
+	//val cwd by atomicLazy {
+	//	memScoped {
+	//		val data = allocArray<ByteVar>(1024)
+	//		getcwd(data, 1024)
+	//		data.toKString()
+	//	}
+	//}
 
-	val cwd by lazy {
-		memScoped {
-			val data = allocArray<ByteVar>(1024)
-			getcwd(data, 1024)
-			data.toKString()
-		}
+	val tmpdir: String = getenv("TMPDIR") ?: getenv("TEMP") ?: getenv("TMP") ?: "/tmp"
+
+	val cwd: String = memScoped {
+		val data = allocArray<ByteVar>(1024)
+		getcwd(data, 1024)
+		data.toKString()
 	}
 
 	actual fun rootLocalVfs(): VfsFile = localVfs(cwd)
@@ -112,11 +122,9 @@ actual object KorioNative {
 		actual suspend fun finalize(): ByteArray = TODO()
 	}
 
-	actual val httpFactory: HttpFactory by lazy {
-		object : HttpFactory {
-			override fun createClient(): HttpClient = NativeHttpClient()
-			override fun createServer(): HttpServer = KorioNativeDefaults.createServer()
-		}
+	actual val httpFactory: HttpFactory = object : HttpFactory {
+		override fun createClient(): HttpClient = NativeHttpClient()
+		override fun createServer(): HttpServer = KorioNativeDefaults.createServer()
 	}
 
 	actual fun enterDebugger(): Unit {
