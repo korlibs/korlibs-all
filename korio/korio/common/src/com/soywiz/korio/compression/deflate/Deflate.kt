@@ -7,6 +7,8 @@ import com.soywiz.korio.stream.*
 import kotlin.math.*
 
 open class Deflate(val windowBits: Int) : CompressionMethod {
+	private val tempResult = HuffmanTree.Result(0, 0, 0)
+
 	override suspend fun compress(
 		i: AsyncInputWithLengthStream,
 		o: AsyncOutputStream,
@@ -51,7 +53,7 @@ open class Deflate(val windowBits: Int) : CompressionMethod {
 				val (tree, dist) = if (btype == 1) FIXED_TREE_DIST else readDynamicTree(reader)
 				while (true) {
 					if (reader.requirePrepare) reader.prepareBigChunk()
-					val value = tree.sreadOneValue(reader)
+					val value = tree.sreadOneValue(reader, tempResult)
 					if (value == 256) break
 					if (value < 256) {
 						sout.putOut(value.toByte())
@@ -59,7 +61,7 @@ open class Deflate(val windowBits: Int) : CompressionMethod {
 						if (reader.requirePrepare) reader.prepareBigChunk()
 						val lengthInfo = INFOS_LZ[value - 257]
 						val lengthExtra = reader.readBits(lengthInfo.extra)
-						val distanceData = dist.sreadOneValue(reader)
+						val distanceData = dist.sreadOneValue(reader, tempResult)
 						val distanceInfo = INFOS_LZ2[distanceData]
 						val distanceExtra = reader.readBits(distanceInfo.extra)
 						val distance = distanceInfo.offset + distanceExtra
@@ -85,7 +87,7 @@ open class Deflate(val windowBits: Int) : CompressionMethod {
 		var n = 0
 		val hlithdist = hlit + hdist
 		while (n < hlithdist) {
-			val value = codeLen.sreadOneValue(reader)
+			val value = codeLen.sreadOneValue(reader, tempResult)
 			if (value !in 0..18) error("Invalid")
 
 			val len = when (value) {
@@ -113,18 +115,31 @@ open class Deflate(val windowBits: Int) : CompressionMethod {
 	companion object : Deflate(15) {
 		private data class Info(val extra: Int, val offset: Int)
 
-		private val LENGTH0: IntArray by lazy {
-			IntArray(288).apply {
-				for (n in 0..143) this[n] = 8
-				for (n in 144..255) this[n] = 9
-				for (n in 256..279) this[n] = 7
-				for (n in 280..287) this[n] = 8
-			}
+		// @TODO: kotlin-native: by lazy not working with global state?
+
+		//private val LENGTH0: IntArray by atomicLazy {
+		//	IntArray(288).apply {
+		//		for (n in 0..143) this[n] = 8
+		//		for (n in 144..255) this[n] = 9
+		//		for (n in 256..279) this[n] = 7
+		//		for (n in 280..287) this[n] = 8
+		//	}
+		//}
+		//
+		//// https://www.ietf.org/rfc/rfc1951.txt
+		//private val FIXED_TREE: HuffmanTree by atomicLazy { HuffmanTree.fromLengths(LENGTH0) }
+		//private val FIXED_DIST: HuffmanTree by atomicLazy { HuffmanTree.fromLengths(IntArray(32) { 5 }) }
+
+		private val LENGTH0: IntArray = IntArray(288).apply {
+			for (n in 0..143) this[n] = 8
+			for (n in 144..255) this[n] = 9
+			for (n in 256..279) this[n] = 7
+			for (n in 280..287) this[n] = 8
 		}
 
 		// https://www.ietf.org/rfc/rfc1951.txt
-		private val FIXED_TREE: HuffmanTree by lazy { HuffmanTree.fromLengths(LENGTH0) }
-		private val FIXED_DIST: HuffmanTree by lazy { HuffmanTree.fromLengths(IntArray(32) { 5 }) }
+		private val FIXED_TREE: HuffmanTree = HuffmanTree.fromLengths(LENGTH0)
+		private val FIXED_DIST: HuffmanTree = HuffmanTree.fromLengths(IntArray(32) { 5 })
 
 		private val FIXED_TREE_DIST = FIXED_TREE to FIXED_DIST
 
