@@ -45,7 +45,7 @@ suspend fun VfsFile.readSpriterLibrary(views: Views): SpriterLibrary {
 		for (f in folder.files) {
 			if (f.name in textures) continue
 			val image = file.parent[f.name]
-			val tex = image.readTexture(views.ag)
+			val tex = image.readTexture(views)
 			textures[f.name] = TransformedTexture(tex)
 		}
 	}

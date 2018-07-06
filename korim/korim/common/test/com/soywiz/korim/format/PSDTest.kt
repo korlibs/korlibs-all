@@ -4,9 +4,9 @@ import com.soywiz.korim.bitmap.*
 import com.soywiz.korio.async.*
 import kotlin.test.*
 
-class PSDTest {
+class PSDTest : BaseImageFormatTest() {
 	val formats = ImageFormats(StandardImageFormats + PSD)
-	val ResourcesVfs = ImageFormatsTest.root
+	val ResourcesVfs = root
 
 	@Test
 	fun psdTest() = suspendTest {

@@ -640,7 +640,7 @@ class SwfLoaderMethod(val views: Views, val config: SWFExportConfig) {
 						is TagDefineBitsJPEG2 -> {
 							val bitsData = it.bitmapData.cloneToNewByteArray()
 							val nativeBitmap = try {
-								bitsData.openAsync().readBitmap()
+								bitsData.openAsync().readBitmap(views.imageFormats)
 							} catch (e: Throwable) {
 								e.printStackTrace()
 								Bitmap32(1, 1)

@@ -86,7 +86,7 @@ class ParticleEmitter(val views: Views) {
 				RGBAf(item.double("red"), item.double("green"), item.double("blue"), item.double("alpha"))
 
 			when (item.name.toLowerCase()) {
-				"texture" -> texture = file.parent[item.str("name")].readTexture(views.ag)
+				"texture" -> texture = file.parent[item.str("name")].readTexture(views)
 				"sourceposition" -> sourcePosition = point()
 				"sourcepositionvariance" -> sourcePositionVariance = point()
 				"speed" -> speed = scalar()

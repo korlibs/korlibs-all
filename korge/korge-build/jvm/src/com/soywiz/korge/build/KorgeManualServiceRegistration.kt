@@ -20,13 +20,6 @@ object KorgeManualServiceRegistration {
 			SwfResourceProcessor, LipsyncResourceProcessor, AtlasResourceProcessor
 		)
 
-		// Image Formats
-		defaultImageFormats.register(
-			PNG,
-			JPEG,
-			SVG
-		)
-
 		// Audio formats
 		defaultAudioFormats.register(
 			WAV,

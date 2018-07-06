@@ -8,6 +8,7 @@ class PathInfo(override val fullPath: String) : Path
 
 val String.pathInfo get() = PathInfo(this)
 
+// @TODO: Kotlin 1.3 inline classes
 object PathInfoExt {
 	/**
 	 * /path\to/file.ext -> /path/to/file.ext

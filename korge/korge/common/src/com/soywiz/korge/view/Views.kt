@@ -36,6 +36,9 @@ class Views(
 	val plugins: KorgePlugins
 ) : AsyncDependency, Updatable, Extra by Extra.Mixin(), EventDispatcher by EventDispatcher.Mixin(),
 	CoroutineContextHolder {
+
+	var imageFormats = defaultImageFormats
+
 	init {
 		logger.trace { "Views[0]" }
 	}

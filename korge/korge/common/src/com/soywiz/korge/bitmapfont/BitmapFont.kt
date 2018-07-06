@@ -6,6 +6,7 @@ import com.soywiz.korge.render.*
 import com.soywiz.korge.view.*
 import com.soywiz.korim.color.*
 import com.soywiz.korim.font.*
+import com.soywiz.korim.format.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.serialization.xml.*
@@ -120,7 +121,9 @@ fun BatchBuilder2D.drawText(
 	font.drawText(this, textSize, str, x, y, m, colMul, colAdd, blendMode)
 }
 
-suspend fun VfsFile.readBitmapFont(ag: AG): BitmapFont {
+suspend fun VfsFile.readBitmapFont(views: Views): BitmapFont = readBitmapFont(views.ag, views.imageFormats)
+
+suspend fun VfsFile.readBitmapFont(ag: AG, imageFormats: ImageFormats): BitmapFont {
 	val fntFile = this
 	val content = fntFile.readString().trim()
 	val textures = hashMapOf<Int, Texture>()
@@ -136,7 +139,7 @@ suspend fun VfsFile.readBitmapFont(ag: AG): BitmapFont {
 				val id = page.int("id")
 				val file = page.str("file")
 				val texFile = fntFile.parent[file]
-				val tex = texFile.readTexture(ag)
+				val tex = texFile.readTexture(ag, imageFormats)
 				textures[id] = tex
 			}
 
@@ -192,7 +195,7 @@ suspend fun VfsFile.readBitmapFont(ag: AG): BitmapFont {
 					line.startsWith("page") -> {
 						val id = map["id"]?.toInt() ?: 0
 						val file = map["file"]?.unquote() ?: error("page without file")
-						textures[id] = fntFile.parent[file].readTexture(ag)
+						textures[id] = fntFile.parent[file].readTexture(ag, imageFormats)
 					}
 					line.startsWith("common ") -> {
 						lineHeight = map["lineHeight"]?.toIntOrNull() ?: 16

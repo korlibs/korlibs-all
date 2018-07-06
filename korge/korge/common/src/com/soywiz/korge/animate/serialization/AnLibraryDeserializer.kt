@@ -23,7 +23,7 @@ suspend fun VfsFile.readAni(views: Views, content: FastByteArrayInputStream? = n
 		views,
 		externalReaders = AnLibraryDeserializer.ExternalReaders(
 			atlasReader = { index ->
-				file.withExtension("ani.$index.png").readBitmapOptimized()
+				file.withExtension("ani.$index.png").readBitmapOptimized(views.imageFormats)
 			},
 			readSound = { index ->
 				file.withExtension("ani.$index.mp3").readNativeSoundOptimized()

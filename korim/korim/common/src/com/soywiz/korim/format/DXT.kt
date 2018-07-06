@@ -16,7 +16,7 @@ object DXT4 : DXT4_5("dxt4", premult = true)
 object DXT5 : DXT4_5("dxt5", premult = false)
 
 open class DXT1Base(format: String, premult: Boolean) : DXT(format, premult = true, blockSize = 8) {
-	override fun decodeRow(data: ByteArray, dataOffset: Int, bmp: IntArray, bmpOffset: Int, bmpStride: Int) {
+	override fun decodeRow(data: ByteArray, dataOffset: Int, bmp: IntArray, bmpOffset: Int, bmpStride: Int, aa: IntArray, cc: IntArray) {
 		decodeDxt1ColorCond(data, dataOffset + 0, cc)
 		val cdata = data.readS32_le(dataOffset + 4)
 		var pos = bmpOffset
@@ -33,7 +33,7 @@ open class DXT1Base(format: String, premult: Boolean) : DXT(format, premult = tr
 }
 
 open class DXT2_3(format: String, premult: Boolean) : DXT(format, premult = premult, blockSize = 16) {
-	override fun decodeRow(data: ByteArray, dataOffset: Int, bmp: IntArray, bmpOffset: Int, bmpStride: Int) {
+	override fun decodeRow(data: ByteArray, dataOffset: Int, bmp: IntArray, bmpOffset: Int, bmpStride: Int, aa: IntArray, cc: IntArray) {
 		decodeDxt5Alpha(data, dataOffset + 0, aa)
 		decodeDxt1Color(data, dataOffset + 8, cc)
 		val cdata = data.readS32_le(dataOffset + 8 + 4)
@@ -53,7 +53,7 @@ open class DXT2_3(format: String, premult: Boolean) : DXT(format, premult = prem
 }
 
 open class DXT4_5(format: String, premult: Boolean) : DXT(format, premult, blockSize = 16) {
-	override fun decodeRow(data: ByteArray, dataOffset: Int, bmp: IntArray, bmpOffset: Int, bmpStride: Int) {
+	override fun decodeRow(data: ByteArray, dataOffset: Int, bmp: IntArray, bmpOffset: Int, bmpStride: Int, aa: IntArray, cc: IntArray) {
 		decodeDxt5Alpha(data, dataOffset + 0, aa)
 		decodeDxt1ColorCond(data, dataOffset + 8, cc)
 		val cdata = data.readS32_le(dataOffset + 8 + 4)
@@ -73,10 +73,7 @@ open class DXT4_5(format: String, premult: Boolean) : DXT(format, premult, block
 }
 
 abstract class DXT(val format: String, val premult: Boolean, val blockSize: Int) : ImageFormat(format) {
-	val aa = IntArray(8)
-	val cc = IntArray(4)
-
-	abstract fun decodeRow(data: ByteArray, dataOffset: Int, bmp: IntArray, bmpOffset: Int, bmpStride: Int)
+	abstract fun decodeRow(data: ByteArray, dataOffset: Int, bmp: IntArray, bmpOffset: Int, bmpStride: Int, aa: IntArray, cc: IntArray)
 
 	override fun decodeHeader(s: SyncStream, props: ImageDecodingProps): ImageInfo? {
 		if (!PathInfo(props.filename).extensionLC.startsWith(format)) return null
@@ -91,9 +88,13 @@ abstract class DXT(val format: String, val premult: Boolean, val blockSize: Int)
 		val blockWidth = out.width / 4
 		val blockHeight = out.height / 4
 		var offset = 0
+
+		val aa = IntArray(8)
+		val cc = IntArray(4)
+
 		for (y in 0 until blockHeight) {
 			for (x in 0 until blockWidth) {
-				decodeRow(bytes, offset, out.data, out.index(x * 4, y * 4), out.width)
+				decodeRow(bytes, offset, out.data, out.index(x * 4, y * 4), out.width, aa, cc)
 				offset += blockSize
 			}
 		}

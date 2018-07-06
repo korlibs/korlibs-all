@@ -10,10 +10,11 @@ import kotlin.test.*
 class BitmapFontTest {
 	val ag = LogAG()
 	val ctx = RenderContext(ag)
+	val imageFormats = defaultImageFormats
 
 	@Test
 	fun simple() = suspendTest {
-		val font = TestAssertVfs["font/font.fnt"].readBitmapFont(ag)
+		val font = TestAssertVfs["font/font.fnt"].readBitmapFont(ag, imageFormats)
 		assertEquals(81, font.glyphs.size)
 		val glyph = font[64]
 		assertEquals(69, glyph.texture.width)
@@ -58,7 +59,7 @@ class BitmapFontTest {
 
 	@Test
 	fun font2() = suspendTest {
-		val font = TestAssertVfs["font2/font1.fnt"].readBitmapFont(ag)
+		val font = TestAssertVfs["font2/font1.fnt"].readBitmapFont(ag, imageFormats)
 		assertEquals(95, font.glyphs.size)
 		val glyph = font[64]
 		assertEquals(52, glyph.texture.width)

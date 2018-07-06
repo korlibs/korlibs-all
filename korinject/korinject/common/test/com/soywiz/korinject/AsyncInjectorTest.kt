@@ -33,6 +33,7 @@ class AsyncInjectorTest {
 		assertEquals(0, a1.id)
 	}
 
+	/*
 	companion object {
 		var lastId = 0
 	}
@@ -77,6 +78,7 @@ class AsyncInjectorTest {
 		assertEquals(1, a0?.id)
 		assertEquals(2, a1?.id)
 	}
+	*/
 
 	//annotation class Path(val path: String)
 	data class VPath(val path: String)
@@ -99,7 +101,7 @@ class AsyncInjectorTest {
 		) : InjectorAsyncDependency {
 			lateinit var font: BitmapFont
 
-			suspend override fun init(injector: AsyncInjector) {
+			override suspend fun init(injector: AsyncInjector) {
 				font = injector.getWith(VPath("path/to/font"))
 			}
 		}

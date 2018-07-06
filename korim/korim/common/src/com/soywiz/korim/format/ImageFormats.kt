@@ -41,7 +41,7 @@ class ImageFormats(formats: Iterable<ImageFormat>) : ImageFormat("") {
 suspend fun Bitmap.writeTo(
 	file: VfsFile,
 	props: ImageEncodingProps = ImageEncodingProps(),
-	formats: ImageFormat = defaultImageFormats
+	formats: ImageFormat
 ) = file.writeBytes(formats.encode(this, props.copy(filename = file.basename)))
 
 // @TODO: kotlin-native bug: https://github.com/JetBrains/kotlin-native/issues/1770

@@ -4,9 +4,9 @@ import com.soywiz.korim.bitmap.*
 import com.soywiz.korio.async.*
 import kotlin.test.*
 
-class DDSTest {
+class DDSTest : BaseImageFormatTest() {
 	val formats = ImageFormats(StandardImageFormats + DDS)
-	val ResourcesVfs = ImageFormatsTest.root
+	val ResourcesVfs = root
 
 	@kotlin.test.Test
 	fun dxt1() = suspendTest {

@@ -3,7 +3,6 @@ package com.soywiz.korio.vfs
 import com.soywiz.korio.async.*
 import com.soywiz.korio.file.std.*
 import com.soywiz.korio.net.http.*
-import com.soywiz.korio.file.std.*
 import kotlin.test.*
 
 class UniversalVfsTest {
@@ -28,10 +27,13 @@ class UniversalVfsTest {
 			onRequest(url = "https://www.google.es/").response("Worked!")
 		}
 
-		UniversalVfs.temporal {
-			registerSchema("https") { UrlVfs(it, httpClient) }
-			assertEquals("Worked!", UniversalVfs("https://google.es/").readString())
-		}
+		assertEquals(
+			"Worked!",
+			UniversalVfs(
+				"https://google.es/",
+				defaultUniSchema + UniSchema("https") { UrlVfs(it, httpClient) }
+			).readString()
+		)
 
 		assertEquals(
 			"[GET, https://google.es/, Headers(), null, GET, https://www.google.es/, Headers((Referer, [https://google.es/])), null]",

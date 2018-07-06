@@ -12,6 +12,7 @@ import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.file.*
+import com.soywiz.std.*
 import kotlin.coroutines.experimental.*
 import kotlin.math.*
 
@@ -238,10 +239,8 @@ private class DosFileDateTime(var dosTime: Int, var dosDate: Int) {
 		//println("DosFileDateTime: $fullYear-$month1-$day $hours-$minutes-$seconds")
 	}
 
-	val date: DateTime by lazy {
-		DateTime.createAdjusted(fullYear, month1, day, hours, minutes, seconds)
-	}
-	val utcTimestamp: Long by lazy { date.unix }
+	val date: DateTime = DateTime.createAdjusted(fullYear, month1, day, hours, minutes, seconds)
+	val utcTimestamp: Long = date.unix
 }
 
 suspend fun VfsFile.openAsZip() =

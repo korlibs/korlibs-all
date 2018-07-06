@@ -152,8 +152,7 @@ object Colors {
 	val WHITESMOKE = RGB(245, 245, 245)
 	val YELLOWGREEN = RGB(154, 205, 50)
 
-	val colorsByName by lazy {
-		mapOf(
+	val colorsByName = mapOf(
 			"black" to BLACK,
 			"white" to WHITE,
 			"red" to RED,
@@ -298,7 +297,6 @@ object Colors {
 			"whitesmoke" to WHITESMOKE,
 			"yellowgreen" to YELLOWGREEN
 		)
-	}
 
 	operator fun get(str: String): Int = get(str, 0, errorOnDefault = true)
 

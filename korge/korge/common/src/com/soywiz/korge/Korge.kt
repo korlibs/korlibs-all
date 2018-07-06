@@ -406,6 +406,7 @@ object Korge {
 		val args: Array<String> = arrayOf(),
 		val container: AGContainer? = null,
 		val eventDispatcher: EventDispatcher = DummyEventDispatcher,
+		val imageFormats: ImageFormats = defaultImageFormats,
 		val frame: Frame? = null,
 		val sceneClass: KClass<out Scene> = module.mainScene,
 		val sceneInjects: List<Any> = listOf(),
@@ -431,7 +432,7 @@ object Korge {
 					module.iconImage!!.render()
 				}
 				module.icon != null -> {
-					ResourcesVfs[module.icon!!].readBitmapOptimized()
+					ResourcesVfs[module.icon!!].readBitmapOptimized(config.imageFormats)
 				}
 				else -> {
 					null

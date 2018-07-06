@@ -11,6 +11,7 @@ import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
 import com.soywiz.korio.file.std.*
+import com.soywiz.std.*
 import kotlin.coroutines.experimental.*
 import kotlin.math.*
 import kotlin.reflect.*
@@ -20,7 +21,8 @@ abstract class Vfs {
 
 	open fun getAbsolutePath(path: String) = VfsUtil.lightCombine(absolutePath, path)
 
-	val root by lazy { VfsFile(this, "") }
+	//val root = VfsFile(this, "")
+	val root get() = VfsFile(this, "")
 
 	open val supportedAttributeTypes = listOf<KClass<out Attribute>>()
 

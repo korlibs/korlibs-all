@@ -12,15 +12,16 @@ import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
 import com.soywiz.korio.file.std.*
+import com.soywiz.std.*
 import kotlin.coroutines.experimental.*
 
 class VfsFile(
 	val vfs: Vfs,
 	val path: String
 ) : VfsNamed(path), AsyncInputOpenable, SuspendingSuspendSequence<VfsFile> {
-	val parent: VfsFile by lazy { VfsFile(vfs, folder) }
+	val parent: VfsFile get() = VfsFile(vfs, folder)
 	val root: VfsFile get() = vfs.root
-	val absolutePath: String by lazy { vfs.getAbsolutePath(path) }
+	val absolutePath: String get() = vfs.getAbsolutePath(path)
 
 	operator fun get(path: String): VfsFile =
 		VfsFile(vfs, VfsUtil.combine(this.path, path))
