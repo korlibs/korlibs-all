@@ -190,7 +190,13 @@ abstract class AG : Extra by Extra.Mixin() {
 		}
 	}
 
-	open class Texture : Closeable {
+	var lastTextureId = 0
+	var createdTextureCount = 0
+	var deletedTextureCount = 0
+
+	enum class TextureKind { RGBA, LUMINANCE }
+
+	open inner class Texture : Closeable {
 		open val premultiplied = true
 		var requestMipmaps = false
 		var mipmaps = false; protected set
@@ -200,15 +206,9 @@ abstract class AG : Extra by Extra.Mixin() {
 		private var generated: Boolean = false
 		private var tempBitmap: Bitmap? = null
 		var ready: Boolean = false; private set
-		val texId = lastId++
+		val texId = lastTextureId++
 		init {
-			createdCount++
-		}
-
-		companion object {
-			var lastId = 0
-			var createdCount = 0
-			var deletedCount = 0
+			createdTextureCount++
 		}
 
 		protected fun invalidate() {
@@ -280,7 +280,6 @@ abstract class AG : Extra by Extra.Mixin() {
 		open fun actualSyncUpload(source: BitmapSourceBase, bmp: Bitmap?, requestMipmaps: Boolean) {
 		}
 
-		enum class Kind { RGBA, LUMINANCE }
 
 		init {
 			//Console.log("CREATED TEXTURE: $texId")
@@ -293,7 +292,7 @@ abstract class AG : Extra by Extra.Mixin() {
 				alreadyClosed = true
 				source = SyncBitmapSource.NULL
 				tempBitmap = null
-				deletedCount++
+				deletedTextureCount++
 				//Console.log("CLOSED TEXTURE: $texId")
 				//printTexStats()
 			}
