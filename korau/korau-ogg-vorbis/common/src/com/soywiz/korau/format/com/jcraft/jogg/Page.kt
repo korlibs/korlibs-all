@@ -95,10 +95,10 @@ class Page {
 		private val crc_lookup = IntArray(256) {
 			var r = it shl 24
 			for (i in 0..7) {
-				if (r and 0x80000000.toInt() != 0) {
-					r = r shl 1 xor 0x04c11db7
+				r = if (r and 0x80000000.toInt() != 0) {
+					r shl 1 xor 0x04c11db7
 				} else {
-					r = r shl 1
+					r shl 1
 				}
 			}
 			r and 0xffffffff.toInt()

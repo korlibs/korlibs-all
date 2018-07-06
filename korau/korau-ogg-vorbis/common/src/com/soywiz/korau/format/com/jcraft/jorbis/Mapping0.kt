@@ -56,11 +56,11 @@ internal class Mapping0 : FuncMapping() {
 			val floornum = info.floorsubmap[i]
 			val resnum = info.residuesubmap[i]
 
-			look.time_func[i] = FuncTime.time_P[vi.time_type[timenum]]
+			look.time_func[i] = vi.time_P[vi.time_type[timenum]]
 			look.time_look[i] = look.time_func[i].look(vd, vm, vi.time_param[timenum])
 			look.floor_func[i] = FuncFloor.floor_P[vi.floor_type[floornum]]
 			look.floor_look[i] = look.floor_func[i].look(vd, vm, vi.floor_param[floornum]!!)
-			look.residue_func[i] = FuncResidue.residue_P[vi.residue_type[resnum]]
+			look.residue_func[i] = vi.residue_P[vi.residue_type[resnum]]
 			look.residue_look[i] = look.residue_func[i].look(vd, vm, vi.residue_param[resnum]!!)
 
 		}
@@ -355,9 +355,4 @@ internal class Mapping0 : FuncMapping() {
 		var lastframe: Int = 0 // if a different mode is called, we need to
 		// invalidate decay and floor state
 	}
-
-	companion object {
-		var seq = 0
-	}
-
 }

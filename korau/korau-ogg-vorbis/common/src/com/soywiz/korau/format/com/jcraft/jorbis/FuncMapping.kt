@@ -41,8 +41,4 @@ abstract class FuncMapping {
 	abstract fun free_look(imap: Any)
 
 	abstract fun inverse(vd: Block, lm: Any): Int
-
-	companion object {
-		var mapping_P = arrayOf<FuncMapping>(Mapping0())
-	}
 }

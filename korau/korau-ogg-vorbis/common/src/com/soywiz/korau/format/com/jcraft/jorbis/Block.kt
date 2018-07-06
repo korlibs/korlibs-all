@@ -95,6 +95,6 @@ class Block(var vd: DspState) {
 		}
 
 		val type = vi.map_type[vi.mode_param[mode].mapping]
-		return FuncMapping.mapping_P[type].inverse(this, vd.mode[mode])
+		return vd.vi.mapping_P[type].inverse(this, vd.mode[mode])
 	}
 }

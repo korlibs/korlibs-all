@@ -29,7 +29,6 @@ package com.soywiz.korau.format.com.jcraft.jorbis
 internal class Residue2 : Residue0() {
 	override fun inverse(vb: Block, vl: Any, `in`: Array<FloatArray>, nonzero: IntArray, ch: Int): Int {
 		var i = 0
-		i = 0
 		while (i < ch) {
 			if (nonzero[i] != 0)
 				break
@@ -38,6 +37,6 @@ internal class Residue2 : Residue0() {
 		if (i == ch)
 			return 0 /* no nonzero vectors */
 
-		return Residue0._2inverse(vb, vl, `in`, ch)
+		return _2inverse(vb, vl, `in`, ch)
 	}
 }

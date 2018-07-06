@@ -29,7 +29,6 @@ package com.soywiz.korau.format.com.jcraft.jorbis
 import com.soywiz.kmem.*
 import com.soywiz.korau.format.com.jcraft.jogg.*
 import com.soywiz.korio.*
-import com.soywiz.korma.math.*
 import kotlin.math.*
 
 internal open class Residue0 : FuncResidue() {
@@ -203,175 +202,171 @@ internal open class Residue0 : FuncResidue() {
 		var blimit = IntArray(64) // subgroup position limits
 	}
 
-	companion object {
+	private var _01inverse_partword = arrayOfNulls<Array<IntArray>>(2) // _01inverse is synchronized for
 
-		private var _01inverse_partword = arrayOfNulls<Array<IntArray>>(2) // _01inverse is synchronized for
+	// re-using partword
+	@Synchronized
+	fun _01inverse(
+		vb: Block, vl: Any, `in`: Array<FloatArray>, ch: Int,
+		decodepart: Int
+	): Int {
+		var i: Int
+		var j: Int
+		var k: Int
+		var l: Int
+		var s: Int
+		val look = vl as LookResidue0
+		val info = look.info
 
-		// re-using partword
-		@Synchronized
-		fun _01inverse(
-			vb: Block, vl: Any, `in`: Array<FloatArray>, ch: Int,
-			decodepart: Int
-		): Int {
-			var i: Int
-			var j: Int
-			var k: Int
-			var l: Int
-			var s: Int
-			val look = vl as LookResidue0
-			val info = look.info
+		// move all this setup out later
+		val samples_per_partition = info!!.grouping
+		val partitions_per_word = look.phrasebook!!.dim
+		val n = info.end - info.begin
 
-			// move all this setup out later
-			val samples_per_partition = info!!.grouping
-			val partitions_per_word = look.phrasebook!!.dim
-			val n = info.end - info.begin
+		val partvals = n / samples_per_partition
+		val partwords = (partvals + partitions_per_word - 1) / partitions_per_word
 
-			val partvals = n / samples_per_partition
-			val partwords = (partvals + partitions_per_word - 1) / partitions_per_word
-
-			if (_01inverse_partword.size < ch) {
-				_01inverse_partword = arrayOfNulls<Array<IntArray>>(ch)
-			}
-
-			j = 0
-			while (j < ch) {
-				if (_01inverse_partword[j] == null || _01inverse_partword[j]!!.size < partwords) {
-					_01inverse_partword[j] = Array<IntArray>(partwords) { intArrayOf() }
-				}
-				j++
-			}
-
-			s = 0
-			while (s < look.stages) {
-				// each loop decodes on partition codeword containing
-				// partitions_pre_word partitions
-				i = 0
-				l = 0
-				while (i < partvals) {
-					if (s == 0) {
-						// fetch the partition word for each channel
-						j = 0
-						while (j < ch) {
-							val temp = look.phrasebook!!.decode(vb.opb)
-							if (temp == -1) {
-								return 0
-							}
-							_01inverse_partword!![j]!![l] = look.decodemap!![temp]
-							if (_01inverse_partword!![j]!![l] == null) {
-								return 0
-							}
-							j++
-						}
-					}
-
-					// now we decode residual values for the partitions
-					k = 0
-					while (k < partitions_per_word && i < partvals) {
-
-						j = 0
-						while (j < ch) {
-							val offset = info.begin + i * samples_per_partition
-							val index = _01inverse_partword[j]!![l][k]
-							if (info.secondstages[index] and (1 shl s) != 0) {
-								val stagebook = look.fullbooks!![look.partbooks!![index][s]]
-								if (stagebook != null) {
-									if (decodepart == 0) {
-										if (stagebook.decodevs_add(
-												`in`[j], offset, vb.opb,
-												samples_per_partition
-											) == -1
-										) {
-											return 0
-										}
-									} else if (decodepart == 1) {
-										if (stagebook.decodev_add(
-												`in`[j], offset, vb.opb,
-												samples_per_partition
-											) == -1
-										) {
-											return 0
-										}
-									}
-								}
-							}
-							j++
-						}
-
-						k++
-						i++
-					}
-					l++
-				}
-				s++
-			}
-			return 0
+		if (_01inverse_partword.size < ch) {
+			_01inverse_partword = arrayOfNulls<Array<IntArray>>(ch)
 		}
 
-		var _2inverse_partword: Array<IntArray>? = null
-
-		@Synchronized
-		fun _2inverse(vb: Block, vl: Any, `in`: Array<FloatArray>, ch: Int): Int {
-			var i: Int
-			var k: Int
-			var l: Int
-			var s: Int
-			val look = vl as LookResidue0
-			val info = look.info
-
-			// move all this setup out later
-			val samples_per_partition = info!!.grouping
-			val partitions_per_word = look.phrasebook!!.dim
-			val n = info.end - info.begin
-
-			val partvals = n / samples_per_partition
-			val partwords = (partvals + partitions_per_word - 1) / partitions_per_word
-
-			if (_2inverse_partword == null || _2inverse_partword!!.size < partwords) {
-				_2inverse_partword = Array<IntArray>(partwords) { intArrayOf() }
+		j = 0
+		while (j < ch) {
+			if (_01inverse_partword[j] == null || _01inverse_partword[j]!!.size < partwords) {
+				_01inverse_partword[j] = Array<IntArray>(partwords) { intArrayOf() }
 			}
-			s = 0
-			while (s < look.stages) {
-				i = 0
-				l = 0
-				while (i < partvals) {
-					if (s == 0) {
-						// fetch the partition word for each channel
+			j++
+		}
+
+		s = 0
+		while (s < look.stages) {
+			// each loop decodes on partition codeword containing
+			// partitions_pre_word partitions
+			i = 0
+			l = 0
+			while (i < partvals) {
+				if (s == 0) {
+					// fetch the partition word for each channel
+					j = 0
+					while (j < ch) {
 						val temp = look.phrasebook!!.decode(vb.opb)
 						if (temp == -1) {
 							return 0
 						}
-						_2inverse_partword!![l] = look.decodemap!![temp]
-						if (_2inverse_partword!![l] == null) {
+						_01inverse_partword!![j]!![l] = look.decodemap!![temp]
+						if (_01inverse_partword!![j]!![l] == null) {
 							return 0
 						}
+						j++
 					}
+				}
 
-					// now we decode residual values for the partitions
-					k = 0
-					while (k < partitions_per_word && i < partvals) {
+				// now we decode residual values for the partitions
+				k = 0
+				while (k < partitions_per_word && i < partvals) {
+
+					j = 0
+					while (j < ch) {
 						val offset = info.begin + i * samples_per_partition
-						val index = _2inverse_partword!![l][k]
+						val index = _01inverse_partword[j]!![l][k]
 						if (info.secondstages[index] and (1 shl s) != 0) {
 							val stagebook = look.fullbooks!![look.partbooks!![index][s]]
 							if (stagebook != null) {
-								if (stagebook.decodevv_add(
-										`in`, offset, ch, vb.opb,
-										samples_per_partition
-									) == -1
-								) {
-									return 0
+								if (decodepart == 0) {
+									if (stagebook.decodevs_add(
+											`in`[j], offset, vb.opb,
+											samples_per_partition
+										) == -1
+									) {
+										return 0
+									}
+								} else if (decodepart == 1) {
+									if (stagebook.decodev_add(
+											`in`[j], offset, vb.opb,
+											samples_per_partition
+										) == -1
+									) {
+										return 0
+									}
 								}
 							}
 						}
-						k++
-						i++
+						j++
 					}
-					l++
+
+					k++
+					i++
 				}
-				s++
+				l++
 			}
-			return 0
+			s++
 		}
+		return 0
 	}
 
+	var _2inverse_partword: Array<IntArray>? = null
+
+	@Synchronized
+	fun _2inverse(vb: Block, vl: Any, `in`: Array<FloatArray>, ch: Int): Int {
+		var i: Int
+		var k: Int
+		var l: Int
+		var s: Int
+		val look = vl as LookResidue0
+		val info = look.info
+
+		// move all this setup out later
+		val samples_per_partition = info!!.grouping
+		val partitions_per_word = look.phrasebook!!.dim
+		val n = info.end - info.begin
+
+		val partvals = n / samples_per_partition
+		val partwords = (partvals + partitions_per_word - 1) / partitions_per_word
+
+		if (_2inverse_partword == null || _2inverse_partword!!.size < partwords) {
+			_2inverse_partword = Array<IntArray>(partwords) { intArrayOf() }
+		}
+		s = 0
+		while (s < look.stages) {
+			i = 0
+			l = 0
+			while (i < partvals) {
+				if (s == 0) {
+					// fetch the partition word for each channel
+					val temp = look.phrasebook!!.decode(vb.opb)
+					if (temp == -1) {
+						return 0
+					}
+					_2inverse_partword!![l] = look.decodemap!![temp]
+					if (_2inverse_partword!![l] == null) {
+						return 0
+					}
+				}
+
+				// now we decode residual values for the partitions
+				k = 0
+				while (k < partitions_per_word && i < partvals) {
+					val offset = info.begin + i * samples_per_partition
+					val index = _2inverse_partword!![l][k]
+					if (info.secondstages[index] and (1 shl s) != 0) {
+						val stagebook = look.fullbooks!![look.partbooks!![index][s]]
+						if (stagebook != null) {
+							if (stagebook.decodevv_add(
+									`in`, offset, ch, vb.opb,
+									samples_per_partition
+								) == -1
+							) {
+								return 0
+							}
+						}
+					}
+					k++
+					i++
+				}
+				l++
+			}
+			s++
+		}
+		return 0
+	}
 }

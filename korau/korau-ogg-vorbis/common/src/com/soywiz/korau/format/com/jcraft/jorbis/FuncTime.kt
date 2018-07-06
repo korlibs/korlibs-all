@@ -41,8 +41,4 @@ abstract class FuncTime {
 	abstract fun free_look(i: Any)
 
 	abstract fun inverse(vb: Block, i: Any, `in`: FloatArray, out: FloatArray): Int
-
-	companion object {
-		var time_P = arrayOf<FuncTime>(Time0())
-	}
 }

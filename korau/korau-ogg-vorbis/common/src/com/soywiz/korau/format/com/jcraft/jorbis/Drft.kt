@@ -53,12 +53,12 @@ class Drft {
 
 	companion object {
 
-		var ntryh = intArrayOf(4, 2, 3, 5)
-		var tpi = 6.28318530717958647692528676655900577f
-		var hsqt2 = .70710678118654752440084436210485f
-		var taui = .86602540378443864676372317075293618f
-		var taur = -.5f
-		var sqrt2 = 1.4142135623730950488016887242097f
+		val ntryh = intArrayOf(4, 2, 3, 5)
+		val tpi = 6.28318530717958647692528676655900577f
+		val hsqt2 = .70710678118654752440084436210485f
+		val taui = .86602540378443864676372317075293618f
+		val taur = -.5f
+		val sqrt2 = 1.4142135623730950488016887242097f
 
 		fun drfti1(n: Int, wa: FloatArray, index: Int, ifac: IntArray) {
 			var arg: Float

@@ -30,6 +30,9 @@ import com.soywiz.korau.format.com.jcraft.jogg.*
 import com.soywiz.korio.lang.*
 
 class Info {
+	var time_P = arrayOf<FuncTime>(Time0())
+	val mapping_P = arrayOf<FuncMapping>(Mapping0())
+	var residue_P = arrayOf<FuncResidue>(Residue0(), Residue1(), Residue2())
 
 	var version: Int = 0
 	var channels: Int = 0
@@ -106,12 +109,12 @@ class Info {
 		mode_param = arrayOf()
 
 		for (i in 0 until maps) { // unpack does the range checking
-			FuncMapping.mapping_P[map_type[i]].free_info(map_param[i]!!)
+			mapping_P[map_type[i]].free_info(map_param[i]!!)
 		}
 		map_param = arrayOf()
 
 		for (i in 0 until times) { // unpack does the range checking
-			FuncTime.time_P[time_type[i]].free_info(time_param[i])
+			time_P[time_type[i]].free_info(time_param[i])
 		}
 		time_param = arrayOf()
 
@@ -121,7 +124,7 @@ class Info {
 		floor_param = arrayOf()
 
 		for (i in 0 until residues) { // unpack does the range checking
-			FuncResidue.residue_P[residue_type[i]].free_info(residue_param[i]!!)
+			residue_P[residue_type[i]].free_info(residue_param[i]!!)
 		}
 		residue_param = arrayOf()
 
@@ -196,7 +199,7 @@ class Info {
 				clear()
 				return -1
 			}
-			time_param[i] = FuncTime.time_P[time_type[i]].unpack(this, opb)
+			time_param[i] = time_P[time_type[i]].unpack(this, opb)
 		}
 
 		// floor backend settings
@@ -235,7 +238,7 @@ class Info {
 				clear()
 				return -1
 			}
-			residue_param[i] = FuncResidue.residue_P[residue_type[i]].unpack(this, opb)
+			residue_param[i] = residue_P[residue_type[i]].unpack(this, opb)
 			if (residue_param[i] == null) {
 				clear()
 				return -1
@@ -254,7 +257,7 @@ class Info {
 				clear()
 				return -1
 			}
-			map_param[i] = FuncMapping.mapping_P[map_type[i]].unpack(this, opb)
+			map_param[i] = mapping_P[map_type[i]].unpack(this, opb)
 			if (map_param[i] == null) {
 				clear()
 				return -1
@@ -386,7 +389,7 @@ class Info {
 		opb.write(times - 1, 6)
 		for (i in 0 until times) {
 			opb.write(time_type[i], 16)
-			FuncTime.time_P[time_type[i]].pack(this.time_param[i], opb)
+			time_P[time_type[i]].pack(this.time_param[i], opb)
 		}
 
 		// floors
@@ -400,14 +403,14 @@ class Info {
 		opb.write(residues - 1, 6)
 		for (i in 0 until residues) {
 			opb.write(residue_type[i], 16)
-			FuncResidue.residue_P[residue_type[i]].pack(residue_param[i]!!, opb)
+			residue_P[residue_type[i]].pack(residue_param[i]!!, opb)
 		}
 
 		// maps
 		opb.write(maps - 1, 6)
 		for (i in 0 until maps) {
 			opb.write(map_type[i], 16)
-			FuncMapping.mapping_P[map_type[i]].pack(this, map_param[i]!!, opb)
+			mapping_P[map_type[i]].pack(this, map_param[i]!!, opb)
 		}
 
 		// modes

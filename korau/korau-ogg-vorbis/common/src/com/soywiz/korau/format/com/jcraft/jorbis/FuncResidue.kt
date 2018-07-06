@@ -41,8 +41,4 @@ abstract class FuncResidue {
 	abstract fun free_look(i: Any)
 
 	abstract fun inverse(vb: Block, vl: Any, `in`: Array<FloatArray>, nonzero: IntArray, ch: Int): Int
-
-	companion object {
-		var residue_P = arrayOf<FuncResidue>(Residue0(), Residue1(), Residue2())
-	}
 }
