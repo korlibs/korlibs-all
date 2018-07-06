@@ -14,7 +14,12 @@ buildscript {
 	//ext.nativeTargets = ['iphone', 'iphone_sim', 'macbook', 'linux', 'raspberrypi', 'android_arm32', 'android_arm64']
 	ext.nativeTargets = ['macbook']
 	ext.libDependencies = [
-			"sample1": ["com.soywiz:korge{SUFFIX}:$korgeVersion"],
+			"sample1": [
+					//"com.soywiz:kds{SUFFIX}:$korgeVersion",
+					//"com.soywiz:korio{SUFFIX}:$korgeVersion",
+					//"com.soywiz:korim{SUFFIX}:$korgeVersion",
+					"com.soywiz:korge{SUFFIX}:$korgeVersion",
+			],
 	]
 	ext.libExecutables = [
 	        "sample1": true
