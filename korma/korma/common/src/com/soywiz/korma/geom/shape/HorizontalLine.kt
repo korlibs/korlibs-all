@@ -1,10 +1,9 @@
 package com.soywiz.korma.geom.shape
 
+import com.soywiz.korma.geom.*
 import com.soywiz.korma.geom.bezier.*
 
 object HorizontalLine {
-	val segmentEmitter = SegmentEmitter()
-
 	fun intersectionsWithLine(
 		ax: Double, ay: Double,
 		bx0: Double, by0: Double, bx1: Double, by1: Double
@@ -14,28 +13,30 @@ object HorizontalLine {
 
 	fun interesectionsWithQuadBezier(
 		ax: Double, ay: Double,
-		bx0: Double, by0: Double, bx1: Double, by1: Double, bx2: Double, by2: Double
+		bx0: Double, by0: Double, bx1: Double, by1: Double, bx2: Double, by2: Double,
+		t0: Point2d = Point2d(), t1: Point2d = Point2d()
 	): Int {
 		var count = 0
-		segmentEmitter.emit(4, curveGen = { p, t ->
+		SegmentEmitter.emit(4, curveGen = { p, t ->
 			Bezier.quadCalc(bx0, by0, bx1, by1, bx2, by2, t, p)
 		}, gen = { p0, p1 ->
 			count += intersectionsWithLine(ax, ay, p0.x, p0.y, p1.x, p1.y)
-		})
+		}, p1 = t0, p2 = t1)
 		return count
 	}
 
 	fun intersectionsWithCubicBezier(
 		ax: Double, ay: Double,
-		bx0: Double, by0: Double, bx1: Double, by1: Double, bx2: Double, by2: Double, bx3: Double, by3: Double
+		bx0: Double, by0: Double, bx1: Double, by1: Double, bx2: Double, by2: Double, bx3: Double, by3: Double,
+		t0: Point2d = Point2d(), t1: Point2d = Point2d()
 	): Int {
 		//return intersectsH0LineLine(ax, ay, bx0, by0, bx3, by3)
 		var count = 0
-		segmentEmitter.emit(4, curveGen = { p, t ->
+		SegmentEmitter.emit(4, curveGen = { p, t ->
 			Bezier.cubicCalc(bx0, by0, bx1, by1, bx2, by2, bx3, by3, t, p)
 		}, gen = { p0, p1 ->
 			count += intersectionsWithLine(ax, ay, p0.x, p0.y, p1.x, p1.y)
-		})
+		}, p1 = t0, p2 = t1)
 		return count
 	}
 }

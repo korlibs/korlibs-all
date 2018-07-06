@@ -2,16 +2,13 @@ package com.soywiz.korma.geom.bezier
 
 import com.soywiz.korma.geom.*
 
-class SegmentEmitter {
-	@PublishedApi
-	internal val p1 = Point2d()
-	@PublishedApi
-	internal val p2 = Point2d()
-
+object SegmentEmitter {
 	inline fun emit(
 		segments: Int,
 		crossinline curveGen: (p: Point2d, t: Double) -> Point2d,
-		crossinline gen: (p0: Point2d, p1: Point2d) -> Unit
+		crossinline gen: (p0: Point2d, p1: Point2d) -> Unit,
+		p1: Point2d = Point2d(),
+		p2: Point2d = Point2d()
 	) = synchronized(this) {
 		val dt = 1.0 / segments
 		for (n in 0 until segments) {

@@ -368,6 +368,9 @@ open class VectorPath(
 		return points
 	}
 
+	private val p1 = Point2d()
+	private val p2 = Point2d()
+
 	// http://erich.realtimerendering.com/ptinpoly/
 	// http://stackoverflow.com/questions/217578/how-can-i-determine-whether-a-2d-point-is-within-a-polygon/2922778#2922778
 	// https://www.particleincell.com/2013/cubic-line-intersection/
@@ -384,11 +387,11 @@ open class VectorPath(
 				intersections += HorizontalLine.intersectionsWithLine(testx, testy, x0, y0, x1, y1)
 			},
 			quad = { x0, y0, x1, y1, x2, y2 ->
-				intersections += HorizontalLine.interesectionsWithQuadBezier(testx, testy, x0, y0, x1, y1, x2, y2)
+				intersections += HorizontalLine.interesectionsWithQuadBezier(testx, testy, x0, y0, x1, y1, x2, y2, p1, p2)
 			},
 			cubic = { x0, y0, x1, y1, x2, y2, x3, y3 ->
 				intersections += HorizontalLine.intersectionsWithCubicBezier(
-					testx, testy, x0, y0, x1, y1, x2, y2, x3, y3
+					testx, testy, x0, y0, x1, y1, x2, y2, x3, y3, p1, p2
 				)
 			},
 			close = {
