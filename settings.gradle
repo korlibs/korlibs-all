@@ -50,8 +50,8 @@ registerProject1('korau', 'Korau: Kotlin cORoutines AUdio')
 registerProject1('korag', 'Korag: Kotlin cORoutines Accelerated Graphics')
 
 // @TODO: WIP OpenGL common implementation for all targets with GL >= 4.0 or GLES >= 2.0
-registerProject2('kgl', 'korag', 'Kgl: OpenGL bindings for Kotlin')
-registerProject2('korag-opengl', 'korag', 'Korag-opengl: Korag OpenGL implementation')
+//registerProject2('kgl', 'korag', 'Kgl: OpenGL bindings for Kotlin')
+//registerProject2('korag-opengl', 'korag', 'Korag-opengl: Korag OpenGL implementation')
 
 registerProject2('korau-mp3', 'korau', 'Korau: MP3 extension')
 
