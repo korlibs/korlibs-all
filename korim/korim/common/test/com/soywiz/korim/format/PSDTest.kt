@@ -5,7 +5,7 @@ import com.soywiz.korio.async.*
 import kotlin.test.*
 
 class PSDTest {
-	val formats = ImageFormats().registerStandard().register(PSD)
+	val formats = ImageFormats(StandardImageFormats + PSD)
 	val ResourcesVfs = ImageFormatsTest.root
 
 	@Test

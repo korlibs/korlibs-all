@@ -5,36 +5,9 @@ import com.soywiz.korio.crypto.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korio.file.*
 
-class ImageFormats : ImageFormat("") {
-	private val formats = linkedSetOf<ImageFormat>()
-
-	fun clear() = this.apply { formats.clear() }
-	fun backup(): List<ImageFormat> = formats.toList()
-	fun restore(formats: List<ImageFormat>) {
-		this.formats.clear()
-		this.formats += formats
-	}
-
-	inline fun <T> saveRestore(callback: () -> T): T {
-		val formats = backup()
-		try {
-			return callback()
-		} finally {
-			restore(formats)
-		}
-	}
-
-	inline fun <T> temporalFormats(formats: Iterable<ImageFormat>, callback: () -> T): T = saveRestore {
-		clear().register(formats)
-		callback()
-	}
-
-	fun register(vararg format: ImageFormat): ImageFormats = this.apply { formats += format }
-	fun register(format: ImageFormat): ImageFormats = this.apply { formats += format }
-	fun register(format: Iterable<ImageFormat>): ImageFormats = this.apply { formats += format }
-
+class ImageFormats(formats: Iterable<ImageFormat>) : ImageFormat("") {
+	val formats = formats.toSet()
 	override fun decodeHeader(s: SyncStream, props: ImageDecodingProps): ImageInfo? {
 		for (format in formats) return try {
 			format.decodeHeader(s.slice(), props) ?: continue
@@ -70,5 +43,5 @@ suspend fun Bitmap.writeTo(
 	formats: ImageFormat = defaultImageFormats
 ) = file.writeBytes(formats.encode(this, props.copy(filename = file.basename)))
 
-val defaultImageFormats by lazy { ImageFormats().registerStandard() }
+val defaultImageFormats = ImageFormats(StandardImageFormats.toSet())
 //val defaultImageFormats = ImageFormats()

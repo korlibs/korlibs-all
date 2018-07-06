@@ -2,11 +2,10 @@ package com.soywiz.korim.format
 
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korio.async.*
-import com.soywiz.korio.file.*
 import kotlin.test.*
 
 class DDSTest {
-	val formats = ImageFormats().registerStandard().register(DDS)
+	val formats = ImageFormats(StandardImageFormats + DDS)
 	val ResourcesVfs = ImageFormatsTest.root
 
 	@kotlin.test.Test

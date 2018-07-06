@@ -8,7 +8,7 @@ import com.soywiz.korio.file.std.*
 import kotlin.test.*
 
 class ImageFormats2Test {
-	val formats = ImageFormats().registerStandard().register(ICO)
+	val formats = ImageFormats(StandardImageFormats + ICO)
 	//val root = ResourcesVfs
 	lateinit var root: VfsFile
 

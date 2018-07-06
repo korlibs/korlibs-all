@@ -7,7 +7,7 @@ import com.soywiz.korma.geom.*
 import kotlin.test.*
 
 class ImageFormatsNativeTest {
-	val formats = ImageFormats().registerStandard().register(ICO).register(SVG)
+	val formats = ImageFormats(StandardImageFormats + ICO + SVG)
 
 	@Test
 	fun png8() = suspendTest {

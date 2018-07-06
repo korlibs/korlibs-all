@@ -11,10 +11,6 @@ class BitmapFontTest {
 	val ag = LogAG()
 	val ctx = RenderContext(ag)
 
-	init {
-		defaultImageFormats.registerStandard()
-	}
-
 	@Test
 	fun simple() = suspendTest {
 		val font = TestAssertVfs["font/font.fnt"].readBitmapFont(ag)
