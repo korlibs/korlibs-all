@@ -20,8 +20,8 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 
 	init { logger.trace { "BatchBuilder2D[1]" } }
 
-	private val vertices = FastMemory.alloc(6 * 4 * maxVertices)
-	private val indices = FastMemory.alloc(2 * maxIndices)
+	private val vertices = KmlNativeBuffer.alloc(6 * 4 * maxVertices)
+	private val indices = KmlNativeBuffer.alloc(2 * maxIndices)
 
 	init { logger.trace { "BatchBuilder2D[2]" } }
 

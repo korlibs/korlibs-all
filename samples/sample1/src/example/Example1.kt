@@ -4,6 +4,7 @@ import com.soywiz.klogger.*
 import com.soywiz.korge.*
 import com.soywiz.korge.scene.*
 import com.soywiz.korge.view.*
+import com.soywiz.korim.color.*
 import com.soywiz.korinject.*
 
 //fun main(args: Array<String>): Unit = Korio {
@@ -12,13 +13,13 @@ import com.soywiz.korinject.*
 //}
 
 fun main(args: Array<String>): Unit {
-	Logger.defaultLevel = Logger.Level.TRACE
-	Logger("Views").level = Logger.Level.TRACE
-	Logger("Korge").level = Logger.Level.TRACE
-	Logger("RenderContext").level = Logger.Level.TRACE
-	Logger("BatchBuilder2D").level = Logger.Level.TRACE
-	Logger("DefaultShaders").level = Logger.Level.TRACE
-	Logger("RenderContext2D").level = Logger.Level.TRACE
+	//Logger.defaultLevel = Logger.Level.TRACE
+	//Logger("Views").level = Logger.Level.TRACE
+	//Logger("Korge").level = Logger.Level.TRACE
+	//Logger("RenderContext").level = Logger.Level.TRACE
+	//Logger("BatchBuilder2D").level = Logger.Level.TRACE
+	//Logger("DefaultShaders").level = Logger.Level.TRACE
+	//Logger("RenderContext2D").level = Logger.Level.TRACE
 	Korge(MyModule)
 }
 
@@ -32,5 +33,6 @@ object MyModule : Module() {
 
 class MyScene : Scene() {
 	override suspend fun sceneInit(sceneView: Container) {
+		sceneView.addChild(views.solidRect(128, 128, Colors.RED))
 	}
 }

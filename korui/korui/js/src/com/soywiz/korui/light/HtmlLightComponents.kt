@@ -194,7 +194,7 @@ class HtmlLightComponents : LightComponents() {
 				}
 			}
 			LightType.AGCANVAS -> {
-				agg = agFactory.create()
+				agg = AGOpenglFactory.create(null).create(null)
 				val cc = agg.nativeComponent as HTMLCanvasElement
 				cc.tabIndex = 1
 				cc.style.outline = "none"

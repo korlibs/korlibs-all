@@ -1,17 +1,17 @@
 package com.soywiz.korag
 
+import com.jogamp.newt.opengl.*
+import com.jogamp.opengl.*
+import com.jogamp.opengl.awt.*
+import com.soywiz.kgl.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korio.util.*
 import java.nio.*
 
-actual object AGFactoryFactory {
-	actual fun create(): AGFactory = AGFactoryAwt
-	actual val isTouchDevice: Boolean = false
-}
 
 object AGFactoryAwt : AGFactory {
 	override val supportsNativeFrame: Boolean = true
-	override fun create(): AG = AGAwt()
+	override fun create(nativeControl: Any?): AG = AGAwt()
 	override fun createFastWindow(title: String, width: Int, height: Int): AGWindow {
 		val glp = GLProfile.getDefault()
 		val caps = GLCapabilities(glp)
@@ -34,7 +34,32 @@ object AGFactoryAwt : AGFactory {
 	}
 }
 
-class AGAwt : AGOpengl(), AGContainer {
+abstract class AGAwtBase : AGOpengl() {
+	var glprofile = GLProfile.getDefault()
+	var glcapabilities = GLCapabilities(glprofile).apply {
+		stencilBits = 8
+		depthBits = 24
+	}
+	var initialized = false
+	lateinit var ad: GLAutoDrawable
+	override lateinit var gl: JvmKmlGl
+	lateinit var glThread: Thread
+
+	override var devicePixelRatio: Double = 1.0
+
+	protected fun setAutoDrawable(d: GLAutoDrawable) {
+		glThread = Thread.currentThread()
+		ad = d
+		gl = JvmKmlGl(d.gl as GL2)
+		initialized = true
+	}
+
+	val awtBase = this
+
+	//val queue = LinkedList<(gl: GL) -> Unit>()
+}
+
+class AGAwt : AGAwtBase(), AGContainer {
 	val glcanvas = GLCanvas(glcapabilities)
 	override val nativeComponent = glcanvas
 
@@ -95,10 +120,10 @@ class AGAwt : AGOpengl(), AGContainer {
 				ready()
 			}
 			onRender(awtBase)
-			checkErrors { gl.Flush() }
+			checkErrors { gl.flush() }
 
-			//gl.ClearColor(1f, 1f, 0f, 1f)
-			//gl.Clear(gl.COLOR_BUFFER_BIT)
+			//gl.glClearColor(1f, 1f, 0f, 1f)
+			//gl.glClear(GL.GL_COLOR_BUFFER_BIT)
 			//d.swapBuffers()
 		}
 
@@ -122,26 +147,22 @@ class AGAwt : AGOpengl(), AGContainer {
 		glcanvas.addGLEventListener(glEventListener)
 	}
 
-	override fun readColor(bitmap: Bitmap32): Unit {
-		checkErrors {
-			gl.readPixels(
-				0,
-				0,
-				bitmap.width,
-				bitmap.height,
-				gl.RGBA,
-				gl.UNSIGNED_BYTE,
-				IntBuffer.wrap(bitmap.data)
-			)
-		}
-	}
+	//override fun readColor(bitmap: Bitmap32): Unit {
+	//	checkErrors {
+	//		gl.readPixels(
+	//			0, 0, bitmap.width, bitmap.height,
+	//			GL.GL_RGBA, GL.GL_UNSIGNED_BYTE,
+	//			IntBuffer.wrap(bitmap.data)
+	//		)
+	//	}
+	//}
 
-	override fun readDepth(width: Int, height: Int, out: FloatArray): Unit {
-		val GL_DEPTH_COMPONENT = 0x1902
-		checkErrors { gl.readPixels(0, 0, width, height, GL_DEPTH_COMPONENT, gl.FLOAT, FloatBuffer.wrap(out)) }
-	}
+	//override fun readDepth(width: Int, height: Int, out: FloatArray): Unit {
+	//	val GL_DEPTH_COMPONENT = 0x1902
+	//	checkErrors { gl.readPixels(0, 0, width, height, GL_DEPTH_COMPONENT, GL.GL_FLOAT, FloatBuffer.wrap(out)) }
+	//}
 }
 
-class AGAwtNative(override val nativeComponent: Any) : AGOpengl() {
+class AGAwtNative(override val nativeComponent: Any) : AGAwtBase() {
 
 }

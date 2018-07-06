@@ -1,3 +1,4 @@
+/*
 dependencies {
 	compile "org.lwjgl:lwjgl:${lwjglVersion}"
 	compile "org.lwjgl:lwjgl-glfw:${lwjglVersion}"
@@ -7,4 +8,54 @@ dependencies {
 		compile "org.lwjgl:lwjgl-opengl:${lwjglVersion}:$it"
 		compile "org.lwjgl:lwjgl:${lwjglVersion}:$it"
 	}
+}
+*/
+
+/*
+dependencies {
+	compile "org.jogamp.gluegen:gluegen-rt:$gluegenVersion"
+	compile "org.jogamp.jogl:jogl-all:$joglVersion"
+
+	for (String spec in [
+			'natives-android-aarch64', 'natives-android-armv6',
+			'natives-linux-amd64', 'natives-linux-armv6', 'natives-linux-armv6hf', 'natives-linux-i586',
+			'natives-macosx-universal',
+			'natives-solaris-amd64', 'natives-solaris-i586',
+			'natives-windows-amd64', 'natives-windows-i586',
+	]) {
+		//runtime "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:$spec"
+		//runtime "org.jogamp.jogl:jogl-all:$joglVersion:$spec"
+		runtime "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:$spec"
+		runtime "org.jogamp.jogl:jogl-all:$joglVersion:$spec"
+	}
+}
+*/
+
+dependencies {
+	compile "org.jogamp.gluegen:gluegen-rt:$gluegenVersion"
+	compile "org.jogamp.jogl:jogl-all:$joglVersion"
+
+	runtime "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-android-aarch64"
+	runtime "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-android-armv6"
+	runtime "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-linux-amd64"
+	runtime "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-linux-armv6"
+	runtime "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-linux-armv6hf"
+	runtime "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-linux-i586"
+	runtime "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-macosx-universal"
+	runtime "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-solaris-amd64"
+	runtime "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-solaris-i586"
+	runtime "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-windows-amd64"
+	runtime "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-windows-i586"
+
+	runtime "org.jogamp.jogl:jogl-all:$joglVersion:natives-android-aarch64"
+	runtime "org.jogamp.jogl:jogl-all:$joglVersion:natives-android-armv6"
+	runtime "org.jogamp.jogl:jogl-all:$joglVersion:natives-linux-amd64"
+	runtime "org.jogamp.jogl:jogl-all:$joglVersion:natives-linux-armv6"
+	runtime "org.jogamp.jogl:jogl-all:$joglVersion:natives-linux-armv6hf"
+	runtime "org.jogamp.jogl:jogl-all:$joglVersion:natives-linux-i586"
+	runtime "org.jogamp.jogl:jogl-all:$joglVersion:natives-macosx-universal"
+	runtime "org.jogamp.jogl:jogl-all:$joglVersion:natives-solaris-amd64"
+	runtime "org.jogamp.jogl:jogl-all:$joglVersion:natives-solaris-i586"
+	runtime "org.jogamp.jogl:jogl-all:$joglVersion:natives-windows-amd64"
+	runtime "org.jogamp.jogl:jogl-all:$joglVersion:natives-windows-i586"
 }

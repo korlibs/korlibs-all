@@ -12,6 +12,7 @@ import java.awt.RenderingHints.*
 import java.awt.font.*
 import java.awt.geom.*
 import java.awt.image.*
+import java.nio.*
 
 const val AWT_INTERNAL_IMAGE_TYPE = BufferedImage.TYPE_INT_ARGB_PRE
 
@@ -42,6 +43,23 @@ class AwtNativeImage(val awtImage: BufferedImage) :
 	override val name: String = "AwtNativeImage"
 	override fun toNonNativeBmp(): Bitmap = awtImage.toBMP32()
 	override fun getContext2d(antialiasing: Boolean): Context2d = Context2d(AwtContext2dRender(awtImage, antialiasing))
+
+	val dataBuffer = awtImage.raster.dataBuffer
+
+	val buffer: ByteBuffer by lazy {
+		ByteBuffer.allocateDirect(width * height * 4).apply {
+			clear()
+			when (dataBuffer) {
+				// @TODO: Swap Bytes
+				is DataBufferByte -> put(dataBuffer.data)
+				is DataBufferInt -> asIntBuffer().put(dataBuffer.data)
+				else -> TODO("dataBuffer: $dataBuffer")
+			}
+			//println("BYTES: ${bytes.size}")
+			//println("BYTES: ${bytes.size}")
+			flip()
+		}
+	}
 }
 
 //fun createRenderingHints(antialiasing: Boolean): RenderingHints = RenderingHints(mapOf<RenderingHints.Key, Any>())

@@ -60,6 +60,8 @@ object Korge {
 
 		logger.trace { "post plugins" }
 
+		ag.onReady.await()
+
 		injector.mapInstance(AG::class, ag)
 		logger.trace { "Korge.setupCanvas[1b]. EventLoop: ${config.eventLoop}" }
 		logger.trace { "Korge.setupCanvas[1c]. ag: $ag" }
@@ -72,7 +74,7 @@ object Korge {
 		logger.trace { "Korge.setupCanvas[1h]" }
 		val input = views.input
 		logger.trace { "Korge.setupCanvas[1i]" }
-		input._isTouchDeviceGen = { AGFactoryFactory.isTouchDevice }
+		input._isTouchDeviceGen = { AGOpenglFactory.isTouchDevice }
 		logger.trace { "Korge.setupCanvas[1j]" }
 		views.debugViews = config.debug
 		logger.trace { "Korge.setupCanvas[1k]" }
@@ -93,7 +95,6 @@ object Korge {
 		}
 
 		logger.trace { "Korge.setupCanvas[3]" }
-		ag.onReady.await()
 
 		logger.trace { "Korge.setupCanvas[4]" }
 		injector.mapInstance(ModuleArgs::class, moduleArgs)

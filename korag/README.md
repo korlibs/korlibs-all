@@ -86,7 +86,7 @@ class AG {
         fun upload(data: FloatArray, offset: Int = 0, length: Int = data.size): Buffer
         fun upload(data: IntArray, offset: Int = 0, length: Int = data.size): Buffer
         fun upload(data: ShortArray, offset: Int = 0, length: Int = data.size): Buffer
-        fun upload(data: FastMemory, offset: Int = 0, length: Int = data.length): Buffer
+        fun upload(data: KmlNativeBuffer, offset: Int = 0, length: Int = data.length): Buffer
         fun close()
     }
     class RenderBuffer : Closeable {

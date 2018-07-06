@@ -11,30 +11,14 @@ import com.soywiz.korio.error.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korma.*
 
-abstract class AGOpengl(val gl: KmlGl) : AG() {
-	var glprofile = GLProfile.getDefault()
-	var glcapabilities = GLCapabilities(glprofile).apply {
-		stencilBits = 8
-		depthBits = 24
-	}
-	var initialized = false
-	lateinit var ad: GLAutoDrawable
-	lateinit var glThread: Thread
+abstract class AGOpengl : AG() {
+	abstract val gl: KmlGl
 
 	override var devicePixelRatio: Double = 1.0
 
-	protected fun setAutoDrawable(d: GLAutoDrawable) {
-		glThread = Thread.currentThread()
-		ad = d
-		gl = d.gl as GL2
-		initialized = true
-	}
-
-	val awtBase = this
-
 	//val queue = LinkedList<(gl: GL) -> Unit>()
 
-	override fun createBuffer(kind: Buffer.Kind): Buffer = AwtBuffer(kind)
+	override fun createBuffer(kind: Buffer.Kind): Buffer = GlBuffer(kind)
 
 	override fun setViewport(x: Int, y: Int, width: Int, height: Int) {
 		super.setViewport(x, y, width, height)
@@ -47,7 +31,7 @@ abstract class AGOpengl(val gl: KmlGl) : AG() {
 
 	inner class GlRenderBuffer : RenderBuffer() {
 		var cachedVersion = -1
-		val wtex get() = tex as AwtTexture
+		val wtex get() = tex as GlTexture
 
 		val renderbufferDepth = KmlNativeBuffer(4)
 		val framebuffer = KmlNativeBuffer(4)
@@ -66,19 +50,7 @@ abstract class AGOpengl(val gl: KmlGl) : AG() {
 			checkErrors { gl.bindTexture(gl.TEXTURE_2D, wtex.tex) }
 			checkErrors { gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR) }
 			checkErrors { gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR) }
-			checkErrors {
-				gl.texImage2D(
-					gl.TEXTURE_2D,
-					0,
-					gl.RGBA,
-					width,
-					height,
-					0,
-					gl.RGBA,
-					gl.UNSIGNED_BYTE,
-					null
-				)
-			}
+			checkErrors { gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null) }
 			checkErrors { gl.bindTexture(gl.TEXTURE_2D, 0) }
 
 			checkErrors { gl.bindRenderbuffer(gl.RENDERBUFFER, renderbufferDepth.getInt(0)) }
@@ -201,8 +173,8 @@ abstract class AGOpengl(val gl: KmlGl) : AG() {
 
 		checkBuffers(vertices, aindices)
 		val glProgram = getProgram(program)
-		(vertices as AwtBuffer).bind(gl)
-		(aindices as AwtBuffer).bind(gl)
+		(vertices as GlBuffer).bind(gl)
+		(aindices as GlBuffer).bind(gl)
 		glProgram.use()
 
 		val totalSize = vertexLayout.totalSize
@@ -236,7 +208,7 @@ abstract class AGOpengl(val gl: KmlGl) : AG() {
 				VarType.TextureUnit -> {
 					val unit = value as TextureUnit
 					checkErrors { gl.activeTexture(gl.TEXTURE0 + textureUnit) }
-					val tex = (unit.texture as AwtTexture?)
+					val tex = (unit.texture as GlTexture?)
 					tex?.bindEnsuring()
 					tex?.setFilter(unit.linear)
 					checkErrors { gl.uniform1i(location, textureUnit) }
@@ -355,10 +327,10 @@ abstract class AGOpengl(val gl: KmlGl) : AG() {
 			VarKind.FLOAT -> gl.FLOAT
 		}
 
-	private val programs = HashMap<Program, AwtProgram>()
-	fun getProgram(program: Program): AwtProgram = programs.getOrPut(program) { AwtProgram(gl, program) }
+	private val programs = HashMap<Program, GlProgram>()
+	fun getProgram(program: Program): GlProgram = programs.getOrPut(program) { GlProgram(gl, program) }
 
-	inner class AwtProgram(val gl: KmlGl, val program: Program) : Closeable {
+	inner class GlProgram(val gl: KmlGl, val program: Program) : Closeable {
 		var cachedVersion = -1
 		var id: Int = 0
 		var fragmentShaderId: Int = 0
@@ -451,9 +423,9 @@ abstract class AGOpengl(val gl: KmlGl) : AG() {
 		checkErrors { gl.clear(bits) }
 	}
 
-	override fun createTexture(premultiplied: Boolean): Texture = AwtTexture(this.gl, premultiplied)
+	override fun createTexture(premultiplied: Boolean): Texture = GlTexture(this.gl, premultiplied)
 
-	inner class AwtBuffer(kind: Buffer.Kind) : Buffer(kind) {
+	inner class GlBuffer(kind: Buffer.Kind) : Buffer(kind) {
 		var cachedVersion = -1
 		private var id = -1
 		val glKind = if (kind == Buffer.Kind.INDEX) gl.ELEMENT_ARRAY_BUFFER else gl.ARRAY_BUFFER
@@ -483,11 +455,7 @@ abstract class AGOpengl(val gl: KmlGl) : AG() {
 			if (dirty) {
 				_bind(gl, id)
 				if (mem != null) {
-					val mem2: FastMemory = mem!!
-					@Suppress("USELESS_CAST")
-					val bb = (mem2.buffer as MemBuffer)
-					//checkErrors { gl.bufferData(glKind, memLength.toLong(), bb, gl.STATIC_DRAW) }
-					checkErrors { gl.bufferData(glKind, memLength, bb, gl.STATIC_DRAW) }
+					checkErrors { gl.bufferData(glKind, memLength, mem!!, gl.STATIC_DRAW) }
 				}
 			}
 			return id
@@ -502,7 +470,7 @@ abstract class AGOpengl(val gl: KmlGl) : AG() {
 		}
 	}
 
-	inner class AwtTexture(val gl: KmlGl, override val premultiplied: Boolean) : Texture() {
+	inner class GlTexture(val gl: KmlGl, override val premultiplied: Boolean) : Texture() {
 		var cachedVersion = -1
 		val texIds = KmlNativeBuffer(4)
 
@@ -519,18 +487,7 @@ abstract class AGOpengl(val gl: KmlGl) : AG() {
 		fun createBufferForBitmap(bmp: Bitmap?): KmlNativeBuffer? {
 			return when (bmp) {
 				null -> null
-				is NativeImage -> {
-					val mem = KmlNativeBuffer(bmp.area * 4)
-					val image = bmp as AwtNativeImage
-					val data = (image.awtImage.raster.dataBuffer as DataBufferInt).data
-					//println("BMP: ${image.awtImage.type}")
-					for (n in 0 until bmp.area) {
-						mem.setInt(n, RGBA.rgbaToBgra(data[n]))
-					}
-					//mem.setArrayInt32(0, data, 0, bmp.area)
-					@Suppress("USELESS_CAST")
-					return mem
-				}
+				is NativeImage -> unsupported("Should not call createBufferForBitmap with a NativeImage")
 				is Bitmap8 -> {
 					val mem = KmlNativeBuffer(bmp.area)
 					arraycopy(bmp.data, 0, mem.arrayByte, 0, bmp.area)
@@ -560,23 +517,21 @@ abstract class AGOpengl(val gl: KmlGl) : AG() {
 				gl.LUMINANCE
 			}
 
-			val buffer = createBufferForBitmap(bmp)
-			if (buffer != null) {
-				checkErrors {
-					gl.texImage2D(
-						gl.TEXTURE_2D,
-						0,
-						type,
-						source.width,
-						source.height,
-						0,
-						type,
-						gl.UNSIGNED_BYTE,
-						buffer
-					)
+			if (bmp is NativeImage) {
+				gl.texImage2D(gl.TEXTURE_2D, type, type, gl.UNSIGNED_BYTE, gl.UNSIGNED_BYTE, bmp)
+			} else {
+				val buffer = createBufferForBitmap(bmp)
+				if (buffer != null) {
+					checkErrors {
+						gl.texImage2D(
+							gl.TEXTURE_2D, 0, type,
+							source.width, source.height,
+							0, type, gl.UNSIGNED_BYTE, buffer
+						)
+					}
 				}
+				//println(buffer)
 			}
-			//println(buffer)
 
 			this.mipmaps = false
 
@@ -586,9 +541,7 @@ abstract class AGOpengl(val gl: KmlGl) : AG() {
 				bind()
 				setFilter(true)
 				setWrapST()
-				checkErrors {
-					gl.generateMipmap(gl.TEXTURE_2D)
-				}
+				checkErrors { gl.generateMipmap(gl.TEXTURE_2D) }
 			} else {
 				//println(" - nomipmaps")
 			}
@@ -641,5 +594,27 @@ abstract class AGOpengl(val gl: KmlGl) : AG() {
 			}
 		}
 		return res
+	}
+
+
+	override fun readColor(bitmap: Bitmap32) {
+		gl.readPixels(
+			0,
+			0,
+			bitmap.width,
+			bitmap.height,
+			gl.RGBA,
+			gl.UNSIGNED_BYTE,
+			//Uint8Array(bitmap.data.unsafeCast<Int32Array>().buffer)
+			TODO()
+		)
+	}
+
+	override fun readDepth(width: Int, height: Int, out: FloatArray) {
+		gl.readPixels(
+			0, 0, width, height, gl.DEPTH_COMPONENT, gl.FLOAT,
+			//out.unsafeCast<Float32Array>()
+			TODO()
+		)
 	}
 }

@@ -56,12 +56,29 @@ actual fun <T> NewAtomicReference(value: T): AtomicReference<T> = konan.worker.A
 
 actual fun <T> AtomicReference<T>.set(value: T) {
 	val fvalue = value.freeze()
-	while (this.compareAndSwap(this.get(), fvalue) != value) {
-		// spinlock
+	if (this.get() != fvalue) {
+		while (this.compareAndSwap(this.get(), fvalue) != fvalue) {
+			// spinlock
+		}
 	}
 
 }
 
 actual fun <T> AtomicReference<T>.get(): T {
 	return (this as konan.worker.AtomicReference<T>).get() as T
+}
+
+actual typealias AtomicInt = konan.worker.AtomicInt
+
+actual fun NewAtomicInt(value: Int): AtomicInt = konan.worker.AtomicInt(value)
+
+actual fun AtomicInt.addAndGet(delta: Int): Int {
+	return (this as konan.worker.AtomicInt).addAndGet(delta)
+}
+
+actual fun AtomicInt.set(value: Int) {
+	(this as konan.worker.AtomicInt).compareAndSwap(this.get(), value)
+}
+actual fun AtomicInt.get(): Int {
+	return (this as konan.worker.AtomicInt).get()
 }

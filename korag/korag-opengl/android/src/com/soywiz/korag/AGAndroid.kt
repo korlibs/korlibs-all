@@ -2,21 +2,17 @@ package com.soywiz.korag
 
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
-import com.soywiz.kmem.FastMemory
+import com.soywiz.kmem.*
 import com.soywiz.korag.shader.*
 import com.soywiz.korag.shader.gl.toGlSlString
-import com.soywiz.korim.bitmap.Bitmap
-import com.soywiz.korim.bitmap.Bitmap32
-import com.soywiz.korim.bitmap.Bitmap8
-import com.soywiz.korim.bitmap.NativeImage
-import com.soywiz.korim.color.RGBA
-import com.soywiz.korio.android.KorioAndroidContext
-import com.soywiz.korio.error.invalidOp
-import com.soywiz.korio.error.unsupported
-import com.soywiz.korio.util.Once
-import com.soywiz.korma.Matrix4
-import java.io.Closeable
-import java.nio.ByteBuffer
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
+import com.soywiz.korio.android.*
+import com.soywiz.korio.error.*
+import com.soywiz.korio.util.*
+import com.soywiz.korma.*
+import java.io.*
+import java.nio.*
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
@@ -310,7 +306,7 @@ class AGAndroid : AG() {
 			if (dirty) {
 				_bind(id)
 				if (mem != null) {
-					val mem2: FastMemory? = mem
+					val mem2: KmlNativeBuffer? = mem
 					val bb = mem2?.buffer?.buffer
 					if (bb != null) {
 						val pos = bb.position()
@@ -347,12 +343,12 @@ class AGAndroid : AG() {
 				null -> ByteBuffer.allocateDirect(0)
 				is NativeImage -> createBufferForBitmap(bmp.toBmp32())
 				is Bitmap8 -> {
-					val mem = FastMemory.alloc(bmp.area)
+					val mem = KmlNativeBuffer.alloc(bmp.area)
 					mem.setAlignedArrayInt8(0, bmp.data, 0, bmp.area)
 					return mem.buffer.buffer
 				}
 				is Bitmap32 -> {
-					val mem = FastMemory.alloc(bmp.area * 4)
+					val mem = KmlNativeBuffer.alloc(bmp.area * 4)
 					mem.setAlignedArrayInt32(0, bmp.data, 0, bmp.area)
 					return mem.buffer.buffer
 				}

@@ -9,7 +9,8 @@ val KmlNativeBuffer.nioByteBuffer: java.nio.ByteBuffer get() = this.mem.buffer
 val KmlNativeBuffer.nioIntBuffer: java.nio.IntBuffer get() = this.arrayInt.jbuffer
 val KmlNativeBuffer.nioFloatBuffer: java.nio.FloatBuffer get() = this.arrayFloat.jbuffer
 
-class BufferedImageKmlNativeImageData(val buffered: BufferedImage) : KmlNativeImageData {
+/*
+class BufferedImageKmlNativeImageData(val buffered: BufferedImage) : NativeImage {
 	override val width: Int get() = buffered.width
 	override val height: Int get() = buffered.height
 	val bytes = (buffered.raster.dataBuffer as DataBufferByte).data
@@ -40,3 +41,4 @@ class BufferedImageKmlNativeImageData(val buffered: BufferedImage) : KmlNativeIm
 		flip()
 	}
 }
+*/

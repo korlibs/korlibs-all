@@ -31,12 +31,11 @@ buildscript {
 			"korio"            : ["klock", "kmem", "kds", "klogger"],
 			"korim"            : ["korio", "korma"],
 			"korim-qr"         : ["korim"],
-			"kgl"              : ["kmem"],
+			"kgl"              : ["kmem", "korim"],
 			"korag"            : ["korim"],
 			"korag-opengl"     : ["korag", "kgl"],
 			"korau"            : ["klogger", "korio", "korma"],
 			"korui"            : ["korag-opengl"],
-			"korui"            : ["korag"],
 			"korau-atrac3plus" : ["korau"],
 			"korau-mod"        : ["korau"],
 			"korau-mp3"        : ["korau"],
@@ -125,14 +124,16 @@ allprojects {
 				if (dep.contains(":")) {
 					rdepm = rdep
 				} else {
-					rdepm = project(":${rdep}${suffix}")
-				}
-				if (isNative) {
-					implementation rdepm
-				} else {
-					compile rdepm
+					rdepm = findProject(":${rdep}${suffix}")
 				}
 				//println("DEP: ${project.name}: ${depm}")
+				if (rdepm != null) {
+					if (isNative) {
+						implementation rdepm
+					} else {
+						compile rdepm
+					}
+				}
 			}
 		}
 	}

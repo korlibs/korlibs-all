@@ -6,25 +6,15 @@ import com.soywiz.korag.shader.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
 import com.soywiz.korio.async.*
-import com.soywiz.korio.coroutine.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 import kotlin.coroutines.experimental.*
 
-val defaultFactory by lazy { AGFactoryFactory.create() }
-
-val agFactory: AGFactory by lazy { defaultFactory }
-
-expect object AGFactoryFactory {
-	fun create(): AGFactory
-	val isTouchDevice: Boolean
-}
-
 interface AGFactory {
 	val supportsNativeFrame: Boolean
-	fun create(): AG
+	fun create(nativeControl: Any?): AG
 	fun createFastWindow(title: String, width: Int, height: Int): AGWindow
 }
 
@@ -54,6 +44,7 @@ abstract class AG : Extra by Extra.Mixin() {
 
 	private val onReadyDeferred = Promise.Deferred<AG>()
 	protected fun ready() {
+		//println("AG.ready!")
 		onReadyDeferred.resolve(this)
 	}
 
@@ -207,6 +198,7 @@ abstract class AG : Extra by Extra.Mixin() {
 		private var tempBitmap: Bitmap? = null
 		var ready: Boolean = false; private set
 		val texId = lastTextureId++
+
 		init {
 			createdTextureCount++
 		}

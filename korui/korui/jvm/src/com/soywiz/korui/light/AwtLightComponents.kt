@@ -55,7 +55,7 @@ class AwtLightComponents : LightComponents() {
 			LightType.CHECK_BOX -> JCheckBox()
 			LightType.SCROLL_PANE -> JScrollPane2()
 			LightType.AGCANVAS -> {
-				agg = agFactory.create()
+				agg = AGOpenglFactory.create(null).create(null)
 				agg.nativeComponent as Component
 			}
 			else -> throw UnsupportedOperationException("Type: $type")

@@ -264,7 +264,8 @@ object KmemGenerator {
 		}
 
 		line("actual class MemBuffer(val buffer: ByteBuffer, val size: Int)")
-		line("actual fun MemBufferAlloc(size: Int): MemBuffer = MemBuffer(ByteBuffer.allocate((size + 0xF) and 0xF.inv()).order(ByteOrder.nativeOrder()), size)")
+		//line("actual fun MemBufferAlloc(size: Int): MemBuffer = MemBuffer(ByteBuffer.allocate((size + 0xF) and 0xF.inv()).order(ByteOrder.nativeOrder()), size)")
+		line("actual fun MemBufferAlloc(size: Int): MemBuffer = MemBuffer(ByteBuffer.allocateDirect((size + 0xF) and 0xF.inv()).order(ByteOrder.nativeOrder()), size)")
 		line("actual fun MemBufferWrap(array: ByteArray): MemBuffer = MemBuffer(ByteBuffer.wrap(array).order(ByteOrder.nativeOrder()), array.size)")
 		line("actual inline val MemBuffer.size: Int get() = this.size")
 		line()

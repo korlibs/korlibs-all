@@ -1,3 +1,4 @@
+
 dependencies {
 	compile "org.jogamp.gluegen:gluegen-rt:$gluegenVersion"
 	compile "org.jogamp.jogl:jogl-all:$joglVersion"

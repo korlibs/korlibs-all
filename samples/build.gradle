@@ -4,6 +4,7 @@ buildscript {
 		jcenter()
 		maven { url "https://plugins.gradle.org/m2/" }
 		maven { url "https://dl.bintray.com/jetbrains/kotlin-native-dependencies" }
+		maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
 	}
 	dependencies {
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
@@ -59,6 +60,7 @@ allprojects {
 		jcenter()
 		maven { url "https://plugins.gradle.org/m2/" }
 		maven { url "https://dl.bintray.com/jetbrains/kotlin-native-dependencies" }
+		maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
 		mavenCentral()
 	}
 
