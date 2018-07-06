@@ -4,8 +4,8 @@ import com.soywiz.kmem.*
 
 class KmlGlException(message: String) : RuntimeException(message)
 
-fun KmlGl.getShaderiv(program: Int, type: Int): Int =
-	kmlNativeBuffer(4) { getShaderiv(program, type, it); it.getInt(0) }
+fun KmlGl.getShaderiv(shader: Int, type: Int): Int =
+	kmlNativeBuffer(4) { getShaderiv(shader, type, it); it.getInt(0) }
 
 fun KmlGl.getProgramiv(program: Int, type: Int): Int =
 	kmlNativeBuffer(4) { getProgramiv(program, type, it); it.getInt(0) }

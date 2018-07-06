@@ -38,7 +38,11 @@ abstract class AGOpengl(val gl: KmlGl) : AG() {
 
 	override fun setViewport(x: Int, y: Int, width: Int, height: Int) {
 		super.setViewport(x, y, width, height)
-		checkErrors { gl.Viewport(x, y, width, height) }
+		checkErrors { gl.viewport(x, y, width, height) }
+	}
+
+	open fun setSwapInterval(value: Int) {
+		//gl.swapInterval = 0
 	}
 
 	inner class GlRenderBuffer : RenderBuffer() {
@@ -50,7 +54,7 @@ abstract class AGOpengl(val gl: KmlGl) : AG() {
 		var oldViewport = IntArray(4)
 
 		override fun start(width: Int, height: Int) {
-			gl.swapInterval = 0
+			setSwapInterval(0)
 
 			if (cachedVersion != contextVersion) {
 				cachedVersion = contextVersion
@@ -390,19 +394,15 @@ abstract class AGOpengl(val gl: KmlGl) : AG() {
 
 		fun createShader(type: Int, str: String): Int {
 			val shaderId = checkErrors { gl.createShader(type) }
-			checkErrors { gl.shaderSource(shaderId, 1, arrayOf(str), intArrayOf(str.length), 0) }
+
+			checkErrors { gl.shaderSource(shaderId, str) }
 			checkErrors { gl.compileShader(shaderId) }
 
-			val out = IntArray(1)
-			checkErrors { gl.getShaderiv(shaderId, gl.COMPILE_STATUS, out, 0) }
-			if (out[0] != gl.TRUE) {
-				val maxLength = IntArray(1)
-				gl.getShaderiv(shaderId, gl.INFO_LOG_LENGTH, maxLength, 0);
-				val info = ByteArray(maxLength[0])
-				gl.getShaderInfoLog(shaderId, maxLength[0], maxLength, 0, info, 0)
-
+			val out = gl.getShaderiv(shaderId, gl.COMPILE_STATUS)
+			if (out != gl.TRUE) {
+				val error = gl.getShaderInfoLog(shaderId)
 				Console.error(str)
-				throw RuntimeException("Error Compiling Shader : " + info.toString(UTF8))
+				throw RuntimeException("Error Compiling Shader : $error")
 			}
 			return shaderId
 		}
@@ -462,8 +462,10 @@ abstract class AGOpengl(val gl: KmlGl) : AG() {
 		}
 
 		override fun close() {
-			val deleteId = id
-			checkErrors { gl.deleteBuffers(1, intArrayOf(deleteId), 0) }
+			kmlNativeBuffer(4) { buffer ->
+				buffer.setInt(0, this.id)
+				checkErrors { gl.deleteBuffers(1, buffer) }
+			}
 			id = -1
 		}
 
@@ -473,21 +475,19 @@ abstract class AGOpengl(val gl: KmlGl) : AG() {
 				id = -1
 			}
 			if (id < 0) {
-				val out = IntArray(1)
-				checkErrors { gl.genBuffers(1, out, 0) }
-				id = out[0]
+				id = kmlNativeBuffer(4) {
+					checkErrors { gl.genBuffers(1, it) }
+					it.getInt(0)
+				}
 			}
 			if (dirty) {
 				_bind(gl, id)
 				if (mem != null) {
 					val mem2: FastMemory = mem!!
 					@Suppress("USELESS_CAST")
-					val bb = (mem2.buffer as MemBuffer).buffer
-					val old = bb.position()
-					bb.position(memOffset)
+					val bb = (mem2.buffer as MemBuffer)
 					//checkErrors { gl.bufferData(glKind, memLength.toLong(), bb, gl.STATIC_DRAW) }
 					checkErrors { gl.bufferData(glKind, memLength, bb, gl.STATIC_DRAW) }
-					bb.position(old)
 				}
 			}
 			return id
@@ -511,7 +511,7 @@ abstract class AGOpengl(val gl: KmlGl) : AG() {
 				if (cachedVersion != contextVersion) {
 					cachedVersion = contextVersion
 					invalidate()
-					checkErrors { gl.genTextures(1, texIds, 0) }
+					checkErrors { gl.genTextures(1, texIds) }
 				}
 				return texIds.getInt(0)
 			}

@@ -28,6 +28,9 @@ def registerProject2Jvm(name, rootPath, desc) {
 // Generator
 registerProject2Jvm('korlibs-generator-jvm', 'korlibs-generator-jvm', 'korlibs-generator: Generates some classes')
 
+// Zero. This should be in the kotlin-commn stdlib.
+registerProject1('korlibstd', 'korlibsstd: Common utilities required for all the projects')
+
 // First set without dependencies
 registerProject1('kds', 'Kds: Kotlin Data Structures for JVM, JS and Common')
 registerProject1('klock', 'Klock: Consistent and portable date and time utilities for multiplatform kotlin')
@@ -47,8 +50,8 @@ registerProject1('korau', 'Korau: Kotlin cORoutines AUdio')
 registerProject1('korag', 'Korag: Kotlin cORoutines Accelerated Graphics')
 
 // @TODO: WIP OpenGL common implementation for all targets with GL >= 4.0 or GLES >= 2.0
-//registerProject2('kgl', 'korag', 'Kgl: OpenGL bindings for Kotlin')
-//registerProject2('korag-opengl', 'korag', 'Korag-opengl: Korag OpenGL implementation')
+registerProject2('kgl', 'korag', 'Kgl: OpenGL bindings for Kotlin')
+registerProject2('korag-opengl', 'korag', 'Korag-opengl: Korag OpenGL implementation')
 
 registerProject2('korau-mp3', 'korau', 'Korau: MP3 extension')
 

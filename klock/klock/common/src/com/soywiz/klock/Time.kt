@@ -140,10 +140,9 @@ interface DateTime : Comparable<DateTime> {
 	override fun hashCode(): Int
 	override fun equals(other: Any?): Boolean
 
-	@KlockThreadLocal
 	companion object {
-		val EPOCH by lazy { DateTime(1970, 1, 1, 0, 0, 0) as UtcDateTime }
-		private val EPOCH_INTERNAL_MILLIS by lazy { EPOCH.internalMillis }
+		val EPOCH = DateTime(1970, 1, 1, 0, 0, 0) as UtcDateTime
+		private val EPOCH_INTERNAL_MILLIS = EPOCH.internalMillis
 
 		// Can produce errors on invalid dates
 		operator fun invoke(
@@ -453,7 +452,8 @@ data class TimeSpan private constructor(val ms: Int) : Comparable<TimeSpan> {
 
 	companion object {
 		val ZERO = TimeSpan(0)
-		@PublishedApi internal fun fromMilliseconds(ms: Int) = when (ms) {
+		@PublishedApi
+		internal fun fromMilliseconds(ms: Int) = when (ms) {
 			0 -> ZERO
 			else -> TimeSpan(ms)
 		}

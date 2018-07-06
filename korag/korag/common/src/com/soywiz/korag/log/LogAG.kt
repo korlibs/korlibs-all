@@ -125,13 +125,13 @@ open class LogAG(
 					val o = os + pos + vertexMemOffset
 
 					val info = when (attribute.type) {
-						VarType.Int1 -> "int(" + vertexMem.getInt32(o + 0) + ")"
-						VarType.Float1 -> "float(" + vertexMem.getFloat32(o + 0) + ")"
-						VarType.Float2 -> "vec2(" + vertexMem.getFloat32(o + 0) + "," + vertexMem.getFloat32(o + 4) + ")"
-						VarType.Float3 -> "vec3(" + vertexMem.getFloat32(o + 0) + "," + vertexMem.getFloat32(o + 4) + "," + vertexMem.getFloat32(
+						VarType.Int1 -> "int(" + vertexMem.getUnalignedInt32(o + 0) + ")"
+						VarType.Float1 -> "float(" + vertexMem.getUnalignedFloat32(o + 0) + ")"
+						VarType.Float2 -> "vec2(" + vertexMem.getUnalignedFloat32(o + 0) + "," + vertexMem.getUnalignedFloat32(o + 4) + ")"
+						VarType.Float3 -> "vec3(" + vertexMem.getUnalignedFloat32(o + 0) + "," + vertexMem.getUnalignedFloat32(o + 4) + "," + vertexMem.getUnalignedFloat32(
 							o + 8
 						) + ")"
-						VarType.Byte4 -> "byte4(" + vertexMem.getInt32(o + 0) + ")"
+						VarType.Byte4 -> "byte4(" + vertexMem.getUnalignedInt32(o + 0) + ")"
 						else -> "Unsupported(${attribute.type})"
 					}
 

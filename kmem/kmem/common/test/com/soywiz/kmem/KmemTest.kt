@@ -68,9 +68,9 @@ class KmemTest {
 		assertEquals(0x03020100, mem.getAlignedInt32(0))
 		assertEquals(0x07060504, mem.getAlignedInt32(1))
 
-		assertEquals(0x03020100, mem.getInt32(0))
-		assertEquals(0x04030201, mem.getInt32(1))
-		assertEquals(0x05040302, mem.getInt32(2))
+		assertEquals(0x03020100, mem.getUnalignedInt32(0))
+		assertEquals(0x04030201, mem.getUnalignedInt32(1))
+		assertEquals(0x05040302, mem.getUnalignedInt32(2))
 	}
 
 	@Test

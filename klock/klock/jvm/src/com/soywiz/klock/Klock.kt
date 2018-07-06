@@ -2,8 +2,6 @@ package com.soywiz.klock
 
 import java.util.*
 
-actual annotation class KlockThreadLocal actual constructor()
-
 actual object Klock {
 	actual fun currentTimeMillis(): Long = System.currentTimeMillis()
 	actual fun currentTimeMillisDouble(): Double = System.currentTimeMillis().toDouble()

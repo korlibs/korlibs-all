@@ -1,11 +1,15 @@
 package com.soywiz.klogger
 
+import com.soywiz.std.*
+
 class Logger internal constructor(val name: String, val dummy: Boolean) {
-	@ConsoleThreadLocal
+	//@ThreadLocal // @TODO: kotlin-native bug https://github.com/JetBrains/kotlin-native/issues/1768
 	companion object {
-		val loggers = LinkedHashMap<String, Logger>()
-		var defaultLevel: Level? = null
-		fun getLogger(name: String) = loggers.getOrPut(name) { Logger(name, true) }
+		private var loggers: Map<String, Logger> by atomicRef(mapOf())
+		var defaultLevel: Level? by atomicRef(null)
+		fun getLogger(name: String): Logger {
+			return loggers[name] ?: Logger(name, true)
+		}
 		fun setLevel(name: String, level: Level) = getLogger(name).apply { this.level = level }
 		fun setOutput(name: String, output: Output) = getLogger(name).apply { this.output = output }
 		var defaultOutput: Output = ConsoleLogOutput
@@ -37,7 +41,7 @@ class Logger internal constructor(val name: String, val dummy: Boolean) {
 	}
 
 	init {
-		Logger.loggers[name] = this
+		Logger.loggers = Logger.loggers + mapOf(name to this)
 	}
 
 	var level: Level? = null
