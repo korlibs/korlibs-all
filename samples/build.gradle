@@ -1,4 +1,6 @@
 buildscript {
+    ext.web_dir = 'web'
+
 	repositories {
 		mavenLocal()
 		jcenter()

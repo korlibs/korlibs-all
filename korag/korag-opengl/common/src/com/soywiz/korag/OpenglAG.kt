@@ -582,19 +582,21 @@ abstract class AGOpengl : AG() {
 		}
 	}
 
-	inline fun <T> checkErrors(callback: () -> T): T {
-		val res = callback()
-		if (checkErrors) {
-			val error = gl.getError()
-			if (error != gl.NO_ERROR) {
-				Console.error("OpenGL error: $error")
-				//System.err.println(Throwable().stackTrace)
-				Throwable().printStackTrace()
-				//throw RuntimeException("OpenGL error: $error")
-			}
-		}
-		return res
-	}
+	inline fun <T> checkErrors(callback: () -> T): T = callback()
+
+	//inline fun <T> checkErrors(callback: () -> T): T {
+	//	val res = callback()
+	//	if (checkErrors) {
+	//		val error = gl.getError()
+	//		if (error != gl.NO_ERROR) {
+	//			Console.error("OpenGL error: $error")
+	//			//System.err.println(Throwable().stackTrace)
+	//			Throwable().printStackTrace()
+	//			//throw RuntimeException("OpenGL error: $error")
+	//		}
+	//	}
+	//	return res
+	//}
 
 
 	override fun readColor(bitmap: Bitmap32) {

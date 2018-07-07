@@ -9,6 +9,7 @@ import com.soywiz.korio.file.*
 import com.soywiz.korio.file.std.*
 import com.soywiz.korio.util.*
 import com.soywiz.korma.*
+import org.khronos.webgl.*
 import org.w3c.dom.*
 import org.w3c.dom.url.*
 import org.w3c.files.*
@@ -17,50 +18,60 @@ import kotlin.math.*
 
 actual val nativeImageFormatProvider: NativeImageFormatProvider = HtmlNativeImageFormatProvider
 
-class CanvasNativeImage(val canvas: HTMLCanvasElement) :
-	NativeImage(canvas.width.toInt(), canvas.height.toInt(), canvas, false) {
-	override val name: String = "CanvasNativeImage"
+open class HtmlNativeImage(val texSource: TexImageSource, width: Int, height: Int) : NativeImage(width, height, texSource, false) {
+	override val name: String = "HtmlNativeImage"
+	val element: HTMLElement get() = texSource as HTMLElement
+
+	constructor(img: HTMLImageElement) : this(img, img.width, img.height)
+	constructor(canvas: HTMLCanvasElement) : this(canvas, canvas.width, canvas.height)
+
+	val lazyCanvasElement: HTMLCanvasElement by lazy {
+		when (texSource) {
+			is HTMLCanvasElement -> texSource
+			is HTMLImageElement -> BrowserImage.imageToCanvas(texSource)
+			else -> TODO("Unsupported image type $texSource")
+		}
+	}
 
 	override fun toNonNativeBmp(): Bitmap {
 		val data = IntArray(width * height)
-		HtmlImage.renderHtmlCanvasIntoBitmap(canvas, data)
+		HtmlImage.renderHtmlCanvasIntoBitmap(lazyCanvasElement, data)
 		return Bitmap32(width, height, data)
 	}
 
-	override fun getContext2d(antialiasing: Boolean): Context2d = Context2d(CanvasContext2dRenderer(canvas))
+	override fun getContext2d(antialiasing: Boolean): Context2d = Context2d(CanvasContext2dRenderer(lazyCanvasElement))
 }
 
 object HtmlNativeImageFormatProvider : NativeImageFormatProvider() {
 	override suspend fun decode(data: ByteArray): NativeImage {
-		return CanvasNativeImage(BrowserImage.decodeToCanvas(data))
+		return HtmlNativeImage(BrowserImage.decodeToCanvas(data))
 	}
 
 	override suspend fun decode(vfs: Vfs, path: String): NativeImage {
 		//println("HtmlImageSpecialReader.readSpecial: $vfs, $path")
-		val canvas = when (vfs) {
+		return when (vfs) {
 			is LocalVfs -> {
 				//println("LOCAL: HtmlImageSpecialReader: $vfs, $path")
-				BrowserImage.loadImage(path)
+				HtmlNativeImage(BrowserImage.loadImage(path))
 			}
 			is UrlVfs -> {
 				val jsUrl = vfs.getFullUrl(path)
 				//println("URL: HtmlImageSpecialReader: $vfs, $path : $jsUrl")
-				BrowserImage.loadImage(jsUrl)
+				HtmlNativeImage(BrowserImage.loadImage(jsUrl))
 			}
 			else -> {
 				//println("OTHER: HtmlImageSpecialReader: $vfs, $path")
-				BrowserImage.decodeToCanvas(vfs[path].readAll())
+				HtmlNativeImage(BrowserImage.decodeToCanvas(vfs[path].readAll()))
 			}
 		}
-		return CanvasNativeImage(canvas)
 	}
 
 	override fun create(width: Int, height: Int): NativeImage {
-		return CanvasNativeImage(HtmlCanvas.createCanvas(width, height))
+		return HtmlNativeImage(HtmlCanvas.createCanvas(width, height))
 	}
 
 	override fun copy(bmp: Bitmap): NativeImage {
-		return CanvasNativeImage(HtmlImage.bitmapToHtmlCanvas(bmp.toBMP32()))
+		return HtmlNativeImage(HtmlImage.bitmapToHtmlCanvas(bmp.toBMP32()))
 	}
 
 	override suspend fun display(bitmap: Bitmap, kind: Int) {
@@ -70,7 +81,7 @@ object HtmlNativeImageFormatProvider : NativeImageFormatProvider() {
 			document.body?.appendChild(img)
 		} else {
 			val img = bitmap.toHtmlNative()
-			document.body?.appendChild(img.canvas)
+			document.body?.appendChild(img.element)
 		}
 	}
 
@@ -93,13 +104,22 @@ object BrowserImage {
 		val blob = Blob(arrayOf(bytes), BlobPropertyBag(type = "image/png"))
 		val blobURL = URL.createObjectURL(blob)
 		try {
-			return loadImage(blobURL)
+			return loadCanvas(blobURL)
 		} finally {
 			URL.revokeObjectURL(blobURL)
 		}
 	}
 
-	suspend fun loadImage(jsUrl: String): HTMLCanvasElement = korioSuspendCoroutine { c ->
+	fun imageToCanvas(img: HTMLImageElement): HTMLCanvasElement {
+		val canvas: HTMLCanvasElement = HtmlCanvas.createCanvas(img.width, img.height)
+		//println("[onload.b]")
+		val ctx: CanvasRenderingContext2D = canvas.getContext("2d").unsafeCast<CanvasRenderingContext2D>()
+		//println("[onload.c]")
+		ctx.drawImage(img, 0.0, 0.0)
+		return canvas
+	}
+
+	suspend fun loadImage(jsUrl: String): HTMLImageElement = korioSuspendCoroutine { c ->
 		// Doesn't work with Kotlin.JS
 		//val img = document.createElement("img") as HTMLImageElement
 		//println("[1]")
@@ -111,32 +131,20 @@ object BrowserImage {
 			})
 			Unit
 		} else {
-			//println("[a]")
 			val img = document.createElement("img").unsafeCast<HTMLImageElement>()
-			//println("[b]")
 			img.onload = {
-				//println("[onload.a]")
-				val canvas: HTMLCanvasElement = HtmlCanvas.createCanvas(img.width, img.height)
-				//println("[onload.b]")
-				val ctx: CanvasRenderingContext2D = canvas.getContext("2d").unsafeCast<CanvasRenderingContext2D>()
-				//println("[onload.c]")
-				ctx.drawImage(img, 0.0, 0.0)
-				//println("[onload.d]")
-				c.resume(canvas)
-				//println("[onload.e]")
+				c.resume(img)
 			}
-			//println("[c]")
 			img.onerror = { _, _, _, _, _ ->
-				//println("[onerror.a]")
 				c.resumeWithException(RuntimeException("error loading image $jsUrl"))
 			}
-			//println("[d]")
-			//println("image: $jsUrl")
 			img.src = jsUrl
-			//document.body?.appendChild(img)
-			//println("[e]")
 			Unit
 		}
+	}
+
+	suspend fun loadCanvas(jsUrl: String): HTMLCanvasElement {
+		return imageToCanvas(loadImage(jsUrl))
 	}
 }
 
@@ -173,7 +181,7 @@ class CanvasContext2dRenderer(private val canvas: HTMLCanvasElement) : Context2d
 				}
 			}
 			is Context2d.BitmapPaint -> {
-				ctx.createPattern(this.bitmap.toHtmlNative().canvas, if (this.repeat) "repeat" else "no-repeat")
+				ctx.createPattern(this.bitmap.toHtmlNative().texSource, if (this.repeat) "repeat" else "no-repeat")
 				//ctx.call("createPattern", this.bitmap.toHtmlNative().canvas)
 			}
 			else -> "black"
@@ -228,7 +236,7 @@ class CanvasContext2dRenderer(private val canvas: HTMLCanvasElement) : Context2d
 		try {
 			transform.run { ctx.setTransform(a, b, c, d, tx, ty) }
 			ctx.drawImage(
-				(image.ensureNative() as CanvasNativeImage).canvas,
+				(image.ensureNative() as HtmlNativeImage).texSource,
 				x.toDouble(),
 				y.toDouble(),
 				width.toDouble(),

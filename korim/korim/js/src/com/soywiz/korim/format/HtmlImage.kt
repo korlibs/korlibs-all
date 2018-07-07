@@ -89,7 +89,7 @@ object HtmlImage {
 	}
 }
 
-fun Bitmap.toHtmlNative(): CanvasNativeImage = when (this) {
-	is CanvasNativeImage -> this
-	else -> CanvasNativeImage(HtmlImage.bitmapToHtmlCanvas(this.toBMP32()))
+fun Bitmap.toHtmlNative(): HtmlNativeImage = when (this) {
+	is HtmlNativeImage -> this
+	else -> HtmlNativeImage(HtmlImage.bitmapToHtmlCanvas(this.toBMP32()))
 }

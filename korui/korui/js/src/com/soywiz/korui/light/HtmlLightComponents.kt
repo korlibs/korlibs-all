@@ -546,8 +546,8 @@ class HtmlLightComponents : LightComponents() {
 			}
 			LightProperty.IMAGE -> {
 				val bmp = key[value]
-				if (bmp is CanvasNativeImage) {
-					setCanvas(c, bmp.canvas)
+				if (bmp is HtmlNativeImage) {
+					setCanvas(c, bmp.lazyCanvasElement)
 				} else {
 					setImage32(c, bmp?.toBMP32())
 				}

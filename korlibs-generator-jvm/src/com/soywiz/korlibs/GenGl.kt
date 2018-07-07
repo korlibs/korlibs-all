@@ -1340,7 +1340,7 @@ object OpenglDesc {
 			"format" to GlInt,
 			"type" to GlInt,
 			"data" to GlNativeImageData,
-			jsBody = "gl.texImage2D(target, level, internalformat, format, type, (data as CanvasNativeImage).canvas)",
+			jsBody = "gl.texImage2D(target, level, internalformat, format, type, (data as HtmlNativeImage).element)",
 			//jvmBody = "glTexImage2D(target, level, internalformat, data.width, data.height, 0, format, type, (data as BufferedImageKmlNativeImageData).buffer)",
 			jvmBody = "gl.glTexImage2D(target, level, internalformat, data.width, data.height, 0, format, type, (data as AwtNativeImage).buffer)",
 			nativeBody = "(data as KmlNativeNativeImageData).data.usePinned { dataPin -> glTexImage2D(target, level, internalformat, data.width, data.height, 0, format, type, dataPin.addressOf(0).uncheckedCast()) }",
