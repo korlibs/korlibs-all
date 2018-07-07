@@ -140,16 +140,28 @@ allprojects {
 
 	sourceSets {
 		if (isKotlin) {
-			main.kotlin.srcDirs += "src"
-			test.kotlin.srcDirs += "test"
+			if (project.file("src").exists()) {
+				main.kotlin.srcDirs += "src"
+			}
+			if (project.file("test").exists()) {
+				test.kotlin.srcDirs += "test"
+			}
 			if (!isNative) {
-				main.resources.srcDirs += "resources"
-				test.resources.srcDirs += "testresources"
+				if (project.file("resources").exists()) {
+					main.resources.srcDirs += "resources"
+				}
+				if (project.file("testresources").exists()) {
+					test.resources.srcDirs += "testresources"
+				}
 			}
 			if (!isCommon && !isNative) {
 				// @TODO: @BUG: Hack. No common resources are copied
-				main.resources.srcDirs += ['../common/resources']
-				test.resources.srcDirs += ['../common/testresources']
+				if (project.file("../common/resources").exists()) {
+					main.resources.srcDirs += '../common/resources'
+				}
+				if (project.file("../common/testresources").exists()) {
+					test.resources.srcDirs += '../common/testresources'
+				}
 			}
 
 			if (isNative) {

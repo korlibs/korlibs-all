@@ -22,6 +22,7 @@ import kotlin.math.sign
 
  * @author Trixt0r
  */
+@Suppress("unused", "MemberVisibilityCanBePrivate", "PropertyName")
 open class Player
 /**
  * Creates a [Player] instance with the given entity.
@@ -40,7 +41,7 @@ open class Player
 	var unmappedTweenedKeys: Array<Timeline.Key> = emptyArray()
 	private var tempTweenedKeys: Array<Timeline.Key>? = null
 	private var tempUnmappedTweenedKeys: Array<Timeline.Key>? = null
-	private val listeners: MutableList<PlayerListener> = ArrayList<PlayerListener>()
+	private val listeners: MutableList<PlayerListener> = ArrayList()
 	val attachments: List<Attachment> = ArrayList()
 	var root = Bone(Point(0f, 0f))
 	private val position = Point(0f, 0f)
@@ -106,15 +107,15 @@ open class Player
 		for (i in _animation.tweenedKeys.indices) {
 			this.tweenedKeys[i].active = _animation.tweenedKeys[i].active
 			this.unmappedTweenedKeys[i].active = _animation.unmappedTweenedKeys[i].active
-			this.tweenedKeys[i].`object`()!!.set(_animation.tweenedKeys[i].`object`()!!)
-			this.unmappedTweenedKeys[i].`object`()!!.set(_animation.unmappedTweenedKeys[i].`object`()!!)
+			this.tweenedKeys[i].`object`().set(_animation.tweenedKeys[i].`object`())
+			this.unmappedTweenedKeys[i].`object`().set(_animation.unmappedTweenedKeys[i].`object`())
 		}
 	}
 
 	private fun increaseTime() {
 		_time += speed
 		if (_time > _animation.length) {
-			_time = _time - _animation.length
+			_time -= _animation.length
 			for (i in listeners.indices) {
 				listeners[i].animationFinished(_animation)
 			}
@@ -174,7 +175,7 @@ open class Player
 	 * *
 	 * @return the bone with the given name
 	 * *
-	 * @throws ArrayIndexOutOfBoundsException if no bone exists with the given name
+	 * @throws IndexOutOfBoundsException if no bone exists with the given name
 	 * *
 	 * @throws NullPointerException if no bone exists with the given name
 	 */
@@ -213,7 +214,7 @@ open class Player
 	 * *
 	 * @return the object with the given name
 	 * *
-	 * @throws ArrayIndexOutOfBoundsException if no object exists with the given name
+	 * @throws IndexOutOfBoundsException if no object exists with the given name
 	 * *
 	 * @throws NullPointerException if no object exists with the given name
 	 */
@@ -239,7 +240,7 @@ open class Player
 	 * *
 	 * @return the name of the bone or object
 	 * *
-	 * @throws NullPointerException if no name for the given bone or bject was found
+	 * @throws NullPointerException if no name for the given bone or object was found
 	 */
 	fun getNameFor(boneOrObject: Bone): String {
 		return this._animation.getTimeline(objToTimeline[boneOrObject]!!.id).name
@@ -251,7 +252,7 @@ open class Player
 	 * *
 	 * @return the object info of the bone or object
 	 * *
-	 * @throws NullPointerException if no object info for the given bone or bject was found
+	 * @throws NullPointerException if no object info for the given bone or object was found
 	 */
 	fun getObjectInfoFor(boneOrObject: Bone): ObjectInfo {
 		return this._animation.getTimeline(objToTimeline[boneOrObject]!!.id).objectInfo
@@ -264,7 +265,7 @@ open class Player
 	 * @return the time line key of the bone or object, or null if no time line key was found
 	 */
 	fun getKeyFor(boneOrObject: Bone): Timeline.Key {
-		return objToTimeline.get(boneOrObject)!!
+		return objToTimeline[boneOrObject]!!
 	}
 
 	/**
@@ -301,7 +302,7 @@ open class Player
 
 	/**
 	 * Returns whether the given point lies inside the box of the given bone or object.
-	 * @param bone the bone or object
+	 * @param boneOrObject the bone or object
 	 * *
 	 * @param point the point
 	 * *
@@ -345,7 +346,7 @@ open class Player
 	 */
 	fun setBone(name: String, x: Float, y: Float, angle: Float, scaleX: Float, scaleY: Float) {
 		val index = getBoneIndex(name)
-		if (index == -1) throw SpriterException("No bone found of name \"" + name + "\"")
+		if (index == -1) throw SpriterException("No bone found of name \"$name\"")
 		val ref = currentKey!!.getBoneRef(index)
 		val bone = getBone(index)
 		bone[x, y, angle, scaleX, scaleY, 0f] = 0f
@@ -492,7 +493,7 @@ open class Player
 		file: Int
 	) {
 		val index = getObjectIndex(name)
-		if (index == -1) throw SpriterException("No object found for name \"" + name + "\"")
+		if (index == -1) throw SpriterException("No object found for name \"$name\"")
 		val ref = currentKey!!.getObjectRef(index)
 		val `object` = getObject(index)
 		`object`[x, y, angle, scaleX, scaleY, pivotX, pivotY, alpha, folder] = file
@@ -689,21 +690,20 @@ open class Player
 	 */
 	fun unmapObjects(base: BoneRef?) {
 		val start = if (base == null) -1 else base.id - 1
-		for (i in start + 1..currentKey!!.boneRefs.size - 1) {
-			val ref = currentKey!!.getBoneRef(i)
-			if (ref!!.parent !== base && base != null) continue
-			val parent =
-				if (ref!!.parent == null) this.root else this.unmappedTweenedKeys[ref.parent!!.timeline].`object`()!!
-			unmappedTweenedKeys[ref.timeline].`object`()!!.set(tweenedKeys[ref.timeline].`object`()!!)
-			unmappedTweenedKeys[ref.timeline].`object`()!!.unmap(parent)
+		for (i in start + 1 until currentKey!!.boneRefs.size) {
+			val ref = currentKey!!.getBoneRef(i)!!
+			if (ref.parent !== base && base !== null) continue
+			val parent = if (ref.parent == null) this.root else this.unmappedTweenedKeys[ref.parent.timeline].`object`()
+			unmappedTweenedKeys[ref.timeline].`object`().set(tweenedKeys[ref.timeline].`object`())
+			unmappedTweenedKeys[ref.timeline].`object`().unmap(parent)
 			unmapObjects(ref)
 		}
 		for (ref in currentKey!!.objectRefs) {
-			if (ref.parent !== base && base != null) continue
+			if (ref.parent !== base && base !== null) continue
 			val parent =
-				if (ref.parent == null) this.root else this.unmappedTweenedKeys[ref.parent.timeline].`object`()!!
-			unmappedTweenedKeys[ref.timeline].`object`()!!.set(tweenedKeys[ref.timeline].`object`()!!)
-			unmappedTweenedKeys[ref.timeline].`object`()!!.unmap(parent)
+				if (ref.parent == null) this.root else this.unmappedTweenedKeys[ref.parent.timeline].`object`()
+			unmappedTweenedKeys[ref.timeline].`object`().set(tweenedKeys[ref.timeline].`object`())
+			unmappedTweenedKeys[ref.timeline].`object`().unmap(parent)
 		}
 	}
 
@@ -718,16 +718,16 @@ open class Player
 		if (entity == null) throw SpriterException("entity can not be null!")
 		this._entity = entity
 		val maxAnims = entity.animationWithMostTimelines.timelines()
-		tweenedKeys = Array<Timeline.Key>(maxAnims) { Timeline.Key.DUMMY }
-		unmappedTweenedKeys = Array<Timeline.Key>(maxAnims) { Timeline.Key.DUMMY }
-		for (i in 0..maxAnims - 1) {
+		tweenedKeys = Array(maxAnims) { Timeline.Key.DUMMY }
+		unmappedTweenedKeys = Array(maxAnims) { Timeline.Key.DUMMY }
+		for (i in 0 until maxAnims) {
 			val key = Timeline.Key(i)
 			val keyU = Timeline.Key(i)
 			key.setObject(Object(Point(0f, 0f)))
 			keyU.setObject(Object(Point(0f, 0f)))
 			tweenedKeys[i] = key
 			unmappedTweenedKeys[i] = keyU
-			this.objToTimeline.put(keyU.`object`(), keyU)
+			this.objToTimeline[keyU.`object`()] = keyU
 		}
 		this.tempTweenedKeys = tweenedKeys
 		this.tempUnmappedTweenedKeys = unmappedTweenedKeys
@@ -820,16 +820,16 @@ open class Player
 
 	private fun calcBoundingRectangle(root: BoneRef?) {
 		for (ref in currentKey!!.boneRefs) {
-			if (ref.parent !== root && root != null) continue
+			if (ref.parent !== root && root !== null) continue
 			val bone = this.unmappedTweenedKeys[ref.timeline].`object`()
-			this.prevBBox.calcFor(bone!!, _animation.getTimeline(ref.timeline).objectInfo)
+			this.prevBBox.calcFor(bone, _animation.getTimeline(ref.timeline).objectInfo)
 			Rectangle.setBiggerRectangle(rect, this.prevBBox.boundingRect, rect)
 			this.calcBoundingRectangle(ref)
 		}
 		for (ref in currentKey!!.objectRefs) {
 			if (ref.parent !== root) continue
 			val bone = this.unmappedTweenedKeys[ref.timeline].`object`()
-			this.prevBBox.calcFor(bone!!, _animation.getTimeline(ref.timeline).objectInfo)
+			this.prevBBox.calcFor(bone, _animation.getTimeline(ref.timeline).objectInfo)
 			Rectangle.setBiggerRectangle(rect, this.prevBBox.boundingRect, rect)
 		}
 	}
@@ -1156,7 +1156,7 @@ open class Player
 
 
 		override fun next(): Object {
-			return unmappedTweenedKeys[currentKey!!.objectRefs[index++].timeline]!!.`object`()!!
+			return unmappedTweenedKeys[currentKey!!.objectRefs[index++].timeline].`object`()
 		}
 
 
@@ -1178,7 +1178,7 @@ open class Player
 		}
 
 		override fun next(): Bone {
-			return unmappedTweenedKeys[currentKey!!.boneRefs[index++].timeline]!!.`object`()!!
+			return unmappedTweenedKeys[currentKey!!.boneRefs[index++].timeline].`object`()
 		}
 
 		override fun remove() {
@@ -1248,24 +1248,17 @@ open class Player
 		 */
 		/**
 		 * Sets the parent of this attachment.
-		 * @param parent the parent
 		 * *
 		 * @throws SpriterException if parent is `null`
 		 */
-		var parent: Bone? = null
+		var parent: Bone? = parent
 			set(parent) {
 				if (parent == null) throw SpriterException("The parent cannot be null!")
 				field = parent
 			}
-		private val positionTemp: Point
-		private val scaleTemp: Point
+		private val positionTemp: Point = Point()
+		private val scaleTemp: Point = Point()
 		private var angleTemp: Float = 0.toFloat()
-
-		init {
-			this.positionTemp = Point()
-			this.scaleTemp = Point()
-			this.parent = parent
-		}
 
 		fun update() {
 			//Save relative positions

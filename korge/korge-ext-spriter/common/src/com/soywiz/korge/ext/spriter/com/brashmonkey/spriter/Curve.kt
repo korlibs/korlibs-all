@@ -36,7 +36,6 @@ constructor(
 	 */
 	/**
 	 * Sets the type of this curve.
-	 * @param type the curve type.
 	 * *
 	 * @throws SpriterException if the type is `null`
 	 */
@@ -68,18 +67,18 @@ constructor(
 	 * @return tweened value
 	 */
 	fun tween(a: Float, b: Float, t: Float): Float {
-		var t = t
-		t = tweenSub(0f, 1f, t)
+		var tt = t
+		tt = tweenSub(0f, 1f, tt)
 		when (this.type) {
 			Type.Instant -> return a
-			Type.Linear -> return Interpolator.linear(a, b, t)
-			Type.Quadratic -> return Interpolator.quadratic(a, Interpolator.linear(a, b, constraints.c1), b, t)
+			Type.Linear -> return Interpolator.linear(a, b, tt)
+			Type.Quadratic -> return Interpolator.quadratic(a, Interpolator.linear(a, b, constraints.c1), b, tt)
 			Type.Cubic -> return Interpolator.cubic(
 				a,
 				Interpolator.linear(a, b, constraints.c1),
 				Interpolator.linear(a, b, constraints.c2),
 				b,
-				t
+				tt
 			)
 			Type.Quartic -> return Interpolator.quartic(
 				a,
@@ -87,7 +86,7 @@ constructor(
 				Interpolator.linear(a, b, constraints.c2),
 				Interpolator.linear(a, b, constraints.c3),
 				b,
-				t
+				tt
 			)
 			Type.Quintic -> return Interpolator.quintic(
 				a,
@@ -96,14 +95,14 @@ constructor(
 				Interpolator.linear(a, b, constraints.c3),
 				Interpolator.linear(a, b, constraints.c4),
 				b,
-				t
+				tt
 			)
 			Type.Bezier -> {
 				var cubicSolution = Calculator.solveCubic(
 					3f * (constraints.c1 - constraints.c3) + 1f,
 					3f * (constraints.c3 - 2f * constraints.c1),
 					3f * constraints.c1,
-					-t
+					-tt
 				)
 				if (cubicSolution == Calculator.NO_SOLUTION)
 					cubicSolution = lastCubicSolution
@@ -115,7 +114,7 @@ constructor(
 					Interpolator.bezier(cubicSolution, 0f, constraints.c2, constraints.c4, 1f)
 				)
 			}
-			else -> return Interpolator.linear(a, b, t)
+			else -> return Interpolator.linear(a, b, tt)
 		}
 	}
 
@@ -133,12 +132,8 @@ constructor(
 		target.set(this.tween(a.x, b.x, t), this.tween(a.y, b.y, t))
 	}
 
-	private fun tweenSub(a: Float, b: Float, t: Float): Float {
-		if (this.subCurve != null)
-			return subCurve!!.tween(a, b, t)
-		else
-			return t
-	}
+	private fun tweenSub(a: Float, b: Float, t: Float): Float =
+		if (this.subCurve != null) subCurve!!.tween(a, b, t) else t
 
 	/**
 	 * Returns a tweened angle based on the given angles, weight and the spin.
@@ -153,40 +148,40 @@ constructor(
 	 * @return tweened angle
 	 */
 	fun tweenAngle(a: Float, b: Float, t: Float, spin: Int): Float {
-		var b = b
+		var bb = b
 		if (spin > 0) {
-			if (b - a < 0)
-				b += 360f
+			if (bb - a < 0)
+				bb += 360f
 		} else if (spin < 0) {
-			if (b - a > 0)
-				b -= 360f
+			if (bb - a > 0)
+				bb -= 360f
 		} else
 			return a
 
-		return tween(a, b, t)
+		return tween(a, bb, t)
 	}
 
 	/**
 	 * @see {@link .tween
 	 */
 	fun tweenAngle(a: Float, b: Float, t: Float): Float {
-		var t = t
-		t = tweenSub(0f, 1f, t)
+		var tt = t
+		tt = tweenSub(0f, 1f, tt)
 		when (this.type) {
 			Type.Instant -> return a
-			Type.Linear -> return Interpolator.linearAngle(a, b, t)
+			Type.Linear -> return Interpolator.linearAngle(a, b, tt)
 			Type.Quadratic -> return Interpolator.quadraticAngle(
 				a,
 				Interpolator.linearAngle(a, b, constraints.c1),
 				b,
-				t
+				tt
 			)
 			Type.Cubic -> return Interpolator.cubicAngle(
 				a,
 				Interpolator.linearAngle(a, b, constraints.c1),
 				Interpolator.linearAngle(a, b, constraints.c2),
 				b,
-				t
+				tt
 			)
 			Type.Quartic -> return Interpolator.quarticAngle(
 				a,
@@ -194,7 +189,7 @@ constructor(
 				Interpolator.linearAngle(a, b, constraints.c2),
 				Interpolator.linearAngle(a, b, constraints.c3),
 				b,
-				t
+				tt
 			)
 			Type.Quintic -> return Interpolator.quinticAngle(
 				a,
@@ -203,14 +198,14 @@ constructor(
 				Interpolator.linearAngle(a, b, constraints.c3),
 				Interpolator.linearAngle(a, b, constraints.c4),
 				b,
-				t
+				tt
 			)
 			Type.Bezier -> {
 				var cubicSolution = Calculator.solveCubic(
 					3f * (constraints.c1 - constraints.c3) + 1f,
 					3f * (constraints.c3 - 2f * constraints.c1),
 					3f * constraints.c1,
-					-t
+					-tt
 				)
 				if (cubicSolution == Calculator.NO_SOLUTION)
 					cubicSolution = lastCubicSolution
@@ -222,7 +217,7 @@ constructor(
 					Interpolator.bezier(cubicSolution, 0f, constraints.c2, constraints.c4, 1f)
 				)
 			}
-			else -> return Interpolator.linearAngle(a, b, t)
+			else -> return Interpolator.linearAngle(a, b, tt)
 		}
 	}
 
@@ -277,10 +272,3 @@ constructor(
 	}
 
 }
-/**
- * Creates a new linear curve.
- */
-/**
- * Creates a new curve with the given type.
- * @param type the curve type
- */

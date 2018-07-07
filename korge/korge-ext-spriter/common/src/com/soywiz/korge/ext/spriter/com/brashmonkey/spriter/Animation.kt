@@ -13,17 +13,18 @@ import com.soywiz.korio.JvmField
  * Furthermore it holds an [.id], a [.length], a [.name] and whether it is [.looping] or not.
  * @author Trixt0r
  */
+@Suppress("MemberVisibilityCanBePrivate")
 open class Animation(
 	@JvmField val mainline: Mainline, @JvmField val id: Int, @JvmField val name: String, @JvmField val length: Int, @JvmField val looping: Boolean,
 	timelines: Int
 ) {
 	companion object {
-		val DUMMY = Animation(Mainline.Companion.DUMMY, 0, "", 0, false, 0)
+		val DUMMY = Animation(Mainline.DUMMY, 0, "", 0, false, 0)
 	}
 
-	private val timelines: Array<Timeline> = Array<Timeline>(timelines) { Timeline.DUMMY }
+	private val timelines: Array<Timeline> = Array(timelines) { Timeline.DUMMY }
 	private var timelinePointer = 0
-	private val nameToTimeline: HashMap<String, Timeline> = HashMap<String, Timeline>()
+	private val nameToTimeline: HashMap<String, Timeline> = HashMap()
 	open var currentKey: Key = Key.DUMMY
 	@JvmField
 	var tweenedKeys: Array<Timeline.Key> = emptyArray()
@@ -55,7 +56,7 @@ open class Animation(
 
 	fun addTimeline(timeline: Timeline) {
 		this.timelines[timelinePointer++] = timeline
-		this.nameToTimeline.put(timeline.name, timeline)
+		this.nameToTimeline[timeline.name] = timeline
 	}
 
 	/**
@@ -128,13 +129,13 @@ open class Animation(
 		val bone2 = nextKey.`object`()
 		val tweenTarget = this.tweenedKeys[ref.timeline].`object`()
 		if (isObject)
-			this.tweenObject(bone1 as Object, bone2 as Object, tweenTarget as Object, t, key.curve, key.spin)
+			this.tweenObject(bone1, bone2, tweenTarget, t, key.curve, key.spin)
 		else
 			this.tweenBone(bone1 as Bone, bone2 as Bone, tweenTarget as Bone, t, key.curve, key.spin)
 		this.unmappedTweenedKeys[ref.timeline].active = true
 		this.unmapTimelineObject(
 			ref.timeline, isObject, if (ref.parent != null)
-				this.unmappedTweenedKeys[ref.parent.timeline].`object`() as Bone
+				this.unmappedTweenedKeys[ref.parent.timeline].`object`()
 			else
 				root
 		)
@@ -144,7 +145,7 @@ open class Animation(
 		val tweenTarget = this.tweenedKeys[timeline].`object`()
 		val mapTarget = this.unmappedTweenedKeys[timeline].`object`()
 		if (isObject)
-			(mapTarget as Object).set(tweenTarget as Object)
+			mapTarget.set(tweenTarget)
 		else
 			(mapTarget as Bone).set(tweenTarget as Bone)
 		mapTarget.unmap(root)
@@ -195,8 +196,8 @@ open class Animation(
 	 */
 	fun prepare() {
 		if (this.prepared) return
-		this.tweenedKeys = Array<Timeline.Key>(timelines.size) { Timeline.Key.DUMMY }
-		this.unmappedTweenedKeys = Array<Timeline.Key>(timelines.size) { Timeline.Key.DUMMY }
+		this.tweenedKeys = Array(timelines.size) { Timeline.Key.DUMMY }
+		this.unmappedTweenedKeys = Array(timelines.size) { Timeline.Key.DUMMY }
 
 		for (i in this.tweenedKeys.indices) {
 			this.tweenedKeys[i] = Timeline.Key(i)

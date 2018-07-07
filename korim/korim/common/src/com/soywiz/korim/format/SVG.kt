@@ -7,10 +7,10 @@ import kotlin.math.*
 
 object SVG : ImageFormat("svg") {
 	override fun decodeHeader(s: SyncStream, props: ImageDecodingProps): ImageInfo? {
-		val start = s.slice().readString(min(100, s.length.toInt())).trim().toLowerCase()
+		val start = s.sliceStart().readString(min(100, s.length.toInt())).trim().toLowerCase()
 		try {
 			if (start.startsWith("<svg") || start.startsWith("<?xml")) {
-				val content = s.slice().readAll().toString(UTF8).trim()
+				val content = s.sliceStart().readAll().toString(UTF8).trim()
 				val svg = com.soywiz.korim.vector.format.SVG(content)
 				return ImageInfo().apply {
 					width = svg.width
@@ -25,7 +25,7 @@ object SVG : ImageFormat("svg") {
 	}
 
 	override fun readImage(s: SyncStream, props: ImageDecodingProps): ImageData {
-		val content = s.slice().readAll().toString(UTF8).trim()
+		val content = s.sliceStart().readAll().toString(UTF8).trim()
 		val svg = com.soywiz.korim.vector.format.SVG(content)
 		return ImageData(
 			listOf(

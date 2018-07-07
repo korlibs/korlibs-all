@@ -11,6 +11,7 @@ import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 import kotlin.collections.set
 
+@Suppress("MemberVisibilityCanBePrivate", "UNUSED_VARIABLE", "LocalVariableName", "unused")
 // Used information from:
 // - https://www.sweetscape.com/010editor/repository/files/TTF.bt
 // - http://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=iws-chapter08
@@ -25,6 +26,7 @@ class TtfFont private constructor(val s: SyncStream) {
 		fun open() = s.clone()
 	}
 
+	@Suppress("unused")
 	enum class NameIds(val id: Int) {
 		COPYRIGHT(0), FONT_FAMILY_NAME(1), FONT_SUBFAMILY_NAME(2), UNIQUE_FONT_ID(3),
 		FULL_FONT_NAME(4), VERSION_STRING(5), POSTSCRIPT_NAME(6), TRADEMARK(7),
@@ -111,7 +113,7 @@ class TtfFont private constructor(val s: SyncStream) {
 		readHmtx()
 	}
 
-	fun readHeaderTables() = s.slice().apply {
+	fun readHeaderTables() = s.sliceStart().apply {
 		val majorVersion = readU16_be().apply { if (this != 1) invalidOp("Not a TTF file") }
 		val minorVersion = readU16_be().apply { if (this != 0) invalidOp("Not a TTF file") }
 		val numTables = readU16_be()
@@ -131,7 +133,7 @@ class TtfFont private constructor(val s: SyncStream) {
 		//for (table in tables) println(table)
 	}
 
-	inline fun runTableUnit(name: String, callback: SyncStream.() -> Unit): Unit {
+	inline fun runTableUnit(name: String, callback: SyncStream.() -> Unit) {
 		openTable(name)?.callback()
 	}
 
@@ -289,12 +291,12 @@ class TtfFont private constructor(val s: SyncStream) {
 							val iro = idRangeOffset[n].toInt()
 							//println("%04X-%04X : %d : %d".format(sc, ec, delta, iro))
 							for (c in sc..ec) {
-								var index: Int = 0
+								var index: Int
 								if (iro != 0) {
 									var glyphIndexOffset = rangeOffsetPos + n * 2
 									glyphIndexOffset += iro
 									glyphIndexOffset += (c - sc) * 2
-									index = sliceWithStart(glyphIndexOffset.toLong()).readU16_be()
+									index = sliceStart(glyphIndexOffset.toLong()).readU16_be()
 									if (index != 0) {
 										index += delta
 									}
@@ -346,13 +348,13 @@ class TtfFont private constructor(val s: SyncStream) {
 		val end = locs.getOrNull(index + 1)?.toUnsigned() ?: start
 		val size = end - start
 		if (size != 0L) {
-			sliceWithStart(start).readGlyph(index)
+			sliceStart(start).readGlyph(index)
 		} else {
 			Glyph(0, 0, 0, 0, intArrayOf(), intArrayOf(), intArrayOf(), intArrayOf(), horMetrics[index].advanceWidth)
 		}
 	}
 
-	fun getAllGlyphs() = (0 until numGlyphs).map { getGlyphByIndex(it) }.filterNotNull()
+	fun getAllGlyphs() = (0 until numGlyphs).mapNotNull { getGlyphByIndex(it) }
 
 	interface IGlyph {
 		val xMin: Int
@@ -382,7 +384,7 @@ class TtfFont private constructor(val s: SyncStream) {
 		x: Double = 0.0,
 		y: Double = 0.0,
 		color: Int = Colors.WHITE,
-		origin: Origin = Origin.BASELINE
+		@Suppress("UNUSED_PARAMETER") origin: Origin = Origin.BASELINE
 	) = c.run {
 		val font = this@TtfFont
 		val scale = size / unitsPerEm.toDouble()
@@ -391,7 +393,7 @@ class TtfFont private constructor(val s: SyncStream) {
 		for (char in text) {
 			val g = getGlyphByChar(char)
 			if (g != null) {
-				g.fill(this, 32.0, TtfFont.Origin.TOP, Colors.BLUE)
+				g.fill(this, 32.0, TtfFont.Origin.TOP, color)
 				translate(scale * g.advanceWidth, 0.0)
 			}
 		}
@@ -525,7 +527,8 @@ class TtfFont private constructor(val s: SyncStream) {
 		return i.toFloat() + f.toFloat() / 16384f
 	}
 
-	fun SyncStream.readMix_BE(signed: Boolean, word: Boolean): Int {
+	@Suppress("FunctionName")
+	fun SyncStream.readMix_be(signed: Boolean, word: Boolean): Int {
 		return when {
 			!word && signed -> readS8()
 			!word && !signed -> readU8()
@@ -565,25 +568,30 @@ class TtfFont private constructor(val s: SyncStream) {
 				val glyphIndex = readU16_be()
 				val signed = (flags and ARGS_ARE_XY_VALUES) != 0
 				val words = (flags and ARG_1_AND_2_ARE_WORDS) != 0
-				val x = readMix_BE(signed, words)
-				val y = readMix_BE(signed, words)
-				var scaleX: Float = 1f
-				var scaleY: Float = 1f
-				var scale01: Float = 0f
-				var scale10: Float = 0f
+				val x = readMix_be(signed, words)
+				val y = readMix_be(signed, words)
+				var scaleX = 1f
+				var scaleY = 1f
+				var scale01 = 0f
+				var scale10 = 0f
 
-				if ((flags and WE_HAVE_A_SCALE) != 0) {
-					scaleX = readF2DOT14()
-					scaleY = scaleX
-				} else if ((flags and WE_HAVE_AN_X_AND_Y_SCALE) != 0) {
-					scaleX = readF2DOT14()
-					scaleY = readF2DOT14()
-				} else if ((flags and WE_HAVE_A_TWO_BY_TWO) != 0) {
-					scaleX = readF2DOT14()
-					scale01 = readF2DOT14()
-					scale10 = readF2DOT14()
-					scaleY = readF2DOT14()
+				when {
+					(flags and WE_HAVE_A_SCALE) != 0 -> {
+						scaleX = readF2DOT14()
+						scaleY = scaleX
+					}
+					(flags and WE_HAVE_AN_X_AND_Y_SCALE) != 0 -> {
+						scaleX = readF2DOT14()
+						scaleY = readF2DOT14()
+					}
+					(flags and WE_HAVE_A_TWO_BY_TWO) != 0 -> {
+						scaleX = readF2DOT14()
+						scale01 = readF2DOT14()
+						scale10 = readF2DOT14()
+						scaleY = readF2DOT14()
+					}
 				}
+
 				//val useMyMetrics = flags hasFlag USE_MY_METRICS
 				val ref = GlyphReference(getGlyphByIndex(glyphIndex)!!, x, y, scaleX, scale01, scale10, scaleY)
 				//println("signed=$signed, words=$words, useMyMetrics=$useMyMetrics")
@@ -598,7 +606,7 @@ class TtfFont private constructor(val s: SyncStream) {
 			for (n in 1..ncontours) contoursIndices[n] = readU16_be()
 			val instructionLength = readU16_be()
 			val instructions = readBytesExact(instructionLength)
-			val numPoints = contoursIndices.lastOrNull()?.toInt()?.plus(1) ?: 0
+			val numPoints = contoursIndices.lastOrNull()?.plus(1) ?: 0
 			val flags = IntArrayList()
 
 			var npos = 0

@@ -36,9 +36,9 @@ object ICO : ImageFormat("ico") {
 		)
 
 		fun readBitmap(e: DirEntry, s: SyncStream): Bitmap {
-			val tryPNGHead = s.slice().readU32_be()
+			val tryPNGHead = s.sliceStart().readU32_be()
 			if (tryPNGHead == 0x89_50_4E_47L) return PNG.decode(
-				s.slice(),
+				s.sliceStart(),
 				props.copy(filename = "${props.filename}.png")
 			)
 			val headerSize = s.readS32_le()

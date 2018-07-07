@@ -209,10 +209,10 @@ class MemorySyncStreamBase(var data: ByteArrayBuffer) : SyncStreamBase() {
 	override fun toString(): String = "MemorySyncStreamBase(${data.size})"
 }
 
-@Deprecated("Replace with sliceStart", ReplaceWith("sliceStart()"))
+@Deprecated("Replace with sliceStart", ReplaceWith("sliceStart()"), level = DeprecationLevel.ERROR)
 fun SyncStream.slice(): SyncStream = SyncStream(SliceSyncStreamBase(this.base, 0L, length))
 
-@Deprecated("Replace with sliceStart", ReplaceWith("sliceStart(start)"))
+@Deprecated("Replace with sliceStart", ReplaceWith("sliceStart(start)"), level = DeprecationLevel.ERROR)
 fun SyncStream.sliceWithStart(start: Long): SyncStream = sliceWithBounds(start, this.length)
 
 fun SyncStream.sliceStart(): SyncStream = sliceWithBounds(0L, this.length)

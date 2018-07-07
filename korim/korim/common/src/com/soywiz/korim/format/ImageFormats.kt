@@ -11,7 +11,7 @@ class ImageFormats(formats: Iterable<ImageFormat>) : ImageFormat("") {
 	val formats = formats.toSet()
 	override fun decodeHeader(s: SyncStream, props: ImageDecodingProps): ImageInfo? {
 		for (format in formats) return try {
-			format.decodeHeader(s.slice(), props) ?: continue
+			format.decodeHeader(s.sliceStart(), props) ?: continue
 		} catch (e: Throwable) {
 			continue
 		}
@@ -19,10 +19,10 @@ class ImageFormats(formats: Iterable<ImageFormat>) : ImageFormat("") {
 	}
 
 	override fun readImage(s: SyncStream, props: ImageDecodingProps): ImageData {
-		val format = formats.firstOrNull { it.check(s.slice(), props) }
-		if (format != null) return format.readImage(s.slice(), props)
+		val format = formats.firstOrNull { it.check(s.sliceStart(), props) }
+		if (format != null) return format.readImage(s.sliceStart(), props)
 		throw UnsupportedOperationException(
-			"Not suitable image format : MAGIC:" + s.slice().readString(
+			"Not suitable image format : MAGIC:" + s.sliceStart().readString(
 				4,
 				ASCII
 			) + "(" + s.sliceStart().readBytes(4).hex + ") (" + s.sliceStart().readBytes(4).toString(ASCII) + ")"

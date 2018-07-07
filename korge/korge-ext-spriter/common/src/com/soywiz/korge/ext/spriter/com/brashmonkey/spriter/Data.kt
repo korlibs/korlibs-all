@@ -1,6 +1,7 @@
 package com.soywiz.korge.ext.spriter.com.brashmonkey.spriter
 
 
+@Suppress("unused", "MemberVisibilityCanBePrivate")
 /**
  * Represents all the data which necessary to animate a Spriter generated SCML file.
  * An instance of this class holds [Folder]s and [Entity] instances.
@@ -56,10 +57,7 @@ class Data(
 
 	fun getFolder(name: String): Folder? {
 		val index = getFolderIndex(name)
-		if (index >= 0)
-			return getFolder(index)
-		else
-			return null
+		return if (index >= 0) getFolder(index) else null
 	}
 
 	fun getFolderIndex(name: String): Int = this.folders.firstOrNull { it.name == name }?.id ?: -1
@@ -70,7 +68,7 @@ class Data(
 
 	fun getEntity(name: String): Entity? {
 		val index = getEntityIndex(name)
-		if (index >= 0) return getEntity(index) else return null
+		return if (index >= 0) getEntity(index) else null
 	}
 
 	fun getEntityIndex(name: String): Int = this.entities.firstOrNull { it.name == name }?.id ?: -1
