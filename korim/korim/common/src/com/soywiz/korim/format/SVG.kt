@@ -8,31 +8,25 @@ import kotlin.math.*
 object SVG : ImageFormat("svg") {
 	override fun decodeHeader(s: SyncStream, props: ImageDecodingProps): ImageInfo? {
 		val start = s.sliceStart().readString(min(100, s.length.toInt())).trim().toLowerCase()
-		try {
+		return try {
 			if (start.startsWith("<svg") || start.startsWith("<?xml")) {
 				val content = s.sliceStart().readAll().toString(UTF8).trim()
 				val svg = com.soywiz.korim.vector.format.SVG(content)
-				return ImageInfo().apply {
+				ImageInfo().apply {
 					width = svg.width
 					height = svg.height
 				}
 			} else {
-				return null
+				null
 			}
 		} catch (t: Throwable) {
-			return null
+			null
 		}
 	}
 
 	override fun readImage(s: SyncStream, props: ImageDecodingProps): ImageData {
 		val content = s.sliceStart().readAll().toString(UTF8).trim()
 		val svg = com.soywiz.korim.vector.format.SVG(content)
-		return ImageData(
-			listOf(
-				ImageFrame(
-					svg.render().toBmp32()
-				)
-			)
-		)
+		return ImageData(listOf(ImageFrame(svg.render().toBmp32())))
 	}
 }

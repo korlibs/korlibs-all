@@ -17,13 +17,11 @@ class ByteArrayBuilder() {
 		append(chunk)
 	}
 
-	constructor(chunks: Iterable<ByteArray>) : this() {
-		for (chunk in chunks) append(chunk)
-	}
-
 	constructor(vararg chunks: ByteArray) : this() {
 		for (chunk in chunks) append(chunk)
 	}
+
+	constructor(chunks: Iterable<ByteArray>) : this(*chunks.toList().toTypedArray())
 
 	private fun flush() {
 		if (small.size <= 0) return
@@ -94,8 +92,9 @@ class ByteArrayBuilder() {
 	}
 }
 
-@Deprecated("", replaceWith = ReplaceWith("com.soywiz.korio.stream.ByteArrayBuilder"))
+@Deprecated("", replaceWith = ReplaceWith("com.soywiz.korio.stream.ByteArrayBuilder"), level = DeprecationLevel.ERROR)
 class ByteArrayBuilderSmall(private var bytes: ByteArray, private var len: Int = 0) {
+	@Suppress("unused")
 	constructor(capacity: Int = 64) : this(ByteArray(capacity))
 
 	val size: Int get() = len

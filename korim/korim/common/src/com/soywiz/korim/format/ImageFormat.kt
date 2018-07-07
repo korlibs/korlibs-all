@@ -5,7 +5,6 @@ import com.soywiz.korio.async.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korio.file.*
 
 abstract class ImageFormat(vararg exts: String) {
 	val extensions = exts.map { it.toLowerCase().trim() }.toSet()

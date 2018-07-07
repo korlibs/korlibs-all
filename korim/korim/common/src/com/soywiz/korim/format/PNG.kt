@@ -8,12 +8,12 @@ import com.soywiz.korio.compression.deflate.*
 import com.soywiz.korio.crypto.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korio.util.*
 import kotlin.math.*
 
+@Suppress("MemberVisibilityCanBePrivate")
 object PNG : ImageFormat("png") {
 	const val MAGIC1 = 0x89504E47.toInt()
-	const val MAGIC2 = 0x0D0A1A0A.toInt()
+	const val MAGIC2 = 0x0D0A1A0A
 
 	data class InterlacedPass(
 		val startingRow: Int, val startingCol: Int,
@@ -54,8 +54,8 @@ object PNG : ImageFormat("png") {
 		val height: Int,
 		val bitsPerChannel: Int,
 		val colorspace: Colorspace, // 0=grayscale, 2=RGB, 3=Indexed, 4=grayscale+alpha, 6=RGBA
-		val compressionmethod: Int, // 0
-		val filtermethod: Int,
+		@Suppress("unused") val compressionmethod: Int, // 0
+		@Suppress("unused") val filtermethod: Int,
 		val interlacemethod: Int
 	) {
 		val bytes = when (colorspace) {
@@ -64,7 +64,6 @@ object PNG : ImageFormat("png") {
 			Colorspace.GRAYSCALE_ALPHA -> 2
 			Colorspace.RGB -> 3
 			Colorspace.RGBA -> 4
-			else -> 1
 		}
 		val stride = width * bytes
 	}
@@ -113,6 +112,7 @@ object PNG : ImageFormat("png") {
 			return writeChunk(name, MemorySyncStreamToByteArray(initialCapacity) { callback() })
 		}
 
+		@Suppress("unused")
 		fun writeChunkCompressed(name: String, initialCapacity: Int = 4096, callback: SyncStream.() -> Unit) {
 			return writeChunk(name, compress(MemorySyncStreamToByteArray(initialCapacity) { callback() }))
 		}
@@ -198,6 +198,7 @@ object PNG : ImageFormat("png") {
 			val length = readS32_be()
 			val type = readStringz(4)
 			val data = readStream(length.toLong())
+			@Suppress("UNUSED_VARIABLE")
 			val crc = readS32_be()
 
 			when (type) {

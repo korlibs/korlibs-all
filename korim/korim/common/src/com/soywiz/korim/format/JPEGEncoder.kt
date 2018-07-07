@@ -57,7 +57,7 @@ class JPEGEncoder(quality: Int = 50) {
 	private var category = IntArray(0xFFFF)
 	private var outputfDCTQuant = IntArray(64)
 	private var du = IntArray(64)
-	private var byteOut = ByteArrayBuilderSmall()
+	private var byteOut = ByteArrayBuilder()
 	private var byteNew = 0
 	private var bytePos = 7
 
@@ -502,7 +502,7 @@ class JPEGEncoder(quality: Int = 50) {
 		if (quality != null) setQuality(quality)
 
 		// Initialize bit writer
-		byteOut = ByteArrayBuilderSmall()
+		byteOut = ByteArrayBuilder()
 		byteNew = 0
 		bytePos = 7
 

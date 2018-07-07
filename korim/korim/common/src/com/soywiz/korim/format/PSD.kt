@@ -10,9 +10,9 @@ import com.soywiz.korio.stream.*
 object PSD : ImageFormat("psd") {
 	override fun readImage(s: SyncStream, props: ImageDecodingProps): ImageData = s.run {
 		val header = decodeHeader(this, props) ?: invalidOp("Not a PSD file")
-		val colorMode = readStream(readS32_be())
-		val imageResources = readStream(readS32_be())
-		val layerAndMask = readStream(readS32_be())
+		@Suppress("UNUSED_VARIABLE") val colorMode = readStream(readS32_be())
+		@Suppress("UNUSED_VARIABLE") val imageResources = readStream(readS32_be())
+		@Suppress("UNUSED_VARIABLE") val layerAndMask = readStream(readS32_be())
 		val imageData = readAvailable().openFastStream().readImageData(header)
 		//println(colorMode.length)
 		//println(imageResources.length)
@@ -98,6 +98,7 @@ object PSD : ImageFormat("psd") {
 			2 -> return null // PSB file not supported yet!
 			else -> return null
 		}
+		@Suppress("UNUSED_VARIABLE")
 		val reserved = readBytes(6)
 		val channels = readU16_be()
 		val height = readS32_be()

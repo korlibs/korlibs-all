@@ -6,15 +6,15 @@ import com.soywiz.korio.stream.*
 
 object TGA : ImageFormat("tga") {
 	override fun decodeHeader(s: SyncStream, props: ImageDecodingProps): ImageInfo? {
-		try {
+		return try {
 			val h = readHeader(s)
-			return ImageInfo().apply {
+			ImageInfo().apply {
 				this.width = h.width
 				this.height = h.height
 				this.bitsPerPixel = h.bitsPerPixel
 			}
 		} catch (t: Throwable) {
-			return null
+			null
 		}
 	}
 
@@ -29,6 +29,7 @@ object TGA : ImageFormat("tga") {
 	}
 
 	// http://www.paulbourke.net/dataformats/tga/
+	@Suppress("UNUSED_VARIABLE")
 	fun readHeader(s: SyncStream): Info {
 		val idLength = s.readU8()
 		val colorMapType = s.readU8()

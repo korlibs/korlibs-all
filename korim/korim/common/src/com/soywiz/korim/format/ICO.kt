@@ -4,6 +4,7 @@ import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
 import com.soywiz.korio.stream.*
 
+@Suppress("UNUSED_VARIABLE")
 object ICO : ImageFormat("ico") {
 	override fun decodeHeader(s: SyncStream, props: ImageDecodingProps): ImageInfo? {
 		if (s.readU16_le() != 0) return null
