@@ -14,4 +14,4 @@ install:
 
 script:
   - jdk_switcher use oraclejdk8
-  - ./gradlew -s -i check install && pushd samples && ../gradlew -s -i check && popd
+  - ./gradlew -s check install && pushd samples && ../gradlew -s check && popd
