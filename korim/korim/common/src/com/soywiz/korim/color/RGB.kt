@@ -2,20 +2,15 @@ package com.soywiz.korim.color
 
 import com.soywiz.kmem.*
 
-object RGB : ColorFormat24() {
-	override fun getR(v: Int): Int = v.extract8(0)
-	override fun getG(v: Int): Int = v.extract8(8)
-	override fun getB(v: Int): Int = v.extract8(16)
+open class RGB(val rOffset: Int, val gOffset: Int, val bOffset: Int) : ColorFormat24() {
+	override fun getR(v: Int): Int = v.extract8(rOffset)
+	override fun getG(v: Int): Int = v.extract8(gOffset)
+	override fun getB(v: Int): Int = v.extract8(bOffset)
 	override fun getA(v: Int): Int = 0xFF
 
-	override fun pack(r: Int, g: Int, b: Int, a: Int): Int = 0.insert(r, 0, 8).insert(g, 8, 8).insert(b, 16, 8)
+	override fun pack(r: Int, g: Int, b: Int, a: Int): Int = 0.insert8(r, rOffset).insert8(g, gOffset).insert8(b, bOffset)
+
+	companion object : RGB(rOffset = 0, gOffset = 8, bOffset = 16)
 }
 
-object BGR : ColorFormat24() {
-	override fun getR(v: Int): Int = v.extract8(16)
-	override fun getG(v: Int): Int = v.extract8(8)
-	override fun getB(v: Int): Int = v.extract8(0)
-	override fun getA(v: Int): Int = 0xFF
-
-	override fun pack(r: Int, g: Int, b: Int, a: Int): Int = 0.insert(r, 16, 8).insert(g, 8, 8).insert(b, 0, 8)
-}
+object BGR : RGB(rOffset = 16, gOffset = 8, bOffset = 0)

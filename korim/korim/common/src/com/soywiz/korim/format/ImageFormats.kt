@@ -38,6 +38,9 @@ class ImageFormats(formats: Iterable<ImageFormat>) : ImageFormat("") {
 	}
 }
 
+operator fun ImageFormats.plus(format: ImageFormat) = ImageFormats(this.formats + format)
+operator fun ImageFormats.plus(format: Iterable<ImageFormat>) = ImageFormats(this.formats + format)
+
 suspend fun Bitmap.writeTo(
 	file: VfsFile,
 	props: ImageEncodingProps = ImageEncodingProps(),

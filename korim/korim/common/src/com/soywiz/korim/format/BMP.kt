@@ -1,6 +1,7 @@
 package com.soywiz.korim.format
 
 import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
 import com.soywiz.korio.stream.*
 
 @Suppress("UNUSED_VARIABLE")
@@ -35,15 +36,30 @@ object BMP : ImageFormat("bmp") {
 		val clrUsed = s.readS32_le()
 		val clrImportant = s.readS32_le()
 
-		if (h.bitsPerPixel == 8) {
-			val out = Bitmap8(h.width, h.height)
-			for (n in 0 until 256) out.palette[n] = s.readS32_le() or 0xFF000000.toInt()
-			for (n in 0 until h.height) out.setRow(h.height - n - 1, s.readBytes(h.width))
-			return ImageData(listOf(ImageFrame(out)))
-		} else {
-			val out = Bitmap32(h.width, h.height)
-			for (n in 0 until h.height) out.setRow(h.height - n - 1, s.readIntArray_le(h.width))
-			return ImageData(listOf(ImageFrame(out)))
+		return when (h.bitsPerPixel) {
+			8 -> {
+				val out = Bitmap8(h.width, h.height)
+				for (n in 0 until 256) out.palette[n] = s.readS32_le() or 0xFF000000.toInt()
+				for (n in 0 until h.height) out.setRow(h.height - n - 1, s.readBytes(h.width))
+				ImageData(listOf(ImageFrame(out)))
+			}
+			24, 32 -> {
+				val bytesPerRow = h.width * h.bitsPerPixel / 8
+				val out = Bitmap32(h.width, h.height)
+				val row = ByteArray(bytesPerRow)
+				val format = if (h.bitsPerPixel == 24) BGR else RGBA
+				val padding = 4 - (bytesPerRow % 4)
+				for (n in 0 until h.height) {
+					val y = h.height - n - 1
+					s.read(row)
+					format.decode(row, 0, out.data, out.index(0, y), h.width)
+					if (padding != 0) {
+						s.skip(padding)
+					}
+				}
+				ImageData(listOf(ImageFrame(out)))
+			}
+			else -> TODO("Unsupported bitsPerPixel=${h.bitsPerPixel}")
 		}
 	}
 }
