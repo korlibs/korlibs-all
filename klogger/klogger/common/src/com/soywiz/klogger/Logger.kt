@@ -5,19 +5,9 @@ import com.soywiz.std.*
 class Logger internal constructor(val name: String, val dummy: Boolean) {
 	//@ThreadLocal // @TODO: kotlin-native bug https://github.com/JetBrains/kotlin-native/issues/1768
 	companion object {
-		// @TODO: This doesn't work on kotlin-native 0.8
 		private var loggers: Map<String, Logger> by atomicRef(mapOf())
 		var defaultLevel: Level? by atomicRef(null)
 		fun getLogger(name: String): Logger = loggers[name] ?: Logger(name, true)
-
-		//var defaultLevel: Level?
-		//	get() = null
-		//	set(value) {
-		//		// IGNORE until figure out how to do this in kotlin-native 0.8
-		//	}
-//
-		//// Create loggers until figure out how to do this in kotlin-native 0.8
-		//fun getLogger(name: String): Logger = Logger(name, true)
 
 		fun setLevel(name: String, level: Level) = getLogger(name).apply { this.level = level }
 		fun setOutput(name: String, output: Output) = getLogger(name).apply { this.output = output }
@@ -53,8 +43,8 @@ class Logger internal constructor(val name: String, val dummy: Boolean) {
 		//Logger.loggers = Logger.loggers + mapOf(name to this)
 	}
 
-	var level: Level? = null
-	var output: Output? = null
+	var level: Level? by atomicRef(null)
+	var output: Output? by atomicRef(null)
 
 	private val processedLevel: Level get() = level ?: Logger.defaultLevel ?: Level.WARN
 	private val processedOutput: Output get() = output ?: Logger.defaultOutput

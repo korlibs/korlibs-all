@@ -1,12 +1,15 @@
 package com.soywiz.klogger.test
 
 import com.soywiz.klogger.*
+import com.soywiz.std.*
 import kotlin.test.*
 
 class LoggerTest {
 	@Test
 	fun simple() {
-		val out = arrayListOf<String>()
+		//val out = arrayListOf<String>()
+		//var out = listOf<String>()
+		var out by atomicRef(listOf<String>())
 		val logger = Logger("demo")
 		logger.output = object : Logger.Output {
 			override fun output(logger: Logger, level: Logger.Level, msg: Any?) {
@@ -17,22 +20,11 @@ class LoggerTest {
 		logger.warn { "mywarn" }
 		logger.info { "myinfo" }
 		logger.trace { "mytrace" }
-		assertEquals(
-			listOf(
-				"demo: WARN: mywarn",
-				"demo: INFO: myinfo"
-			), out
-		)
+		assertEquals(listOf("demo: WARN: mywarn", "demo: INFO: myinfo"), out)
 		logger.level = Logger.Level.WARN
 		logger.warn { "mywarn" }
 		logger.info { "myinfo" }
 		logger.trace { "mytrace" }
-		assertEquals(
-			listOf(
-				"demo: WARN: mywarn",
-				"demo: INFO: myinfo",
-				"demo: WARN: mywarn"
-			), out
-		)
+		assertEquals(listOf("demo: WARN: mywarn", "demo: INFO: myinfo", "demo: WARN: mywarn"), out)
 	}
 }

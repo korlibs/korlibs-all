@@ -28,12 +28,12 @@ expect fun <T> AtomicReference<T>.get(): T
 class atomicRef<T>(var initial: T) {
 	val value = NewAtomicReference<T?>(initial)
 
-	inline operator fun getValue(obj: Any, property: KProperty<*>): T {
+	inline operator fun getValue(obj: Any?, property: KProperty<*>): T {
 		@Suppress("UNCHECKED_CAST")
 		return this.value.get() as T
 	}
 
-	inline operator fun setValue(obj: Any, property: KProperty<*>, v: T) {
+	inline operator fun setValue(obj: Any?, property: KProperty<*>, v: T) {
 		this.value.set(v)
 	}
 }
