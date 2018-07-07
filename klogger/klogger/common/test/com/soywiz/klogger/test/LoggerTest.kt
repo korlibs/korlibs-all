@@ -5,11 +5,12 @@ import com.soywiz.std.*
 import kotlin.test.*
 
 class LoggerTest {
+	var out by atomicRef(listOf<String>())
+
 	@Test
 	fun simple() {
 		//val out = arrayListOf<String>()
 		//var out = listOf<String>()
-		var out by atomicRef(listOf<String>())
 		val logger = Logger("demo")
 		logger.output = object : Logger.Output {
 			override fun output(logger: Logger, level: Logger.Level, msg: Any?) {
