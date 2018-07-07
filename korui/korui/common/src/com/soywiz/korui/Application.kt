@@ -11,10 +11,7 @@ import com.soywiz.korui.ui.*
 import kotlin.coroutines.experimental.*
 
 suspend fun Application() = Application(defaultLight(coroutineContext))
-
-suspend fun Application(light: LightComponents) {
-	Application(coroutineContext, light)
-}
+suspend fun Application(light: LightComponents) = Application(coroutineContext, light)
 
 class Application(val coroutineContext: CoroutineContext, val light: LightComponents) {
 	val frames = arrayListOf<Frame>()
