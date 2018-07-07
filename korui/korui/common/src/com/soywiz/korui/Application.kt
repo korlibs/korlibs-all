@@ -10,11 +10,13 @@ import com.soywiz.korui.light.*
 import com.soywiz.korui.ui.*
 import kotlin.coroutines.experimental.*
 
-suspend fun Application(light: LightComponents = defaultLight) = withCoroutineContext {
-	Application(this@withCoroutineContext, light)
+suspend fun Application() = Application(defaultLight(coroutineContext))
+
+suspend fun Application(light: LightComponents) {
+	Application(coroutineContext, light)
 }
 
-class Application(val coroutineContext: CoroutineContext, val light: LightComponents = defaultLight) {
+class Application(val coroutineContext: CoroutineContext, val light: LightComponents) {
 	val frames = arrayListOf<Frame>()
 	val lengthContext = Length.Context().apply {
 		pixelsPerInch = light.getDpi()
@@ -74,15 +76,16 @@ suspend fun CanvasApplicationEx(
 	width: Int = 640,
 	height: Int = 480,
 	icon: Bitmap? = null,
-	light: LightComponents = defaultLight,
+	light: LightComponents? = null,
 	quality: LightQuality = LightQuality.PERFORMANCE,
 	callback: suspend (AgCanvas, Frame) -> Unit = { c, f -> }
 ): Unit {
-	light.quality = quality
-	val application = Application(getCoroutineContext(), light)
+	val llight = light ?: defaultLight(coroutineContext)
+	llight.quality = quality
+	val application = Application(getCoroutineContext(), llight)
 	application.frame(title, width, height, icon) {
 		val canvas = agCanvas().apply { focus() }
-		light.configuredFrame(handle)
+		llight.configuredFrame(handle)
 		callback(canvas, this)
 	}
 	Unit

@@ -3,9 +3,10 @@ package com.soywiz.korge.service
 import com.soywiz.korinject.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.file.*
-import com.soywiz.korio.file.*
+import com.soywiz.korui.*
 import com.soywiz.korui.light.*
 import com.soywiz.korui.ui.*
+import kotlin.coroutines.experimental.*
 
 @Singleton
 open class Browser(val injector: AsyncInjector) {
@@ -13,7 +14,7 @@ open class Browser(val injector: AsyncInjector) {
 	//	operator fun invoke() = Services.load(Browser::class.java).firstOrNull() ?: unsupported("Not ${Browser::class.java.name} implementation found")
 	//}
 	open suspend fun browse(url: String) {
-		defaultLight.openURL(url.toString())
+		injector.get<Application>().light.openURL(url.toString())
 	}
 
 	suspend fun frame() = injector.getOrNull(Frame::class) ?: invalidOp("Frame not available at korge")

@@ -5,19 +5,21 @@ import com.soywiz.klogger.*
 import com.soywiz.korag.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
+import com.soywiz.korio.async.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korui.event.*
+import kotlin.coroutines.experimental.*
 import kotlin.reflect.*
 
 internal val lightLog = Logger("light")
 
 expect object NativeLightsComponentsFactory : LightComponentsFactory {
-	override fun create(): LightComponents
+	override fun create(context: CoroutineContext): LightComponents
 }
 
 interface LightComponentsFactory {
-	fun create(): LightComponents
+	fun create(context: CoroutineContext): LightComponents
 }
 
 enum class LightQuality {
@@ -91,7 +93,8 @@ open class LightComponents {
 }
 
 val defaultLightFactory: LightComponentsFactory by lazy { NativeLightsComponentsFactory }
-val defaultLight: LightComponents by lazy { defaultLightFactory.create() }
+//val defaultLight: LightComponents by lazy { defaultLightFactory.create() }
+fun defaultLight(context: CoroutineContext) = defaultLightFactory.create(context)
 
 enum class LightType {
 	FRAME, CONTAINER, BUTTON, PROGRESS, IMAGE, LABEL, TEXT_FIELD, TEXT_AREA, CHECK_BOX, SCROLL_PANE, AGCANVAS
@@ -108,8 +111,8 @@ class LightAction<T>(val name: String) {
 
 class LightProperty<out T>(val name: String, val default: T) {
 	companion object {
-		val VISIBLE = LightProperty<Boolean>("VISIBLE", true)
-		val TEXT = LightProperty<String>("TEXT", "")
+		val VISIBLE = LightProperty("VISIBLE", true)
+		val TEXT = LightProperty("TEXT", "")
 		val ICON = LightProperty<Bitmap?>("ICON", null)
 		val BGCOLOR = LightProperty<Int>("BGCOLOR", Colors.BLACK)
 		val PROGRESS_CURRENT = LightProperty<Int>("PROGRESS_CURRENT", 0)

@@ -47,6 +47,7 @@ object Korge {
 
 		if (config.frame != null) {
 			injector.mapInstance(Frame::class, config.frame)
+			injector.mapInstance(Application::class, config.frame.app)
 		}
 
 		//println("FRAME: $frame, ${config.frame}")
@@ -456,7 +457,15 @@ object Korge {
 			logger.trace { "Korge.test [1]" }
 			go {
 				logger.trace { "Korge.test [2]" }
-				done.resolve(setupCanvas(config.copy(container = container, frame = frame, eventDispatcher = container)))
+				done.resolve(
+					setupCanvas(
+						config.copy(
+							container = container,
+							frame = frame,
+							eventDispatcher = container
+						)
+					)
+				)
 			}
 		}
 

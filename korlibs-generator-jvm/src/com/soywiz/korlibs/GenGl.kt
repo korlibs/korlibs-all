@@ -146,6 +146,7 @@ object GenGl {
 		println("import com.soywiz.kmem.*")
 		println("import kotlinx.cinterop.*")
 		println("import com.soywiz.korim.bitmap.*")
+		println("import com.soywiz.korim.format.*")
 		//println("import platform.GLUT.*")
 		//OpenGLES2
 		when (target) {
@@ -402,7 +403,7 @@ object OpenglDesc {
 	}
 
 	object GlNativeImageData : GlType(KmlNativeImageData) {
-		override fun toNative(param: String): String = "$param.unsafeAddress().uncheckedCast()"
+		override fun toNative(param: String): String = "$param?.unsafeAddress()?.uncheckedCast()"
 	}
 
 	open class GlTypeToInt : GlType("Int") {
@@ -420,7 +421,7 @@ object OpenglDesc {
 
 	open class GlTypePtr(ktname: String, val nullable: Boolean = false) : GlType(if (nullable) "$ktname?" else ktname) {
 		override fun toJVM(param: String): String = "$param.nioBuffer"
-		override fun toNative(param: String): String = "$param.unsafeAddress().uncheckedCast()"
+		override fun toNative(param: String): String = if (nullable) "$param?.unsafeAddress()?.uncheckedCast()" else "$param.unsafeAddress().uncheckedCast()"
 	}
 
 	object GlVoidPtr : GlTypePtr(KmlNativeBuffer, nullable = false) {
@@ -1340,10 +1341,17 @@ object OpenglDesc {
 			"format" to GlInt,
 			"type" to GlInt,
 			"data" to GlNativeImageData,
-			jsBody = "gl.texImage2D(target, level, internalformat, format, type, (data as HtmlNativeImage).element)",
+			jsBody = "gl.texImage2D(target, level, internalformat, format, type, (data as HtmlNativeImage).texSource)",
 			//jvmBody = "glTexImage2D(target, level, internalformat, data.width, data.height, 0, format, type, (data as BufferedImageKmlNativeImageData).buffer)",
 			jvmBody = "gl.glTexImage2D(target, level, internalformat, data.width, data.height, 0, format, type, (data as AwtNativeImage).buffer)",
-			nativeBody = "(data as KmlNativeNativeImageData).data.usePinned { dataPin -> glTexImage2D(target, level, internalformat, data.width, data.height, 0, format, type, dataPin.addressOf(0).uncheckedCast()) }",
+			nativeBody = "run { " +
+					"val intData = (data as BitmapNativeImage).intData; " +
+					"if (intData != null) {" +
+					"	intData.usePinned { dataPin -> glTexImage2D(target, level, internalformat, data.width, data.height, 0, format, type, dataPin.addressOf(0).uncheckedCast()) }" +
+					"} else {" +
+					"	glTexImage2D(target, level, internalformat, data.width, data.height, 0, format, type, null)" +
+					"}" +
+					"}",
 			androidBody = "TODO()", core = true
 		)
 

@@ -8,7 +8,6 @@ import com.soywiz.korim.bitmap.*
 import com.soywiz.korio.util.*
 import java.nio.*
 
-
 object AGFactoryAwt : AGFactory {
 	override val supportsNativeFrame: Boolean = true
 	override fun create(nativeControl: Any?): AG = AGAwt()

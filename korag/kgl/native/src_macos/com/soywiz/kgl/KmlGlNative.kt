@@ -7,6 +7,7 @@ package com.soywiz.kgl
 import com.soywiz.kmem.*
 import kotlinx.cinterop.*
 import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.format.*
 import platform.OpenGL.*
 import platform.OpenGLCommon.*
 import platform.posix.*
@@ -125,8 +126,8 @@ class KmlGlNative : KmlGl() {
     override fun stencilMaskSeparate(face: Int, mask: Int): Unit = tempBufferAddress { glStencilMaskSeparate(face, mask) }
     override fun stencilOp(fail: Int, zfail: Int, zpass: Int): Unit = tempBufferAddress { glStencilOp(fail, zfail, zpass) }
     override fun stencilOpSeparate(face: Int, sfail: Int, dpfail: Int, dppass: Int): Unit = tempBufferAddress { glStencilOpSeparate(face, sfail, dpfail, dppass) }
-    override fun texImage2D(target: Int, level: Int, internalformat: Int, width: Int, height: Int, border: Int, format: Int, type: Int, pixels: KmlNativeBuffer?): Unit = tempBufferAddress { glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels.unsafeAddress().uncheckedCast()) }
-    override fun texImage2D(target: Int, level: Int, internalformat: Int, format: Int, type: Int, data: NativeImage): Unit = tempBufferAddress { (data as KmlNativeNativeImageData).data.usePinned { dataPin -> glTexImage2D(target, level, internalformat, data.width, data.height, 0, format, type, dataPin.addressOf(0).uncheckedCast()) } }
+    override fun texImage2D(target: Int, level: Int, internalformat: Int, width: Int, height: Int, border: Int, format: Int, type: Int, pixels: KmlNativeBuffer?): Unit = tempBufferAddress { glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels?.unsafeAddress()?.uncheckedCast()) }
+    override fun texImage2D(target: Int, level: Int, internalformat: Int, format: Int, type: Int, data: NativeImage): Unit = tempBufferAddress { run { val intData = (data as BitmapNativeImage).intData; if (intData != null) {	intData.usePinned { dataPin -> glTexImage2D(target, level, internalformat, data.width, data.height, 0, format, type, dataPin.addressOf(0).uncheckedCast()) }} else {	glTexImage2D(target, level, internalformat, data.width, data.height, 0, format, type, null)}} }
     override fun texParameterf(target: Int, pname: Int, param: Float): Unit = tempBufferAddress { glTexParameterf(target, pname, param) }
     override fun texParameterfv(target: Int, pname: Int, params: KmlNativeBuffer): Unit = tempBufferAddress { glTexParameterfv(target, pname, params.unsafeAddress().uncheckedCast()) }
     override fun texParameteri(target: Int, pname: Int, param: Int): Unit = tempBufferAddress { glTexParameteri(target, pname, param) }

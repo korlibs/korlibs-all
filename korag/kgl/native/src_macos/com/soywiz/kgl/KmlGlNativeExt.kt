@@ -40,5 +40,3 @@ fun <T> tempBufferAddress(callback: TempBufferAddress.() -> T): T {
 		tba.dispose()
 	}
 }
-
-class KmlNativeNativeImageData(val data: ByteArray, override val width: Int, override val height: Int) : KmlNativeImageData
