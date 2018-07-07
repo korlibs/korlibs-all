@@ -78,6 +78,9 @@ allprojects {
 	ext.jsuffix = jsuffix
 
 	if (suffix != "") {
+		// kotlin-platform-js
+		// kotlin-platform-jvm
+		// kotlin-platform-native
 		apply plugin: "kotlin-platform$suffix"
 	}
 	if (!isNative) {

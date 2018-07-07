@@ -5,10 +5,10 @@ import com.soywiz.korui.light.*
 import com.soywiz.korio.*
 
 actual object KoruiEventLoop {
-	actual val instance: EventLoop by lazy { SdlEventLoop() }
+	actual val instance: EventLoop by lazy { MacosEventLoop() }
 }
 
-class SdlEventLoop : BaseEventLoopNative() {
+class MacosEventLoop : BaseEventLoopNative() {
 	override fun start() {
 
 	}
@@ -18,6 +18,7 @@ class SdlEventLoop : BaseEventLoopNative() {
 	}
 }
 
+/*
 private fun runApp(appHandler: MyAppHandler, windowConfig: WindowConfig) {
 	autoreleasepool {
 		val app = NSApplication.sharedApplication()
@@ -33,3 +34,4 @@ private fun runApp(appHandler: MyAppHandler, windowConfig: WindowConfig) {
 fun macTrace(str: String) {
 	println(str)
 }
+*/

@@ -1,6 +1,8 @@
 package com.soywiz.korui.light
 
 import com.soywiz.korag.*
+import com.soywiz.kgl.*
+import kotlin.coroutines.experimental.*
 
 actual object NativeLightsComponentsFactory : LightComponentsFactory {
 	actual override fun create(context: CoroutineContext): LightComponents = NativeLightComponents()
@@ -21,7 +23,7 @@ class NativeLightComponents : LightComponents() {
 			LightType.CHECK_BOX -> Any()
 			LightType.SCROLL_PANE -> Any()
 			LightType.AGCANVAS -> {
-				agg = agFactory.create()
+				agg = AGOpenglFactory.create(null).create(null)
 				agg.nativeComponent
 			}
 			else -> throw UnsupportedOperationException("Type: $type")
