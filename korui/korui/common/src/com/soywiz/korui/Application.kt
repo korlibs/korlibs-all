@@ -10,10 +10,12 @@ import com.soywiz.korui.light.*
 import com.soywiz.korui.ui.*
 import kotlin.coroutines.experimental.*
 
-suspend fun Application() = Application(defaultLight(coroutineContext))
-suspend fun Application(light: LightComponents) = Application(coroutineContext, light)
-
 class Application(val coroutineContext: CoroutineContext, val light: LightComponents) {
+	companion object {
+		suspend operator fun invoke() = Application(defaultLight(kotlin.coroutines.experimental.coroutineContext))
+		suspend operator fun invoke(light: LightComponents) = Application(kotlin.coroutines.experimental.coroutineContext, light)
+	}
+
 	val frames = arrayListOf<Frame>()
 	val lengthContext = Length.Context().apply {
 		pixelsPerInch = light.getDpi()
