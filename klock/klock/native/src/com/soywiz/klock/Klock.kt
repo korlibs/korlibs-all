@@ -9,7 +9,7 @@ actual object Klock {
 		gettimeofday(timeVal.ptr, null)
 		val sec = timeVal.tv_sec
 		val usec = timeVal.tv_usec
-		(sec * 1_000L) + (usec / 1_000_000L)
+		(sec * 1_000L) + (usec / 1_000L)
 	}
 
 	actual fun microClock(): Double = memScoped {
