@@ -14,7 +14,7 @@ import java.util.concurrent.*
 import kotlin.coroutines.experimental.*
 import com.soywiz.korio.lang.Closeable
 
-class LocalVfsJvm : LocalVfs() {
+class LocalVfsJvm() : LocalVfs() {
 	val that = this
 	override val absolutePath: String = ""
 

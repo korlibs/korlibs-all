@@ -86,14 +86,14 @@ actual object KorioNative {
 		data.toKString()
 	}
 
-	actual fun rootLocalVfs(): VfsFile = localVfs(cwd)
-	actual fun applicationVfs(): VfsFile = localVfs(cwd)
-	actual fun applicationDataVfs(): VfsFile = localVfs(cwd)
+	actual fun rootLocalVfs(): VfsFile = localVfs(realpath("."))
+	actual fun applicationVfs(): VfsFile = localVfs(realpath("."))
+	actual fun applicationDataVfs(): VfsFile = localVfs(realpath("."))
 	actual fun cacheVfs(): VfsFile = MemoryVfs()
-	actual fun externalStorageVfs(): VfsFile = localVfs(cwd)
-	actual fun userHomeVfs(): VfsFile = localVfs(cwd)
+	actual fun externalStorageVfs(): VfsFile = localVfs(realpath("."))
+	actual fun userHomeVfs(): VfsFile = localVfs(realpath("."))
 	actual fun tempVfs(): VfsFile = localVfs(tmpdir)
-	actual fun localVfs(path: String): VfsFile = LocalVfsNative(path).root
+	actual fun localVfs(path: String): VfsFile = LocalVfsNative()[path]
 	actual val ResourcesVfs: VfsFile get() = applicationDataVfs()
 
 	actual val File_separatorChar: Char get() = '/'
@@ -165,11 +165,11 @@ object NativeWebSocketClientFactory : WebSocketClientFactory() {
 	}
 }
 
-class LocalVfsNative(val base: String) : LocalVfs() {
+class LocalVfsNative : LocalVfs() {
 	val that = this
 	override val absolutePath: String = ""
 
-	fun resolve(path: String) = if (base.isEmpty()) path else "$base/" + path.trimStart('/')
+	fun resolve(path: String) = path
 
 	override suspend fun exec(
 		path: String, cmdAndArgs: List<String>, env: Map<String, String>, handler: VfsProcessHandler
@@ -239,7 +239,7 @@ class LocalVfsNative(val base: String) : LocalVfs() {
 
 	override suspend fun stat(path: String): VfsStat = executeInWorker {
 		val rpath = resolve(path)
-		memScoped {
+		val result = memScoped {
 			val s = alloc<stat>()
 			if (platform.posix.stat(rpath, s.ptr) == 0) {
 				val size = s.st_size
@@ -249,6 +249,7 @@ class LocalVfsNative(val base: String) : LocalVfs() {
 				createNonExistsStat(rpath)
 			}
 		}
+		result
 	}
 
 	override suspend fun list(path: String): SuspendingSequence<VfsFile> = executeInWorker {
@@ -293,4 +294,10 @@ class LocalVfsNative(val base: String) : LocalVfs() {
 	}
 
 	override fun toString(): String = "LocalVfs"
+}
+
+fun realpath(path: String): String = memScoped {
+	val temp = allocArray<ByteVar>(PATH_MAX)
+	realpath(path, temp)
+	temp.toKString()
 }

@@ -15,7 +15,7 @@ import org.khronos.webgl.*
 import kotlin.coroutines.experimental.*
 import kotlin.coroutines.experimental.CoroutineContext
 
-external internal fun require(name: String): dynamic
+internal external fun require(name: String): dynamic
 
 typealias NodeJsBuffer = Uint8Array
 
@@ -33,7 +33,7 @@ fun ByteArray.toNodeJsBuffer(offset: Int, size: Int): NodeJsBuffer =
 	global.Buffer.from(this, offset, size).unsafeCast<NodeJsBuffer>()
 
 class HttpClientNodeJs : HttpClient() {
-	suspend override fun requestInternal(
+	override suspend fun requestInternal(
 		method: Http.Method,
 		url: String,
 		headers: Http.Headers,
@@ -111,11 +111,11 @@ class HttpSeverNodeJs : HttpServer() {
 		}
 	}
 
-	suspend override fun websocketHandlerInternal(handler: suspend (WsRequest) -> Unit) {
+	override suspend fun websocketHandlerInternal(handler: suspend (WsRequest) -> Unit) {
 		super.websocketHandlerInternal(handler)
 	}
 
-	suspend override fun httpHandlerInternal(handler: suspend (Request) -> Unit) {
+	override suspend fun httpHandlerInternal(handler: suspend (Request) -> Unit) {
 		context = getCoroutineContext()
 		this.handler = { req, res ->
 			// req: https://nodejs.org/api/http.html#http_class_http_incomingmessage
@@ -125,13 +125,13 @@ class HttpSeverNodeJs : HttpServer() {
 			val url = req.url.unsafeCast<String>()
 			val headers = Http.Headers(jsToArray(req.rawHeaders).map { "$it" }.zipWithNext())
 			handler(object : Request(method, url, headers, RequestConfig()) {
-				suspend override fun _handler(handler: (ByteArray) -> Unit) {
+				override suspend fun _handler(handler: (ByteArray) -> Unit) {
 					req.on("data") { chunk ->
 						handler(Int8Array(chunk.unsafeCast<Uint8Array>().buffer).unsafeCast<ByteArray>())
 					}
 				}
 
-				suspend override fun _endHandler(handler: () -> Unit) {
+				override suspend fun _endHandler(handler: () -> Unit) {
 					req.on("end") {
 						handler()
 					}
@@ -165,7 +165,7 @@ class HttpSeverNodeJs : HttpServer() {
 		}
 	}
 
-	suspend override fun listenInternal(port: Int, host: String) = suspendCoroutine<Unit> { c ->
+	override suspend fun listenInternal(port: Int, host: String) = suspendCoroutine<Unit> { c ->
 		context = c.context
 		server.listen(port, host, 511) {
 			c.resume(Unit)
@@ -178,7 +178,7 @@ class HttpSeverNodeJs : HttpServer() {
 			return jsEnsureInt(server.address().port)
 		}
 
-	suspend override fun closeInternal() = suspendCoroutine<Unit> { c ->
+	override suspend fun closeInternal() = suspendCoroutine<Unit> { c ->
 		context = c.context
 		server.close {
 			c.resume(Unit)
@@ -194,7 +194,7 @@ class NodeJsAsyncClient : AsyncClient {
 
 	override var connected: Boolean = false; private set
 
-	suspend override fun connect(host: String, port: Int): Unit = suspendCoroutine { c ->
+	override suspend fun connect(host: String, port: Int): Unit = suspendCoroutine { c ->
 		connection = net.createConnection(port, host) {
 			connected = true
 			connection?.pause()
@@ -206,7 +206,7 @@ class NodeJsAsyncClient : AsyncClient {
 		Unit
 	}
 
-	suspend override fun read(buffer: ByteArray, offset: Int, len: Int): Int {
+	override suspend fun read(buffer: ByteArray, offset: Int, len: Int): Int {
 		connection?.resume()
 		try {
 			return input.read(buffer, offset, len)
@@ -215,14 +215,14 @@ class NodeJsAsyncClient : AsyncClient {
 		}
 	}
 
-	suspend override fun write(buffer: ByteArray, offset: Int, len: Int): Unit = suspendCoroutine { c ->
+	override suspend fun write(buffer: ByteArray, offset: Int, len: Int): Unit = suspendCoroutine { c ->
 		connection?.write(buffer.toNodeJsBuffer(offset, len)) {
 			c.resume(Unit)
 		}
 		Unit
 	}
 
-	suspend override fun close() {
+	override suspend fun close() {
 		connection?.close()
 	}
 }
@@ -237,11 +237,11 @@ class NodeJsAsyncServer : AsyncServer {
 	override val port: Int
 		get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
 
-	suspend override fun listen(handler: suspend (AsyncClient) -> Unit): Closeable {
+	override suspend fun listen(handler: suspend (AsyncClient) -> Unit): Closeable {
 		TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
 	}
 
-	suspend override fun listen(): SuspendingSequence<AsyncClient> {
+	override suspend fun listen(): SuspendingSequence<AsyncClient> {
 		return super.listen()
 	}
 
@@ -250,16 +250,16 @@ class NodeJsAsyncServer : AsyncServer {
 }
 
 
-class NodeJsLocalVfs(val base: String) : LocalVfs() {
+class NodeJsLocalVfs : LocalVfs() {
 	val fs = require("fs")
 
 	interface FD
 
 	private fun getFullPath(path: String): String {
-		return base + "/" + VfsUtil.normalize(path)
+		return VfsUtil.normalize(path)
 	}
 
-	suspend override fun mkdir(path: String, attributes: List<Attribute>): Boolean = suspendCoroutine { c ->
+	override suspend fun mkdir(path: String, attributes: List<Attribute>): Boolean = suspendCoroutine { c ->
 		fs.mkdir(getFullPath(path), "777".toInt(8)) { err ->
 			c.resume((err == null))
 			Unit
@@ -267,7 +267,7 @@ class NodeJsLocalVfs(val base: String) : LocalVfs() {
 		Unit
 	}
 
-	suspend override fun rename(src: String, dst: String): Boolean = suspendCoroutine { c ->
+	override suspend fun rename(src: String, dst: String): Boolean = suspendCoroutine { c ->
 		fs.rename(getFullPath(src), getFullPath(dst)) { err ->
 			c.resume((err == null))
 			Unit
@@ -275,7 +275,7 @@ class NodeJsLocalVfs(val base: String) : LocalVfs() {
 		Unit
 	}
 
-	suspend override fun delete(path: String): Boolean = suspendCoroutine { c ->
+	override suspend fun delete(path: String): Boolean = suspendCoroutine { c ->
 		fs.unlink(getFullPath(path)) { err ->
 			c.resume((err == null))
 			Unit
@@ -283,7 +283,7 @@ class NodeJsLocalVfs(val base: String) : LocalVfs() {
 		Unit
 	}
 
-	suspend override fun rmdir(path: String): Boolean = suspendCoroutine { c ->
+	override suspend fun rmdir(path: String): Boolean = suspendCoroutine { c ->
 		fs.rmdir(getFullPath(path)) { err ->
 			c.resume((err == null))
 			Unit
@@ -291,7 +291,7 @@ class NodeJsLocalVfs(val base: String) : LocalVfs() {
 		Unit
 	}
 
-	suspend override fun open(path: String, mode: VfsOpenMode): AsyncStream {
+	override suspend fun open(path: String, mode: VfsOpenMode): AsyncStream {
 		val cmode = when (mode) {
 			VfsOpenMode.READ -> "r"
 			VfsOpenMode.WRITE -> "r+"
@@ -321,7 +321,7 @@ class NodeJsLocalVfs(val base: String) : LocalVfs() {
 }
 
 class NodeFDStream(val fs: dynamic, val fd: NodeJsLocalVfs.FD) : AsyncStreamBase() {
-	suspend override fun read(position: Long, buffer: ByteArray, offset: Int, len: Int): Int = suspendCoroutine { c ->
+	override suspend fun read(position: Long, buffer: ByteArray, offset: Int, len: Int): Int = suspendCoroutine { c ->
 		fs.read(fd, buffer.toNodeJsBuffer(), offset, len, position.toDouble()) { err, bytesRead, buffer ->
 			if (err != null) {
 				c.resumeWithException(err)
@@ -333,7 +333,7 @@ class NodeFDStream(val fs: dynamic, val fd: NodeJsLocalVfs.FD) : AsyncStreamBase
 		Unit
 	}
 
-	suspend override fun write(position: Long, buffer: ByteArray, offset: Int, len: Int): Unit = suspendCoroutine { c ->
+	override suspend fun write(position: Long, buffer: ByteArray, offset: Int, len: Int): Unit = suspendCoroutine { c ->
 		fs.write(fd, buffer.toNodeJsBuffer(), offset, len, position.toDouble()) { err, bytesWritten, buffer ->
 			if (err != null) {
 				c.resumeWithException(err)
@@ -345,7 +345,7 @@ class NodeFDStream(val fs: dynamic, val fd: NodeJsLocalVfs.FD) : AsyncStreamBase
 		Unit
 	}
 
-	suspend override fun setLength(value: Long): Unit = suspendCoroutine { c ->
+	override suspend fun setLength(value: Long): Unit = suspendCoroutine { c ->
 		fs.ftruncate(fd, value.toDouble()) { err ->
 			if (err != null) {
 				c.resumeWithException(err)
@@ -357,7 +357,7 @@ class NodeFDStream(val fs: dynamic, val fd: NodeJsLocalVfs.FD) : AsyncStreamBase
 		Unit
 	}
 
-	suspend override fun getLength(): Long = suspendCoroutine { c ->
+	override suspend fun getLength(): Long = suspendCoroutine { c ->
 		fs.fstat(fd) { err, stats ->
 			if (err != null) {
 				c.resumeWithException(err)
@@ -369,7 +369,7 @@ class NodeFDStream(val fs: dynamic, val fd: NodeJsLocalVfs.FD) : AsyncStreamBase
 		Unit
 	}
 
-	suspend override fun close(): Unit = suspendCoroutine { c ->
+	override suspend fun close(): Unit = suspendCoroutine { c ->
 		fs.close(fd) { err ->
 			if (err != null) {
 				c.resumeWithException(err)
