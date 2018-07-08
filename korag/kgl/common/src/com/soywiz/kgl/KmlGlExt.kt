@@ -10,6 +10,8 @@ fun KmlGl.getShaderiv(shader: Int, type: Int): Int =
 fun KmlGl.getProgramiv(program: Int, type: Int): Int =
 	kmlNativeBuffer(4) { getProgramiv(program, type, it); it.getInt(0) }
 
+fun KmlGl.getBooleanv(pname: Int): Boolean = kmlNativeBuffer(4) { getBooleanv(pname, it); it[0] != 0 }
+fun KmlGl.getFloatv(pname: Int): Float = kmlNativeBuffer(4) { getFloatv(pname, it); it.getFloat(0) }
 fun KmlGl.getIntegerv(pname: Int): Int = kmlNativeBuffer(4) { getIntegerv(pname, it); it.getInt(0) }
 
 private inline fun KmlGl.getInfoLog(

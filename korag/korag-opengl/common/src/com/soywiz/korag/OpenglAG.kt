@@ -509,7 +509,7 @@ abstract class AGOpengl : AG() {
 		}
 
 		override fun actualSyncUpload(source: BitmapSourceBase, bmp: Bitmap?, requestMipmaps: Boolean) {
-			val Bpp = if (source.rgba) 4 else 1
+			val bytesPerPixel = if (source.rgba) 4 else 1
 			val type = if (source.rgba) {
 				//if (source is NativeImage) gl.BGRA else gl.RGBA
 				gl.RGBA
@@ -518,7 +518,7 @@ abstract class AGOpengl : AG() {
 			}
 
 			if (bmp is NativeImage) {
-				gl.texImage2D(gl.TEXTURE_2D, type, type, gl.UNSIGNED_BYTE, gl.UNSIGNED_BYTE, bmp)
+				gl.texImage2D(gl.TEXTURE_2D, 0, type, type, gl.UNSIGNED_BYTE, bmp)
 			} else {
 				val buffer = createBufferForBitmap(bmp)
 				if (buffer != null) {
@@ -600,23 +600,23 @@ abstract class AGOpengl : AG() {
 
 
 	override fun readColor(bitmap: Bitmap32) {
-		gl.readPixels(
-			0,
-			0,
-			bitmap.width,
-			bitmap.height,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			//Uint8Array(bitmap.data.unsafeCast<Int32Array>().buffer)
-			TODO()
-		)
+		kmlNativeBuffer(bitmap.area * 4) { buffer ->
+			gl.readPixels(
+				0, 0, bitmap.width, bitmap.height,
+				gl.RGBA, gl.UNSIGNED_BYTE, buffer
+			)
+			buffer.getAlignedArrayInt32(0, bitmap.data, 0, bitmap.area)
+		}
 	}
 
 	override fun readDepth(width: Int, height: Int, out: FloatArray) {
-		gl.readPixels(
-			0, 0, width, height, gl.DEPTH_COMPONENT, gl.FLOAT,
-			//out.unsafeCast<Float32Array>()
-			TODO()
-		)
+		val area = width * height
+		kmlNativeBuffer(area * 4) { buffer ->
+			gl.readPixels(
+				0, 0, width, height, gl.DEPTH_COMPONENT, gl.FLOAT,
+				buffer
+			)
+			buffer.getAlignedArrayFloat32(0, out, 0, area)
+		}
 	}
 }

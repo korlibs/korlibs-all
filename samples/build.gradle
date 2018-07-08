@@ -1,5 +1,5 @@
 buildscript {
-    ext.web_dir = 'web'
+	ext.web_dir = 'web'
 
 	repositories {
 		mavenLocal()
@@ -25,7 +25,7 @@ buildscript {
 			],
 	]
 	ext.libExecutables = [
-	        "sample1": true
+			"sample1": true
 	]
 }
 
@@ -95,13 +95,15 @@ allprojects {
 				if (dep.contains(":")) {
 					rdepm = rdep
 				} else {
-					rdepm = project(":${rdep}${suffix}")
+					rdepm = findProject(":${rdep}${suffix}")
 				}
-				//println("DEP: ${project.name}: ${rdepm}")
-				if (isNative) {
-					implementation rdepm
-				} else {
-					compile rdepm
+				if (rdepm != null) {
+					//println("DEP: ${project.name}: ${rdepm}")
+					if (isNative) {
+						implementation rdepm
+					} else {
+						compile rdepm
+					}
 				}
 			}
 		}

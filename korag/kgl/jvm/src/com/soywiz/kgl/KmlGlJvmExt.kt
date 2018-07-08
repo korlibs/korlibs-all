@@ -4,10 +4,10 @@ import com.soywiz.kmem.*
 import java.awt.image.*
 import java.nio.*
 
-val KmlNativeBuffer.nioBuffer: java.nio.ByteBuffer get() = this.mem.buffer
-val KmlNativeBuffer.nioByteBuffer: java.nio.ByteBuffer get() = this.mem.buffer
-val KmlNativeBuffer.nioIntBuffer: java.nio.IntBuffer get() = this.arrayInt.jbuffer
-val KmlNativeBuffer.nioFloatBuffer: java.nio.FloatBuffer get() = this.arrayFloat.jbuffer
+val KmlNativeBuffer.nioBuffer: java.nio.ByteBuffer get() = this.mem.buffer.apply { rewind() }
+val KmlNativeBuffer.nioByteBuffer: java.nio.ByteBuffer get() = this.mem.buffer.apply { rewind() }
+val KmlNativeBuffer.nioIntBuffer: java.nio.IntBuffer get() = this.arrayInt.jbuffer.apply { rewind() }
+val KmlNativeBuffer.nioFloatBuffer: java.nio.FloatBuffer get() = this.arrayFloat.jbuffer.apply { rewind() }
 
 /*
 class BufferedImageKmlNativeImageData(val buffered: BufferedImage) : NativeImage {

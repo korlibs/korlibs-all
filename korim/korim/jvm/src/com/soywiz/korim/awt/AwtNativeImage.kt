@@ -46,7 +46,7 @@ class AwtNativeImage(val awtImage: BufferedImage) :
 
 	val dataBuffer = awtImage.raster.dataBuffer
 
-	val buffer: ByteBuffer by lazy {
+	private val rbuffer: ByteBuffer by lazy {
 		ByteBuffer.allocateDirect(width * height * 4).apply {
 			clear()
 			when (dataBuffer) {
@@ -55,11 +55,14 @@ class AwtNativeImage(val awtImage: BufferedImage) :
 				is DataBufferInt -> asIntBuffer().put(dataBuffer.data)
 				else -> TODO("dataBuffer: $dataBuffer")
 			}
+			position(width * height * 4)
 			//println("BYTES: ${bytes.size}")
 			//println("BYTES: ${bytes.size}")
 			flip()
 		}
 	}
+
+	val buffer: ByteBuffer get() = rbuffer.apply { rewind() }
 }
 
 //fun createRenderingHints(antialiasing: Boolean): RenderingHints = RenderingHints(mapOf<RenderingHints.Key, Any>())
