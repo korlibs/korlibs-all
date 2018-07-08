@@ -15,7 +15,7 @@ buildscript {
 	}
 
 	//ext.nativeTargets = ['iphone', 'iphone_sim', 'macbook', 'linux', 'raspberrypi', 'android_arm32', 'android_arm64']
-	ext.nativeTargets = ['macbook']
+	ext.nativeTargets = ['macbook', 'linux']
 
 	ext.libDependencies = [
 			"korlibstd"        : [],
