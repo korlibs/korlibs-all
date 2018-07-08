@@ -14,4 +14,4 @@ install:
 
 script:
   - jdk_switcher use oraclejdk8
-  - ./gradlew -s check install -x compileReleaseKotlinNative -x compileTestReleaseKotlinNative && pushd samples && ../gradlew -s check && popd
+  - ./gradlew -s check install -x compileReleaseKotlinNative && pushd samples && ../gradlew -s check && popd
