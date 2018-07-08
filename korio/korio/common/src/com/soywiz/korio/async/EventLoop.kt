@@ -67,7 +67,7 @@ open class EventLoop(val captureCloseables: Boolean) : Closeable {
 		}
 	}
 
-	open fun setTimeoutInternal(ms: Int, callback: () -> Unit): Closeable {
+	protected open fun setTimeoutInternal(ms: Int, callback: () -> Unit): Closeable {
 		return Task(getTime() + ms, callback).apply {
 			tasks += this
 		}

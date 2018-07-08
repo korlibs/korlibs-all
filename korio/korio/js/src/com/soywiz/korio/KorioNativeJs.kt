@@ -325,7 +325,7 @@ fun jsToObjectMap(obj: dynamic): Map<String, Any?>? {
 
 
 class HttpClientBrowserJs : HttpClient() {
-	suspend override fun requestInternal(
+	override suspend fun requestInternal(
 		method: Http.Method,
 		url: String,
 		headers: Http.Headers,

@@ -21,7 +21,7 @@ import kotlin.reflect.KClass
 import com.soywiz.korio.async.*
 
 actual object KoruiEventLoop {
-	actual val instance: EventLoop by lazy { NativeEventLoop() }
+	actual val instance: EventLoop = NativeEventLoop()
 }
 
 open class NativeEventLoop : EventLoop() {
