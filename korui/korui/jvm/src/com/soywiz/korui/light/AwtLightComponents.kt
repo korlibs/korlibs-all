@@ -213,7 +213,7 @@ class AwtLightComponents : LightComponents() {
 				}
 			}
 		}
-		return Closeable { }
+		return DummyCloseable
 	}
 
 	val Any.actualComponent: Component get() = if (this is JFrame2) this.panel else (this as Component)

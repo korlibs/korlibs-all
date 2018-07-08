@@ -72,7 +72,7 @@ open class LightComponents {
 	}
 
 	protected open fun <T : Event> registerEventKind(c: Any, clazz: KClass<T>, ed: EventDispatcher): Closeable {
-		return Closeable { }
+		return DummyCloseable
 	}
 
 	open fun getDpi(): Double = 96.0

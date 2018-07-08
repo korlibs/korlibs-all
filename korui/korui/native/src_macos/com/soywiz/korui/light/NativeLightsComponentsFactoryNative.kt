@@ -40,6 +40,6 @@ class NativeLightComponents(val context: CoroutineContext) : LightComponents() {
 	}
 
 	//protected override fun <T : Event> registerEventKind(c: Any, clazz: KClass<T>, ed: EventDispatcher): Closeable {
-	//	return Closeable { }
+	//	return DummyCloseable
 	//}
 }

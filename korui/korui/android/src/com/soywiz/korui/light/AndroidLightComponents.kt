@@ -158,7 +158,7 @@ class AndroidLightComponents : LightComponents() {
 		cc.setOnClickListener {
 			insideEventHandler { listener.click(LightMouseHandler.Info()) }
 		}
-		return Closeable { }
+		return DummyCloseable
 	}
 
 	override fun addHandler(c: Any, listener: LightChangeHandler): Closeable {
@@ -178,7 +178,7 @@ class AndroidLightComponents : LightComponents() {
 
 		KorioApp.resized { send() }
 		send()
-		return Closeable { }
+		return DummyCloseable
 	}
 
 	override fun addHandler(c: Any, listener: LightKeyHandler): Closeable {

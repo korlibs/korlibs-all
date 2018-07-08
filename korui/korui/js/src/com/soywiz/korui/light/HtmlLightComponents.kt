@@ -481,7 +481,7 @@ class HtmlLightComponents : LightComponents() {
 				).closeable()
 			}
 		}
-		return Closeable { }
+		return DummyCloseable
 	}
 
 	override fun <T> callAction(c: Any, key: LightAction<T>, param: T) {

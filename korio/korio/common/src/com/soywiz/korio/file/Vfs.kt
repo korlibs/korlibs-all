@@ -125,7 +125,7 @@ abstract class Vfs {
 	}
 
 	open suspend fun watch(path: String, handler: (FileEvent) -> Unit): Closeable =
-		Closeable { }
+		DummyCloseable
 
 	open suspend fun touch(path: String, time: Long, atime: Long) = Unit
 

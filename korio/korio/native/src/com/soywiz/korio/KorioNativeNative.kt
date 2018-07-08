@@ -290,7 +290,7 @@ class LocalVfsNative : LocalVfs() {
 	override suspend fun watch(path: String, handler: (FileEvent) -> Unit): Closeable {
 		// @TODO:
 		println("TODO:LocalVfsNative.watch")
-		return Closeable { }
+		return DummyCloseable
 	}
 
 	override fun toString(): String = "LocalVfs"
