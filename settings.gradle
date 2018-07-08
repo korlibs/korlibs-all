@@ -78,7 +78,7 @@ registerProject1('korfl', 'Korfl: Parse Adobe Animate SWF files in JVM and JS')
 registerProject2('korge-ext-swf', 'korge', 'Korge: Extension for SWF')
 
 // KSDL
-registerVersion('ksdl', 'korui/ksdl')
+//registerVersion('ksdl', 'korui/ksdl')
 
 // Deprecated (@old folder)
 //registerProject1('korte', 'Korte: Asynchronous Template Engine for Kotlin')
