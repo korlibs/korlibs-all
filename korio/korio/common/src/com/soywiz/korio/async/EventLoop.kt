@@ -21,7 +21,7 @@ val eventLoopFactoryDefaultImpl: EventLoopFactory get() = KorioNative.eventLoopF
 val tasksInProgress = AtomicInteger(0)
 
 // @TODO: Check CoroutineDispatcher
-abstract class EventLoop(val captureCloseables: Boolean) : Closeable {
+open class EventLoop(val captureCloseables: Boolean) : Closeable {
 	constructor() : this(captureCloseables = true)
 
 	val coroutineContext = EventLoopCoroutineContext(this)
@@ -57,7 +57,37 @@ abstract class EventLoop(val captureCloseables: Boolean) : Closeable {
 		}
 	}
 
-	protected abstract fun setTimeoutInternal(ms: Int, callback: () -> Unit): Closeable
+	private val tasks = PriorityQueue<Task> { a, b -> a.time.compareTo(b.time) }
+
+	inner class Task(val time: Double, val callback: () -> Unit) : Closeable {
+		fun mustRun(now: Double) = time >= now
+
+		override fun close() {
+			tasks -= this
+		}
+	}
+
+	open fun setTimeoutInternal(ms: Int, callback: () -> Unit): Closeable {
+		return Task(getTime() + ms, callback).apply {
+			tasks += this
+		}
+	}
+
+	open fun getTime(): Double = Klock.currentTimeMillisDouble()
+
+	open fun step() {
+		var now = getTime()
+		while (tasks.isNotEmpty()) {
+			val task = tasks.first()
+			if (task.mustRun(now)) {
+				tasks.removeHead()
+				task.callback()
+				now = getTime()
+			} else {
+				break
+			}
+		}
+	}
 
 	open fun start() {
 	}
@@ -65,49 +95,75 @@ abstract class EventLoop(val captureCloseables: Boolean) : Closeable {
 	protected open fun setIntervalInternal(ms: Int, callback: () -> Unit): Closeable {
 		var cancelled = false
 		fun step() {
-			setTimeoutInternal(ms, {
+			setTimeoutInternal(ms) {
 				if (!cancelled) {
 					callback()
 					step()
 				}
-			})
+			}
 		}
 		step()
 		return Closeable { cancelled = true }
 	}
 
-	protected open fun setImmediateInternal(handler: () -> Unit): Unit = run { setTimeoutInternal(0, handler) }
+	private var insideImmediate = false
+	private val immediateTasks = LinkedList<() -> Unit>()
+	protected open fun setImmediateInternal(handler: () -> Unit) {
+		// @TODO: Check right thread?
+		immediateTasks += handler
+		if (!insideImmediate) {
+			insideImmediate = true
+			try {
+				while (immediateTasks.isNotEmpty()) {
+					val task = immediateTasks.removeFirst()
+					task()
+				}
+			} finally {
+				insideImmediate = false
+			}
+		}
+	}
 
 	var fps: Double = 60.0
 
 	var lastRequest = 0.0
 	protected open fun requestAnimationFrameInternal(callback: () -> Unit): Closeable {
 		val step = 1000.0 / fps
-		val now = Klock.currentTimeMillisDouble()
+		val now = getTime()
 		if (lastRequest == 0.0) lastRequest = now
 		lastRequest = now
 		return setTimeoutInternal((step - (now - lastRequest)).clamp(0.0, step).toInt(), callback)
 	}
 
-	open fun loop(): Unit = Unit
+	open fun loop() {
+		while (true) {
+			step()
+			KorioNative.Thread_sleep(1000L / 60L)
+		}
+	}
 
 	private val closeables = LinkedHashSet<Closeable>()
 
 	private fun Closeable.capture(): Closeable {
-		if (captureCloseables) {
-			val closeable = this
-			closeables += closeable
-			return Closeable {
-				closeables -= closeable
-				closeable.close()
-			}
-		} else {
-			return this
+		if (!captureCloseables) return this
+		val closeable = this
+		closeables += closeable
+		return Closeable {
+			closeables -= closeable
+			closeable.close()
 		}
 	}
 
 	fun setImmediate(handler: () -> Unit): Unit = setImmediateInternal(handler)
-	fun setTimeout(ms: Int, callback: () -> Unit): Closeable = setTimeoutInternal(ms, callback).capture()
+	fun setTimeout(ms: Int, callback: () -> Unit): Closeable {
+		if (ms == 0) {
+			setImmediate(callback)
+			return DummyCloseable
+		} else {
+			return setTimeoutInternal(ms, callback).capture()
+		}
+	}
+
 	fun setInterval(ms: Int, callback: () -> Unit): Closeable = setIntervalInternal(ms, callback).capture()
 
 	fun setIntervalImmediate(ms: Int, callback: () -> Unit): Closeable {
@@ -158,7 +214,9 @@ abstract class EventLoop(val captureCloseables: Boolean) : Closeable {
 
 	open val time: Long get() = TimeProvider.now()
 
-	open fun step(ms: Int): Unit = Unit
+	open fun step(ms: Int): Unit {
+		step()
+	}
 
 	suspend fun sleep(ms: Int): Unit = suspendCancellableCoroutine { c ->
 		val cc = setTimeout(ms) { c.resume(Unit) }
@@ -202,7 +260,8 @@ open class BaseEventLoopNative() : EventLoop(captureCloseables = false) {
 	private class AnyObj
 
 	private val lock = AnyObj()
-	class Task(val time: Long, val callback: () -> Unit)
+
+	class Task(val time: Double, val callback: () -> Unit)
 
 	private val timedTasks = PriorityQueue<Task> { a, b ->
 		if (a == b) 0 else a.time.compareTo(b.time).compareToChain { if (a == b) 0 else -1 }
@@ -252,22 +311,23 @@ open class BaseEventLoopNative() : EventLoop(captureCloseables = false) {
 	}
 
 	override fun setTimeoutInternal(ms: Int, callback: () -> Unit): Closeable {
-		val task = Task(Klock.currentTimeMillis() + ms, callback)
+		val task = Task(getTime() + ms.toDouble(), callback)
 		synchronized(lock) { timedTasks += task }
 		return Closeable { synchronized(timedTasks) { timedTasks -= task } }
 	}
 
 	override fun step(ms: Int) {
 		timer@ while (true) {
-			val startTime = Klock.currentTimeMillis()
+			val startTime = getTime()
 			while (true) {
-				val currentTime = Klock.currentTimeMillis()
-				val item = synchronized(lock) { if (timedTasks.isNotEmpty() && currentTime >= timedTasks.peek().time) timedTasks.remove() else null }
+				val currentTime = getTime()
+				val item =
+					synchronized(lock) { if (timedTasks.isNotEmpty() && currentTime >= timedTasks.peek().time) timedTasks.remove() else null }
 							?: break
 				item.callback()
 			}
 			while (true) {
-				if ((Klock.currentTimeMillis() - startTime) >= 50) {
+				if ((getTime() - startTime) >= 50) {
 					continue@timer
 				}
 				val task =

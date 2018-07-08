@@ -4,6 +4,11 @@ interface Closeable {
 	fun close(): Unit
 }
 
+object DummyCloseable : Closeable {
+	override fun close() {
+	}
+}
+
 interface OptionalCloseable : Closeable {
 	override fun close(): Unit = Unit
 }

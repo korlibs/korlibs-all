@@ -21,6 +21,7 @@ class EventLoopTest(val runOnThread: Long = currentThreadId) : EventLoop(capture
 	private val lock = Any()
 	private val timers = ArrayList<Entry>()
 
+	// @TODO: Shouldn't be necessary already
 	override fun setIntervalInternal(ms: Int, callback: () -> Unit): Closeable {
 		var cancelled = false
 		fun step() {
@@ -37,12 +38,14 @@ class EventLoopTest(val runOnThread: Long = currentThreadId) : EventLoop(capture
 		}
 	}
 
+	// @TODO: Shouldn't be necessary already
 	override fun setTimeoutInternal(ms: Int, callback: () -> Unit): Closeable = synchronized(lock) {
 		val entry = Entry(this, this.time + ms, callback)
 		timers += entry
 		entry
 	}
 
+	// @TODO: Shouldn't be necessary already
 	var executing = false
 	fun executeTasks() = synchronized(lock) {
 		if (executing) return@synchronized
@@ -70,6 +73,7 @@ class EventLoopTest(val runOnThread: Long = currentThreadId) : EventLoop(capture
 		}
 	}
 
+	// @TODO: Shouldn't be necessary already
 	override fun setImmediateInternal(handler: () -> Unit) {
 		synchronized(lock) { tasks.add(handler) }
 		if (runOnThread == currentThreadId) executeTasks()
@@ -77,6 +81,10 @@ class EventLoopTest(val runOnThread: Long = currentThreadId) : EventLoop(capture
 
 	override fun step(ms: Int) {
 		time += ms
-		executeTasks()
+		run {
+			// @TODO: Shouldn't be necessary already
+			executeTasks()
+		}
+		step()
 	}
 }
