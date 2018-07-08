@@ -2,12 +2,20 @@ rootProject.name = 'korge-samples'
 
 enableFeaturePreview('GRADLE_METADATA')
 
-include ":sample1-js",
-        ":sample1-jvm",
-        ":sample1-native",
-        ":sample1-common"
+def nativeEnabled() {
+	return System.getenv("CI") != "true"
+}
+
+include ":sample1-js"
+include ":sample1-jvm"
+if (nativeEnabled()) {
+	include ":sample1-native"
+}
+include ":sample1-common"
 
 findProject(":sample1-js")?.projectDir = file("sample1/js")
 findProject(":sample1-jvm")?.projectDir = file("sample1/jvm")
-findProject(":sample1-native")?.projectDir = file("sample1/native")
+if (nativeEnabled()) {
+	findProject(":sample1-native")?.projectDir = file("sample1/native")
+}
 findProject(":sample1-common")?.projectDir = file("sample1")
