@@ -159,17 +159,17 @@ fun <TEventLoop : EventLoop> sync(el: TEventLoop, step: Int = 10, block: suspend
 	if (OS.isJs) throw UnsupportedOperationException("sync block is not supported on javascript target. It is intended for testing.")
 	var result: Any? = null
 
-	tasksInProgress.increment()
+	el.tasksInProgress.increment()
 	block.korioStartCoroutine(el, object : Continuation<Unit> {
 		override val context: CoroutineContext = el.coroutineContext
 
 		override fun resume(value: Unit) = run {
-			tasksInProgress.decrement()
+			el.tasksInProgress.decrement()
 			result = value
 		}
 
 		override fun resumeWithException(exception: Throwable) = run {
-			tasksInProgress.decrement()
+			el.tasksInProgress.decrement()
 			val e = ExceptionHook.hook(exception)
 			result = e
 		}

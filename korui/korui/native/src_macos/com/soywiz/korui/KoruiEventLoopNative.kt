@@ -23,18 +23,21 @@ import com.soywiz.korio.async.*
 
 // @TOOD: kotlin-native if not ThreadLocal by lazy crashes. And If not by lazy, it crashes in depthFirstTraversal/FreezeSubgraph/initSharedInstance
 actual object KoruiEventLoop {
-	actual fun create(): EventLoop = NativeEventLoop()
+	//actual fun create(): EventLoop = MacosNativeEventLoop()
+	actual fun create(): EventLoop = MacosNativeEventLoop
 }
 
-open class NativeEventLoop : EventLoop() {
-	lateinit var app: NSApplication
+@ThreadLocal
+//open class MacosNativeEventLoop : EventLoop() {
+object MacosNativeEventLoop : EventLoop() {
+	//var app: NSApplication? by atomicRef<NSApplication?>(null)
+	var app: NSApplication by atomicLateinit<NSApplication?>()
 
 	val ag: AG by atomicLazy {
 		AGOpenglFactory.create(this).create(this)
 	}
 
-	var listener = object : KMLWindowListener() {
-	}
+	var listener: KMLWindowListener by atomicRef(KMLWindowListener())
 
 	override fun loop() {
 		autoreleasepool {
@@ -65,7 +68,7 @@ open class NativeEventLoop : EventLoop() {
 				}
 
 				override fun render(context: NSOpenGLContext?) {
-					this@NativeEventLoop.step()
+					step()
 					//context?.flushBuffer()
 					context?.makeCurrentContext()
 					ag.onRender(ag)
@@ -74,7 +77,6 @@ open class NativeEventLoop : EventLoop() {
 			})
 			app.setActivationPolicy(NSApplicationActivationPolicy.NSApplicationActivationPolicyRegular)
 			app.activateIgnoringOtherApps(true)
-
 			app.run()
 		}
 	}
@@ -82,65 +84,57 @@ open class NativeEventLoop : EventLoop() {
 
 class WindowConfig(val width: Int, val height: Int, val title: String)
 
-private class MyAppDelegate(val ag: AG, val windowConfig: WindowConfig, val handler: MyAppHandler) :
-	NSObject(),
-	NSApplicationDelegateProtocol {
-	private val window: NSWindow
-	//private val openglView: AppNSOpenGLView
-	private val openglView: NSOpenGLView
-	private val appDelegate: AppDelegate
-
-	init {
-		val mainDisplayRect = NSScreen.mainScreen()!!.frame
-		val windowRect = mainDisplayRect.useContents<CGRect, CValue<CGRect>> {
-			NSMakeRect(
-				(size.width * 0.5 - windowConfig.width * 0.5),
-				(size.height * 0.5 - windowConfig.height * 0.5),
-				windowConfig.width.toDouble(),
-				windowConfig.height.toDouble()
-			)
-		}
-
-		val windowStyle = NSWindowStyleMaskTitled or NSWindowStyleMaskMiniaturizable or
-				NSWindowStyleMaskClosable or NSWindowStyleMaskResizable
-
-		val attrs = intArrayOf(
-			//NSOpenGLPFAOpenGLProfile,
-			//NSOpenGLProfileVersion4_1Core,
-			NSOpenGLPFAColorSize, 24,
-			NSOpenGLPFAAlphaSize, 8,
-			NSOpenGLPFADoubleBuffer,
-			NSOpenGLPFADepthSize, 32,
-			0
+private class MyAppDelegate(val ag: AG, val windowConfig: WindowConfig, val handler: MyAppHandler) : NSObject(), NSApplicationDelegateProtocol {
+	val mainDisplayRect = NSScreen.mainScreen()!!.frame
+	val windowRect = mainDisplayRect.useContents<CGRect, CValue<CGRect>> {
+		NSMakeRect(
+			(size.width * 0.5 - windowConfig.width * 0.5),
+			(size.height * 0.5 - windowConfig.height * 0.5),
+			windowConfig.width.toDouble(),
+			windowConfig.height.toDouble()
 		)
-
-		val pixelFormat = attrs.usePinned {
-			NSOpenGLPixelFormat.alloc()!!.initWithAttributes(it.addressOf(0).uncheckedCast())!!
-		}
-
-		openglView = NSOpenGLView(NSMakeRect(0.0, 0.0, 16.0, 16.0), pixelFormat)
-		appDelegate = AppDelegate(handler, openglView, openglView?.openGLContext)
-
-		window = NSWindow(windowRect, windowStyle, NSBackingStoreBuffered, false).apply {
-			title = windowConfig.title
-			opaque = true
-			hasShadow = true
-			preferredBackingLocation = NSWindowBackingLocationVideoMemory
-			hidesOnDeactivate = false
-			releasedWhenClosed = false
-
-			openglView.setFrame(contentRectForFrameRect(frame))
-			delegate = appDelegate
-
-			setAcceptsMouseMovedEvents(true)
-			setContentView(openglView)
-			setContentMinSize(NSMakeSize(150.0, 100.0))
-			//openglView.resignFirstResponder()
-			openglView.setNextResponder(MyResponder(handler, openglView))
-			//makeFirstResponder(MyResponder(handler, openglView))
-			setNextResponder(MyResponder(handler, openglView))
-		}
 	}
+
+	val windowStyle = NSWindowStyleMaskTitled or NSWindowStyleMaskMiniaturizable or
+			NSWindowStyleMaskClosable or NSWindowStyleMaskResizable
+
+	val attrs = intArrayOf(
+		//NSOpenGLPFAOpenGLProfile,
+		//NSOpenGLProfileVersion4_1Core,
+		NSOpenGLPFAColorSize, 24,
+		NSOpenGLPFAAlphaSize, 8,
+		NSOpenGLPFADoubleBuffer,
+		NSOpenGLPFADepthSize, 32,
+		0
+	)
+
+	val pixelFormat = attrs.usePinned {
+		NSOpenGLPixelFormat.alloc()!!.initWithAttributes(it.addressOf(0).uncheckedCast())!!
+	}
+
+	private val openglView: NSOpenGLView = NSOpenGLView(NSMakeRect(0.0, 0.0, 16.0, 16.0), pixelFormat)
+	private val appDelegate: AppDelegate = AppDelegate(handler, openglView, openglView?.openGLContext)
+
+	private val window: NSWindow = NSWindow(windowRect, windowStyle, NSBackingStoreBuffered, false).apply {
+		title = windowConfig.title
+		opaque = true
+		hasShadow = true
+		preferredBackingLocation = NSWindowBackingLocationVideoMemory
+		hidesOnDeactivate = false
+		releasedWhenClosed = false
+
+		openglView.setFrame(contentRectForFrameRect(frame))
+		delegate = appDelegate
+
+		setAcceptsMouseMovedEvents(true)
+		setContentView(openglView)
+		setContentMinSize(NSMakeSize(150.0, 100.0))
+		//openglView.resignFirstResponder()
+		openglView.setNextResponder(MyResponder(handler, openglView))
+		//makeFirstResponder(MyResponder(handler, openglView))
+		setNextResponder(MyResponder(handler, openglView))
+	}
+	//private val openglView: AppNSOpenGLView
 
 	override fun applicationShouldTerminateAfterLastWindowClosed(app: NSApplication): Boolean {
 		println("applicationShouldTerminateAfterLastWindowClosed")

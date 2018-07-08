@@ -25,12 +25,12 @@ class EventLoopTest(val runOnThread: Long = currentThreadId) : EventLoop(capture
 	override fun setIntervalInternal(ms: Int, callback: () -> Unit): Closeable {
 		var cancelled = false
 		fun step() {
-			setTimeoutInternal(ms, {
+			setTimeoutInternal(ms) {
 				if (!cancelled) {
 					callback()
 					step()
 				}
-			})
+			}
 		}
 		step()
 		return Closeable {

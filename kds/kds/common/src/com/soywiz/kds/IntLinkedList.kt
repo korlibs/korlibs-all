@@ -6,7 +6,7 @@ class IntLinkedList(private val debug: Boolean) : MutableCollection<Int> {
 	constructor() : this(false)
 
 	companion object {
-		const private val NONE = -1
+		private const val NONE = -1
 	}
 
 	private var firstSlot = NONE
@@ -35,7 +35,7 @@ class IntLinkedList(private val debug: Boolean) : MutableCollection<Int> {
 		throw IllegalStateException()
 	}
 
-	operator override fun contains(item: Int) = indexOf(item) != NONE
+	override operator fun contains(item: Int) = indexOf(item) != NONE
 
 	val first get() = items.getOrNull(firstSlot)
 	val last get() = items.getOrNull(lastSlot)

@@ -2,6 +2,7 @@ package com.soywiz.korio
 
 import com.soywiz.klogger.*
 import com.soywiz.korio.async.*
+import com.soywiz.korio.coroutine.*
 import com.soywiz.korio.crypto.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
@@ -130,8 +131,9 @@ object KorioNativeDefaults {
 
 			override suspend fun listenInternal(port: Int, host: String) {
 				val socket = KorioNative.asyncSocketFactory.createServer(port, host)
+				val eventLoop = eventLoop()
 				actualPort = socket.port
-				tasksInProgress.increment()
+				eventLoop.tasksInProgress.increment()
 				val close = socket.listen { client ->
 					while (true) {
 						//println("Connected! : $client : ${KorioNative.currentThreadId}")
@@ -214,7 +216,7 @@ object KorioNativeDefaults {
 
 				onClose {
 					close.close()
-					tasksInProgress.decrement()
+					eventLoop.tasksInProgress.decrement()
 				}
 			}
 

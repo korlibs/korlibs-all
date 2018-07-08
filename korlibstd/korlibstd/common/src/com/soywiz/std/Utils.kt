@@ -46,3 +46,17 @@ class atomicRef<T>(var initial: T) {
 		this.value.set(v)
 	}
 }
+
+class atomicLateinit<T>() {
+	val value = NewAtomicReference<T?>(null)
+
+	operator fun getValue(obj: Any?, property: KProperty<*>): T {
+		if (this.value.get() == null) error("Tried to access atomicLateinit value without setting it first")
+		@Suppress("UNCHECKED_CAST")
+		return this.value.get() as T
+	}
+
+	operator fun setValue(obj: Any?, property: KProperty<*>, v: T) {
+		this.value.set(v)
+	}
+}

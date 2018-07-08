@@ -68,10 +68,10 @@ actual object KorioNative {
 
 	actual val systemLanguageStrings get() = listOf(Locale.getDefault().getISO3Language())
 
-	suspend private fun <T> _executeInside(task: suspend () -> T, executionScope: (body: () -> Unit) -> Unit): T {
+	private suspend fun <T> _executeInside(task: suspend () -> T, executionScope: (body: () -> Unit) -> Unit): T {
 		val deferred = Promise.Deferred<T>()
 		val parentEventLoop = eventLoop()
-		tasksInProgress.incrementAndGet()
+		eventLoop().tasksInProgress.incrementAndGet()
 		executionScope {
 			syncTest {
 				try {

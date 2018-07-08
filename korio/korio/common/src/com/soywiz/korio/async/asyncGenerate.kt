@@ -148,13 +148,13 @@ fun <T> asyncGenerate(
 suspend fun <T> asyncGenerate(block: suspend SuspendingSequenceBuilder<T>.() -> Unit): SuspendingSequence<T> =
 	asyncGenerate(getCoroutineContext(), block)
 
-inline suspend fun <T, T2> SuspendingSequence<T>.map(crossinline transform: (T) -> T2) = asyncGenerate {
+suspend inline fun <T, T2> SuspendingSequence<T>.map(crossinline transform: (T) -> T2) = asyncGenerate {
 	for (e in this@map) {
 		yield(transform(e))
 	}
 }
 
-inline suspend fun <T> SuspendingSequence<T>.filter(crossinline filter: (T) -> Boolean) = asyncGenerate {
+suspend inline fun <T> SuspendingSequence<T>.filter(crossinline filter: (T) -> Boolean) = asyncGenerate {
 	for (e in this@filter) {
 		if (filter(e)) {
 			yield(e)

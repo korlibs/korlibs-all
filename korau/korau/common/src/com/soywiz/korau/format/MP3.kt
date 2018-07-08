@@ -11,7 +11,7 @@ import com.soywiz.korio.util.*
 object MP3 : MP3Base()
 
 open class MP3Base : AudioFormat("mp3") {
-	suspend override fun tryReadInfo(data: AsyncStream): Info? = try {
+	override suspend fun tryReadInfo(data: AsyncStream): Info? = try {
 		val parser = Parser(data)
 		val duration = parser.getDurationEstimate()
 		//val duration = parser.getDurationExact()
@@ -29,7 +29,7 @@ open class MP3Base : AudioFormat("mp3") {
 		suspend fun getDurationExact() = _getDuration(use_cbr_estimate = false)
 
 		//Read entire file, frame by frame... ie: Variable Bit Rate (VBR)
-		suspend private fun _getDuration(use_cbr_estimate: Boolean): Long {
+		private suspend fun _getDuration(use_cbr_estimate: Boolean): Long {
 			data.position = 0
 			val fd = data.clone()
 

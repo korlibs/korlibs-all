@@ -19,31 +19,30 @@ abstract class EventLoopFactory {
 
 val eventLoopFactoryDefaultImpl: EventLoopFactory get() = KorioNative.eventLoopFactoryDefaultImpl
 
-val tasksInProgress = NewAtomicInt(0)
-
 // @TODO: Check CoroutineDispatcher
 open class EventLoop(val captureCloseables: Boolean) : Closeable {
 	constructor() : this(captureCloseables = true)
 
 	val coroutineContext = EventLoopCoroutineContext(this)
+	val tasksInProgress = NewAtomicInt(0)
 
 	companion object {
 		fun main(eventLoop: EventLoop, entry: suspend EventLoop.() -> Unit) {
-			if (globalEventLoop == null) {
-				globalEventLoop = eventLoop
-			}
-			tasksInProgress.addAndGet(+1)
+			//if (globalEventLoop == null) {
+			//	globalEventLoop = eventLoop
+			//}
+			eventLoop.tasksInProgress.addAndGet(+1)
 			eventLoop.start()
 			eventLoop.setImmediateDeferred {
 				entry.korioStartCoroutine(eventLoop, object : Continuation<Unit> {
 					override val context: CoroutineContext = EventLoopCoroutineContext(eventLoop)
 
 					override fun resume(value: Unit) {
-						tasksInProgress.addAndGet(-1)
+						eventLoop.tasksInProgress.addAndGet(-1)
 					}
 
 					override fun resumeWithException(exception: Throwable) {
-						tasksInProgress.addAndGet(-1)
+						eventLoop.tasksInProgress.addAndGet(-1)
 						exception.printStackTrace()
 					}
 				})
@@ -234,12 +233,13 @@ class EventLoopCoroutineContext(val eventLoop: EventLoop) :
 	companion object Key : CoroutineContext.Key<EventLoopCoroutineContext>
 }
 
-@ThreadLocal
-var globalEventLoop: EventLoop? = null
+//@ThreadLocal
+//var globalEventLoop: EventLoop? = null
 
 val CoroutineContext.tryEventLoop: EventLoop? get() = this[EventLoopCoroutineContext.Key]?.eventLoop
 val CoroutineContext.eventLoop: EventLoop
-	get() = tryEventLoop ?: globalEventLoop ?: invalidOp("No EventLoop associated to this CoroutineContext")
+	//get() = tryEventLoop ?: globalEventLoop ?: invalidOp("No EventLoop associated to this CoroutineContext")
+	get() = tryEventLoop ?: invalidOp("No EventLoop associated to this CoroutineContext")
 val Continuation<*>.eventLoop: EventLoop get() = this.context.eventLoop
 
 suspend fun CoroutineContext.sleep(ms: Int) = this.eventLoop.sleep(ms)

@@ -5,7 +5,7 @@ import com.soywiz.korio.lang.*
 import kotlin.coroutines.experimental.*
 
 //inline suspend fun <T> suspendCancellableCoroutine(crossinline block: (CancellableContinuation<T>) -> Unit): T = suspendCoroutineOrReturn { c ->
-inline suspend fun <T> suspendCancellableCoroutine(crossinline block: (CancellableContinuation<T>) -> Unit): T =
+suspend inline fun <T> suspendCancellableCoroutine(crossinline block: (CancellableContinuation<T>) -> Unit): T =
 	suspendCoroutineEL { c ->
 		//inline suspend fun <T> suspendCancellableCoroutine(crossinline block: (Continuation<T>) -> Unit): T = suspendCoroutineEL { c ->
 		//block(c)
