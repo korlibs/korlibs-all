@@ -383,7 +383,7 @@ object Korge {
 		debug: Boolean = false,
 		trace: Boolean = false,
 		constructedViews: (Views) -> Unit = {},
-		eventLoop: EventLoop = KoruiEventLoop.instance
+		eventLoop: EventLoop = KoruiEventLoop.create()
 	) = EventLoop.main(eventLoop) {
 		logger.trace { "Korge.invoke" }
 		test(
@@ -417,7 +417,7 @@ object Korge {
 		val debug: Boolean = false,
 		val trace: Boolean = false,
 		val constructedViews: (Views) -> Unit = {},
-		val eventLoop: EventLoop = KoruiEventLoop.instance
+		val eventLoop: EventLoop = KoruiEventLoop.create()
 	)
 
 	suspend fun test(config: Config): SceneContainer {

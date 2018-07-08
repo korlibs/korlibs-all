@@ -68,6 +68,8 @@ actual fun <T> AtomicReference<T>.get(): T {
 	return (this as konan.worker.AtomicReference<T>).get() as T
 }
 
+
+
 actual typealias AtomicInt = konan.worker.AtomicInt
 
 actual fun NewAtomicInt(value: Int): AtomicInt = konan.worker.AtomicInt(value)
@@ -81,4 +83,22 @@ actual fun AtomicInt.set(value: Int) {
 }
 actual fun AtomicInt.get(): Int {
 	return (this as konan.worker.AtomicInt).get()
+}
+
+
+
+
+actual typealias AtomicLong = konan.worker.AtomicLong
+
+actual fun NewAtomicLong(value: Long): AtomicLong = konan.worker.AtomicLong(value)
+
+actual fun AtomicLong.addAndGet(delta: Long): Long {
+	return (this as konan.worker.AtomicLong).addAndGet(delta)
+}
+
+actual fun AtomicLong.set(value: Long) {
+	(this as konan.worker.AtomicLong).compareAndSwap(this.get(), value)
+}
+actual fun AtomicLong.get(): Long {
+	return (this as konan.worker.AtomicLong).get()
 }

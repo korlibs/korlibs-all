@@ -1,9 +1,10 @@
 package com.soywiz.korio.async
 
 import com.soywiz.korio.lang.*
+import com.soywiz.std.*
 
 class AsyncPool<T>(val maxItems: Int = Int.MAX_VALUE, val create: suspend () -> T) {
-	var createdItems = AtomicInteger()
+	var createdItems = NewAtomicInt(0)
 	private val freedItem = ProduceConsumer<T>()
 
 	suspend fun <TR> tempAlloc(callback: suspend (T) -> TR): TR {

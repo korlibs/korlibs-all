@@ -8,6 +8,7 @@ import com.soywiz.korio.lang.*
 import com.soywiz.korio.net.*
 import com.soywiz.korio.serialization.json.*
 import com.soywiz.korio.stream.*
+import com.soywiz.std.*
 
 abstract class HttpClient protected constructor() {
 	var ignoreSslCertificates = false
@@ -316,8 +317,8 @@ object HttpStatusMessage {
 }
 
 object HttpStats {
-	val connections = AtomicLong()
-	val disconnections = AtomicLong()
+	val connections = NewAtomicLong(0L)
+	val disconnections = NewAtomicLong(0L)
 
 	override fun toString(): String = "HttpStats(connections=$connections, Disconnections=$disconnections)"
 }

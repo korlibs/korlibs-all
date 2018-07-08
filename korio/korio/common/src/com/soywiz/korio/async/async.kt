@@ -9,6 +9,7 @@ import com.soywiz.korio.coroutine.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.util.*
+import com.soywiz.std.*
 import kotlin.coroutines.experimental.*
 
 suspend inline fun <T> suspendCoroutineEL(crossinline block: (Continuation<T>) -> Unit): T =
@@ -158,17 +159,17 @@ fun <TEventLoop : EventLoop> sync(el: TEventLoop, step: Int = 10, block: suspend
 	if (OS.isJs) throw UnsupportedOperationException("sync block is not supported on javascript target. It is intended for testing.")
 	var result: Any? = null
 
-	tasksInProgress.incrementAndGet()
+	tasksInProgress.increment()
 	block.korioStartCoroutine(el, object : Continuation<Unit> {
 		override val context: CoroutineContext = el.coroutineContext
 
 		override fun resume(value: Unit) = run {
-			tasksInProgress.decrementAndGet()
+			tasksInProgress.decrement()
 			result = value
 		}
 
 		override fun resumeWithException(exception: Throwable) = run {
-			tasksInProgress.decrementAndGet()
+			tasksInProgress.decrement()
 			val e = ExceptionHook.hook(exception)
 			result = e
 		}

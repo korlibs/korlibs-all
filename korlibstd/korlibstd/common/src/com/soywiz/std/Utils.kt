@@ -10,7 +10,6 @@ expect fun <T> atomicLazy(initializer: () -> T): Lazy<T>
 expect class AtomicReference<T>
 
 expect class AtomicInt
-
 expect fun NewAtomicInt(value: Int): AtomicInt
 expect fun AtomicInt.addAndGet(delta: Int): Int
 expect fun AtomicInt.set(value: Int)
@@ -19,6 +18,16 @@ expect fun AtomicInt.get(): Int
 fun AtomicInt.preIncrement() = addAndGet(+1) - 1
 fun AtomicInt.increment() = addAndGet(+1)
 fun AtomicInt.decrement() = addAndGet(-1)
+
+expect class AtomicLong
+expect fun NewAtomicLong(value: Long): AtomicLong
+expect fun AtomicLong.addAndGet(delta: Long): Long
+expect fun AtomicLong.set(value: Long)
+expect fun AtomicLong.get(): Long
+
+fun AtomicLong.preIncrement() = addAndGet(+1) - 1
+fun AtomicLong.increment() = addAndGet(+1)
+fun AtomicLong.decrement() = addAndGet(-1)
 
 expect fun <T> NewAtomicReference(value: T): AtomicReference<T>
 

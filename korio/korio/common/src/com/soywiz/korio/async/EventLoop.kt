@@ -10,6 +10,7 @@ import com.soywiz.korio.coroutine.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.util.*
+import com.soywiz.std.*
 import kotlin.coroutines.experimental.*
 
 abstract class EventLoopFactory {
@@ -18,7 +19,7 @@ abstract class EventLoopFactory {
 
 val eventLoopFactoryDefaultImpl: EventLoopFactory get() = KorioNative.eventLoopFactoryDefaultImpl
 
-val tasksInProgress = AtomicInteger(0)
+val tasksInProgress = NewAtomicInt(0)
 
 // @TODO: Check CoroutineDispatcher
 open class EventLoop(val captureCloseables: Boolean) : Closeable {
@@ -31,18 +32,18 @@ open class EventLoop(val captureCloseables: Boolean) : Closeable {
 			if (globalEventLoop == null) {
 				globalEventLoop = eventLoop
 			}
-			tasksInProgress.incrementAndGet()
+			tasksInProgress.addAndGet(+1)
 			eventLoop.start()
-			eventLoop.setImmediate {
+			eventLoop.setImmediateDeferred {
 				entry.korioStartCoroutine(eventLoop, object : Continuation<Unit> {
 					override val context: CoroutineContext = EventLoopCoroutineContext(eventLoop)
 
 					override fun resume(value: Unit) {
-						tasksInProgress.decrementAndGet()
+						tasksInProgress.addAndGet(-1)
 					}
 
 					override fun resumeWithException(exception: Throwable) {
-						tasksInProgress.decrementAndGet()
+						tasksInProgress.addAndGet(-1)
 						exception.printStackTrace()
 					}
 				})
@@ -155,15 +156,8 @@ open class EventLoop(val captureCloseables: Boolean) : Closeable {
 	}
 
 	fun setImmediate(handler: () -> Unit): Unit = setImmediateInternal(handler)
-	fun setTimeout(ms: Int, callback: () -> Unit): Closeable {
-		if (ms == 0) {
-			setImmediate(callback)
-			return DummyCloseable
-		} else {
-			return setTimeoutInternal(ms, callback).capture()
-		}
-	}
-
+	fun setImmediateDeferred(handler: () -> Unit): Unit = run { setTimeout(0, handler) }
+	fun setTimeout(ms: Int, callback: () -> Unit): Closeable = setTimeoutInternal(ms, callback).capture()
 	fun setInterval(ms: Int, callback: () -> Unit): Closeable = setIntervalInternal(ms, callback).capture()
 
 	fun setIntervalImmediate(ms: Int, callback: () -> Unit): Closeable {
@@ -240,6 +234,7 @@ class EventLoopCoroutineContext(val eventLoop: EventLoop) :
 	companion object Key : CoroutineContext.Key<EventLoopCoroutineContext>
 }
 
+@ThreadLocal
 var globalEventLoop: EventLoop? = null
 
 val CoroutineContext.tryEventLoop: EventLoop? get() = this[EventLoopCoroutineContext.Key]?.eventLoop

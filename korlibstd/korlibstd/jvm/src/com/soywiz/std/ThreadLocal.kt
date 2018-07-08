@@ -33,3 +33,20 @@ actual fun AtomicInt.set(value: Int) {
 actual fun AtomicInt.get(): Int {
 	return (this as java.util.concurrent.atomic.AtomicInteger).get()
 }
+
+
+
+actual typealias AtomicLong = java.util.concurrent.atomic.AtomicLong
+
+actual fun NewAtomicLong(value: Long): AtomicLong = AtomicLong(value)
+
+actual fun AtomicLong.addAndGet(delta: Long): Long {
+	return (this as java.util.concurrent.atomic.AtomicLong).addAndGet(delta)
+}
+
+actual fun AtomicLong.set(value: Long) {
+	(this as java.util.concurrent.atomic.AtomicLong).set(value)
+}
+actual fun AtomicLong.get(): Long {
+	return (this as java.util.concurrent.atomic.AtomicLong).get()
+}

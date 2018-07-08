@@ -2,6 +2,10 @@ rootProject.name = 'korlibs-all'
 
 enableFeaturePreview('GRADLE_METADATA')
 
+def nativeEnabled() {
+	return System.getenv("CI") != "true"
+}
+
 def registerVersion(artifactName, path) {
 	def fpath = path as File
 	if (fpath.exists()) {
@@ -14,7 +18,9 @@ def registerProject1(name, desc, rootPath = name) {
 	registerVersion("$name-common", file("$rootPath/$name/common"))
 	registerVersion("$name-jvm", file("$rootPath/$name/jvm"))
 	registerVersion("$name-js", file("$rootPath/$name/js"))
-	registerVersion("$name-native", file("$rootPath/$name/native"))
+	if (nativeEnabled()) {
+		registerVersion("$name-native", file("$rootPath/$name/native"))
+	}
 }
 
 def registerProject2(name, rootPath, desc) {

@@ -10,6 +10,7 @@ import com.soywiz.korio.net.http.*
 import com.soywiz.korio.net.ws.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.file.*
+import com.soywiz.std.*
 import kotlin.coroutines.experimental.*
 import kotlin.math.*
 import kotlin.reflect.*
@@ -130,7 +131,7 @@ object KorioNativeDefaults {
 			override suspend fun listenInternal(port: Int, host: String) {
 				val socket = KorioNative.asyncSocketFactory.createServer(port, host)
 				actualPort = socket.port
-				tasksInProgress.incrementAndGet()
+				tasksInProgress.increment()
 				val close = socket.listen { client ->
 					while (true) {
 						//println("Connected! : $client : ${KorioNative.currentThreadId}")
@@ -213,7 +214,7 @@ object KorioNativeDefaults {
 
 				onClose {
 					close.close()
-					tasksInProgress.decrementAndGet()
+					tasksInProgress.decrement()
 				}
 			}
 

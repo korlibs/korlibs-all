@@ -4,6 +4,7 @@ import com.soywiz.korio.async.*
 import com.soywiz.korui.light.*
 import com.soywiz.korio.*
 import com.soywiz.korag.*
+import com.soywiz.std.*
 import com.soywiz.kgl.*
 import kotlinx.cinterop.*
 import platform.AppKit.*
@@ -20,13 +21,17 @@ import kotlin.coroutines.experimental.CoroutineContext
 import kotlin.reflect.KClass
 import com.soywiz.korio.async.*
 
+// @TOOD: kotlin-native if not ThreadLocal by lazy crashes. And If not by lazy, it crashes in depthFirstTraversal/FreezeSubgraph/initSharedInstance
 actual object KoruiEventLoop {
-	actual val instance: EventLoop = NativeEventLoop()
+	actual fun create(): EventLoop = NativeEventLoop()
 }
 
 open class NativeEventLoop : EventLoop() {
 	lateinit var app: NSApplication
-	val ag: AG = AGOpenglFactory.create(this).create(this)
+
+	val ag: AG by atomicLazy {
+		AGOpenglFactory.create(this).create(this)
+	}
 
 	var listener = object : KMLWindowListener() {
 	}

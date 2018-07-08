@@ -35,3 +35,22 @@ actual fun AtomicInt.set(value: Int) {
 actual fun AtomicInt.get(): Int {
 	return this.value
 }
+
+
+actual class AtomicLong {
+	var value: Long = 0L
+}
+
+actual fun NewAtomicLong(value: Long): AtomicLong = AtomicLong().apply { this.value = value }
+actual fun AtomicLong.addAndGet(delta: Long): Long {
+	this.value += delta
+	return this.value
+}
+
+actual fun AtomicLong.set(value: Long) {
+	this.value = value
+}
+
+actual fun AtomicLong.get(): Long {
+	return this.value
+}
