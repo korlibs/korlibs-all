@@ -11,8 +11,8 @@ actual object NativeLightsComponentsFactory : LightComponentsFactory {
 }
 
 class NativeLightComponents(val context: CoroutineContext) : LightComponents() {
-	//val eventLoop: MacosNativeEventLoop get() = (context.eventLoop as MacosNativeEventLoop)
-	val eventLoop: MacosNativeEventLoop get() = MacosNativeEventLoop
+	val eventLoop: MacosNativeEventLoop get() = (context.eventLoop as MacosNativeEventLoop)
+	//val eventLoop: MacosNativeEventLoop get() = MacosNativeEventLoop
 
 	override fun create(type: LightType): LightComponentInfo {
 		var agg: AG? = null

@@ -20,26 +20,38 @@ import platform.posix.realpath
 import kotlin.coroutines.experimental.CoroutineContext
 import kotlin.reflect.KClass
 import com.soywiz.korio.async.*
+import konan.worker.*
+import konan.worker.atomicLazy
+
+//fun <T> T.ensureNeverFrozen(): T = this.apply { ensureNeverFrozen() }
 
 // @TOOD: kotlin-native if not ThreadLocal by lazy crashes. And If not by lazy, it crashes in depthFirstTraversal/FreezeSubgraph/initSharedInstance
 actual object KoruiEventLoop {
-	//actual fun create(): EventLoop = MacosNativeEventLoop()
-	actual fun create(): EventLoop = MacosNativeEventLoop
+	actual fun create(): EventLoop = MacosNativeEventLoop().apply { ensureNeverFrozen() }
+	//actual fun create(): EventLoop = MacosNativeEventLoop
 }
 
-@ThreadLocal
-//open class MacosNativeEventLoop : EventLoop() {
-object MacosNativeEventLoop : EventLoop() {
-	//var app: NSApplication? by atomicRef<NSApplication?>(null)
+//@ThreadLocal
+open class MacosNativeEventLoop : EventLoop() {
+	init {
+		ensureNeverFrozen()
+	}
+//object MacosNativeEventLoop : EventLoop() {
+	var app: NSApplication? by atomicRef<NSApplication?>(null)
 
-	val ag: AG = AGOpenglFactory.create(this).create(this)
-	val listener = KMLWindowListener()
+	val ag: AG by atomicLazy { AGOpenglFactory.create(this).create(this) }
+	//val ag: AG by atomicLazy { AGOpenglFactory.create(this).create(this) }
+	//val ag: AG = AGOpenglFactory.create(this).create(this)
+	var listener = object : KMLWindowListener() {
+	}
+	//val listener = KMLWindowListener()
 
 	override fun loop() {
 		autoreleasepool {
-			val app = NSApplication.sharedApplication()
+			//val app = NSApplication.sharedApplication()
+			app = NSApplication.sharedApplication()
 			val windowConfig = WindowConfig(640, 480, "Korui")
-			app.delegate = MyAppDelegate(ag, windowConfig, object : MyAppHandler {
+			app?.delegate = MyAppDelegate(ag, windowConfig, object : MyAppHandler {
 				override fun init(context: NSOpenGLContext?) {
 					macTrace("init[a]")
 					//runInitBlocking(listener)
@@ -72,9 +84,9 @@ object MacosNativeEventLoop : EventLoop() {
 					context?.flushBuffer()
 				}
 			})
-			app.setActivationPolicy(NSApplicationActivationPolicy.NSApplicationActivationPolicyRegular)
-			app.activateIgnoringOtherApps(true)
-			app.run()
+			app?.setActivationPolicy(NSApplicationActivationPolicy.NSApplicationActivationPolicyRegular)
+			app?.activateIgnoringOtherApps(true)
+			app?.run()
 		}
 	}
 }

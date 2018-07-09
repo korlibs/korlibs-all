@@ -34,7 +34,7 @@ expect fun <T> NewAtomicReference(value: T): AtomicReference<T>
 expect fun <T> AtomicReference<T>.set(value: T)
 expect fun <T> AtomicReference<T>.get(): T
 
-class atomicRef<T>(var initial: T) {
+class atomicRef<T>(initial: T) {
 	val value = NewAtomicReference<T?>(initial)
 
 	inline operator fun getValue(obj: Any?, property: KProperty<*>): T {
