@@ -14,6 +14,7 @@ import com.soywiz.korinject.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.file.std.*
 import com.soywiz.korio.lang.*
+import com.soywiz.korio.util.*
 import com.soywiz.korma.geom.*
 import com.soywiz.korui.*
 import com.soywiz.korui.event.*
@@ -421,7 +422,9 @@ object Korge {
 	)
 
 	suspend fun test(config: Config): SceneContainer {
-		logger.trace { "!!!! KORGE: if the main window doesn't appear and hangs, check that the VM option -XstartOnFirstThread is set" }
+		if (OS.isJvm) {
+			logger.trace { "!!!! KORGE: if the main window doesn't appear and hangs, check that the VM option -XstartOnFirstThread is set" }
+		}
 		logger.trace { "Korge.test" }
 		logger.trace { "Korge.test.checkEnvironment" }
 		val done = Promise.Deferred<SceneContainer>()

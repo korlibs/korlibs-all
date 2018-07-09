@@ -16,7 +16,7 @@ open class Module {
 
 	open val quality: LightQuality = LightQuality.PERFORMANCE
 
-	open val size: SizeInt by lazy { SizeInt(640, 480) }
+	open val size: SizeInt get() = SizeInt(640, 480)
 	open val windowSize: SizeInt get() = size
 	open val plugins: List<KorgePlugin> = listOf()
 

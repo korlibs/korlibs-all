@@ -34,6 +34,7 @@ open class EventLoop(val captureCloseables: Boolean) : Closeable {
 			eventLoop.tasksInProgress.addAndGet(+1)
 			eventLoop.start()
 			eventLoop.setImmediateDeferred {
+				println("EventLoop entrypoint")
 				entry.korioStartCoroutine(eventLoop, object : Continuation<Unit> {
 					override val context: CoroutineContext = EventLoopCoroutineContext(eventLoop)
 
@@ -60,11 +61,13 @@ open class EventLoop(val captureCloseables: Boolean) : Closeable {
 	private val tasks = PriorityQueue<Task> { a, b -> a.time.compareTo(b.time) }
 
 	inner class Task(val time: Double, val callback: () -> Unit) : Closeable {
-		fun mustRun(now: Double) = time >= now
+		fun mustRun(now: Double) = now >= time
 
 		override fun close() {
 			tasks -= this
 		}
+
+		override fun toString(): String = "Task(time=${time.toLong()})"
 	}
 
 	protected open fun setTimeoutInternal(ms: Int, callback: () -> Unit): Closeable {
@@ -77,10 +80,14 @@ open class EventLoop(val captureCloseables: Boolean) : Closeable {
 
 	open fun step() {
 		var now = getTime()
+		//println("step: ${tasks.size}, ${tasks.toList()}, ${now.toLong()}")
 		while (tasks.isNotEmpty()) {
 			val task = tasks.first()
+			//println("now=$now, task=$task")
 			if (task.mustRun(now)) {
-				tasks.removeHead()
+				//println("step: TASK EXEC")
+				tasks -= task
+				//tasks.removeHead()
 				task.callback()
 				now = getTime()
 			} else {

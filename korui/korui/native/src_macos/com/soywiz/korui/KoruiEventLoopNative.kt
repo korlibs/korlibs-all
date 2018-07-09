@@ -31,18 +31,13 @@ actual object KoruiEventLoop {
 //open class MacosNativeEventLoop : EventLoop() {
 object MacosNativeEventLoop : EventLoop() {
 	//var app: NSApplication? by atomicRef<NSApplication?>(null)
-	var app: NSApplication by atomicLateinit<NSApplication?>()
 
-	val ag: AG by atomicLazy {
-		AGOpenglFactory.create(this).create(this)
-	}
-
-	var listener: KMLWindowListener by atomicRef(KMLWindowListener())
+	val ag: AG = AGOpenglFactory.create(this).create(this)
+	val listener = KMLWindowListener()
 
 	override fun loop() {
 		autoreleasepool {
-			app = NSApplication.sharedApplication()
-
+			val app = NSApplication.sharedApplication()
 			val windowConfig = WindowConfig(640, 480, "Korui")
 			app.delegate = MyAppDelegate(ag, windowConfig, object : MyAppHandler {
 				override fun init(context: NSOpenGLContext?) {
@@ -63,11 +58,13 @@ object MacosNativeEventLoop : EventLoop() {
 				override fun keyUp(keyCode: Char) = keyChange(keyCode, false)
 
 				override fun windowDidResize(width: Int, height: Int, context: NSOpenGLContext?) {
+					macTrace("windowDidResize")
 					listener.resized(width, height)
 					render(context)
 				}
 
 				override fun render(context: NSOpenGLContext?) {
+					macTrace("render")
 					step()
 					//context?.flushBuffer()
 					context?.makeCurrentContext()

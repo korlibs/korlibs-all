@@ -26,4 +26,6 @@ object OS {
 
 	val isBrowserJs: Boolean get() = isJs && !isNodejs
 	val isNative: Boolean get() = platformNameLC == "native"
+
+	val isJvm get() = !isJs && !isNative
 }
