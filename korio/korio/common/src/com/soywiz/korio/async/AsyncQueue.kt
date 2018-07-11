@@ -13,7 +13,7 @@ class AsyncQueue() {
 	//	suspend operator fun invoke() = AsyncQueue(getCoroutineContext())
 	//}
 
-	operator suspend fun invoke(func: suspend () -> Unit): AsyncQueue = invoke(getCoroutineContext(), func)
+	suspend operator fun invoke(func: suspend () -> Unit): AsyncQueue = invoke(getCoroutineContext(), func)
 
 	operator fun invoke(context: CoroutineContext, func: suspend () -> Unit): AsyncQueue {
 		//operator fun invoke(func: suspend () -> Unit): AsyncQueue {

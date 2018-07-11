@@ -34,7 +34,7 @@ open class EventLoop(val captureCloseables: Boolean) : Closeable {
 			eventLoop.tasksInProgress.addAndGet(+1)
 			eventLoop.start()
 			eventLoop.setImmediateDeferred {
-				println("EventLoop entrypoint")
+				//println("EventLoop entrypoint")
 				entry.korioStartCoroutine(eventLoop, object : Continuation<Unit> {
 					override val context: CoroutineContext = EventLoopCoroutineContext(eventLoop)
 
@@ -64,7 +64,7 @@ open class EventLoop(val captureCloseables: Boolean) : Closeable {
 		fun mustRun(now: Double) = now >= time
 
 		override fun close() {
-			tasks -= this
+			synchronized(tasks) { tasks -= this }
 		}
 
 		override fun toString(): String = "Task(time=${time.toLong()})"
@@ -72,29 +72,36 @@ open class EventLoop(val captureCloseables: Boolean) : Closeable {
 
 	protected open fun setTimeoutInternal(ms: Int, callback: () -> Unit): Closeable {
 		return Task(getTime() + ms, callback).apply {
-			tasks += this
+			synchronized(tasks) { tasks += this }
 		}
 	}
 
-	open fun getTime(): Double = Klock.currentTimeMillisDouble()
-
 	open fun step() {
-		var now = getTime()
+		val start = getTime()
+		var now = start
 		//println("step: ${tasks.size}, ${tasks.toList()}, ${now.toLong()}")
-		while (tasks.isNotEmpty()) {
-			val task = tasks.first()
+		while (true) {
+			val task = synchronized(tasks) { if (tasks.isNotEmpty()) tasks.first() else null } ?: break
+
 			//println("now=$now, task=$task")
 			if (task.mustRun(now)) {
 				//println("step: TASK EXEC")
-				tasks -= task
+				synchronized(tasks) { tasks -= task }
 				//tasks.removeHead()
 				task.callback()
 				now = getTime()
 			} else {
 				break
 			}
+
+			// Tasks are taking too long, let's continue in the next frame
+			if (mustBreak(start, now)) {
+				break
+			}
 		}
 	}
+
+	protected open fun mustBreak(start: Double, now: Double): Boolean = now - start >= 250
 
 	open fun start() {
 	}
@@ -113,7 +120,7 @@ open class EventLoop(val captureCloseables: Boolean) : Closeable {
 		return Closeable { cancelled = true }
 	}
 
-	private var insideImmediate = false
+	private var insideImmediate by atomicRef(false)
 	private val immediateTasks = LinkedList<() -> Unit>()
 	protected open fun setImmediateInternal(handler: () -> Unit) {
 		// @TODO: Check right thread?
@@ -143,10 +150,14 @@ open class EventLoop(val captureCloseables: Boolean) : Closeable {
 	}
 
 	open fun loop() {
-		while (true) {
+		while (synchronized(tasks) { immediateTasks.isNotEmpty() || tasks.isNotEmpty() } || (tasksInProgress.get() != 0)) {
 			step()
-			KorioNative.Thread_sleep(1000L / 60L)
+			delayFrame()
 		}
+	}
+
+	protected open fun delayFrame() {
+		KorioNative.Thread_sleep(1000L / 60L)
 	}
 
 	private val closeables = LinkedHashSet<Closeable>()
@@ -212,7 +223,7 @@ open class EventLoop(val captureCloseables: Boolean) : Closeable {
 		closeables.clear()
 	}
 
-	open val time: Long get() = TimeProvider.now()
+	open fun getTime(): Double = Klock.currentTimeMillisDouble()
 
 	open fun step(ms: Int): Unit {
 		step()
@@ -245,7 +256,7 @@ class EventLoopCoroutineContext(val eventLoop: EventLoop) :
 
 val CoroutineContext.tryEventLoop: EventLoop? get() = this[EventLoopCoroutineContext.Key]?.eventLoop
 val CoroutineContext.eventLoop: EventLoop
-	//get() = tryEventLoop ?: globalEventLoop ?: invalidOp("No EventLoop associated to this CoroutineContext")
+//get() = tryEventLoop ?: globalEventLoop ?: invalidOp("No EventLoop associated to this CoroutineContext")
 	get() = tryEventLoop ?: invalidOp("No EventLoop associated to this CoroutineContext")
 val Continuation<*>.eventLoop: EventLoop get() = this.context.eventLoop
 
@@ -255,151 +266,5 @@ suspend fun sleepMs(ms: Int): Unit = eventLoop().sleep(ms)
 suspend fun sleepNextFrame(): Unit = eventLoop().sleepNextFrame()
 
 object BaseEventLoopFactoryNative : EventLoopFactory() {
-	override fun createEventLoop(): EventLoop = BaseEventLoopNative()
+	override fun createEventLoop(): EventLoop = EventLoop(captureCloseables = false)
 }
-
-open class BaseEventLoopNative() : EventLoop(captureCloseables = false) {
-	private class AnyObj
-
-	private val lock = AnyObj()
-
-	class Task(val time: Double, val callback: () -> Unit)
-
-	private val timedTasks = PriorityQueue<Task> { a, b ->
-		if (a == b) 0 else a.time.compareTo(b.time).compareToChain { if (a == b) 0 else -1 }
-	}
-
-	class ImmediateTask {
-		var continuation: Continuation<*>? = null
-		var continuationResult: Any? = null
-		var continuationException: Throwable? = null
-		var callback: (() -> Unit)? = null
-
-		fun reset() {
-			continuation = null
-			continuationResult = null
-			continuationException = null
-			callback = null
-		}
-	}
-
-	private val immediateTasksPool = Pool({ it.reset() }) { ImmediateTask() }
-	private val immediateTasks = LinkedList<ImmediateTask>()
-
-	override fun setImmediateInternal(handler: () -> Unit) {
-		synchronized(lock) {
-			immediateTasks += immediateTasksPool.alloc().apply {
-				this.callback = handler
-			}
-		}
-	}
-
-	override fun <T> queueContinuation(continuation: Continuation<T>, result: T): Unit {
-		synchronized(lock) {
-			immediateTasks += immediateTasksPool.alloc().apply {
-				this.continuation = continuation
-				this.continuationResult = result
-			}
-		}
-	}
-
-	override fun <T> queueContinuationException(continuation: Continuation<T>, result: Throwable): Unit {
-		synchronized(lock) {
-			immediateTasks += immediateTasksPool.alloc().apply {
-				this.continuation = continuation
-				this.continuationException = result
-			}
-		}
-	}
-
-	override fun setTimeoutInternal(ms: Int, callback: () -> Unit): Closeable {
-		val task = Task(getTime() + ms.toDouble(), callback)
-		synchronized(lock) { timedTasks += task }
-		return Closeable { synchronized(timedTasks) { timedTasks -= task } }
-	}
-
-	override fun step(ms: Int) {
-		timer@ while (true) {
-			val startTime = getTime()
-			while (true) {
-				val currentTime = getTime()
-				val item =
-					synchronized(lock) { if (timedTasks.isNotEmpty() && currentTime >= timedTasks.peek().time) timedTasks.remove() else null }
-							?: break
-				item.callback()
-			}
-			while (true) {
-				if ((getTime() - startTime) >= 50) {
-					continue@timer
-				}
-				val task =
-					synchronized(lock) { if (immediateTasks.isNotEmpty()) immediateTasks.removeFirst() else null }
-							?: break
-				if (task.callback != null) {
-					task.callback?.invoke()
-				} else if (task.continuation != null) {
-					val cont = (task.continuation as? Continuation<Any?>)!!
-					if (task.continuationException != null) {
-						cont.resumeWithException(task.continuationException!!)
-					} else {
-						cont.resume(task.continuationResult)
-					}
-				}
-				synchronized(lock) {
-					immediateTasksPool.free(task)
-				}
-			}
-			break
-		}
-	}
-
-	var loopThread: Long = 0L
-
-	override fun loop() {
-		loopThread = KorioNative.currentThreadId
-
-		while (synchronized(lock) { immediateTasks.isNotEmpty() || timedTasks.isNotEmpty() } || (tasksInProgress.get() != 0)) {
-			step(1)
-			nativeSleep(1)
-
-			//println("immediateTasks: ${immediateTasks.size}, timedTasks: ${timedTasks.size}, tasksInProgress: ${tasksInProgress.get()}")
-		}
-
-		//_workerLazyPool?.shutdownNow()
-		//_workerLazyPool?.shutdown()
-		//_workerLazyPool?.awaitTermination(5, TimeUnit.SECONDS);
-	}
-
-	open fun nativeSleep(time: Int) {
-		KorioNative.Thread_sleep(time.toLong())
-	}
-}
-
-
-//class EventLoopJvmAndCSharp : EventLoop() {
-//	override val priority: Int = 1000
-//	override val available: Boolean get() = true
-//
-//	val tasksExecutor = Executors.newSingleThreadExecutor()
-//
-//	val timer = Timer(true)
-//
-//	override fun init(): Unit = Unit
-//
-//	override fun setImmediate(handler: () -> Unit) {
-//		tasksExecutor { handler() }
-//	}
-//
-//	override fun setTimeout(ms: Int, callback: () -> Unit): Closeable {
-//		val tt = timerTask { tasksExecutor { callback() } }
-//		timer.schedule(tt, ms.toLong())
-//		return Closeable { tt.cancel() }
-//	}
-//
-//
-//	override fun setInterval(ms: Int, callback: () -> Unit): Closeable {
-//		val tt = timerTask { tasksExecutor { callback() } }
-//		timer.schedule(tt, ms.toLong(), ms.toLong())
-//		return Closeable { tt.cancel() }
-//	}
-//}

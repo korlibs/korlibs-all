@@ -5,10 +5,10 @@ import kotlin.test.*
 class SleepTest {
 	@Test
 	fun name() = suspendTest {
-		val start = time
+		val start = _time
 		sleep(10)
 		sleep(20)
-		val end = time
+		val end = _time
 		assertTrue((end - start) > 25L)
 	}
 }
