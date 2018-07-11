@@ -268,6 +268,10 @@ private class EventLoopJs : EventLoop(captureCloseables = false) {
 		}
 	}
 
+	override fun loop() {
+		// Do nothing!
+	}
+
 	override fun setTimeoutInternal(ms: Int, callback: () -> Unit): Closeable {
 		val id = window.setTimeout({ callback() }, ms)
 		//println("setTimeout($ms)")
