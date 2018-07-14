@@ -6,9 +6,21 @@ import com.soywiz.korge.view.*
 class SortedChildrenByComponent(val container: Container, var comparator: Comparator<View>) : Component(container) {
 	override fun update(dtMs: Int) {
 		super.update(dtMs)
-		container.children.sortWith(comparator)
+		container.sortChildrenBy(comparator)
 	}
 }
+
+fun Container.sortChildrenBy(comparator: Comparator<View>) {
+	children.sortWith(comparator)
+	for (n in 0 until children.size) {
+		val child = children[n]
+		child.index = n
+	}
+}
+
+fun <T, T2: Comparable<T2>> ((T) -> T2).toComparator() = Comparator { a: T, b: T -> this(a).compareTo(this(b)) }
+fun <T2 : Comparable<T2>> Container.sortChildrenBy(selector: (View) -> T2) = sortChildrenBy(selector.toComparator())
+fun Container.sortChildrenByY() = sortChildrenBy(View::y)
 
 // @TODO: kotlin-native: kotlin.Comparator { }
 //             korge/korge/common/src/com/soywiz/korge/component/docking/SortedChildrenByComponent.kt:25:127: error: unresolved reference: Comparator
@@ -28,6 +40,6 @@ fun <T : Container> T.keepChildrenSortedBy(comparator: Comparator<View>): T =
 	this.apply { SortedChildrenByComponent(this, comparator).attach() }
 
 fun <T : Container, T2 : Comparable<T2>> T.keepChildrenSortedBy(selector: (View) -> T2): T =
-	this.keepChildrenSortedBy(Comparator { a: View, b: View -> selector(a).compareTo(selector(b)) })
+	this.keepChildrenSortedBy(selector.toComparator())
 
 fun <T : Container> T.keepChildrenSortedByY(): T = this.keepChildrenSortedBy(View::y)

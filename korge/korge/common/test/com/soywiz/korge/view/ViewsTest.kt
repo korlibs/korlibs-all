@@ -1,5 +1,6 @@
 package com.soywiz.korge.view
 
+import com.soywiz.korge.component.docking.*
 import com.soywiz.korge.render.*
 import com.soywiz.korge.tests.*
 import com.soywiz.korim.color.*
@@ -33,6 +34,23 @@ class ViewsTest : ViewsForTesting() {
 		s1 -= s3
 		assertNotNull(s1["s2"])
 		assertNull(s1["s3"])
+	}
+
+	@Test
+	fun sortChildren() = viewsTest {
+		lateinit var a: View
+		lateinit var b: View
+		lateinit var c: View
+		val s1 = views.container().apply {
+			this += views.solidRect(100, 100, Colors.RED).apply { a = this; y = 100.0 }
+			this += views.solidRect(100, 100, Colors.RED).apply { b = this; y = 50.0 }
+			this += views.solidRect(100, 100, Colors.RED).apply { c = this; y = 0.0 }
+		}
+		fun View.toStr() = "($index,$y)"
+		fun dump() = "${a.toStr()},${b.toStr()},${c.toStr()}::${s1.children.map { it.toStr() }}"
+		assertEquals("(0,100.0),(1,50.0),(2,0.0)::[(0,100.0), (1,50.0), (2,0.0)]", dump())
+		s1.sortChildrenByY()
+		assertEquals("(2,100.0),(1,50.0),(0,0.0)::[(0,0.0), (1,50.0), (2,100.0)]", dump())
 	}
 
 	@Test
