@@ -141,12 +141,12 @@ open class EventLoop(val captureCloseables: Boolean) : Closeable {
 	var fps: Double = 60.0
 
 	var lastRequest = 0.0
-	protected open fun requestAnimationFrameInternal(callback: () -> Unit): Closeable {
+	protected open fun requestAnimationFrameInternal(callback: () -> Unit) {
 		val step = 1000.0 / fps
 		val now = getTime()
 		if (lastRequest == 0.0) lastRequest = now
 		lastRequest = now
-		return setTimeoutInternal((step - (now - lastRequest)).clamp(0.0, step).toInt(), callback)
+		setTimeoutInternal((step - (now - lastRequest)).clamp(0.0, step).toInt(), callback)
 	}
 
 	open fun loop() {
@@ -182,8 +182,8 @@ open class EventLoop(val captureCloseables: Boolean) : Closeable {
 		return setIntervalInternal(ms, callback).capture()
 	}
 
-	fun requestAnimationFrame(callback: () -> Unit): Closeable {
-		return requestAnimationFrameInternal(callback).capture()
+	fun requestAnimationFrame(callback: () -> Unit) {
+		requestAnimationFrameInternal(callback)
 	}
 
 	fun queue(handler: () -> Unit): Unit = setImmediate(handler)
@@ -195,7 +195,6 @@ open class EventLoop(val captureCloseables: Boolean) : Closeable {
 		queue { continuation.resumeWithException(result) }
 
 	fun animationFrameLoop(callback: () -> Unit): Closeable {
-		var closeable: Closeable? = null
 		var step: (() -> Unit)? = null
 		var cancelled = false
 		step = {
@@ -204,7 +203,7 @@ open class EventLoop(val captureCloseables: Boolean) : Closeable {
 				//println("--callback[")
 				callback()
 				//println("--callback]")
-				closeable = this.requestAnimationFrameInternal(step!!)
+				this.requestAnimationFrameInternal(step!!)
 			} else {
 				//println("--cancelled!")
 			}
@@ -212,7 +211,6 @@ open class EventLoop(val captureCloseables: Boolean) : Closeable {
 		step()
 		return Closeable {
 			cancelled = true
-			closeable?.close()
 		}.capture()
 	}
 
@@ -238,11 +236,7 @@ open class EventLoop(val captureCloseables: Boolean) : Closeable {
 	}
 
 	suspend fun sleepNextFrame(): Unit = suspendCancellableCoroutine { c ->
-		val cc = requestAnimationFrame { c.resume(Unit) }
-		c.onCancel {
-			cc.close()
-			c.resumeWithException(it)
-		}
+		requestAnimationFrame { c.resume(Unit) }
 	}
 }
 

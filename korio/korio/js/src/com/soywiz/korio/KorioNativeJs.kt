@@ -278,10 +278,9 @@ private class EventLoopJs : EventLoop(captureCloseables = false) {
 		return Closeable { global.clearInterval(id) }
 	}
 
-	override fun requestAnimationFrameInternal(callback: () -> Unit): Closeable {
-		val id = global.requestAnimationFrame(callback)
+	override fun requestAnimationFrameInternal(callback: () -> Unit) {
+		global.requestAnimationFrame(callback)
 		//println("setTimeout($ms)")
-		return Closeable { global.cancelAnimationFrame(id) }
 	}
 
 	override fun setIntervalInternal(ms: Int, callback: () -> Unit): Closeable {

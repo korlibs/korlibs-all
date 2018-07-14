@@ -84,7 +84,8 @@ class KmlGlVertexLayout(val program: KmlGlProgram) {
 	fun float(name: String, count: Int, normalized: Boolean = false) = add(name, gl.FLOAT, 4, count, normalized)
 
 	fun enable(): Unit = gl.run {
-		for ((index, element) in elements.withIndex()) {
+		for (index in elements.indices) {
+			val element = elements[index]
 			enableVertexAttribArray(index)
 			vertexAttribPointer(
 				element.index,
@@ -97,9 +98,9 @@ class KmlGlVertexLayout(val program: KmlGlProgram) {
 		}
 	}
 
-	fun disable(): Unit = gl.run {
-		for ((index, _) in elements.withIndex()) {
-			disableVertexAttribArray(index)
+	fun disable() {
+		for (index in elements.indices) {
+			gl.disableVertexAttribArray(index)
 		}
 	}
 
