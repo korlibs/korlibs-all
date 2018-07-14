@@ -394,14 +394,16 @@ open class View(val views: Views) : Renderable, Updatable, Extra by Extra.Mixin(
 		return out
 	}
 
-	fun globalToLocalX(x: Double, y: Double): Double = globalMatrixInv.run { transformX(x, y) }
-	fun globalToLocalY(x: Double, y: Double): Double = globalMatrixInv.run { transformY(x, y) }
+	fun globalToLocal(p: Point2d, out: Point2d = Point2d()): Point2d = globalToLocalXY(p.x, p.y, out)
+	fun globalToLocalXY(x: Double, y: Double, out: Point2d = Point2d()): Point2d = globalMatrixInv.transform(x, y, out)
+	fun globalToLocalX(x: Double, y: Double): Double = globalMatrixInv.transformX(x, y)
+	fun globalToLocalY(x: Double, y: Double): Double = globalMatrixInv.transformY(x, y)
 
-	fun localToGlobalX(x: Double, y: Double): Double = globalMatrix.run { transformX(x, y) }
-	fun localToGlobalY(x: Double, y: Double): Double = globalMatrix.run { transformY(x, y) }
+	fun localToGlobal(p: Point2d, out: Point2d = Point2d()): Point2d = localToGlobalXY(p.x, p.y, out)
+	fun localToGlobalXY(x: Double, y: Double, out: Point2d = Point2d()): Point2d = globalMatrix.transform(x, y, out)
+	fun localToGlobalX(x: Double, y: Double): Double = globalMatrix.transformX(x, y)
+	fun localToGlobalY(x: Double, y: Double): Double = globalMatrix.transformY(x, y)
 
-	fun globalToLocal(p: Point2d, out: Point2d = Point2d()): Point2d = globalMatrixInv.run { transform(p.x, p.y, out) }
-	fun localToGlobal(p: Point2d, out: Point2d = Point2d()): Point2d = globalMatrix.run { transform(p.x, p.y, out) }
 
 	enum class HitTestType {
 		BOUNDING, SHAPE
@@ -553,6 +555,17 @@ open class View(val views: Views) : Renderable, Updatable, Extra by Extra.Mixin(
 		this.ratio = source.ratio
 		this.speed = source.speed
 		this.blendMode = source.blendMode
+	}
+
+	fun findViewByName(name: String): View? {
+		if (this.name == name) return this
+		if (this is Container) {
+			for (child in children) {
+				val named = child.findViewByName(name)
+				if (named != null) return named
+			}
+		}
+		return null
 	}
 
 	open fun clone(): View = createInstance().apply {

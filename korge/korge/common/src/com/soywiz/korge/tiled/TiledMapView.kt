@@ -7,7 +7,9 @@ class TiledMapView(views: Views, val tiledMap: TiledMap) : Container(views) {
 	init {
 		for ((index, layer) in tiledMap.allLayers.withIndex()) {
 			if (layer is TiledMap.Layer.Patterns) {
-				this += TileMap(layer.map, tiledMap.tileset, views)
+				this += TileMap(layer.map, tiledMap.tileset, views).apply {
+					this.name = layer.name?.takeIf { it.isNotEmpty() }
+				}
 			}
 		}
 	}

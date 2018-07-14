@@ -1,19 +1,27 @@
 package com.soywiz.korge.view.tiles
 
+import com.soywiz.kmem.*
 import com.soywiz.korge.render.*
 import com.soywiz.korge.util.*
 import com.soywiz.korge.view.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 
-class TileMap(val map: IntArray2, val tileset: TileSet, views: Views) : View(views) {
+open class TileMap(val map: IntArray2, val tileset: TileSet, views: Views) : View(views) {
 	val tileWidth = tileset.width.toDouble()
 	val tileHeight = tileset.height.toDouble()
 	var smoothing = true
 
+	private val t0 = Point2d(0, 0)
+	private val tt0 = Point2d(0, 0)
+	private val tt1 = Point2d(0, 0)
+
+	val renderTilesCounter = views.stats.counter("renderedTiles")
+
 	override fun render(ctx: RenderContext, m: Matrix2d) {
 		if (!visible) return
 		val batch = ctx.batch
+
 
 		val pos = m.transform(0.0, 0.0)
 		val dU = m.transform(tileWidth, 0.0) - pos
@@ -24,22 +32,58 @@ class TileMap(val map: IntArray2, val tileset: TileSet, views: Views) : View(vie
 
 		batch.setStateFast(tileset.base, blendFactors = computedBlendMode.factors, smoothing = smoothing)
 
-		map.forEach { v, x, y ->
-			val tex = tileset[map[x, y]] ?: return@forEach
-			val p0 = pos + (dU * x.toDouble()) + (dV * y.toDouble())
-			val p1 = p0 + dU
-			val p2 = p0 + dU + dV
-			val p3 = p0 + dV
-			batch.drawQuadFast(
-				p0.x.toFloat(), p0.y.toFloat(),
-				p1.x.toFloat(), p1.y.toFloat(),
-				p2.x.toFloat(), p2.y.toFloat(),
-				p3.x.toFloat(), p3.y.toFloat(),
-				tex, colorMul, colorAdd
-			)
+		// @TODO: Bounds in clipped view
+		val pp0 = globalToLocal(t0.setTo(views.virtualLeft, views.virtualTop), tt0)
+		//val pp1 = globalToLocal(t0.setTo(views.actualVirtualWidth, views.actualVirtualHeight), tt1)
+		val pp1 = globalToLocal(t0.setTo(views.virtualRight, views.virtualBottom), tt1)
+
+		val mx0 = ((pp0.x / tileWidth) - 1).toInt().clamp(0, map.width)
+		val mx1 = ((pp1.x / tileWidth) + 1).toInt().clamp(0, map.width)
+		val my0 = ((pp0.y / tileHeight) - 1).toInt().clamp(0, map.height)
+		val my1 = ((pp1.y / tileHeight) + 1).toInt().clamp(0, map.height)
+
+		//views.stats.value("tiledmap.$name.bounds").set("${views.virtualLeft},${views.virtualTop},${views.virtualRight},${views.virtualBottom}")
+		//views.stats.value("tiledmap.$name.pp0,pp1").set("$pp0,$pp1")
+		//views.stats.value("tiledmap.$name.tileWidth,tileHeight").set("$tileWidth,$tileHeight")
+		//views.stats.value("tiledmap.$name.mx0,my0").set("$mx0,$my0")
+		//views.stats.value("tiledmap.$name.mx1,my1").set("$mx1,$my1")
+
+		var count = 0
+		for (y in my0 until my1) {
+			for (x in mx0 until mx1) {
+				if (x < 0 || x >= map.width) continue
+				val tex = tileset[map[x, y]] ?: continue
+				val p0 = pos + (dU * x.toDouble()) + (dV * y.toDouble())
+				val p1 = p0 + dU
+				val p2 = p0 + dU + dV
+				val p3 = p0 + dV
+				render(batch, p0, p1, p2, p3, tex, colorMul, colorAdd)
+				count++
+			}
 		}
+		renderTilesCounter.increment(count)
+
 
 		ctx.flush()
+	}
+
+	open fun render(
+		batch: BatchBuilder2D,
+		p0: Vector2,
+		p1: Vector2,
+		p2: Vector2,
+		p3: Vector2,
+		tex: Texture,
+		colorMul: Int,
+		colorAdd: Int
+	) {
+		batch.drawQuadFast(
+			p0.x.toFloat(), p0.y.toFloat(),
+			p1.x.toFloat(), p1.y.toFloat(),
+			p2.x.toFloat(), p2.y.toFloat(),
+			p3.x.toFloat(), p3.y.toFloat(),
+			tex, colorMul, colorAdd
+		)
 	}
 
 	override fun getLocalBoundsInternal(out: Rectangle) {

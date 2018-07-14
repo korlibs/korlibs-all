@@ -1,6 +1,6 @@
-package com.soywiz.std
+@file:Suppress("USELESS_CAST")
 
-import java.util.concurrent.atomic.*
+package com.soywiz.std
 
 actual annotation class ThreadLocal actual constructor()
 
@@ -15,6 +15,7 @@ actual fun <T> NewAtomicReference(value: T): AtomicReference<T> = java.util.conc
 actual fun <T> AtomicReference<T>.set(value: T) {
 	(this as java.util.concurrent.atomic.AtomicReference<T>).set(value)
 }
+
 actual fun <T> AtomicReference<T>.get(): T {
 	return (this as java.util.concurrent.atomic.AtomicReference<T>).get()
 }
@@ -30,6 +31,7 @@ actual fun AtomicInt.addAndGet(delta: Int): Int {
 actual fun AtomicInt.set(value: Int) {
 	(this as java.util.concurrent.atomic.AtomicInteger).set(value)
 }
+
 actual fun AtomicInt.get(): Int {
 	return (this as java.util.concurrent.atomic.AtomicInteger).get()
 }
@@ -47,6 +49,7 @@ actual fun AtomicLong.addAndGet(delta: Long): Long {
 actual fun AtomicLong.set(value: Long) {
 	(this as java.util.concurrent.atomic.AtomicLong).set(value)
 }
+
 actual fun AtomicLong.get(): Long {
 	return (this as java.util.concurrent.atomic.AtomicLong).get()
 }

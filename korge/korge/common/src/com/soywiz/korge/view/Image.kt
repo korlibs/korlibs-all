@@ -37,13 +37,7 @@ class Image(
 	override fun hitTestInternal(x: Double, y: Double): View? {
 		val sRight = sLeft + tex.width
 		val sBottom = sTop + tex.height
-		return if (checkGlobalBounds(x, y, sLeft, sTop, sRight, sBottom) && (hitShape?.containsPoint(
-				globalToLocalX(
-					x,
-					y
-				), globalToLocalY(x, y)
-			) ?: true)
-		) this else null
+		return if (checkGlobalBounds(x, y, sLeft, sTop, sRight, sBottom) && (hitShape?.containsPoint(globalToLocalX(x, y), globalToLocalY(x, y)) != false)) this else null
 	}
 
 	override fun createInstance(): View = Image(tex, anchorX, anchorY, views, hitShape, smoothing)

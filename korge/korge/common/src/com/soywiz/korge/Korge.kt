@@ -7,6 +7,7 @@ import com.soywiz.korge.input.*
 import com.soywiz.korge.plugin.*
 import com.soywiz.korge.resources.*
 import com.soywiz.korge.scene.*
+import com.soywiz.korge.stat.*
 import com.soywiz.korge.view.*
 import com.soywiz.korim.format.*
 import com.soywiz.korim.vector.*
@@ -20,7 +21,6 @@ import com.soywiz.korui.*
 import com.soywiz.korui.event.*
 import com.soywiz.korui.input.*
 import com.soywiz.korui.ui.*
-import kotlin.math.*
 import kotlin.reflect.*
 
 object Korge {
@@ -35,16 +35,25 @@ object Korge {
 		val agContainer = config.container ?: error("No agContainer defined")
 		val ag = agContainer.ag
 		val size = config.module.size
+		val moduleArgs = ModuleArgs(config.args)
 
 		logger.trace { "pre injector" }
 		injector
-			.mapSingleton(Views::class) { Views(get(), get(), get(), get(), get()) }
-			.mapSingleton(Input::class) { Input() }
+				// Instances
+			.mapInstance(ModuleArgs::class, moduleArgs)
+			.mapInstance(TimeProvider::class, config.timeProvider)
+			.mapInstance(EventLoop::class, config.eventLoop)
+			.mapInstance<Module>(Module::class, config.module)
+			.mapInstance(AG::class, ag)
 			.mapInstance(KorgePlugins::class, defaultKorgePlugins)
 			.mapInstance(Config::class, config)
-			.mapInstance(AG::class, ag)
-			.mapPrototype(EmptyScene::class) { EmptyScene() }
+				// Singletons
+			.mapSingleton(Stats::class) { Stats() }
+			.mapSingleton(Input::class) { Input() }
+			.mapSingleton(Views::class) { Views(get(), get(), get(), get(), get(), get(), get()) }
 			.mapSingleton(ResourcesRoot::class) { ResourcesRoot() }
+				// Prototypes
+			.mapPrototype(EmptyScene::class) { EmptyScene() }
 
 		if (config.frame != null) {
 			injector.mapInstance(Frame::class, config.frame)
@@ -62,15 +71,15 @@ object Korge {
 
 		logger.trace { "post plugins" }
 
+		@Suppress("RemoveExplicitTypeArguments")
+
 		ag.onReady.await()
 
-		injector.mapInstance(AG::class, ag)
 		logger.trace { "Korge.setupCanvas[1b]. EventLoop: ${config.eventLoop}" }
 		logger.trace { "Korge.setupCanvas[1c]. ag: $ag" }
 		logger.trace { "Korge.setupCanvas[1d]. debug: ${config.debug}" }
 		logger.trace { "Korge.setupCanvas[1e]. args: ${config.args.toList()}" }
 		logger.trace { "Korge.setupCanvas[1f]. size: $size" }
-		injector.mapInstance(EventLoop::class, config.eventLoop)
 		logger.trace { "Korge.setupCanvas[1g]" }
 		val views = injector.get(Views::class)
 		logger.trace { "Korge.setupCanvas[1h]" }
@@ -82,7 +91,6 @@ object Korge {
 		logger.trace { "Korge.setupCanvas[1k]" }
 		config.constructedViews(views)
 		logger.trace { "Korge.setupCanvas[1l]" }
-		val moduleArgs = ModuleArgs(config.args)
 		logger.trace { "Korge.setupCanvas[2]" }
 
 		views.virtualWidth = size.width
@@ -99,9 +107,6 @@ object Korge {
 		logger.trace { "Korge.setupCanvas[3]" }
 
 		logger.trace { "Korge.setupCanvas[4]" }
-		injector.mapInstance(ModuleArgs::class, moduleArgs)
-		injector.mapInstance(TimeProvider::class, config.timeProvider)
-		injector.mapInstance<Module>(Module::class, config.module)
 		config.module.init(injector)
 
 		logger.trace { "Korge.setupCanvas[5]" }
@@ -323,26 +328,12 @@ object Korge {
 		ag.resized()
 		eventDispatcher.dispatch(ResizedEvent(100, 100))
 
-		var lastTime = config.timeProvider.currentTimeMillis()
 		//println("lastTime: $lastTime")
 		ag.onRender {
-			logger.trace { "ag.onRender" }
-			//println("Render")
-			val currentTime = config.timeProvider.currentTimeMillis()
-			//println("currentTime: $currentTime")
-			val delta = (currentTime - lastTime).toInt()
-			val adelta = min(delta, views.clampElapsedTimeTo)
-			//println("delta: $delta")
-			//println("Render($lastTime -> $currentTime): $delta")
-			lastTime = currentTime
-			views.update(adelta)
-			views.render(
+			views.frameUpdateAndRender(
 				clear = config.module.clearEachFrame && views.clearEachFrame,
 				clearColor = config.module.bgcolor
 			)
-
-			//println("Dumping views:")
-			//views.dump()
 
 			if (moveMouseOutsideInNextFrame) {
 				moveMouseOutsideInNextFrame = false
@@ -365,6 +356,9 @@ object Korge {
 
 		val sc = views.sceneContainer()
 		views.stage += sc
+
+		register(views)
+
 		sc.changeTo(config.sceneClass, *config.sceneInjects.toTypedArray(), time = 0.seconds)
 
 		logger.trace { "Korge.setupCanvas[8]" }
@@ -477,3 +471,5 @@ object Korge {
 
 	data class ModuleArgs(val args: Array<String>)
 }
+
+expect fun Korge.register(views: Views)

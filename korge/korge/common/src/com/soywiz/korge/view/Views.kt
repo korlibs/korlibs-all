@@ -1,15 +1,18 @@
 package com.soywiz.korge.view
 
 import com.soywiz.kds.*
+import com.soywiz.klock.*
 import com.soywiz.klogger.*
 import com.soywiz.korag.*
 import com.soywiz.korag.log.*
+import com.soywiz.korge.*
 import com.soywiz.korge.audio.*
 import com.soywiz.korge.bitmapfont.*
 import com.soywiz.korge.bitmapfont.BitmapFont
 import com.soywiz.korge.input.*
 import com.soywiz.korge.plugin.*
 import com.soywiz.korge.render.*
+import com.soywiz.korge.stat.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
 import com.soywiz.korim.font.*
@@ -23,6 +26,7 @@ import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 import com.soywiz.korui.*
 import com.soywiz.korui.event.*
+import kotlin.math.*
 import kotlin.reflect.*
 
 private val logger = Logger("Views")
@@ -33,11 +37,17 @@ class Views(
 	val ag: AG,
 	val injector: AsyncInjector,
 	val input: Input,
-	val plugins: KorgePlugins
+	val plugins: KorgePlugins,
+	val timeProvider: TimeProvider,
+	val stats: Stats
 ) : AsyncDependency, Updatable, Extra by Extra.Mixin(), EventDispatcher by EventDispatcher.Mixin(),
 	CoroutineContextHolder {
 
 	var imageFormats = defaultImageFormats
+
+	fun dumpStats() {
+		stats.dump()
+	}
 
 	init {
 		logger.trace { "Views[0]" }
@@ -114,6 +124,14 @@ class Views(
 	var actualVirtualWidth = 640; private set
 	var actualVirtualHeight = 480; private set
 
+	val virtualLeft get() = -actualVirtualLeft * views.stage.scaleX
+	val virtualTop get() = -actualVirtualTop * views.stage.scaleY
+	val virtualRight get() = virtualLeft + virtualWidth * views.stage.scaleX
+	val virtualBottom get() = virtualTop + virtualHeight * views.stage.scaleY
+
+	val actualVirtualRight get() = actualVirtualWidth
+	val actualVirtualBottom get() = actualVirtualHeight
+
 	val nativeMouseX: Double get() = input.mouse.x
 	val nativeMouseY: Double get() = input.mouse.y
 
@@ -185,6 +203,23 @@ class Views(
 		}
 	}
 
+	var lastTime = timeProvider.currentTimeMillis()
+
+	fun frameUpdateAndRender(clear: Boolean, clearColor: Int) {
+		views.stats.startFrame()
+		Korge.logger.trace { "ag.onRender" }
+		//println("Render")
+		val currentTime = timeProvider.currentTimeMillis()
+		//println("currentTime: $currentTime")
+		val delta = (currentTime - lastTime).toInt()
+		val adelta = min(delta, views.clampElapsedTimeTo)
+		//println("delta: $delta")
+		//println("Render($lastTime -> $currentTime): $delta")
+		lastTime = currentTime
+		update(adelta)
+		render(clearColor, clear)
+	}
+
 	override fun update(dtMs: Int) {
 		//println(this)
 		//println("Update: $dtMs")
@@ -238,6 +273,8 @@ class Views(
 			this.width = actualSize.width
 			this.height = actualSize.height
 		})
+
+		stage.invalidate()
 	}
 
 	var targetFps: Double = -1.0
@@ -302,9 +339,11 @@ class ViewsLog(
 	val injector: AsyncInjector = AsyncInjector(),
 	val ag: LogAG = LogAG(),
 	val input: Input = Input(),
-	val plugins: KorgePlugins = defaultKorgePlugins
+	val plugins: KorgePlugins = defaultKorgePlugins,
+	val timeProvider: TimeProvider = TimeProvider(),
+	val stats: Stats = Stats()
 ) : AsyncDependency {
-	val views = Views(eventLoop, ag, injector, input, plugins)
+	val views = Views(eventLoop, ag, injector, input, plugins, timeProvider, stats)
 
 	suspend override fun init() {
 		views.init()
@@ -337,6 +376,8 @@ inline fun Container.container(callback: Container.() -> Unit): Container {
 fun Views.texture(bmp: Bitmap, mipmaps: Boolean = false): Texture {
 	return Texture(Texture.Base(ag.createTexture(bmp, mipmaps), bmp.width, bmp.height))
 }
+
+fun Bitmap.texture(views: Views, mipmaps: Boolean = false) = views.texture(this, mipmaps)
 
 fun Views.texture(width: Int, height: Int, mipmaps: Boolean = false): Texture {
 	return texture(Bitmap32(width, height), mipmaps)

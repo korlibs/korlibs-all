@@ -6,6 +6,7 @@ import com.soywiz.korge.*
 import com.soywiz.korge.input.*
 import com.soywiz.korge.plugin.*
 import com.soywiz.korge.scene.*
+import com.soywiz.korge.stat.*
 import com.soywiz.korge.view.*
 import com.soywiz.korinject.*
 import com.soywiz.korio.async.*
@@ -22,7 +23,9 @@ open class KorgeTest {
 	val ag: AG = DummyAG()
 	val input: Input = Input()
 	val eventDispatcher = EventDispatcher.Mixin()
-	val views = Views(eventLoop, ag, injector, input, plugins).apply {
+	val timeProvider = TimeProvider()
+	val stats = Stats()
+	val views = Views(eventLoop, ag, injector, input, plugins, timeProvider, stats).apply {
 		syncTest {
 			init()
 		}

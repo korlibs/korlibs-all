@@ -160,6 +160,7 @@ fun <TEventLoop : EventLoop> sync(el: TEventLoop, step: Int = 10, block: suspend
 	var result: Any? = null
 
 	el.tasksInProgress.increment()
+	//EventLoopTest().loop()
 	block.korioStartCoroutine(el, object : Continuation<Unit> {
 		override val context: CoroutineContext = el.coroutineContext
 

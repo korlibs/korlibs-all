@@ -95,6 +95,7 @@ class LinkedListJvmTest {
 	}
 
 	@Test
+	@Suppress("UNUSED_VARIABLE")
 	fun insertAfter() {
 		val l = create<String>()
 		val aSlot = l.addLast("a")
@@ -104,6 +105,7 @@ class LinkedListJvmTest {
 	}
 
 	@Test
+	@Suppress("UNUSED_VARIABLE")
 	fun insertAfterLast() {
 		val l = create<String>()
 		val aSlot = l.addLast("a")
@@ -113,6 +115,7 @@ class LinkedListJvmTest {
 	}
 
 	@Test
+	@Suppress("UNUSED_VARIABLE")
 	fun insertBefore() {
 		val l = create<String>()
 		val aSlot = l.addLast("a")
@@ -122,6 +125,7 @@ class LinkedListJvmTest {
 	}
 
 	@Test
+	@Suppress("UNUSED_VARIABLE")
 	fun insertBeforeFirst() {
 		val l = create<String>()
 		val aSlot = l.addLast("a")
