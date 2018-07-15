@@ -185,7 +185,8 @@ object PNG : ImageFormat("png") {
 	}
 
 	private fun readCommon(s: SyncStream, readHeader: Boolean): Any? {
-		if (s.readS32_be() != MAGIC1) throw IllegalArgumentException("Invalid PNG file")
+		val magic = s.readS32_be()
+		if (magic != MAGIC1) throw IllegalArgumentException("Invalid PNG file magic: ${magic.hex}!=${MAGIC1.hex}")
 		s.readS32_be() // magic continuation
 
 		var pheader: Header? = null
