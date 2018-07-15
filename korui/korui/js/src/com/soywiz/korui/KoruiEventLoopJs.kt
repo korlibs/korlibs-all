@@ -1,5 +1,6 @@
 package com.soywiz.korui
 
+import com.soywiz.korio.async.*
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.timeunit.*
 import kotlin.browser.*
@@ -7,7 +8,7 @@ import kotlin.coroutines.experimental.*
 
 actual val KoruiDispatcher: CoroutineDispatcher get() = HtmlDispatcher
 
-object HtmlDispatcher : CoroutineDispatcher(), Delay {
+object HtmlDispatcher : CoroutineDispatcher(), Delay, DelayFrame {
 	override fun dispatch(context: CoroutineContext, block: Runnable) {
 		window.setTimeout({
 			block.run()
@@ -34,6 +35,10 @@ object HtmlDispatcher : CoroutineDispatcher(), Delay {
 				window.clearTimeout(timeout)
 			}
 		}
+	}
+
+	override fun delayFrame(continuation: Continuation<Unit>) {
+		window.requestAnimationFrame { continuation.resume(Unit) }
 	}
 
 	override fun toString() = "HtmlDispatcher"
