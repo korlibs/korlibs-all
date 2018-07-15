@@ -168,7 +168,9 @@ fun suspendTest(
 ) {
 	Korio(dispatcher) {
 		dispatcher.loop {
-			callback(dispatcher)
+			withTimeout(10, TimeUnit.SECONDS) {
+				callback(dispatcher)
+			}
 		}
 	}
 }
