@@ -284,7 +284,74 @@ class HtmlLightComponents : LightComponents() {
 				}
 
 				return listOf("click", "mouseover", "mousemove", "mouseup", "mousedown")
-					.map { node.addCloseableEventListener(it, { dispatchMouseEvent(it) }) }
+					.map { node.addCloseableEventListener(it) { dispatchMouseEvent(it) } }
+					.closeable()
+			}
+			com.soywiz.korui.event.KeyEvent::class -> {
+				val event = com.soywiz.korui.event.KeyEvent()
+
+				fun dispatchMouseEvent(e: Event) {
+					val me = e as KeyboardEvent
+					//console.error("MOUSE EVENT!")
+					//console.error(me)
+					ed.dispatch(event.apply {
+						this.id = 0
+						this.keyCode = me.keyCode
+						this.key = when (me.key) {
+							"0" -> Key.N0; "1" -> Key.N1; "2" -> Key.N2; "3" -> Key.N3
+							"4" -> Key.N4; "5" -> Key.N5; "6" -> Key.N6; "7" -> Key.N7
+							"8" -> Key.N8; "9" -> Key.N9
+							"a" -> Key.A; "b" -> Key.B; "c" -> Key.C; "d" -> Key.D
+							"e" -> Key.E; "f" -> Key.F; "g" -> Key.G; "h" -> Key.H
+							"i" -> Key.I; "j" -> Key.J; "k" -> Key.K; "l" -> Key.L
+							"m" -> Key.M; "n" -> Key.N; "o" -> Key.O; "p" -> Key.P
+							"q" -> Key.Q; "r" -> Key.R; "s" -> Key.S; "t" -> Key.T
+							"u" -> Key.U; "v" -> Key.V; "w" -> Key.W; "x" -> Key.X
+							"y" -> Key.Y; "z" -> Key.Z
+							"F1" -> Key.F1; "F2" -> Key.F2; "F3" -> Key.F3; "F4" -> Key.F4
+							"F5" -> Key.F5; "F6" -> Key.F6; "F7" -> Key.F7; "F8" -> Key.F8
+							"F9" -> Key.F9; "F10" -> Key.F10; "F11" -> Key.F11; "F12" -> Key.F12
+							"F13" -> Key.F13; "F14" -> Key.F14; "F15" -> Key.F15; "F16" -> Key.F16
+							"F17" -> Key.F17; "F18" -> Key.F18; "F19" -> Key.F19; "F20" -> Key.F20
+							"F21" -> Key.F21; "F22" -> Key.F22; "F23" -> Key.F23; "F24" -> Key.F24
+							"F25" -> Key.F25
+							else -> when (me.code) {
+								"MetaLeft" -> Key.LEFT_SUPER
+								"MetaRight" -> Key.RIGHT_SUPER
+								"ShiftLeft" -> Key.LEFT_SHIFT
+								"ShiftRight" -> Key.RIGHT_SHIFT
+								"ControlLeft" -> Key.LEFT_CONTROL
+								"ControlRight" -> Key.RIGHT_CONTROL
+								"AltLeft" -> Key.LEFT_ALT
+								"AltRight" -> Key.RIGHT_ALT
+								"Space" -> Key.SPACE
+								"ArrowUp" -> Key.UP
+								"ArrowDown" -> Key.DOWN
+								"ArrowLeft" -> Key.LEFT
+								"ArrowRight" -> Key.RIGHT
+								"Enter" -> Key.ENTER
+								"Escape" -> Key.ESCAPE
+								"Backspace" -> Key.BACKSPACE
+								"Period" -> Key.PERIOD
+								"Comma" -> Key.COMMA
+								"Semicolon" -> Key.SEMICOLON
+								"Slash" -> Key.SLASH
+								"Tab" -> Key.TAB
+								else -> Key.UNKNOWN
+							}
+						}
+						this.char = me.charCode.toChar()
+						this.type = when (me.type) {
+							"keydown" -> com.soywiz.korui.event.KeyEvent.Type.DOWN
+							"keyup" -> com.soywiz.korui.event.KeyEvent.Type.UP
+							"keypress" -> com.soywiz.korui.event.KeyEvent.Type.TYPE
+							else -> error("Unsupported event type ${me.type}")
+						}
+					})
+				}
+
+				return listOf("keydown", "keyup", "keypress")
+					.map { node.addCloseableEventListener(it) { dispatchMouseEvent(it) } }
 					.closeable()
 			}
 			com.soywiz.korui.event.ChangeEvent::class -> {
@@ -298,7 +365,7 @@ class HtmlLightComponents : LightComponents() {
 				}
 
 				listOf("change", "keypress", "input", "textInput", "paste")
-					.map { node.addCloseableEventListener(it, { dispatchChangeEvent(it) }) }
+					.map { node.addCloseableEventListener(it) { dispatchChangeEvent(it) } }
 					.closeable().cancellable()
 			}
 			com.soywiz.korui.event.ResizedEvent::class -> {
