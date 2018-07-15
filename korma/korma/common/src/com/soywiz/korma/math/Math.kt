@@ -43,7 +43,7 @@ object Math {
 			is Int -> interpolate(min, max as Int, ratio)
 			is Long -> interpolate(min, max as Long, ratio)
 			is Double -> interpolate(min, max as Double, ratio)
-			is Vector2 -> min.setToInterpolated(min, max as Vector2, ratio)
+			is MVector2 -> min.setToInterpolated(min, max as MVector2, ratio)
 			else -> throw RuntimeException("Unsupported interpolate with $min")
 		}
 	}

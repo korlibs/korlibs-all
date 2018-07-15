@@ -24,9 +24,9 @@ class MouseComponent(view: View) : Component(view) {
 
 	var hitTestType = View.HitTestType.BOUNDING
 
-	val startedPos = Point2d()
-	val lastPos = Point2d()
-	val currentPos = Point2d()
+	val startedPos = MPoint2d()
+	val lastPos = MPoint2d()
+	val currentPos = MPoint2d()
 	var hitTest: View? = null; private set
 	private var lastOver = false
 	private var lastPressing = false
@@ -40,8 +40,8 @@ class MouseComponent(view: View) : Component(view) {
 
 	fun getMouseHitResult() = input.mouseHitResult
 
-	var downPos = Point2d()
-	var upPos = Point2d()
+	var downPos = MPoint2d()
+	var upPos = MPoint2d()
 	var clickedCount = 0
 
 	private fun hitTest(): View? {

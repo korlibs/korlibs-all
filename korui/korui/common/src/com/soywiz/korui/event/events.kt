@@ -40,8 +40,8 @@ data class Touch(
 	var id: Int = -1,
 	var startTime: Double = 0.0,
 	var currentTime: Double = 0.0,
-	var start: Vector2 = Vector2(),
-	var current: Vector2 = Vector2()
+	var start: MVector2 = MVector2(),
+	var current: MVector2 = MVector2()
 ) : Extra by Extra.Mixin() {
 	companion object {
 		val dummy = Touch(-1)

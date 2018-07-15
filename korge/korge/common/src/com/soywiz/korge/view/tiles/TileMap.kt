@@ -12,9 +12,9 @@ open class TileMap(val map: IntArray2, val tileset: TileSet, views: Views) : Vie
 	val tileHeight = tileset.height.toDouble()
 	var smoothing = true
 
-	private val t0 = Point2d(0, 0)
-	private val tt0 = Point2d(0, 0)
-	private val tt1 = Point2d(0, 0)
+	private val t0 = MPoint2d(0, 0)
+	private val tt0 = MPoint2d(0, 0)
+	private val tt1 = MPoint2d(0, 0)
 
 	val renderTilesCounter = views.stats.counter("renderedTiles")
 

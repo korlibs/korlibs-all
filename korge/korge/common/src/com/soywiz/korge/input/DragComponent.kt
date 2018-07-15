@@ -21,9 +21,9 @@ inline fun <T : View?> T?.onDragMove(noinline handler: suspend (DragComponent.In
 class DragComponent(view: View) : Component(view) {
 	data class Info(
 		var touch: Touch = Touch.dummy,
-		var gstart: Vector2 = Vector2(),
-		var gend: Vector2 = Vector2(),
-		var delta: Vector2 = Vector2()
+		var gstart: MVector2 = MVector2(),
+		var gend: MVector2 = MVector2(),
+		var delta: MVector2 = MVector2()
 	) {
 		val id get() = touch.id
 	}

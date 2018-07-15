@@ -1046,7 +1046,7 @@ open class SWFShape(var unitDivisor: Double = 20.0) {
 
 	var fillStyles = ArrayList<SWFFillStyle>()
 	var lineStyles = ArrayList<SWFLineStyle>()
-	var referencePoint = Point2d(0, 0)
+	var referencePoint = MPoint2d(0, 0)
 
 	private var fillEdgeMaps = ArrayList<HashMap<Int, ArrayList<IEdge>>>()
 	private var lineEdgeMaps = ArrayList<HashMap<Int, ArrayList<IEdge>>>()

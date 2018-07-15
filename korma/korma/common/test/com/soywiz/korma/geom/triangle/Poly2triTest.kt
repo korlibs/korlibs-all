@@ -12,19 +12,20 @@ class EdgeTest {
 	private var e1: Edge = EdgeContext().createEdge(p1, p2)
 
 	@Test
-	fun testInstantiated(): Unit {
+	fun testInstantiated() {
+		@Suppress("USELESS_IS_CHECK")
 		assertTrue(e1 is Edge)
 	}
 
 	@Test
-	fun testValues(): Unit {
+	fun testValues() {
 		// Order of points was reversed.
 		assertEquals(e1.p, p2)
 		assertEquals(e1.q, p1)
 	}
 
 	@Test
-	fun testInEdgeList(): Unit {
+	fun testInEdgeList() {
 		// q contains the edge_list
 		assertTrue(e1.ctx.getPointEdgeList(e1.q).indexOf(e1) != -1)
 	}
@@ -32,7 +33,7 @@ class EdgeTest {
 
 class NewFunnelTest {
 	@Test
-	fun testStringPull(): Unit {
+	fun testStringPull() {
 		val channel = NewFunnel()
 
 		channel.push(Point2d(1, 0))
@@ -43,17 +44,17 @@ class NewFunnelTest {
 		channel.push(Point2d(12, -11))
 		channel.stringPull()
 
-		assertEquals("[Vector2(1, 0), Vector2(4, 3), Vector2(10, 1), Vector2(12, -11)]", channel.path.toString())
+		assertEquals("[(1, 0), (4, 3), (10, 1), (12, -11)]", channel.path.toString())
 	}
 
 }
 
 class OrientationTest {
 	@Test
-	fun testOrientationCollinear(): Unit {
-		assertEquals(Orientation.Companion.orient2d(Point2d(0, 0), Point2d(1, 1), Point2d(2, 2)), Orientation.COLLINEAR)
+	fun testOrientationCollinear() {
+		assertEquals(Orientation.orient2d(Point2d(0, 0), Point2d(1, 1), Point2d(2, 2)), Orientation.COLLINEAR)
 		assertFalse(
-			Orientation.Companion.orient2d(
+			Orientation.orient2d(
 				Point2d(-1, 0),
 				Point2d(0, 0),
 				Point2d(+1, 0)
@@ -62,13 +63,13 @@ class OrientationTest {
 	}
 
 	@Test
-	fun testOrientationCW(): Unit {
-		assertEquals(Orientation.Companion.orient2d(Point2d(0, 0), Point2d(1, 1), Point2d(2, 0)), Orientation.CW)
+	fun testOrientationCW() {
+		assertEquals(Orientation.orient2d(Point2d(0, 0), Point2d(1, 1), Point2d(2, 0)), Orientation.CW)
 	}
 
 	@Test
-	fun testOrientationCCW(): Unit {
-		assertEquals(Orientation.Companion.orient2d(Point2d(0, 0), Point2d(-1, 1), Point2d(-2, 0)), Orientation.CCW)
+	fun testOrientationCCW() {
+		assertEquals(Orientation.orient2d(Point2d(0, 0), Point2d(-1, 1), Point2d(-2, 0)), Orientation.CCW)
 	}
 }
 
@@ -184,62 +185,63 @@ class PointTest {
 		private const val DELTA_FLOAT: Double = 0.0001
 	}
 
-	private var p1: Point2d
-	private var p2: Point2d
-	private var p3: Point2d
+	private var p1: MPoint2d
+	private var p2: MPoint2d
+	private var p3: MPoint2d
 
 	init {
-		p1 = Point2d(P1X, P1Y)
-		p2 = Point2d(P2X, P2Y)
-		p3 = Point2d(P3X, P3Y)
+		p1 = MPoint2d(P1X, P1Y)
+		p2 = MPoint2d(P2X, P2Y)
+		p3 = MPoint2d(P3X, P3Y)
 	}
 
 	@Test
-	fun testInstantiated(): Unit {
+	fun testInstantiated() {
+		@Suppress("USELESS_IS_CHECK")
 		assertTrue(p1 is Point2d)
 	}
 
 	@Test
-	fun testValues(): Unit {
+	fun testValues() {
 		assertEqualsDouble(p1.x, P1X, DELTA_FLOAT)
 		assertEqualsDouble(p1.y, P1Y, DELTA_FLOAT)
 	}
 
 	@Test
-	fun testSum(): Unit {
+	fun testSum() {
 		p1.add(p2)
 		assertEqualsDouble(p1.x, P1X + P2X, DELTA_FLOAT)
 		assertEqualsDouble(p1.y, P1Y + P2Y, DELTA_FLOAT)
 	}
 
 	@Test
-	fun testSub(): Unit {
+	fun testSub() {
 		p1.sub(p2)
 		assertEqualsDouble(p1.x, P1X - P2X, DELTA_FLOAT)
 		assertEqualsDouble(p1.y, P1Y - P2Y, DELTA_FLOAT)
 	}
 
 	@Test
-	fun testNeg(): Unit {
+	fun testNeg() {
 		p1.neg()
 		assertEqualsDouble(p1.x, -P1X, DELTA_FLOAT)
 		assertEqualsDouble(p1.y, -P1Y, DELTA_FLOAT)
 	}
 
 	@Test
-	fun testMul(): Unit {
+	fun testMul() {
 		p1.mul(SCALAR)
 		assertEqualsDouble(p1.x, P1X * SCALAR, DELTA_FLOAT)
 		assertEqualsDouble(p1.y, P1Y * SCALAR, DELTA_FLOAT)
 	}
 
 	@Test
-	fun testLength(): Unit {
+	fun testLength() {
 		assertEqualsDouble(p1.length, sqrt(P1X * P1X + P1Y * P1Y), DELTA_FLOAT)
 	}
 
 	@Test
-	fun testNormalize(): Unit {
+	fun testNormalize() {
 		assertNotEquals(p3.length, 1.0)
 		p3.normalize(); assertEqualsDouble(p3.length, 1.0, DELTA_FLOAT)
 		p1.normalize(); assertEqualsDouble(p1.length, 1.0, DELTA_FLOAT)
@@ -247,14 +249,14 @@ class PointTest {
 	}
 
 	@Test
-	fun testEquals(): Unit {
+	fun testEquals() {
 		assertTrue(p1 == p1)
 		assertTrue(p1 == Point2d(P1X, P1Y))
 		assertFalse(p1 == p2)
 	}
 
 	@Test
-	fun testToString(): Unit {
+	fun testToString() {
 		assertEquals(Point2d(P2X, P2Y), p2)
 	}
 }
@@ -277,13 +279,13 @@ class PriorityQueueTest {
 	private val n1 = QueueItem("n1", 3)
 
 	@Test
-	fun testInitialOrder(): Unit {
+	fun testInitialOrder() {
 		assertEquals("o2", pq.head.toString())
 		assertEquals("[o2, o6, o1, o4, o3, o5]", pq._sortedList.toString())
 	}
 
 	@Test
-	fun testUpdateOrder(): Unit {
+	fun testUpdateOrder() {
 		o3.priority = -6
 		pq.updateObject(o3)
 		assertEquals("o3", pq.head.toString())
@@ -291,7 +293,7 @@ class PriorityQueueTest {
 	}
 
 	@Test
-	fun testPostUpdateInsert(): Unit {
+	fun testPostUpdateInsert() {
 		o3.priority = -6
 		pq.updateObject(o3)
 		pq.push(n1)
@@ -299,7 +301,7 @@ class PriorityQueueTest {
 	}
 
 	@Test
-	fun testContains(): Unit {
+	fun testContains() {
 		assertTrue(pq.contains(o4))
 		assertFalse(pq.contains(n1))
 	}
@@ -385,14 +387,14 @@ class SweepContextTest {
 	private var sweepContext = SweepContext(initialPoints).apply { addHole(holePoints) }
 
 	@Test
-	fun testInitTriangulation(): Unit {
+	fun testInitTriangulation() {
 		assertEquals(
-			"[Vector2(0, 0), Vector2(0, 100), Vector2(100, 100), Vector2(100, 0), Vector2(10, 10), Vector2(10, 90), Vector2(90, 90), Vector2(90, 10)]",
+			"[(0, 0), (0, 100), (100, 100), (100, 0), (10, 10), (10, 90), (90, 90), (90, 10)]",
 			this.sweepContext.points.toString()
 		)
 		this.sweepContext.initTriangulation()
 		assertEquals(
-			"[Vector2(0, 0), Vector2(100, 0), Vector2(10, 10), Vector2(90, 10), Vector2(10, 90), Vector2(90, 90), Vector2(0, 100), Vector2(100, 100)]",
+			"[(0, 0), (100, 0), (10, 10), (90, 10), (10, 90), (90, 90), (0, 100), (100, 100)]",
 			this.sweepContext.points.toString()
 		)
 	}
@@ -410,23 +412,23 @@ class SweepTest {
 	private var sweep: Sweep = Sweep(this.sweepContext)
 
 	@Test
-	fun testBoxTriangulate(): Unit {
+	fun testBoxTriangulate() {
 		//Edge.traceList(this.sweepContext.edge_list);
 		this.sweep.triangulate()
 		assertEquals(2, this.sweepContext.triangles.size)
 		assertEquals(
-			"[Triangle(Vector2(0, 100), Vector2(100, 0), Vector2(100, 100)), Triangle(Vector2(0, 100), Vector2(0, 0), Vector2(100, 0))]",
+			"[Triangle((0, 100), (100, 0), (100, 100)), Triangle((0, 100), (0, 0), (100, 0))]",
 			this.sweepContext.triangles.toString()
 		)
 	}
 
 	@Test
-	fun testBoxWithHoleTriangulate(): Unit {
+	fun testBoxWithHoleTriangulate() {
 		this.sweepContext.addHole(holePoints)
 		this.sweep.triangulate()
 		assertEquals(8, this.sweepContext.triangles.size)
 		assertEquals(
-			"[Triangle(Vector2(0, 100), Vector2(10, 90), Vector2(100, 100)), Triangle(Vector2(10, 90), Vector2(90, 90), Vector2(100, 100)), Triangle(Vector2(90, 90), Vector2(100, 0), Vector2(100, 100)), Triangle(Vector2(90, 90), Vector2(90, 10), Vector2(100, 0)), Triangle(Vector2(90, 10), Vector2(10, 10), Vector2(100, 0)), Triangle(Vector2(10, 10), Vector2(0, 0), Vector2(100, 0)), Triangle(Vector2(0, 0), Vector2(10, 10), Vector2(10, 90)), Triangle(Vector2(0, 100), Vector2(0, 0), Vector2(10, 90))]",
+			"[Triangle((0, 100), (10, 90), (100, 100)), Triangle((10, 90), (90, 90), (100, 100)), Triangle((90, 90), (100, 0), (100, 100)), Triangle((90, 90), (90, 10), (100, 0)), Triangle((90, 10), (10, 10), (100, 0)), Triangle((10, 10), (0, 0), (100, 0)), Triangle((0, 0), (10, 10), (10, 90)), Triangle((0, 100), (0, 0), (10, 90))]",
 			this.sweepContext.triangles.toString()
 		)
 	}
@@ -459,18 +461,19 @@ class TriangleTest {
 	private val t4 = Triangle(p2, p4, p6, EdgeContext(), true) // CW
 
 	@Test
-	fun testArea(): Unit {
+	fun testArea() {
 		val triangle = Triangle(Point2d(0, 0), Point2d(0, -10), Point2d(+10, 0))
 		assertEqualsDouble(50.0, triangle.area, 0.0001)
 	}
 
 	@Test
-	fun testInstantiated(): Unit {
+	fun testInstantiated() {
+		@Suppress("USELESS_IS_CHECK")
 		assertTrue(t1 is Triangle)
 	}
 
 	@Test
-	fun testContainsPoint(): Unit {
+	fun testContainsPoint() {
 		assertTrue(t1.containsPoint(p1))
 		assertTrue(t1.containsPoint(p2))
 		assertTrue(t1.containsPoint(p3))
@@ -479,7 +482,7 @@ class TriangleTest {
 	}
 
 	@Test
-	fun testContainsEdge(): Unit {
+	fun testContainsEdge() {
 		assertTrue(t1.containsEdge(t1.ctx.createEdge(p1, p2)))
 		assertTrue(t1.containsEdge(t1.ctx.createEdge(p2, p3)))
 		assertTrue(t1.containsEdge(t1.ctx.createEdge(p3, p1)))
@@ -489,7 +492,7 @@ class TriangleTest {
 	}
 
 	@Test
-	fun testMarkNeighbor(): Unit {
+	fun testMarkNeighbor() {
 		t1.markNeighborTriangle(t2)
 		assertTrue(t1.neighbors[0] == t2 || t1.neighbors[1] == t2 || t1.neighbors[2] == t2)
 		assertTrue(t2.neighbors[0] == t1 || t2.neighbors[1] == t1 || t2.neighbors[2] == t1)
@@ -499,7 +502,7 @@ class TriangleTest {
 	}
 
 	@Test
-	fun testGetPointIndexOffset(): Unit {
+	fun testGetPointIndexOffset() {
 		// CCW
 		assertEquals(0, t1.getPointIndexOffset(p1))
 		assertEquals(1, t1.getPointIndexOffset(p2))
@@ -515,7 +518,7 @@ class TriangleTest {
 	}
 
 	@Test
-	fun testPointCW(): Unit {
+	fun testPointCW() {
 		assertTrue(t1.pointCW(p1) == p3)
 		assertTrue(t1.pointCCW(p1) == p2)
 		assertTrue(t1.pointCW(p2) == p1)
@@ -524,7 +527,7 @@ class TriangleTest {
 	}
 
 	@Test
-	fun testNeighborCW(): Unit {
+	fun testNeighborCW() {
 		assertEquals(null, t2.neighborCW(p3))
 
 		t2.markNeighborTriangle(t1)
@@ -542,7 +545,7 @@ class TriangleTest {
 	}
 
 	@Test
-	fun testConstrainedEdge(): Unit {
+	fun testConstrainedEdge() {
 		t1.markConstrainedEdgeByPoints(p1, p3)
 		t1.markConstrainedEdgeByPoints(p1, p2)
 		assertTrue(t1.getConstrainedEdgeCW(p1))
@@ -556,7 +559,7 @@ class TriangleTest {
 	}
 
 	@Test
-	fun testSetEdgeSide(): Unit {
+	fun testSetEdgeSide() {
 		t2.markNeighborTriangle(t1)
 		t2.markNeighborTriangle(t3)
 		t2.markNeighborTriangle(t4)
@@ -583,12 +586,12 @@ class UtilsTest {
 	val p5 = Point2d(0, -1)
 
 	@Test
-	fun testInsideCircleTrue(): Unit {
+	fun testInsideCircleTrue() {
 		assertTrue(Triangle.insideIncircle(p1, p2, p3, p4))
 	}
 
 	@Test
-	fun testInsideCircleFalse(): Unit {
+	fun testInsideCircleFalse() {
 		assertFalse(Triangle.insideIncircle(p1, p2, p3, p5))
 	}
 }

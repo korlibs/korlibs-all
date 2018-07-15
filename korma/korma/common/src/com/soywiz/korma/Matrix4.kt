@@ -1,5 +1,7 @@
 package com.soywiz.korma
 
+import com.soywiz.std.*
+
 class Matrix4(
 	val data: FloatArray = floatArrayOf(
 		1f, 0f, 0f, 0f,
@@ -10,6 +12,7 @@ class Matrix4(
 ) {
 	operator fun get(x: Int, y: Int) = data[y * 4 + x]
 
+	@ThreadLocal
 	companion object {
 		private val TEMP = Matrix4()
 		private val TEMP_LINE = FloatArray(4)

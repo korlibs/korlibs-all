@@ -43,7 +43,7 @@ object Korge {
 			.mapInstance(ModuleArgs::class, moduleArgs)
 			.mapInstance(TimeProvider::class, config.timeProvider)
 			.mapInstance(EventLoop::class, config.eventLoop)
-			.mapInstance<Module>(Module::class, config.module)
+			.mapInstance(Module::class, config.module)
 			.mapInstance(AG::class, ag)
 			.mapInstance(KorgePlugins::class, defaultKorgePlugins)
 			.mapInstance(Config::class, config)
@@ -111,8 +111,8 @@ object Korge {
 
 		logger.trace { "Korge.setupCanvas[5]" }
 
-		val downPos = Point2d()
-		val upPos = Point2d()
+		val downPos = MPoint2d()
+		val upPos = MPoint2d()
 		var downTime = 0.0
 		var moveTime = 0.0
 		var upTime = 0.0

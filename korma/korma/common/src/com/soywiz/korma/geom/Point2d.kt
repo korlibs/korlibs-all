@@ -2,20 +2,23 @@ package com.soywiz.korma.geom
 
 import com.soywiz.korma.*
 
-typealias IPoint2d = IVector2
 typealias Point2d = Vector2
-
-typealias IPoint = IVector2
+typealias MPoint2d = MVector2
 typealias Point = Vector2
 
+@Deprecated("", replaceWith = ReplaceWith("Point2d"))
+typealias IPoint2d = Point2d
+
 // @TODO: Check if this avoid boxing!
-inline fun Point2d(x: Number, y: Number) = Point2d(x.toDouble(), y.toDouble())
+inline fun Point2d(x: Number, y: Number) = Vector2(x.toDouble(), y.toDouble())
 
-inline fun IPoint2d(x: Number, y: Number) = IVector2(x.toDouble(), y.toDouble())
+inline fun IPoint2d(x: Number, y: Number) = Vector2(x.toDouble(), y.toDouble())
+inline fun Point(x: Number, y: Number) = Point2d(x.toDouble(), y.toDouble())
+inline fun IPoint(x: Number, y: Number) = Vector2(x.toDouble(), y.toDouble())
 
-fun Iterable<IPoint2d>.getPolylineLength(): Double {
+fun Iterable<Point2d>.getPolylineLength(): Double {
 	var out = 0.0
-	var prev: IPoint2d? = null
+	var prev: Point2d? = null
 	for (cur in this) {
 		if (prev != null) out += prev.distanceTo(cur)
 		prev = cur

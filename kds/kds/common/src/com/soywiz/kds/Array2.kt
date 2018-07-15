@@ -76,6 +76,8 @@ data class Array2<T>(val width: Int, val height: Int, val data: Array<T>) : Iter
 
 	operator fun get(x: Int, y: Int): T = data[index(x, y)]
 	operator fun set(x: Int, y: Int, value: T): Unit = run { data[index(x, y)] = value }
+	fun tryGet(x: Int, y: Int): T? = if (inside(x, y)) data[index(x, y)] else null
+	fun trySet(x: Int, y: Int, value: T): Unit = run { if (inside(x, y)) data[index(x, y)] = value }
 
 	fun inside(x: Int, y: Int): Boolean = x >= 0 && y >= 0 && x < width && y < height
 

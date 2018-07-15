@@ -53,18 +53,18 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 
 	init { logger.trace { "BatchBuilder2D[7]" } }
 
-	private val ptt1 = Point2d()
-	private val ptt2 = Point2d()
+	private val ptt1 = MPoint2d()
+	private val ptt2 = MPoint2d()
 
-	private val pt1 = Point2d()
-	private val pt2 = Point2d()
-	private val pt3 = Point2d()
-	private val pt4 = Point2d()
-	private val pt5 = Point2d()
+	private val pt1 = MPoint2d()
+	private val pt2 = MPoint2d()
+	private val pt3 = MPoint2d()
+	private val pt4 = MPoint2d()
+	private val pt5 = MPoint2d()
 
-	private val pt6 = Point2d()
-	private val pt7 = Point2d()
-	private val pt8 = Point2d()
+	private val pt6 = MPoint2d()
+	private val pt7 = MPoint2d()
+	private val pt8 = MPoint2d()
 
 	init { logger.trace { "BatchBuilder2D[8]" } }
 
@@ -169,8 +169,8 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 		y: Float = 0f,
 		width: Float = tex.width.toFloat(),
 		height: Float = tex.height.toFloat(),
-		posCuts: Array<Point2d>,
-		texCuts: Array<Point2d>,
+		posCuts: Array<MPoint2d>,
+		texCuts: Array<MPoint2d>,
 		m: Matrix2d = identity,
 		filtering: Boolean = true,
 		colorMul: Int = -1,

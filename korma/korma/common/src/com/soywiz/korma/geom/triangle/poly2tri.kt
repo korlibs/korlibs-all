@@ -140,7 +140,7 @@ class Edge(
 			edges.flatMap { listOf(it.p, it.q) }.distinct()
 
 		fun traceList(edges: ArrayList<Edge>): Unit {
-			val pointsList = Companion.getUniquePointsFromEdges(edges)
+			val pointsList = getUniquePointsFromEdges(edges)
 			val pointsMap = hashMapOf<Point2d, Int>()
 
 			var points_length = 0
@@ -609,7 +609,7 @@ class Sweep(
 		}
 	}
 
-	fun fillLeftBelowEdgeEvent(edge: Edge, node: Node): Unit {
+	fun fillLeftBelowEdgeEvent(edge: Edge, node: Node) {
 		if (node.point.x > edge.p.x) {
 			if (Orientation.orient2d(node.point, node.prev!!.point, node.prev!!.prev!!.point) == Orientation.CW) {
 				// Concave
@@ -623,7 +623,7 @@ class Sweep(
 		}
 	}
 
-	fun fillLeftConvexEdgeEvent(edge: Edge, node: Node): Unit {
+	fun fillLeftConvexEdgeEvent(edge: Edge, node: Node) {
 		// Next concave or convex?
 		if (Orientation.orient2d(
 				node.prev!!.point,
@@ -645,7 +645,7 @@ class Sweep(
 		}
 	}
 
-	fun fillLeftConcaveEdgeEvent(edge: Edge, node: Node): Unit {
+	fun fillLeftConcaveEdgeEvent(edge: Edge, node: Node) {
 		this.fill(node.prev!!)
 		if (node.prev!!.point != edge.p) {
 			// Next above or below edge?
@@ -661,7 +661,7 @@ class Sweep(
 		}
 	}
 
-	fun flipEdgeEvent(ep: Point2d, eq: Point2d, t: Triangle, p: Point2d): Unit {
+	fun flipEdgeEvent(ep: Point2d, eq: Point2d, t: Triangle, p: Point2d) {
 		var t = t
 		val ot: Triangle = t.neighborAcross(p) ?: throw Error("[BUG:FIXME] FLIP failed due to missing triangle!")
 		// If we want to integrate the fillEdgeEvent do it here
@@ -691,7 +691,7 @@ class Sweep(
 				this.flipEdgeEvent(ep, eq, t, p)
 			}
 		} else {
-			val newP: Point2d = Companion.nextFlipPoint(ep, eq, ot, op)
+			val newP: Point2d = nextFlipPoint(ep, eq, ot, op)
 			this.flipScanEdgeEvent(ep, eq, t, ot, newP)
 			this.edgeEventByPoints(ep, eq, t, p)
 		}
@@ -773,7 +773,7 @@ class SweepContext() {
 		for (point in points) this.points.add(point)
 	}
 
-	fun addPolyline(polyline: List<Point2d>): Unit {
+	fun addPolyline(polyline: List<Point2d>) {
 		this.initEdges(polyline)
 		this.addPoints(polyline)
 	}
@@ -783,21 +783,21 @@ class SweepContext() {
 	 *
 	 * @param    polyline
 	 */
-	fun addHole(polyline: List<Point2d>): Unit {
+	fun addHole(polyline: List<Point2d>) {
 		addPolyline(polyline)
 	}
 
-	protected fun initEdges(polyline: List<Point2d>): Unit {
+	protected fun initEdges(polyline: List<Point2d>) {
 		for (n in 0 until polyline.size) {
 			this.edge_list.add(Edge(polyline[n], polyline[(n + 1) % polyline.size], edgeContext))
 		}
 	}
 
-	fun addToSet(triangle: Triangle): Unit {
+	fun addToSet(triangle: Triangle) {
 		this.set += triangle
 	}
 
-	fun initTriangulation(): Unit {
+	fun initTriangulation() {
 		var xmin: Double = this.points[0].x
 		var xmax: Double = this.points[0].x
 		var ymin: Double = this.points[0].y
@@ -841,11 +841,11 @@ class SweepContext() {
 		tail.prev = middle
 	}
 
-	fun removeNode(node: Node): Unit {
+	fun removeNode(node: Node) {
 		// do nothing
 	}
 
-	fun mapTriangleToNodes(triangle: Triangle): Unit {
+	fun mapTriangleToNodes(triangle: Triangle) {
 		for (n in 0 until 3) {
 			if (triangle.neighbors[n] == null) {
 				val neighbor: Node? = this.front.locatePoint(triangle.pointCW(triangle.points[n]))
@@ -854,11 +854,11 @@ class SweepContext() {
 		}
 	}
 
-	fun removeFromMap(triangle: Triangle): Unit {
+	fun removeFromMap(triangle: Triangle) {
 		this.set -= triangle
 	}
 
-	fun meshClean(triangle: Triangle?, level: Int = 0): Unit {
+	fun meshClean(triangle: Triangle?, level: Int = 0) {
 		if (level == 0) {
 			//for each (var mappedTriangle:Triangle in this.map) println(mappedTriangle);
 		}

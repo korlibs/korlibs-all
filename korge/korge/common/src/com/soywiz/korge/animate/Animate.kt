@@ -34,8 +34,8 @@ abstract class AnBaseShape(override final val library: AnLibrary, override final
 	abstract val texHeight: Float
 	abstract val smoothing: Boolean
 
-	val posCuts = arrayOf(Point2d(0.0, 0.0), Point2d(0.25, 0.25), Point2d(0.75, 0.75), Point2d(1.0, 1.0))
-	val texCuts = arrayOf(Point2d(0.0, 0.0), Point2d(0.25, 0.25), Point2d(0.75, 0.75), Point2d(1.0, 1.0))
+	val posCuts = arrayOf(MPoint2d(0.0, 0.0), MPoint2d(0.25, 0.25), MPoint2d(0.75, 0.75), MPoint2d(1.0, 1.0))
+	val texCuts = arrayOf(MPoint2d(0.0, 0.0), MPoint2d(0.25, 0.25), MPoint2d(0.75, 0.75), MPoint2d(1.0, 1.0))
 
 	override fun render(ctx: RenderContext, m: Matrix2d) {
 		if (!visible) return

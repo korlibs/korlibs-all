@@ -34,7 +34,7 @@ class Shape2dTest {
 	@Test
 	fun triangulate() {
 		assertEquals(
-			"[Triangle(Vector2(0, 100), Vector2(100, 0), Vector2(100, 100)), Triangle(Vector2(0, 100), Vector2(0, 0), Vector2(100, 0))]",
+			"[Triangle((0, 100), (100, 0), (100, 100)), Triangle((0, 100), (0, 0), (100, 0))]",
 			Rectangle(0, 0, 100, 100).toShape().triangulate().toString()
 		)
 	}
@@ -42,11 +42,11 @@ class Shape2dTest {
 	@Test
 	fun pathFind() {
 		assertEquals(
-			"[Vector2(10, 10), Vector2(90, 90)]",
+			"[(10, 10), (90, 90)]",
 			Rectangle(0, 0, 100, 100).toShape().pathFind(Point2d(10, 10), Point2d(90, 90)).toString()
 		)
 		assertEquals(
-			"[Vector2(10, 10), Vector2(100, 50), Vector2(120, 52)]",
+			"[(10, 10), (100, 50), (120, 52)]",
 			(Rectangle(0, 0, 100, 100).toShape() + Rectangle(100, 50, 50, 50).toShape()).pathFind(
 				Point2d(10, 10),
 				Point2d(120, 52)

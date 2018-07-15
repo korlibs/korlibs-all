@@ -163,10 +163,10 @@ data class Matrix2d(
 		l.tx * r.b + l.ty * r.d + r.ty
 	)
 
-	fun transform(px: Double, py: Double, out: Vector2 = Vector2()): Vector2 =
+	fun transform(px: Double, py: Double, out: MVector2 = MVector2()): MPoint2d =
 		out.setTo(transformX(px, py), transformY(px, py))
 
-	fun transform(p: Vector2, out: Vector2 = Vector2()): Vector2 = out.setTo(transformX(p.x, p.y), transformY(p.x, p.y))
+	fun transform(p: Vector2, out: MVector2 = MVector2()): MPoint2d = out.setTo(transformX(p.x, p.y), transformY(p.x, p.y))
 
 	fun transformX(px: Double, py: Double): Double = this.a * px + this.c * py + this.tx
 	fun transformY(px: Double, py: Double): Double = this.d * py + this.b * px + this.ty

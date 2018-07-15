@@ -127,7 +127,7 @@ data class Rectangle(
 		ratio.interpolate(l.height, r.height)
 	)
 
-	fun getAnchoredPosition(anchor: Anchor, out: Point2d = Point2d()): Point2d =
+	fun getAnchoredPosition(anchor: Anchor, out: MVector2 = MVector2()): MVector2 =
 		out.setTo(left + width * anchor.sx, top + height * anchor.sy)
 
 	fun toInt() = RectangleInt(x, y, width, height)

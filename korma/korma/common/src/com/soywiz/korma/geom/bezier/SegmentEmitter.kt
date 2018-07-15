@@ -5,10 +5,10 @@ import com.soywiz.korma.geom.*
 object SegmentEmitter {
 	inline fun emit(
 		segments: Int,
-		crossinline curveGen: (p: Point2d, t: Double) -> Point2d,
-		crossinline gen: (p0: Point2d, p1: Point2d) -> Unit,
-		p1: Point2d = Point2d(),
-		p2: Point2d = Point2d()
+		crossinline curveGen: (p: MPoint2d, t: Double) -> MPoint2d,
+		crossinline gen: (p0: MPoint2d, p1: MPoint2d) -> Unit,
+		p1: MPoint2d = MPoint2d(),
+		p2: MPoint2d = MPoint2d()
 	) = synchronized(this) {
 		val dt = 1.0 / segments
 		for (n in 0 until segments) {

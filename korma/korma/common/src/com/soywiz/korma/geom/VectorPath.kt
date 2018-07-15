@@ -278,10 +278,10 @@ open class VectorPath(
 		if (remainingAngle == 0.0 && start != end) remainingAngle = PI_TWO
 		val sgn = if (startAngle < endAngle) 1 else -1
 		var a1 = startAngle
-		val p1 = Vector2();
-		val p2 = Vector2();
-		val p3 = Vector2();
-		val p4 = Vector2()
+		val p1 = MVector2()
+		val p2 = MVector2()
+		val p3 = MVector2()
+		val p4 = MVector2()
 		var index = 0
 		while (remainingAngle > EPSILON) {
 			val a2 = a1 + sgn * Math.min(remainingAngle, PI_OVER_TWO)
@@ -368,8 +368,8 @@ open class VectorPath(
 		return points
 	}
 
-	private val p1 = Point2d()
-	private val p2 = Point2d()
+	private val p1 = MVector2()
+	private val p2 = MVector2()
 
 	// http://erich.realtimerendering.com/ptinpoly/
 	// http://stackoverflow.com/questions/217578/how-can-i-determine-whether-a-2d-point-is-within-a-polygon/2922778#2922778

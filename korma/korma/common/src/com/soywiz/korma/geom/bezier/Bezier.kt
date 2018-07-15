@@ -1,16 +1,17 @@
 package com.soywiz.korma.geom.bezier
 
+import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 import kotlin.math.*
 
 //(x0,y0) is start point; (x1,y1),(x2,y2) is control points; (x3,y3) is end point.
 interface Bezier {
 	fun getBounds(target: Rectangle = Rectangle()): Rectangle
-	fun calc(t: Double, target: Point2d = Point2d()): Point2d
+	fun calc(t: Double, target: MVector2 = MVector2()): MVector2
 
 	class Quad(val p0: Point2d, val p1: Point2d, val p2: Point2d) : Bezier {
 		override fun getBounds(target: Rectangle): Rectangle = quadBounds(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y, target)
-		override fun calc(t: Double, target: Point2d): Point2d = quadCalc(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y, t, target)
+		override fun calc(t: Double, target: MVector2): MVector2 = quadCalc(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y, t, target)
 
 		// http://fontforge.github.io/bezier.html
 		fun toCubic(): Cubic = Cubic(
@@ -25,7 +26,7 @@ interface Bezier {
 		override fun getBounds(target: Rectangle): Rectangle =
 			cubicBounds(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, target)
 
-		override fun calc(t: Double, target: Point2d): Point2d =
+		override fun calc(t: Double, target: MVector2): MVector2 =
 			cubicCalc(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, t, target)
 	}
 
@@ -107,8 +108,8 @@ interface Bezier {
 			x1: Double,
 			y1: Double,
 			t: Double,
-			target: Point2d = Point2d()
-		): Point2d {
+			target: MVector2 = MVector2()
+		): MVector2 {
 			return quadCalc(x0, y0, xc, yc, x1, y1, t) { x, y -> target.setTo(x, y) }
 		}
 
@@ -215,8 +216,8 @@ interface Bezier {
 			x3: Double,
 			y3: Double,
 			t: Double,
-			target: Point2d = Point2d()
-		): Point2d {
+			target: MVector2 = MVector2()
+		): MVector2 {
 			return cubicCalc(x0, y0, x1, y1, x2, y2, x3, y3, t) { x, y -> target.setTo(x, y) }
 		}
 	}
