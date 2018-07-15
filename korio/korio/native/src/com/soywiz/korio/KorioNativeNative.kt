@@ -110,8 +110,6 @@ actual object KorioNative {
 	actual val systemLanguageStrings: List<String> get() = listOf("english")
 
 	// @TODO
-	actual suspend fun <T> executeInNewThread(callback: suspend () -> T): T = callback()
-
 	actual suspend fun <T> executeInWorker(callback: suspend () -> T): T = callback()
 
 	actual fun Thread_sleep(time: Long): Unit {

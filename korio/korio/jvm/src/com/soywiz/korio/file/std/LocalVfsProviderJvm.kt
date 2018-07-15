@@ -1,6 +1,7 @@
 package com.soywiz.korio.file.std
 
 import com.soywiz.kds.*
+import com.soywiz.korio.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.Closeable
@@ -16,7 +17,11 @@ import java.nio.file.Path
 import java.util.concurrent.*
 import kotlin.coroutines.experimental.*
 
-class LocalVfsJvm() : LocalVfs() {
+val ioContext by lazy { newFixedThreadPoolContext(2, "korioThreadPool") }
+//suspend fun <T> executeIo(callback: suspend () -> T): T = withContext(ioContext) { callback() }
+suspend fun <T> executeIo(callback: suspend () -> T): T = callback()
+
+class LocalVfsJvm : LocalVfs() {
 	val that = this
 	override val absolutePath: String = ""
 
@@ -29,7 +34,7 @@ class LocalVfsJvm() : LocalVfs() {
 		cmdAndArgs: List<String>,
 		env: Map<String, String>,
 		handler: VfsProcessHandler
-	): Int = executeInWorker {
+	): Int = executeIo {
 		val actualCmd = if (OS.isWindows) listOf("cmd", "/c") + cmdAndArgs else cmdAndArgs
 		val pb = ProcessBuilder(actualCmd)
 		pb.environment().putAll(lmapOf())
@@ -125,7 +130,7 @@ class LocalVfsJvm() : LocalVfs() {
 		}.toAsyncStream()
 	}
 
-	override suspend fun setSize(path: String, size: Long): Unit = executeInWorker {
+	override suspend fun setSize(path: String, size: Long): Unit = executeIo {
 		val file = resolveFile(path)
 		FileOutputStream(file, true).channel.use { outChan ->
 			outChan.truncate(size)
@@ -133,7 +138,7 @@ class LocalVfsJvm() : LocalVfs() {
 		Unit
 	}
 
-	override suspend fun stat(path: String): VfsStat = executeInWorker {
+	override suspend fun stat(path: String): VfsStat = executeIo {
 		val file = resolveFile(path)
 		val fullpath = "$path/${file.name}"
 		if (file.exists()) {
@@ -152,26 +157,27 @@ class LocalVfsJvm() : LocalVfs() {
 	}
 
 	override suspend fun list(path: String): SuspendingSequence<VfsFile> =
-		executeInWorker { (File(path).listFiles() ?: arrayOf()).map { that.file("$path/${it.name}") }.toAsync() }
+		executeIo { (File(path).listFiles() ?: arrayOf()).map { that.file("$path/${it.name}") }.toAsync() }
 
 	override suspend fun mkdir(path: String, attributes: List<Attribute>): Boolean =
-		executeInWorker { resolveFile(path).mkdirs() }
+		executeIo { resolveFile(path).mkdirs() }
 
 	override suspend fun touch(path: String, time: Long, atime: Long): Unit =
-		executeInWorker { resolveFile(path).setLastModified(time); Unit }
+		executeIo { resolveFile(path).setLastModified(time); Unit }
 
-	override suspend fun delete(path: String): Boolean = executeInWorker { resolveFile(path).delete() }
-	override suspend fun rmdir(path: String): Boolean = executeInWorker { resolveFile(path).delete() }
+	override suspend fun delete(path: String): Boolean = executeIo { resolveFile(path).delete() }
+	override suspend fun rmdir(path: String): Boolean = executeIo { resolveFile(path).delete() }
 	override suspend fun rename(src: String, dst: String): Boolean =
-		executeInWorker { resolveFile(src).renameTo(resolveFile(dst)) }
+		executeIo { resolveFile(src).renameTo(resolveFile(dst)) }
 
-	suspend inline fun <T> completionHandler(crossinline callback: (CompletionHandler<T, Unit>) -> Unit) =
-		suspendCancellableCoroutine<T> { c ->
+	suspend fun <T> completionHandler(callback: (CompletionHandler<T, Unit>) -> Unit): T {
+		return suspendCancellableCoroutine<T> { c ->
 			callback(object : CompletionHandler<T, Unit> {
 				override fun completed(result: T, attachment: Unit?) = c.resume(result)
 				override fun failed(exc: Throwable, attachment: Unit?) = c.resumeWithException(exc)
 			})
 		}
+	}
 
 	override suspend fun watch(path: String, handler: (FileEvent) -> Unit): Closeable {
 		var running = true
@@ -187,7 +193,7 @@ class LocalVfsJvm() : LocalVfs() {
 
 		launch(coroutineContext) {
 			while (running) {
-				val key = executeInWorker {
+				val key = executeIo {
 					var r: WatchKey?
 					do {
 						r = watcher.poll(100L, TimeUnit.MILLISECONDS)

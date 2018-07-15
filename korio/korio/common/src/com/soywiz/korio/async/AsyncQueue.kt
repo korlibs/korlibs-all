@@ -1,14 +1,13 @@
 package com.soywiz.korio.async
 
 import kotlinx.coroutines.experimental.*
-import kotlinx.coroutines.experimental.intrinsics.*
 import kotlin.coroutines.experimental.*
 
 //class AsyncQueue(val context: CoroutineContext) {
 class AsyncQueue() {
 	//constructor() : AsyncQueue(CoroutineContext())
 
-	private var promise: Deferred<Any> = CompletableDeferred(Unit)
+	val thread = AsyncThread()
 
 	//companion object {
 	//	suspend operator fun invoke() = AsyncQueue(getCoroutineContext())
@@ -17,14 +16,8 @@ class AsyncQueue() {
 	suspend operator fun invoke(func: suspend () -> Unit): AsyncQueue = invoke(coroutineContext, func)
 
 	operator fun invoke(context: CoroutineContext, func: suspend () -> Unit): AsyncQueue {
-		//operator fun invoke(func: suspend () -> Unit): AsyncQueue {
-		val oldPromise = this@AsyncQueue.promise
-		val newDeferred = CompletableDeferred<Any>()
-		this@AsyncQueue.promise = newDeferred
-		oldPromise.invokeOnCompletion {
-			func.startCoroutineCancellable(newDeferred.toContinuation(context))
-		}
-		return this@AsyncQueue
+		thread.sync(context) { func() }
+		return this
 	}
 
 	suspend fun await(func: suspend () -> Unit) {
@@ -32,7 +25,9 @@ class AsyncQueue() {
 		await()
 	}
 
-	suspend fun await() = promise.await()
+	suspend fun await() {
+		thread.await()
+	}
 }
 
 fun AsyncQueue.withContext(ctx: CoroutineContext) = AsyncQueueWithContext(this, ctx)
@@ -45,7 +40,17 @@ class AsyncQueueWithContext(val queue: AsyncQueue, val context: CoroutineContext
 }
 
 class AsyncThread {
-	private var lastPromise: Deferred<*> = CompletableDeferred(Unit)
+	private var lastPromise: Deferred<*> = CompletableDeferred(Unit).apply {
+		this.complete(Unit)
+	}
+
+	suspend fun await() {
+		while (true) {
+			val cpromise = lastPromise
+			lastPromise.await()
+			if (cpromise == lastPromise) break
+		}
+	}
 
 	fun cancel(): AsyncThread {
 		lastPromise.cancel()
@@ -61,24 +66,26 @@ class AsyncThread {
 	suspend fun <T> queue(func: suspend () -> T): T = invoke(func)
 
 	suspend operator fun <T> invoke(func: suspend () -> T): T {
-		val ctx = coroutineContext
-		val newDeferred = CompletableDeferred<T>()
-		lastPromise.invokeOnCompletion {
-			func.startCoroutineCancellable(newDeferred.toContinuation(ctx))
+		val task = sync(coroutineContext, func)
+		try {
+			val res = task.await()
+			return res
+		} catch (e: Throwable) {
+			throw e
 		}
-		lastPromise = newDeferred
-		return newDeferred.await() as T
 	}
 
 	suspend fun <T> sync(func: suspend () -> T): Deferred<T> = sync(coroutineContext, func)
 
 	fun <T> sync(context: CoroutineContext, func: suspend () -> T): Deferred<T> {
-		val newDeferred = CompletableDeferred<T>()
-		lastPromise.invokeOnCompletion {
-			func.startCoroutineCancellable(newDeferred.toContinuation(context))
+		val oldPromise = lastPromise
+		val promise = async(context) {
+			oldPromise.await()
+			func()
 		}
-		lastPromise = newDeferred
-		return newDeferred
+		lastPromise = promise
+		return promise
+
 	}
 }
 

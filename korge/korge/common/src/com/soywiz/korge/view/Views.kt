@@ -279,7 +279,7 @@ class Views(
 
 	fun animationFrameLoop(callback: suspend () -> Unit): Closeable {
 		//println("Views.animationFrameLoop.eventLoop: $eventLoop")
-		//val process = async {
+		//val process = async(coroutineContext) {
 		//	var accumulatedMs = 0.0
 		//	while (true) {
 		//		callback()

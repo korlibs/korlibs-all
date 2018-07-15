@@ -2,7 +2,7 @@ package com.soywiz.korio.net.http
 
 import com.soywiz.klock.*
 import com.soywiz.kmem.*
-import com.soywiz.korio.KorioNative.currentThreadId
+import com.soywiz.korio.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.stream.*

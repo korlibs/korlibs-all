@@ -34,7 +34,7 @@ class AsyncInmemoryEntry<T : Any>(
 	val key: String,
 	val ttlMs: Int
 ) {
-	//fun getAsync(gen: () -> Promise<T>): Promise<T> = async { cache.get(key, ttl, gen) }
+	//fun getAsync(gen: () -> Promise<T>): Promise<T> = async(coroutineContext) { cache.get(key, ttl, gen) }
 
 	suspend fun get(routine: suspend () -> T) = cache.get(key, ttlMs, routine)
 }

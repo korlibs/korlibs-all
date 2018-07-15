@@ -1,6 +1,7 @@
 package com.soywiz.korio.async
 
 import com.soywiz.klock.*
+import com.soywiz.korio.*
 import com.soywiz.korio.lang.*
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.timeunit.*
@@ -39,7 +40,7 @@ suspend fun delay(time: TimeSpan) = delay(time.milliseconds)
 suspend fun CoroutineContext.delay(time: TimeSpan) = delay(time.milliseconds)
 
 fun CoroutineContext.animationFrameLoop(callback: suspend () -> Unit): Closeable {
-	val job = launch {
+	val job = launch(this) {
 		while (true) {
 			callback()
 			delayNextFrame()
@@ -64,3 +65,6 @@ class TestCoroutineDispatcher(val parent: CoroutineDispatcher) : CoroutineDispat
 		continuation.resume(Unit)
 	}
 }
+
+suspend fun <T> executeInNewThread(task: suspend () -> T): T = KorioNative.executeInWorker(task)
+suspend fun <T> executeInWorker(task: suspend () -> T): T = KorioNative.executeInWorker(task)

@@ -65,8 +65,7 @@ open class NativeSoundProvider {
 		}
 }
 
-class DummyNativeSoundProvider : NativeSoundProvider() {
-}
+class DummyNativeSoundProvider : NativeSoundProvider()
 
 abstract class NativeSoundChannel(val sound: NativeSound) {
 	private val startTime = Klock.currentTimeMillisDouble()

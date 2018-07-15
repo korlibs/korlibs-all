@@ -159,7 +159,7 @@ object KorioNativeDefaults {
 						var bodyHandler: (ByteArray) -> Unit = {}
 						var endHandler: () -> Unit = {}
 
-						launch {
+						launch(coroutineContext) {
 							handler(object : HttpServer.Request(Http.Method(method), url, headers) {
 								override suspend fun _handler(handler: (ByteArray) -> Unit) =
 									run { bodyHandler = handler }

@@ -1,6 +1,7 @@
 package com.soywiz.korio.util
 
 import kotlinx.coroutines.experimental.*
+import kotlin.coroutines.experimental.*
 
 class Once {
 	var completed = false
@@ -18,7 +19,7 @@ class AsyncOnce<T> {
 
 	suspend operator fun invoke(callback: suspend () -> T): T {
 		if (promise == null) {
-			promise = async { callback() }
+			promise = async(coroutineContext) { callback() }
 		}
 		return promise!!.await()
 	}

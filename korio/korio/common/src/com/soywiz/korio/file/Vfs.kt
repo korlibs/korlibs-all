@@ -72,7 +72,6 @@ abstract class Vfs {
 				Int.MAX_VALUE.toLong() - 1,
 				(range.endInclusive - range.start)
 			).toInt() + 1
-
 			return s.readBytesUpTo(readCount)
 		} finally {
 			s.close()

@@ -52,9 +52,9 @@ actual object KorioNative {
 	actual fun random(): Double = java.util.Random().nextDouble()
 
 	actual suspend fun <T> executeInWorker(callback: suspend () -> T): T {
-		return async(newSingleThreadContext("worker")) {
-			callback()
-		}.await()
+		return withContext(newSingleThreadContext("worker")) {
+        callback()
+    }
 	}
 
 	actual fun asyncEntryPoint(context: CoroutineContext, callback: suspend () -> Unit) = runBlocking(context) { callback() }

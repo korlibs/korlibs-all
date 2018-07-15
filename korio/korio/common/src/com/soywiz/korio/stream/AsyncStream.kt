@@ -11,8 +11,6 @@ import com.soywiz.korio.file.*
 import com.soywiz.korio.file.std.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.util.*
-import com.soywiz.korio.file.*
-import com.soywiz.korio.file.std.*
 import kotlin.math.*
 
 //interface SmallTemp {
@@ -78,7 +76,7 @@ fun AsyncBaseStream.toAsyncStream(): AsyncStream {
 		var expectedPosition: Long = 0L
 		//val events = arrayListOf<String>()
 
-		suspend override fun read(position: Long, buffer: ByteArray, offset: Int, len: Int): Int {
+		override suspend fun read(position: Long, buffer: ByteArray, offset: Int, len: Int): Int {
 			if (input == null) throw UnsupportedOperationException()
 			//events += "before_read:actualPosition=$position,position=$expectedPosition"
 			checkPosition(position)
@@ -88,7 +86,7 @@ fun AsyncBaseStream.toAsyncStream(): AsyncStream {
 			return read
 		}
 
-		suspend override fun write(position: Long, buffer: ByteArray, offset: Int, len: Int) {
+		override suspend fun write(position: Long, buffer: ByteArray, offset: Int, len: Int) {
 			if (output == null) throw UnsupportedOperationException()
 			checkPosition(position)
 			output.write(buffer, offset, len)
@@ -101,23 +99,23 @@ fun AsyncBaseStream.toAsyncStream(): AsyncStream {
 			}
 		}
 
-		suspend override fun setLength(value: Long) = rlen?.setLength(value) ?: throw UnsupportedOperationException()
-		suspend override fun getLength(): Long = rlen?.getLength() ?: throw UnsupportedOperationException()
-		suspend override fun close() = closeable.close()
+		override suspend fun setLength(value: Long) = rlen?.setLength(value) ?: throw UnsupportedOperationException()
+		override suspend fun getLength(): Long = rlen?.getLength() ?: throw UnsupportedOperationException()
+		override suspend fun close() = closeable.close()
 	}.toAsyncStream()
 }
 
 open class AsyncStreamBase : AsyncCloseable, AsyncRAInputStream, AsyncRAOutputStream, AsyncLengthStream {
-	suspend override fun read(position: Long, buffer: ByteArray, offset: Int, len: Int): Int =
+	override suspend fun read(position: Long, buffer: ByteArray, offset: Int, len: Int): Int =
 		throw UnsupportedOperationException()
 
-	suspend override fun write(position: Long, buffer: ByteArray, offset: Int, len: Int): Unit =
+	override suspend fun write(position: Long, buffer: ByteArray, offset: Int, len: Int): Unit =
 		throw UnsupportedOperationException()
 
-	suspend override fun setLength(value: Long): Unit = throw UnsupportedOperationException()
-	suspend override fun getLength(): Long = throw UnsupportedOperationException()
+	override suspend fun setLength(value: Long): Unit = throw UnsupportedOperationException()
+	override suspend fun getLength(): Long = throw UnsupportedOperationException()
 
-	suspend override fun close(): Unit = Unit
+	override suspend fun close(): Unit = Unit
 }
 
 suspend fun AsyncStreamBase.readBytes(position: Long, count: Int): ByteArray {
@@ -188,26 +186,28 @@ class SliceAsyncStreamBase(
 		return Pair(targetStartPosition, targetLen)
 	}
 
-	suspend override fun read(position: Long, buffer: ByteArray, offset: Int, len: Int): Int {
+	override suspend fun read(position: Long, buffer: ByteArray, offset: Int, len: Int): Int {
 		val (targetStartPosition, targetLen) = clampPositionLen(position, len)
 		return base.read(targetStartPosition, buffer, offset, targetLen)
 	}
 
-	suspend override fun write(position: Long, buffer: ByteArray, offset: Int, len: Int) {
+	override suspend fun write(position: Long, buffer: ByteArray, offset: Int, len: Int) {
 		val (targetStartPosition, targetLen) = clampPositionLen(position, len)
 		return base.write(targetStartPosition, buffer, offset, targetLen)
 	}
 
-	suspend override fun getLength(): Long = baseLength
+	override suspend fun getLength(): Long = baseLength
 
-	suspend override fun close() = Unit
+	override suspend fun close() = Unit
 
 	override fun toString(): String = "SliceAsyncStreamBase($base, $baseStart, $baseEnd)"
 }
 
-fun AsyncStream.buffered(blockSize: Int = 2048, blocksToRead: Int = 0x10) = BufferedStreamBase(this.base, blockSize, blocksToRead).toAsyncStream(this.position)
+fun AsyncStream.buffered(blockSize: Int = 2048, blocksToRead: Int = 0x10) =
+	BufferedStreamBase(this.base, blockSize, blocksToRead).toAsyncStream(this.position)
 
-class BufferedStreamBase(val base: AsyncStreamBase, val blockSize: Int = 2048, val blocksToRead: Int = 0x10) : AsyncStreamBase() {
+class BufferedStreamBase(val base: AsyncStreamBase, val blockSize: Int = 2048, val blocksToRead: Int = 0x10) :
+	AsyncStreamBase() {
 	val bsize = blockSize * blocksToRead
 
 	override suspend fun read(position: Long, buffer: ByteArray, offset: Int, len: Int): Int {
@@ -572,25 +572,25 @@ fun SyncStream.toAsyncInWorker(): AsyncStream = this.base.toAsyncInWorker().toAs
 fun SyncStreamBase.toAsyncInWorker(): AsyncStreamBase = SyncAsyncStreamBaseInWorker(this)
 
 class SyncAsyncStreamBase(val sync: SyncStreamBase) : AsyncStreamBase() {
-	suspend override fun read(position: Long, buffer: ByteArray, offset: Int, len: Int): Int =
+	override suspend fun read(position: Long, buffer: ByteArray, offset: Int, len: Int): Int =
 		sync.read(position, buffer, offset, len)
 
-	suspend override fun write(position: Long, buffer: ByteArray, offset: Int, len: Int) =
+	override suspend fun write(position: Long, buffer: ByteArray, offset: Int, len: Int) =
 		sync.write(position, buffer, offset, len)
 
-	suspend override fun setLength(value: Long) = run { sync.length = value }
-	suspend override fun getLength(): Long = sync.length
+	override suspend fun setLength(value: Long) = run { sync.length = value }
+	override suspend fun getLength(): Long = sync.length
 }
 
 class SyncAsyncStreamBaseInWorker(val sync: SyncStreamBase) : AsyncStreamBase() {
-	suspend override fun read(position: Long, buffer: ByteArray, offset: Int, len: Int): Int =
+	override suspend fun read(position: Long, buffer: ByteArray, offset: Int, len: Int): Int =
 		executeInWorker { sync.read(position, buffer, offset, len) }
 
-	suspend override fun write(position: Long, buffer: ByteArray, offset: Int, len: Int) =
+	override suspend fun write(position: Long, buffer: ByteArray, offset: Int, len: Int) =
 		executeInWorker { sync.write(position, buffer, offset, len) }
 
-	suspend override fun setLength(value: Long) = executeInWorker { sync.length = value }
-	suspend override fun getLength(): Long = executeInWorker { sync.length }
+	override suspend fun setLength(value: Long) = executeInWorker { sync.length = value }
+	override suspend fun getLength(): Long = executeInWorker { sync.length }
 }
 
 suspend fun AsyncOutputStream.writeStream(source: AsyncInputStream): Long = source.copyTo(this)
@@ -706,10 +706,10 @@ fun SyncInputStream.toAsyncInputStream() = object : AsyncInputWithLengthStream {
 }
 
 fun SyncOutputStream.toAsyncOutputStream() = object : AsyncOutputStream {
-	suspend override fun write(buffer: ByteArray, offset: Int, len: Int): Unit =
+	override suspend fun write(buffer: ByteArray, offset: Int, len: Int): Unit =
 		this@toAsyncOutputStream.write(buffer, offset, len)
 
-	suspend override fun close(): Unit = run { (this@toAsyncOutputStream as? Closeable)?.close() }
+	override suspend fun close(): Unit = run { (this@toAsyncOutputStream as? Closeable)?.close() }
 }
 
 fun AsyncStream.asVfsFile(name: String = "unknown.bin"): VfsFile = MemoryVfs(
@@ -736,14 +736,14 @@ fun AsyncInputStream.withLength(length: Long): AsyncInputStream {
 	val base = this
 	var currentPos = 0L
 	return object : AsyncInputStream by base, AsyncGetLengthStream, AsyncGetPositionStream {
-		suspend override fun read(buffer: ByteArray, offset: Int, len: Int): Int {
+		override suspend fun read(buffer: ByteArray, offset: Int, len: Int): Int {
 			val read = base.read(buffer, offset, len)
 			if (read >= 0) currentPos += read
 			return read
 		}
 
-		suspend override fun getPosition(): Long = currentPos
-		suspend override fun getLength(): Long = length
+		override suspend fun getPosition(): Long = currentPos
+		override suspend fun getLength(): Long = length
 	}
 }
 
@@ -754,8 +754,8 @@ class MemoryAsyncStreamBase(var data: ByteArrayBuffer) : AsyncStreamBase() {
 		get() = data.size
 		set(value) = run { data.size = value }
 
-	suspend override fun setLength(value: Long) = run { ilength = value.toInt() }
-	suspend override fun getLength(): Long = ilength.toLong()
+	override suspend fun setLength(value: Long) = run { ilength = value.toInt() }
+	override suspend fun getLength(): Long = ilength.toLong()
 
 	fun checkPosition(position: Long) = run { if (position < 0) invalidOp("Invalid position $position") }
 

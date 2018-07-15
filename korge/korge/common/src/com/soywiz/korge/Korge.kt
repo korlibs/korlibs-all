@@ -453,7 +453,7 @@ object Korge {
 			quality = module.quality
 		) { container, frame ->
 			logger.trace { "Korge.test [1]" }
-			launch {
+			launch(coroutineContext) {
 				logger.trace { "Korge.test [2]" }
 				done.complete(
 					setupCanvas(

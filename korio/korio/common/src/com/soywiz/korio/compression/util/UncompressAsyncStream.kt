@@ -6,6 +6,7 @@ import com.soywiz.korio.compression.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.stream.*
 import kotlinx.coroutines.experimental.*
+import kotlin.coroutines.experimental.*
 import kotlin.math.*
 
 class CompressionAlgoAsyncStream internal constructor(
@@ -20,7 +21,7 @@ class CompressionAlgoAsyncStream internal constructor(
 	private var pos = 0L
 
 	internal suspend fun init() {
-		launch {
+		launch(coroutineContext) {
 			if (compressing) {
 				method.compress(i, los)
 			} else {
