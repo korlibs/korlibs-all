@@ -57,6 +57,12 @@ buildscript {
 
 apply plugin: 'idea'
 
+def samplesGradleProps = new File("samples/gradle.properties")
+samplesGradleProps.text = samplesGradleProps.text
+		.replaceAll("korgeVersion=(.*)", "korgeVersion=$projectVersion")
+		.replaceAll("kotlinVersion=(.*)", "kotlinVersion=$kotlinVersion")
+		.replaceAll("kotlinNativeVersion=(.*)", "kotlinNativeVersion=$kotlinNativeVersion")
+
 allprojects {
 	def isJs = project.name.endsWith("-js")
 	def isJvm = project.name.endsWith("-jvm")

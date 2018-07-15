@@ -274,8 +274,8 @@ object GenGl {
 		println("    private val items = arrayOfNulls<Any>(8 * 1024)")
 		println("    private val freeList = (1 until items.size).reversed().toMutableList()")
 		println("    private fun <T> T.alloc(): Int = run { if (this.asDynamic().id === undefined) { val index = freeList.removeAt(freeList.size - 1); items[index] = this; (this.asDynamic()).id = index; }; this.asDynamic().id.unsafeCast<Int>() }")
-		println("    private fun <T> Int.get(): T = items[this].unsafeCast<T>()")
-		println("    private fun <T> Int.free(): T = run { val out = items[this].unsafeCast<T>(); freeList += this; items[this] = null; out }")
+		println("    private fun <T> Int.get(): T? = if (this != 0) items[this].unsafeCast<T>() else null")
+		println("    private fun <T> Int.free(): T? = run { if (this != 0) { val out = items[this].unsafeCast<T>(); freeList += this; items[this] = null; out } else { null } }")
 		println("")
 		for (func in OpenglDesc.functions) {
 			val call = func.jsBody
