@@ -6,6 +6,7 @@ import com.soywiz.korge.animate.*
 import com.soywiz.korge.audio.*
 import com.soywiz.korge.component.*
 import com.soywiz.korge.view.*
+import com.soywiz.korio.async.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korui.event.*
@@ -69,7 +70,7 @@ class LipSyncHandler(val views: Views) {
 			}
 		}
 
-		val cancel2 = launch(c.context) {
+		val cancel2 = launchImmediately(c.context) {
 			channel.await()
 			c.resume(Unit)
 		}

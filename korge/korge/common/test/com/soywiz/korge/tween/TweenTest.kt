@@ -2,6 +2,7 @@ package com.soywiz.korge.tween
 
 import com.soywiz.klock.*
 import com.soywiz.korge.tests.*
+import com.soywiz.korio.async.*
 import kotlinx.coroutines.experimental.*
 import kotlin.coroutines.experimental.*
 import kotlin.test.*
@@ -20,7 +21,7 @@ class TweenTest : ViewsForTesting(20) {
 
 		val demo = Demo()
 
-		val p1 = async(coroutineContext) {
+		val p1 = asyncImmediately(coroutineContext) {
 			views.stage.tween(demo::b[100, 200], time = 100.milliseconds, easing = Easing.LINEAR) {
 				result2 += "[b=" + demo.b + ":" + it + "]"
 				//println(result2)
@@ -29,7 +30,7 @@ class TweenTest : ViewsForTesting(20) {
 			//println(views.stage.unsafeListRawComponents)
 
 		}
-		val p2 = async(coroutineContext) {
+		val p2 = asyncImmediately(coroutineContext) {
 			views.stage.tween(demo::c[100, 200], time = 100.milliseconds, easing = Easing.LINEAR) {
 				result2 += "[c=" + demo.c + ":" + it + "]"
 			}

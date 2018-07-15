@@ -94,7 +94,7 @@ class Views(
 
 	fun registerPropertyTriggerSuspend(propName: String, gen: suspend (View, String, String) -> Unit) {
 		propsTriggers[propName] = { view, key, value ->
-			launch(coroutineContext) {
+			launchImmediately(coroutineContext) {
 				gen(view, key, value)
 			}
 		}

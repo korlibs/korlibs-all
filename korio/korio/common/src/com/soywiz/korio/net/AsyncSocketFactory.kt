@@ -59,7 +59,7 @@ interface AsyncServer {
 	suspend fun listen(): SuspendingSequence<AsyncClient> {
 		val ctx = coroutineContext
 		return asyncGenerate3 {
-			launch(ctx) {
+			launchImmediately(ctx) {
 				listen {
 					yield(it)
 				}

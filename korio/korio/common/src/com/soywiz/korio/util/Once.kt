@@ -1,5 +1,6 @@
 package com.soywiz.korio.util
 
+import com.soywiz.korio.async.*
 import kotlinx.coroutines.experimental.*
 import kotlin.coroutines.experimental.*
 
@@ -19,7 +20,7 @@ class AsyncOnce<T> {
 
 	suspend operator fun invoke(callback: suspend () -> T): T {
 		if (promise == null) {
-			promise = async(coroutineContext) { callback() }
+			promise = asyncImmediately(coroutineContext) { callback() }
 		}
 		return promise!!.await()
 	}

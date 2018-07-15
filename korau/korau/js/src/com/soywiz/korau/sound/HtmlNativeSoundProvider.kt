@@ -107,16 +107,16 @@ class MediaNativeSound private constructor(
 
 	override fun play(): NativeSoundChannel {
 		return object : NativeSoundChannel(this) {
-			val bufferPromise = async(context) {
+			val bufferPromise = asyncImmediately(context) {
 				if (HtmlSimpleSound.unlocked) HtmlSimpleSound.loadSoundBuffer(url) else null
 			}
-			val channelPromise = async(context) {
+			val channelPromise = asyncImmediately(context) {
 				val buffer = bufferPromise.await()
 				if (buffer != null) HtmlSimpleSound.playSoundBuffer(buffer) else null
 			}
 
 			override fun stop() {
-				launch(context) {
+				launchImmediately(context) {
 					val res = bufferPromise.await()
 					if (res != null) HtmlSimpleSound.stopSoundBuffer(res)
 				}

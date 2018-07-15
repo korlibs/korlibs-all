@@ -25,9 +25,9 @@ class KeysComponent(view: View) : Component(view) {
 
 	init {
 		keys {
-			detatchCloseables += this.down { launch(view.coroutineContext) { onKeyDown(this@down) } }
-			detatchCloseables += this.up { launch(view.coroutineContext) { onKeyUp(this@up) } }
-			detatchCloseables += this.press { launch(view.coroutineContext) { onKeyTyped(this@press) } }
+			detatchCloseables += this.down { launchImmediately(view.coroutineContext) { onKeyDown(this@down) } }
+			detatchCloseables += this.up { launchImmediately(view.coroutineContext) { onKeyUp(this@up) } }
+			detatchCloseables += this.press { launchImmediately(view.coroutineContext) { onKeyTyped(this@press) } }
 		}
 	}
 }

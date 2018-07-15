@@ -112,7 +112,7 @@ class JvmAsyncServer(override val requestPort: Int, override val host: String, o
 
 			ssc.accept(kotlin.Unit, object : CompletionHandler<AsynchronousSocketChannel, Unit> {
 				override fun completed(result: AsynchronousSocketChannel, attachment: Unit) {
-					launch(ctx) {
+					launchImmediately(ctx) {
 						handler(JvmAsyncClient(result))
 					}
 					step()

@@ -9,37 +9,121 @@ import kotlin.coroutines.experimental.*
 actual val KoruiDispatcher: CoroutineDispatcher get() = HtmlDispatcher
 
 object HtmlDispatcher : CoroutineDispatcher(), Delay, DelayFrame {
-	override fun dispatch(context: CoroutineContext, block: Runnable) {
-		window.setTimeout({
-			block.run()
-		}, 0)
-	}
+	private val messageName = "dispatchCoroutine"
 
-	override fun scheduleResumeAfterDelay(time: Long, unit: TimeUnit, continuation: CancellableContinuation<Unit>) {
-		val timeout = window.setTimeout({
-			continuation.resume(Unit)
-		}, unit.toMillis(time).toInt())
-
-		continuation.invokeOnCancellation {
-			window.clearTimeout(timeout)
+	private val queue = object : MessageQueue() {
+		override fun schedule() {
+			window.postMessage(messageName, "*")
 		}
 	}
 
-	override fun invokeOnTimeout(time: Long, unit: TimeUnit, block: Runnable): DisposableHandle {
-		val timeout = window.setTimeout({
-			block.run()
-		}, unit.toMillis(time).toInt())
+	init {
+		window.addEventListener("message", { event: dynamic ->
+			if (event.source == window && event.data == messageName) {
+				event.stopPropagation()
+				queue.process()
+			}
+		}, true)
+	}
 
+	override fun dispatch(context: CoroutineContext, block: Runnable) {
+		queue.enqueue(block)
+	}
+
+	override fun scheduleResumeAfterDelay(time: Long, unit: TimeUnit, continuation: CancellableContinuation<Unit>) {
+		window.setTimeout({ with(continuation) { resumeUndispatched(Unit) } }, unit.toMillis(time).toInt())
+	}
+
+	override fun invokeOnTimeout(time: Long, unit: TimeUnit, block: Runnable): DisposableHandle {
+		val handle = window.setTimeout({ block.run() }, unit.toMillis(time).toInt())
 		return object : DisposableHandle {
 			override fun dispose() {
-				window.clearTimeout(timeout)
+				window.clearTimeout(handle)
 			}
 		}
 	}
 
-	override fun delayFrame(continuation: Continuation<Unit>) {
-		window.requestAnimationFrame { continuation.resume(Unit) }
+	override fun delayFrame(continuation: CancellableContinuation<Unit>) {
+		window.requestAnimationFrame { with(continuation) { resumeUndispatched(Unit) } }
 	}
 
 	override fun toString() = "HtmlDispatcher"
+}
+
+internal open class Queue<T : Any> {
+	private var queue = arrayOfNulls<Any?>(8)
+	private var head = 0
+	private var tail = 0
+
+	val isEmpty get() = head == tail
+
+	fun poll(): T? {
+		if (isEmpty) return null
+		val result = queue[head]!!
+		queue[head] = null
+		head = head.next()
+		@Suppress("UNCHECKED_CAST")
+		return result as T
+	}
+
+	tailrec fun add(element: T) {
+		val newTail = tail.next()
+		if (newTail == head) {
+			resize()
+			add(element) // retry with larger size
+			return
+		}
+		queue[tail] = element
+		tail = newTail
+	}
+
+	private fun resize() {
+		var i = head
+		var j = 0
+		val a = arrayOfNulls<Any?>(queue.size * 2)
+		while (i != tail) {
+			a[j++] = queue[i]
+			i = i.next()
+		}
+		queue = a
+		head = 0
+		tail = j
+	}
+
+	private fun Int.next(): Int {
+		val j = this + 1
+		return if (j == queue.size) 0 else j
+	}
+}
+
+internal abstract class MessageQueue : Queue<Runnable>() {
+	val yieldEvery = 16 // yield to JS event loop after this many processed messages
+
+	private var scheduled = false
+
+	abstract fun schedule()
+
+	fun enqueue(element: Runnable) {
+		add(element)
+		if (!scheduled) {
+			scheduled = true
+			schedule()
+		}
+	}
+
+	fun process() {
+		try {
+			// limit number of processed messages
+			repeat(yieldEvery) {
+				val element = poll() ?: return@process
+				element.run()
+			}
+		} finally {
+			if (isEmpty) {
+				scheduled = false
+			} else {
+				schedule()
+			}
+		}
+	}
 }

@@ -79,7 +79,7 @@ class AsyncThread {
 
 	fun <T> sync(context: CoroutineContext, func: suspend () -> T): Deferred<T> {
 		val oldPromise = lastPromise
-		val promise = async(context) {
+		val promise = asyncImmediately(context) {
 			oldPromise.await()
 			func()
 		}

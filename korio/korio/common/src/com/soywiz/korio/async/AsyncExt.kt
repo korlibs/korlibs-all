@@ -29,15 +29,15 @@ val CoroutineContext.dispatcher: CoroutineDispatcher get() = this.tryDispatcher 
 suspend fun delayNextFrame() = _delayNextFrame()
 
 interface DelayFrame {
-	fun delayFrame(continuation: Continuation<Unit>) {
-		launch(continuation.context) {
+	fun delayFrame(continuation: CancellableContinuation<Unit>) {
+		launchImmediately(continuation.context) {
 			delay(16)
 			continuation.resume(Unit)
 		}
 	}
 }
 
-suspend fun DelayFrame.delayFrame() = suspendCoroutine<Unit> { c -> delayFrame(c) }
+suspend fun DelayFrame.delayFrame() = suspendCancellableCoroutine<Unit> { c -> delayFrame(c) }
 
 val DefaultDelayFrame: DelayFrame = object : DelayFrame {}
 
@@ -50,9 +50,7 @@ private suspend fun _delayNextFrame() {
 }
 
 suspend fun CoroutineContext.delayNextFrame() {
-	withContext(this) {
-		_delayNextFrame()
-	}
+	delayFrame.delayFrame()
 }
 
 suspend fun CoroutineContext.delay(time: Int) {
@@ -70,7 +68,7 @@ fun CoroutineContext.animationFrameLoop(callback: suspend (Closeable) -> Unit): 
 	val close = Closeable {
 		running = false
 	}
-	launch(this) {
+	launchImmediately(this) {
 		while (running) {
 			callback(close)
 			delayNextFrame()
@@ -123,7 +121,7 @@ class TestCoroutineDispatcher(val frameTime: Int = 16) :
 		scheduleAfter(unit.toMillis(time).toInt()) { continuation.resume(Unit) }
 	}
 
-	override fun delayFrame(continuation: Continuation<Unit>) {
+	override fun delayFrame(continuation: CancellableContinuation<Unit>) {
 		scheduleAfter(frameTime) { continuation.resume(Unit) }
 	}
 
@@ -183,3 +181,38 @@ fun suspendTestExceptJs(
 	if (OS.isJs) return
 	suspendTest(dispatcher, callback)
 }
+
+suspend fun launchImmediately(job: Job? = null, callback: suspend () -> Unit) =
+	launchImmediately(coroutineContext, job, callback)
+
+suspend fun launchAsap(job: Job? = null, callback: suspend () -> Unit) = launchAsap(coroutineContext, job, callback)
+
+suspend fun <T> asyncImmediately(job: Job? = null, callback: suspend () -> T) =
+	asyncImmediately(coroutineContext, job, callback)
+
+suspend fun <T> asyncAsap(job: Job? = null, callback: suspend () -> T) =
+	asyncAsap(coroutineContext, job, callback)
+
+
+fun launchImmediately(coroutineContext: CoroutineContext, job: Job? = null, callback: suspend () -> Unit) =
+	launch(coroutineContext, start = CoroutineStart.UNDISPATCHED, parent = job) {
+		callback()
+	}
+
+
+fun launchAsap(coroutineContext: CoroutineContext, job: Job? = null, callback: suspend () -> Unit) =
+	launch(coroutineContext, start = CoroutineStart.DEFAULT, parent = job) {
+		callback()
+	}
+
+
+fun <T> asyncImmediately(coroutineContext: CoroutineContext, job: Job? = null, callback: suspend () -> T) =
+	async(coroutineContext, start = CoroutineStart.UNDISPATCHED, parent = job) {
+		callback()
+	}
+
+fun <T> asyncAsap(coroutineContext: CoroutineContext, job: Job? = null, callback: suspend () -> T) =
+	async(coroutineContext, start = CoroutineStart.DEFAULT, parent = job) {
+		callback()
+	}
+

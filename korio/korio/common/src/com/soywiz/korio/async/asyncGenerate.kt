@@ -128,8 +128,8 @@ typealias AsyncSequence<T> = SuspendingSequence<T>
 typealias AsyncIterator<T> = SuspendingIterator<T>
 
 fun <T> Iterator<T>.toAsync(): SuspendingIterator<T> = object : SuspendingIterator<T> {
-	suspend override fun hasNext(): Boolean = this@toAsync.hasNext()
-	suspend override fun next(): T = this@toAsync.next()
+	override suspend fun hasNext(): Boolean = this@toAsync.hasNext()
+	override suspend fun next(): T = this@toAsync.next()
 }
 
 fun <T> SuspendingSequence(items: Iterable<T>) = items.toAsync()

@@ -252,7 +252,7 @@ abstract class AG : Extra by Extra.Mixin() {
 							generated = true
 						}
 						is AsyncBitmapSource -> {
-							async(source.coroutineContext) {
+							asyncImmediately(source.coroutineContext) {
 								tempBitmap = source.gen()
 								generated = true
 							}

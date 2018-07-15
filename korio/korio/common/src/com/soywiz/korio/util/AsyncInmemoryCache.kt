@@ -20,7 +20,7 @@ class AsyncInmemoryCache {
 	suspend fun <T : Any?> get(key: String, ttlMs: Int, gen: suspend () -> T): T {
 		val entry = cache[key]
 		if (entry == null || (Klock.currentTimeMillis() - entry.timestamp) >= ttlMs) {
-			cache[key] = AsyncInmemoryCache.Entry(TimeProvider.now(), async(coroutineContext) { gen() })
+			cache[key] = AsyncInmemoryCache.Entry(TimeProvider.now(), asyncImmediately(coroutineContext) { gen() })
 		}
 		return (cache[key]!!.data as Deferred<T>).await()
 	}

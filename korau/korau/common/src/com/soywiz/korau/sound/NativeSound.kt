@@ -47,7 +47,7 @@ open class NativeSoundProvider {
 	open suspend fun play(stream: BaseAudioStream, bufferSeconds: Double = 0.1): Unit =
 		suspendCancellableCoroutine<Unit> { c ->
 			val nas = NewNativeAudioStream()
-			val task = async(c.context) {
+			val task = asyncImmediately(c.context) {
 				val temp = ShortArray(1024)
 				val nchannels = 2
 				val minBuf = stream.rate * nchannels * bufferSeconds
@@ -76,7 +76,7 @@ abstract class NativeSoundChannel(val sound: NativeSound) {
 	abstract fun stop(): Unit
 	suspend fun await(progress: (current: Double, total: Double) -> Unit = { current, total -> }) {
 		suspendCancellableCoroutine<Unit> { c ->
-			launch(c.context) {
+			launchImmediately(c.context) {
 				try {
 					while (playing) {
 						progress(current, total)

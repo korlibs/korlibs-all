@@ -7,6 +7,7 @@ import com.soywiz.korau.format.*
 import com.soywiz.korau.sound.*
 import com.soywiz.korge.view.*
 import com.soywiz.korinject.*
+import com.soywiz.korio.async.*
 import com.soywiz.korio.file.*
 import kotlinx.coroutines.experimental.*
 
@@ -61,7 +62,7 @@ open class SoundChannel(override val soundSystem: SoundSystem) : AudioChannel {
 			length = sound.lengthInSeconds
 			playing = true
 
-			promise = async(soundSystem.views.coroutineContext) {
+			promise = asyncImmediately(soundSystem.views.coroutineContext) {
 				sound.playAndWait { current, total ->
 					this@SoundChannel.position = current
 					this@SoundChannel.length = total
@@ -89,7 +90,7 @@ open class SoundChannel(override val soundSystem: SoundSystem) : AudioChannel {
 			}
 		}
 
-		promise = async(soundSystem.views.coroutineContext) {
+		promise = asyncImmediately(soundSystem.views.coroutineContext) {
 			astream.play(bufferSeconds)
 		}
 	}

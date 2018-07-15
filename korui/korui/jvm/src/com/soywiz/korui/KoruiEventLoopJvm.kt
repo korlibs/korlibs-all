@@ -40,7 +40,7 @@ object Swing : CoroutineDispatcher(), Delay, DelayFrame {
 
 	var lastFrameTime = Klock.currentTimeMillis()
 
-	override fun delayFrame(continuation: Continuation<Unit>) {
+	override fun delayFrame(continuation: CancellableContinuation<Unit>) {
 		val startFrameTime = Klock.currentTimeMillis()
 		val time = (16 - (startFrameTime - lastFrameTime)).clamp(0, 16)
 		schedule(time, TimeUnit.MILLISECONDS, ActionListener { continuation.resume(Unit) })

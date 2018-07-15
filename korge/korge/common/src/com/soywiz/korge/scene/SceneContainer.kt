@@ -112,10 +112,10 @@ class SceneContainer(views: Views) : Container(views) {
 
 		oldScene?.sceneDestroy()
 
-		launch(coroutineContext) {
+		launchImmediately(coroutineContext) {
 			instance.sceneAfterDestroy()
 		}
-		launch(coroutineContext) {
+		launchImmediately(coroutineContext) {
 			instance.sceneAfterInit()
 		}
 

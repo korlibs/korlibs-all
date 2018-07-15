@@ -1,5 +1,6 @@
 package com.soywiz.korio.util
 
+import com.soywiz.korio.async.*
 import kotlinx.coroutines.experimental.*
 import kotlin.coroutines.experimental.*
 
@@ -9,7 +10,7 @@ class AsyncCache {
 
 	@Suppress("UNCHECKED_CAST")
 	suspend operator fun <T> invoke(key: String, gen: suspend () -> T): T {
-		return (promises.getOrPut(key) { async(coroutineContext) { gen() } } as Deferred<T>).await()
+		return (promises.getOrPut(key) { asyncImmediately(coroutineContext) { gen() } } as Deferred<T>).await()
 	}
 }
 
@@ -19,7 +20,7 @@ class AsyncCacheItem<T> {
 
 	@Suppress("UNCHECKED_CAST")
 	suspend operator fun invoke(gen: suspend () -> T): T {
-		if (promise == null) promise = async(coroutineContext) { gen() }
+		if (promise == null) promise = asyncImmediately(coroutineContext) { gen() }
 		return promise!!.await()
 	}
 }

@@ -113,7 +113,7 @@ open class ViewsForTesting(val frameTime: Int = 10) {
 				time += frameTime
 				ag.onRender(ag)
 			}
-			val bb = async(context) {
+			val bb = asyncImmediately(context) {
 				withTimeout(10, TimeUnit.SECONDS) {
 					block()
 				}
