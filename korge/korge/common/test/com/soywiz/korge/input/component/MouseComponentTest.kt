@@ -19,15 +19,21 @@ class MouseComponentTest : ViewsForTesting() {
 		image.onClick { log += "onClick" }
 		image.onDown { log += "onDown" }
 		image.onUp { log += "onUp" }
+		image.onUpOutside { log += "onUpOutside" }
 		image.onMove { log += "onMove" }
 
 		mouseMoveTo(8.0, 8.0)
 		assertEquals("onOver", log.joinToString(","))
 		mouseMoveTo(20.0, 20.0)
 		assertEquals("onOver,onOut", log.joinToString(","))
-		mouseMoveTo(8.0, 8.0); input.mouseButtons = 1
+		mouseMoveTo(8.0, 8.0)
+		mouseDown()
 		assertEquals("onOver,onOut,onOver,onDown", log.joinToString(","))
 		mouseMoveTo(10.0, 10.0)
 		assertEquals("onOver,onOut,onOver,onDown,onMove", log.joinToString(","))
+		mouseMoveTo(50.0, 50.0)
+		assertEquals("onOver,onOut,onOver,onDown,onMove,onOut", log.joinToString(","))
+		mouseUp()
+		assertEquals("onOver,onOut,onOver,onDown,onMove,onOut,onUpOutside", log.joinToString(","))
 	}
 }

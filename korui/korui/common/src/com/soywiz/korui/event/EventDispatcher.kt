@@ -37,6 +37,10 @@ interface EventDispatcher {
 			}
 		}
 	}
+
+	companion object {
+		operator fun invoke(): EventDispatcher = EventDispatcher.Mixin()
+	}
 }
 
 object DummyEventDispatcher : EventDispatcher, Closeable {

@@ -2,7 +2,6 @@ package com.soywiz.korio.vfs
 
 import com.soywiz.korio.async.*
 import com.soywiz.korio.file.std.*
-import com.soywiz.korio.file.std.*
 import kotlin.test.*
 
 class MemoryVfsTest {
@@ -18,7 +17,7 @@ class MemoryVfsTest {
 		mem["item.txt"].writeString("test")
 		mem["test"].mkdir()
 		mem["test"].delete()
-		this.step(100)
+		delay(100)
 		assertEquals(
 			"[MODIFIED(NodeVfs[/item.txt]), CREATED(NodeVfs[/test]), DELETED(NodeVfs[/test])]",
 			log.toString()

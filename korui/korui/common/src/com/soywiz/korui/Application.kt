@@ -11,9 +11,17 @@ import kotlin.coroutines.experimental.*
 
 class Application(val coroutineContext: CoroutineContext, val light: LightComponents) {
 	companion object {
-		suspend operator fun invoke() = Application(defaultLight(kotlin.coroutines.experimental.coroutineContext))
-		suspend operator fun invoke(light: LightComponents) =
-			Application(kotlin.coroutines.experimental.coroutineContext, light)
+		suspend operator fun invoke() = Application(defaultLight(coroutineContext))
+		suspend operator fun invoke(light: LightComponents) = Application(coroutineContext, light)
+
+		suspend operator fun invoke(light: LightComponents, callback: suspend Application.() -> Unit) {
+			val app = Application(coroutineContext, light)
+			try {
+				callback(app)
+			} finally {
+				app.loop.close()
+			}
+		}
 	}
 
 	val frames = arrayListOf<Frame>()
@@ -21,15 +29,13 @@ class Application(val coroutineContext: CoroutineContext, val light: LightCompon
 		pixelsPerInch = light.getDpi()
 	}
 
-	init {
-		coroutineContext.animationFrameLoop {
-			var n = 0
-			while (n < frames.size) {
-				val frame = frames[n++]
-				if (frame.valid) continue
-				frame.setBoundsAndRelayout(frame.actualBounds)
-				light.repaint(frame.handle)
-			}
+	val loop = coroutineContext.animationFrameLoop {
+		var n = 0
+		while (n < frames.size) {
+			val frame = frames[n++]
+			if (frame.valid) continue
+			frame.setBoundsAndRelayout(frame.actualBounds)
+			light.repaint(frame.handle)
 		}
 	}
 }

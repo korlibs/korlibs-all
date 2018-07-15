@@ -197,7 +197,7 @@ class Views(
 
 	var lastTime = timeProvider.currentTimeMillis()
 
-	fun frameUpdateAndRender(clear: Boolean, clearColor: Int) {
+	fun frameUpdateAndRender(clear: Boolean, clearColor: Int, fixedSizeStep: Int? = null) {
 		views.stats.startFrame()
 		Korge.logger.trace { "ag.onRender" }
 		//println("Render")
@@ -208,7 +208,11 @@ class Views(
 		//println("delta: $delta")
 		//println("Render($lastTime -> $currentTime): $delta")
 		lastTime = currentTime
-		update(adelta)
+		if (fixedSizeStep != null) {
+			update(fixedSizeStep)
+		} else {
+			update(adelta)
+		}
 		render(clearColor, clear)
 	}
 
@@ -306,7 +310,7 @@ class Stage(views: Views) : Container(views) {
 }
 
 class ViewsLog(
-	val coroutineContext: CoroutineContext,
+	val coroutineContext: CoroutineDispatcher,
 	val injector: AsyncInjector = AsyncInjector(),
 	val ag: LogAG = LogAG(),
 	val input: Input = Input(),

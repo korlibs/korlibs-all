@@ -1,6 +1,7 @@
 package com.soywiz.korge.tests
 
-import com.soywiz.korag.*
+import com.soywiz.klock.*
+import com.soywiz.korge.*
 import com.soywiz.korge.input.*
 import com.soywiz.korge.scene.*
 import com.soywiz.korge.view.*
@@ -8,24 +9,50 @@ import com.soywiz.korio.*
 import com.soywiz.korio.async.*
 import com.soywiz.korma.geom.*
 import com.soywiz.korui.event.*
+import com.soywiz.korui.input.*
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.timeunit.*
 
 open class ViewsForTesting(val frameTime: Int = 10) {
-	val testDispatcher = TestCoroutineDispatcher(frameTime)
-	val viewsLog = ViewsLog(testDispatcher)
+	var time = 0L
+	//val testDispatcher = TestCoroutineDispatcher(frameTime)
+
+	val dispatcher = KorioDefaultDispatcher
+	val timeProvider: TimeProvider = object : TimeProvider() {
+		override fun currentTimeMillis(): Long = time
+	}
+	val koruiEventDispatcher = EventDispatcher()
+	val viewsLog = ViewsLog(dispatcher)
 	val injector get() = viewsLog.injector
 	val ag get() = viewsLog.ag
 	val input get() = viewsLog.input
 	val views get() = viewsLog.views
-	val eventDispatcher = EventDispatcher.Mixin()
-	val timeProvider get() = views.timeProvider
 	val stats get() = views.stats
-	val canvas = DummyAGContainer(ag)
 
-	suspend fun mouseMoveTo(x: Number, y: Number, ms: Int = 10) {
-		input.mouse.setTo(x, y)
-		delay(ms)
+	init {
+		Korge.prepareViews(views, koruiEventDispatcher, fixedSizeStep = frameTime)
+	}
+
+	suspend fun mouseMoveTo(x: Number, y: Number) {
+		koruiEventDispatcher.dispatch(MouseEvent(type = MouseEvent.Type.MOVE, id = 0, x = x.toInt(), y = y.toInt()))
+		//views.update(frameTime)
+		time += frameTime
+		ag.onRender(ag)
+		delay(frameTime * 2) // Required because some events launch a coroutine
+	}
+
+	suspend fun mouseDown() {
+		koruiEventDispatcher.dispatch(MouseEvent(type = MouseEvent.Type.DOWN, id = 0, x = input.mouse.x.toInt(), y = input.mouse.y.toInt(), button = MouseButton.LEFT, buttons = 1))
+		time += frameTime
+		ag.onRender(ag)
+		delay(frameTime * 2) // Required because some events launch a coroutine
+	}
+
+	suspend fun mouseUp() {
+		koruiEventDispatcher.dispatch(MouseEvent(type = MouseEvent.Type.UP, id = 0, x = input.mouse.x.toInt(), y = input.mouse.y.toInt(), button = MouseButton.LEFT, buttons = 0))
+		time += frameTime
+		ag.onRender(ag)
+		delay(frameTime * 2) // Required because some events launch a coroutine
 	}
 
 	//@Suppress("UNCHECKED_CAST")
@@ -48,18 +75,6 @@ open class ViewsForTesting(val frameTime: Int = 10) {
 	//	callback(sc.currentScene as T)
 	//	//}
 	//}
-
-	suspend fun Scene.updateMousePosition(x: Int, y: Int) {
-		eventDispatcher.dispatch(
-			MouseEvent(
-				type = MouseEvent.Type.MOVE,
-				id = 0,
-				x = x,
-				y = y
-			)
-		)
-		delay(0)
-	}
 
 	suspend fun View.simulateClick() {
 		this.mouse.onClick(this.mouse)
@@ -90,19 +105,13 @@ open class ViewsForTesting(val frameTime: Int = 10) {
 		return true
 	}
 
-	class DummyAGContainer(override val ag: AG) : AGContainer {
-		override fun repaint(): Unit {
-			ag.onRender(ag)
-		}
-	}
-
 	// @TODO: Run a faster eventLoop where timers happen much faster
 	fun viewsTest(block: suspend () -> Unit) {
-		val context = KorioDefaultDispatcher
-		//val context = TestCoroutineDispatcher()
+		val context = viewsLog.coroutineContext
 		Korio(context) {
 			val el = context.animationFrameLoop {
-				views.update(frameTime)
+				time += frameTime
+				ag.onRender(ag)
 			}
 			val bb = async(context) {
 				withTimeout(10, TimeUnit.SECONDS) {

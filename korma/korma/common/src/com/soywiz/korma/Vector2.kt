@@ -66,17 +66,16 @@ interface Vector2 {
 
 
 @PublishedApi
-internal data class IVector2(override val x: Double, override val y: Double) : Vector2.Base(), Interpolable<Vector2> {
+internal class IVector2(override val x: Double, override val y: Double) : Vector2.Base(), Interpolable<Vector2> {
 	override fun interpolateWith(other: Vector2, ratio: Double): Vector2 {
 		return Vector2(
 			interpolate(this.x, other.x, ratio),
 			interpolate(this.y, other.y, ratio)
 		)
 	}
-
 }
 
-data class MVector2(override var x: Double = 0.0, override var y: Double = x) :
+class MVector2(override var x: Double = 0.0, override var y: Double = x) :
 	MutableInterpolable<MVector2>, Interpolable<MVector2>, Vector2.Base() {
 
 	constructor(x: Float, y: Float) : this(x.toDouble(), y.toDouble())

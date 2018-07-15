@@ -2,7 +2,9 @@ package com.soywiz.korio.net
 
 import com.soywiz.korio.async.*
 import com.soywiz.korio.stream.*
+import kotlinx.coroutines.experimental.*
 import java.util.*
+import kotlin.coroutines.experimental.*
 import kotlin.test.*
 
 class AsyncClientServerTest {
@@ -21,7 +23,7 @@ class AsyncClientServerTest {
 		val correctEchoes = LinkedList<Boolean>()
 
 		val clients = (0 until clientsCount).map { clientId ->
-			spawn(coroutineContext) {
+			async(coroutineContext) {
 				try {
 					val client = AsyncClient.createAndConnect("127.0.0.1", server.port)
 
@@ -43,7 +45,7 @@ class AsyncClientServerTest {
 			counter++
 		}
 
-		clients.await()
+		clients.awaitAll()
 
 		assertEquals(clientsCount, counter)
 		assertEquals(clientsCount, correctEchoes.size)

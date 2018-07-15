@@ -50,20 +50,14 @@ class TweenTest : ViewsForTesting(20) {
 		p1.await()
 		p2.await()
 
-		val rr1 = result.joinToString(",")
 		assertEquals(
 			"[-10:0.0],[-6:0.2],[-2:0.4],[2:0.6],[6:0.8],[10:1.0],---,[-100:0.0],[-60:0.2],[-20:0.4],[20:0.6],[60:0.8],[100:1.0],---",
-			rr1
+			result.joinToString(",")
 		)
-//
-		//println(":::::5")
 
-		val rr2 = result2.joinToString(",")
 		assertEquals(
 			"[b=100:0.0],[c=100:0.0],[b=120:0.2],[c=120:0.2],[b=140:0.4],[c=140:0.4],[b=160:0.6],[c=160:0.6],[b=180:0.8],[c=180:0.8],[b=200:1.0],[c=200:1.0]",
-			rr2
+			result2.joinToString(",")
 		)
-//
-		//println(":::::6")
 	}
 }

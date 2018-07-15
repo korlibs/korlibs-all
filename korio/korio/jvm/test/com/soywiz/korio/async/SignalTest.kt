@@ -1,6 +1,8 @@
 package com.soywiz.korio.async
 
-import java.util.concurrent.*
+import kotlinx.coroutines.experimental.*
+import java.util.concurrent.CancellationException
+import kotlin.coroutines.experimental.*
 import kotlin.test.*
 
 class SignalTest {
@@ -33,7 +35,7 @@ class SignalTest {
 	fun name2() = suspendTest {
 		var out = ""
 		val s = Signal<Int>()
-		spawn(coroutineContext) {
+		launch(coroutineContext) {
 			try {
 				withTimeout(100) {
 					while (true) {
@@ -45,11 +47,11 @@ class SignalTest {
 			}
 		}
 		s(1)
-		sleep(50)
+		delay(50)
 		s(2)
-		sleep(100)
+		delay(100)
 		s(3)
-		sleep(100)
+		delay(100)
 		assertEquals("12<cancel>", out)
 	}
 }

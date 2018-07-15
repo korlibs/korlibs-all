@@ -97,6 +97,33 @@ object Korge {
 
 		logger.trace { "Korge.setupCanvas[5]" }
 
+		prepareViews(views, eventDispatcher, config.module.clearEachFrame, config.module.bgcolor)
+
+		logger.trace { "Korge.setupCanvas[7]" }
+
+		views.targetFps = config.module.targetFps
+
+		coroutineContext.animationFrameLoop {
+			logger.trace { "views.animationFrameLoop" }
+			//ag.resized()
+			config.container.repaint()
+		}
+
+		val sc = views.sceneContainer()
+		views.stage += sc
+
+		register(views)
+
+		sc.changeTo(config.sceneClass, *config.sceneInjects.toTypedArray(), time = 0.seconds)
+
+		logger.trace { "Korge.setupCanvas[8]" }
+
+		return sc
+	}
+
+	fun prepareViews(views: Views, eventDispatcher: EventDispatcher, clearEachFrame: Boolean = true, bgcolor: Int = 0, fixedSizeStep: Int? = null) {
+		val input = views.input
+		val ag = views.ag
 		val downPos = MPoint2d()
 		val upPos = MPoint2d()
 		var downTime = 0.0
@@ -208,6 +235,12 @@ object Korge {
 					mouseMove("onMouseDrag", x, y)
 					updateTouch(mouseTouchId, x, y, start = false, end = false)
 				}
+				MouseEvent.Type.CLICK -> {
+				}
+				MouseEvent.Type.ENTER -> {
+				}
+				MouseEvent.Type.EXIT -> {
+				}
 			}
 			views.dispatch(e)
 		}
@@ -317,8 +350,9 @@ object Korge {
 		//println("lastTime: $lastTime")
 		ag.onRender {
 			views.frameUpdateAndRender(
-				clear = config.module.clearEachFrame && views.clearEachFrame,
-				clearColor = config.module.bgcolor
+				clear = clearEachFrame && views.clearEachFrame,
+				clearColor = bgcolor,
+				fixedSizeStep = fixedSizeStep
 			)
 
 			if (moveMouseOutsideInNextFrame) {
@@ -330,26 +364,6 @@ object Korge {
 			//println("render:$delta,$adelta")
 		}
 
-		logger.trace { "Korge.setupCanvas[7]" }
-
-		views.targetFps = config.module.targetFps
-
-		coroutineContext.animationFrameLoop {
-			logger.trace { "views.animationFrameLoop" }
-			//ag.resized()
-			config.container.repaint()
-		}
-
-		val sc = views.sceneContainer()
-		views.stage += sc
-
-		register(views)
-
-		sc.changeTo(config.sceneClass, *config.sceneInjects.toTypedArray(), time = 0.seconds)
-
-		logger.trace { "Korge.setupCanvas[8]" }
-
-		return sc
 	}
 
 	operator fun invoke(

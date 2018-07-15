@@ -4,6 +4,7 @@ import com.soywiz.kds.*
 import com.soywiz.klock.*
 import com.soywiz.korio.*
 import com.soywiz.korio.lang.*
+import com.soywiz.korio.util.*
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.timeunit.*
 import kotlin.coroutines.experimental.*
@@ -173,4 +174,12 @@ fun suspendTest(
 			}
 		}
 	}
+}
+
+fun suspendTestExceptJs(
+	dispatcher: TestCoroutineDispatcher = TestCoroutineDispatcher(),
+	callback: suspend TestCoroutineDispatcher.() -> Unit
+) {
+	if (OS.isJs) return
+	suspendTest(dispatcher, callback)
 }

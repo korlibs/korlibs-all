@@ -1,6 +1,8 @@
 package com.soywiz.korio.async
 
+import kotlinx.coroutines.experimental.*
 import java.util.concurrent.*
+import java.util.concurrent.CancellationException
 import kotlin.test.*
 
 class withTimeoutTest {
@@ -9,13 +11,13 @@ class withTimeoutTest {
 		var out = ""
 		var result = "none"
 		try {
-			result = withTimeout(200, name = "timeout2") {
+			result = withTimeout(200, TimeUnit.MILLISECONDS) {
 				out += "a"
-				sleep(20)
+				delay(20)
 				out += "b"
-				sleep(50)
+				delay(50)
 				out += "c"
-				sleep(100)
+				delay(100)
 				out += "d"
 				"done"
 			}
@@ -23,7 +25,7 @@ class withTimeoutTest {
 			out += "<CANCEL>"
 		}
 
-		sleep(500)
+		delay(500)
 		assertEquals("abcd", out)
 		assertEquals("done", result)
 	}
@@ -32,20 +34,20 @@ class withTimeoutTest {
 	fun simple() = suspendTest {
 		var out = ""
 		try {
-			withTimeout(100, name = "timeout2") {
+			withTimeout(100, TimeUnit.MILLISECONDS) {
 				out += "a"
-				sleep(20)
+				delay(20)
 				out += "b"
-				sleep(50)
+				delay(50)
 				out += "c"
-				sleep(100)
+				delay(100)
 				out += "d"
 			}
 		} catch (e: CancellationException) {
 			out += "<CANCEL>"
 		}
 
-		sleep(300)
+		delay(300)
 		assertEquals("abc<CANCEL>", out)
 	}
 
@@ -54,15 +56,15 @@ class withTimeoutTest {
 		var out = ""
 		try {
 			out += "0"
-			withTimeout(50, name = "timeout1") {
+			withTimeout(50, TimeUnit.MILLISECONDS) {
 				try {
-					withTimeout(100, name = "timeout2") {
+					withTimeout(100, TimeUnit.MILLISECONDS) {
 						out += "a"
-						sleep(20)
+						delay(20)
 						out += "b"
-						sleep(50)
+						delay(50)
 						out += "c"
-						sleep(100)
+						delay(100)
 						out += "d"
 					}
 				} catch (e: CancellationException) {
@@ -73,7 +75,7 @@ class withTimeoutTest {
 		} catch (e: CancellationException) {
 			out += "<CANCEL2>"
 		}
-		sleep(300)
+		delay(300)
 		assertEquals("0ab<CANCEL1><CANCEL2>", out)
 	}
 
@@ -83,7 +85,7 @@ class withTimeoutTest {
 		try {
 			withTimeout(200) {
 				//out += UrlVfs("http://127.0.0.2:1337/test").readString() // fails on travis
-				sleep(10000)
+				delay(10000)
 				out += "test"
 			}
 		} catch (e: CancellationException) {
