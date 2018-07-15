@@ -2,7 +2,6 @@ package com.soywiz.korio
 
 import com.soywiz.klogger.*
 import com.soywiz.korio.async.*
-import com.soywiz.korio.coroutine.*
 import com.soywiz.korio.crypto.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
@@ -10,8 +9,7 @@ import com.soywiz.korio.net.*
 import com.soywiz.korio.net.http.*
 import com.soywiz.korio.net.ws.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korio.file.*
-import com.soywiz.std.*
+import kotlinx.coroutines.experimental.*
 import kotlin.coroutines.experimental.*
 import kotlin.math.*
 import kotlin.reflect.*
@@ -31,7 +29,6 @@ expect open class FileNotFoundException(msg: String) : IOException
 
 expect open class RuntimeException(msg: String) : Exception
 expect open class IllegalStateException(msg: String) : RuntimeException
-expect open class CancellationException(msg: String) : IllegalStateException
 
 expect class Semaphore(initial: Int) {
 	//var initial: Int
@@ -39,8 +36,6 @@ expect class Semaphore(initial: Int) {
 
 	fun release()
 }
-
-expect val nativeDelay: Delay
 
 expect object KorioNative {
 	abstract class NativeThreadLocal<T>() {
@@ -51,6 +46,12 @@ expect object KorioNative {
 
 	fun getClassSimpleName(clazz: KClass<*>): String
 
+	fun random(): Double
+
+	suspend fun <T> executeInWorker(callback: suspend () -> T): T
+
+	fun asyncEntryPoint(context: CoroutineContext, callback: suspend () -> Unit)
+
 	val currentThreadId: Long
 	val platformName: String
 	val rawOsName: String
@@ -58,14 +59,9 @@ expect object KorioNative {
 
 	val websockets: WebSocketClientFactory
 
-	val eventLoopFactoryDefaultImpl: EventLoopFactory
-
 	val systemLanguageStrings: List<String>
 
 	fun getRandomValues(data: ByteArray): Unit
-
-	suspend fun <T> executeInNewThread(callback: suspend () -> T): T
-	suspend fun <T> executeInWorker(callback: suspend () -> T): T
 
 	val File_separatorChar: Char
 
@@ -96,8 +92,6 @@ expect object KorioNative {
 		suspend fun update(data: ByteArray, offset: Int, size: Int)
 		suspend fun finalize(): ByteArray
 	}
-
-	fun syncTest(block: suspend EventLoopTest.() -> Unit): Unit
 
 	fun getenv(key: String): String?
 }
@@ -131,9 +125,7 @@ object KorioNativeDefaults {
 
 			override suspend fun listenInternal(port: Int, host: String) {
 				val socket = KorioNative.asyncSocketFactory.createServer(port, host)
-				val eventLoop = eventLoop()
 				actualPort = socket.port
-				eventLoop.tasksInProgress.increment()
 				val close = socket.listen { client ->
 					while (true) {
 						//println("Connected! : $client : ${KorioNative.currentThreadId}")
@@ -162,12 +154,12 @@ object KorioNativeDefaults {
 
 						//println("REQ: $method, $url, $headerList")
 
-						val requestCompleted = Promise.Deferred<Unit>()
+						val requestCompleted = CompletableDeferred<Unit>()
 
 						var bodyHandler: (ByteArray) -> Unit = {}
 						var endHandler: () -> Unit = {}
 
-						spawnAndForget {
+						launch {
 							handler(object : HttpServer.Request(Http.Method(method), url, headers) {
 								override suspend fun _handler(handler: (ByteArray) -> Unit) =
 									run { bodyHandler = handler }
@@ -187,7 +179,7 @@ object KorioNativeDefaults {
 								}
 
 								override suspend fun _end() {
-									requestCompleted.resolve(Unit)
+									requestCompleted.complete(Unit)
 								}
 							})
 						}
@@ -205,7 +197,7 @@ object KorioNativeDefaults {
 						}
 						endHandler()
 
-						requestCompleted.promise.await()
+						requestCompleted.await()
 
 						if (keepAlive) continue
 
@@ -216,7 +208,6 @@ object KorioNativeDefaults {
 
 				onClose {
 					close.close()
-					eventLoop.tasksInProgress.decrement()
 				}
 			}
 
@@ -230,12 +221,3 @@ object KorioNativeDefaults {
 fun createBase64URLForData(data: ByteArray, contentType: String): String {
 	return "data:$contentType;base64," + Base64.encode(data)
 }
-
-interface Delay : CoroutineContext.Element {
-	object KEY : CoroutineContext.Key<Delay>
-
-	override val key get() = KEY
-	suspend fun delay(ms: Int): Unit
-}
-
-val CoroutineContext.delay: Delay get() = this[Delay.KEY]?.delay ?: nativeDelay

@@ -6,6 +6,7 @@ import com.soywiz.korge.tween.*
 import com.soywiz.korge.view.*
 import com.soywiz.korinject.*
 import com.soywiz.korio.async.*
+import kotlinx.coroutines.experimental.*
 import kotlin.reflect.*
 
 class SceneContainer(views: Views) : Container(views) {
@@ -111,10 +112,10 @@ class SceneContainer(views: Views) : Container(views) {
 
 		oldScene?.sceneDestroy()
 
-		go {
+		launch {
 			instance.sceneAfterDestroy()
 		}
-		go {
+		launch {
 			instance.sceneAfterInit()
 		}
 

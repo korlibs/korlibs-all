@@ -29,6 +29,6 @@ data class SizeInt(var width: Int = 0, var height: Int = width) {
 		)
 	}
 
-	fun getAnchorPosition(anchor: Anchor, out: PositionInt = PositionInt()): PositionInt =
+	fun getAnchorPosition(anchor: Anchor, out: MPositionInt = MPositionInt()): MPositionInt =
 		out.setTo((width * anchor.sx).toInt(), (height * anchor.sy).toInt())
 }

@@ -8,6 +8,7 @@ import com.soywiz.korio.lang.*
 import com.soywiz.korio.net.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
+import kotlinx.coroutines.experimental.*
 import kotlin.coroutines.experimental.*
 
 open class HttpServer protected constructor() : AsyncCloseable {
@@ -129,11 +130,11 @@ open class HttpServer protected constructor() : AsyncCloseable {
 			addHeader(key, value)
 		}
 
-		abstract suspend protected fun _handler(handler: (ByteArray) -> Unit)
-		abstract suspend protected fun _endHandler(handler: () -> Unit)
-		abstract suspend protected fun _sendHeader(code: Int, message: String, headers: Http.Headers)
-		abstract suspend protected fun _write(data: ByteArray, offset: Int = 0, size: Int = data.size - offset)
-		abstract suspend protected fun _end()
+		protected abstract suspend fun _handler(handler: (ByteArray) -> Unit)
+		protected abstract suspend fun _endHandler(handler: () -> Unit)
+		protected abstract suspend fun _sendHeader(code: Int, message: String, headers: Http.Headers)
+		protected abstract suspend fun _write(data: ByteArray, offset: Int = 0, size: Int = data.size - offset)
+		protected abstract suspend fun _end()
 
 		suspend fun handler(handler: (ByteArray) -> Unit) {
 			_handler(handler)
@@ -145,7 +146,7 @@ open class HttpServer protected constructor() : AsyncCloseable {
 
 		suspend fun readRawBody(maxSize: Int = 0x1000): ByteArray = suspendCoroutine { c ->
 			val out = ByteArrayBuilder()
-			spawnAndForget(c.context) {
+			launch(c.context) {
 				handler {
 					if (out.size + it.size > maxSize) {
 						out.clear()
@@ -206,15 +207,15 @@ open class HttpServer protected constructor() : AsyncCloseable {
 			end(data.toByteArray(charset))
 		}
 
-		suspend override fun close() {
+		override suspend fun close() {
 			end()
 		}
 	}
 
-	suspend open protected fun websocketHandlerInternal(handler: suspend (WsRequest) -> Unit) {
+	protected open suspend fun websocketHandlerInternal(handler: suspend (WsRequest) -> Unit) {
 	}
 
-	suspend open protected fun httpHandlerInternal(handler: suspend (Request) -> Unit) {
+	protected open suspend fun httpHandlerInternal(handler: suspend (Request) -> Unit) {
 	}
 
 	suspend fun allHandler(handler: suspend (BaseRequest) -> Unit) = this.apply {
@@ -222,17 +223,14 @@ open class HttpServer protected constructor() : AsyncCloseable {
 		httpHandler { handler(it) }
 	}
 
-	suspend open protected fun listenInternal(port: Int, host: String = "127.0.0.1") {
-		val deferred = Promise.Deferred<Unit>()
-		deferred.onCancel {
-
-		}
-		deferred.promise.await()
+	protected open suspend fun listenInternal(port: Int, host: String = "127.0.0.1") {
+		val deferred = CompletableDeferred<Unit>()
+		deferred.await()
 	}
 
 	open val actualPort: Int = 0
 
-	suspend open protected fun closeInternal() {
+	protected open suspend fun closeInternal() {
 	}
 
 	suspend fun websocketHandler(handler: suspend (WsRequest) -> Unit): HttpServer {
@@ -256,7 +254,7 @@ open class HttpServer protected constructor() : AsyncCloseable {
 		return this
 	}
 
-	suspend final override fun close() {
+	final override suspend fun close() {
 		closeInternal()
 	}
 }

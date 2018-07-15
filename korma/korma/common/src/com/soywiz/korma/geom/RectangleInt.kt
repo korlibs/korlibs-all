@@ -1,5 +1,7 @@
 package com.soywiz.korma.geom
 
+import com.soywiz.korma.*
+
 interface IRectangleInt {
 	val x: Int
 	val y: Int
@@ -7,9 +9,9 @@ interface IRectangleInt {
 	val height: Int
 }
 
-data class RectangleInt(val position: PositionInt, val size: SizeInt) : IRectangleInt {
+data class RectangleInt(val position: MPositionInt, val size: SizeInt) : IRectangleInt {
 	constructor(x: Int = 0, y: Int = 0, width: Int = 0, height: Int = 0) : this(
-		PositionInt(x, y),
+		MPositionInt(x, y),
 		SizeInt(width, height)
 	)
 
@@ -59,7 +61,7 @@ data class RectangleInt(val position: PositionInt, val size: SizeInt) : IRectang
 			height
 		)
 
-	fun getAnchorPosition(anchor: Anchor, out: PositionInt = PositionInt()): PositionInt =
+	fun getAnchorPosition(anchor: Anchor, out: MPositionInt = MPositionInt()): MPositionInt =
 		out.setTo((x + width * anchor.sx).toInt(), (y + height * anchor.sy).toInt())
 
 	operator fun contains(v: SizeInt): Boolean = (v.width <= width) && (v.height <= height)
@@ -72,7 +74,9 @@ data class RectangleInt(val position: PositionInt, val size: SizeInt) : IRectang
 val IRectangle.int get() = RectangleInt(x, y, width, height)
 val IRectangleInt.double get() = Rectangle(x, y, width, height)
 
-fun IRectangleInt.anchor(ax: Double, ay: Double) = IPointInt(x + width * ax, y + height * ay)
+fun IRectangleInt.anchor(ax: Double, ay: Double): Vector2Int =
+	PointInt((x + width * ax).toInt(), (y + height * ay).toInt())
+
 val IRectangleInt.center get() = anchor(0.5, 0.5)
 
 inline fun RectangleInt(x: Number, y: Number, width: Number, height: Number) =

@@ -3,16 +3,18 @@ package com.soywiz.korio.file.std
 import com.soywiz.kds.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.file.*
+import com.soywiz.korio.lang.Closeable
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
+import kotlinx.coroutines.experimental.*
 import java.io.*
 import java.nio.*
 import java.nio.channels.*
+import java.nio.channels.CompletionHandler
 import java.nio.file.*
 import java.nio.file.Path
 import java.util.concurrent.*
 import kotlin.coroutines.experimental.*
-import com.soywiz.korio.lang.Closeable
 
 class LocalVfsJvm() : LocalVfs() {
 	val that = this
@@ -164,7 +166,7 @@ class LocalVfsJvm() : LocalVfs() {
 		executeInWorker { resolveFile(src).renameTo(resolveFile(dst)) }
 
 	suspend inline fun <T> completionHandler(crossinline callback: (CompletionHandler<T, Unit>) -> Unit) =
-		suspendCoroutineEL<T> { c ->
+		suspendCancellableCoroutine<T> { c ->
 			callback(object : CompletionHandler<T, Unit> {
 				override fun completed(result: T, attachment: Unit?) = c.resume(result)
 				override fun failed(exc: Throwable, attachment: Unit?) = c.resumeWithException(exc)
@@ -183,7 +185,7 @@ class LocalVfsJvm() : LocalVfs() {
 			StandardWatchEventKinds.ENTRY_MODIFY
 		)
 
-		launchAndForget(coroutineContext) {
+		launch(coroutineContext) {
 			while (running) {
 				val key = executeInWorker {
 					var r: WatchKey?

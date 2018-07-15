@@ -7,7 +7,7 @@ interface AsyncCloseable {
 
 	companion object {
 		val DUMMY = object : AsyncCloseable {
-			suspend override fun close() = Unit
+			override suspend fun close() = Unit
 		}
 	}
 }

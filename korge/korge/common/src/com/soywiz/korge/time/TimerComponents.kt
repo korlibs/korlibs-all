@@ -3,7 +3,7 @@ package com.soywiz.korge.time
 import com.soywiz.klock.*
 import com.soywiz.korge.component.*
 import com.soywiz.korge.view.*
-import com.soywiz.korio.coroutine.*
+import kotlinx.coroutines.experimental.*
 import kotlin.collections.arrayListOf
 import kotlin.collections.minusAssign
 import kotlin.collections.plusAssign
@@ -22,7 +22,7 @@ class TimerComponents(view: View) : Component(view) {
 
 	suspend fun waitFrame() = waitMilliseconds(0)
 
-	suspend fun waitMilliseconds(time: Int): Unit = korioSuspendCoroutine<Unit> { c ->
+	suspend fun waitMilliseconds(time: Int): Unit = suspendCancellableCoroutine<Unit> { c ->
 		var timer: ((Int) -> Unit)? = null
 		var elapsedTime = 0
 		timer = {

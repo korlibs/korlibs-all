@@ -3,7 +3,7 @@
 package com.soywiz.korio.async
 
 import com.soywiz.kds.*
-import com.soywiz.korio.coroutine.*
+import kotlinx.coroutines.experimental.*
 import kotlin.coroutines.experimental.*
 
 interface SuspendingSequenceBuilder<in T> {
@@ -34,7 +34,7 @@ fun <T> suspendingIterator(
 	context: CoroutineContext,
 	block: suspend SuspendingSequenceBuilder<T>.() -> Unit
 ): SuspendingIterator<T> = SuspendingIteratorCoroutine<T>(context).apply {
-	nextStep = block.korioCreateCoroutine(receiver = this, completion = this)
+	nextStep = block.createCoroutine(receiver = this, completion = this)
 }
 
 class SuspendingIteratorCoroutine<T>(
@@ -50,13 +50,13 @@ class SuspendingIteratorCoroutine<T>(
 	// if (state == COMPUTING_HAS_NEXT) computeContinuation is Continuation<Boolean>
 	var computeContinuation: Continuation<*>? = null
 
-	suspend fun computeHasNext(): Boolean = korioSuspendCoroutine { c ->
+	suspend fun computeHasNext(): Boolean = suspendCancellableCoroutine { c ->
 		state = State.COMPUTING_HAS_NEXT
 		computeContinuation = c
 		nextStep!!.resume(Unit)
 	}
 
-	suspend fun computeNext(): T = korioSuspendCoroutine { c ->
+	suspend fun computeNext(): T = suspendCancellableCoroutine { c ->
 		state = State.COMPUTING_NEXT
 		computeContinuation = c
 		nextStep!!.resume(Unit)
@@ -111,7 +111,7 @@ class SuspendingIteratorCoroutine<T>(
 	}
 
 	// Generator implementation
-	override suspend fun yield(value: T): Unit = korioSuspendCoroutine { c ->
+	override suspend fun yield(value: T): Unit = suspendCancellableCoroutine { c ->
 		nextValue = value
 		nextStep = c
 		resumeIterator(true)
@@ -146,7 +146,7 @@ fun <T> asyncGenerate(
 }
 
 suspend fun <T> asyncGenerate(block: suspend SuspendingSequenceBuilder<T>.() -> Unit): SuspendingSequence<T> =
-	asyncGenerate(getCoroutineContext(), block)
+	asyncGenerate(coroutineContext, block)
 
 suspend inline fun <T, T2> SuspendingSequence<T>.map(crossinline transform: (T) -> T2) = asyncGenerate {
 	for (e in this@map) {

@@ -1,8 +1,8 @@
 package com.soywiz.korau.sound
 
-import com.soywiz.korio.async.*
 import com.soywiz.korio.file.std.*
 import com.soywiz.korio.lang.*
+import kotlinx.coroutines.experimental.*
 import org.khronos.webgl.*
 import org.w3c.dom.*
 import org.w3c.dom.events.*
@@ -28,8 +28,8 @@ object HtmlSimpleSound {
 
 	val available get() = ctx != null
 	var unlocked = false
-	private val unlockDeferred = Promise.Deferred<Unit>()
-	val unlock = unlockDeferred.promise
+	private val unlockDeferred = CompletableDeferred<Unit>()
+	val unlock = unlockDeferred as Deferred<Unit>
 
 	fun playSound(buffer: AudioBuffer): AudioBufferSourceNode? {
 		if (ctx == null) return null
@@ -51,7 +51,9 @@ object HtmlSimpleSound {
 	}
 
 	fun callOnUnlocked(callback: (Unit) -> Unit): Cancellable {
-		return unlock.then(callback)
+		var cancelled = false
+		unlock.invokeOnCompletion { if (!cancelled) callback(Unit) }
+		return Cancellable { cancelled = true }
 	}
 
 	suspend fun loadSound(data: ArrayBuffer, url: String): AudioBuffer? {
@@ -115,7 +117,7 @@ object HtmlSimpleSound {
 					document.removeEventListener("mousedown", unlock, true)
 
 					unlocked = true
-					unlockDeferred.resolve(Unit)
+					unlockDeferred.complete(Unit)
 				}
 			}
 		}

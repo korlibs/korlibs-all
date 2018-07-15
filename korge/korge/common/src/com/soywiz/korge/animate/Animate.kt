@@ -12,6 +12,7 @@ import com.soywiz.korio.lang.*
 import com.soywiz.korio.util.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
+import kotlinx.coroutines.experimental.*
 import kotlin.math.*
 
 interface AnElement {
@@ -22,7 +23,7 @@ interface AnElement {
 fun AnElement.createDuplicated() = symbol.create(library)
 fun AnElement.createDuplicatedView() = symbol.create(library) as View
 
-abstract class AnBaseShape(override final val library: AnLibrary, override final val symbol: AnSymbolBaseShape) :
+abstract class AnBaseShape(final override val library: AnLibrary, final override val symbol: AnSymbolBaseShape) :
 	View(library.views), AnElement {
 	var ninePatch: Rectangle? = null
 
@@ -296,7 +297,7 @@ class TimelineRunner(val view: AnMovieClip, val symbol: AnSymbolMovieClip) {
 			//println(" Action: $action")
 			when (action) {
 				is AnPlaySoundAction -> {
-					library.views.coroutineContext.go {
+					async(library.views.coroutineContext) {
 						val data = (library.symbolsById[action.soundId] as AnSymbolSound?)?.getNativeSound()
 						if (data != null) {
 							views.soundSystem.play(data)
@@ -598,34 +599,34 @@ class AnMovieClip(override val library: AnLibrary, override val symbol: AnSymbol
 	suspend fun waitEvent(vararg events: String) = _waitEvent(events.toSet())
 	suspend fun waitEvent(eventsSet: Set<String>) = _waitEvent(eventsSet)
 
-	suspend private fun _waitEvent(eventsSet: Set<String>, afterSignals: () -> Unit = {}): String? {
+	private suspend fun _waitEvent(eventsSet: Set<String>, afterSignals: () -> Unit = {}): String? {
 		val once = Once()
-		val deferred = Promise.Deferred<String?>()
+		val deferred = CompletableDeferred<String?>()
 		val closeables = arrayListOf<Closeable>()
 		//println("Listening($onEvent) : $eventsSet")
 		closeables += onStop {
 			//println("onStop")
-			once { deferred.resolve(null) }
+			once { deferred.complete(null) }
 		}
 		if (eventsSet.isNotEmpty()) {
 			closeables += onChangeState {
 				//println("onChangeState: $it")
 				if (it in eventsSet) {
 					//println("completed! $it")
-					once { deferred.resolve(it) }
+					once { deferred.complete(it) }
 				}
 			}
 			closeables += onEvent {
 				//println("onEvent: $it")
 				if (it in eventsSet) {
 					//println("completed! $it")
-					once { deferred.resolve(it) }
+					once { deferred.complete(it) }
 				}
 			}
 		}
 		try {
 			afterSignals()
-			return deferred.promise.await()
+			return deferred.await()
 		} finally {
 			for (c in closeables) c.close()
 		}

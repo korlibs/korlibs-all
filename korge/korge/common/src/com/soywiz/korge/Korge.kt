@@ -12,7 +12,7 @@ import com.soywiz.korge.view.*
 import com.soywiz.korim.format.*
 import com.soywiz.korim.vector.*
 import com.soywiz.korinject.*
-import com.soywiz.korio.async.*
+import com.soywiz.korio.*
 import com.soywiz.korio.file.std.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.util.*
@@ -21,6 +21,8 @@ import com.soywiz.korui.*
 import com.soywiz.korui.event.*
 import com.soywiz.korui.input.*
 import com.soywiz.korui.ui.*
+import kotlinx.coroutines.experimental.*
+import kotlin.coroutines.experimental.*
 import kotlin.reflect.*
 
 object Korge {
@@ -42,7 +44,7 @@ object Korge {
 				// Instances
 			.mapInstance(ModuleArgs::class, moduleArgs)
 			.mapInstance(TimeProvider::class, config.timeProvider)
-			.mapInstance(EventLoop::class, config.eventLoop)
+			.mapInstance(CoroutineContext::class, config.context)
 			.mapInstance(Module::class, config.module)
 			.mapInstance(AG::class, ag)
 			.mapInstance(KorgePlugins::class, defaultKorgePlugins)
@@ -75,7 +77,6 @@ object Korge {
 
 		ag.onReady.await()
 
-		logger.trace { "Korge.setupCanvas[1b]. EventLoop: ${config.eventLoop}" }
 		logger.trace { "Korge.setupCanvas[1c]. ag: $ag" }
 		logger.trace { "Korge.setupCanvas[1d]. debug: ${config.debug}" }
 		logger.trace { "Korge.setupCanvas[1e]. args: ${config.args.toList()}" }
@@ -378,8 +379,8 @@ object Korge {
 		debug: Boolean = false,
 		trace: Boolean = false,
 		constructedViews: (Views) -> Unit = {},
-		eventLoop: EventLoop = KoruiEventLoop.create()
-	) = EventLoop.main(eventLoop) {
+		context: CoroutineContext = KoruiDispatcher
+	) = KorioNative.asyncEntryPoint(context) {
 		logger.trace { "Korge.invoke" }
 		test(
 			Config(
@@ -412,7 +413,7 @@ object Korge {
 		val debug: Boolean = false,
 		val trace: Boolean = false,
 		val constructedViews: (Views) -> Unit = {},
-		val eventLoop: EventLoop = KoruiEventLoop.create()
+		val context: CoroutineContext = KoruiDispatcher
 	)
 
 	suspend fun test(config: Config): SceneContainer {
@@ -421,7 +422,7 @@ object Korge {
 		}
 		logger.trace { "Korge.test" }
 		logger.trace { "Korge.test.checkEnvironment" }
-		val done = Promise.Deferred<SceneContainer>()
+		val done = CompletableDeferred<SceneContainer>()
 		logger.trace { "Korge.test without container" }
 		val module = config.module
 		logger.trace { "Korge.test loading icon" }
@@ -452,9 +453,9 @@ object Korge {
 			quality = module.quality
 		) { container, frame ->
 			logger.trace { "Korge.test [1]" }
-			go {
+			launch {
 				logger.trace { "Korge.test [2]" }
-				done.resolve(
+				done.complete(
 					setupCanvas(
 						config.copy(
 							container = container,
@@ -466,7 +467,7 @@ object Korge {
 			}
 		}
 
-		return done.promise.await()
+		return done.await()
 	}
 
 	data class ModuleArgs(val args: Array<String>)

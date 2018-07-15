@@ -179,8 +179,8 @@ val Vector2.normalized: Vector2
 		return Vector2(x * imag, y * imag)
 	}
 
-fun Vector2.toMutable(): MVector2 = MVector2(x, y)
-fun Vector2.toImmutable(): Vector2 = Vector2(x, y)
+val Vector2.mutable: MVector2 get() = MVector2(x, y)
+val Vector2.immutable: Vector2 get() = Vector2(x, y)
 fun Vector2.copy() = Vector2(x, y)
 
 interface Vector2Int {
@@ -193,7 +193,19 @@ interface Vector2Int {
 }
 
 internal data class IVector2Int(override val x: Int, override val y: Int) : Vector2Int
-data class MVector2Int(override var x: Int, override var y: Int) : Vector2Int
+data class MVector2Int(override var x: Int = 0, override var y: Int = 0) : Vector2Int {
+	fun setTo(x: Int, y: Int) = this.apply { this.x = x; this.y = y }
+	fun setTo(that: Vector2Int) = this.setTo(that.x, that.y)
+}
 
-fun Vector2Int.toMutable(): MVector2Int = MVector2Int(x, y)
-fun Vector2Int.toImmutable(): Vector2Int = Vector2Int(x, y)
+operator fun Vector2Int.plus(that: Vector2Int) = Vector2Int(this.x + that.x, this.y + that.y)
+operator fun Vector2Int.minus(that: Vector2Int) = Vector2Int(this.x - that.x, this.y - that.y)
+operator fun Vector2Int.times(that: Vector2Int) = Vector2Int(this.x * that.x, this.y * that.y)
+operator fun Vector2Int.div(that: Vector2Int) = Vector2Int(this.x / that.x, this.y / that.y)
+operator fun Vector2Int.rem(that: Vector2Int) = Vector2Int(this.x % that.x, this.y % that.y)
+
+val Vector2Int.mutable: MVector2Int get() = MVector2Int(x, y)
+val Vector2Int.immutable: Vector2Int get() = Vector2Int(x, y)
+
+val Vector2.int get() = Vector2Int(x.toInt(), y.toInt())
+val Vector2Int.double get() = Vector2(x.toDouble(), y.toDouble())

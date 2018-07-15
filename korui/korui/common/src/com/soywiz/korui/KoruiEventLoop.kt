@@ -1,7 +1,5 @@
 package com.soywiz.korui
 
-import com.soywiz.korio.async.*
+import kotlinx.coroutines.experimental.*
 
-expect object KoruiEventLoop {
-	fun create(): EventLoop
-}
+expect val KoruiDispatcher: CoroutineDispatcher

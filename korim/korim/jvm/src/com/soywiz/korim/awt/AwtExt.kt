@@ -3,7 +3,7 @@ package com.soywiz.korim.awt
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
 import com.soywiz.korio.async.*
-import com.soywiz.korio.coroutine.*
+import kotlinx.coroutines.experimental.*
 import java.awt.*
 import java.awt.event.*
 import java.awt.image.*
@@ -32,7 +32,7 @@ fun Bitmap.toAwt(
 
 suspend fun awtShowImageAndWait(image: Bitmap): Unit = awtShowImageAndWait(image.toBMP32().toAwt())
 
-suspend fun awtShowImageAndWait(image: BufferedImage): Unit = korioSuspendCoroutine { c ->
+suspend fun awtShowImageAndWait(image: BufferedImage): Unit = suspendCancellableCoroutine { c ->
 	awtShowImage(image).addWindowListener(object : WindowAdapter() {
 		override fun windowClosing(e: WindowEvent) {
 			c.resume(Unit)

@@ -3,9 +3,9 @@ package com.soywiz.korau.sound
 import com.soywiz.kds.*
 import com.soywiz.klogger.*
 import com.soywiz.korio.async.*
-import com.soywiz.korio.coroutine.*
 import java.nio.*
 import javax.sound.sampled.*
+import kotlin.coroutines.experimental.*
 
 data class SampleBuffer(val timestamp: Long, val data: ShortArray)
 
@@ -89,7 +89,7 @@ actual class NativeAudioStream actual constructor(val freq: Int) {
 		ensureThread()
 
 		while (availableBuffers >= 5) {
-			getCoroutineContext().eventLoop.sleepNextFrame()
+			coroutineContext.delayNextFrame()
 		}
 
 		//val ONE_SECOND = 44100 * 2

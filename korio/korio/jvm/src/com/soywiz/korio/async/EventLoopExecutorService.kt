@@ -1,8 +1,10 @@
 package com.soywiz.korio.async
 
+import kotlinx.coroutines.experimental.*
 import java.util.concurrent.*
+import kotlin.coroutines.experimental.*
 
-class EventLoopExecutorService(val eventLoop: EventLoop) : ExecutorService {
+class EventLoopExecutorService(val context: CoroutineContext) : ExecutorService {
 	var shutdown = false
 
 	override fun shutdown() = run { shutdown = true }
@@ -43,6 +45,6 @@ class EventLoopExecutorService(val eventLoop: EventLoop) : ExecutorService {
 	override fun isTerminated(): Boolean = true
 
 	override fun execute(command: Runnable) {
-		eventLoop.setImmediate { command.run() }
+		context.dispatcher.dispatch(context, Runnable { command.run() })
 	}
 }

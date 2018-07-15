@@ -1,5 +1,7 @@
 package com.soywiz.korio.lang
 
+import kotlinx.coroutines.experimental.*
+
 interface Closeable {
 	fun close(): Unit
 }
@@ -33,7 +35,7 @@ fun <TCloseable : Closeable, T : Any> TCloseable.use(callback: (TCloseable) -> T
 }
 
 interface Cancellable {
-	fun cancel(e: Throwable = com.soywiz.korio.CancellationException("")): Unit
+	fun cancel(e: Throwable = CancellationException("")): Unit
 
 	interface Listener {
 		fun onCancel(handler: (Throwable) -> Unit): Unit
@@ -46,7 +48,7 @@ interface Cancellable {
 	}
 }
 
-fun Iterable<Cancellable>.cancel(e: Throwable = com.soywiz.korio.CancellationException("")): Unit =
+fun Iterable<Cancellable>.cancel(e: Throwable = CancellationException("")): Unit =
 	run { for (c in this) c.cancel(e) }
 
 fun Iterable<Cancellable>.cancellable() = Cancellable { this.cancel() }
@@ -55,5 +57,5 @@ fun Iterable<Closeable>.close() = run { for (c in this) c.close() }
 fun Iterable<Closeable>.closeable() = Closeable { this.close() }
 
 fun Closeable.cancellable() = Cancellable { this.close() }
-fun Cancellable.closeable(e: () -> Throwable = { com.soywiz.korio.CancellationException("") }) =
+fun Cancellable.closeable(e: () -> Throwable = { CancellationException("") }) =
 	Closeable { this.cancel(e()) }

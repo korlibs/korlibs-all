@@ -34,7 +34,6 @@ actual open class FileNotFoundException actual constructor(msg: String) : IOExce
 
 actual open class RuntimeException actual constructor(msg: String) : Exception(msg)
 actual open class IllegalStateException actual constructor(msg: String) : RuntimeException(msg)
-actual open class CancellationException actual constructor(msg: String) : IllegalStateException(msg)
 
 actual class Semaphore actual constructor(initial: Int) {
 	actual fun acquire(): Unit = Unit
@@ -50,6 +49,13 @@ actual val nativeDelay: Delay = NativeDelay
 actual object KorioNative {
 	actual val currentThreadId: Long get() = -1L // @TODO
 	actual fun getClassSimpleName(clazz: KClass<*>): String = clazz.simpleName ?: "unknown"
+
+	init {
+		// @TODO: Use something better here (nanotime or so)
+		platform.posix.srand(platform.posix.time(null).toInt())
+	}
+
+	actual fun random(): Double = (platform.posix.rand() and 0x7FFFFFFF).toDouble() / (0x7FFFFFFF).toDouble()
 
 	actual abstract class NativeThreadLocal<T> {
 		actual abstract fun initialValue(): T

@@ -1,7 +1,7 @@
 package com.soywiz.korio.async
 
-import com.soywiz.korio.coroutine.*
 import com.soywiz.korio.lang.*
+import kotlinx.coroutines.experimental.*
 import kotlin.coroutines.experimental.*
 
 class AsyncSignal<T>(val onRegister: () -> Unit = {}) { //: AsyncSequence<T> {
@@ -57,16 +57,16 @@ suspend fun <T> AsyncSignal<T>.waitOne(): T = suspendCancellableCoroutine { c ->
 		close?.close()
 		c.resume(it)
 	}
-	c.onCancel {
+	c.invokeOnCancellation {
 		close.close()
 	}
 }
 
 
 suspend fun <T> Signal<T>.addSuspend(handler: suspend (T) -> Unit): Closeable {
-	val cc = getCoroutineContext()
+	val cc = coroutineContext
 	return this@addSuspend { value ->
-		async(cc) {
+		launch(cc) {
 			handler(value)
 		}
 	}
@@ -74,7 +74,7 @@ suspend fun <T> Signal<T>.addSuspend(handler: suspend (T) -> Unit): Closeable {
 
 fun <T> Signal<T>.addSuspend(context: CoroutineContext, handler: suspend (T) -> Unit): Closeable =
 	this@addSuspend { value ->
-		context.async {
+		launch(context) {
 			handler(value)
 		}
 	}

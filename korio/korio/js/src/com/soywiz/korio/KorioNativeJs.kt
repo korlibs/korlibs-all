@@ -6,20 +6,19 @@ import com.soywiz.korio.crypto.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.file.std.*
-import com.soywiz.korio.file.*
-import com.soywiz.korio.file.std.*
-import com.soywiz.korio.lang.*
 import com.soywiz.korio.net.*
 import com.soywiz.korio.net.http.*
 import com.soywiz.korio.net.ws.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
+import kotlinx.coroutines.experimental.*
 import org.khronos.webgl.*
 import org.khronos.webgl.set
 import org.w3c.dom.*
 import org.w3c.xhr.*
 import kotlin.browser.*
 import kotlin.collections.set
+import kotlin.coroutines.experimental.*
 import kotlin.reflect.*
 
 actual annotation class Synchronized
@@ -42,7 +41,6 @@ actual open class FileNotFoundException actual constructor(msg: String) : IOExce
 
 actual open class RuntimeException actual constructor(msg: String) : Exception(msg)
 actual open class IllegalStateException actual constructor(msg: String) : RuntimeException(msg)
-actual open class CancellationException actual constructor(msg: String) : IllegalStateException(msg)
 
 val global = js("(typeof global !== 'undefined') ? global : window")
 external val process: dynamic // node.js
@@ -57,23 +55,22 @@ actual class Semaphore actual constructor(initial: Int) {
 
 val isNodeJs by lazy { jsTypeOf(window) === "undefined" }
 
-object HtmlDelay : Delay {
-	override suspend fun delay(ms: Int) = suspendCancellableCoroutine<Unit> { c ->
-		val timeout = window.setTimeout({
-			c.resume(Unit)
-		}, ms)
-		c.onCancel {
-			window.clearTimeout(timeout)
-		}
-	}
-}
-
-actual val nativeDelay: Delay = HtmlDelay
-
 actual object KorioNative {
 	actual val currentThreadId: Long = 1L
 
 	actual fun getClassSimpleName(clazz: KClass<*>): String = clazz.simpleName ?: "unknown"
+
+	actual suspend fun <T> executeInWorker(callback: suspend () -> T): T {
+		// @TODO: Use JS worker
+		return callback()
+	}
+
+	@Suppress("unused", "DEPRECATION")
+	actual fun random(): Double = kotlin.js.Math.random()
+
+	actual fun asyncEntryPoint(context: CoroutineContext, callback: suspend () -> Unit) {
+		callback.startCoroutine(EmptyContinuation(context))
+	}
 
 	actual abstract class NativeThreadLocal<T> {
 		actual abstract fun initialValue(): T
@@ -136,17 +133,7 @@ actual object KorioNative {
 
 	actual val websockets: WebSocketClientFactory by lazy { JsWebSocketClientFactory() }
 
-	actual val eventLoopFactoryDefaultImpl: EventLoopFactory = EventLoopFactoryJs()
-
 	actual val systemLanguageStrings = window.navigator.languages.toList()
-
-	actual suspend fun <T> executeInNewThread(callback: suspend () -> T): T {
-		return callback()
-	}
-
-	actual suspend fun <T> executeInWorker(callback: suspend () -> T): T {
-		return callback()
-	}
 
 	actual fun Thread_sleep(time: Long) {}
 
@@ -205,30 +192,6 @@ actual object KorioNative {
 		//e.printStackTrace()
 	}
 
-	actual fun syncTest(block: suspend EventLoopTest.() -> Unit): Unit {
-		global.testPromise = kotlin.js.Promise<Unit> { resolve, reject ->
-			val el = EventLoopTest()
-			var done = false
-			spawnAndForget(el.coroutineContext) {
-				try {
-					block(el)
-					resolve(Unit)
-				} catch (e: Throwable) {
-					reject(e)
-				} finally {
-					done = true
-				}
-			}
-			fun step() {
-				global.setTimeout({
-					el.step(10)
-					if (!done) step()
-				}, 0)
-			}
-			step()
-		}
-	}
-
 	actual fun getenv(key: String): String? {
 		if (OS.isNodejs) {
 			return process.env[key]
@@ -241,56 +204,6 @@ actual object KorioNative {
 }
 
 private external class Date(time: Double)
-
-
-private class EventLoopFactoryJs : EventLoopFactory() {
-	override fun createEventLoop(): EventLoop = EventLoopJs()
-}
-
-@Suppress("unused")
-private class EventLoopJs : EventLoop(captureCloseables = false) {
-	val immediateHandlers = LinkedList<() -> Unit>()
-	var insideImmediate = false
-
-	override fun setImmediateInternal(handler: () -> Unit) {
-		//println("setImmediate")
-		immediateHandlers += handler
-		if (!insideImmediate) {
-			insideImmediate = true
-			try {
-				while (immediateHandlers.isNotEmpty()) {
-					val fhandler = immediateHandlers.removeFirst()
-					fhandler()
-				}
-			} finally {
-				insideImmediate = false
-			}
-		}
-	}
-
-	override fun loop() {
-		// Do nothing!
-	}
-
-	override fun setTimeoutInternal(ms: Int, callback: () -> Unit): Closeable {
-		val id = window.setTimeout({ callback() }, ms)
-		//println("setTimeout($ms)")
-		return Closeable { global.clearInterval(id) }
-	}
-
-	override fun requestAnimationFrameInternal(callback: () -> Unit) {
-		global.requestAnimationFrame(callback)
-		//println("setTimeout($ms)")
-	}
-
-	override fun setIntervalInternal(ms: Int, callback: () -> Unit): Closeable {
-		//println("setInterval($ms)")
-		val id = global.setInterval({ callback() }, ms)
-		return Closeable { global.clearInterval(id) }
-	}
-}
-
-//@JsName("require")
 
 fun jsNew(clazz: dynamic): dynamic = js("(new (clazz))()")
 fun jsNew(clazz: dynamic, a0: dynamic): dynamic = js("(new (clazz))(a0)")
@@ -333,7 +246,8 @@ class HttpClientBrowserJs : HttpClient() {
 		url: String,
 		headers: Http.Headers,
 		content: AsyncStream?
-	): Response = Promise.create { deferred ->
+	): Response {
+		val deferred = CompletableDeferred<Response>()
 		val xhr = XMLHttpRequest()
 		xhr.open(method.name, url, true)
 		xhr.responseType = XMLHttpRequestResponseType.ARRAYBUFFER
@@ -343,7 +257,7 @@ class HttpClientBrowserJs : HttpClient() {
 			val out = ByteArray(u8array.length)
 			for (n in out.indices) out[n] = u8array[n]
 			//js("debugger;")
-			deferred.resolve(
+			deferred.complete(
 				Response(
 					status = xhr.status.toInt(),
 					statusText = xhr.statusText,
@@ -354,7 +268,7 @@ class HttpClientBrowserJs : HttpClient() {
 		}
 
 		xhr.onerror = { e ->
-			deferred.reject(kotlin.RuntimeException("Error ${xhr.status} opening $url"))
+			deferred.completeExceptionally(kotlin.RuntimeException("Error ${xhr.status} opening $url"))
 		}
 
 		for (header in headers) {
@@ -363,16 +277,20 @@ class HttpClientBrowserJs : HttpClient() {
 				"connection", "content-length" -> Unit // Refused to set unsafe header
 				else -> xhr.setRequestHeader(header.first, header.second)
 			}
-
 		}
 
-		deferred.onCancel { xhr.abort() }
+		deferred.invokeOnCompletion {
+			if (deferred.isCancelled) {
+				xhr.abort()
+			}
+		}
 
 		if (content != null) {
 			xhr.send(content.readAll())
 		} else {
 			xhr.send()
 		}
+		return deferred.await()
 	}
 }
 

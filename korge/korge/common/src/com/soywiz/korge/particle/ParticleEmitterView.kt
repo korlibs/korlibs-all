@@ -1,5 +1,6 @@
 package com.soywiz.korge.ext.particle
 
+import com.soywiz.korge.particle.*
 import com.soywiz.korge.render.*
 import com.soywiz.korge.time.*
 import com.soywiz.korge.view.*

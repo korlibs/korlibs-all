@@ -67,7 +67,7 @@ class Bitmap32Context2d(val bmp: Bitmap32) : Context2d.Renderer() {
 		return this.toPaths2().flatMap { it }
 	}
 
-	data class Edge(val a: IPoint2d, val b: IPoint2d, val wind: Int) {
+	data class Edge(val a: Point2d, val b: Point2d, val wind: Int) {
 		val isCoplanarX = a.y == b.y
 		val isNotCoplanarX get() = !isCoplanarX
 

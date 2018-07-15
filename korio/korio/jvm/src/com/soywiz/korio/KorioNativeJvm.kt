@@ -1,21 +1,22 @@
 package com.soywiz.korio
 
 import com.soywiz.korio.async.*
-import com.soywiz.korio.coroutine.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.file.std.*
 import com.soywiz.korio.net.*
 import com.soywiz.korio.net.http.*
 import com.soywiz.korio.net.ws.*
 import com.soywiz.korio.util.*
+import kotlinx.coroutines.experimental.*
 import org.java_websocket.handshake.*
 import java.io.*
-import java.lang.Exception
+import java.lang.*
 import java.nio.*
 import java.security.*
 import java.util.*
 import javax.crypto.*
 import javax.crypto.spec.*
+import kotlin.coroutines.experimental.*
 import kotlin.reflect.*
 
 actual typealias Synchronized = kotlin.jvm.Synchronized
@@ -32,7 +33,6 @@ actual typealias FileNotFoundException = java.io.FileNotFoundException
 
 actual typealias RuntimeException = java.lang.RuntimeException
 actual typealias IllegalStateException = java.lang.IllegalStateException
-actual typealias CancellationException = java.util.concurrent.CancellationException
 
 actual class Semaphore actual constructor(initial: Int) {
 	val jsema = java.util.concurrent.Semaphore(initial)
@@ -42,18 +42,22 @@ actual class Semaphore actual constructor(initial: Int) {
 	actual fun release() = jsema.release()
 }
 
-object JvmDelay : Delay {
-	override suspend fun delay(ms: Int) {
-		tryEventLoop?.sleep(ms) ?: Thread.sleep(ms.toLong())
-	}
-}
-
-actual val nativeDelay: Delay = JvmDelay
+val currentThreadId: Long get() = KorioNative.currentThreadId
 
 actual object KorioNative {
 	actual val currentThreadId: Long get() = Thread.currentThread().id
 
 	actual fun getClassSimpleName(clazz: KClass<*>): String = clazz.java.simpleName
+
+	actual fun random(): Double = java.util.Random().nextDouble()
+
+	actual suspend fun <T> executeInWorker(callback: suspend () -> T): T {
+		return async(newSingleThreadContext("worker")) {
+			callback()
+		}.await()
+	}
+
+	actual fun asyncEntryPoint(context: CoroutineContext, callback: suspend () -> Unit) = runBlocking(context) { callback() }
 
 	actual abstract class NativeThreadLocal<T> {
 		actual abstract fun initialValue(): T
@@ -67,51 +71,6 @@ actual object KorioNative {
 	}
 
 	actual val systemLanguageStrings get() = listOf(Locale.getDefault().getISO3Language())
-
-	private suspend fun <T> _executeInside(task: suspend () -> T, executionScope: (body: () -> Unit) -> Unit): T {
-		val deferred = Promise.Deferred<T>()
-		val parentEventLoop = eventLoop()
-		eventLoop().tasksInProgress.incrementAndGet()
-		executionScope {
-			syncTest {
-				try {
-					val res = task()
-					parentEventLoop.queue {
-						deferred.resolve(res)
-					}
-				} catch (e: Throwable) {
-					parentEventLoop.queue { deferred.reject(e) }
-				} finally {
-					tasksInProgress.decrementAndGet()
-				}
-			}
-		}
-		return deferred.promise.await()
-	}
-
-	actual suspend fun <T> executeInNewThread(callback: suspend () -> T): T = _executeInside(callback) { body ->
-		Thread {
-			body()
-		}.apply {
-			isDaemon = true
-			start()
-		}
-	}
-
-	actual suspend fun <T> executeInWorker(callback: suspend () -> T): T = _executeInside(callback) { body ->
-		Thread {
-			body()
-		}.apply {
-			isDaemon = true
-			start()
-		}
-	}
-
-	//actual suspend fun <T> executeInWorker(callback: suspend () -> T): T = _executeInside(callback) { body ->
-	//	workerLazyPool.executeUpdatingTasksInProgress {
-	//		body()
-	//	}
-	//}
 
 	actual val platformName: String = "jvm"
 	actual val rawOsName: String by lazy { System.getProperty("os.name") }
@@ -152,9 +111,6 @@ actual object KorioNative {
 
 	actual fun Thread_sleep(time: Long) = Thread.sleep(time)
 
-	//actual val eventLoopFactoryDefaultImpl: EventLoopFactory = EventLoopFactoryJvmAndCSharp()
-	actual val eventLoopFactoryDefaultImpl: EventLoopFactory = BaseEventLoopFactoryNative
-
 	actual val asyncSocketFactory: AsyncSocketFactory by lazy { JvmAsyncSocketFactory() }
 	actual val websockets: WebSocketClientFactory by lazy { JvmWebSocketClientFactory() }
 	actual val File_separatorChar: Char by lazy { File.separatorChar }
@@ -174,10 +130,6 @@ actual object KorioNative {
 
 	actual fun enterDebugger() = Unit
 	actual fun printStackTrace(e: Throwable) = e.printStackTrace()
-
-	actual fun syncTest(block: suspend EventLoopTest.() -> Unit): Unit {
-		sync(el = EventLoopTest(), step = 10, block = block)
-	}
 
 	actual fun getenv(key: String): String? {
 		return System.getenv(key)

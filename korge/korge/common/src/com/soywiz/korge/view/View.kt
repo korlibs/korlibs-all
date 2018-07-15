@@ -10,6 +10,7 @@ import com.soywiz.korio.lang.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 import com.soywiz.korui.event.*
+import kotlinx.coroutines.experimental.*
 import kotlin.collections.ArrayList
 import kotlin.collections.List
 import kotlin.collections.Map
@@ -595,26 +596,6 @@ fun View.replaceWith(view: View): Boolean {
 }
 
 val View?.ancestorCount: Int get() = this?.parent?.ancestorCount?.plus(1) ?: 0
-
-suspend fun Updatable.updateLoop(eventLoop: EventLoop, step: Int = 10, callback: suspend () -> Unit) {
-	val view = this
-	var done = false
-	go {
-		while (!done) {
-			view.update(step)
-			eventLoop.step(step)
-			eventLoop.sleep(1)
-		}
-	}
-	val p = go {
-		callback()
-	}
-	try {
-		p.await()
-	} finally {
-		done = true
-	}
-}
 
 fun View?.ancestorsUpTo(target: View?): List<View> {
 	var current = this

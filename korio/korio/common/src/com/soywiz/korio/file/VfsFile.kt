@@ -5,14 +5,12 @@ package com.soywiz.korio.file
 import com.soywiz.kds.*
 import com.soywiz.klogger.*
 import com.soywiz.korio.async.*
-import com.soywiz.korio.coroutine.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.file.std.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
-import com.soywiz.korio.file.std.*
-import com.soywiz.std.*
+import kotlinx.coroutines.experimental.*
 import kotlin.coroutines.experimental.*
 
 class VfsFile(
@@ -90,7 +88,9 @@ class VfsFile(
 	suspend fun readBytes(): ByteArray = readAll()
 
 	suspend fun readLines(charset: Charset = UTF8): List<String> = readString(charset).lines()
-	suspend fun writeLines(lines: List<String>, charset: Charset = UTF8) = writeString(lines.joinToString("\n"), charset)
+	suspend fun writeLines(lines: List<String>, charset: Charset = UTF8) =
+		writeString(lines.joinToString("\n"), charset)
+
 	suspend fun readString(charset: Charset = UTF8): String = read().toString(charset)
 	suspend fun writeString(data: String, vararg attributes: Vfs.Attribute): Unit =
 		run { write(data.toByteArray(UTF8), *attributes) }
@@ -220,7 +220,7 @@ class VfsFile(
 
 	suspend fun watch(handler: suspend (Vfs.FileEvent) -> Unit): Closeable {
 		//val cc = coroutineContext
-		val cc = getCoroutineContext()
+		val cc = coroutineContext
 		return vfs.watch(path) { event -> launch(cc) { handler(event) } }
 	}
 

@@ -4,8 +4,8 @@ import com.soywiz.korma.math.*
 
 class MtRand private constructor(dummy: Boolean) : Rand {
 	companion object {
-		const private val N: Int = 624
-		const private val M: Int = 397
+		private const val N: Int = 624
+		private const val M: Int = 397
 
 		private fun twiddle(u: Int, v: Int): Int {
 			return (((u and 0x80000000.toInt()) or (v and 0x7FFFFFFF)) ushr 1) xor (if ((v and 1) != 0) 0x9908B0DF.toInt() else 0x0)

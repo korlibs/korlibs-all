@@ -2,11 +2,11 @@ package com.soywiz.korio.net.http
 
 import com.soywiz.klock.*
 import com.soywiz.kmem.*
+import com.soywiz.korio.KorioNative.currentThreadId
 import com.soywiz.korio.async.*
-import com.soywiz.korio.coroutine.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korio.util.*
+import kotlinx.coroutines.experimental.*
 import java.net.*
 import java.security.*
 import java.security.cert.*
@@ -29,7 +29,7 @@ class HttpClientJvm : HttpClient() {
 		fun isServerTrusted(chain: Array<X509Certificate>): Boolean = true
 	}
 
-	suspend override fun requestInternal(
+	override suspend fun requestInternal(
 		method: Http.Method,
 		url: String,
 		headers: Http.Headers,
@@ -77,7 +77,7 @@ class HttpClientJvm : HttpClient() {
 					} catch (e: BindException) {
 						// Potentially no more ports available. Too many pending connections.
 						e.printStackTrace()
-						getCoroutineContext().eventLoop.sleep(1000)
+						delay(1000)
 						continue
 					}
 				}
@@ -100,39 +100,37 @@ class HttpClientJvm : HttpClient() {
 			val pheaders = Http.Headers.fromListMap(con.headerFields)
 			val length = pheaders["Content-Length"]?.toLongOrNull()
 
-			spawnAndForget {
-				executeInNewThread {
-					val syncStream = ignoreErrors { con.inputStream } ?: ignoreErrors { con.errorStream }
-					try {
-						if (syncStream != null) {
-							//val stream = syncStream.toAsync(length).toAsyncStream()
-							val stream = syncStream
-							val temp = ByteArray(0x1000)
-							loop@ while (true) {
-								// @TODO: Totally cancel reading if nobody is consuming this. Think about the best way of doing this.
-								// node.js pause equivalent?
-								val chunkStartTime = Klock.currentTimeMillis()
-								while (produceConsumer.availableCount > 4) { // Prevent filling the memory if nobody is consuming data
-									//println("PREVENT!")
-									eventLoop().sleep(10)
-									val chunkCurrentTime = Klock.currentTimeMillis()
-									if ((chunkCurrentTime - chunkStartTime) >= 2000L) {
-										System.err.println("[$id] thread=$currentThreadId Two seconds passed without anyone reading data (available=${produceConsumer.availableCount}) from $url. Closing...")
-										break@loop
-									}
+			launch(newSingleThreadContext("HttpRequest: $method: $url")) {
+				val syncStream = ignoreErrors { con.inputStream } ?: ignoreErrors { con.errorStream }
+				try {
+					if (syncStream != null) {
+						//val stream = syncStream.toAsync(length).toAsyncStream()
+						val stream = syncStream
+						val temp = ByteArray(0x1000)
+						loop@ while (true) {
+							// @TODO: Totally cancel reading if nobody is consuming this. Think about the best way of doing this.
+							// node.js pause equivalent?
+							val chunkStartTime = Klock.currentTimeMillis()
+							while (produceConsumer.availableCount > 4) { // Prevent filling the memory if nobody is consuming data
+								//println("PREVENT!")
+								delay(10)
+								val chunkCurrentTime = Klock.currentTimeMillis()
+								if ((chunkCurrentTime - chunkStartTime) >= 2000L) {
+									System.err.println("[$id] thread=$currentThreadId Two seconds passed without anyone reading data (available=${produceConsumer.availableCount}) from $url. Closing...")
+									break@loop
 								}
-								val read = stream.read(temp)
-								//println(" --- [$id][D] thread=$currentThreadId : $read")
-								if (read <= 0) break
-								produceConsumer.produce(temp.copyOf(read))
 							}
+							val read = stream.read(temp)
+							//println(" --- [$id][D] thread=$currentThreadId : $read")
+							if (read <= 0) break
+							produceConsumer.produce(temp.copyOf(read))
 						}
-					} finally {
-						ignoreErrors { syncStream?.close() }
-						ignoreErrors { produceConsumer.close() }
-						ignoreErrors { con.disconnect() }
-						HttpStats.disconnections.incrementAndGet()
 					}
+				} finally {
+					ignoreErrors { syncStream?.close() }
+					ignoreErrors { produceConsumer.close() }
+					ignoreErrors { con.disconnect() }
+					HttpStats.disconnections.incrementAndGet()
 				}
 			}
 

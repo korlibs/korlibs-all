@@ -3,17 +3,17 @@ package com.soywiz.korio.net.http
 import com.soywiz.kds.*
 import com.soywiz.korio.*
 import com.soywiz.korio.async.*
-import com.soywiz.korio.coroutine.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.net.*
 import com.soywiz.korio.serialization.json.*
 import com.soywiz.korio.stream.*
 import com.soywiz.std.*
+import kotlinx.coroutines.experimental.*
 
 abstract class HttpClient protected constructor() {
 	var ignoreSslCertificates = false
 
-	suspend abstract protected fun requestInternal(
+	protected abstract suspend fun requestInternal(
 		method: Http.Method,
 		url: String,
 		headers: Http.Headers = Http.Headers(),
@@ -153,14 +153,14 @@ abstract class HttpClient protected constructor() {
 open class DelayedHttpClient(val delayMs: Int, val parent: HttpClient) : HttpClient() {
 	private val queue = AsyncThread()
 
-	suspend override fun requestInternal(
+	override suspend fun requestInternal(
 		method: Http.Method,
 		url: String,
 		headers: Http.Headers,
 		content: AsyncStream?
 	): Response = queue {
 		println("Waiting $delayMs milliseconds for $url...")
-		eventLoop().sleep(delayMs)
+		delay(delayMs)
 		parent.request(method, url, headers, content)
 	}
 }
@@ -173,7 +173,7 @@ class FakeHttpClient(val redirect: HttpClient? = null) : HttpClient() {
 		HttpClient.Response(200, "OK", Http.Headers(), "LogHttpClient.response".toByteArray(UTF8).openAsync())
 	private val rules = LinkedHashMap<Rule, ArrayList<ResponseBuilder>>()
 
-	suspend override fun requestInternal(
+	override suspend fun requestInternal(
 		method: Http.Method,
 		url: String,
 		headers: Http.Headers,
@@ -190,9 +190,9 @@ class FakeHttpClient(val redirect: HttpClient? = null) : HttpClient() {
 	}
 
 	class ResponseBuilder {
-		internal var responseCode = 200
-		internal var responseContent = "LogHttpClient.response".toByteArray(UTF8)
-		internal var responseHeaders = Http.Headers()
+		private var responseCode = 200
+		private var responseContent = "LogHttpClient.response".toByteArray(UTF8)
+		private var responseHeaders = Http.Headers()
 
 		fun response(content: String, code: Int = 200, charset: Charset = UTF8) {
 			responseCode = code

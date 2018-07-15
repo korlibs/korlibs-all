@@ -2,18 +2,15 @@ package com.soywiz.korio
 
 import com.soywiz.kds.*
 import com.soywiz.korio.async.*
-import com.soywiz.korio.coroutine.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.file.std.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.net.*
 import com.soywiz.korio.net.http.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korio.file.*
-import com.soywiz.korio.file.std.*
+import kotlinx.coroutines.experimental.*
 import org.khronos.webgl.*
 import kotlin.coroutines.experimental.*
-import kotlin.coroutines.experimental.CoroutineContext
 
 internal external fun require(name: String): dynamic
 
@@ -38,7 +35,8 @@ class HttpClientNodeJs : HttpClient() {
 		url: String,
 		headers: Http.Headers,
 		content: AsyncStream?
-	): Response = Promise.create { deferred ->
+	): Response {
+		val deferred = CompletableDeferred<Response>()
 		//println(url)
 
 		val http = require("http")
@@ -59,13 +57,13 @@ class HttpClientNodeJs : HttpClient() {
 		req.encoding = null
 		req.headers = reqHeaders
 
-		val r = http.request(req, { res ->
+		val r = http.request(req) { res ->
 			val statusCode: Int = res.statusCode
 			val statusMessage: String = res.statusMessage ?: ""
 			val jsHeadersObj = res.headers
 			val body = jsEmptyArray()
-			res.on("data", { d -> body.push(d) })
-			res.on("end", {
+			res.on("data") { d -> body.push(d) }
+			res.on("end") {
 				val r = global.Buffer.concat(body)
 				val u8array = Int8Array(r.unsafeCast<ArrayBuffer>())
 				val out = ByteArray(u8array.length)
@@ -81,14 +79,16 @@ class HttpClientNodeJs : HttpClient() {
 
 				//println(response.headers)
 
-				deferred.resolve(response)
-			})
-		}).on("error", { e ->
-			deferred.reject(kotlin.RuntimeException("Error: $e"))
-		})
+				deferred.complete(response)
+			}
+		}.on("error") { e ->
+			deferred.completeExceptionally(kotlin.RuntimeException("Error: $e"))
+		}
 
-		deferred.onCancel {
-			r.abort()
+		deferred.invokeOnCompletion {
+			if (deferred.isCancelled) {
+				r.abort()
+			}
 		}
 
 		if (content != null) {
@@ -96,7 +96,8 @@ class HttpClientNodeJs : HttpClient() {
 		} else {
 			r.end()
 		}
-		Unit
+
+		return deferred.await()
 	}
 }
 
@@ -106,7 +107,7 @@ class HttpSeverNodeJs : HttpServer() {
 
 	val http = require("http")
 	val server = http.createServer { req, res ->
-		spawnAndForget(context) {
+		launch(context) {
 			handler(req, res)
 		}
 	}
@@ -116,7 +117,7 @@ class HttpSeverNodeJs : HttpServer() {
 	}
 
 	override suspend fun httpHandlerInternal(handler: suspend (Request) -> Unit) {
-		context = getCoroutineContext()
+		context = coroutineContext
 		this.handler = { req, res ->
 			// req: https://nodejs.org/api/http.html#http_class_http_incomingmessage
 			// res: https://nodejs.org/api/http.html#http_class_http_serverresponse

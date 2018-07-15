@@ -2,10 +2,13 @@ package com.soywiz.korio.util
 
 import com.soywiz.klock.*
 import com.soywiz.korio.async.*
+import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.Deferred
+import kotlin.coroutines.experimental.*
 import kotlin.reflect.*
 
 class AsyncInmemoryCache {
-	data class Entry(val timestamp: Long, val data: Promise<Any?>)
+	data class Entry(val timestamp: Long, val data: Deferred<Any?>)
 
 	val cache = LinkedHashMap<String, Entry?>()
 
@@ -17,9 +20,9 @@ class AsyncInmemoryCache {
 	suspend fun <T : Any?> get(key: String, ttlMs: Int, gen: suspend () -> T): T {
 		val entry = cache[key]
 		if (entry == null || (Klock.currentTimeMillis() - entry.timestamp) >= ttlMs) {
-			cache[key] = AsyncInmemoryCache.Entry(TimeProvider.now(), async2(gen) as Promise<Any?>)
+			cache[key] = AsyncInmemoryCache.Entry(TimeProvider.now(), async(coroutineContext) { gen() })
 		}
-		return (cache[key]!!.data as Promise<T>).await()
+		return (cache[key]!!.data as Deferred<T>).await()
 	}
 
 	//suspend fun <T : Any?> get(key: String, ttl: TimeSpan, gen: () -> Promise<T>) = await(getAsync(key, ttl, gen))

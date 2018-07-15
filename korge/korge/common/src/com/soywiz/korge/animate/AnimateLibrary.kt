@@ -31,10 +31,10 @@ class AnSymbolSound(id: Int, name: String?, private var inputSound: NativeSound?
 	private val nativeSoundCache = AsyncCacheItem<NativeSound>()
 	suspend fun getNativeSound(): NativeSound = nativeSoundCache {
 		if (inputSound == null) {
-			try {
-				inputSound = nativeSoundProvider.createSound(dataBytes ?: byteArrayOf())
+			inputSound = try {
+				nativeSoundProvider.createSound(dataBytes ?: byteArrayOf())
 			} catch (e: Throwable) {
-				inputSound = nativeSoundProvider.createSound(AudioData(44100, 2, shortArrayOf()))
+				nativeSoundProvider.createSound(AudioData(44100, 2, shortArrayOf()))
 			}
 		}
 		inputSound!!

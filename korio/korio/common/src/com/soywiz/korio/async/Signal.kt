@@ -3,6 +3,7 @@
 package com.soywiz.korio.async
 
 import com.soywiz.korio.lang.*
+import kotlinx.coroutines.experimental.*
 
 class Signal<T>(val onRegister: () -> Unit = {}) { //: AsyncSequence<T> {
 	inner class Node(val once: Boolean, val item: (T) -> Unit) : Closeable {
@@ -83,7 +84,7 @@ suspend fun Iterable<Signal<*>>.waitOne(): Any? = suspendCancellableCoroutine { 
 		}
 	}
 
-	c.onCancel {
+	c.invokeOnCancellation {
 		closes.close()
 	}
 }
@@ -94,20 +95,20 @@ suspend fun <T> Signal<T>.waitOne(): T = suspendCancellableCoroutine { c ->
 		close?.close()
 		c.resume(it)
 	}
-	c.onCancel {
+	c.invokeOnCancellation {
 		close?.close()
 	}
 }
 
-fun <T> Signal<T>.waitOnePromise(): Promise<T> {
-	val deferred = Promise.Deferred<T>()
+fun <T> Signal<T>.waitOnePromise(): Deferred<T> {
+	val deferred = CompletableDeferred<T>()
 	var close: Closeable? = null
 	close = once {
 		close?.close()
-		deferred.resolve(it)
+		deferred.complete(it)
 	}
-	deferred.onCancel {
+	deferred.invokeOnCompletion {
 		close.close()
 	}
-	return deferred.promise
+	return deferred
 }

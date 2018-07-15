@@ -1,6 +1,6 @@
 package com.soywiz.korio.util
 
-import com.soywiz.korio.async.*
+import kotlinx.coroutines.experimental.*
 
 class Once {
 	var completed = false
@@ -14,7 +14,7 @@ class Once {
 }
 
 class AsyncOnce<T> {
-	var promise: Promise<T>? = null
+	var promise: Deferred<T>? = null
 
 	suspend operator fun invoke(callback: suspend () -> T): T {
 		if (promise == null) {

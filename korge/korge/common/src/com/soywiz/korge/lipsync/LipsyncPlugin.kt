@@ -1,4 +1,4 @@
-package com.soywiz.korge.ext.lipsync
+package com.soywiz.korge.lipsync
 
 import com.soywiz.korge.plugin.*
 import com.soywiz.korge.view.*

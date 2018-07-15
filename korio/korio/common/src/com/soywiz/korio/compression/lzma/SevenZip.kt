@@ -153,7 +153,7 @@ object SevenZip {
 
 		@JvmStatic
 		fun main(args: Array<String>): Unit = Korio {
-			println("\nLZMA (Java) 4.61  2008-11-23\n")
+			println("\nLZMA (Kotlin) 4.61  2008-11-23\n")
 
 			if (args.size < 1) {
 				PrintHelp()

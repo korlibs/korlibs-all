@@ -7,12 +7,12 @@ import com.soywiz.korim.color.*
 import com.soywiz.korim.format.*
 import com.soywiz.korio.*
 import com.soywiz.korio.async.*
-import com.soywiz.korio.coroutine.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korui.event.*
 import com.soywiz.korui.input.*
+import kotlinx.coroutines.experimental.*
 import org.khronos.webgl.*
 import org.w3c.dom.*
 import org.w3c.dom.events.*
@@ -22,7 +22,6 @@ import org.w3c.files.*
 import kotlin.RuntimeException
 import kotlin.browser.*
 import kotlin.coroutines.experimental.*
-import kotlin.math.*
 import kotlin.reflect.*
 
 var windowInputFile: HTMLInputElement? = null
@@ -31,7 +30,7 @@ var mainFrame: HTMLElement? = null
 
 @Suppress("unused")
 class HtmlLightComponents : LightComponents() {
-	val tDevicePixelRatio = window.devicePixelRatio.toDouble();
+	val tDevicePixelRatio = window.devicePixelRatio.toDouble()
 	val devicePixelRatio = when {
 		tDevicePixelRatio <= 0.0 -> 1.0
 		tDevicePixelRatio.isNaN() -> 1.0
@@ -337,8 +336,8 @@ class HtmlLightComponents : LightComponents() {
 				timer()
 
 				return listOf(
-					node.addCloseableEventListener("resize", { update() }),
-					node.addCloseableEventListener("deviceorientation", { update() }),
+					node.addCloseableEventListener("resize") { update() },
+					node.addCloseableEventListener("deviceorientation") { update() },
 					object : Closeable {
 						override fun close() {
 							closed = true
@@ -506,7 +505,7 @@ class HtmlLightComponents : LightComponents() {
 					(child as HTMLInputElement).value = v
 				} else {
 					if ((child.asDynamic()["data-type"]) == "checkbox") {
-						(child.querySelector("span") as HTMLSpanElement)?.innerText = v
+						(child.querySelector("span") as? HTMLSpanElement?)?.innerText = v
 					} else {
 						child.innerText = v
 					}
@@ -554,7 +553,7 @@ class HtmlLightComponents : LightComponents() {
 			}
 			LightProperty.VISIBLE -> {
 				val v = key[value]
-				if (child != null) child.style.display = if (v) "block" else "none"
+				child.style.display = if (v) "block" else "none"
 			}
 			LightProperty.CHECKED -> {
 				val v = key[value]
@@ -625,15 +624,15 @@ class HtmlLightComponents : LightComponents() {
 		mainFrame?.style?.visibility = "visible"
 	}
 
-	suspend override fun dialogAlert(c: Any, message: String) = korioSuspendCoroutine<Unit> { c ->
+	override suspend fun dialogAlert(c: Any, message: String) = suspendCancellableCoroutine<Unit> { c ->
 		window.alert(message)
 		window.setTimeout({
 			c.resume(Unit)
 		}, 0)
 	}
 
-	suspend override fun dialogPrompt(c: Any, message: String, initialValue: String): String =
-		korioSuspendCoroutine { c ->
+	override suspend fun dialogPrompt(c: Any, message: String, initialValue: String): String =
+		suspendCancellableCoroutine { c ->
 			val result = window.prompt(message, initialValue)
 			window.setTimeout({
 				if (result == null) {
@@ -644,7 +643,7 @@ class HtmlLightComponents : LightComponents() {
 			}, 0)
 		}
 
-	override suspend fun dialogOpenFile(c: Any, filter: String): VfsFile = korioSuspendCoroutine { continuation ->
+	override suspend fun dialogOpenFile(c: Any, filter: String): VfsFile = suspendCancellableCoroutine { continuation ->
 		val inputFile = windowInputFile
 		var completedOnce = false
 		var files = arrayOf<File>()
@@ -681,7 +680,7 @@ class HtmlLightComponents : LightComponents() {
 		}
 
 		windowInputFile?.onchange = { e ->
-			files = e?.target.asDynamic()["files"]
+			files = e.target.asDynamic()["files"]
 			//var v = this.value;
 			//console.log(v);
 			completed()

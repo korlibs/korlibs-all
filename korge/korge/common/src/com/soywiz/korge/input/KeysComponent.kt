@@ -7,6 +7,7 @@ import com.soywiz.korio.async.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korui.event.*
 import com.soywiz.korui.input.*
+import kotlinx.coroutines.experimental.*
 
 class KeysComponent(view: View) : Component(view) {
 	val onKeyDown = AsyncSignal<KeyEvent>()
@@ -24,9 +25,9 @@ class KeysComponent(view: View) : Component(view) {
 
 	init {
 		keys {
-			detatchCloseables += this.down { go { onKeyDown(this) } }
-			detatchCloseables += this.up { go { onKeyUp(this) } }
-			detatchCloseables += this.press { go { onKeyTyped(this) } }
+			detatchCloseables += this.down { launch(view.coroutineContext) { onKeyDown(this@down) } }
+			detatchCloseables += this.up { launch(view.coroutineContext) { onKeyUp(this@up) } }
+			detatchCloseables += this.press { launch(view.coroutineContext) { onKeyTyped(this@press) } }
 		}
 	}
 }

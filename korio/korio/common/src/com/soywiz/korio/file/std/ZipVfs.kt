@@ -6,13 +6,24 @@ import com.soywiz.korio.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.compression.deflate.*
 import com.soywiz.korio.compression.util.*
-import com.soywiz.korio.coroutine.*
 import com.soywiz.korio.crypto.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korio.file.*
-import com.soywiz.std.*
+import kotlin.collections.LinkedHashMap
+import kotlin.collections.MutableList
+import kotlin.collections.MutableMap
+import kotlin.collections.arrayListOf
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.contains
+import kotlin.collections.copyOfRange
+import kotlin.collections.getOrPut
+import kotlin.collections.iterator
+import kotlin.collections.listOf
+import kotlin.collections.plus
+import kotlin.collections.plusAssign
+import kotlin.collections.set
 import kotlin.coroutines.experimental.*
 import kotlin.math.*
 
@@ -213,7 +224,7 @@ suspend fun ZipVfs(s: AsyncStream, zipFile: VfsFile? = null, caseSensitive: Bool
 		}
 
 		override suspend fun list(path: String): SuspendingSequence<VfsFile> {
-			return asyncGenerate(getCoroutineContext()) {
+			return asyncGenerate(coroutineContext) {
 				for ((_, entry) in filesPerFolder[path.normalizeName()] ?: LinkedHashMap()) {
 					//yield(entry.toStat(this@Impl[entry.path]))
 					yield(vfs[entry.path])

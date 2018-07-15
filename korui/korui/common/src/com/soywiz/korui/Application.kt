@@ -3,7 +3,6 @@ package com.soywiz.korui
 import com.soywiz.klogger.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korio.async.*
-import com.soywiz.korio.coroutine.*
 import com.soywiz.korui.event.*
 import com.soywiz.korui.geom.len.*
 import com.soywiz.korui.light.*
@@ -13,7 +12,8 @@ import kotlin.coroutines.experimental.*
 class Application(val coroutineContext: CoroutineContext, val light: LightComponents) {
 	companion object {
 		suspend operator fun invoke() = Application(defaultLight(kotlin.coroutines.experimental.coroutineContext))
-		suspend operator fun invoke(light: LightComponents) = Application(kotlin.coroutines.experimental.coroutineContext, light)
+		suspend operator fun invoke(light: LightComponents) =
+			Application(kotlin.coroutines.experimental.coroutineContext, light)
 	}
 
 	val frames = arrayListOf<Frame>()
@@ -22,7 +22,7 @@ class Application(val coroutineContext: CoroutineContext, val light: LightCompon
 	}
 
 	init {
-		coroutineContext.eventLoop.animationFrameLoop {
+		coroutineContext.animationFrameLoop {
 			var n = 0
 			while (n < frames.size) {
 				val frame = frames[n++]
@@ -81,7 +81,7 @@ suspend fun CanvasApplicationEx(
 ): Unit {
 	val llight = light ?: defaultLight(coroutineContext)
 	llight.quality = quality
-	val application = Application(getCoroutineContext(), llight)
+	val application = Application(coroutineContext, llight)
 	application.frame(title, width, height, icon) {
 		val canvas = agCanvas().apply { focus() }
 		llight.configuredFrame(handle)

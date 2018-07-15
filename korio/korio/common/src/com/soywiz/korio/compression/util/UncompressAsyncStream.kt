@@ -5,6 +5,7 @@ import com.soywiz.korio.async.*
 import com.soywiz.korio.compression.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.stream.*
+import kotlinx.coroutines.experimental.*
 import kotlin.math.*
 
 class CompressionAlgoAsyncStream internal constructor(
@@ -19,7 +20,7 @@ class CompressionAlgoAsyncStream internal constructor(
 	private var pos = 0L
 
 	internal suspend fun init() {
-		async {
+		launch {
 			if (compressing) {
 				method.compress(i, los)
 			} else {
@@ -62,7 +63,7 @@ suspend fun CompressAsyncStream(
 
 class LimitedOutputStream : AsyncOutputStream {
 	class Task(val slice: ByteArraySlice) {
-		val count = Promise.Deferred<Int>()
+		val count = CompletableDeferred<Int>()
 	}
 
 	val queue = ProduceConsumer<Task>()
@@ -77,7 +78,7 @@ class LimitedOutputStream : AsyncOutputStream {
 			val toRead = min(pending, task.slice.length)
 			arraycopy(buffer, o, task.slice.data, task.slice.position, toRead)
 			//println("write...: $pending, ${task.slice.length}, $toRead")
-			task.count.resolve(toRead)
+			task.count.complete(toRead)
 			pending -= toRead
 			o += toRead
 		}
@@ -91,7 +92,7 @@ class LimitedOutputStream : AsyncOutputStream {
 		val task = Task(ByteArraySlice(buffer, offset, len))
 		queue.produce(task)
 		//println("provideOutput: $len")
-		val result = task.count.promise.await()
+		val result = task.count.await()
 		//println("provideOutput: $len --> $result")
 		return result
 	}

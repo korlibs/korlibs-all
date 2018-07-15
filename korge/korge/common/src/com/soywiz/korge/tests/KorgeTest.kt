@@ -9,6 +9,7 @@ import com.soywiz.korge.scene.*
 import com.soywiz.korge.stat.*
 import com.soywiz.korge.view.*
 import com.soywiz.korinject.*
+import com.soywiz.korio.*
 import com.soywiz.korio.async.*
 import com.soywiz.korma.geom.*
 import com.soywiz.korui.event.*
@@ -18,14 +19,14 @@ import kotlin.reflect.*
 @Suppress("unused")
 open class KorgeTest {
 	val plugins = KorgePlugins()
-	val eventLoop = EventLoopTest()
+	val testCoroutineDispatcher = TestCoroutineDispatcher(KorioDefaultDispatcher)
 	val injector: AsyncInjector = AsyncInjector()
 	val ag: AG = DummyAG()
 	val input: Input = Input()
 	val eventDispatcher = EventDispatcher.Mixin()
 	val timeProvider = TimeProvider()
 	val stats = Stats()
-	val views = Views(eventLoop, ag, injector, input, plugins, timeProvider, stats).apply {
+	val views = Views(testCoroutineDispatcher, ag, injector, input, plugins, timeProvider, stats).apply {
 		syncTest {
 			init()
 		}
@@ -33,8 +34,8 @@ open class KorgeTest {
 	var testTime = 0L
 	val canvas = DummyAGContainer(ag)
 
-	fun syncTest(block: suspend EventLoopTest.() -> Unit): Unit {
-		sync(el = eventLoop, step = 10, block = block)
+	fun syncTest(block: suspend TestCoroutineDispatcher.() -> Unit): Unit = Korio(testCoroutineDispatcher) {
+		block(testCoroutineDispatcher)
 	}
 
 	@Suppress("UNCHECKED_CAST")
@@ -43,7 +44,7 @@ open class KorgeTest {
 		sceneClass: KClass<T>,
 		vararg injects: Any,
 		callback: suspend T.() -> Unit
-	) = suspendTest {
+	) = syncTest {
 		//disableNativeImageLoading {
 		val sc = Korge.test(
 			Korge.Config(
@@ -67,7 +68,7 @@ open class KorgeTest {
 		//println("updateTime: $dtMs :: $testTime")
 		//println("updateTime: $dtMs")
 		ag.onRender(ag)
-		eventLoop.sleepNextFrame()
+		delayNextFrame()
 		//views.update(dtMs)
 	}
 
@@ -81,31 +82,33 @@ open class KorgeTest {
 	}
 
 	suspend fun Scene.updateMousePosition(x: Int, y: Int) {
-		eventDispatcher.dispatch(MouseEvent(
-			type = MouseEvent.Type.MOVE,
-			id = 0,
-			x = x,
-			y = y
-		))
+		eventDispatcher.dispatch(
+			MouseEvent(
+				type = MouseEvent.Type.MOVE,
+				id = 0,
+				x = x,
+				y = y
+			)
+		)
 		updateTime(0)
 	}
 
 	suspend fun View.simulateClick() {
 		this.mouse.onClick(this.mouse)
 		ag.onRender(ag)
-		eventLoop.sleepNextFrame()
+		delayNextFrame()
 	}
 
 	suspend fun View.simulateOver() {
 		this.mouse.onOver(this.mouse)
 		ag.onRender(ag)
-		eventLoop.sleepNextFrame()
+		delayNextFrame()
 	}
 
 	suspend fun View.simulateOut() {
 		this.mouse.onOut(this.mouse)
 		ag.onRender(ag)
-		eventLoop.sleepNextFrame()
+		delayNextFrame()
 	}
 
 	suspend fun View.isVisibleToUser(): Boolean {

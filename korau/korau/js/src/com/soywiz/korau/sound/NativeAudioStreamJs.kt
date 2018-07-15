@@ -3,7 +3,6 @@ package com.soywiz.korau.sound
 import com.soywiz.kds.*
 import com.soywiz.klogger.*
 import com.soywiz.korio.async.*
-import com.soywiz.korio.coroutine.*
 import com.soywiz.korio.lang.*
 import org.khronos.webgl.*
 import kotlin.browser.*
@@ -112,7 +111,7 @@ actual class NativeAudioStream actual constructor(val freq: Int) {
 			// Delay simulating consuming samples
 			val sampleCount = (size / 2)
 			val timeSeconds = sampleCount.toDouble() / 41_000.0
-			coroutineContext.eventLoop.sleep((timeSeconds * 1000).toInt())
+			coroutineContext.delay((timeSeconds * 1000).toInt())
 		} else {
 			ensureRunning()
 
@@ -121,7 +120,7 @@ actual class NativeAudioStream actual constructor(val freq: Int) {
 			buffers.enqueue(MyNativeAudioBuffer(fsamples))
 
 			while (buffers.size > 4) {
-				getCoroutineContext().eventLoop.sleepNextFrame()
+				coroutineContext.delayNextFrame()
 			}
 		}
 	}

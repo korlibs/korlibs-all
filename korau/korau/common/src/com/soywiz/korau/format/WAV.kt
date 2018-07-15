@@ -11,11 +11,11 @@ object WAV : AudioFormat("wav") {
 	data class Chunk(val type: String, val data: AsyncStream)
 	data class ProcessedChunk(val type: String, val data: AsyncStream, val extra: Any)
 
-	suspend override fun tryReadInfo(data: AsyncStream): Info? = ignoreErrors {
+	override suspend fun tryReadInfo(data: AsyncStream): Info? = ignoreErrors {
 		parse(data) { }
 	}
 
-	suspend override fun decodeStream(data: AsyncStream): AudioStream? {
+	override suspend fun decodeStream(data: AsyncStream): AudioStream? {
 		var fmt = Fmt()
 		var buffer = MemorySyncStream().toAsync()
 		parse(data) {
@@ -31,7 +31,7 @@ object WAV : AudioFormat("wav") {
 		val bytesPerSample: Int = fmt.bitsPerSample / 8
 
 		return object : AudioStream(fmt.samplesPerSec, fmt.channels) {
-			suspend override fun read(out: ShortArray, offset: Int, length: Int): Int {
+			override suspend fun read(out: ShortArray, offset: Int, length: Int): Int {
 				val bytes = FastByteArrayInputStream(buffer.readBytes(length * bytesPerSample))
 				val availableSamples = bytes.length / bytesPerSample
 				when (bytesPerSample) {
@@ -52,7 +52,7 @@ object WAV : AudioFormat("wav") {
 		}
 	}
 
-	suspend override fun encode(data: AudioData, out: AsyncOutputStream, filename: String) {
+	override suspend fun encode(data: AudioData, out: AsyncOutputStream, filename: String) {
 		// HEADER
 		out.writeString("RIFF")
 		out.write32_le(0x24 + data.samples.size * 2) // length

@@ -2,10 +2,11 @@ package com.soywiz.korio.async
 
 import com.soywiz.kds.*
 import com.soywiz.kmem.*
-import com.soywiz.korio.coroutine.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
+import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.intrinsics.*
 import kotlin.coroutines.experimental.*
 import kotlin.math.*
 
@@ -57,7 +58,7 @@ open class ProduceConsumer<T> : Consumer<T>, Producer<T> {
 		}
 	}
 
-	suspend override fun consume(cancel: CancelHandler?): T? = korioSuspendCoroutine { c ->
+	suspend override fun consume(cancel: CancelHandler?): T? = suspendCancellableCoroutine { c ->
 		val consumer: (T?) -> Unit = {
 			c.resume(it)
 			//if (it != null) c.resume(it) else c.resumeWithException(EOFException())
@@ -67,7 +68,7 @@ open class ProduceConsumer<T> : Consumer<T>, Producer<T> {
 				synchronized(this) {
 					consumers -= consumer
 				}
-				c.resumeWithException(com.soywiz.korio.CancellationException(""))
+				c.resumeWithException(CancellationException(""))
 			}
 		}
 		synchronized(this) {
@@ -80,7 +81,7 @@ open class ProduceConsumer<T> : Consumer<T>, Producer<T> {
 fun <T> asyncProducer(context: CoroutineContext, callback: suspend Producer<T>.() -> Unit): Consumer<T> {
 	val p = ProduceConsumer<T>()
 
-	callback.korioStartCoroutine(p, completion = EmptyContinuation(context))
+	callback.startCoroutineCancellable(p, completion = EmptyContinuation(context))
 	return p
 }
 

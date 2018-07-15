@@ -2,11 +2,12 @@ package com.soywiz.korio.net
 
 import com.soywiz.korio.*
 import com.soywiz.korio.async.*
-import com.soywiz.korio.coroutine.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
 import com.soywiz.std.*
+import kotlinx.coroutines.experimental.*
+import kotlin.coroutines.experimental.*
 
 val asyncSocketFactory: AsyncSocketFactory get() = KorioNative.asyncSocketFactory
 
@@ -56,9 +57,9 @@ interface AsyncServer {
 	suspend fun listen(handler: suspend (AsyncClient) -> Unit): Closeable
 
 	suspend fun listen(): SuspendingSequence<AsyncClient> {
-		val ctx = getCoroutineContext()
+		val ctx = coroutineContext
 		return asyncGenerate3 {
-			spawnAndForget(ctx) {
+			launch(ctx) {
 				listen {
 					yield(it)
 				}

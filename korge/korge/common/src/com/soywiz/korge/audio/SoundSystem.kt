@@ -8,8 +8,8 @@ import com.soywiz.korau.sound.*
 import com.soywiz.korge.plugin.*
 import com.soywiz.korge.view.*
 import com.soywiz.korinject.*
-import com.soywiz.korio.async.*
 import com.soywiz.korio.file.*
+import kotlinx.coroutines.experimental.*
 
 object SoundPlugin : KorgePlugin() {
 	override suspend fun register(views: Views) {
@@ -22,7 +22,7 @@ class SoundSystem(val views: Views) : AsyncDependency {
 		nativeSoundProvider.initOnce()
 	}
 
-	internal val promises = LinkedHashSet<Promise<*>>()
+	internal val promises = LinkedHashSet<Deferred<*>>()
 
 	fun play(file: SoundFile) = createChannel().play(file.nativeSound)
 	fun play(nativeSound: NativeSound): SoundChannel = createChannel().play(nativeSound)
@@ -54,7 +54,7 @@ open class SoundChannel(override val soundSystem: SoundSystem) : AudioChannel {
 	var volume = 1.0
 
 	private var startedTime: Long = 0L
-	private var promise: Promise<*>? = null
+	private var promise: Deferred<*>? = null
 
 	fun play(
 		sound: NativeSound,
@@ -67,7 +67,7 @@ open class SoundChannel(override val soundSystem: SoundSystem) : AudioChannel {
 			length = sound.lengthInSeconds
 			playing = true
 
-			promise = go(soundSystem.views.coroutineContext) {
+			promise = async(soundSystem.views.coroutineContext) {
 				sound.playAndWait { current, total ->
 					this@SoundChannel.position = current
 					this@SoundChannel.length = total
@@ -95,7 +95,7 @@ open class SoundChannel(override val soundSystem: SoundSystem) : AudioChannel {
 			}
 		}
 
-		promise = go(soundSystem.views.coroutineContext) {
+		promise = async(soundSystem.views.coroutineContext) {
 			astream.play(bufferSeconds)
 		}
 	}

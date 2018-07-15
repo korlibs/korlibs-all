@@ -35,10 +35,10 @@ class TiledMapData {
 	val maxGid get() = tilesets.map { it.firstgid + it.tilecount }.max() ?: 0
 }
 
-fun TiledMap.Layer.Objects.Object.getPos(map: TiledMapData): IPoint2d =
-	IPoint2d(bounds.x / map.tilewidth, bounds.y / map.tileheight)
+fun TiledMap.Layer.Objects.Object.getPos(map: TiledMapData): Point2d =
+	Point2d(bounds.x / map.tilewidth, bounds.y / map.tileheight)
 
-fun TiledMapData?.getObjectPosByName(name: String): IPoint2d? {
+fun TiledMapData?.getObjectPosByName(name: String): Point2d? {
 	val obj = this?.getObjectByName(name) ?: return null
 	return obj.getPos(this)
 }

@@ -29,7 +29,7 @@ buildscript {
 			"krypto"           : ["korlibstd"],
 			"korinject"        : ["korlibstd"],
 			"korma"            : ["kds"],
-			"korio"            : ["klock", "kmem", "kds", "klogger"],
+			"korio"            : ["klock", "kmem", "kds", "klogger", "org.jetbrains.kotlinx:kotlinx-coroutines-core{JSUFFIX}:$kotlinxCoroutinesVersion"],
 			"korim"            : ["korio", "korma"],
 			"korim-qr"         : ["korim"],
 			"kgl"              : ["kmem", "korim"],

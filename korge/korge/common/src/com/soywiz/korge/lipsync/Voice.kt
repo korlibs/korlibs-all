@@ -1,4 +1,4 @@
-package com.soywiz.korge.ext.lipsync
+package com.soywiz.korge.lipsync
 
 import com.soywiz.kds.*
 import com.soywiz.korau.sound.*
@@ -6,10 +6,10 @@ import com.soywiz.korge.animate.*
 import com.soywiz.korge.audio.*
 import com.soywiz.korge.component.*
 import com.soywiz.korge.view.*
-import com.soywiz.korio.async.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korui.event.*
+import kotlinx.coroutines.experimental.*
 
 class LipSync(val lipsync: String) {
 	val timeMs: Int get() = lipsync.length * 16
@@ -69,14 +69,15 @@ class LipSyncHandler(val views: Views) {
 			}
 		}
 
-		val cancel2 = go(c.context) {
+		val cancel2 = launch(c.context) {
 			channel.await()
 			c.resume(Unit)
 		}
 
-		c.onCancel {
-			cancel?.cancel(it)
-			cancel2.cancel(it)
+		c.invokeOnCancellation {
+			val error = it ?: error("Unknown")
+			cancel?.cancel(error)
+			cancel2.cancel(error)
 			channel.stop()
 			dispatch(name, 0.0, 'X')
 		}

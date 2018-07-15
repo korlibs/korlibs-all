@@ -3,12 +3,12 @@ package com.soywiz.korim.format
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
 import com.soywiz.korim.vector.*
-import com.soywiz.korio.coroutine.*
 import com.soywiz.korio.crypto.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.file.std.*
 import com.soywiz.korio.util.*
 import com.soywiz.korma.*
+import kotlinx.coroutines.experimental.*
 import org.khronos.webgl.*
 import org.w3c.dom.*
 import org.w3c.dom.url.*
@@ -18,7 +18,8 @@ import kotlin.math.*
 
 actual val nativeImageFormatProvider: NativeImageFormatProvider = HtmlNativeImageFormatProvider
 
-open class HtmlNativeImage(val texSource: TexImageSource, width: Int, height: Int) : NativeImage(width, height, texSource, false) {
+open class HtmlNativeImage(val texSource: TexImageSource, width: Int, height: Int) :
+	NativeImage(width, height, texSource, false) {
 	override val name: String = "HtmlNativeImage"
 	val element: HTMLElement get() = texSource as HTMLElement
 
@@ -119,7 +120,7 @@ object BrowserImage {
 		return canvas
 	}
 
-	suspend fun loadImage(jsUrl: String): HTMLImageElement = korioSuspendCoroutine { c ->
+	suspend fun loadImage(jsUrl: String): HTMLImageElement = suspendCancellableCoroutine { c ->
 		// Doesn't work with Kotlin.JS
 		//val img = document.createElement("img") as HTMLImageElement
 		//println("[1]")

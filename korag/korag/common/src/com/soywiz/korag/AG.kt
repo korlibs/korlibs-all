@@ -10,6 +10,8 @@ import com.soywiz.korio.error.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
+import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.Deferred
 import kotlin.coroutines.experimental.*
 
 interface AGFactory {
@@ -42,13 +44,13 @@ abstract class AG : Extra by Extra.Mixin() {
 
 	open val devicePixelRatio: Double = 1.0
 
-	private val onReadyDeferred = Promise.Deferred<AG>()
+	private val onReadyDeferred = CompletableDeferred<AG>()
 	protected fun ready() {
 		//println("AG.ready!")
-		onReadyDeferred.resolve(this)
+		onReadyDeferred.complete(this)
 	}
 
-	val onReady = onReadyDeferred.promise
+	val onReady: Deferred<AG> = onReadyDeferred
 	val onRender = Signal<AG>()
 	val onResized = Signal<Unit>()
 

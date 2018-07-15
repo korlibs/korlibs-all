@@ -24,8 +24,9 @@ import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
-import com.soywiz.korui.*
 import com.soywiz.korui.event.*
+import kotlinx.coroutines.experimental.*
+import kotlin.coroutines.experimental.*
 import kotlin.math.*
 import kotlin.reflect.*
 
@@ -33,15 +34,14 @@ private val logger = Logger("Views")
 
 @Singleton
 class Views(
-	val eventLoop: EventLoop,
+	override val coroutineContext: CoroutineContext,
 	val ag: AG,
 	val injector: AsyncInjector,
 	val input: Input,
 	val plugins: KorgePlugins,
 	val timeProvider: TimeProvider,
 	val stats: Stats
-) : AsyncDependency, Updatable, Extra by Extra.Mixin(), EventDispatcher by EventDispatcher.Mixin(),
-	CoroutineContextHolder {
+) : AsyncDependency, Updatable, Extra by Extra.Mixin(), EventDispatcher by EventDispatcher.Mixin(), CoroutineContextHolder {
 
 	var imageFormats = defaultImageFormats
 
@@ -52,8 +52,6 @@ class Views(
 	init {
 		logger.trace { "Views[0]" }
 	}
-
-	override val coroutineContext = eventLoop.coroutineContext
 
 	init {
 		logger.trace { "Views[1]" }
@@ -79,7 +77,7 @@ class Views(
 	}
 
 	init {
-		injector.mapInstance(EventLoop::class, eventLoop)
+		injector.mapInstance(CoroutineContext::class, coroutineContext)
 		injector.mapInstance(AG::class, ag)
 		injector.mapInstance(Views::class, this)
 		injector.mapInstance(SoundSystem::class, soundSystem)
@@ -98,7 +96,7 @@ class Views(
 
 	fun registerPropertyTriggerSuspend(propName: String, gen: suspend (View, String, String) -> Unit) {
 		propsTriggers[propName] = { view, key, value ->
-			eventLoop.go {
+			launch(coroutineContext) {
 				gen(view, key, value)
 			}
 		}
@@ -279,8 +277,8 @@ class Views(
 
 	var targetFps: Double = -1.0
 
-	fun animationFrameLoop(callback: () -> Unit): Closeable {
-		println("Views.animationFrameLoop.eventLoop: $eventLoop")
+	fun animationFrameLoop(callback: suspend () -> Unit): Closeable {
+		//println("Views.animationFrameLoop.eventLoop: $eventLoop")
 		//val process = async {
 		//	var accumulatedMs = 0.0
 		//	while (true) {
@@ -296,11 +294,10 @@ class Views(
 		//	}
 		//}
 		//return Closeable { process.cancel() }
-		return eventLoop.animationFrameLoop(callback)
+		return coroutineContext.animationFrameLoop(callback)
 	}
 
 	fun dispose() {
-		eventLoop.close()
 		soundSystem.close()
 	}
 }
@@ -335,7 +332,7 @@ class Stage(views: Views) : Container(views) {
 }
 
 class ViewsLog(
-	val eventLoop: EventLoop,
+	val coroutineContext: CoroutineContext,
 	val injector: AsyncInjector = AsyncInjector(),
 	val ag: LogAG = LogAG(),
 	val input: Input = Input(),
@@ -343,7 +340,7 @@ class ViewsLog(
 	val timeProvider: TimeProvider = TimeProvider(),
 	val stats: Stats = Stats()
 ) : AsyncDependency {
-	val views = Views(eventLoop, ag, injector, input, plugins, timeProvider, stats)
+	val views = Views(coroutineContext, ag, injector, input, plugins, timeProvider, stats)
 
 	suspend override fun init() {
 		views.init()

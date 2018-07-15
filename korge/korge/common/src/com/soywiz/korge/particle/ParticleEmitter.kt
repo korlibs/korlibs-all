@@ -1,6 +1,7 @@
-package com.soywiz.korge.ext.particle
+package com.soywiz.korge.particle
 
 import com.soywiz.korag.*
+import com.soywiz.korge.ext.particle.*
 import com.soywiz.korge.render.*
 import com.soywiz.korge.view.*
 import com.soywiz.korim.color.*
@@ -111,7 +112,10 @@ class ParticleEmitter(val views: Views) {
 				"finishparticlesizevariance" -> endSizeVariance = scalar()
 				"duration" -> duration = scalar()
 				"emittertype" -> emitterType =
-						when (scalar().toInt()) { 0 -> Type.GRAVITY; 1 -> Type.RADIAL; else -> Type.GRAVITY; }
+						when (scalar().toInt()) { 0 -> Type.GRAVITY
+							; 1 -> Type.RADIAL
+							; else -> Type.GRAVITY
+							; }
 				"maxradius" -> maxRadius = scalar()
 				"maxradiusvariance" -> maxRadiusVariance = scalar()
 				"minradius" -> minRadius = scalar()
@@ -168,8 +172,8 @@ class ParticleEmitter(val views: Views) {
 		val alive: Boolean get() = this.currentTime < this.totalTime
 	}
 
-	class Simulator(private val emitter: ParticleEmitter, var emitterPos: Point2d = Point2d()) {
-		val random = MtRand()
+	class Simulator(private val emitter: ParticleEmitter, var emitterPos: Point2d = Point2d(), val seed: Long = BaseRand.random().toBits()) {
+		val random = Rand(seed)
 		var totalElapsedTime = 0
 		var timeUntilStop = Int.MAX_VALUE
 		var emitting = true
@@ -246,13 +250,13 @@ class ParticleEmitter(val views: Views) {
 			particle.currentTime += elapsedTime
 
 			when (emitter.emitterType) {
-				ParticleEmitter.Type.RADIAL -> {
+				Type.RADIAL -> {
 					particle.emitRotation += particle.emitRotationDelta * elapsedTime
 					particle.emitRadius += particle.emitRadiusDelta * elapsedTime
 					particle.x = emitter.sourcePosition.x - cos(particle.emitRotation) * particle.emitRadius
 					particle.y = emitter.sourcePosition.y - sin(particle.emitRotation) * particle.emitRadius
 				}
-				ParticleEmitter.Type.GRAVITY -> {
+				Type.GRAVITY -> {
 					val distanceX = particle.x - particle.startX
 					val distanceY = particle.y - particle.startY
 					val distanceScalar = max(0.01, sqrt(distanceX * distanceX + distanceY * distanceY))
