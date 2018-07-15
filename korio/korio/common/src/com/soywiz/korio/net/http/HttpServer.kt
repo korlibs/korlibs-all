@@ -224,7 +224,7 @@ open class HttpServer protected constructor() : AsyncCloseable {
 	}
 
 	protected open suspend fun listenInternal(port: Int, host: String = "127.0.0.1") {
-		val deferred = CompletableDeferred<Unit>()
+		val deferred = CompletableDeferred<Unit>(Job())
 		deferred.await()
 	}
 

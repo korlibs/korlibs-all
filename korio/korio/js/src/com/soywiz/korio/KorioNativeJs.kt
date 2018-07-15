@@ -247,7 +247,7 @@ class HttpClientBrowserJs : HttpClient() {
 		headers: Http.Headers,
 		content: AsyncStream?
 	): Response {
-		val deferred = CompletableDeferred<Response>()
+		val deferred = CompletableDeferred<Response>(Job())
 		val xhr = XMLHttpRequest()
 		xhr.open(method.name, url, true)
 		xhr.responseType = XMLHttpRequestResponseType.ARRAYBUFFER

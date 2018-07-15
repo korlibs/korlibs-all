@@ -601,7 +601,7 @@ class AnMovieClip(override val library: AnLibrary, override val symbol: AnSymbol
 
 	private suspend fun _waitEvent(eventsSet: Set<String>, afterSignals: () -> Unit = {}): String? {
 		val once = Once()
-		val deferred = CompletableDeferred<String?>()
+		val deferred = CompletableDeferred<String?>(Job())
 		val closeables = arrayListOf<Closeable>()
 		//println("Listening($onEvent) : $eventsSet")
 		closeables += onStop {

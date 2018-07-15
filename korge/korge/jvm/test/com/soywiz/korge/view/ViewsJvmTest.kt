@@ -4,7 +4,6 @@ import com.soywiz.korge.*
 import com.soywiz.korge.bitmapfont.*
 import com.soywiz.korge.render.*
 import com.soywiz.korge.tests.*
-import com.soywiz.korio.async.*
 import com.soywiz.korma.geom.*
 import kotlin.test.*
 
@@ -12,7 +11,7 @@ class ViewsJvmTest : ViewsForTesting() {
 	val tex = Texture(views.ag.createTexture(), 10, 10)
 
 	@Test
-	fun name() = suspendTest {
+	fun name() = viewsTest {
 		views.stage += views.container().apply {
 			this += views.image(tex)
 		}

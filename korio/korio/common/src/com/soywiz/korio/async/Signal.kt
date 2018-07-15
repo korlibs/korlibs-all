@@ -101,7 +101,7 @@ suspend fun <T> Signal<T>.waitOne(): T = suspendCancellableCoroutine { c ->
 }
 
 fun <T> Signal<T>.waitOnePromise(): Deferred<T> {
-	val deferred = CompletableDeferred<T>()
+	val deferred = CompletableDeferred<T>(Job())
 	var close: Closeable? = null
 	close = once {
 		close?.close()

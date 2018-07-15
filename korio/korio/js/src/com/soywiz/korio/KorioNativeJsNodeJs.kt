@@ -36,7 +36,7 @@ class HttpClientNodeJs : HttpClient() {
 		headers: Http.Headers,
 		content: AsyncStream?
 	): Response {
-		val deferred = CompletableDeferred<Response>()
+		val deferred = CompletableDeferred<Response>(Job())
 		//println(url)
 
 		val http = require("http")

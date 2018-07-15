@@ -14,7 +14,7 @@ suspend fun Method.invokeSuspend(obj: Any?, args: List<Any?>): Any? {
 	var deferred: CompletableDeferred<Any?>? = null
 
 	if (lastParam != null && lastParam.isAssignableFrom(Continuation::class.java)) {
-		deferred = CompletableDeferred<Any?>()
+		deferred = CompletableDeferred<Any?>(Job())
 		margs += deferred.toContinuation(cc)
 	}
 	val result = method.invoke(obj, *margs.toTypedArray())

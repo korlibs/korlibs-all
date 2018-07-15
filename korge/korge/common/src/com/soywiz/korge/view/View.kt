@@ -10,7 +10,6 @@ import com.soywiz.korio.lang.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 import com.soywiz.korui.event.*
-import kotlinx.coroutines.experimental.*
 import kotlin.collections.ArrayList
 import kotlin.collections.List
 import kotlin.collections.Map
@@ -263,6 +262,8 @@ open class View(val views: Views) : Renderable, Updatable, Extra by Extra.Mixin(
 	internal var validLocalMatrix = true
 	internal var validGlobal = false
 
+	val unsafeListRawComponents get() = components
+
 	private var components: ArrayList<Component>? = null
 	private var _componentsIt: ArrayList<Component>? = null
 	private val componentsIt: ArrayList<Component>?
@@ -278,27 +279,30 @@ open class View(val views: Views) : Renderable, Updatable, Extra by Extra.Mixin(
 	inline fun <reified T : Component> getOrCreateComponent(noinline gen: (View) -> T): T =
 		getOrCreateComponent(T::class, gen)
 
-	fun removeComponent(c: Component): Unit = run { components?.remove(c) }
+	fun removeComponent(c: Component): Unit {
+		//println("Remove component $c from $this")
+		components?.remove(c)
+	}
 	//fun removeComponents(c: KClass<out Component>) = run { components?.removeAll { it.javaClass.isSubtypeOf(c) } }
-	fun removeComponents(c: KClass<out Component>) = run { components?.removeAll { it::class == c } }
-
-	fun removeAllComponents() = run { components?.clear() }
-
-	fun addComponent(c: Component) {
-		if (components == null) components = arrayListOf()
-		components!! += c
-		c.update(0)
+	fun removeComponents(c: KClass<out Component>) = run {
+		//println("Remove components of type $c from $this")
+		components?.removeAll { it::class == c }
 	}
 
-	fun addUpdatable(updatable: (dtMs: Int) -> Unit): Cancellable {
-		val c = object : Component(this), Cancellable {
-			override fun update(dtMs: Int) = run { updatable(dtMs) }
+	fun removeAllComponents() = run {
+		components?.clear()
+	}
 
-			override fun cancel(e: Throwable) = removeComponent(this)
-		}
-		addComponent(c)
+	fun addComponent(c: Component): Component {
+		if (components == null) components = arrayListOf()
+		components?.plusAssign(c)
+		c.update(0)
 		return c
 	}
+
+	fun addUpdatable(updatable: (dtMs: Int) -> Unit): Cancellable = addComponent(object : Component(this) {
+		override fun update(dtMs: Int) = run { updatable(dtMs) }
+	})
 
 	fun <T : Component> getOrCreateComponent(clazz: KClass<T>, gen: (View) -> T): T {
 		if (components == null) components = arrayListOf()
@@ -396,7 +400,9 @@ open class View(val views: Views) : Renderable, Updatable, Extra by Extra.Mixin(
 	}
 
 	fun globalToLocal(p: Point2d, out: MPoint2d = MPoint2d()): MPoint2d = globalToLocalXY(p.x, p.y, out)
-	fun globalToLocalXY(x: Double, y: Double, out: MPoint2d = MPoint2d()): MPoint2d = globalMatrixInv.transform(x, y, out)
+	fun globalToLocalXY(x: Double, y: Double, out: MPoint2d = MPoint2d()): MPoint2d =
+		globalMatrixInv.transform(x, y, out)
+
 	fun globalToLocalX(x: Double, y: Double): Double = globalMatrixInv.transformX(x, y)
 	fun globalToLocalY(x: Double, y: Double): Double = globalMatrixInv.transformY(x, y)
 
@@ -467,13 +473,15 @@ open class View(val views: Views) : Renderable, Updatable, Extra by Extra.Mixin(
 
 	final override fun update(dtMs: Int) {
 		val actualDtMs = (dtMs * speed).toInt()
-		if (componentsIt != null) {
-			for (c in componentsIt!!) c.update(actualDtMs)
+		val comps = componentsIt
+		//println("UPDATE: componentsIt=$componentsIt --- components=$components")
+		if (comps != null) {
+			for (c in comps) c?.update(actualDtMs)
 		}
 		updateInternal(actualDtMs)
 	}
 
-	open protected fun updateInternal(dtMs: Int) {
+	protected open fun updateInternal(dtMs: Int) {
 	}
 
 	fun removeFromParent() {
@@ -544,7 +552,7 @@ open class View(val views: Views) : Renderable, Updatable, Extra by Extra.Mixin(
 		out.setTo(0, 0, 0, 0)
 	}
 
-	open protected fun createInstance(): View =
+	protected open fun createInstance(): View =
 		throw MustOverrideException("Must Override ${this::class}.createInstance()")
 
 	open fun copyPropsFrom(source: View) {

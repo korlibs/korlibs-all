@@ -7,7 +7,7 @@ import com.soywiz.korui.event.*
 import kotlin.coroutines.experimental.*
 import kotlin.reflect.*
 
-open class Component(val view: View) : CoroutineContextHolder, EventDispatcher by view {
+open class Component(val view: View) : CoroutineContextHolder, EventDispatcher by view, Cancellable {
 	override val coroutineContext: CoroutineContext get() = view.views.coroutineContext
 	val detatchCloseables = arrayListOf<Closeable>()
 
@@ -29,5 +29,9 @@ open class Component(val view: View) : CoroutineContextHolder, EventDispatcher b
 
 	override fun <T : Event> dispatch(clazz: KClass<T>, event: T) {
 		this.view.dispatch(clazz, event)
+	}
+
+	override fun cancel(e: Throwable) {
+		dettach()
 	}
 }

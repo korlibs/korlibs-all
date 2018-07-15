@@ -10,7 +10,6 @@ import com.soywiz.korge.audio.*
 import com.soywiz.korge.bitmapfont.*
 import com.soywiz.korge.bitmapfont.BitmapFont
 import com.soywiz.korge.input.*
-import com.soywiz.korge.plugin.*
 import com.soywiz.korge.render.*
 import com.soywiz.korge.stat.*
 import com.soywiz.korim.bitmap.*
@@ -38,10 +37,9 @@ class Views(
 	val ag: AG,
 	val injector: AsyncInjector,
 	val input: Input,
-	val plugins: KorgePlugins,
 	val timeProvider: TimeProvider,
 	val stats: Stats
-) : AsyncDependency, Updatable, Extra by Extra.Mixin(), EventDispatcher by EventDispatcher.Mixin(), CoroutineContextHolder {
+) : Updatable, Extra by Extra.Mixin(), EventDispatcher by EventDispatcher.Mixin(), CoroutineContextHolder {
 
 	var imageFormats = defaultImageFormats
 
@@ -141,10 +139,6 @@ class Views(
 	var scaleMode: ScaleMode = ScaleMode.SHOW_ALL
 	var scaleAnchor = Anchor.MIDDLE_CENTER
 	var clipBorders = true
-
-	override suspend fun init() {
-		for (plugin in plugins.plugins) plugin.register(this)
-	}
 
 	override fun <T : Event> dispatch(clazz: KClass<T>, event: T) {
 		try {
@@ -277,26 +271,6 @@ class Views(
 
 	var targetFps: Double = -1.0
 
-	fun animationFrameLoop(callback: suspend () -> Unit): Closeable {
-		//println("Views.animationFrameLoop.eventLoop: $eventLoop")
-		//val process = async(coroutineContext) {
-		//	var accumulatedMs = 0.0
-		//	while (true) {
-		//		callback()
-		//		if (targetFps <= 0) {
-		//			eventLoop.sleepNextFrame()
-		//		} else {
-		//			val targetMs = (1000.0 / targetFps) + accumulatedMs
-		//			val targetMsInt = targetMs.toInt()
-		//			accumulatedMs = targetMs - targetMsInt
-		//			eventLoop.sleep(targetMsInt)
-		//		}
-		//	}
-		//}
-		//return Closeable { process.cancel() }
-		return coroutineContext.animationFrameLoop(callback)
-	}
-
 	fun dispose() {
 		soundSystem.close()
 	}
@@ -336,15 +310,10 @@ class ViewsLog(
 	val injector: AsyncInjector = AsyncInjector(),
 	val ag: LogAG = LogAG(),
 	val input: Input = Input(),
-	val plugins: KorgePlugins = defaultKorgePlugins,
 	val timeProvider: TimeProvider = TimeProvider(),
 	val stats: Stats = Stats()
-) : AsyncDependency {
-	val views = Views(coroutineContext, ag, injector, input, plugins, timeProvider, stats)
-
-	suspend override fun init() {
-		views.init()
-	}
+) {
+	val views = Views(coroutineContext, ag, injector, input, timeProvider, stats)
 }
 
 /*

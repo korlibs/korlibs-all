@@ -1,5 +1,6 @@
 package com.soywiz.korio.async
 
+import com.soywiz.kds.*
 import com.soywiz.klock.*
 import com.soywiz.korio.*
 import com.soywiz.korio.lang.*
@@ -63,38 +64,111 @@ suspend fun delay(time: TimeSpan) = delay(time.milliseconds)
 
 suspend fun CoroutineContext.delay(time: TimeSpan) = delay(time.milliseconds)
 
-fun CoroutineContext.animationFrameLoop(callback: suspend () -> Unit): Closeable {
-	val job = launch(this) {
-		while (true) {
-			callback()
+fun CoroutineContext.animationFrameLoop(callback: suspend (Closeable) -> Unit): Closeable {
+	var running = true
+	val close = Closeable {
+		running = false
+	}
+	launch(this) {
+		while (running) {
+			callback(close)
 			delayNextFrame()
 		}
 	}
-	return Closeable { job.cancel() }
+	return close
 }
 
 interface CoroutineContextHolder {
 	val coroutineContext: CoroutineContext
 }
 
-class TestCoroutineDispatcher(val parent: CoroutineDispatcher) : CoroutineDispatcher(), Delay, DelayFrame {
-	val FRAME_TIME = 16
-	var time = 0L
+class TestCoroutineDispatcher(val frameTime: Int = 16) :
+	CoroutineDispatcher(),
+	ContinuationInterceptor,
+	Delay, DelayFrame {
+	var time = 0L; private set
+
+	class TimedTask(val time: Long, val callback: suspend () -> Unit) {
+		override fun toString(): String = "TimedTask(time=$time)"
+	}
+
+	val tasks = PriorityQueue<TimedTask>(Comparator { a, b -> a.time.compareTo(b.time) })
+
+	override fun <T> interceptContinuation(continuation: Continuation<T>): Continuation<T> {
+		return object : Continuation<T> {
+			override val context: CoroutineContext = continuation.context
+
+			override fun resume(value: T) {
+				continuation.resume(value)
+			}
+
+			override fun resumeWithException(exception: Throwable) {
+				continuation.resumeWithException(exception)
+			}
+		}
+	}
+
+	private fun scheduleAfter(time: Int, callback: suspend () -> Unit) {
+		tasks += TimedTask(this.time + time) {
+			callback()
+		}
+	}
 
 	override fun dispatch(context: CoroutineContext, block: Runnable) {
-		parent.dispatcher.dispatch(context, block)
+		scheduleAfter(0) { block.run() }
 	}
 
 	override fun scheduleResumeAfterDelay(time: Long, unit: TimeUnit, continuation: CancellableContinuation<Unit>) {
-		this.time += unit.toMillis(time)
-		continuation.resume(Unit)
+		scheduleAfter(unit.toMillis(time).toInt()) { continuation.resume(Unit) }
 	}
 
 	override fun delayFrame(continuation: Continuation<Unit>) {
-		this.time += FRAME_TIME
-		continuation.resume(Unit)
+		scheduleAfter(frameTime) { continuation.resume(Unit) }
+	}
+
+	var exception: Throwable? = null
+	fun loop() {
+		//println("doStep: currentThreadId=$currentThreadId")
+		if (exception != null) throw exception ?: error("error")
+		//println("TASKS: ${tasks.size}")
+		while (tasks.isNotEmpty()) {
+			val task = tasks.removeHead()
+			this.time = task.time
+			//println("RUN: $task")
+			task.callback.startCoroutine(object : Continuation<Unit> {
+				override val context: CoroutineContext = this@TestCoroutineDispatcher
+				override fun resume(value: Unit) = Unit
+				override fun resumeWithException(exception: Throwable) {
+					exception.printStackTrace()
+					this@TestCoroutineDispatcher.exception = exception
+				}
+			})
+		}
+	}
+
+	fun loop(entry: suspend () -> Unit) {
+		entry.startCoroutine(object : Continuation<Unit> {
+			override val context: CoroutineContext = this@TestCoroutineDispatcher
+			override fun resume(value: Unit) = Unit
+			override fun resumeWithException(exception: Throwable) {
+				exception.printStackTrace()
+				this@TestCoroutineDispatcher.exception = exception
+			}
+		})
+		loop()
 	}
 }
 
 suspend fun <T> executeInNewThread(task: suspend () -> T): T = KorioNative.executeInWorker(task)
 suspend fun <T> executeInWorker(task: suspend () -> T): T = KorioNative.executeInWorker(task)
+
+fun suspendTest(
+	dispatcher: TestCoroutineDispatcher = TestCoroutineDispatcher(),
+	callback: suspend TestCoroutineDispatcher.() -> Unit
+) {
+	Korio(dispatcher) {
+		dispatcher.loop {
+			callback(dispatcher)
+		}
+	}
+}

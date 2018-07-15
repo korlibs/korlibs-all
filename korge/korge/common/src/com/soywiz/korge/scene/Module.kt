@@ -1,6 +1,5 @@
 package com.soywiz.korge.scene
 
-import com.soywiz.korge.plugin.*
 import com.soywiz.korim.color.*
 import com.soywiz.korim.vector.*
 import com.soywiz.korinject.*
@@ -18,7 +17,6 @@ open class Module {
 
 	open val size: SizeInt get() = SizeInt(640, 480)
 	open val windowSize: SizeInt get() = size
-	open val plugins: List<KorgePlugin> = listOf()
 
 	open val mainScene: KClass<out Scene> = EmptyScene::class
 	open val clearEachFrame = true

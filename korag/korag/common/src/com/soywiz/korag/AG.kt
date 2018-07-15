@@ -44,7 +44,7 @@ abstract class AG : Extra by Extra.Mixin() {
 
 	open val devicePixelRatio: Double = 1.0
 
-	private val onReadyDeferred = CompletableDeferred<AG>()
+	private val onReadyDeferred = CompletableDeferred<AG>(Job())
 	protected fun ready() {
 		//println("AG.ready!")
 		onReadyDeferred.complete(this)

@@ -1,8 +1,8 @@
 package com.soywiz.korio.compression
 
+import com.soywiz.korio.async.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.stream.*
-import ioSync
 
 class CompressionContext(var level: Int = 6) {
 	var name: String? = null
@@ -54,10 +54,10 @@ suspend fun ByteArray.compress(
 	context: CompressionContext = CompressionContext()
 ): ByteArray = method.compress(this, context)
 
-fun ByteArray.syncUncompress(method: CompressionMethod): ByteArray = ioSync { method.uncompress(this) }
+fun ByteArray.syncUncompress(method: CompressionMethod): ByteArray = runBlockingNoSuspensions { method.uncompress(this) }
 fun ByteArray.syncCompress(method: CompressionMethod, context: CompressionContext = CompressionContext()): ByteArray =
-	ioSync { method.compress(this, context) }
+	runBlockingNoSuspensions { method.compress(this, context) }
 
-fun CompressionMethod.syncUncompress(i: SyncInputStream, o: SyncOutputStream) = ioSync {
+fun CompressionMethod.syncUncompress(i: SyncInputStream, o: SyncOutputStream) = runBlockingNoSuspensions {
 	uncompress(i.toAsyncInputStream(), o.toAsyncOutputStream())
 }

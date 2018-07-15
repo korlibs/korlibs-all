@@ -2,12 +2,14 @@ package com.soywiz.korge.tween
 
 import com.soywiz.klock.*
 import com.soywiz.korge.tests.*
-import com.soywiz.korio.async.*
+import kotlinx.coroutines.experimental.*
+import kotlin.coroutines.experimental.*
 import kotlin.test.*
 
-class TweenTest : ViewsForTesting() {
+class TweenTest : ViewsForTesting(20) {
 	@Test
-	fun name() = viewsTest(step = 20.milliseconds) {
+	fun name() = viewsTest {
+		//println("BLOCK START")
 		val result = arrayListOf<Any>()
 		val result2 = arrayListOf<Any>()
 
@@ -18,22 +20,29 @@ class TweenTest : ViewsForTesting() {
 
 		val demo = Demo()
 
-		val p1 = go {
-			views.stage.tween(demo::b[100, 200], time = 100.milliseconds, easing = Easing.Companion.LINEAR) {
+		val p1 = async(coroutineContext) {
+			views.stage.tween(demo::b[100, 200], time = 100.milliseconds, easing = Easing.LINEAR) {
 				result2 += "[b=" + demo.b + ":" + it + "]"
+				//println(result2)
 			}
+			//println("p1 done")
+			//println(views.stage.unsafeListRawComponents)
+
 		}
-		val p2 = go {
-			views.stage.tween(demo::c[100, 200], time = 100.milliseconds, easing = Easing.Companion.LINEAR) {
+		val p2 = async(coroutineContext) {
+			views.stage.tween(demo::c[100, 200], time = 100.milliseconds, easing = Easing.LINEAR) {
 				result2 += "[c=" + demo.c + ":" + it + "]"
 			}
+			//println(views.stage.unsafeListRawComponents)
 		}
 
-		views.stage.tween(demo::a[+10], time = 100.milliseconds, easing = Easing.Companion.LINEAR) {
+
+		//println(views.stage.unsafeListRawComponents)
+		views.stage.tween(demo::a[+10], time = 100.milliseconds, easing = Easing.LINEAR) {
 			result += "[" + demo.a + ":" + it + "]"
 		}
 		result += "---"
-		views.stage.tween(demo::a[-100, +100], time = 100.milliseconds, easing = Easing.Companion.LINEAR) {
+		views.stage.tween(demo::a[-100, +100], time = 100.milliseconds, easing = Easing.LINEAR) {
 			result += "[" + demo.a + ":" + it + "]"
 		}
 		result += "---"
@@ -41,14 +50,20 @@ class TweenTest : ViewsForTesting() {
 		p1.await()
 		p2.await()
 
+		val rr1 = result.joinToString(",")
 		assertEquals(
 			"[-10:0.0],[-6:0.2],[-2:0.4],[2:0.6],[6:0.8],[10:1.0],---,[-100:0.0],[-60:0.2],[-20:0.4],[20:0.6],[60:0.8],[100:1.0],---",
-			result.joinToString(",")
+			rr1
 		)
+//
+		//println(":::::5")
 
+		val rr2 = result2.joinToString(",")
 		assertEquals(
 			"[b=100:0.0],[c=100:0.0],[b=120:0.2],[c=120:0.2],[b=140:0.4],[c=140:0.4],[b=160:0.6],[c=160:0.6],[b=180:0.8],[c=180:0.8],[b=200:1.0],[c=200:1.0]",
-			result2.joinToString(",")
+			rr2
 		)
+//
+		//println(":::::6")
 	}
 }

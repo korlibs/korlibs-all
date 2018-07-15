@@ -6,13 +6,12 @@ import com.soywiz.korge.view.*
 import com.soywiz.korge.view.tiles.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.format.*
-import com.soywiz.korio.async.*
 import kotlin.test.*
 
 class TiledMapTest : ViewsForTesting() {
 	@Test
 	@Ignore // Must fix mapping first
-	fun name() = suspendTest {
+	fun name() = viewsTest {
 		disableNativeImageLoading {
 			//class Demo(@Path("sample.tmx") val map: TiledMap)
 			class Demo(val map: TiledMap)
@@ -32,7 +31,7 @@ class TiledMapTest : ViewsForTesting() {
 	}
 
 	@Test
-	fun testRenderInBounds() = suspendTest {
+	fun testRenderInBounds() = viewsTest {
 		val tileset = TileSet(views, Bitmap32(32, 32).texture(views), 32, 32)
 		val map = TileMap(IntArray2(200, 200), tileset, views)
 		views.stage += map

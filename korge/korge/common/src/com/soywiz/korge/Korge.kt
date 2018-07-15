@@ -4,7 +4,6 @@ import com.soywiz.klock.*
 import com.soywiz.klogger.*
 import com.soywiz.korag.*
 import com.soywiz.korge.input.*
-import com.soywiz.korge.plugin.*
 import com.soywiz.korge.resources.*
 import com.soywiz.korge.scene.*
 import com.soywiz.korge.stat.*
@@ -13,6 +12,7 @@ import com.soywiz.korim.format.*
 import com.soywiz.korim.vector.*
 import com.soywiz.korinject.*
 import com.soywiz.korio.*
+import com.soywiz.korio.async.*
 import com.soywiz.korio.file.std.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.util.*
@@ -41,20 +41,19 @@ object Korge {
 
 		logger.trace { "pre injector" }
 		injector
-				// Instances
+			// Instances
 			.mapInstance(ModuleArgs::class, moduleArgs)
 			.mapInstance(TimeProvider::class, config.timeProvider)
 			.mapInstance(CoroutineContext::class, config.context)
 			.mapInstance(Module::class, config.module)
 			.mapInstance(AG::class, ag)
-			.mapInstance(KorgePlugins::class, defaultKorgePlugins)
 			.mapInstance(Config::class, config)
-				// Singletons
+			// Singletons
 			.mapSingleton(Stats::class) { Stats() }
 			.mapSingleton(Input::class) { Input() }
-			.mapSingleton(Views::class) { Views(get(), get(), get(), get(), get(), get(), get()) }
+			.mapSingleton(Views::class) { Views(get(), get(), get(), get(), get(), get()) }
 			.mapSingleton(ResourcesRoot::class) { ResourcesRoot() }
-				// Prototypes
+			// Prototypes
 			.mapPrototype(EmptyScene::class) { EmptyScene() }
 
 		if (config.frame != null) {
@@ -63,15 +62,6 @@ object Korge {
 		}
 
 		//println("FRAME: $frame, ${config.frame}")
-
-		logger.trace { "pre plugins" }
-
-		// Register module plugins
-		for (plugin in config.module.plugins) {
-			defaultKorgePlugins.register(plugin)
-		}
-
-		logger.trace { "post plugins" }
 
 		@Suppress("RemoveExplicitTypeArguments")
 
@@ -99,11 +89,6 @@ object Korge {
 		views.scaleAnchor = config.module.scaleAnchor
 		views.scaleMode = config.module.scaleMode
 		views.clipBorders = config.module.clipBorders
-
-		// Inject all modules
-		for (plugin in defaultKorgePlugins.plugins) {
-			plugin.register(views)
-		}
 
 		logger.trace { "Korge.setupCanvas[3]" }
 
@@ -349,7 +334,7 @@ object Korge {
 
 		views.targetFps = config.module.targetFps
 
-		views.animationFrameLoop {
+		coroutineContext.animationFrameLoop {
 			logger.trace { "views.animationFrameLoop" }
 			//ag.resized()
 			config.container.repaint()
@@ -422,7 +407,7 @@ object Korge {
 		}
 		logger.trace { "Korge.test" }
 		logger.trace { "Korge.test.checkEnvironment" }
-		val done = CompletableDeferred<SceneContainer>()
+		val done = CompletableDeferred<SceneContainer>(Job())
 		logger.trace { "Korge.test without container" }
 		val module = config.module
 		logger.trace { "Korge.test loading icon" }

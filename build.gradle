@@ -109,7 +109,7 @@ allprojects {
 		}
 		if (isJvm) {
 			testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
-			testCompile "junit:junit:4.12"
+			testCompile "junit:junit:$junitVersion"
 		}
 
 		if (isKotlin) {

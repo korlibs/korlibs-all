@@ -6,7 +6,6 @@ import com.soywiz.korge.build.lipsync.*
 import com.soywiz.korge.build.swf.*
 import com.soywiz.korge.ext.lipsync.*
 import com.soywiz.korge.ext.swf.*
-import com.soywiz.korge.plugin.*
 import com.soywiz.korge.ui.*
 import com.soywiz.korim.format.*
 

@@ -24,6 +24,10 @@ actual typealias AtomicInt = java.util.concurrent.atomic.AtomicInteger
 
 actual fun NewAtomicInt(value: Int): AtomicInt = AtomicInt(value)
 
+actual fun AtomicInt.compareAndSet(expected: Int, newValue: Int): Boolean {
+	return (this as java.util.concurrent.atomic.AtomicInteger).compareAndSet(expected, newValue)
+}
+
 actual fun AtomicInt.addAndGet(delta: Int): Int {
 	return (this as java.util.concurrent.atomic.AtomicInteger).addAndGet(delta)
 }

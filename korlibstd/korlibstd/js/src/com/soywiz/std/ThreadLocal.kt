@@ -23,6 +23,12 @@ actual class AtomicInt {
 }
 
 actual fun NewAtomicInt(value: Int): AtomicInt = AtomicInt().apply { this.value = value }
+actual fun AtomicInt.compareAndSet(expected: Int, newValue: Int): Boolean = if (this.value == expected) {
+	this.value = newValue
+	true
+} else {
+	false
+}
 actual fun AtomicInt.addAndGet(delta: Int): Int {
 	this.value += delta
 	return this.value

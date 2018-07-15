@@ -5,16 +5,10 @@ import com.soywiz.klock.*
 import com.soywiz.kmem.*
 import com.soywiz.korau.format.*
 import com.soywiz.korau.sound.*
-import com.soywiz.korge.plugin.*
 import com.soywiz.korge.view.*
 import com.soywiz.korinject.*
 import com.soywiz.korio.file.*
 import kotlinx.coroutines.experimental.*
-
-object SoundPlugin : KorgePlugin() {
-	override suspend fun register(views: Views) {
-	}
-}
 
 @Singleton
 class SoundSystem(val views: Views) : AsyncDependency {

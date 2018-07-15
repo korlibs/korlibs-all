@@ -5,6 +5,7 @@ import com.soywiz.korge.resources.*
 import com.soywiz.korge.tests.*
 import com.soywiz.korge.view.*
 import com.soywiz.korim.color.*
+import kotlinx.coroutines.experimental.*
 import kotlin.test.*
 
 class SceneContainerTest : ViewsForTesting() {
@@ -33,7 +34,7 @@ class SceneContainerTest : ViewsForTesting() {
 	inner class Scene2 : MyLogScene() {
 		override val name: String = "Scene2"
 
-		suspend override fun sceneInit(sceneView: Container) {
+		override suspend fun sceneInit(sceneView: Container) {
 			super.sceneInit(sceneView)
 			sceneView += views.solidRect(100, 100, Colors.RED).apply {
 				name = "box"
@@ -51,7 +52,7 @@ class SceneContainerTest : ViewsForTesting() {
 		sc.changeTo<Scene1>(SceneInfo("hello"), time = 10.milliseconds)
 		//sc.changeTo<Scene1>(time = 10)
 
-		sleep(10)
+		delay(10)
 
 		assertNotNull(sc["box"])
 		assertEquals(

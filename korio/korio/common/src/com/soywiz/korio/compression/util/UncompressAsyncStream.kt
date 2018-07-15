@@ -64,7 +64,7 @@ suspend fun CompressAsyncStream(
 
 class LimitedOutputStream : AsyncOutputStream {
 	class Task(val slice: ByteArraySlice) {
-		val count = CompletableDeferred<Int>()
+		val count = CompletableDeferred<Int>(Job())
 	}
 
 	val queue = ProduceConsumer<Task>()

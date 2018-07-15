@@ -4,12 +4,11 @@ import com.soywiz.korge.input.*
 import com.soywiz.korge.render.*
 import com.soywiz.korge.tests.*
 import com.soywiz.korge.view.*
-import com.soywiz.korio.async.*
 import kotlin.test.*
 
 class MouseComponentTest : ViewsForTesting() {
 	@Test
-	fun name() = suspendTest {
+	fun name() = viewsTest {
 		val log = arrayListOf<String>()
 		val tex = Texture(ag.createTexture(), 16, 16)
 		val image = views.image(tex)
@@ -22,13 +21,13 @@ class MouseComponentTest : ViewsForTesting() {
 		image.onUp { log += "onUp" }
 		image.onMove { log += "onMove" }
 
-		input.mouse.setTo(8.0, 8.0); views.update(0); this.step(0)
+		mouseMoveTo(8.0, 8.0)
 		assertEquals("onOver", log.joinToString(","))
-		input.mouse.setTo(20.0, 20.0); views.update(0); this.step(0)
+		mouseMoveTo(20.0, 20.0)
 		assertEquals("onOver,onOut", log.joinToString(","))
-		input.mouse.setTo(8.0, 8.0); input.mouseButtons = 1; views.update(0); this.step(0)
+		mouseMoveTo(8.0, 8.0); input.mouseButtons = 1
 		assertEquals("onOver,onOut,onOver,onDown", log.joinToString(","))
-		input.mouse.setTo(10.0, 10.0); views.update(0); this.step(0)
+		mouseMoveTo(10.0, 10.0)
 		assertEquals("onOver,onOut,onOver,onDown,onMove", log.joinToString(","))
 	}
 }

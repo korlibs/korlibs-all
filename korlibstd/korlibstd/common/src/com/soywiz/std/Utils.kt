@@ -9,8 +9,31 @@ expect fun <T> atomicLazy(initializer: () -> T): Lazy<T>
 
 expect class AtomicReference<T>
 
+class AtomicBool(val value: Boolean = false) {
+	fun Boolean.toInt() = if (value) 1 else 0
+
+	private val atomic = NewAtomicInt(value.toInt())
+	fun set(value: Boolean) = atomic.set(value.toInt())
+	fun get(): Boolean = atomic.get() != 0
+
+	inline operator fun getValue(obj: Any?, property: KProperty<*>): Boolean {
+		@Suppress("UNCHECKED_CAST")
+		return get()
+	}
+
+	inline operator fun setValue(obj: Any?, property: KProperty<*>, v: Boolean) {
+		set(v)
+	}
+
+	fun compareAndSet(expected: Boolean, newValue: Boolean): Boolean {
+		return atomic.compareAndSet(expected.toInt(), newValue.toInt())
+	}
+}
+
 expect class AtomicInt
+
 expect fun NewAtomicInt(value: Int): AtomicInt
+expect fun AtomicInt.compareAndSet(expected: Int, newValue: Int): Boolean
 expect fun AtomicInt.addAndGet(delta: Int): Int
 expect fun AtomicInt.set(value: Int)
 expect fun AtomicInt.get(): Int
@@ -20,6 +43,7 @@ fun AtomicInt.increment() = addAndGet(+1)
 fun AtomicInt.decrement() = addAndGet(-1)
 
 expect class AtomicLong
+
 expect fun NewAtomicLong(value: Long): AtomicLong
 expect fun AtomicLong.addAndGet(delta: Long): Long
 expect fun AtomicLong.set(value: Long)

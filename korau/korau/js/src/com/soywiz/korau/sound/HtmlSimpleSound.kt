@@ -28,7 +28,7 @@ object HtmlSimpleSound {
 
 	val available get() = ctx != null
 	var unlocked = false
-	private val unlockDeferred = CompletableDeferred<Unit>()
+	private val unlockDeferred = CompletableDeferred<Unit>(Job())
 	val unlock = unlockDeferred as Deferred<Unit>
 
 	fun playSound(buffer: AudioBuffer): AudioBufferSourceNode? {

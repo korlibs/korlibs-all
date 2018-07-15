@@ -7,6 +7,7 @@ import com.soywiz.kmem.*
 import com.soywiz.korge.component.*
 import com.soywiz.korge.view.*
 import com.soywiz.korim.color.*
+import com.soywiz.korio.KorioNative.currentThreadId
 import com.soywiz.korma.interpolation.*
 import kotlinx.coroutines.experimental.*
 import kotlin.reflect.*
@@ -23,18 +24,29 @@ class TweenComponent(
 	val ctime = time ?: vs.map { it.endTime }.max() ?: 1000
 	var cancelled = false
 
+	override fun toString(): String = "TweenComponent($view)"
+
 	init {
 		c.invokeOnCancellation {
 			cancelled = true
+			//println("TWEEN CANCELLED[$this, $vs]: $elapsed")
+		}
+	}
+
+	var done = false
+
+	fun completeOnce() {
+		if (!done) {
+			done = true
+			dettach()
+			c.resume(Unit)
+			//println("TWEEN COMPLETED[$this, $vs]: $elapsed. thread=$currentThreadId")
 		}
 	}
 
 	override fun update(dtMs: Int) {
-		if (cancelled) {
-			dettach()
-			c.resume(Unit)
-			return
-		}
+		//println("TWEEN UPDATE[$this, $vs]: $elapsed + $dtMs")
+		if (cancelled) return completeOnce()
 		elapsed += dtMs
 
 		val ratio = (elapsed.toDouble() / ctime.toDouble()).clamp(0.0, 1.0)
@@ -47,10 +59,7 @@ class TweenComponent(
 		}
 		callback(easing(ratio))
 
-		if (ratio >= 1.0) {
-			dettach()
-			c.resume(Unit)
-		}
+		if (ratio >= 1.0) return completeOnce()
 	}
 }
 
@@ -59,9 +68,14 @@ suspend fun View?.tween(
 	time: TimeSpan,
 	easing: Easing = Easing.LINEAR,
 	callback: (Double) -> Unit = { }
-) = suspendCancellableCoroutine<Unit> { c ->
-	val view = this@tween
-	view?.addComponent(TweenComponent(vs.toList(), view, time.milliseconds, easing, callback, c))
+): Unit {
+	withTimeout(300 + time.milliseconds * 2) {
+		suspendCancellableCoroutine<Unit> { c ->
+			val view = this@tween
+			//println("STARTED TWEEN at thread $currentThreadId")
+			view?.addComponent(TweenComponent(vs.toList(), view, time.milliseconds, easing, callback, c))
+		}
+	}
 }
 
 @Suppress("UNCHECKED_CAST")
@@ -79,13 +93,15 @@ data class V2<V>(
 	constructor(key: KMutableProperty0<V>, initial: V, end: V) : this(key, initial, end, ::interpolateAny)
 
 	fun set(ratio: Double) = key.set(interpolator(initial, end, ratio))
+
+	override fun toString(): String = "V2(key=${key.name}, range=[$initial-$end], startTime=$startTime, duration=$duration)"
 }
 
 operator fun <V> KMutableProperty0<V>.get(end: V) = V2(this, this.get(), end, ::interpolateAny)
 operator fun <V> KMutableProperty0<V>.get(initial: V, end: V) = V2(this, initial, end, ::interpolateAny)
 
-operator inline fun KMutableProperty0<Double>.get(end: Number) = V2(this, this.get(), end.toDouble(), ::interpolate)
-operator inline fun KMutableProperty0<Double>.get(initial: Number, end: Number) =
+inline operator fun KMutableProperty0<Double>.get(end: Number) = V2(this, this.get(), end.toDouble(), ::interpolate)
+inline operator fun KMutableProperty0<Double>.get(initial: Number, end: Number) =
 	V2(this, initial.toDouble(), end.toDouble(), ::interpolate)
 
 @Deprecated("Use get instead", level = DeprecationLevel.ERROR)

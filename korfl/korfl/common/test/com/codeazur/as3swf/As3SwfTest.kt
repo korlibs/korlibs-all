@@ -2,7 +2,6 @@ package com.codeazur.as3swf
 
 import com.soywiz.korio.async.*
 import com.soywiz.korio.file.std.*
-import com.soywiz.korio.file.std.*
 import kotlin.test.*
 
 class As3SwfTest {

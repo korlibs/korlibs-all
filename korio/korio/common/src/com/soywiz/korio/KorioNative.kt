@@ -154,7 +154,7 @@ object KorioNativeDefaults {
 
 						//println("REQ: $method, $url, $headerList")
 
-						val requestCompleted = CompletableDeferred<Unit>()
+						val requestCompleted = CompletableDeferred<Unit>(Job())
 
 						var bodyHandler: (ByteArray) -> Unit = {}
 						var endHandler: () -> Unit = {}
