@@ -182,7 +182,7 @@ abstract class AGOpengl : AG() {
 			val att = vertexLayout.attributes[n]
 			if (att.active) {
 				val off = vertexLayout.attributePositions[n]
-				val loc = checkErrors { gl.getAttribLocation(glProgram.id, att.name).toInt() }
+				val loc = checkErrors { glProgram.getAttribLocation(att.name) }
 				val glElementType = att.type.glElementType
 				val elementCount = att.type.elementCount
 				if (loc >= 0) {
@@ -297,7 +297,7 @@ abstract class AGOpengl : AG() {
 
 		checkErrors { gl.activeTexture(gl.TEXTURE0) }
 		for (att in vertexLayout.attributes.filter { it.active }) {
-			val loc = checkErrors { gl.getAttribLocation(glProgram.id, att.name).toInt() }
+			val loc = checkErrors { glProgram.getAttribLocation(att.name).toInt() }
 			if (loc >= 0) {
 				checkErrors { gl.disableVertexAttribArray(loc) }
 			}
@@ -335,6 +335,14 @@ abstract class AGOpengl : AG() {
 		var id: Int = 0
 		var fragmentShaderId: Int = 0
 		var vertexShaderId: Int = 0
+
+		val cachedAttribLocations = LinkedHashMap<String, Int>()
+
+		fun getAttribLocation(name: String): Int {
+			return cachedAttribLocations.getOrPut(name) {
+				gl.getAttribLocation(id, name)
+			}
+		}
 
 		private fun String.replaceVersion(version: Int) = this.replace("#version 100", "#version $version")
 

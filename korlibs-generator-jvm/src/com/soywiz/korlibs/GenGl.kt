@@ -796,7 +796,7 @@ object OpenglDesc {
 			"size" to GlSize,
 			"data" to GlVoidPtr,
 			"usage" to GlInt,
-			jsBody = "gl.bufferData(target, data?.arrayBuffer, usage)"
+			jsBody = "gl.bufferData(target, Uint8Array(data.arrayBuffer, 0, size), usage)"
 		) // @TODO: size
 		function(
 			GlVoid,
@@ -805,7 +805,7 @@ object OpenglDesc {
 			"offset" to GlSize,
 			"size" to GlSize,
 			"data" to GlVoidPtr,
-			jsBody = "gl.bufferSubData(target, offset, data.arrayBuffer)" // @TODO: size
+			jsBody = "gl.bufferSubData(target, offset, Uint8Array(data.arrayBuffer, 0, size))" // @TODO: size
 		)
 		function(GlInt, FunctionName("glCheckFramebufferStatus"), "target" to GlInt)
 		function(GlVoid, FunctionName("glClear"), "mask" to GlInt, core = true)
