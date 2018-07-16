@@ -8,7 +8,7 @@ To make development, evolution and deployment easier, all the korlibs libraries 
 Once relevant functionality is available as standard Kotlin libraries, I will deprecate the specific korlibs libraries
 and will provide a relevant migration utilities for them. 
 
-### Projects using Korlibs
+### Projects using Korlibs
 
 * <https://github.com/mmo-poc/mmo-poc>
 * <https://github.com/kpspemu/kpspemu>
