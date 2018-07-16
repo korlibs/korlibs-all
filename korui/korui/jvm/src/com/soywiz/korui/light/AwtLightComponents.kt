@@ -85,6 +85,7 @@ class AwtLightComponents : LightComponents() {
 							isCtrlDown = e.isControlDown
 							isShiftDown = e.isShiftDown
 							isMetaDown = e.isMetaDown
+							//scaleCoords = false
 						}
 						ed.dispatch(info)
 					}

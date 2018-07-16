@@ -4,9 +4,8 @@ import com.jogamp.newt.opengl.*
 import com.jogamp.opengl.*
 import com.jogamp.opengl.awt.*
 import com.soywiz.kgl.*
-import com.soywiz.korim.bitmap.*
 import com.soywiz.korio.util.*
-import java.nio.*
+
 
 object AGFactoryAwt : AGFactory {
 	override val supportsNativeFrame: Boolean = true

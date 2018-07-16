@@ -264,6 +264,7 @@ class HtmlLightComponents : LightComponents() {
 						this.isCtrlDown = me.ctrlKey
 						this.isShiftDown = me.shiftKey
 						this.isMetaDown = me.metaKey
+						this.scaleCoords = false
 						this.type = when (me.type) {
 							"click" -> com.soywiz.korui.event.MouseEvent.Type.CLICK
 							"mousemove" -> {
@@ -491,6 +492,7 @@ class HtmlLightComponents : LightComponents() {
 							this.touch.current.x = (touch.pageX * xEventScale).unsafeCast<Double>()
 							this.touch.current.y = (touch.pageY * yEventScale).unsafeCast<Double>()
 							this.touch.id = touch.identifier.unsafeCast<Int>()
+							this.scaleCoords = false
 						}
 					}
 					if (preventDefault) e.preventDefault()

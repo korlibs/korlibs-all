@@ -32,6 +32,7 @@ object HtmlDispatcher : CoroutineDispatcher(), Delay, DelayFrame {
 
 	override fun scheduleResumeAfterDelay(time: Long, unit: TimeUnit, continuation: CancellableContinuation<Unit>) {
 		window.setTimeout({ with(continuation) { resumeUndispatched(Unit) } }, unit.toMillis(time).toInt())
+		//window.setTimeout({ with(continuation) { resume(Unit) } }, unit.toMillis(time).toInt())
 	}
 
 	override fun invokeOnTimeout(time: Long, unit: TimeUnit, block: Runnable): DisposableHandle {
@@ -45,6 +46,7 @@ object HtmlDispatcher : CoroutineDispatcher(), Delay, DelayFrame {
 
 	override fun delayFrame(continuation: CancellableContinuation<Unit>) {
 		window.requestAnimationFrame { with(continuation) { resumeUndispatched(Unit) } }
+		//window.requestAnimationFrame { with(continuation) { resume(Unit) } }
 	}
 
 	override fun toString() = "HtmlDispatcher"

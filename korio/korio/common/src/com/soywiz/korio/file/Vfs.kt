@@ -31,11 +31,11 @@ abstract class Vfs {
 	fun createExistsStat(
 		path: String, isDirectory: Boolean, size: Long, device: Long = -1, inode: Long = -1, mode: Int = 511,
 		owner: String = "nobody", group: String = "nobody", createTime: Long = 0L, modifiedTime: Long = createTime,
-		lastAccessTime: Long = modifiedTime, extraInfo: Any? = null
+		lastAccessTime: Long = modifiedTime, extraInfo: Any? = null, id: String? = null
 	) = VfsStat(
 		file = file(path), exists = true, isDirectory = isDirectory, size = size, device = device, inode = inode,
 		mode = mode, owner = owner, group = group, createTime = createTime, modifiedTime = modifiedTime,
-		lastAccessTime = lastAccessTime, extraInfo = extraInfo
+		lastAccessTime = lastAccessTime, extraInfo = extraInfo, id = id
 	)
 
 	fun createNonExistsStat(path: String, extraInfo: Any? = null) = VfsStat(
@@ -253,7 +253,8 @@ data class VfsStat(
 	val createTime: Long = 0L,
 	val modifiedTime: Long = createTime,
 	val lastAccessTime: Long = modifiedTime,
-	val extraInfo: Any? = null
+	val extraInfo: Any? = null,
+	val id: String? = null
 ) : Path by file
 
 //val VfsStat.createLocalDate: LocalDateTime get() = LocalDateTime.ofEpochSecond(createTime / 1000L, ((createTime % 1_000L) * 1_000_000L).toInt(), ZoneOffset.UTC)

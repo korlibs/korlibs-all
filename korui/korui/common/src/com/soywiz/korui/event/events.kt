@@ -16,7 +16,8 @@ data class MouseEvent(
 	var isShiftDown: Boolean = false,
 	var isCtrlDown: Boolean = false,
 	var isAltDown: Boolean = false,
-	var isMetaDown: Boolean = false
+	var isMetaDown: Boolean = false,
+	var scaleCoords: Boolean = true
 ) :
 	Event() {
 	enum class Type { MOVE, DRAG, UP, DOWN, CLICK, ENTER, EXIT }
@@ -49,11 +50,22 @@ data class Touch(
 }
 
 
-data class TouchEvent(var type: Type = Type.START, var screen: Int = 0, var touch: Touch = Touch()) : Event() {
+data class TouchEvent(
+	var type: Type = Type.START,
+	var screen: Int = 0,
+	var touch: Touch = Touch(),
+	var scaleCoords: Boolean = true
+) : Event() {
 	enum class Type { START, END, MOVE }
 }
 
-data class KeyEvent(var type: Type = Type.UP, var id: Int = 0, var key: Key = Key.UP, var keyCode: Int = 0, var char: Char = '\u0000') : Event() {
+data class KeyEvent(
+	var type: Type = Type.UP,
+	var id: Int = 0,
+	var key: Key = Key.UP,
+	var keyCode: Int = 0,
+	var char: Char = '\u0000'
+) : Event() {
 	enum class Type { UP, DOWN, TYPE }
 }
 
@@ -79,25 +91,40 @@ data class DropFileEvent(var type: Type = Type.ENTER, var files: List<VfsFile>? 
 }
 
 class MouseEvents(val ed: EventDispatcher) : Closeable {
-	fun click(callback: () -> Unit) = ed.addEventListener<MouseEvent> { if (it.type == MouseEvent.Type.CLICK) callback() }
+	fun click(callback: () -> Unit) =
+		ed.addEventListener<MouseEvent> { if (it.type == MouseEvent.Type.CLICK) callback() }
+
 	fun up(callback: () -> Unit) = ed.addEventListener<MouseEvent> { if (it.type == MouseEvent.Type.UP) callback() }
 	fun down(callback: () -> Unit) = ed.addEventListener<MouseEvent> { if (it.type == MouseEvent.Type.DOWN) callback() }
 	fun move(callback: () -> Unit) = ed.addEventListener<MouseEvent> { if (it.type == MouseEvent.Type.MOVE) callback() }
 	fun drag(callback: () -> Unit) = ed.addEventListener<MouseEvent> { if (it.type == MouseEvent.Type.DRAG) callback() }
-	fun enter(callback: () -> Unit) = ed.addEventListener<MouseEvent> { if (it.type == MouseEvent.Type.ENTER) callback() }
+	fun enter(callback: () -> Unit) =
+		ed.addEventListener<MouseEvent> { if (it.type == MouseEvent.Type.ENTER) callback() }
+
 	fun exit(callback: () -> Unit) = ed.addEventListener<MouseEvent> { if (it.type == MouseEvent.Type.EXIT) callback() }
 	override fun close() {
 	}
 }
 
 class KeysEvents(val ed: EventDispatcher) : Closeable {
-	fun down(callback: KeyEvent.() -> Unit) = ed.addEventListener<KeyEvent> { if (it.type == KeyEvent.Type.DOWN) callback(it) }
-	fun up(callback: KeyEvent.() -> Unit) = ed.addEventListener<KeyEvent> { if (it.type == KeyEvent.Type.UP) callback(it) }
-	fun press(callback: KeyEvent.() -> Unit) = ed.addEventListener<KeyEvent> { if (it.type == KeyEvent.Type.TYPE) callback(it) }
+	fun down(callback: KeyEvent.() -> Unit) =
+		ed.addEventListener<KeyEvent> { if (it.type == KeyEvent.Type.DOWN) callback(it) }
 
-	fun down(key: Key, callback: KeyEvent.() -> Unit) = ed.addEventListener<KeyEvent> { if (it.type == KeyEvent.Type.DOWN && it.key == key) callback(it) }
-	fun up(key: Key, callback: KeyEvent.() -> Unit) = ed.addEventListener<KeyEvent> { if (it.type == KeyEvent.Type.UP && it.key == key) callback(it) }
-	fun press(key: Key, callback: KeyEvent.() -> Unit) = ed.addEventListener<KeyEvent> { if (it.type == KeyEvent.Type.TYPE && it.key == key) callback(it) }
+	fun up(callback: KeyEvent.() -> Unit) =
+		ed.addEventListener<KeyEvent> { if (it.type == KeyEvent.Type.UP) callback(it) }
+
+	fun press(callback: KeyEvent.() -> Unit) =
+		ed.addEventListener<KeyEvent> { if (it.type == KeyEvent.Type.TYPE) callback(it) }
+
+	fun down(key: Key, callback: KeyEvent.() -> Unit) =
+		ed.addEventListener<KeyEvent> { if (it.type == KeyEvent.Type.DOWN && it.key == key) callback(it) }
+
+	fun up(key: Key, callback: KeyEvent.() -> Unit) =
+		ed.addEventListener<KeyEvent> { if (it.type == KeyEvent.Type.UP && it.key == key) callback(it) }
+
+	fun press(key: Key, callback: KeyEvent.() -> Unit) =
+		ed.addEventListener<KeyEvent> { if (it.type == KeyEvent.Type.TYPE && it.key == key) callback(it) }
+
 	override fun close() {
 	}
 }

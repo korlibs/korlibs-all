@@ -159,22 +159,25 @@ object Korge {
 		//agInput.onMouseClick { e -> } // Triggered by mouseUp
 		*/
 
+		fun pixelRatio(): Double = ag.devicePixelRatio
+
+		fun getRealX(x: Double, scaleCoords: Boolean) = if (scaleCoords) x * pixelRatio() else x
+		fun getRealY(y: Double, scaleCoords: Boolean) = if (scaleCoords) y * pixelRatio() else y
+
 		fun updateTouch(id: Int, x: Double, y: Double, start: Boolean, end: Boolean) {
 			val touch = input.getTouch(id)
 			val now = Klock.currentTimeMillisDouble()
-			val sx = x * ag.devicePixelRatio
-			val sy = y * ag.devicePixelRatio
 
 			touch.id = id
 			touch.active = !end
 
 			if (start) {
 				touch.startTime = now
-				touch.start.setTo(sx, sy)
+				touch.start.setTo(x, y)
 			}
 
 			touch.currentTime = now
-			touch.current.setTo(sx, sy)
+			touch.current.setTo(x, y)
 
 			input.updateTouches()
 		}
@@ -217,8 +220,8 @@ object Korge {
 
 		eventDispatcher.addEventListener<MouseEvent> { e ->
 			logger.trace { "eventDispatcher.addEventListener<MouseEvent>:$e" }
-			val x = e.x.toDouble()
-			val y = e.y.toDouble()
+			val x = getRealX(e.x.toDouble(), e.scaleCoords)
+			val y = getRealY(e.y.toDouble(), e.scaleCoords)
 			when (e.type) {
 				MouseEvent.Type.DOWN -> {
 					mouseDown("mouseDown", x, y)
@@ -288,8 +291,8 @@ object Korge {
 
 		eventDispatcher.addEventListener<TouchEvent> { e ->
 			logger.trace { "eventDispatcher.addEventListener<TouchEvent>:$e" }
-			val ix = e.touch.current.x.toInt()
-			val iy = e.touch.current.y.toInt()
+			val ix = getRealX(e.touch.current.x, e.scaleCoords).toInt()
+			val iy = getRealX(e.touch.current.y, e.scaleCoords).toInt()
 			when (e.type) {
 				TouchEvent.Type.START -> {
 					touch(e, start = true, end = false)

@@ -2,6 +2,7 @@ package example
 
 import com.soywiz.klogger.*
 import com.soywiz.korge.*
+import com.soywiz.korge.input.*
 import com.soywiz.korge.scene.*
 import com.soywiz.korge.view.*
 import com.soywiz.korim.color.*
@@ -33,6 +34,12 @@ object MyModule : Module() {
 
 class MyScene : Scene() {
 	override suspend fun sceneInit(sceneView: Container) {
-		sceneView.addChild(views.solidRect(128, 128, Colors.RED))
+		sceneView.addChild(views.solidRect(128, 128, Colors.RED).apply {
+			alpha = 0.5
+			mouse {
+				onOver { alpha = 1.0 }
+				onOut { alpha = 0.5 }
+			}
+		})
 	}
 }

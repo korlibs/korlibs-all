@@ -23,11 +23,13 @@ class IsoVfs(val iso: ISO.IsoFile) : Vfs() {
 			file.fullname,
 			isDirectory = file.isDirectory,
 			size = file.size,
-			extraInfo = intArrayOf(file.record.extent, 0, 0, 0, 0, 0)
+			inode = file.record.extent.toLong(),
+			extraInfo = intArrayOf(file.record.extent, 0, 0, 0, 0, 0),
+			id = file.fullname
 		)
 
 	override suspend fun stat(path: String): VfsStat = try {
-		getVfsStat(isoFile[path])
+		getVfsStat(isoFile.get(path))
 	} catch (e: Throwable) {
 		createNonExistsStat(path)
 	}
@@ -130,19 +132,24 @@ object ISO {
 
 	class IsoFile(val reader: IsoReader, val record: DirectoryRecord, val parent: IsoFile?) {
 		val name: String get() = record.name
+		val normalizedName = name.normalizeName()
 		val isDirectory: Boolean get() = record.isDirectory
 		val fullname: String = if (parent == null) record.name else "${parent.fullname}/${record.name}".trimStart('/')
 		val children = arrayListOf<IsoFile>()
+		val childrenByName = LinkedHashMap<String, IsoFile>()
 		val size: Long = record.size.toLong()
 
 		init {
 			parent?.children?.add(this)
+			parent?.childrenByName?.put(normalizedName, this)
 		}
 
 		fun dump() {
 			println("$fullname: $record")
 			for (c in children) c.dump()
 		}
+
+		private fun String.normalizeName() = this.toLowerCase()
 
 		suspend fun open2(mode: VfsOpenMode) = reader.getSector(record.extent, record.size)
 		operator fun get(name: String): IsoFile {
@@ -152,7 +159,9 @@ object ISO {
 					"" -> Unit
 					"." -> Unit
 					".." -> current = current.parent!!
-					else -> current = current.children.firstOrNull { it.name.toUpperCase() == part.toUpperCase() } ?:
+					// @TODO: kotlin-js bug? It doesn't seems to like this somehow.
+					//else -> current = current.children.firstOrNull { it.name.toUpperCase() == part.toUpperCase() } ?: throw kotlin.IllegalStateException("Can't find part $part for accessing path $name children: ${current.children}")
+					else -> current = current.childrenByName[part.normalizeName()] ?:
 							throw kotlin.IllegalStateException("Can't find part $part for accessing path $name children: ${current.children}")
 				}
 			}
