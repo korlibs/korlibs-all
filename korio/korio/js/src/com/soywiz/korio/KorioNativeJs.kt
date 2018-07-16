@@ -362,8 +362,3 @@ class JsWebSocketClient(url: String, protocols: List<String>?, val DEBUG: Boolea
 		jsws.send(bb)
 	}
 }
-
-data class JsStat(val size: Double, var isDirectory: Boolean = false) {
-	fun toStat(path: String, vfs: Vfs): VfsStat =
-		vfs.createExistsStat(path, isDirectory = isDirectory, size = size.toLong())
-}

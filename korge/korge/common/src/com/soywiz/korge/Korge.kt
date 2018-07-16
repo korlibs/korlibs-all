@@ -366,6 +366,7 @@ object Korge {
 
 	}
 
+	//@TODO: Kotlin-JVM bug? Exception in thread "main" java.lang.NoSuchMethodError: com.soywiz.korge.Korge.invoke$default(Lcom/soywiz/korge/Korge;Lcom/soywiz/korge/scene/Module;[Ljava/lang/String;Lcom/soywiz/korag/AGContainer;Lcom/soywiz/korui/event/EventDispatcher;Lkotlin/reflect/KClass;Ljava/util/List;Lcom/soywiz/klock/TimeProvider;Lcom/soywiz/korinject/AsyncInjector;ZZLkotlin/jvm/functions/Function1;Lcom/soywiz/korio/async/EventLoop;ILjava/lang/Object;)V
 	operator fun invoke(
 		module: Module,
 		args: Array<String> = arrayOf(),
@@ -396,6 +397,11 @@ object Korge {
 				constructedViews = constructedViews
 			)
 		)
+	}
+
+	operator fun invoke(config: Config) = KorioNative.asyncEntryPoint(config.context) {
+		logger.trace { "Korge.invoke(config)" }
+		test(config)
 	}
 
 	data class Config(
