@@ -94,6 +94,7 @@ expect object KorioNative {
 	}
 
 	fun getenv(key: String): String?
+	fun suspendTest(callback: suspend () -> Unit)
 }
 
 object KorioNativeDefaults {

@@ -15,7 +15,7 @@ interface SuspendingSequence<out T> {
 }
 
 interface SuspendingSuspendSequence<out T> {
-	operator suspend fun iterator(): SuspendingIterator<T>
+	suspend operator fun iterator(): SuspendingIterator<T>
 }
 
 interface SuspendingIterator<out T> {
@@ -250,12 +250,12 @@ class AsyncSequenceEmitter<T : Any> : Extra by Extra.Mixin() {
 
 	fun toSequence(): SuspendingSequence<T> = object : SuspendingSequence<T> {
 		override fun iterator(): SuspendingIterator<T> = object : SuspendingIterator<T> {
-			suspend override fun hasNext(): Boolean {
+			override suspend fun hasNext(): Boolean {
 				while (synchronized(queuedElements) { queuedElements.isEmpty() && !closed }) signal.waitOne()
 				return queuedElements.isNotEmpty() || !closed
 			}
 
-			suspend override fun next(): T {
+			override suspend fun next(): T {
 				while (synchronized(queuedElements) { queuedElements.isEmpty() && !closed }) signal.waitOne()
 				if (queuedElements.isEmpty() && closed) throw RuntimeException("Already closed")
 				return synchronized(queuedElements) { queuedElements.removeAt(queuedElements.size - 1) }
@@ -271,7 +271,7 @@ class SuspendingSequenceBuilder2<T : Any> {
 }
 
 interface SuspendingSequence2<out T> {
-	operator suspend fun iterator(): SuspendingIterator<T>
+	suspend operator fun iterator(): SuspendingIterator<T>
 }
 
 suspend fun <T : Any> asyncGenerate2(

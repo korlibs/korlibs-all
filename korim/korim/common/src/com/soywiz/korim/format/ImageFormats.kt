@@ -19,13 +19,19 @@ class ImageFormats(formats: Iterable<ImageFormat>) : ImageFormat("") {
 	}
 
 	override fun readImage(s: SyncStream, props: ImageDecodingProps): ImageData {
-		val format = formats.firstOrNull { it.check(s.sliceStart(), props) }
-		if (format != null) return format.readImage(s.sliceStart(), props)
+		//val format = formats.firstOrNull { it.check(s.sliceStart(), props) }
+		//println("--------------")
+		//println("FORMATS: $formats, props=$props")
+		for (format in formats) {
+			if (format.check(s.sliceStart(), props)) {
+				//println("FORMAT CHECK: $format")
+				return format.readImage(s.sliceStart(), props)
+			}
+		}
+		//if (format != null) return format.readImage(s.sliceStart(), props)
 		throw UnsupportedOperationException(
-			"Not suitable image format : MAGIC:" + s.sliceStart().readString(
-				4,
-				ASCII
-			) + "(" + s.sliceStart().readBytes(4).hex + ") (" + s.sliceStart().readBytes(4).toString(ASCII) + ")"
+			"Not suitable image format : MAGIC:" + s.sliceStart().readString(4, ASCII) +
+					"(" + s.sliceStart().readBytes(4).hex + ") (" + s.sliceStart().readBytes(4).toString(ASCII) + ")"
 		)
 	}
 

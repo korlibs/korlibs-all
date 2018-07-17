@@ -68,10 +68,42 @@ suspend fun VfsFile.writeAudio(data: AudioData, formats: AudioFormats = defaultA
 		formats.encode(data, this, this@writeAudio.basename)
 	}
 
-// @TODO: Problem with Kotlin.JS
+// @TODO: Problem with Kotlin.JS. Fails in runtime returning kotlin.Unit.
+// @TODO: BUG in Kotlin.JS. Fails in runtime returning kotlin.Unit.
+/*
 suspend inline fun <T> VfsFile.openUse2(
 	mode: VfsOpenMode = VfsOpenMode.READ,
 	noinline callback: suspend AsyncStream.() -> T
 ): T {
 	return open(mode).use { callback.await(this) }
+}
+*/
+// @TODO: BUG in Kotlin.JS. Fails in runtime returning kotlin.Unit.
+/*
+suspend inline fun <T> VfsFile.openUse2(
+	mode: VfsOpenMode = VfsOpenMode.READ,
+	noinline callback: suspend AsyncStream.() -> T
+): T {
+	//return open(mode).use { callback.await(this) }
+	val s = open(mode)
+	try {
+		return callback.await(s)
+	} finally {
+		s.close()
+	}
+}
+*/
+
+// @TODO: Works in Kotlin.JS
+suspend fun <T> VfsFile.openUse2(
+	mode: VfsOpenMode = VfsOpenMode.READ,
+	callback: suspend AsyncStream.() -> T
+): T {
+	//return open(mode).use { callback.await(this) }
+	val s = open(mode)
+	try {
+		return callback.await(s)
+	} finally {
+		s.close()
+	}
 }

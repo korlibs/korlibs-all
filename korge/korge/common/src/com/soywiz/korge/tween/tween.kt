@@ -7,6 +7,7 @@ import com.soywiz.kmem.*
 import com.soywiz.korge.component.*
 import com.soywiz.korge.view.*
 import com.soywiz.korim.color.*
+import com.soywiz.korim.color.RGBA.Companion.blendRGBA
 import com.soywiz.korio.KorioNative.currentThreadId
 import com.soywiz.korma.interpolation.*
 import kotlinx.coroutines.experimental.*
@@ -120,7 +121,7 @@ operator fun <V> KMutableProperty0<V>.rangeTo(that: Pair<V, V>) = this[that.firs
 fun <V> V2<V>.withEasing(easing: Easing): V2<V> =
 	this.copy(interpolator = { a, b, ratio -> this.interpolator(a, b, easing(ratio)) })
 
-fun V2<Int>.color(): V2<Int> = this.copy(interpolator = RGBA::blendRGBA)
+fun V2<Int>.color(): V2<Int> = this.copy(interpolator = RGBA.Companion::blendRGBA)
 
 fun <V> V2<V>.easing(easing: Easing): V2<V> =
 	this.copy(interpolator = { a, b, ratio -> this.interpolator(a, b, easing(ratio)) })

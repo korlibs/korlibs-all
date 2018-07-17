@@ -5,8 +5,8 @@ import com.soywiz.korge.*
 import com.soywiz.korge.input.*
 import com.soywiz.korge.scene.*
 import com.soywiz.korge.view.*
-import com.soywiz.korio.*
 import com.soywiz.korio.async.*
+import com.soywiz.korio.util.*
 import com.soywiz.korma.geom.*
 import com.soywiz.korui.event.*
 import com.soywiz.korui.input.*
@@ -42,14 +42,32 @@ open class ViewsForTesting(val frameTime: Int = 10) {
 	}
 
 	suspend fun mouseDown() {
-		koruiEventDispatcher.dispatch(MouseEvent(type = MouseEvent.Type.DOWN, id = 0, x = input.mouse.x.toInt(), y = input.mouse.y.toInt(), button = MouseButton.LEFT, buttons = 1))
+		koruiEventDispatcher.dispatch(
+			MouseEvent(
+				type = MouseEvent.Type.DOWN,
+				id = 0,
+				x = input.mouse.x.toInt(),
+				y = input.mouse.y.toInt(),
+				button = MouseButton.LEFT,
+				buttons = 1
+			)
+		)
 		time += frameTime
 		ag.onRender(ag)
 		delay(frameTime * 2) // Required because some events launch a coroutine
 	}
 
 	suspend fun mouseUp() {
-		koruiEventDispatcher.dispatch(MouseEvent(type = MouseEvent.Type.UP, id = 0, x = input.mouse.x.toInt(), y = input.mouse.y.toInt(), button = MouseButton.LEFT, buttons = 0))
+		koruiEventDispatcher.dispatch(
+			MouseEvent(
+				type = MouseEvent.Type.UP,
+				id = 0,
+				x = input.mouse.x.toInt(),
+				y = input.mouse.y.toInt(),
+				button = MouseButton.LEFT,
+				buttons = 0
+			)
+		)
 		time += frameTime
 		ag.onRender(ag)
 		delay(frameTime * 2) // Required because some events launch a coroutine
@@ -106,23 +124,21 @@ open class ViewsForTesting(val frameTime: Int = 10) {
 	}
 
 	// @TODO: Run a faster eventLoop where timers happen much faster
-	fun viewsTest(block: suspend () -> Unit) {
-		val context = viewsLog.coroutineContext
-		Korio(context) {
-			val el = context.animationFrameLoop {
-				time += frameTime
-				ag.onRender(ag)
-			}
-			val bb = asyncImmediately(context) {
+	fun viewsTest(block: suspend () -> Unit) = suspendTest(viewsLog.coroutineContext) {
+		if (OS.isNative) return@suspendTest // @TODO: kotlin-native SKIP NATIVE FOR NOW: kotlin.IllegalStateException: Cannot execute task because event loop was shut down
+		val el = viewsLog.coroutineContext.animationFrameLoop {
+			time += frameTime
+			ag.onRender(ag)
+		}
+		try {
+			val bb = asyncImmediately(viewsLog.coroutineContext) {
 				withTimeout(10, TimeUnit.SECONDS) {
 					block()
 				}
 			}
-			try {
-				bb.await()
-			} finally {
-				el.close()
-			}
+			bb.await()
+		} finally {
+			el.close()
 		}
 	}
 }

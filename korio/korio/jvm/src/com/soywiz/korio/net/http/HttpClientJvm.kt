@@ -100,7 +100,7 @@ class HttpClientJvm : HttpClient() {
 			val pheaders = Http.Headers.fromListMap(con.headerFields)
 			val length = pheaders["Content-Length"]?.toLongOrNull()
 
-			launch(newSingleThreadContext("HttpRequest: $method: $url")) {
+			launchImmediately(newSingleThreadContext("HttpRequest: $method: $url")) {
 				val syncStream = ignoreErrors { con.inputStream } ?: ignoreErrors { con.errorStream }
 				try {
 					if (syncStream != null) {

@@ -446,7 +446,9 @@ inline val Number.hours get() = TimeDistance(hours = this.toDouble())
 inline val Number.minutes get() = TimeDistance(minutes = this.toDouble())
 
 @Suppress("DataClassPrivateConstructor")
-data class TimeSpan private constructor(val ms: Int) : Comparable<TimeSpan> {
+//data class TimeSpan private constructor(val ms: Int) : Comparable<TimeSpan> {
+data class TimeSpan(val ms: Int) : Comparable<TimeSpan> {
+//inline class TimeSpan(val ms: Int) : Comparable<TimeSpan> {
 	val milliseconds: Int get() = this.ms
 	val seconds: Double get() = this.ms.toDouble() / 1000.0
 

@@ -54,6 +54,9 @@ actual typealias AtomicReference<T> = konan.worker.AtomicReference<T>
 
 actual fun <T> NewAtomicReference(value: T): AtomicReference<T> = konan.worker.AtomicReference<T>(value)
 
+actual fun AtomicInt.compareAndSet(expected: Int, newValue: Int): Boolean =
+	compareAndSwap(expected, newValue) == expected
+
 actual fun <T> AtomicReference<T>.set(value: T) {
 	val fvalue = value.freeze()
 	if (this.get() != fvalue) {

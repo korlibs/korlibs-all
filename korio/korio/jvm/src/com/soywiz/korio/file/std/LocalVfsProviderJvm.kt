@@ -191,7 +191,7 @@ class LocalVfsJvm : LocalVfs() {
 			StandardWatchEventKinds.ENTRY_MODIFY
 		)
 
-		launch(coroutineContext) {
+		launchImmediately(coroutineContext) {
 			while (running) {
 				val key = executeIo {
 					var r: WatchKey?

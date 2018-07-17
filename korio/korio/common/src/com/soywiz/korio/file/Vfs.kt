@@ -189,7 +189,7 @@ abstract class Vfs {
 		override suspend fun watch(path: String, handler: (FileEvent) -> Unit): Closeable {
 			initOnce()
 			return access(path).watch { e ->
-				launch(coroutineContext) {
+				launchImmediately(coroutineContext) {
 					val f1 = e.file.transform()
 					val f2 = e.other?.transform()
 					handler(e.copy(file = f1, other = f2))

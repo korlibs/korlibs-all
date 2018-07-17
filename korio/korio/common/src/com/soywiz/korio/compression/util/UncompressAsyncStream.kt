@@ -21,7 +21,7 @@ class CompressionAlgoAsyncStream internal constructor(
 	private var pos = 0L
 
 	internal suspend fun init() {
-		launch(coroutineContext) {
+		launchImmediately(coroutineContext) {
 			if (compressing) {
 				method.compress(i, los)
 			} else {

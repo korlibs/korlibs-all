@@ -1,12 +1,44 @@
 package com.soywiz.korui
 
 import com.soywiz.korio.async.*
+import com.soywiz.korio.util.*
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.timeunit.*
 import kotlin.browser.*
 import kotlin.coroutines.experimental.*
 
-actual val KoruiDispatcher: CoroutineDispatcher get() = HtmlDispatcher
+actual val KoruiDispatcher: CoroutineDispatcher get() = if (OS.isNodejs) NodeDispatcher else HtmlDispatcher
+
+private external fun setTimeout(handler: dynamic, timeout: Int = definedExternally): Int
+private external fun clearTimeout(handle: Int = definedExternally)
+
+fun TimeUnit.toMillisFaster(time: Long) = when (this) {
+	TimeUnit.SECONDS -> time.toInt() * 1000
+	TimeUnit.MILLISECONDS -> time.toInt()
+}
+
+object NodeDispatcher : CoroutineDispatcher(), Delay, DelayFrame {
+	override fun dispatch(context: CoroutineContext, block: Runnable) {
+		setTimeout({ block.run() }, 0)
+	}
+
+	override fun scheduleResumeAfterDelay(time: Long, unit: TimeUnit, continuation: CancellableContinuation<Unit>) {
+		val timeout = setTimeout({ with(continuation) { resumeUndispatched(Unit) } }, unit.toMillisFaster(time))
+		// Actually on cancellation, but clearTimeout is idempotent
+		continuation.invokeOnCancellation {
+			clearTimeout(timeout)
+		}
+	}
+
+	override fun invokeOnTimeout(time: Long, unit: TimeUnit, block: Runnable): DisposableHandle {
+		val timeout = setTimeout({ block.run() }, unit.toMillisFaster(time))
+		return object : DisposableHandle {
+			override fun dispose() {
+				clearTimeout(timeout)
+			}
+		}
+	}
+}
 
 object HtmlDispatcher : CoroutineDispatcher(), Delay, DelayFrame {
 	private val messageName = "dispatchCoroutine"

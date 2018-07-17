@@ -1,5 +1,6 @@
 package com.soywiz.korio.compression
 
+import com.soywiz.kmem.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.stream.*
@@ -22,15 +23,23 @@ suspend fun CompressionMethod.compress(
 	data: ByteArray,
 	context: CompressionContext = CompressionContext(level = 6)
 ): ByteArray {
-	return MemorySyncStreamToByteArray {
+	return MemorySyncStreamToByteArraySuspend {
 		compress(data.openAsync(), this.toAsync(), context)
 	}
 }
 
 suspend fun CompressionMethod.uncompress(data: ByteArray): ByteArray {
-	return MemorySyncStreamToByteArray {
-		uncompress(data.openAsync(), this.toAsync())
-	}
+	val buffer = ByteArrayBuffer(4096)
+	val s = MemorySyncStream(buffer)
+	uncompress(data.openAsync(), s.toAsync())
+	//println("CompressionMethod.uncompress.pre")
+	val out = buffer.toByteArray()
+	//println("CompressionMethod.uncompress.out:$out")
+	return out
+	// @TODO: Doesn't work on Kotlin-JS?
+	//return MemorySyncStreamToByteArray {
+	//	uncompress(data.openAsync(), this.toAsync())
+	//}
 }
 
 suspend fun CompressionMethod.uncompressTo(data: ByteArray, out: AsyncOutputStream): AsyncOutputStream {
@@ -54,10 +63,17 @@ suspend fun ByteArray.compress(
 	context: CompressionContext = CompressionContext()
 ): ByteArray = method.compress(this, context)
 
-fun ByteArray.syncUncompress(method: CompressionMethod): ByteArray = runBlockingNoSuspensions { method.uncompress(this) }
+fun ByteArray.syncUncompress(method: CompressionMethod): ByteArray = runBlockingNoSuspensions {
+	val out = method.uncompress(this)
+//	println("ByteArray.syncUncompress: $out")
+	out
+}
 fun ByteArray.syncCompress(method: CompressionMethod, context: CompressionContext = CompressionContext()): ByteArray =
 	runBlockingNoSuspensions { method.compress(this, context) }
 
 fun CompressionMethod.syncUncompress(i: SyncInputStream, o: SyncOutputStream) = runBlockingNoSuspensions {
+	//println("CompressionMethod.syncUncompress[0]")
 	uncompress(i.toAsyncInputStream(), o.toAsyncOutputStream())
+	//println("CompressionMethod.syncUncompress[1]")
+	//Unit // @TODO: kotlin-js kotlin.js BUG. Passing undefined to the coroutine without this!
 }

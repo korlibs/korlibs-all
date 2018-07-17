@@ -8,11 +8,13 @@ buildscript {
 		maven { url "https://plugins.gradle.org/m2/" }
 		maven { url "https://dl.bintray.com/jetbrains/kotlin-native-dependencies" }
 		maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
+		maven { url 'https://dl.bintray.com/kotlin/kotlin-dev' }
 	}
 	dependencies {
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
 		classpath "org.jetbrains.kotlin:kotlin-native-gradle-plugin:$kotlinNativeVersion"
 		classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+		classpath 'com.moowork.gradle:gradle-node-plugin:1.2.0'
 	}
 
 	//ext.nativeTargets = ['iphone', 'iphone_sim', 'macbook', 'linux', 'raspberrypi', 'android_arm32', 'android_arm64']
@@ -63,6 +65,14 @@ samplesGradleProps.text = samplesGradleProps.text
 		.replaceAll("kotlinVersion=(.*)", "kotlinVersion=$kotlinVersion")
 		.replaceAll("kotlinNativeVersion=(.*)", "kotlinNativeVersion=$kotlinNativeVersion")
 
+apply plugin: 'com.moowork.node'
+
+//node { download = true }
+
+task installMocha(type: NpmTask) {
+	args = ['install', 'mocha']
+}
+
 allprojects {
 	def isJs = project.name.endsWith("-js")
 	def isJvm = project.name.endsWith("-jvm")
@@ -102,6 +112,7 @@ allprojects {
 		maven { url "https://plugins.gradle.org/m2/" }
 		maven { url "https://dl.bintray.com/jetbrains/kotlin-native-dependencies" }
 		maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
+		maven { url 'https://dl.bintray.com/kotlin/kotlin-dev' }
 	}
 
 	dependencies {
@@ -153,12 +164,12 @@ allprojects {
 
 	sourceSets {
 		if (isKotlin) {
-			if (project.file("src").exists()) {
+			//if (project.file("src").exists()) {
 				main.kotlin.srcDirs += "src"
-			}
-			if (project.file("test").exists()) {
+			//}
+			//if (project.file("test").exists()) {
 				test.kotlin.srcDirs += "test"
-			}
+			//}
 			if (!isNative) {
 				if (project.file("resources").exists()) {
 					main.resources.srcDirs += "resources"
@@ -210,8 +221,8 @@ allprojects {
 	if (isJvm) {
 		compileJava.options.encoding = 'UTF-8'
 		compileTestJava.options.encoding = 'UTF-8'
-		sourceCompatibility = 1.7
-		targetCompatibility = 1.7
+		sourceCompatibility = 1.8
+		targetCompatibility = 1.8
 	}
 
 	if (isJs) {
@@ -221,73 +232,113 @@ allprojects {
 		}
 	}
 
+	// Inline classes
+	//def inlineClasses = true
+	def inlineClasses = false
+	if (inlineClasses) {
+		if (isJvm) {
+			[compileKotlin, compileTestKotlin]*.configure {
+				kotlinOptions.freeCompilerArgs = ["-XXLanguage:+InlineClasses"]
+				kotlinOptions.languageVersion = "1.2"
+			}
+		}
+
+		if (isJs) {
+			[compileKotlin2Js, compileTestKotlin2Js]*.configure {
+				kotlinOptions.freeCompilerArgs = ["-XXLanguage:+InlineClasses"]
+				kotlinOptions.languageVersion = "1.2"
+			}
+		}
+
+		if (isCommon) {
+			[compileKotlinCommon, compileTestKotlinCommon]*.configure {
+				kotlinOptions.freeCompilerArgs = ["-XXLanguage:+InlineClasses"]
+				kotlinOptions.languageVersion = "1.2"
+			}
+		}
+	}
+
 	if (isJs) {
-		/*
-		project.task(type: Copy, dependsOn: compileKotlin2Js, 'populateNodeModules') {
-			from compileKotlin2Js.destinationDir
+		// https://github.com/JetBrains/kotlin-examples/tree/master/gradle/js-tests/mocha
+		// https://github.com/srs/gradle-node-plugin/blob/master/docs/node.md
+		apply plugin: 'com.moowork.node'
 
-			configurations.testCompile.each {
-				from zipTree(it.absolutePath).matching { include '*.js' }
-			}
+		afterEvaluate {
+			task populateNodeModules(type: Copy, dependsOn: compileKotlin2Js) {
+				from compileKotlin2Js.destinationDir
 
-			into "${buildDir}/node_modules"
-		}
-
-		project.task(type: Task, dependsOn: [compileTestKotlin2Js, populateNodeModules], 'fixJsForAsync') {
-			doLast {
-				def k2jsOutputFile = compileTestKotlin2Js.outputFile
-				File file = (k2jsOutputFile instanceof File) ? k2jsOutputFile : new File("$k2jsOutputFile")
-				if (file.exists()) {
-					File fileOut = new File(file.absolutePath + ".fix.js")
-					def timeout = 2000
-					fileOut.text = file.text.replaceAll(/(?m)(?s)test\('(.*?)', (false|true), function \(\) \{\s*(.*?);\s*\}\);/) { c ->
-						String name = c[1]
-						String disabled = c[2]
-						String body = c[3]
-						def rbody = body.startsWith("return") ? body.substring(6) : body
-						return 'test("' + name + '", ' + disabled + ', function() { this.timeout(' + timeout + '); global.testPromise = null; var res = (' + rbody + ') || (global.testPromise); return (res instanceof Promise) ? res : undefined; });'
-					}
+				configurations.testCompile.each {
+					from zipTree(it.absolutePath).matching { include '*.js' }
 				}
+
+				into "${buildDir}/node_modules"
 			}
-		}
 
-		project.task(type: Task, dependsOn: [fixJsForAsync], 'runMocha') {
-			doLast {
-				def k2jsOutputFile = compileTestKotlin2Js.outputFile
-				File fileOut = (k2jsOutputFile instanceof File) ? k2jsOutputFile : new File("$k2jsOutputFile")
+			def resourcesFolder = compileTestKotlin2Js.outputFile.parentFile
 
-				if (fileOut.exists()) {
-					String[] cmd
-					if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-						cmd = ["cmd", "/c", "mocha.cmd" as String, "${fileOut}.fix.js"]
-					} else {
-						cmd = ["/bin/bash", '-c', "mocha '${fileOut}.fix.js'"]
-					}
-
-					if (project.hasProperty('projectNodeModules')) {
-						for (nodeModule in projectNodeModules) {
-							if (!(new File("$buildDir/node_modules/$nodeModule")).exists()) {
-								executeShell("npm link $nodeModule", buildDir)
-							}
+			task copyTestResources(type: Copy, dependsOn: [populateNodeModules, processResources, processTestResources, compileKotlin2Js, compileTestKotlin2Js]) {
+				// Copy kotlin.js and kotlin-meta.js from jar into web directory
+				configurations.compile.each { File file ->
+					//println(file.absolutePath)
+					from(zipTree(file.absolutePath)) {
+						exclude "**/*.meta.js", "**/*.kjsm"
+						include { fileTreeElement ->
+							def path = fileTreeElement.path
+							path.endsWith(".js") && (path.startsWith("META-INF/resources/") || !path.startsWith("META-INF/"))
 						}
 					}
+				}
 
-					ProcessBuilder pb = new ProcessBuilder(cmd as String[])
-					pb.environment().putAll(System.getenv())
-					pb.directory(new File("$buildDir/node_modules"))
-					def p = pb.start()
-					p.in.eachLine { System.out.println(it) }
-					p.err.eachLine { System.err.println(it) }
-					if (p.waitFor() != 0) {
-						throw new GradleException('error occurred running ' + cmd)
+				from(new File("${buildDir}/resources/main")) {
+					exclude "**/*.meta.js", "**/*.kjsm"
+				}
+
+				// Copy scripts to web directory
+				from(new File("${buildDir}/classes/main")) {
+					exclude "**/*.meta.js", "**/*.kjsm"
+				}
+
+				from(new File("${buildDir}/classes/test")) {
+					exclude "**/*.meta.js", "**/*.kjsm"
+				}
+
+				from(new File("${buildDir}/resources/test")) {
+					exclude "**/*.meta.js", "**/*.kjsm"
+				}
+
+				includeEmptyDirs = false
+				into resourcesFolder
+			}
+
+			task runMocha(type: NodeTask, dependsOn: [compileTestKotlin2Js, populateNodeModules, copyTestResources, installMocha]) {
+				doFirst {
+					def k2jsOutputFile = compileTestKotlin2Js.outputFile
+					File file = (k2jsOutputFile instanceof File) ? k2jsOutputFile : new File("$k2jsOutputFile")
+					if (file.exists()) {
+						File fileOut = new File(file.absolutePath + ".fix.js")
+						def timeout = 10000
+						fileOut.text = file.text.replaceAll(/(?m)(?s)test\('(.*?)', (false|true), function \(\) \{\s*(.*?);\s*\}\);/) { c ->
+							String name = c[1]
+							String disabled = c[2]
+							String body = c[3]
+							def rbody = body.startsWith("return") ? body.substring(6) : body
+							//return 'test("' + name + '", ' + disabled + ', function() { this.timeout(' + timeout + '); global.testPromise = null; var res = (' + rbody + ') || (global.testPromise); return (res instanceof Promise) ? res : undefined; });'
+							//return 'test("' + name + '", ' + disabled + ', function() { this.timeout(' + timeout + '); return (' + rbody + '); });'
+							return 'test("' + name + '", ' + disabled + ', function() { return (' + rbody + '); });'
+						}
 					}
 				}
+				script = rootProject.file('node_modules/mocha/bin/mocha')
+				args = [new File(compileTestKotlin2Js.outputFile.absolutePath + ".fix.js"), "--reporter", "dot"]
+				execOverrides {
+					//it.ignoreExitValue = true
+					it.workingDir = resourcesFolder
+					//it.standardOutput = new FileOutputStream('logs/my.log')
+				}
 			}
-		}
-		*/
 
-		// @TODO: Enable mocha again!
-		//test.dependsOn runMocha
+			test.dependsOn runMocha
+		}
 	}
 
 	apply plugin: 'maven'

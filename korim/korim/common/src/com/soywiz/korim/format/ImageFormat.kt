@@ -75,4 +75,6 @@ abstract class ImageFormat(vararg exts: String) {
 	suspend fun encodeInWorker(bitmap: Bitmap, props: ImageEncodingProps = ImageEncodingProps()): ByteArray =
 		executeInWorker { encode(bitmap, props) }
 	//suspend fun encodeInWorker(bitmap: Bitmap, filename: String = "unknown", props: ImageEncodingProps = ImageEncodingProps()): ByteArray = executeInWorker { encode(bitmap, filename, props) }
+
+	override fun toString(): String = "ImageFormat($extensions)"
 }

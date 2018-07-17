@@ -35,7 +35,7 @@ class SignalTest {
 	fun name2() = suspendTest {
 		var out = ""
 		val s = Signal<Int>()
-		launch(coroutineContext) {
+		launchImmediately(coroutineContext) {
 			try {
 				withTimeout(100) {
 					while (true) {

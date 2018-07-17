@@ -382,8 +382,8 @@ object Korge {
 		debug: Boolean = false,
 		trace: Boolean = false,
 		constructedViews: (Views) -> Unit = {},
-		context: CoroutineContext = KoruiDispatcher
-	) = KorioNative.asyncEntryPoint(context) {
+		context: CoroutineDispatcher = KoruiDispatcher
+	) = Korui(context) {
 		logger.trace { "Korge.invoke" }
 		test(
 			Config(

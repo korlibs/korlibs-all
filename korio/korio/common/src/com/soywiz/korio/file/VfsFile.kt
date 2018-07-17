@@ -221,7 +221,7 @@ class VfsFile(
 	suspend fun watch(handler: suspend (Vfs.FileEvent) -> Unit): Closeable {
 		//val cc = coroutineContext
 		val cc = coroutineContext
-		return vfs.watch(path) { event -> launch(cc) { handler(event) } }
+		return vfs.watch(path) { event -> launchImmediately(cc) { handler(event) } }
 	}
 
 	suspend fun redirected(pathRedirector: suspend VfsFile.(String) -> String): VfsFile {

@@ -15,7 +15,7 @@ class ZipVfsTest {
 		val helloZip = ResourcesVfs["hello.zip"].openAsZip()
 
 		assertEquals(
-			"[VfsStat(file=ZipVfs(ResourcesVfs[/hello.zip])[/hello], exists=true, isDirectory=true, size=0, device=-1, inode=0, mode=511, owner=nobody, group=nobody, createTime=1482710410000, modifiedTime=1482710410000, lastAccessTime=1482710410000, extraInfo=null)]",
+			"[VfsStat(file=ZipVfs(ResourcesVfs[/hello.zip])[/hello], exists=true, isDirectory=true, size=0, device=-1, inode=0, mode=511, owner=nobody, group=nobody, createTime=1482710410000, modifiedTime=1482710410000, lastAccessTime=1482710410000, extraInfo=null, id=null)]",
 			helloZip.list().toList().map { it.stat() }.toString()
 		)
 	}
@@ -25,7 +25,7 @@ class ZipVfsTest {
 		val helloZip = ResourcesVfs["hello.zip"].openAsZip()
 
 		assertEquals(
-			"[VfsStat(file=ZipVfs(ResourcesVfs[/hello.zip])[/hello/world.txt], exists=true, isDirectory=false, size=12, device=-1, inode=1, mode=511, owner=nobody, group=nobody, createTime=1482710410000, modifiedTime=1482710410000, lastAccessTime=1482710410000, extraInfo=null)]",
+			"[VfsStat(file=ZipVfs(ResourcesVfs[/hello.zip])[/hello/world.txt], exists=true, isDirectory=false, size=12, device=-1, inode=1, mode=511, owner=nobody, group=nobody, createTime=1482710410000, modifiedTime=1482710410000, lastAccessTime=1482710410000, extraInfo=null, id=null)]",
 			helloZip["hello"].list().toList().map { it.stat() }.toString()
 		)
 	}
@@ -35,7 +35,7 @@ class ZipVfsTest {
 		val helloZip = ResourcesVfs["hello.zip"].openAsZip()
 
 		assertEquals(
-			"VfsStat(file=ZipVfs(ResourcesVfs[/hello.zip])[/hello/world.txt], exists=true, isDirectory=false, size=12, device=-1, inode=1, mode=511, owner=nobody, group=nobody, createTime=1482710410000, modifiedTime=1482710410000, lastAccessTime=1482710410000, extraInfo=null)",
+			"VfsStat(file=ZipVfs(ResourcesVfs[/hello.zip])[/hello/world.txt], exists=true, isDirectory=false, size=12, device=-1, inode=1, mode=511, owner=nobody, group=nobody, createTime=1482710410000, modifiedTime=1482710410000, lastAccessTime=1482710410000, extraInfo=null, id=null)",
 			helloZip["hello/world.txt"].stat().toString()
 		)
 	}

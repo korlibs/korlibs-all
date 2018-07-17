@@ -2,17 +2,19 @@ package com.soywiz.korim.color
 
 import com.soywiz.korio.lang.*
 
+// Colors are in RGBAInt for easy transition to inline classes
 object Colors {
-	val WHITE = RGBA.packFast(0xFF, 0xFF, 0xFF, 0xFF)
-	val BLACK = RGBA.packFast(0x00, 0x00, 0x00, 0xFF)
-	val RED = RGBA.packFast(0xFF, 0x00, 0x00, 0xFF)
-	val GREEN = RGBA.packFast(0x00, 0xFF, 0x00, 0xFF)
-	val BLUE = RGBA.packFast(0x00, 0x00, 0xFF, 0xFF)
+	private fun RGB(r: Int, g: Int, b: Int, a: Int = 0xFF): RGBAInt = RGBA.pack(r, g, b, a)
+	//private fun RGB(r: Int, g: Int, b: Int, a: Int = 0xFF) = Color(r, g, b, a)
 
-	val TRANSPARENT_BLACK = RGBA.packFast(0x00, 0x00, 0x00, 0x00)
-	val TRANSPARENT_WHITE = RGBA.packFast(0x00, 0x00, 0x00, 0x00)
+	val WHITE = RGB(0xFF, 0xFF, 0xFF, 0xFF)
+	val BLACK = RGB(0x00, 0x00, 0x00, 0xFF)
+	val RED = RGB(0xFF, 0x00, 0x00, 0xFF)
+	val GREEN = RGB(0x00, 0xFF, 0x00, 0xFF)
+	val BLUE = RGB(0x00, 0x00, 0xFF, 0xFF)
 
-	private fun RGB(r: Int, g: Int, b: Int) = RGBA(r, g, b, 0xFF)
+	val TRANSPARENT_BLACK = RGB(0x00, 0x00, 0x00, 0x00)
+	val TRANSPARENT_WHITE = RGB(0x00, 0x00, 0x00, 0x00)
 
 	val ALICEBLUE = RGB(240, 248, 255)
 	val ANTIQUEWHITE = RGB(250, 235, 215)
@@ -153,154 +155,154 @@ object Colors {
 	val YELLOWGREEN = RGB(154, 205, 50)
 
 	val colorsByName = mapOf(
-			"black" to BLACK,
-			"white" to WHITE,
-			"red" to RED,
-			"green" to GREEN,
-			"blue" to BLUE,
+		"black" to BLACK,
+		"white" to WHITE,
+		"red" to RED,
+		"green" to GREEN,
+		"blue" to BLUE,
 
-			"aliceblue" to ALICEBLUE,
-			"antiquewhite" to ANTIQUEWHITE,
-			"aqua" to AQUA,
-			"aquamarine" to AQUAMARINE,
-			"azure" to AZURE,
-			"beige" to BEIGE,
-			"bisque" to BISQUE,
-			"blanchedalmond" to BLANCHEDALMOND,
-			"blueviolet" to BLUEVIOLET,
-			"brown" to BROWN,
-			"burlywood" to BURLYWOOD,
-			"cadetblue" to CADETBLUE,
-			"chartreuse" to CHARTREUSE,
-			"chocolate" to CHOCOLATE,
-			"coral" to CORAL,
-			"cornflowerblue" to CORNFLOWERBLUE,
-			"cornsilk" to CORNSILK,
-			"crimson" to CRIMSON,
-			"darkblue" to DARKBLUE,
-			"darkcyan" to DARKCYAN,
-			"darkgoldenrod" to DARKGOLDENROD,
-			"darkgray" to DARKGRAY,
-			"darkgreen" to DARKGREEN,
-			"darkgrey" to DARKGREY,
-			"darkkhaki" to DARKKHAKI,
-			"darkmagenta" to DARKMAGENTA,
-			"darkolivegreen" to DARKOLIVEGREEN,
-			"darkorange" to DARKORANGE,
-			"darkorchid" to DARKORCHID,
-			"darkred" to DARKRED,
-			"darksalmon" to DARKSALMON,
-			"darkseagreen" to DARKSEAGREEN,
-			"darkslateblue" to DARKSLATEBLUE,
-			"darkslategray" to DARKSLATEGRAY,
-			"darkslategrey" to DARKSLATEGREY,
-			"darkturquoise" to DARKTURQUOISE,
-			"darkviolet" to DARKVIOLET,
-			"deeppink" to DEEPPINK,
-			"deepskyblue" to DEEPSKYBLUE,
-			"dimgray" to DIMGRAY,
-			"dimgrey" to DIMGREY,
-			"dodgerblue" to DODGERBLUE,
-			"firebrick" to FIREBRICK,
-			"floralwhite" to FLORALWHITE,
-			"forestgreen" to FORESTGREEN,
-			"fuchsia" to FUCHSIA,
-			"gainsboro" to GAINSBORO,
-			"ghostwhite" to GHOSTWHITE,
-			"gold" to GOLD,
-			"goldenrod" to GOLDENROD,
-			"greenyellow" to GREENYELLOW,
-			"honeydew" to HONEYDEW,
-			"hotpink" to HOTPINK,
-			"indianred" to INDIANRED,
-			"indigo" to INDIGO,
-			"ivory" to IVORY,
-			"khaki" to KHAKI,
-			"lavender" to LAVENDER,
-			"lavenderblush" to LAVENDERBLUSH,
-			"lawngreen" to LAWNGREEN,
-			"lemonchiffon" to LEMONCHIFFON,
-			"lightblue" to LIGHTBLUE,
-			"lightcoral" to LIGHTCORAL,
-			"lightcyan" to LIGHTCYAN,
-			"lightgoldenrodyellow" to LIGHTGOLDENRODYELLOW,
-			"lightgray" to LIGHTGRAY,
-			"lightgreen" to LIGHTGREEN,
-			"lightgrey" to LIGHTGREY,
-			"lightpink" to LIGHTPINK,
-			"lightsalmon" to LIGHTSALMON,
-			"lightseagreen" to LIGHTSEAGREEN,
-			"lightskyblue" to LIGHTSKYBLUE,
-			"lightslategray" to LIGHTSLATEGRAY,
-			"lightslategrey" to LIGHTSLATEGREY,
-			"lightsteelblue" to LIGHTSTEELBLUE,
-			"lightyellow" to LIGHTYELLOW,
-			"lime" to LIME,
-			"limegreen" to LIMEGREEN,
-			"linen" to LINEN,
-			"maroon" to MAROON,
-			"mediumaquamarine" to MEDIUMAQUAMARINE,
-			"mediumblue" to MEDIUMBLUE,
-			"mediumorchid" to MEDIUMORCHID,
-			"mediumpurple" to MEDIUMPURPLE,
-			"mediumseagreen" to MEDIUMSEAGREEN,
-			"mediumslateblue" to MEDIUMSLATEBLUE,
-			"mediumspringgreen" to MEDIUMSPRINGGREEN,
-			"mediumturquoise" to MEDIUMTURQUOISE,
-			"mediumvioletred" to MEDIUMVIOLETRED,
-			"midnightblue" to MIDNIGHTBLUE,
-			"mintcream" to MINTCREAM,
-			"mistyrose" to MISTYROSE,
-			"moccasin" to MOCCASIN,
-			"navajowhite" to NAVAJOWHITE,
-			"navy" to NAVY,
-			"oldlace" to OLDLACE,
-			"olive" to OLIVE,
-			"olivedrab" to OLIVEDRAB,
-			"orange" to ORANGE,
-			"orangered" to ORANGERED,
-			"orchid" to ORCHID,
-			"palegoldenrod" to PALEGOLDENROD,
-			"palegreen" to PALEGREEN,
-			"paleturquoise" to PALETURQUOISE,
-			"palevioletred" to PALEVIOLETRED,
-			"papayawhip" to PAPAYAWHIP,
-			"peachpuff" to PEACHPUFF,
-			"peru" to PERU,
-			"pink" to PINK,
-			"plum" to PLUM,
-			"powderblue" to POWDERBLUE,
-			"purple" to PURPLE,
-			"rosybrown" to ROSYBROWN,
-			"royalblue" to ROYALBLUE,
-			"saddlebrown" to SADDLEBROWN,
-			"salmon" to SALMON,
-			"sandybrown" to SANDYBROWN,
-			"seagreen" to SEAGREEN,
-			"seashell" to SEASHELL,
-			"sienna" to SIENNA,
-			"silver" to SILVER,
-			"skyblue" to SKYBLUE,
-			"slateblue" to SLATEBLUE,
-			"slategray" to SLATEGRAY,
-			"slategrey" to SLATEGREY,
-			"snow" to SNOW,
-			"springgreen" to SPRINGGREEN,
-			"steelblue" to STEELBLUE,
-			"tan" to TAN,
-			"teal" to TEAL,
-			"thistle" to THISTLE,
-			"tomato" to TOMATO,
-			"turquoise" to TURQUOISE,
-			"violet" to VIOLET,
-			"wheat" to WHEAT,
-			"whitesmoke" to WHITESMOKE,
-			"yellowgreen" to YELLOWGREEN
-		)
+		"aliceblue" to ALICEBLUE,
+		"antiquewhite" to ANTIQUEWHITE,
+		"aqua" to AQUA,
+		"aquamarine" to AQUAMARINE,
+		"azure" to AZURE,
+		"beige" to BEIGE,
+		"bisque" to BISQUE,
+		"blanchedalmond" to BLANCHEDALMOND,
+		"blueviolet" to BLUEVIOLET,
+		"brown" to BROWN,
+		"burlywood" to BURLYWOOD,
+		"cadetblue" to CADETBLUE,
+		"chartreuse" to CHARTREUSE,
+		"chocolate" to CHOCOLATE,
+		"coral" to CORAL,
+		"cornflowerblue" to CORNFLOWERBLUE,
+		"cornsilk" to CORNSILK,
+		"crimson" to CRIMSON,
+		"darkblue" to DARKBLUE,
+		"darkcyan" to DARKCYAN,
+		"darkgoldenrod" to DARKGOLDENROD,
+		"darkgray" to DARKGRAY,
+		"darkgreen" to DARKGREEN,
+		"darkgrey" to DARKGREY,
+		"darkkhaki" to DARKKHAKI,
+		"darkmagenta" to DARKMAGENTA,
+		"darkolivegreen" to DARKOLIVEGREEN,
+		"darkorange" to DARKORANGE,
+		"darkorchid" to DARKORCHID,
+		"darkred" to DARKRED,
+		"darksalmon" to DARKSALMON,
+		"darkseagreen" to DARKSEAGREEN,
+		"darkslateblue" to DARKSLATEBLUE,
+		"darkslategray" to DARKSLATEGRAY,
+		"darkslategrey" to DARKSLATEGREY,
+		"darkturquoise" to DARKTURQUOISE,
+		"darkviolet" to DARKVIOLET,
+		"deeppink" to DEEPPINK,
+		"deepskyblue" to DEEPSKYBLUE,
+		"dimgray" to DIMGRAY,
+		"dimgrey" to DIMGREY,
+		"dodgerblue" to DODGERBLUE,
+		"firebrick" to FIREBRICK,
+		"floralwhite" to FLORALWHITE,
+		"forestgreen" to FORESTGREEN,
+		"fuchsia" to FUCHSIA,
+		"gainsboro" to GAINSBORO,
+		"ghostwhite" to GHOSTWHITE,
+		"gold" to GOLD,
+		"goldenrod" to GOLDENROD,
+		"greenyellow" to GREENYELLOW,
+		"honeydew" to HONEYDEW,
+		"hotpink" to HOTPINK,
+		"indianred" to INDIANRED,
+		"indigo" to INDIGO,
+		"ivory" to IVORY,
+		"khaki" to KHAKI,
+		"lavender" to LAVENDER,
+		"lavenderblush" to LAVENDERBLUSH,
+		"lawngreen" to LAWNGREEN,
+		"lemonchiffon" to LEMONCHIFFON,
+		"lightblue" to LIGHTBLUE,
+		"lightcoral" to LIGHTCORAL,
+		"lightcyan" to LIGHTCYAN,
+		"lightgoldenrodyellow" to LIGHTGOLDENRODYELLOW,
+		"lightgray" to LIGHTGRAY,
+		"lightgreen" to LIGHTGREEN,
+		"lightgrey" to LIGHTGREY,
+		"lightpink" to LIGHTPINK,
+		"lightsalmon" to LIGHTSALMON,
+		"lightseagreen" to LIGHTSEAGREEN,
+		"lightskyblue" to LIGHTSKYBLUE,
+		"lightslategray" to LIGHTSLATEGRAY,
+		"lightslategrey" to LIGHTSLATEGREY,
+		"lightsteelblue" to LIGHTSTEELBLUE,
+		"lightyellow" to LIGHTYELLOW,
+		"lime" to LIME,
+		"limegreen" to LIMEGREEN,
+		"linen" to LINEN,
+		"maroon" to MAROON,
+		"mediumaquamarine" to MEDIUMAQUAMARINE,
+		"mediumblue" to MEDIUMBLUE,
+		"mediumorchid" to MEDIUMORCHID,
+		"mediumpurple" to MEDIUMPURPLE,
+		"mediumseagreen" to MEDIUMSEAGREEN,
+		"mediumslateblue" to MEDIUMSLATEBLUE,
+		"mediumspringgreen" to MEDIUMSPRINGGREEN,
+		"mediumturquoise" to MEDIUMTURQUOISE,
+		"mediumvioletred" to MEDIUMVIOLETRED,
+		"midnightblue" to MIDNIGHTBLUE,
+		"mintcream" to MINTCREAM,
+		"mistyrose" to MISTYROSE,
+		"moccasin" to MOCCASIN,
+		"navajowhite" to NAVAJOWHITE,
+		"navy" to NAVY,
+		"oldlace" to OLDLACE,
+		"olive" to OLIVE,
+		"olivedrab" to OLIVEDRAB,
+		"orange" to ORANGE,
+		"orangered" to ORANGERED,
+		"orchid" to ORCHID,
+		"palegoldenrod" to PALEGOLDENROD,
+		"palegreen" to PALEGREEN,
+		"paleturquoise" to PALETURQUOISE,
+		"palevioletred" to PALEVIOLETRED,
+		"papayawhip" to PAPAYAWHIP,
+		"peachpuff" to PEACHPUFF,
+		"peru" to PERU,
+		"pink" to PINK,
+		"plum" to PLUM,
+		"powderblue" to POWDERBLUE,
+		"purple" to PURPLE,
+		"rosybrown" to ROSYBROWN,
+		"royalblue" to ROYALBLUE,
+		"saddlebrown" to SADDLEBROWN,
+		"salmon" to SALMON,
+		"sandybrown" to SANDYBROWN,
+		"seagreen" to SEAGREEN,
+		"seashell" to SEASHELL,
+		"sienna" to SIENNA,
+		"silver" to SILVER,
+		"skyblue" to SKYBLUE,
+		"slateblue" to SLATEBLUE,
+		"slategray" to SLATEGRAY,
+		"slategrey" to SLATEGREY,
+		"snow" to SNOW,
+		"springgreen" to SPRINGGREEN,
+		"steelblue" to STEELBLUE,
+		"tan" to TAN,
+		"teal" to TEAL,
+		"thistle" to THISTLE,
+		"tomato" to TOMATO,
+		"turquoise" to TURQUOISE,
+		"violet" to VIOLET,
+		"wheat" to WHEAT,
+		"whitesmoke" to WHITESMOKE,
+		"yellowgreen" to YELLOWGREEN
+	)
 
-	operator fun get(str: String): Int = get(str, 0, errorOnDefault = true)
+	operator fun get(str: String): RGBAInt = get(str, Colors.TRANSPARENT_BLACK, errorOnDefault = true)
 
-	operator fun get(str: String, default: Int, errorOnDefault: Boolean = false): Int {
+	operator fun get(str: String, default: RGBAInt, errorOnDefault: Boolean = false): RGBAInt {
 		when {
 			str.startsWith("#") -> {
 				val hex = str.substr(1)
@@ -312,7 +314,7 @@ object Colors {
 				val g = (hex.substr(1 * chars, chars).toInt(0x10) * scale).toInt()
 				val b = (hex.substr(2 * chars, chars).toInt(0x10) * scale).toInt()
 				val a = if (hasAlpha) (hex.substr(3 * chars, chars).toInt(0x10) * scale).toInt() else 0xFF
-				return RGBA.pack(r, g, b, a)
+				return RGBAInt(r, g, b, a)
 			}
 			str.startsWith("RGBA(", ignoreCase = true) -> {
 				val parts = str.toUpperCase().removePrefix("RGBA(").removeSuffix(")").split(",")
@@ -320,7 +322,7 @@ object Colors {
 				val g = parts.getOrElse(1) { "0" }.toIntOrNull() ?: 0
 				val b = parts.getOrElse(2) { "0" }.toIntOrNull() ?: 0
 				val af = parts.getOrElse(3) { "1.0" }.toDoubleOrNull() ?: 1.0
-				return RGBA(r, g, b, (af * 255).toInt())
+				return RGBAInt(r, g, b, (af * 255).toInt())
 			}
 			else -> {
 				val col = colorsByName[str.toLowerCase()]
@@ -336,6 +338,6 @@ object Colors {
 	fun toHtmlStringSimple(color: Int) = "#%02x%02x%02x".format(RGBA.getR(color), RGBA.getG(color), RGBA.getB(color))
 
 	object Default {
-		operator fun get(str: String): Int = get(str, default = Colors.RED)
+		operator fun get(str: String): RGBAInt = get(str, default = Colors.RED)
 	}
 }

@@ -44,6 +44,7 @@ actual class Semaphore actual constructor(initial: Int) {
 
 val currentThreadId: Long get() = KorioNative.currentThreadId
 
+
 actual object KorioNative {
 	actual val currentThreadId: Long get() = Thread.currentThread().id
 
@@ -115,12 +116,14 @@ actual object KorioNative {
 	actual val websockets: WebSocketClientFactory by lazy { JvmWebSocketClientFactory() }
 	actual val File_separatorChar: Char by lazy { File.separatorChar }
 
-	actual fun rootLocalVfs(): VfsFile = localVfs(".")
-	actual fun applicationVfs(): VfsFile = localVfs(File(".").absolutePath)
-	actual fun applicationDataVfs(): VfsFile = localVfs(File(".").absolutePath)
+	private val absoluteCwd = File(".").absolutePath
+
+	actual fun rootLocalVfs(): VfsFile = localVfs(absoluteCwd)
+	actual fun applicationVfs(): VfsFile = localVfs(absoluteCwd)
+	actual fun applicationDataVfs(): VfsFile = localVfs(absoluteCwd)
 	actual fun cacheVfs(): VfsFile = MemoryVfs()
-	actual fun externalStorageVfs(): VfsFile = localVfs(".")
-	actual fun userHomeVfs(): VfsFile = localVfs(".")
+	actual fun externalStorageVfs(): VfsFile = localVfs(absoluteCwd)
+	actual fun userHomeVfs(): VfsFile = localVfs(absoluteCwd)
 	actual fun tempVfs(): VfsFile = localVfs(tmpdir)
 	actual fun localVfs(path: String): VfsFile = LocalVfsJvm()[path]
 
@@ -133,6 +136,10 @@ actual object KorioNative {
 
 	actual fun getenv(key: String): String? {
 		return System.getenv(key)
+	}
+
+	actual fun suspendTest(callback: suspend () -> Unit): Unit {
+		runBlocking { callback() }
 	}
 }
 

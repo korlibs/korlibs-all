@@ -146,7 +146,7 @@ open class HttpServer protected constructor() : AsyncCloseable {
 
 		suspend fun readRawBody(maxSize: Int = 0x1000): ByteArray = suspendCoroutine { c ->
 			val out = ByteArrayBuilder()
-			launch(c.context) {
+			launchImmediately(c.context) {
 				handler {
 					if (out.size + it.size > maxSize) {
 						out.clear()

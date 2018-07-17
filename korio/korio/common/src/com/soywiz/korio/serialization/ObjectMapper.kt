@@ -30,6 +30,7 @@ class ObjectMapper {
 		fun <K : Any, V : Any> Any?.genMap(kclazz: KClass<K>, vclazz: KClass<V>): MutableMap<K, V> =
 			this.toDynamicMap().map { it.key.gen(kclazz) to it.value.gen(vclazz) }.toLinkedMap()
 
+		// @TODO: Kotlin-JS BUG with those!
 		@Deprecated("Not compatible with Kotlin.JS (for now)")
 		inline fun <reified T : Any> Any?.gen(): T = map.toTyped(T::class, this)
 
@@ -61,6 +62,7 @@ class ObjectMapper {
 	private val untypeCtx = UntypeContext(this)
 
 	fun <T : Any> registerType(clazz: KClass<T>, generate: TypeContext.(Any?) -> T) = this.apply {
+		//if (clazz == null) error("Clazz is null!")
 		_typers[clazz] = generate
 	}
 

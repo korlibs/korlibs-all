@@ -1,8 +1,13 @@
 package com.soywiz.korio.async
 
+import com.soywiz.klock.*
+import kotlinx.coroutines.experimental.*
 import kotlin.test.*
 
 class SleepTest {
+	// @TODO: Change once we don't wait all the delay time
+	val time get() = Klock.currentTimeMillis()
+
 	@Test
 	fun name() = suspendTest {
 		val start = time

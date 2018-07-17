@@ -9,7 +9,8 @@ class SvgTest {
 	//@Ignore
 	fun name() = suspendTest {
 		val logo = SVG(SAMPLE_LOGO)
-		val img = logo.render().toBmp32()
+		//val img = logo.render().toBmp32()
+		val img = logo.renderNoNative()
 
 		//img.writeTo(LocalVfs("c:/temp/logo.png"), formats = PNG)
 	}

@@ -108,7 +108,7 @@ class MouseComponent(view: View) : Component(view) {
 						y = bounds.y.toFloat(),
 						width = bounds.width.toFloat(),
 						height = bounds.height.toFloat(),
-						colorMul = RGBA(0xFF, 0, 0, 0x3F),
+						colorMul = RGBAInt(0xFF, 0, 0, 0x3F),
 						m = mouseHit.globalMatrix
 					)
 					renderContext.batch.drawText(
@@ -129,7 +129,7 @@ class MouseComponent(view: View) : Component(view) {
 						y = bounds.y.toFloat(),
 						width = bounds.width.toFloat(),
 						height = bounds.height.toFloat(),
-						colorMul = RGBA(0x00, 0, 0xFF, 0x3F),
+						colorMul = RGBAInt(0x00, 0, 0xFF, 0x3F),
 						m = mouseHitResultUsed.globalMatrix
 					)
 					renderContext.batch.drawText(defaultFont, 16.0, mouseHitResultUsed.toString(), x = 0, y = 16)

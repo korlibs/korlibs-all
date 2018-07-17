@@ -1,9 +1,7 @@
 package com.soywiz.korge.atlas
 
-import com.soywiz.korge.util.*
 import com.soywiz.korio.*
 import com.soywiz.korio.lang.*
-import com.soywiz.korio.serialization.*
 import com.soywiz.korio.serialization.json.*
 import com.soywiz.korma.geom.*
 
@@ -60,54 +58,38 @@ data class AtlasInfo(
 	val version: String get() = meta.version
 
 	companion object {
-		init {
-			Mapper.registerType(Rect::class) {
-				Rect(
-					x = it["x"].gen(),
-					y = it["y"].gen(),
-					w = it["w"].gen(),
-					h = it["h"].gen()
-				)
-			}
+		private fun Any?.toRect() = Dynamic(this) { Rect(it["x"].int, it["y"].int, it["w"].int, it["h"].int) }
+		private fun Any?.toSize() = Dynamic(this) { Size(it["w"].int, it["h"].int) }
 
-			Mapper.registerType(Size::class) {
-				Size(
-					w = it["w"].gen(),
-					h = it["h"].gen()
-				)
-			}
-
-			Mapper.registerType(Entry::class) {
-				Entry(
-					frame = it["frame"].gen(),
-					rotated = Dynamic.toBool2(it["rotated"]),
-					sourceSize = it["sourceSize"].gen(),
-					spriteSourceSize = it["spriteSourceSize"].gen(),
-					trimmed = Dynamic.toBool2(it["trimmed"])
-				)
-			}
-
-			Mapper.registerType(Meta::class) {
-				Meta(
-					app = it["app"].gen(),
-					format = it["format"].gen(),
-					image = it["image"].gen(),
-					scale = it["scale"].gen(),
-					size = it["size"].gen(),
-					version = it["version"].gen()
-				)
-			}
-
-			Mapper.registerType(AtlasInfo::class) {
-				AtlasInfo(
-					frames = it["frames"].genMap(),
-					meta = it["meta"].gen()
-				)
-			}
-		}
-
+		// @TODO: kotlinx-serialization
 		fun loadJsonSpriter(@Language("json") json: String): AtlasInfo {
-			val info = Json.decodeToType(AtlasInfo::class, json)
+			val info = Dynamic(Json.decode(json)) {
+				AtlasInfo(
+					it["frames"].let { frames ->
+						frames.keys.map { key ->
+							key.str to frames[key.str].let {
+								Entry(
+									frame = it["frame"].toRect(),
+									rotated = it["rotated"].bool,
+									sourceSize = it["sourceSize"].toSize(),
+									spriteSourceSize = it["spriteSourceSize"].toRect(),
+									trimmed = it["trimmed"].bool
+								)
+							}
+						}.toMap()
+					},
+					it["meta"].let {
+						Meta(
+							app = it["app"].str,
+							format = it["format"].str,
+							image = it["image"].str,
+							scale = it["scale"].double,
+							size = it["size"].toSize(),
+							version = it["version"].str
+						)
+					}
+				)
+			}
 			return info.copy(frames = info.frames.mapValues { it.value.applyRotation() })
 		}
 	}

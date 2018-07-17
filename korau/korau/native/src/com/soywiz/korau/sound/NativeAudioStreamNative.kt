@@ -3,9 +3,9 @@ package com.soywiz.korau.sound
 import com.soywiz.kds.*
 import com.soywiz.klogger.*
 import com.soywiz.korio.async.*
-import com.soywiz.korio.coroutine.*
 import com.soywiz.korio.lang.*
 import kotlin.coroutines.experimental.*
+import kotlinx.coroutines.experimental.*
 
 actual val nativeSoundProvider: NativeSoundProvider by lazy { DummyNativeSoundProvider() }
 
@@ -20,6 +20,6 @@ actual class NativeAudioStream actual constructor(val freq: Int) {
 
 	actual suspend fun addSamples(samples: ShortArray, offset: Int, size: Int): Unit {
 		println("NativeAudioStream.addSamples: $offset,$size")
-		getCoroutineContext().sleep(1)
+		delay(1)
 	}
 }

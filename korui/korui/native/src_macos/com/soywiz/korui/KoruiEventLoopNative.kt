@@ -20,7 +20,37 @@ import platform.posix.realpath
 import kotlin.coroutines.experimental.CoroutineContext
 import kotlin.reflect.KClass
 import com.soywiz.korio.async.*
+import com.soywiz.klock.*
+import com.soywiz.kmem.*
+import kotlinx.coroutines.experimental.*
+import kotlin.coroutines.experimental.*
+import kotlinx.coroutines.experimental.timeunit.*
 
+actual val KoruiDispatcher: CoroutineDispatcher get() = MyNativeDispatcher
+
+object MyNativeDispatcher : CoroutineDispatcher(), Delay, DelayFrame {
+	val ag: AG = AGOpenglFactory.create(Any()).create(Any())
+
+	override fun dispatch(context: CoroutineContext, block: Runnable) {
+		TODO()
+	}
+
+	override fun scheduleResumeAfterDelay(time: Long, unit: TimeUnit, continuation: CancellableContinuation<Unit>) {
+		TODO()
+	}
+
+	override fun invokeOnTimeout(time: Long, unit: TimeUnit, block: Runnable): DisposableHandle {
+		TODO()
+	}
+
+	override fun delayFrame(continuation: CancellableContinuation<Unit>) {
+		TODO()
+	}
+
+	override fun toString() = "MyNativeDispatcher"
+}
+
+/*
 // @TOOD: kotlin-native if not ThreadLocal by lazy crashes. And If not by lazy, it crashes in depthFirstTraversal/FreezeSubgraph/initSharedInstance
 actual object KoruiEventLoop {
 	//actual fun create(): EventLoop = MacosNativeEventLoop()
@@ -78,6 +108,7 @@ object MacosNativeEventLoop : EventLoop() {
 		}
 	}
 }
+*/
 
 class WindowConfig(val width: Int, val height: Int, val title: String)
 

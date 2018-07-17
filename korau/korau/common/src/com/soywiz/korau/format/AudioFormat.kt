@@ -19,10 +19,10 @@ open class AudioFormat(vararg exts: String) {
 		val length = lengthInMicroseconds.toDouble() / 1_000_000.0
 	}
 
-	suspend open fun tryReadInfo(data: AsyncStream): Info? = null
-	suspend open fun decodeStream(data: AsyncStream): AudioStream? = null
+	open suspend fun tryReadInfo(data: AsyncStream): Info? = null
+	open suspend fun decodeStream(data: AsyncStream): AudioStream? = null
 	suspend fun decode(data: AsyncStream): AudioData? = decodeStream(data)?.toData()
-	suspend open fun encode(data: AudioData, out: AsyncOutputStream, filename: String): Unit = TODO()
+	open suspend fun encode(data: AudioData, out: AsyncOutputStream, filename: String): Unit = TODO()
 
 	suspend fun encodeToByteArray(
 		data: AudioData,
@@ -42,7 +42,7 @@ class AudioFormats : AudioFormat() {
 
 	fun register(vararg formats: AudioFormat): AudioFormats = this.apply { this.formats += formats }
 
-	suspend override fun tryReadInfo(data: AsyncStream): Info? {
+	override suspend fun tryReadInfo(data: AsyncStream): Info? {
 		for (format in formats) {
 			try {
 				return format.tryReadInfo(data.clone()) ?: continue
@@ -53,7 +53,7 @@ class AudioFormats : AudioFormat() {
 		return null
 	}
 
-	suspend override fun decodeStream(data: AsyncStream): AudioStream? {
+	override suspend fun decodeStream(data: AsyncStream): AudioStream? {
 		//println(formats)
 		for (format in formats) {
 			try {
@@ -66,7 +66,7 @@ class AudioFormats : AudioFormat() {
 		return null
 	}
 
-	suspend override fun encode(data: AudioData, out: AsyncOutputStream, filename: String) {
+	override suspend fun encode(data: AudioData, out: AsyncOutputStream, filename: String) {
 		val ext = PathInfo(filename).extensionLC
 		val format = formats.firstOrNull { ext in it.extensions }
 				?: throw UnsupportedOperationException("Don't know how to generate file for extension '$ext'")

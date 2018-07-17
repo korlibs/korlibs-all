@@ -22,21 +22,28 @@ object ZLib : CompressionMethod {
 			dictid = s.su32_le()
 			TODO("Unsupported custom dictionaries (Provided DICTID=$dictid)")
 		}
+		//println("ZLib.uncompress[2]")
 
 		//s.alignbyte()
 		var chash = Adler32.INITIAL
-		Deflate(windowBits).uncompress(s, object : AsyncOutputStream by o {
+		Deflate(windowBits).uncompress(s, object : AsyncOutputStream {
+			override suspend fun close() {
+				o.close()
+			}
+
 			override suspend fun write(buffer: ByteArray, offset: Int, len: Int) {
 				o.write(buffer, offset, len)
 				chash = Adler32.update(chash, buffer, offset, len)
 				//println("UNCOMPRESS:'" + buffer.sliceArray(offset until (offset + len)).toString(UTF8) + "':${chash.hex32}")
 			}
 		})
+		//println("ZLib.uncompress[3]")
 
 		s.prepareBigChunk()
 		val adler32 = s.su32_be()
 		//println("Zlib.uncompress.available[1]:" + s.available())
 		if (chash != adler32) invalidOp("Adler32 doesn't match ${chash.hex} != ${adler32.hex}")
+		//println("ZLib.uncompress[4]")
 	}
 
 	override suspend fun compress(

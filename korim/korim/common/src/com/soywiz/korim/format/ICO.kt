@@ -62,7 +62,7 @@ object ICO : ImageFormat("ico") {
 					val g = s.readU8()
 					val r = s.readU8()
 					val reserved = s.readU8()
-					RGBA(r, g, b, 0xFF)
+					RGBAInt(r, g, b, 0xFF)
 				}.toIntArray()
 			}
 

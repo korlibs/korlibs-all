@@ -161,26 +161,11 @@ class TestCoroutineDispatcher(val frameTime: Int = 16) :
 suspend fun <T> executeInNewThread(task: suspend () -> T): T = KorioNative.executeInWorker(task)
 suspend fun <T> executeInWorker(task: suspend () -> T): T = KorioNative.executeInWorker(task)
 
-fun suspendTest(
-	dispatcher: TestCoroutineDispatcher = TestCoroutineDispatcher(),
-	callback: suspend TestCoroutineDispatcher.() -> Unit
-) {
-	Korio(dispatcher) {
-		dispatcher.loop {
-			withTimeout(10, TimeUnit.SECONDS) {
-				callback(dispatcher)
-			}
-		}
-	}
-}
+fun suspendTest(callback: suspend () -> Unit) = KorioNative.suspendTest { callback() }
 
-fun suspendTestExceptJs(
-	dispatcher: TestCoroutineDispatcher = TestCoroutineDispatcher(),
-	callback: suspend TestCoroutineDispatcher.() -> Unit
-) {
-	if (OS.isJs) return
-	suspendTest(dispatcher, callback)
-}
+fun suspendTest(context: CoroutineContext, callback: suspend () -> Unit) = KorioNative.suspendTest { withContext(context) { callback() } }
+
+fun suspendTestExceptJs(callback: suspend () -> Unit) = if (OS.isJs) Unit else suspendTest(callback)
 
 suspend fun launchImmediately(job: Job? = null, callback: suspend () -> Unit) =
 	launchImmediately(coroutineContext, job, callback)

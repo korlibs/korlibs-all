@@ -12,6 +12,7 @@ import com.soywiz.korio.net.ws.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
 import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.intrinsics.*
 import org.khronos.webgl.*
 import org.khronos.webgl.set
 import org.w3c.dom.*
@@ -68,8 +69,16 @@ actual object KorioNative {
 	@Suppress("unused", "DEPRECATION")
 	actual fun random(): Double = kotlin.js.Math.random()
 
-	actual fun asyncEntryPoint(context: CoroutineContext, callback: suspend () -> Unit) {
-		callback.startCoroutine(EmptyContinuation(context))
+	actual fun asyncEntryPoint(context: CoroutineContext, callback: suspend () -> Unit): dynamic {
+		//callback.startCoroutine(EmptyContinuation(context))
+		return kotlin.js.Promise<dynamic> { resolve, reject ->
+			callback.startCoroutineCancellable(object : Continuation<Unit> {
+				override val context: CoroutineContext = context
+
+				override fun resume(value: Unit) = resolve(undefined)
+				override fun resumeWithException(exception: Throwable) = reject(exception)
+			})
+		}
 	}
 
 	actual abstract class NativeThreadLocal<T> {
@@ -98,12 +107,14 @@ actual object KorioNative {
 		}
 	}
 
-	actual fun rootLocalVfs(): VfsFile = localVfs(".")
-	actual fun applicationVfs(): VfsFile = localVfs(".")
+	private val absoluteCwd: String = require("path").resolve(".")
+
+	actual fun rootLocalVfs(): VfsFile = localVfs(absoluteCwd)
+	actual fun applicationVfs(): VfsFile = localVfs(absoluteCwd)
 	actual fun applicationDataVfs(): VfsFile = jsLocalStorageVfs.root
 	actual fun cacheVfs(): VfsFile = MemoryVfs()
-	actual fun externalStorageVfs(): VfsFile = localVfs(".")
-	actual fun userHomeVfs(): VfsFile = localVfs(".")
+	actual fun externalStorageVfs(): VfsFile = localVfs(absoluteCwd)
+	actual fun userHomeVfs(): VfsFile = localVfs(absoluteCwd)
 	actual fun tempVfs(): VfsFile = localVfs(tmpdir)
 
 	actual fun localVfs(path: String): VfsFile {
@@ -133,7 +144,14 @@ actual object KorioNative {
 
 	actual val websockets: WebSocketClientFactory by lazy { JsWebSocketClientFactory() }
 
-	actual val systemLanguageStrings = window.navigator.languages.toList()
+	actual val systemLanguageStrings by lazy {
+		if (isNodeJs) {
+			val env = process.env
+			listOf(env.LANG ?: env.LANGUAGE ?: env.LC_ALL ?: env.LC_MESSAGES ?: "english")
+		} else {
+			window.navigator.languages.toList()
+		}
+	}
 
 	actual fun Thread_sleep(time: Long) {}
 
@@ -199,6 +217,17 @@ actual object KorioNative {
 			val qs = QueryString.decode((document.location?.search ?: "").trimStart('?'))
 			val envs = qs.map { it.key.toUpperCase() to (it.value.firstOrNull() ?: it.key) }.toMap()
 			return envs[key.toUpperCase()]
+		}
+	}
+
+	//actual fun suspendTest(callback: suspend () -> Unit): dynamic = promise { callback() }
+	actual fun suspendTest(callback: suspend () -> Unit): dynamic {
+		return kotlin.js.Promise<dynamic> { resolve, reject ->
+			callback.startCoroutineCancellable(object : Continuation<Unit> {
+				override val context: CoroutineContext = KorioDefaultDispatcher
+				override fun resume(value: Unit) = resolve(undefined)
+				override fun resumeWithException(exception: Throwable) = reject(exception)
+			})
 		}
 	}
 }

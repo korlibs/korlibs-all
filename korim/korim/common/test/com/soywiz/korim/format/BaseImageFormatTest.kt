@@ -7,7 +7,8 @@ import com.soywiz.korio.util.*
 open class BaseImageFormatTest {
 	val root: VfsFile = if (OS.isJs) {
 		// localCurrentDirVfs = korim/js/build/node_modules
-		LocalVfs("../../../../korim/common/src/test/resources")
+		//LocalVfs("../../../../korim/common/src/test/resources")
+		ResourcesVfs
 	} else {
 		ResourcesVfs
 	}

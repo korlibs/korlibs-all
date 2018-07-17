@@ -107,7 +107,7 @@ class HttpSeverNodeJs : HttpServer() {
 
 	val http = require("http")
 	val server = http.createServer { req, res ->
-		launch(context) {
+		launchImmediately(context) {
 			handler(req, res)
 		}
 	}

@@ -16,8 +16,9 @@ import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
 import kotlin.collections.set
 import kotlin.reflect.*
-import kotlin.coroutines.experimental.*
 import com.soywiz.std.*
+import kotlin.coroutines.experimental.*
+import kotlinx.coroutines.experimental.*
 
 import kotlinx.cinterop.*
 import platform.posix.*
@@ -39,12 +40,6 @@ actual class Semaphore actual constructor(initial: Int) {
 	actual fun acquire(): Unit = Unit
 	actual fun release(): Unit = Unit
 }
-
-object NativeDelay : Delay {
-	override suspend fun delay(ms: Int): Unit = TODO()
-}
-
-actual val nativeDelay: Delay = NativeDelay
 
 actual object KorioNative {
 	actual val currentThreadId: Long get() = -1L // @TODO
@@ -106,7 +101,6 @@ actual object KorioNative {
 
 	actual val asyncSocketFactory: AsyncSocketFactory get() = NativeAsyncSocketFactory
 	actual val websockets: WebSocketClientFactory get() = NativeWebSocketClientFactory
-	actual val eventLoopFactoryDefaultImpl: EventLoopFactory get() = BaseEventLoopFactoryNative
 	actual val systemLanguageStrings: List<String> get() = listOf("english")
 
 	// @TODO
@@ -139,11 +133,13 @@ actual object KorioNative {
 		println("Exception: $e")
 	}
 
-	actual fun syncTest(block: suspend EventLoopTest.() -> Unit): Unit {
-		sync(el = EventLoopTest(), step = 10, block = block)
-	}
-
 	actual fun getenv(key: String): String? = platform.posix.getenv(key)?.toKString()
+
+	actual fun asyncEntryPoint(context: CoroutineContext, callback: suspend () -> Unit) = runBlocking(context) { callback() }
+
+	actual fun suspendTest(callback: suspend () -> Unit): Unit {
+		runBlocking { callback() }
+	}
 }
 
 class NativeHttpClient : HttpClient() {

@@ -24,7 +24,8 @@ open class Deflate(val windowBits: Int) : CompressionMethod {
 	}
 
 	override suspend fun uncompress(i: AsyncInputWithLengthStream, o: AsyncOutputStream) {
-		return uncompress(BitReader(i), o)
+		uncompress(BitReader(i), o)
+		//println("uncompress[6]")
 	}
 
 	suspend fun uncompress(reader: BitReader, out: AsyncOutputStream) {
@@ -32,13 +33,16 @@ open class Deflate(val windowBits: Int) : CompressionMethod {
 		val ring = SlidingWindow(windowBits)
 		val sout = SlidingWindowWithOutput(ring, out)
 		var lastBlock = false
+		//println("uncompress[0]")
 		while (!lastBlock) {
 			if (reader.requirePrepare) reader.prepareBigChunk()
+			//println("uncompress[1]")
 
 			lastBlock = reader.sreadBit()
 			val btype = reader.readBits(2)
 			if (btype !in 0..2) error("invalid bit")
 			if (btype == 0) {
+				//println("uncompress[2]")
 				reader.discardBits()
 				if (reader.requirePrepare) reader.prepareBigChunk()
 				val len = reader.su16_le()
@@ -48,6 +52,7 @@ open class Deflate(val windowBits: Int) : CompressionMethod {
 				val bytes = reader.abytes(len)
 				sout.putOut(bytes, 0, len)
 			} else {
+				//println("uncompress[3]")
 				if (reader.requirePrepare) reader.prepareBigChunk()
 				val (tree, dist) = if (btype == 1) FIXED_TREE_DIST else readDynamicTree(reader)
 				while (true) {
@@ -71,7 +76,9 @@ open class Deflate(val windowBits: Int) : CompressionMethod {
 				}
 			}
 		}
+		//println("uncompress[4]")
 		sout.flush(finish = true)
+		//println("uncompress[5]")
 	}
 
 	private fun readDynamicTree(reader: BitReader): Pair<HuffmanTree, HuffmanTree> {
@@ -98,7 +105,8 @@ open class Deflate(val windowBits: Int) : CompressionMethod {
 			}
 			val vv = when (value) {
 				16 -> lengths[n - 1]
-				17, 18 -> 0
+				17 -> 0
+				18 -> 0
 				else -> value
 			}
 

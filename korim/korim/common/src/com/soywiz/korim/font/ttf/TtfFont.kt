@@ -362,7 +362,7 @@ class TtfFont private constructor(val s: SyncStream) {
 		val xMax: Int
 		val yMax: Int
 		val advanceWidth: Int
-		fun fill(c: Context2d, size: Double, origin: Origin, color: Int)
+		fun fill(c: Context2d, size: Double, origin: Origin, color: RGBAInt)
 	}
 
 	data class Contour(var x: Int = 0, var y: Int = 0, var onCurve: Boolean = false) {
@@ -383,7 +383,7 @@ class TtfFont private constructor(val s: SyncStream) {
 		size: Double = 16.0,
 		x: Double = 0.0,
 		y: Double = 0.0,
-		color: Int = Colors.WHITE,
+		color: RGBAInt = Colors.WHITE,
 		@Suppress("UNUSED_PARAMETER") origin: Origin = Origin.BASELINE
 	) = c.run {
 		val font = this@TtfFont
@@ -414,7 +414,7 @@ class TtfFont private constructor(val s: SyncStream) {
 		val refs: List<GlyphReference>,
 		override val advanceWidth: Int
 	) : IGlyph {
-		override fun fill(c: Context2d, size: Double, origin: Origin, color: Int) {
+		override fun fill(c: Context2d, size: Double, origin: Origin, color: RGBAInt) {
 			val scale = size / unitsPerEm.toDouble()
 			c.keep {
 				for (ref in refs) {
@@ -445,7 +445,7 @@ class TtfFont private constructor(val s: SyncStream) {
 			onCurve = onCurve(n)
 		}
 
-		override fun fill(c: Context2d, size: Double, origin: Origin, color: Int) {
+		override fun fill(c: Context2d, size: Double, origin: Origin, color: RGBAInt) {
 			val font = this@TtfFont
 			val scale = size / font.unitsPerEm.toDouble()
 			c.apply {
@@ -669,7 +669,7 @@ fun Context2d.fillText(
 	size: Double = 16.0,
 	x: Double = 0.0,
 	y: Double = 0.0,
-	color: Int = Colors.WHITE,
+	color: RGBAInt = Colors.WHITE,
 	origin: TtfFont.Origin = TtfFont.Origin.BASELINE
 ) {
 	font.fillText(this, text, size, x, y, color, origin)

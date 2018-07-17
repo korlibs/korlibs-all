@@ -3,7 +3,8 @@ package com.soywiz.korio.lang
 import com.soywiz.korio.serialization.*
 
 object Dynamic {
-	inline operator fun <T> invoke(callback: DynamicAccess.() -> T) = DynamicAccess(callback)
+	inline operator fun <T> invoke(callback: DynamicAccess.() -> T): T = DynamicAccess(callback)
+	inline operator fun <T, T2> invoke(value: T2, callback: DynamicAccess.(T2) -> T): T = DynamicAccess.run { callback(this, value) }
 
 	fun set(obj: Any?, key: Any?, value: Any?): Unit = when (obj) {
 		is MutableMap<*, *>, is MutableList<*> -> setUntyped(obj, key, value)
@@ -123,6 +124,12 @@ object DynamicAccess {
 		else -> null
 	}
 
+	fun Any?.toBoolOrNull(): Boolean? = when (this) {
+		is String -> this == "1" || this == "true" || this == "on"
+		is Number -> toInt() != 0
+		else -> null
+	}
+
 	fun Any?.toIntOrNull(): Int? = when (this) {
 		is Number -> toInt()
 		is String -> this.toIntOrNull(10)
@@ -167,6 +174,7 @@ object DynamicAccess {
 
 	val Any?.str: String get() = toString()
 	val Any?.int: Int get() = toIntDefault()
+	val Any?.bool: Boolean get() = toBoolOrNull() ?: false
 	val Any?.float: Float get() = toFloatDefault()
 	val Any?.double: Double get() = toDoubleDefault()
 	val Any?.long: Long get() = toLongDefault()

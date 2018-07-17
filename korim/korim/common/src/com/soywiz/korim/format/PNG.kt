@@ -256,7 +256,7 @@ object PNG : ImageFormat("png") {
 				width,
 				height,
 				palette = (0 until paletteCount).map {
-					RGBA(
+					RGBAInt(
 						rgbPalette[it * 3 + 0],
 						rgbPalette[it * 3 + 1],
 						rgbPalette[it * 3 + 2],

@@ -7,7 +7,7 @@ class KlockTest {
 	@Test
 	fun testTimeAdvances() {
 		val time1 = Klock.currentTimeMillis()
-		assertTrue("Time is provided in milliseconds from EPOCH") { time1 >= 1508887000000 }
+		assertTrue("Time is provided in milliseconds since EPOCH. Expected ($time1 >= 1508887000000)") { time1 >= 1508887000000 }
 		while (true) {
 			val time2 = Klock.currentTimeMillis()
 			assertTrue("Time advances") { time2 >= time1 }

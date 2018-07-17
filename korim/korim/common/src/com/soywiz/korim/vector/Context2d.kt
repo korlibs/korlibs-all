@@ -277,7 +277,7 @@ class Context2d(val renderer: Renderer) {
 	fun createRadialGradient(x0: Double, y0: Double, r0: Double, x1: Double, y1: Double, r1: Double) =
 		Gradient(Gradient.Kind.RADIAL, x0, y0, r0, x1, y1, r1)
 
-	fun createColor(color: Int) = Color(color)
+	fun createColor(color: RGBAInt) = Color(color)
 	fun createPattern(
 		bitmap: Bitmap,
 		repeat: Boolean = false,
@@ -324,7 +324,7 @@ class Context2d(val renderer: Renderer) {
 
 	object None : Paint
 
-	data class Color(val color: Int) : Paint
+	data class Color(val color: RGBAInt) : Paint
 
 	interface TransformedPaint : Paint {
 		val transform: Matrix2d
@@ -449,6 +449,13 @@ fun Context2d.SizedDrawable.translated(tx: Number = 0.0, ty: Number = tx): Conte
 
 fun Context2d.SizedDrawable.render(): NativeImage {
 	val image = NativeImage(this.width, this.height)
+	val ctx = image.getContext2d()
+	this.draw(ctx)
+	return image
+}
+
+fun Context2d.SizedDrawable.renderNoNative(): Bitmap32 {
+	val image = Bitmap32(this.width, this.height)
 	val ctx = image.getContext2d()
 	this.draw(ctx)
 	return image

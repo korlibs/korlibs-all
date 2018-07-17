@@ -75,7 +75,7 @@ open class BitReader(val s: AsyncInputWithLengthStream) {
 	suspend fun abytes(count: Int, out: ByteArray = ByteArray(count)) = prepareBytesUpTo(count).sbytes(count, out)
 
 	suspend fun strz(): String {
-		return MemorySyncStreamToByteArray {
+		return MemorySyncStreamToByteArraySuspend {
 			discardBits()
 			while (true) {
 				if (requirePrepare) prepareBigChunk()
