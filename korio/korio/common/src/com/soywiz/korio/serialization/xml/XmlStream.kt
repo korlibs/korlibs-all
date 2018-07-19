@@ -62,13 +62,15 @@ object XmlStream {
 						} else {
 							r.skipSpaces()
 							val processingInstruction = r.matchLit("?") != null
-							val close = r.matchLit("/") != null
+							val processingEntityOrDocType = r.matchLit("!") != null
+							val close = (r.matchLit("/") != null) || processingEntityOrDocType
 							r.skipSpaces()
-							val name = r.matchIdentifier()!!
+							val name = r.matchIdentifier()
+									?: error("Couldn't match identifier after '<', offset=${r.pos}, around='${r.peek(10)}'")
 							r.skipSpaces()
 							val attributes = lmapOf<String, String>()
 							while (r.peekChar() != '?' && r.peekChar() != '/' && r.peekChar() != '>') {
-								val key = r.matchIdentifier() ?: throw IllegalArgumentException(
+								val key = r.matchStringOrId() ?: throw IllegalArgumentException(
 									"Malformed document or unsupported xml construct around ~${r.peek(
 										10
 									)}~ for name '$name'"
@@ -76,7 +78,7 @@ object XmlStream {
 								r.skipSpaces()
 								if (r.matchLit("=") != null) {
 									r.skipSpaces()
-									val argsQuote = r.matchSingleOrDoubleQuoteString()
+									val argsQuote = r.matchStringOrId()
 									attributes[key] = if (argsQuote != null) {
 										XmlEntities.decode(argsQuote.substring(1, argsQuote.length - 1))
 									} else {
@@ -91,7 +93,7 @@ object XmlStream {
 							val openclose = r.matchLit("/") != null
 							val processingInstructionEnd = r.matchLit("?") != null
 							r.readExpect(">")
-							current = if (processingInstruction) Element.ProcessingInstructionTag(name, attributes)
+							current = if (processingInstruction || processingEntityOrDocType) Element.ProcessingInstructionTag(name, attributes)
 							else if (openclose) Element.OpenCloseTag(name, attributes)
 							else if (close) Element.CloseTag(name)
 							else Element.OpenTag(name, attributes)
@@ -105,8 +107,9 @@ object XmlStream {
 			}
 			hasMore = (buffer.isNotEmpty())
 			flushBuffer()
-
 		}
+
+		private fun StrReader.matchStringOrId(): String? = matchSingleOrDoubleQuoteString() ?: matchIdentifier()
 
 		override fun next(): Element {
 			prepare()

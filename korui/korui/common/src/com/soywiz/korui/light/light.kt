@@ -76,6 +76,7 @@ open class LightComponents {
 	}
 
 	open fun getDpi(): Double = 96.0
+	open fun getDevicePixelRatio(): Double = 1.0
 	open fun <T> callAction(c: Any, key: LightAction<T>, param: T): Unit = Unit
 	open fun <T> setProperty(c: Any, key: LightProperty<T>, value: T): Unit = Unit
 	open fun <T> getProperty(c: Any, key: LightProperty<T>): T = key.default
@@ -97,7 +98,15 @@ val defaultLightFactory: LightComponentsFactory by lazy { NativeLightsComponents
 fun defaultLight(context: CoroutineContext) = defaultLightFactory.create(context)
 
 enum class LightType {
-	FRAME, CONTAINER, BUTTON, PROGRESS, IMAGE, LABEL, TEXT_FIELD, TEXT_AREA, CHECK_BOX, SCROLL_PANE, AGCANVAS
+	FRAME, CONTAINER, BUTTON, PROGRESS, IMAGE, LABEL, TEXT_FIELD, TEXT_AREA, CHECK_BOX, SCROLL_PANE, AGCANVAS,
+	// NEW
+	COMBO_BOX, RADIO_BUTTON
+}
+
+//class LightRadioButtonGroup : Extra by Extra.Mixin()
+
+data class ComboBoxItem(val obj: Any?, val string: String) {
+	override fun toString(): String = string
 }
 
 class LightAction<T>(val name: String) {
@@ -120,6 +129,9 @@ class LightProperty<out T>(val name: String, val default: T) {
 		val IMAGE = LightProperty<Bitmap?>("IMAGE", null)
 		val IMAGE_SMOOTH = LightProperty<Boolean>("IMAGE_SMOOTH", true)
 		val CHECKED = LightProperty<Boolean>("CHECKED", false)
+		val COMBO_BOX_ITEMS = LightProperty<List<ComboBoxItem>>("COMBO_BOX_ITEMS", listOf())
+		val SELECTED_INDEX = LightProperty<Int>("SELECTED_INDEX", 0)
+		//val RADIO_GROUP = LightProperty<LightRadioButtonGroup>("RADIO_GROUP", LightRadioButtonGroup())
 	}
 
 	@Suppress("UNCHECKED_CAST")

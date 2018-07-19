@@ -20,6 +20,32 @@ class Context2d(val renderer: Renderer) {
 		NONE(0.0), X1(1.0), X2(2.0), X4(4.0)
 	}
 
+	fun withScaledRenderer(scaleX: Double, scaleY: Double = scaleX): Context2d = if (scaleX == 1.0 && scaleY == 1.0) this else Context2d(ScaledRenderer(renderer, scaleX, scaleY))
+
+	class ScaledRenderer(val parent: Renderer, val scaleX: Double, val scaleY: Double) : Renderer() {
+		override val width: Int get() = (parent.width / scaleX).toInt()
+		override val height: Int get() = (parent.height / scaleY).toInt()
+
+		private inline fun <T> adjustMatrix(transform: Matrix2d, callback: () -> T): T {
+			return transform.keep {
+				transform.scale(scaleX, scaleY)
+				callback()
+			}
+		}
+
+		private inline fun <T> adjustState(state: State, callback: () -> T): T =
+			adjustMatrix(state.transform) { callback() }
+
+		override fun render(state: State, fill: Boolean): Unit = adjustState(state) { parent.render(state, fill) }
+		override fun renderText(state: State, font: Font, text: String, x: Double, y: Double, fill: Boolean): Unit =
+			adjustState(state) { parent.renderText(state, font, text, x, y, fill) }
+
+		override fun getBounds(font: Font, text: String, out: TextMetrics): Unit = parent.getBounds(font, text, out)
+		override fun drawImage(image: Bitmap, x: Int, y: Int, width: Int, height: Int, transform: Matrix2d): Unit {
+			adjustMatrix(transform) { parent.drawImage(image, x, y, width, height, transform) }
+		}
+	}
+
 	abstract class Renderer {
 		companion object {
 			val DUMMY = object : Renderer() {
@@ -47,13 +73,12 @@ class Context2d(val renderer: Renderer) {
 	}
 
 	enum class VerticalAlign(val ratio: Double) {
-		TOP(0.0), MIDLE(0.5), BASELINE(1.0), BOTTOM(1.0);
+		TOP(0.0), MIDDLE(0.5), BASELINE(1.0), BOTTOM(1.0);
 
 		fun getOffsetY(height: Double, baseline: Double): Double = when (this) {
 			BASELINE -> baseline
-			else -> height * ratio
+			else -> -height * ratio
 		}
-
 	}
 
 	enum class HorizontalAlign(val ratio: Double) {
@@ -102,6 +127,44 @@ class Context2d(val renderer: Renderer) {
 	var horizontalAlign: HorizontalAlign by redirectField { state::horizontalAlign }
 	var globalAlpha: Double by redirectField { state::globalAlpha }
 
+	inline fun fillStyle(paint: Paint, callback: () -> Unit) {
+		val oldStyle = fillStyle
+		fillStyle = paint
+		try {
+			callback()
+		} finally {
+			fillStyle = oldStyle
+		}
+	}
+
+	inline fun strokeStyle(paint: Paint, callback: () -> Unit) {
+		val oldStyle = strokeStyle
+		strokeStyle = paint
+		try {
+			callback()
+		} finally {
+			strokeStyle = oldStyle
+		}
+	}
+
+	inline fun font(font: Font?, halign: HorizontalAlign? = null, valign: VerticalAlign? = null, callback: () -> Unit) {
+		val oldFont = this.font
+		val oldHalign = this.horizontalAlign
+		val oldValign = this.verticalAlign
+		try {
+			if (font != null) this.font = font
+			if (halign != null) this.horizontalAlign = halign
+			if (valign != null) this.verticalAlign = valign
+			callback()
+		} finally {
+			this.font = oldFont
+			this.horizontalAlign = oldHalign
+			this.verticalAlign = oldValign
+		}
+	}
+
+	inline fun fillStyle(color: RGBAInt, callback: () -> Unit) = fillStyle(createColor(color), callback)
+
 	inline fun keepApply(callback: Context2d.() -> Unit) = this.apply { keep { callback() } }
 
 	inline fun keep(callback: () -> Unit) {
@@ -134,10 +197,12 @@ class Context2d(val renderer: Renderer) {
 	inline fun scale(sx: Number, sy: Number = sx) = scale(sx.toDouble(), sy.toDouble())
 	inline fun translate(tx: Number, ty: Number) = translate(tx.toDouble(), ty.toDouble())
 	inline fun rotate(angle: Number) = rotate(angle.toDouble())
+	inline fun rotateDeg(degs: Number) = rotateDeg(degs.toDouble())
 
 	fun scale(sx: Double, sy: Double = sx) = run { state.transform.prescale(sx, sy) }
 	fun rotate(angle: Double) = run { state.transform.prerotate(angle) }
 	fun rotateDeg(degs: Double) = run { state.transform.prerotate(Angle.degreesToRadians(degs)) }
+
 	fun translate(tx: Double, ty: Double) = run { state.transform.pretranslate(tx, ty) }
 	fun transform(m: Matrix2d) = run { state.transform.premultiply(m) }
 	fun transform(a: Double, b: Double, c: Double, d: Double, tx: Double, ty: Double) =
@@ -148,15 +213,15 @@ class Context2d(val renderer: Renderer) {
 		run { state.transform.setTo(a, b, c, d, tx, ty) }
 
 	fun shear(sx: Double, sy: Double) = transform(1.0, sy, sx, 1.0, 0.0, 0.0)
-	fun moveTo(x: Int, y: Int) = moveTo(x.toDouble(), y.toDouble())
-	fun lineTo(x: Int, y: Int) = lineTo(x.toDouble(), y.toDouble())
-	fun quadraticCurveTo(cx: Int, cy: Int, ax: Int, ay: Int) =
+	inline fun moveTo(x: Number, y: Number) = moveTo(x.toDouble(), y.toDouble())
+	inline fun lineTo(x: Number, y: Number) = lineTo(x.toDouble(), y.toDouble())
+	inline fun quadraticCurveTo(cx: Number, cy: Number, ax: Number, ay: Number) =
 		quadraticCurveTo(cx.toDouble(), cy.toDouble(), ax.toDouble(), ay.toDouble())
 
-	fun bezierCurveTo(cx1: Int, cy1: Int, cx2: Int, cy2: Int, ax: Int, ay: Int) =
+	inline fun bezierCurveTo(cx1: Number, cy1: Number, cx2: Number, cy2: Number, ax: Number, ay: Number) =
 		bezierCurveTo(cx1.toDouble(), cy1.toDouble(), cx2.toDouble(), cy2.toDouble(), ax.toDouble(), ay.toDouble())
 
-	fun arcTo(x1: Int, y1: Int, x2: Int, y2: Int, radius: Int) =
+	inline fun arcTo(x1: Number, y1: Number, x2: Number, y2: Number, radius: Number) =
 		arcTo(x1.toDouble(), y1.toDouble(), x2.toDouble(), y2.toDouble(), radius.toDouble())
 
 	fun moveTo(p: Vector2) = moveTo(p.x, p.y)
@@ -165,14 +230,20 @@ class Context2d(val renderer: Renderer) {
 	fun bezierCurveTo(c1: Vector2, c2: Vector2, a: Vector2) = bezierCurveTo(c1.x, c1.y, c2.x, c2.y, a.x, a.y)
 	fun arcTo(p1: Vector2, p2: Vector2, radius: Double) = arcTo(p1.x, p1.y, p2.x, p2.y, radius)
 
-	fun rect(x: Int, y: Int, width: Int, height: Int) =
+	inline fun rect(x: Number, y: Number, width: Number, height: Number) =
 		rect(x.toDouble(), y.toDouble(), width.toDouble(), height.toDouble())
 
-	fun strokeRect(x: Int, y: Int, width: Int, height: Int) =
+	inline fun strokeRect(x: Number, y: Number, width: Number, height: Number) =
 		strokeRect(x.toDouble(), y.toDouble(), width.toDouble(), height.toDouble())
 
-	fun fillRect(x: Int, y: Int, width: Int, height: Int) =
+	inline fun fillRect(x: Number, y: Number, width: Number, height: Number) =
 		fillRect(x.toDouble(), y.toDouble(), width.toDouble(), height.toDouble())
+
+	inline fun fillRoundRect(x: Number, y: Number, width: Number, height: Number, rx: Number, ry: Number = rx) {
+		beginPath()
+		roundRect(x.toDouble(), y.toDouble(), width.toDouble(), height.toDouble(), rx.toDouble(), ry.toDouble())
+		fill()
+	}
 
 	fun arc(x: Double, y: Double, r: Double, start: Double, end: Double) = run { state.path.arc(x, y, r, start, end) }
 	fun strokeDot(x: Double, y: Double) = run { beginPath(); moveTo(x, y); lineTo(x, y); stroke() }
@@ -201,7 +272,8 @@ class Context2d(val renderer: Renderer) {
 		run { state.path.rCubicTo(cx1, cy1, cx2, cy2, x, y) }
 
 	fun rect(x: Double, y: Double, width: Double, height: Double) = run { state.path.rect(x, y, width, height) }
-	inline fun rectHole(x: Number, y: Number, width: Number, height: Number) = run { state.path.rectHole(x.toDouble(), y.toDouble(), width.toDouble(), height.toDouble()) }
+	inline fun rectHole(x: Number, y: Number, width: Number, height: Number) =
+		run { state.path.rectHole(x.toDouble(), y.toDouble(), width.toDouble(), height.toDouble()) }
 
 	fun roundRect(x: Double, y: Double, w: Double, h: Double, rx: Double, ry: Double = rx) =
 		run { this.beginPath(); state.path.roundRect(x, y, w, h, rx, ry); this.closePath() }
@@ -224,13 +296,15 @@ class Context2d(val renderer: Renderer) {
 	fun fill() = run { if (state.fillStyle != None) renderer.render(state, fill = true) }
 
 	fun fill(paint: Paint) {
-		this.fillStyle = paint
-		this.fill()
+		this.fillStyle(paint) {
+			this.fill()
+		}
 	}
 
 	fun stroke(paint: Paint) {
-		this.strokeStyle = paint
-		this.stroke()
+		this.strokeStyle(paint) {
+			this.stroke()
+		}
 	}
 
 	fun fillStroke() = run { fill(); stroke() }
@@ -293,8 +367,28 @@ class Context2d(val renderer: Renderer) {
 	fun getTextBounds(text: String, out: TextMetrics = TextMetrics()): TextMetrics =
 		out.apply { renderer.getBounds(font, text, out) }
 
-	fun fillText(text: String, x: Double, y: Double): Unit = renderText(text, x, y, fill = true)
-	fun strokeText(text: String, x: Double, y: Double): Unit = renderText(text, x, y, fill = false)
+	inline fun fillText(text: String, x: Number, y: Number): Unit =
+		renderText(text, x.toDouble(), y.toDouble(), fill = true)
+
+	inline fun strokeText(text: String, x: Number, y: Number): Unit =
+		renderText(text, x.toDouble(), y.toDouble(), fill = false)
+
+	inline fun fillText(
+		text: String,
+		x: Number,
+		y: Number,
+		font: Font? = null,
+		halign: HorizontalAlign? = null,
+		valign: VerticalAlign? = null,
+		color: RGBAInt? = null
+	): Unit {
+		font(font, halign, valign) {
+			fillStyle(color?.let { createColor(it) } ?: fillStyle) {
+				renderText(text, x.toDouble(), y.toDouble(), fill = true)
+			}
+		}
+	}
+
 	fun renderText(text: String, x: Double, y: Double, fill: Boolean): Unit =
 		run { renderer.renderText(state, font, text, x, y, fill) }
 
@@ -456,6 +550,13 @@ fun Context2d.SizedDrawable.render(): NativeImage {
 
 fun Context2d.SizedDrawable.renderNoNative(): Bitmap32 {
 	val image = Bitmap32(this.width, this.height)
+	val ctx = image.getContext2d()
+	this.draw(ctx)
+	return image
+}
+
+fun Context2d.Drawable.renderToImage(width: Int, height: Int): NativeImage {
+	val image = NativeImage(width, height)
 	val ctx = image.getContext2d()
 	this.draw(ctx)
 	return image

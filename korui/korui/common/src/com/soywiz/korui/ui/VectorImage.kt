@@ -3,46 +3,69 @@ package com.soywiz.korui.ui
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.vector.*
 import com.soywiz.korui.*
-import com.soywiz.korui.geom.len.*
 
-suspend fun Container.vectorImage(vector: Context2d.SizedDrawable) = add(VectorImage(this.app).apply {
-	setVector(vector, vector.width, vector.height)
-})
+inline fun Container.vectorImage(vector: Context2d.SizedDrawable, callback: VectorImage.() -> Unit = {}) =
+	add(VectorImage(this.app).apply {
+		setVector(vector, vector.width, vector.height)
+		callback(this)
+	})
 
-
-suspend inline fun Container.vectorImage(
-	vector: Context2d.SizedDrawable,
-	crossinline callback: VectorImage.() -> Unit
+inline fun Container.vectorImage(
+	vector: Context2d.Drawable,
+	crossinline callback: VectorImage.() -> Unit = {}
 ) = add(VectorImage(this.app).apply {
-	setVector(vector, vector.width, vector.height)
+	setVector(vector, null, null)
 	callback(this)
 })
 
-class VectorImage(app: Application) : Container(app, LayeredLayout(app)) {
-	lateinit var d: Context2d.Drawable
-	lateinit var img: Image
-	var targetWidth: Int = 512
-	var targetHeight: Int = 512
+abstract class BaseCanvas(app: Application) : Container(app, LayeredLayout(app)) {
+	private val img = image(NativeImage(1, 1))
+	var antialiased = true
+	var highDpi = true
 
-	suspend fun setVector(d: Context2d.Drawable, width: Int, height: Int) {
+	override fun onResized(x: Int, y: Int, width: Int, height: Int) {
+		super.onResized(x, y, width, height)
+		repaint(width, height)
+	}
+
+	override fun repaint() {
+		repaint(actualWidth, actualHeight)
+	}
+
+	private fun repaint(width: Int, height: Int) {
+		val scale = if (highDpi) app.devicePixelRatio else 1.0
+		//val scale = 1.0
+		val rwidth = (width * scale).toInt()
+		val rheight = (height * scale).toInt()
+		val image = NativeImage(rwidth, rheight)
+		val ctx = image.getContext2d(antialiasing = antialiased).withScaledRenderer(scale)
+		//val ctx = image.getContext2d(antialiasing = antialiased)
+		ctx.render()
+		img.image = image
+	}
+
+	abstract fun Context2d.render(): Unit
+}
+
+class VectorImage(app: Application) : BaseCanvas(app) {
+	lateinit var d: Context2d.Drawable
+	var targetWidth: Int? = null
+	var targetHeight: Int? = null
+
+	fun setVector(d: Context2d.Drawable, width: Int?, height: Int?) {
 		this.d = d
 		this.targetWidth = width
 		this.targetHeight = height
-		this.style.defaultSize.setTo(width.pt, height.pt)
-		//img = image(raster(width, height))
-		img = image(NativeImage(1, 1))
+		invalidate()
 	}
 
-	override fun onResized(x: Int, y: Int, width: Int, height: Int) {
-		//println("onResized: $x, $y, $width, $height")
-		img.image = raster(width, height)
-	}
+	override fun Context2d.render() {
+		val twidth = targetWidth
+		val theight = targetHeight
+		val sx = if (twidth != null) width.toDouble() / twidth.toDouble() else 1.0
+		val sy = if (theight != null) height.toDouble() / theight.toDouble() else 1.0
 
-	fun raster(width: Int, height: Int): NativeImage {
-		return NativeImage(
-			width, height, d,
-			width.toDouble() / this.targetWidth.toDouble(),
-			height.toDouble() / this.targetHeight.toDouble()
-		)
+		d.draw(this.withScaledRenderer(sx, sy))
+		//d.draw(this)
 	}
 }

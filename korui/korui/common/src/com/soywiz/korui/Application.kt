@@ -3,13 +3,14 @@ package com.soywiz.korui
 import com.soywiz.klogger.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korio.async.*
+import com.soywiz.korio.lang.*
 import com.soywiz.korui.event.*
 import com.soywiz.korui.geom.len.*
 import com.soywiz.korui.light.*
 import com.soywiz.korui.ui.*
 import kotlin.coroutines.experimental.*
 
-class Application(val coroutineContext: CoroutineContext, val light: LightComponents) {
+class Application(val coroutineContext: CoroutineContext, val light: LightComponents) : Closeable {
 	companion object {
 		suspend operator fun invoke() = Application(defaultLight(coroutineContext))
 		suspend operator fun invoke(light: LightComponents) = Application(coroutineContext, light)
@@ -28,6 +29,7 @@ class Application(val coroutineContext: CoroutineContext, val light: LightCompon
 	val lengthContext = Length.Context().apply {
 		pixelsPerInch = light.getDpi()
 	}
+	val devicePixelRatio: Double get() = light.getDevicePixelRatio()
 
 	val loop = coroutineContext.animationFrameLoop {
 		var n = 0
@@ -38,9 +40,16 @@ class Application(val coroutineContext: CoroutineContext, val light: LightCompon
 			light.repaint(frame.handle)
 		}
 	}
+
+	override fun close() {
+		loop.close()
+	}
 }
 
 private val koruiApplicationLog = Logger("korui-application")
+
+fun Application(callback: suspend Application.() -> Unit) =
+	Korui { Application(defaultLightFactory.create(coroutineContext)) { callback() } }
 
 suspend fun Application.frame(
 	title: String,
@@ -53,17 +62,30 @@ suspend fun Application.frame(
 		setBoundsInternal(0, 0, width, height)
 	}
 	frame.icon = icon
-	light.setBounds(frame.handle, 0, 0, frame.actualBounds.width, frame.actualBounds.height)
+	//light.setBounds(frame.handle, 0, 0, frame.actualBounds.width, frame.actualBounds.height)
 	koruiApplicationLog.info { "Application.frame: ${frame.actualBounds}" }
+	var resizing = false
 	frame.addEventListener<ResizedEvent> { e ->
-		koruiApplicationLog.info { "Application.frame.ResizedEvent: ${e.width},${e.height}" }
-		frame.setBoundsInternal(0, 0, e.width, e.height)
-		frame.invalidate()
+		if (!resizing) {
+			resizing = true
+			try {
+				koruiApplicationLog.info { "Application.frame.ResizedEvent: ${e.width},${e.height}" }
+				//frame.setBoundsInternal(0, 0, e.width, e.height)
+				//frame.invalidate()
+				frame.setBoundsAndRelayout(0, 0, e.width, e.height)
+				frame.invalidate()
+				light.repaint(frame.handle)
+			} finally {
+				resizing = false
+			}
+		}
 	}
 	callback.await(frame)
 	frames += frame
-	frame.visible = true
+	frame.setBoundsAndRelayout(0, 0, frame.actualBounds.width, frame.actualBounds.height)
 	frame.invalidate()
+	frame.visible = true
+	light.configuredFrame(frame.handle)
 	return frame
 }
 
@@ -88,10 +110,11 @@ suspend fun CanvasApplicationEx(
 	val llight = light ?: defaultLight(coroutineContext)
 	llight.quality = quality
 	val application = Application(coroutineContext, llight)
-	application.frame(title, width, height, icon) {
-		val canvas = agCanvas().apply { focus() }
-		llight.configuredFrame(handle)
-		callback(canvas, this)
+	lateinit var canvas: AgCanvas
+	val frame = application.frame(title, width, height, icon) {
+		canvas = agCanvas().apply { focus() }
 	}
+	callback(canvas, frame)
 	Unit
 }
+

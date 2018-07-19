@@ -6,16 +6,19 @@ def nativeEnabled() {
 	return System.getenv("CI") != "true"
 }
 
-include ":sample1-js"
-include ":sample1-jvm"
-if (nativeEnabled()) {
-	include ":sample1-native"
+def includeVersion(name, folder) {
+	include name
+	findProject(name)?.projectDir = file(folder)
 }
-include ":sample1-common"
 
-findProject(":sample1-js")?.projectDir = file("sample1/js")
-findProject(":sample1-jvm")?.projectDir = file("sample1/jvm")
-if (nativeEnabled()) {
-	findProject(":sample1-native")?.projectDir = file("sample1/native")
+def includeProject(name) {
+	includeVersion(":$name-js", "$name/js")
+	includeVersion(":$name-jvm", "$name/jvm")
+	if (nativeEnabled()) {
+		includeVersion(":$name-native", "$name/native")
+	}
+	includeVersion(":$name-common", "$name")
 }
-findProject(":sample1-common")?.projectDir = file("sample1")
+
+includeProject("sample1")
+includeProject("sample2")

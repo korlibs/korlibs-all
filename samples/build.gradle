@@ -23,6 +23,9 @@ buildscript {
 					//"com.soywiz:korim{SUFFIX}:$korgeVersion",
 					"com.soywiz:korge{SUFFIX}:$korgeVersion",
 			],
+			"sample2": [
+					"com.soywiz:korui{SUFFIX}:$korgeVersion",
+			],
 	]
 	ext.libExecutables = [
 			"sample1": true

@@ -1,0 +1,17 @@
+/*
+apply plugin: 'kotlin-platform-common'
+
+sourceSets {
+    main.kotlin.srcDirs += "src"
+    main.resources.srcDirs += "resources" // @TODO: @BUG: Hack. No common resources are copied
+    test.kotlin.srcDirs += "test"
+    test.resources.srcDirs += "resources" // @TODO: @BUG: Hack. No common resources are copied
+}
+
+dependencies {
+    //compile "com.soywiz:korio-common:$korgeVersion"
+    compile "com.soywiz:korge-common:$korgeVersion"
+}
+
+kotlin.experimental.coroutines "enable"
+*/

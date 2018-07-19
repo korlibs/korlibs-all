@@ -24,6 +24,7 @@ import javax.swing.event.*
 import javax.swing.text.*
 import kotlin.reflect.*
 
+
 typealias KoruiMouseEvent = com.soywiz.korui.event.MouseEvent
 typealias KoruiMouseEventType = com.soywiz.korui.event.MouseEvent.Type
 typealias KoruiChangeEvent = com.soywiz.korui.event.ChangeEvent
@@ -53,6 +54,8 @@ class AwtLightComponents : LightComponents() {
 			LightType.TEXT_FIELD -> JTextField()
 			LightType.TEXT_AREA -> JScrollableTextArea()
 			LightType.CHECK_BOX -> JCheckBox()
+			LightType.COMBO_BOX -> JComboBox<ComboBoxItem>()
+			LightType.RADIO_BUTTON -> JRadioButton()
 			LightType.SCROLL_PANE -> JScrollPane2()
 			LightType.AGCANVAS -> {
 				agg = AGOpenglFactory.create(null).create(null)
@@ -112,18 +115,28 @@ class AwtLightComponents : LightComponents() {
 				if (rc is JScrollableTextArea) rc = rc.textArea
 				val cc = rc as? JTextComponent
 
-				val adaptor = object : DocumentListener {
-					val info = KoruiChangeEvent(null, null)
+				if (cc != null) {
+					val adaptor = object : DocumentListener {
+						val info = KoruiChangeEvent(null, null)
 
-					override fun changedUpdate(e: DocumentEvent?) = ed.dispatch(info)
-					override fun insertUpdate(e: DocumentEvent?) = ed.dispatch(info)
-					override fun removeUpdate(e: DocumentEvent?) = ed.dispatch(info)
-				}
+						override fun changedUpdate(e: DocumentEvent?) = ed.dispatch(info)
+						override fun insertUpdate(e: DocumentEvent?) = ed.dispatch(info)
+						override fun removeUpdate(e: DocumentEvent?) = ed.dispatch(info)
+					}
 
-				cc?.document?.addDocumentListener(adaptor)
+					cc?.document?.addDocumentListener(adaptor)
 
-				return Closeable {
-					cc?.document?.removeDocumentListener(adaptor)
+					return Closeable {
+						cc?.document?.removeDocumentListener(adaptor)
+					}
+				} else if (rc is JComboBox<*>) {
+					val adaptor = ActionListener {
+						ed.dispatch(KoruiChangeEvent(null, rc.selectedIndex))
+					}
+					rc.addActionListener(adaptor)
+					return Closeable {
+						rc.removeActionListener(adaptor)
+					}
 				}
 			}
 			DropFileEvent::class -> {
@@ -146,7 +159,7 @@ class AwtLightComponents : LightComponents() {
 					override fun dragEnter(dtde: DropTargetDragEvent) {
 						ed.dispatch(DropFileEvent(DropFileEvent.Type.ENTER, null))
 						//if (listener.enter(LightDropHandler.EnterInfo())) {
-							dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE)
+						dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE)
 						//}
 					}
 
@@ -202,9 +215,14 @@ class AwtLightComponents : LightComponents() {
 						this.keyCode = e.keyCode
 					}
 
-					override fun keyTyped(e: KeyEvent) = ed.dispatch(populate(com.soywiz.korui.event.KeyEvent.Type.TYPE, e))
-					override fun keyPressed(e: KeyEvent) = ed.dispatch(populate(com.soywiz.korui.event.KeyEvent.Type.DOWN, e))
-					override fun keyReleased(e: KeyEvent) = ed.dispatch(populate(com.soywiz.korui.event.KeyEvent.Type.UP, e))
+					override fun keyTyped(e: KeyEvent) =
+						ed.dispatch(populate(com.soywiz.korui.event.KeyEvent.Type.TYPE, e))
+
+					override fun keyPressed(e: KeyEvent) =
+						ed.dispatch(populate(com.soywiz.korui.event.KeyEvent.Type.DOWN, e))
+
+					override fun keyReleased(e: KeyEvent) =
+						ed.dispatch(populate(com.soywiz.korui.event.KeyEvent.Type.UP, e))
 				}
 
 				cc.addKeyListener(adapter)
@@ -221,8 +239,10 @@ class AwtLightComponents : LightComponents() {
 	val Any.actualContainer: Container? get() = if (this is JFrame2) this.panel else (this as? Container)
 
 	override fun setParent(c: Any, parent: Any?) {
+		val cc = c as? Component
 		val actualParent = (parent as? ChildContainer)?.childContainer ?: parent?.actualContainer
-		actualParent?.add((c as Component), 0)
+		cc?.parent?.remove(cc)
+		actualParent?.add(cc, 0)
 		//println("$parent <- $c")
 	}
 
@@ -327,7 +347,26 @@ class AwtLightComponents : LightComponents() {
 				(c as? JProgressBar)?.maximum = key[value]
 			}
 			LightProperty.CHECKED -> {
-				(c as? JCheckBox)?.isSelected = key[value]
+				(c as? JToggleButton)?.isSelected = key[value]
+			}
+			//LightProperty.RADIO_GROUP -> {
+			//	val lg = value as LightRadioButtonGroup
+			//	val group = lg.extra?.getOrPut("group") { ButtonGroup() } as ButtonGroup
+			//	val but = c as? AbstractButton
+			//	if (but != null) group.add(but)
+			//}
+			LightProperty.COMBO_BOX_ITEMS -> {
+				val cb = (c as? JComboBox<ComboBoxItem>)
+				if (cb != null) {
+					cb.removeAllItems()
+					for (item in (value as List<ComboBoxItem>)) cb.addItem(item)
+				}
+			}
+			LightProperty.SELECTED_INDEX -> {
+				val cb = (c as? JComboBox<ComboBoxItem>)
+				if (cb != null) {
+					cb.selectedIndex = cb.selectedIndex
+				}
 			}
 		}
 	}
@@ -336,21 +375,24 @@ class AwtLightComponents : LightComponents() {
 	override fun <T> getProperty(c: Any, key: LightProperty<T>): T {
 		return when (key) {
 			LightProperty.CHECKED -> {
-				(c as? JCheckBox)?.isSelected ?: false
+				(c as? JToggleButton)?.isSelected ?: false
 			}
 			LightProperty.TEXT -> {
 				(c as? JLabel)?.text ?: (c as? JScrollableTextArea)?.text ?: (c as? JTextComponent)?.text
 				?: (c as? AbstractButton)?.text ?: (c as? Frame)?.title
 			}
+			LightProperty.SELECTED_INDEX -> {
+				(c as? JComboBox<ComboBoxItem>)?.selectedIndex ?: super.getProperty(c, key)
+			}
 			else -> super.getProperty(c, key)
 		} as T
 	}
 
-	suspend override fun dialogAlert(c: Any, message: String) {
+	override suspend fun dialogAlert(c: Any, message: String) {
 		JOptionPane.showMessageDialog(null, message)
 	}
 
-	suspend override fun dialogPrompt(c: Any, message: String, initialValue: String): String {
+	override suspend fun dialogPrompt(c: Any, message: String, initialValue: String): String {
 		val jpf = JTextField()
 		jpf.addAncestorListener(RequestFocusListener())
 		jpf.text = initialValue
@@ -386,6 +428,29 @@ class AwtLightComponents : LightComponents() {
 	override fun getDpi(): Double {
 		val sr = Toolkit.getDefaultToolkit().screenResolution
 		return sr.toDouble()
+	}
+
+	override fun getDevicePixelRatio(): Double {
+		// screenResolution: 108
+		// screenResolution: java.awt.Dimension[width=2048,height=1152]
+		// Try to get devicePixelRatio on MAC the old way
+		try {
+			val obj = Toolkit.getDefaultToolkit().getDesktopProperty("apple.awt.contentScaleFactor")
+			if (obj is Number) return obj.toDouble()
+		} catch (e: Throwable) {
+			e.printStackTrace()
+		}
+
+		if (true) {
+			return (BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB).graphics as Graphics2D)
+				.fontRenderContext.transform.scaleX
+		} else {
+
+			// Try to get using the new way
+			val gfxConfig = GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice.defaultConfiguration
+			val transform = gfxConfig.defaultTransform
+			return transform.scaleX
+		}
 	}
 
 	override fun configuredFrame(handle: Any) {

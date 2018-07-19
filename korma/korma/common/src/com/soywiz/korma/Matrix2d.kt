@@ -166,7 +166,8 @@ data class Matrix2d(
 	fun transform(px: Double, py: Double, out: MVector2 = MVector2()): MPoint2d =
 		out.setTo(transformX(px, py), transformY(px, py))
 
-	fun transform(p: Vector2, out: MVector2 = MVector2()): MPoint2d = out.setTo(transformX(p.x, p.y), transformY(p.x, p.y))
+	fun transform(p: Vector2, out: MVector2 = MVector2()): MPoint2d =
+		out.setTo(transformX(p.x, p.y), transformY(p.x, p.y))
 
 	fun transformX(px: Double, py: Double): Double = this.a * px + this.c * py + this.tx
 	fun transformY(px: Double, py: Double): Double = this.d * py + this.b * px + this.ty
@@ -338,6 +339,25 @@ data class Matrix2d(
 
 	override fun interpolateWith(other: Matrix2d, ratio: Double): Matrix2d =
 		Matrix2d().setToInterpolated(this, other, ratio)
+
+	inline fun <T> keep(callback: () -> T): T {
+		val a = this.a
+		val b = this.b
+		val c = this.c
+		val d = this.d
+		val tx = this.tx
+		val ty = this.ty
+		try {
+			return callback()
+		} finally {
+			this.a = a
+			this.b = b
+			this.c = c
+			this.d = d
+			this.tx = tx
+			this.ty = ty
+		}
+	}
 }
 
 // This is to be able to mix integers with doubles without boxing at all due to the inline

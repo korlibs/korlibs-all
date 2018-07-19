@@ -1,0 +1,32 @@
+apply plugin: 'application'
+
+mainClassName = "MainKt"
+
+dependencies {
+    compile "org.jogamp.gluegen:gluegen-rt:$gluegenVersion"
+    compile "org.jogamp.jogl:jogl-all:$joglVersion"
+
+    runtime "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-android-aarch64"
+    runtime "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-android-armv6"
+    runtime "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-linux-amd64"
+    runtime "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-linux-armv6"
+    runtime "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-linux-armv6hf"
+    runtime "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-linux-i586"
+    runtime "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-macosx-universal"
+    runtime "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-solaris-amd64"
+    runtime "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-solaris-i586"
+    runtime "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-windows-amd64"
+    runtime "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-windows-i586"
+
+    runtime "org.jogamp.jogl:jogl-all:$joglVersion:natives-android-aarch64"
+    runtime "org.jogamp.jogl:jogl-all:$joglVersion:natives-android-armv6"
+    runtime "org.jogamp.jogl:jogl-all:$joglVersion:natives-linux-amd64"
+    runtime "org.jogamp.jogl:jogl-all:$joglVersion:natives-linux-armv6"
+    runtime "org.jogamp.jogl:jogl-all:$joglVersion:natives-linux-armv6hf"
+    runtime "org.jogamp.jogl:jogl-all:$joglVersion:natives-linux-i586"
+    runtime "org.jogamp.jogl:jogl-all:$joglVersion:natives-macosx-universal"
+    runtime "org.jogamp.jogl:jogl-all:$joglVersion:natives-solaris-amd64"
+    runtime "org.jogamp.jogl:jogl-all:$joglVersion:natives-solaris-i586"
+    runtime "org.jogamp.jogl:jogl-all:$joglVersion:natives-windows-amd64"
+    runtime "org.jogamp.jogl:jogl-all:$joglVersion:natives-windows-i586"
+}

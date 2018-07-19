@@ -294,7 +294,7 @@ class CanvasContext2dRenderer(private val canvas: HTMLCanvasElement) : Context2d
 
 			ctx.textBaseline = when (state.verticalAlign) {
 				Context2d.VerticalAlign.TOP -> CanvasTextBaseline.TOP
-				Context2d.VerticalAlign.MIDLE -> CanvasTextBaseline.MIDDLE
+				Context2d.VerticalAlign.MIDDLE -> CanvasTextBaseline.MIDDLE
 				Context2d.VerticalAlign.BASELINE -> CanvasTextBaseline.ALPHABETIC
 				Context2d.VerticalAlign.BOTTOM -> CanvasTextBaseline.BOTTOM
 			}

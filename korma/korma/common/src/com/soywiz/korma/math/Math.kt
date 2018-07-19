@@ -118,6 +118,7 @@ object Math {
 		packUintFast(clampf255(r), clampf255(g), clampf255(b), clampf255(a))
 
 	fun log2(v: Int): Int = log(v.toDouble(), base = 2.0).toInt()
+	fun log10(v: Int): Int = log(v.toDouble(), base = 10.0).toInt()
 
 	fun distanceXY(x1: Double, y1: Double, x2: Double, y2: Double): Double = hypot(x1 - x2, y1 - y2)
 	fun distancePoint(a: Vector2, b: Vector2): Double = distanceXY(a.x, a.y, b.x, b.y)

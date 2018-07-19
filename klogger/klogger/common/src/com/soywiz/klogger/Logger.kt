@@ -40,7 +40,9 @@ class Logger internal constructor(val name: String, val dummy: Boolean) {
 	}
 
 	init {
-		//Logger.loggers = Logger.loggers + mapOf(name to this)
+		synchronized(Logger.loggers) {
+			Logger.loggers += mapOf(name to this)
+		}
 	}
 
 	var level: Level? by atomicRef(null)

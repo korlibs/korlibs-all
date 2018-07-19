@@ -107,7 +107,7 @@ actual object KorioNative {
 		}
 	}
 
-	private val absoluteCwd: String = require("path").resolve(".")
+	private val absoluteCwd: String = if (isNodeJs) require("path").resolve(".") else "."
 
 	actual fun rootLocalVfs(): VfsFile = localVfs(absoluteCwd)
 	actual fun applicationVfs(): VfsFile = localVfs(absoluteCwd)

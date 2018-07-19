@@ -93,15 +93,15 @@ class StrReader(val str: String, val file: String = "file", var pos: Int = 0) {
 
 	fun matchIdentifier() = matchWhile { it.isLetterDigitOrUnderscore() || it == '-' || it == '~' || it == ':' }
 	fun matchSingleOrDoubleQuoteString(): String? {
-		when (this.peekChar()) {
+		return when (this.peekChar()) {
 			'\'', '"' -> {
-				return this.slice {
+				this.slice {
 					val quoteType = this.readChar()
 					this.readUntil(quoteType)
 					this.readChar()
 				}
 			}
-			else -> return null
+			else -> null
 		}
 	}
 

@@ -659,8 +659,10 @@ class HtmlLightComponents : LightComponents() {
 			val ctx = targetCanvas.getContext("2d") as CanvasRenderingContext2D
 			HtmlImage.htmlCanvasClear(targetCanvas)
 			ctx.drawImage(bmp, 0.0, 0.0)
+			//println("DRAW CANVAS")
 		} else {
 			HtmlImage.htmlCanvasClear(targetCanvas)
+			//println("DRAW CANVAS CLEAR")
 		}
 	}
 
@@ -669,8 +671,10 @@ class HtmlLightComponents : LightComponents() {
 		if (bmp != null) {
 			HtmlImage.htmlCanvasSetSize(canvas, bmp.width, bmp.height)
 			HtmlImage.renderToHtmlCanvas(bmp, canvas)
+			//println("DRAW IMAGE")
 		} else {
 			HtmlImage.htmlCanvasClear(canvas)
+			//println("DRAW IMAGE CLEAR")
 		}
 	}
 
@@ -764,6 +768,10 @@ class HtmlLightComponents : LightComponents() {
 
 	override fun getDpi(): Double {
 		return (window.devicePixelRatio.toInt() * 96).toDouble()
+	}
+
+	override fun getDevicePixelRatio(): Double {
+		return window.devicePixelRatio ?: 1.0
 	}
 
 	override fun configuredFrame(handle: Any) {

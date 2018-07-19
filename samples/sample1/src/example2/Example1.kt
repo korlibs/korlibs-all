@@ -1,4 +1,4 @@
-package example
+package example2
 
 import com.soywiz.klogger.*
 import com.soywiz.korge.*

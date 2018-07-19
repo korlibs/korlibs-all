@@ -97,6 +97,8 @@ class MouseComponent(view: View) : Component(view) {
 	}
 
 	override fun update(dtMs: Int) {
+		if (!view.mouseEnabled) return
+
 		views.mouseDebugHandlerOnce {
 			views.debugHandlers += {
 				val mouseHit = hitTest()
