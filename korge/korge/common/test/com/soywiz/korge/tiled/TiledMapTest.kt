@@ -1,11 +1,13 @@
 package com.soywiz.korge.tiled
 
+import com.soywiz.korge.*
 import com.soywiz.korge.tests.*
 import com.soywiz.korge.util.*
 import com.soywiz.korge.view.*
 import com.soywiz.korge.view.tiles.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.format.*
+import com.soywiz.korio.async.*
 import kotlin.test.*
 
 class TiledMapTest : ViewsForTesting() {
@@ -40,5 +42,15 @@ class TiledMapTest : ViewsForTesting() {
 		assertEquals(480, views.actualVirtualHeight)
 		//assertEquals(300, count)
 		assertEquals(336, map.renderTilesCounter.countThisFrame) // Update if optimized when no decimal scrolling
+	}
+
+	@Test
+	fun testObjProps() = suspendTest {
+		val data = TestAssertVfs["tiled/library1.tmx"].readTiledMapData()
+		val librarian = data.getObjectByName("librarian")!!
+		assertEquals("hair-girl1", librarian.objprops["hair"])
+		assertTrue(librarian.objprops["script"].toString().isNotBlank())
+		assertTrue(librarian.objprops["script"].toString().contains("wait(1.5.seconds)"))
+		assertTrue(librarian.objprops["script"].toString().contains("move(\"librarian\")"))
 	}
 }

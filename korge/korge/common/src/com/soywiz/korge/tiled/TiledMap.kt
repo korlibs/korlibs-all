@@ -92,7 +92,11 @@ class TiledMap(
 			var map: Bitmap32 = Bitmap32(0, 0)
 		}
 
-		data class ObjectInfo(val id: Int, val name: String, val bounds: IRectangleInt, val objprops: Map<String, Any>)
+		data class ObjectInfo(
+			val id: Int, val name: String, val type: String,
+			val bounds: IRectangleInt,
+			val objprops: Map<String, Any>
+		)
 
 		class Objects : Layer() {
 			interface Object {
@@ -144,7 +148,7 @@ private fun Xml.parseProperties(): Map<String, Any> {
 	val out = LinkedHashMap<String, Any>()
 	for (property in this.children("property")) {
 		val pname = property.str("name")
-		val rawValue = property.str("rawValue")
+		val rawValue = if (property.hasAttribute("value")) property.str("value") else property.text
 		val type = property.str("type", "text")
 		val pvalue: Any = when (type) {
 			"bool" -> rawValue == "true"
@@ -295,6 +299,7 @@ suspend fun VfsFile.readTiledMapData(): TiledMapData {
 						for (obj in element.children("object")) {
 							val id = obj.int("id")
 							val name = obj.str("name")
+							val type = obj.str("type")
 							val bounds = obj.run { IRectangleInt(int("x"), int("y"), int("width"), int("height")) }
 							var rkind = RKind.RECT
 							var points = listOf<Point2d>()
@@ -323,7 +328,7 @@ suspend fun VfsFile.readTiledMapData(): TiledMapData {
 								}
 							}
 
-							val info = TiledMap.Layer.ObjectInfo(id, name, bounds, objprops)
+							val info = TiledMap.Layer.ObjectInfo(id, name, type, bounds, objprops)
 							layer.objects += when (rkind) {
 								RKind.RECT -> TiledMap.Layer.Objects.Rect(info)
 								RKind.ELLIPSE -> TiledMap.Layer.Objects.Ellipse(info)
