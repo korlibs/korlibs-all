@@ -100,7 +100,7 @@ fun defaultLight(context: CoroutineContext) = defaultLightFactory.create(context
 enum class LightType {
 	FRAME, CONTAINER, BUTTON, PROGRESS, IMAGE, LABEL, TEXT_FIELD, TEXT_AREA, CHECK_BOX, SCROLL_PANE, AGCANVAS,
 	// NEW
-	COMBO_BOX, RADIO_BUTTON
+	COMBO_BOX, RADIO_BUTTON, SLIDER, TABPANE, TABPAGE
 }
 
 //class LightRadioButtonGroup : Extra by Extra.Mixin()
@@ -131,6 +131,7 @@ class LightProperty<out T>(val name: String, val default: T) {
 		val CHECKED = LightProperty<Boolean>("CHECKED", false)
 		val COMBO_BOX_ITEMS = LightProperty<List<ComboBoxItem>>("COMBO_BOX_ITEMS", listOf())
 		val SELECTED_INDEX = LightProperty<Int>("SELECTED_INDEX", 0)
+		val NAME = LightProperty<String>("NAME", "Name")
 		//val RADIO_GROUP = LightProperty<LightRadioButtonGroup>("RADIO_GROUP", LightRadioButtonGroup())
 	}
 

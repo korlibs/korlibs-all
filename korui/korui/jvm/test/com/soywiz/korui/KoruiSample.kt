@@ -1,6 +1,5 @@
-package com.soywiz.korui.sample
+package com.soywiz.korui
 
-import com.soywiz.korui.*
 import com.soywiz.korui.ui.*
 
 object KoruiSample {
@@ -12,6 +11,8 @@ object KoruiSample {
 				vertical {
 					button("HI!")
 					comboBox(1, 2, 3)
+					progress(50, 100)
+					slider(50, 100)
 				}
 			}
 		}

@@ -5,8 +5,6 @@ package com.soywiz.korui.ui
 import com.soywiz.kds.*
 import com.soywiz.korag.*
 import com.soywiz.korim.bitmap.*
-import com.soywiz.korim.vector.*
-import com.soywiz.korio.async.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korma.geom.*
@@ -204,6 +202,13 @@ open class Container(app: Application, var layout: Layout, type: LightType = Lig
 
 open class ScrollPane(app: Application, layout: Layout) : Container(app, layout, LightType.SCROLL_PANE) {
 	override fun toString(): String = "ScrollPane"
+}
+
+class TabPane(app: Application) : Container(app, LayeredLayout(app), LightType.TABPANE) {
+}
+
+class TabPage(app: Application) : Container(app, LayeredLayout(app), LightType.TABPAGE) {
+	var title by lightProperty(LightProperty.NAME, getable = true)
 }
 
 class Frame(app: Application, title: String) : Container(app, LayeredLayout(app), LightType.FRAME) {
@@ -406,6 +411,28 @@ class Progress(app: Application, current: Int = 0, max: Int = 100) : Component(a
 	override fun toString(): String = "Progress"
 }
 
+class Slider(app: Application, current: Int = 0, max: Int = 100) : Component(app, LightType.SLIDER) {
+	var current by lightProperty(LightProperty.PROGRESS_CURRENT, getable = true)
+	var max by lightProperty(LightProperty.PROGRESS_MAX, getable = true)
+
+	fun set(current: Int, max: Int) {
+		this.current = current
+		this.max = max
+	}
+
+	init {
+		set(current, max)
+	}
+
+	fun onUpdate(callback: (Int) -> Unit) {
+		addEventListener<ChangeEvent> {
+			callback(this.current)
+		}
+	}
+
+	override fun toString(): String = "Slider"
+}
+
 class Spacer(app: Application) : Component(app, LightType.CONTAINER) {
 	override fun toString(): String = "Spacer"
 }
@@ -437,23 +464,20 @@ open class CustomComponent(app: Application) : Container(app, LayeredLayout(app)
 
 fun <T : Component> T.setSize(width: Length, height: Length) = this.apply { this.style.size.setTo(width, height) }
 
-fun Container.button(text: String) = add(Button(this.app, text))
-inline fun Container.button(text: String, callback: Button.() -> Unit): Button =
-	add(Button(this.app, text).apply {
-		callback(this@apply)
-	})
+inline fun Container.button(text: String, callback: (@ComponentDslMarker Button).() -> Unit = {}): Button =
+	add(Button(this.app, text).apply(callback))
 
-inline fun Container.progress(current: Int, max: Int) = add(Progress(this.app, current, max))
+inline fun Container.progress(current: Int, max: Int, callback: (@ComponentDslMarker Progress).() -> Unit = {}) =
+	add(Progress(this.app, current, max).apply(callback))
 
-fun Container.agCanvas() = agCanvas { }
+inline fun Container.slider(current: Int, max: Int, callback: (@ComponentDslMarker Slider).() -> Unit = {}) =
+	add(Slider(this.app, current, max).apply(callback))
 
-inline fun Container.agCanvas(callback: AgCanvas.() -> Unit) = add(AgCanvas(this.app).apply {
-	val canvas = this
-	callback(canvas)
-})
+inline fun Container.agCanvas(callback: (@ComponentDslMarker AgCanvas).() -> Unit = {}) =
+	add(AgCanvas(this.app).apply(callback))
 
-inline fun Container.image(bitmap: Bitmap, noinline callback: Image.() -> Unit) =
-	add(Image(this.app).apply { image = bitmap; callback(this) })
+inline fun Container.image(bitmap: Bitmap, callback: (@ComponentDslMarker Image).() -> Unit) =
+	add(Image(this.app).apply(callback).apply { image = bitmap })
 
 inline fun Container.image(bitmap: Bitmap) = add(Image(this.app).apply {
 	image = bitmap
@@ -463,69 +487,67 @@ inline fun Container.image(bitmap: Bitmap) = add(Image(this.app).apply {
 
 inline fun Container.spacer() = add(Spacer(this.app))
 
-inline fun Container.label(text: String, noinline callback: Label.() -> Unit = {}) =
-	add(Label(this.app, text).apply { callback(this) })
+inline fun Container.label(text: String, callback: (@ComponentDslMarker Label).() -> Unit = {}) =
+	add(Label(this.app, text).apply(callback))
 
 inline fun <T> Container.comboBox(
 	vararg items: T,
 	noinline toString: (T) -> String = { it.toString() },
-	noinline callback: ComboBox<T>.() -> Unit = {}
+	callback: (@ComponentDslMarker ComboBox<T>).() -> Unit = {}
 ): ComboBox<T> =
-	add(ComboBox(this.app, items.toList(), toString).apply { callback(this) })
+	add(ComboBox(this.app, items.toList(), toString).apply(callback))
 
 inline fun Container.checkBox(
 	text: String,
 	checked: Boolean = false,
-	noinline callback: CheckBox.() -> Unit = {}
-) = add(CheckBox(this.app, text, checked).apply { callback(this) })
+	callback: (@ComponentDslMarker CheckBox).() -> Unit = {}
+) = add(CheckBox(this.app, text, checked).apply(callback))
 
 inline fun Container.radioButton(
 	group: RadioButtonGroup,
 	text: String,
 	checked: Boolean = false,
-	callback: RadioButton.() -> Unit = {}
-) = add(RadioButton(this.app, group, text, checked).apply { callback(this) })
+	callback: (@ComponentDslMarker RadioButton).() -> Unit = {}
+) = add(RadioButton(this.app, group, text, checked).apply(callback))
 
-inline fun Container.textField(text: String = "", callback: TextField.() -> Unit = {}) =
+inline fun Container.textField(text: String = "", callback: (@ComponentDslMarker TextField).() -> Unit = {}) =
 	add(TextField(this.app, text).apply { callback(this) })
 
-inline fun Container.textArea(text: String = "", callback: TextArea.() -> Unit = {}) =
+inline fun Container.textArea(text: String = "", callback: (@ComponentDslMarker TextArea).() -> Unit = {}) =
 	add(TextArea(this.app, text).apply { callback(this) })
 
-inline fun Container.layers(noinline callback: Container.() -> Unit): Container =
-	add(Container(this.app, LayeredLayout(app)).apply { callback(this) })
+inline fun Container.layers(callback: (@ComponentDslMarker Container).() -> Unit): Container =
+	add(Container(this.app, LayeredLayout(app)).apply(callback))
 
 inline fun Container.layersKeepAspectRatio(
 	anchor: Anchor = Anchor.MIDDLE_CENTER,
 	scaleMode: ScaleMode = ScaleMode.SHOW_ALL,
-	noinline callback: Container.() -> Unit
+	callback: Container.() -> Unit
 ): Container {
-	return add(Container(this.app, LayeredKeepAspectLayout(app, anchor, scaleMode)).apply { callback(this) })
+	return add(Container(this.app, LayeredKeepAspectLayout(app, anchor, scaleMode)).apply(callback))
 }
 
-inline fun Container.vertical(noinline callback: Container.() -> Unit): Container =
-	add(Container(this.app, VerticalLayout(app)).apply { callback(this) })
+inline fun Container.vertical(callback: (@ComponentDslMarker Container).() -> Unit): Container =
+	add(Container(this.app, VerticalLayout(app)).apply(callback))
 
-inline fun Container.horizontal(noinline callback: Container.() -> Unit): Container {
-	return add(Container(this.app, HorizontalLayout(app)).apply {
-		callback(this)
-	})
-}
+inline fun Container.horizontal(callback: (@ComponentDslMarker Container).() -> Unit): Container =
+	add(Container(this.app, HorizontalLayout(app)).apply(callback))
 
-inline fun Container.inline(noinline callback: Container.() -> Unit): Container {
-	return add(Container(this.app, InlineLayout(app)).apply {
-		callback(this)
-	})
-}
+inline fun Container.inline(callback: (@ComponentDslMarker Container).() -> Unit): Container =
+	add(Container(this.app, InlineLayout(app)).apply(callback))
 
-inline fun Container.relative(noinline callback: Container.() -> Unit): Container {
-	return add(Container(this.app, RelativeLayout(app)).apply {
-		callback(this)
-	})
-}
+inline fun Container.relative(callback: (@ComponentDslMarker Container).() -> Unit): Container =
+	add(Container(this.app, RelativeLayout(app)).apply(callback))
 
-inline fun Container.scrollPane(noinline callback: ScrollPane.() -> Unit): ScrollPane {
-	return add(ScrollPane(this.app, ScrollPaneLayout(app)).apply {
-		callback(this)
-	})
-}
+inline fun Container.scrollPane(callback: (@ComponentDslMarker ScrollPane).() -> Unit): ScrollPane =
+	add(ScrollPane(this.app, ScrollPaneLayout(app)).apply(callback))
+
+inline fun Container.tabPane(callback: (@ComponentDslMarker TabPane).() -> Unit): TabPane =
+	add(TabPane(this.app).apply(callback))
+
+inline fun TabPane.page(title: String, callback: (@ComponentDslMarker TabPage).() -> Unit): TabPage =
+	add(TabPage(this.app).apply { this.title = title }.apply(callback))
+
+@DslMarker
+@Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
+annotation class ComponentDslMarker

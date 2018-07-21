@@ -56,7 +56,10 @@ class AwtLightComponents : LightComponents() {
 			LightType.CHECK_BOX -> JCheckBox()
 			LightType.COMBO_BOX -> JComboBox<ComboBoxItem>()
 			LightType.RADIO_BUTTON -> JRadioButton()
+			LightType.SLIDER -> JSlider()
 			LightType.SCROLL_PANE -> JScrollPane2()
+			LightType.TABPANE -> JTabbedPane()
+			LightType.TABPAGE -> JTabbedPage()
 			LightType.AGCANVAS -> {
 				agg = AGOpenglFactory.create(null).create(null)
 				agg.nativeComponent as Component
@@ -136,6 +139,14 @@ class AwtLightComponents : LightComponents() {
 					rc.addActionListener(adaptor)
 					return Closeable {
 						rc.removeActionListener(adaptor)
+					}
+				} else if (rc is JSlider) {
+					val adaptor = ChangeListener {
+						ed.dispatch(KoruiChangeEvent(null, rc.value))
+					}
+					rc.addChangeListener(adaptor)
+					return Closeable {
+						rc.removeChangeListener(adaptor)
 					}
 				}
 			}
@@ -242,7 +253,11 @@ class AwtLightComponents : LightComponents() {
 		val cc = c as? Component
 		val actualParent = (parent as? ChildContainer)?.childContainer ?: parent?.actualContainer
 		cc?.parent?.remove(cc)
-		actualParent?.add(cc, 0)
+		//if (cc is JTabbedPage && actualParent is JTabbedPane) {
+		//	actualParent?.addTab(cc.title, cc)
+		//} else {
+			actualParent?.add(cc, 0)
+		//}
 		//println("$parent <- $c")
 	}
 
@@ -299,6 +314,10 @@ class AwtLightComponents : LightComponents() {
 				(c as? AbstractButton)?.text = text
 				(c as? Frame)?.title = text
 			}
+			LightProperty.NAME -> {
+				val text = key[value]
+				(c as? JComponent)?.name = text
+			}
 			LightProperty.IMAGE -> {
 				val bmp = key[value]
 				val image = (c as? JImage)
@@ -342,9 +361,11 @@ class AwtLightComponents : LightComponents() {
 			}
 			LightProperty.PROGRESS_CURRENT -> {
 				(c as? JProgressBar)?.value = key[value]
+				(c as? JSlider)?.value = key[value]
 			}
 			LightProperty.PROGRESS_MAX -> {
 				(c as? JProgressBar)?.maximum = key[value]
+				(c as? JSlider)?.maximum = key[value]
 			}
 			LightProperty.CHECKED -> {
 				(c as? JToggleButton)?.isSelected = key[value]
@@ -375,6 +396,9 @@ class AwtLightComponents : LightComponents() {
 	override fun <T> getProperty(c: Any, key: LightProperty<T>): T {
 		return when (key) {
 			LightProperty.CHECKED -> {
+				(c as? JComponent)?.name
+			}
+			LightProperty.CHECKED -> {
 				(c as? JToggleButton)?.isSelected ?: false
 			}
 			LightProperty.TEXT -> {
@@ -383,6 +407,12 @@ class AwtLightComponents : LightComponents() {
 			}
 			LightProperty.SELECTED_INDEX -> {
 				(c as? JComboBox<ComboBoxItem>)?.selectedIndex ?: super.getProperty(c, key)
+			}
+			LightProperty.PROGRESS_CURRENT -> {
+				(c as? JSlider)?.value ?: super.getProperty(c, key)
+			}
+			LightProperty.PROGRESS_MAX -> {
+				(c as? JSlider)?.maximum ?: super.getProperty(c, key)
 			}
 			else -> super.getProperty(c, key)
 		} as T
@@ -526,6 +556,12 @@ class JImage : JComponent() {
 			g.clearRect(0, 0, width, height)
 		}
 		//super.paintComponent(g)
+	}
+}
+
+class JTabbedPage : JComponent() {
+	init {
+		name = "Page"
 	}
 }
 
