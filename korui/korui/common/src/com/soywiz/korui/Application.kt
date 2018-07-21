@@ -10,7 +10,11 @@ import com.soywiz.korui.light.*
 import com.soywiz.korui.ui.*
 import kotlin.coroutines.experimental.*
 
-class Application(val coroutineContext: CoroutineContext, val light: LightComponents) : Closeable {
+interface ApplicationAware {
+	val app: Application
+}
+
+class Application(val coroutineContext: CoroutineContext, val light: LightComponents) : Closeable, ApplicationAware {
 	companion object {
 		suspend operator fun invoke() = Application(defaultLight(coroutineContext))
 		suspend operator fun invoke(light: LightComponents) = Application(coroutineContext, light)
@@ -20,29 +24,20 @@ class Application(val coroutineContext: CoroutineContext, val light: LightCompon
 			try {
 				callback(app)
 			} finally {
-				app.loop.close()
+				//app.loop.close()
 			}
 		}
 	}
 
+	override val app = this
 	val frames = arrayListOf<Frame>()
 	val lengthContext = Length.Context().apply {
 		pixelsPerInch = light.getDpi()
 	}
 	val devicePixelRatio: Double get() = light.getDevicePixelRatio()
 
-	val loop = coroutineContext.animationFrameLoop {
-		var n = 0
-		while (n < frames.size) {
-			val frame = frames[n++]
-			if (frame.valid) continue
-			frame.setBoundsAndRelayout(frame.actualBounds)
-			light.repaint(frame.handle)
-		}
-	}
 
 	override fun close() {
-		loop.close()
 	}
 }
 
@@ -110,6 +105,16 @@ suspend fun CanvasApplicationEx(
 	val llight = light ?: defaultLight(coroutineContext)
 	llight.quality = quality
 	val application = Application(coroutineContext, llight)
+
+	val loop = coroutineContext.animationFrameLoop {
+		var n = 0
+		while (n < application.frames.size) {
+			val frame = application.frames[n++]
+			if (frame.valid) continue
+			frame.setBoundsAndRelayout(frame.actualBounds)
+			application.light.repaint(frame.handle)
+		}
+	}
 	lateinit var canvas: AgCanvas
 	val frame = application.frame(title, width, height, icon) {
 		canvas = agCanvas().apply { focus() }

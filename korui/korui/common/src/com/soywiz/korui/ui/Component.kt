@@ -5,6 +5,7 @@ package com.soywiz.korui.ui
 import com.soywiz.kds.*
 import com.soywiz.korag.*
 import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.vector.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korma.geom.*
@@ -15,7 +16,7 @@ import com.soywiz.korui.light.*
 import com.soywiz.korui.style.*
 import kotlin.reflect.*
 
-open class Component(val app: Application, val type: LightType) : Styled, Extra by Extra.Mixin(), EventDispatcher {
+open class Component(override val app: Application, val type: LightType) : Styled, Extra by Extra.Mixin(), EventDispatcher, ApplicationAware {
 	val coroutineContext = app.coroutineContext
 	val lc = app.light
 
@@ -155,6 +156,21 @@ open class Component(val app: Application, val type: LightType) : Styled, Extra 
 	fun focus() {
 		lc.callAction(handle, LightAction.FOCUS, null)
 	}
+
+	fun copyStateFrom(props: Map<LightProperty<*>, Any?>) {
+		for ((prop, value) in props) {
+			this.setProperty(prop, value)
+		}
+	}
+
+	open fun copyStateFrom(other: Component) {
+		copyStateFrom(other.properties)
+		this.style = other.style
+		this.eventListener.copyFrom(other.eventListener)
+		//style.copyFrom(other.style)
+	}
+
+	open fun clone(newApp: Application): Component = Component(newApp, type).also { it.copyStateFrom(this) }
 }
 
 open class Container(app: Application, var layout: Layout, type: LightType = LightType.CONTAINER) :
@@ -197,18 +213,25 @@ open class Container(app: Application, var layout: Layout, type: LightType = Lig
 		for (child in children) child.ancestorChanged(old, newParent)
 	}
 
+	override fun clone(newApp: Application): Container = Container(newApp, layout, type).also { it.copyStateFrom(this) }
+
 	override fun toString(): String = "Container($type)"
 }
 
 open class ScrollPane(app: Application, layout: Layout) : Container(app, layout, LightType.SCROLL_PANE) {
+	override fun clone(newApp: Application): ScrollPane = ScrollPane(newApp, layout).also { it.copyStateFrom(this) }
 	override fun toString(): String = "ScrollPane"
 }
 
 class TabPane(app: Application) : Container(app, LayeredLayout(app), LightType.TABPANE) {
+	override fun clone(newApp: Application): TabPane = TabPane(newApp).also { it.copyStateFrom(this) }
+	override fun toString(): String = "TabPane"
 }
 
 class TabPage(app: Application) : Container(app, LayeredLayout(app), LightType.TABPAGE) {
 	var title by lightProperty(LightProperty.NAME, getable = true)
+	override fun clone(newApp: Application): TabPage = TabPage(newApp).also { it.copyStateFrom(this) }
+	override fun toString(): String = "TabPage"
 }
 
 class Frame(app: Application, title: String) : Container(app, LayeredLayout(app), LightType.FRAME) {
@@ -251,6 +274,7 @@ class Frame(app: Application, title: String) : Container(app, LayeredLayout(app)
 		}
 	}
 
+	override fun clone(newApp: Application) = Frame(newApp, title).also { it.copyStateFrom(this) }
 	override fun toString(): String = "Frame"
 }
 
@@ -270,6 +294,7 @@ class AgCanvas(app: Application) : Component(app, LightType.AGCANVAS), AGContain
 		ag.onRender { callback(it) }
 	}
 
+	override fun clone(newApp: Application) = AgCanvas(newApp).also { it.copyStateFrom(this) }
 	override fun toString(): String = "AGCanvas"
 }
 
@@ -279,7 +304,8 @@ class Button(app: Application, text: String) : Component(app, LightType.BUTTON) 
 	init {
 		this.text = text
 	}
-
+	
+	override fun clone(newApp: Application) = Button(newApp, text).also { it.copyStateFrom(this) }
 	override fun toString(): String = "Button"
 }
 
@@ -310,6 +336,7 @@ class ComboBox<T>(app: Application, items: List<T>, private val toString: (T) ->
 		}
 	}
 
+	override fun clone(newApp: Application) = ComboBox(newApp, items).also { it.copyStateFrom(this) }
 	override fun toString(): String = "ComboBox"
 }
 
@@ -320,6 +347,7 @@ class Label(app: Application, text: String) : Component(app, LightType.LABEL) {
 		this.text = text
 	}
 
+	override fun clone(newApp: Application) = Label(newApp, text).also { it.copyStateFrom(this) }
 	override fun toString(): String = "Label"
 }
 
@@ -330,6 +358,7 @@ class TextField(app: Application, text: String) : Component(app, LightType.TEXT_
 		this.text = text
 	}
 
+	override fun clone(newApp: Application) = Label(newApp, text).also { it.copyStateFrom(this) }
 	override fun toString(): String = "TextField"
 }
 
@@ -340,6 +369,7 @@ class TextArea(app: Application, text: String) : Component(app, LightType.TEXT_A
 		this.text = text
 	}
 
+	override fun clone(newApp: Application) = Label(newApp, text).also { it.copyStateFrom(this) }
 	override fun toString(): String = "TextArea"
 }
 
@@ -352,6 +382,7 @@ class CheckBox(app: Application, text: String, initialChecked: Boolean) : Compon
 		this.checked = initialChecked
 	}
 
+	override fun clone(newApp: Application) = CheckBox(newApp, text, checked).also { it.copyStateFrom(this) }
 	override fun toString(): String = "CheckBox"
 }
 
@@ -363,6 +394,7 @@ class RadioButtonGroup {
 		set(value) {
 			for (radio in radios) radio.internalChecked = (radio === value)
 		}
+	override fun toString(): String = "RadioButtonGroup"
 }
 
 class RadioButton(app: Application, initialGroup: RadioButtonGroup, text: String, initialChecked: Boolean) :
@@ -392,7 +424,8 @@ class RadioButton(app: Application, initialGroup: RadioButtonGroup, text: String
 		}
 	}
 
-	override fun toString(): String = "CheckBox"
+	override fun clone(newApp: Application) = RadioButton(newApp, group, text, checked).also { it.copyStateFrom(this) }
+	override fun toString(): String = "RadioButton"
 }
 
 class Progress(app: Application, current: Int = 0, max: Int = 100) : Component(app, LightType.PROGRESS) {
@@ -408,6 +441,7 @@ class Progress(app: Application, current: Int = 0, max: Int = 100) : Component(a
 		set(current, max)
 	}
 
+	override fun clone(newApp: Application) = Progress(newApp, current, max).also { it.copyStateFrom(this) }
 	override fun toString(): String = "Progress"
 }
 
@@ -430,10 +464,12 @@ class Slider(app: Application, current: Int = 0, max: Int = 100) : Component(app
 		}
 	}
 
+	override fun clone(newApp: Application) = Slider(newApp, current, max).also { it.copyStateFrom(this) }
 	override fun toString(): String = "Slider"
 }
 
 class Spacer(app: Application) : Component(app, LightType.CONTAINER) {
+	override fun clone(newApp: Application) = Spacer(newApp).also { it.copyStateFrom(this) }
 	override fun toString(): String = "Spacer"
 }
 
@@ -453,10 +489,78 @@ class Image(app: Application) : Component(app, LightType.IMAGE) {
 		setProperty(LightProperty.IMAGE, image, reset = true)
 	}
 
+	override fun copyStateFrom(other: Component) {
+		other as Image
+		super.copyStateFrom(other)
+		this.image = other.image
+	}
+
+	override fun clone(newApp: Application) = Image(newApp).also { it.copyStateFrom(this) }
 	override fun toString(): String = "Image"
 }
 
 open class CustomComponent(app: Application) : Container(app, LayeredLayout(app)) {
+	override fun clone(newApp: Application) = CustomComponent(newApp).also { it.copyStateFrom(this) }
+}
+
+abstract class BaseCanvas(app: Application) : Container(app, LayeredLayout(app)) {
+	private val img = image(NativeImage(1, 1))
+	var antialiased = true
+	var highDpi = true
+
+	override fun onResized(x: Int, y: Int, width: Int, height: Int) {
+		super.onResized(x, y, width, height)
+		repaint(width, height)
+	}
+
+	override fun repaint() {
+		repaint(actualWidth, actualHeight)
+	}
+
+	private fun repaint(width: Int, height: Int) {
+		val scale = if (highDpi) app.devicePixelRatio else 1.0
+		//val scale = 1.0
+		val rwidth = (width * scale).toInt()
+		val rheight = (height * scale).toInt()
+		val image = NativeImage(rwidth, rheight)
+		val ctx = image.getContext2d(antialiasing = antialiased).withScaledRenderer(scale)
+		//val ctx = image.getContext2d(antialiasing = antialiased)
+		ctx.render()
+		img.image = image
+	}
+
+	abstract fun Context2d.render(): Unit
+}
+
+class VectorImage(app: Application) : BaseCanvas(app) {
+	var d: Context2d.Drawable? = null
+	var targetWidth: Int? = null
+	var targetHeight: Int? = null
+
+	fun setVector(d: Context2d.Drawable?, width: Int?, height: Int?) {
+		this.d = d
+		this.targetWidth = width
+		this.targetHeight = height
+		invalidate()
+	}
+
+	override fun Context2d.render() {
+		val twidth = targetWidth
+		val theight = targetHeight
+		val sx = if (twidth != null) width.toDouble() / twidth.toDouble() else 1.0
+		val sy = if (theight != null) height.toDouble() / theight.toDouble() else 1.0
+
+		d?.draw(this.withScaledRenderer(sx, sy))
+		//d.draw(this)
+	}
+
+	override fun copyStateFrom(other: Component) {
+		other as VectorImage
+		super.copyStateFrom(other)
+		setVector(other.d, other.targetWidth, other.targetHeight)
+	}
+
+	override fun clone(newApp: Application) = VectorImage(newApp).also { it.copyStateFrom(this) }
 }
 
 
@@ -547,6 +651,21 @@ inline fun Container.tabPane(callback: (@ComponentDslMarker TabPane).() -> Unit)
 
 inline fun TabPane.page(title: String, callback: (@ComponentDslMarker TabPage).() -> Unit): TabPage =
 	add(TabPage(this.app).apply { this.title = title }.apply(callback))
+
+inline fun Container.vectorImage(vector: Context2d.SizedDrawable, callback: VectorImage.() -> Unit = {}) =
+	add(VectorImage(this.app).apply {
+		setVector(vector, vector.width, vector.height)
+		callback(this)
+	})
+
+inline fun Container.vectorImage(
+	vector: Context2d.Drawable,
+	crossinline callback: VectorImage.() -> Unit = {}
+) = add(VectorImage(this.app).apply {
+	setVector(vector, null, null)
+	callback(this)
+})
+
 
 @DslMarker
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)

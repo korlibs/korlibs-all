@@ -142,7 +142,9 @@ class AwtLightComponents : LightComponents() {
 					}
 				} else if (rc is JSlider) {
 					val adaptor = ChangeListener {
-						ed.dispatch(KoruiChangeEvent(null, rc.value))
+						if (!rc.valueIsAdjusting) {
+							ed.dispatch(KoruiChangeEvent(null, rc.value))
+						}
 					}
 					rc.addChangeListener(adaptor)
 					return Closeable {

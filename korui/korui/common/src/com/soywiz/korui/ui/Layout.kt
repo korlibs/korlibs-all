@@ -21,7 +21,7 @@ open class Layout(val app: Application) {
 		}
 	}
 
-	open protected fun applyLayoutInternal(
+	protected open fun applyLayoutInternal(
 		parent: Component,
 		children: Iterable<Component>,
 		inoutBounds: RectangleInt

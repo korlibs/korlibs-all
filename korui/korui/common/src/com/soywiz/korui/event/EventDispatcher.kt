@@ -7,6 +7,7 @@ import kotlin.reflect.*
 interface EventDispatcher {
 	fun <T : Event> addEventListener(clazz: KClass<T>, handler: (T) -> Unit): Closeable
 	fun <T : Event> dispatch(clazz: KClass<T>, event: T)
+	fun copyFrom(other: EventDispatcher) = Unit
 
 	open class Mixin : EventDispatcher {
 		private val handlers = LinkedHashMap<KClass<out Event>, ArrayList<(Event) -> Unit>>()
@@ -19,6 +20,18 @@ interface EventDispatcher {
 		override fun <T : Event> addEventListener(clazz: KClass<T>, handler: (T) -> Unit): Closeable {
 			getHandlersFor(clazz) += handler
 			return Closeable { getHandlersFor(clazz) -= handler }
+		}
+
+		override fun copyFrom(other: EventDispatcher) {
+			handlers.clear()
+			if (other is EventDispatcher.Mixin) {
+				for ((clazz, events) in other.handlers) {
+					//println("EventDispatcher.copyFrom($clazz, $events)")
+					for (event in events) {
+						addEventListener(clazz, event)
+					}
+				}
+			}
 		}
 
 		private val tempHandlers = Pool<ArrayList<(Event) -> Unit>>(reset = { it.clear() }) { arrayListOf() }

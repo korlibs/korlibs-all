@@ -1,6 +1,8 @@
 package com.soywiz.korui.geom.len
 
 data class Size(var width: Length? = null, var height: Length? = null) {
+	fun copyFrom(other: Size) = setTo(other.width, other.height)
+
 	fun setTo(width: Length?, height: Length?) = this.apply {
 		this.width = width
 		this.height = height

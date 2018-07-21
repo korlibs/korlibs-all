@@ -22,6 +22,18 @@ class Style(var parent: Style? = null) : Styled {
 	var right: Length? = null
 
 	override val style: Style = this
+
+	fun copyFrom(other: Style) {
+		this.position = other.position
+		this.size.copyFrom(other.size)
+		this.minSize.copyFrom(other.minSize)
+		this.maxSize.copyFrom(other.maxSize)
+		this.padding.setTo(other.padding)
+		this.top = other.top
+		this.bottom = other.bottom
+		this.left = other.left
+		this.right = other.right
+	}
 }
 
 fun Style(callback: Style.() -> Unit): Style = Style().apply(callback)
