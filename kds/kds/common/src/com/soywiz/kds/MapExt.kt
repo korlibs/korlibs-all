@@ -2,6 +2,11 @@ package com.soywiz.kds
 
 fun <K, V> Map<K, V>.flip(): Map<V, K> = this.map { Pair(it.value, it.key) }.toMap()
 
+fun <K> MutableMap<K, Int>.incr(key: K, delta: Int = +1): Int {
+	val next = this.getOrPut(key) { 0 } + delta
+	this[key] = next
+	return next
+}
 fun <T> Map<String, T>.toCaseInsensitiveTreeMap(): Map<String, T> {
 	val res = CaseInsensitiveHashMap<T>()
 	res.putAll(this)

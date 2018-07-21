@@ -46,12 +46,12 @@ private val koruiApplicationLog = Logger("korui-application")
 fun Application(callback: suspend Application.() -> Unit) =
 	Korui { Application(defaultLightFactory.create(coroutineContext)) { callback() } }
 
-suspend fun Application.frame(
+@PublishedApi
+internal fun Application.framePre(
 	title: String,
 	width: Int = 640,
 	height: Int = 480,
-	icon: Bitmap? = null,
-	callback: suspend Frame.() -> Unit = {}
+	icon: Bitmap? = null
 ): Frame {
 	val frame = Frame(this, title).apply {
 		setBoundsInternal(0, 0, width, height)
@@ -65,23 +65,34 @@ suspend fun Application.frame(
 			resizing = true
 			try {
 				koruiApplicationLog.info { "Application.frame.ResizedEvent: ${e.width},${e.height}" }
-				//frame.setBoundsInternal(0, 0, e.width, e.height)
-				//frame.invalidate()
-				frame.setBoundsAndRelayout(0, 0, e.width, e.height)
 				frame.invalidate()
+				frame.setBoundsAndRelayout(0, 0, e.width, e.height)
 				light.repaint(frame.handle)
 			} finally {
 				resizing = false
 			}
 		}
 	}
-	callback.await(frame)
+	return frame
+}
+
+@PublishedApi
+internal fun Application.framePost(frame: Frame) {
 	frames += frame
 	frame.setBoundsAndRelayout(0, 0, frame.actualBounds.width, frame.actualBounds.height)
 	frame.invalidate()
 	frame.visible = true
 	light.configuredFrame(frame.handle)
-	return frame
+}
+
+inline fun Application.frame(
+	title: String,
+	width: Int = 640,
+	height: Int = 480,
+	icon: Bitmap? = null,
+	callback: Frame.() -> Unit = {}
+): Frame {
+	return framePre(title, width, height, icon).apply(callback).also { framePost(it) }
 }
 
 //suspend fun CanvasApplication(
@@ -106,15 +117,16 @@ suspend fun CanvasApplicationEx(
 	llight.quality = quality
 	val application = Application(coroutineContext, llight)
 
-	val loop = coroutineContext.animationFrameLoop {
-		var n = 0
-		while (n < application.frames.size) {
-			val frame = application.frames[n++]
-			if (frame.valid) continue
-			frame.setBoundsAndRelayout(frame.actualBounds)
-			application.light.repaint(frame.handle)
-		}
-	}
+	//val loop = coroutineContext.animationFrameLoop {
+	//	var n = 0
+	//	while (n < application.frames.size) {
+	//		val frame = application.frames[n++]
+	//		if (frame.valid) continue
+	//		frame.setBoundsAndRelayout(frame.actualBounds)
+	//		application.light.repaint(frame.handle)
+	//		println("frame")
+	//	}
+	//}
 	lateinit var canvas: AgCanvas
 	val frame = application.frame(title, width, height, icon) {
 		canvas = agCanvas().apply { focus() }

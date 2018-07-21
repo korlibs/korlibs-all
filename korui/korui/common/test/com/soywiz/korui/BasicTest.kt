@@ -1,9 +1,9 @@
 package com.soywiz.korui
 
 import com.soywiz.korio.util.*
+import com.soywiz.korui.event.*
 import com.soywiz.korui.light.log.*
 import com.soywiz.korui.ui.*
-import kotlinx.coroutines.experimental.*
 import kotlin.test.*
 
 class BasicTest {
@@ -24,21 +24,24 @@ class BasicTest {
 				button("Hello")
 			}
 
-			delay(20)
+			frame.dispatch(ResizedEvent(100, 100))
+			frame.dispatch(ResizedEvent(200, 200))
 
 			assertEquals(
 				"""
 					create(FRAME)=0
-					setProperty(0,LightProperty[TEXT],Title)
-					setBounds(0,0,0,640,480)
-					create(BUTTON)=1
-					setProperty(1,LightProperty[TEXT],Hello)
-					setParent(1,0)
-					setBounds(1,0,0,640,480)
-					setBounds(0,0,0,640,480)
-					setProperty(0,LightProperty[VISIBLE],true)
-					setBounds(1,0,0,640,480)
-					setBounds(0,0,0,640,480)
+					setProperty(FRAME0,LightProperty[TEXT],Title)
+					setBounds(FRAME0,0,0,640,480)
+					create(BUTTON)=0
+					setProperty(BUTTON0,LightProperty[TEXT],Hello)
+					setParent(BUTTON0,FRAME0)
+					setBounds(BUTTON0,0,0,640,480)
+					setBounds(FRAME0,0,0,640,480)
+					setProperty(FRAME0,LightProperty[VISIBLE],true)
+					setBounds(BUTTON0,0,0,100,100)
+					setBounds(FRAME0,0,0,100,100)
+					setBounds(BUTTON0,0,0,200,200)
+					setBounds(FRAME0,0,0,200,200)
 				""".trimIndent(),
 				lc.log.joinToString("\n")
 			)

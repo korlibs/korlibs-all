@@ -8,7 +8,9 @@ import kotlin.collections.set
 // Deleting first or last: 1
 // Inserting/Removing an arbitrary index: 1 .. N/2
 // Locating an index: 1 .. N
-class CircularList<T>() : MutableCollection<T> {
+
+// Is this called ArrayDeque?
+class CircularList<T> : MutableCollection<T> {
 	private var _start: Int = 0
 	private var _size: Int = 0
 	private var data: Array<Any> = arrayOfNulls<Any>(16) as Array<Any>

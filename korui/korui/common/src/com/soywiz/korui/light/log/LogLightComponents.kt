@@ -1,15 +1,16 @@
 package com.soywiz.korui.light.log
 
+import com.soywiz.kds.*
 import com.soywiz.korui.light.*
 
 class LogLightComponents : LightComponents() {
 	val log = arrayListOf<String>()
-	var lastId = 0
+	val lastIdPerType = LinkedHashMap<LightType, Int>()
 
 	override fun create(type: LightType): LightComponentInfo {
-		val id = lastId++
+		val id = lastIdPerType.incr(type, 1) - 1
 		log += "create($type)=$id"
-		return LightComponentInfo(id)
+		return LightComponentInfo("$type$id")
 	}
 
 	override fun setParent(c: Any, parent: Any?) {
