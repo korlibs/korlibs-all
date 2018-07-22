@@ -1,0 +1,20 @@
+# Build and Release Folders
+bin-debug/
+bin-release/
+bin/
+libs/
+node_modules/
+modules/
+
+pids
+logs
+results
+
+lib-cov
+*.seed
+*.log
+*.csv
+*.dat
+*.out
+*.pid
+*.gz
