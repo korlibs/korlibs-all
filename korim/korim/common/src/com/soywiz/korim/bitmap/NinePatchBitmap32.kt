@@ -123,10 +123,11 @@ class NinePatchBitmap32(val bmp: Bitmap32) {
 	fun rendered(width: Int, height: Int, antialiased: Boolean = true, drawRegions: Boolean = false): Bitmap32 {
 		return drawTo(
 			NativeImage(width, height),
+			//Bitmap32(width, height),
 			RectangleInt(0, 0, width, height),
 			antialiased = antialiased,
 			drawRegions = drawRegions
-		).toBmp32()
+		).toBMP32()
 	}
 }
 

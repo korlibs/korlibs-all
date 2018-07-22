@@ -13,13 +13,13 @@ import com.soywiz.korma.geom.shape.*
 // - https://www.geeksforgeeks.org/scan-line-polygon-filling-using-opengl-c/
 // - https://hackernoon.com/computer-graphics-scan-line-polygon-fill-algorithm-3cb47283df6
 // - https://nothings.org/gamedev/rasterize/
-class Bitmap32Context2d(val bmp: Bitmap32) : Context2d.Renderer() {
+class Bitmap32Context2d(val bmp: Bitmap32, val antialiasing: Boolean) : Context2d.Renderer() {
 	override val width: Int get() = bmp.width
 	override val height: Int get() = bmp.height
 
 	val colorFiller = ColorFiller()
 	val gradientFiller = GradientFiller()
-	val bitmapFiller = BitmapFiller()
+	val bitmapFiller = BitmapFiller(antialiasing)
 	val noneFiller = NoneFiller()
 
 	// Super slow
@@ -116,7 +116,7 @@ class Bitmap32Context2d(val bmp: Bitmap32) : Context2d.Renderer() {
 		}
 	}
 
-	class BitmapFiller : Filler<Context2d.BitmapPaint>() {
+	class BitmapFiller(val antialiasing: Boolean) : Filler<Context2d.BitmapPaint>() {
 		lateinit var stateTrans: Matrix2d
 		lateinit var fillTrans: Matrix2d
 
@@ -130,7 +130,11 @@ class Bitmap32Context2d(val bmp: Bitmap32) : Context2d.Renderer() {
 				// @TODO: Optimize. We can calculate start and end points and interpolate
 				val bmpX = fillTrans.transformX(x + n, y)
 				val bmpY = fillTrans.transformY(y + n, y)
-				data[offset + n] = fill.bitmap.get32Sampled(bmpX, bmpY)
+				if (antialiasing) {
+					data[offset + n] = fill.bitmap.get32Sampled(bmpX, bmpY)
+				} else {
+					data[offset + n] = fill.bitmap.get32Clamped(bmpX.toInt(), bmpY.toInt())
+				}
 			}
 		}
 	}

@@ -24,12 +24,24 @@ abstract class Bitmap(
 	open operator fun set(x: Int, y: Int, color: Int): Unit = Unit
 	open operator fun get(x: Int, y: Int) = 0
 
+	fun get32Clamped(x: Int, y: Int): Int = if (inBounds(x, y)) get32(x, y) else Colors.TRANSPARENT_BLACK
+
+	// @TODO: super-slow, optimize this! and probably expose some API to read several sampled pixels at once, to reuse computations as much as possible
 	fun get32Sampled(x: Double, y: Double): Int {
-		return if (inBounds(x.toInt(), y.toInt())) {
-			get32(x.toInt(), y.toInt())
-		} else {
-			Colors.TRANSPARENT_BLACK
-		}
+		if (x < 0.0 || x >= width.toDouble() || y < 0.0 || y >= height.toDouble()) return Colors.TRANSPARENT_BLACK
+		val x0 = x.toIntFloor()
+		val x1 = x.toIntCeil()
+		val y0 = y.toIntFloor()
+		val y1 = y.toIntCeil()
+		val xratio = x % 1
+		val yratio = y % 1
+		val c00 = get32Clamped(x0, y0)
+		val c10 = if (inBounds(x1, y0)) get32Clamped(x1, y0) else c00
+		val c01 = if (inBounds(x1, y1)) get32Clamped(x0, y1) else c00
+		val c11 = if (inBounds(x1, y1)) get32Clamped(x1, y1) else c01
+		val c1 = RGBA.blendRGBA(c00, c10, xratio)
+		val c2 = RGBA.blendRGBA(c01, c11, xratio)
+		return RGBA.blendRGBA(c1, c2, yratio)
 	}
 
 	open fun copy(srcX: Int, srcY: Int, dst: Bitmap, dstX: Int, dstY: Int, width: Int, height: Int) {

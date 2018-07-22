@@ -84,9 +84,9 @@ class NinePatchBitmap32Test {
 		//ninePatch.drawTo(bmp, RectangleInt.fromBounds(0, 0, 512, 202))
 		//ninePatch.drawTo(bmp, RectangleInt.fromBounds(0, 0, 32, 202))
 
-		//showImageAndWait(ninePatch.rendered(100, 100))
 		//showImageAndWait(ninePatch.rendered(512, 256))
 		//showImageAndWait(ninePatch.rendered(256, 512))
+		//showImageAndWait(ninePatch.rendered(100, 100))
 		//showImageAndWait(ninePatch.rendered(32, 100))
 		//bmp.writeTo("/tmp/file.tga".uniVfs, defaultImageFormats)
 	}
