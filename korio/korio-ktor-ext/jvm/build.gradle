@@ -1,0 +1,3 @@
+dependencies {
+	testImplementation "io.ktor:ktor-server-test-host:$ktorVersion"
+}

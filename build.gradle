@@ -32,6 +32,7 @@ buildscript {
 			"korinject"        : ["korlibstd"],
 			"korma"            : ["kds"],
 			"korio"            : ["klock", "kmem", "kds", "klogger", "org.jetbrains.kotlinx:kotlinx-coroutines-core{JSUFFIX}:$kotlinxCoroutinesVersion"],
+			"korio-ktor-ext"   : ["korio", "io.ktor:ktor-server-core:$ktorVersion"],
 			"korim"            : ["korio", "korma"],
 			"korim-qr"         : ["korim"],
 			"kgl"              : ["kmem", "korim"],
@@ -113,6 +114,7 @@ allprojects {
 		maven { url "https://dl.bintray.com/jetbrains/kotlin-native-dependencies" }
 		maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
 		maven { url 'https://dl.bintray.com/kotlin/kotlin-dev' }
+		maven { url "https://dl.bintray.com/kotlin/ktor" }
 	}
 
 	dependencies {
@@ -165,10 +167,10 @@ allprojects {
 	sourceSets {
 		if (isKotlin) {
 			//if (project.file("src").exists()) {
-				main.kotlin.srcDirs += "src"
+			main.kotlin.srcDirs += "src"
 			//}
 			//if (project.file("test").exists()) {
-				test.kotlin.srcDirs += "test"
+			test.kotlin.srcDirs += "test"
 			//}
 			if (!isNative) {
 				if (project.file("resources").exists()) {
