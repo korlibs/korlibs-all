@@ -50,8 +50,8 @@ operator fun ImageFormats.plus(format: Iterable<ImageFormat>) = ImageFormats(thi
 @Suppress("unused")
 suspend fun Bitmap.writeTo(
 	file: VfsFile,
-	props: ImageEncodingProps = ImageEncodingProps(),
-	formats: ImageFormat
+	formats: ImageFormat,
+	props: ImageEncodingProps = ImageEncodingProps()
 ) = file.writeBytes(formats.encode(this, props.copy(filename = file.basename)))
 
 // @TODO: kotlin-native bug: https://github.com/JetBrains/kotlin-native/issues/1770

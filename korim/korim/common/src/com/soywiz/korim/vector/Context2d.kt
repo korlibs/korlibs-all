@@ -3,12 +3,13 @@ package com.soywiz.korim.vector
 import com.soywiz.kds.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
+import com.soywiz.korio.lang.*
 import com.soywiz.korio.util.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 import kotlin.math.*
 
-class Context2d(val renderer: Renderer) {
+class Context2d(val renderer: Renderer) : Disposable {
 	val width: Int get() = renderer.width
 	val height: Int get() = renderer.height
 
@@ -18,6 +19,10 @@ class Context2d(val renderer: Renderer) {
 
 	enum class ShapeRasterizerMethod(val scale: Double) {
 		NONE(0.0), X1(1.0), X2(2.0), X4(4.0)
+	}
+
+	override fun dispose() {
+		renderer.dispose()
 	}
 
 	fun withScaledRenderer(scaleX: Double, scaleY: Double = scaleX): Context2d = if (scaleX == 1.0 && scaleY == 1.0) this else Context2d(ScaledRenderer(renderer, scaleX, scaleY))
@@ -69,7 +74,18 @@ class Context2d(val renderer: Renderer) {
 			width: Int = image.width,
 			height: Int = image.height,
 			transform: Matrix2d = Matrix2d()
-		): Unit = Unit
+		): Unit {
+			val state = State(transform = transform, path = GraphicsPath().apply { rect(x.toDouble(), y.toDouble(), width.toDouble(), height.toDouble()) }, fillStyle = Context2d.BitmapPaint(
+				image,
+				transform = Matrix2d()
+					.scale(width.toDouble() / image.width.toDouble(), height.toDouble() / image.height.toDouble())
+					.translate(x, y)
+			))
+			render(state, fill = true)
+		}
+
+		open fun dispose(): Unit {
+		}
 	}
 
 	enum class VerticalAlign(val ratio: Double) {
@@ -307,6 +323,16 @@ class Context2d(val renderer: Renderer) {
 		}
 	}
 
+	inline fun stroke(paint: Paint, callback: () -> Unit) {
+		callback()
+		stroke(paint)
+	}
+
+	inline fun stroke(color: RGBAInt, callback: () -> Unit) {
+		callback()
+		stroke(Color(color))
+	}
+
 	fun fillStroke() = run { fill(); stroke() }
 	fun clip() = run { state.clip = state.path }
 
@@ -393,25 +419,7 @@ class Context2d(val renderer: Renderer) {
 		run { renderer.renderText(state, font, text, x, y, fill) }
 
 	fun drawImage(image: Bitmap, x: Int, y: Int, width: Int = image.width, height: Int = image.height) {
-		if (true) {
-			beginPath()
-			moveTo(x, y)
-			lineTo(x + width, y)
-			lineTo(x + width, y + height)
-			lineTo(x, y + height)
-			//lineTo(x, y)
-			closePath()
-			fillStyle = createPattern(
-				image,
-				transform = Matrix2d().scale(
-					width.toDouble() / image.width.toDouble(),
-					height.toDouble() / image.height.toDouble()
-				)
-			)
-			fill()
-		} else {
-			renderer.drawImage(image, x, y, width, height, state.transform)
-		}
+		renderer.drawImage(image, x, y, width, height, state.transform)
 	}
 
 	interface Paint

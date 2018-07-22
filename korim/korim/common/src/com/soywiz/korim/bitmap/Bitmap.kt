@@ -2,6 +2,7 @@ package com.soywiz.korim.bitmap
 
 import com.soywiz.kds.*
 import com.soywiz.kmem.*
+import com.soywiz.korim.color.*
 import com.soywiz.korim.vector.*
 import com.soywiz.korio.error.*
 import com.soywiz.korma.geom.*
@@ -22,6 +23,14 @@ abstract class Bitmap(
 	open fun get32(x: Int, y: Int): Int = 0
 	open operator fun set(x: Int, y: Int, color: Int): Unit = Unit
 	open operator fun get(x: Int, y: Int) = 0
+
+	fun get32Sampled(x: Double, y: Double): Int {
+		return if (inBounds(x.toInt(), y.toInt())) {
+			get32(x.toInt(), y.toInt())
+		} else {
+			Colors.TRANSPARENT_BLACK
+		}
+	}
 
 	open fun copy(srcX: Int, srcY: Int, dst: Bitmap, dstX: Int, dstY: Int, width: Int, height: Int) {
 		for (y in 0 until height) {
@@ -49,6 +58,15 @@ abstract class Bitmap(
 			val c1 = get(x, y1)
 			set(x, y0, c1)
 			set(x, y1, c0)
+		}
+	}
+
+	inline fun context2d(antialiased: Boolean = true, callback: Context2d.() -> Unit) {
+		val ctx = getContext2d(antialiased)
+		try {
+			callback(ctx)
+		} finally {
+			ctx.dispose()
 		}
 	}
 

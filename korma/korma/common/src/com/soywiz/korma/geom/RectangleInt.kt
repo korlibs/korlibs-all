@@ -15,6 +15,10 @@ data class RectangleInt(val position: MPositionInt, val size: SizeInt) : IRectan
 		SizeInt(width, height)
 	)
 
+	companion object {
+	    fun fromBounds(left: Int, top: Int, right: Int, bottom: Int): RectangleInt = RectangleInt(left, top, right - left, bottom - top)
+	}
+
 	data class Immutable(override val x: Int, override val y: Int, override val width: Int, override val height: Int) :
 		IRectangleInt {
 		fun toMutable() = RectangleInt(x, y, width, height)

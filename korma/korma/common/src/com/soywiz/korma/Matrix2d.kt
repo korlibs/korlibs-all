@@ -131,6 +131,9 @@ data class Matrix2d(
 	fun translate(dx: Double, dy: Double) = this.apply { this.tx += dx; this.ty += dy }
 	fun pretranslate(dx: Double, dy: Double) = this.apply { tx += a * dx + c * dy; ty += b * dx + d * dy }
 
+	inline fun translate(dx: Number, dy: Number) = translate(dx.toDouble(), dy.toDouble())
+	inline fun pretranslate(dx: Number, dy: Number) = pretranslate(dx.toDouble(), dy.toDouble())
+
 	fun prerotate(theta: Double) = this.apply {
 		val m = com.soywiz.korma.Matrix2d()
 		m.rotate(theta)
@@ -171,6 +174,9 @@ data class Matrix2d(
 
 	fun transformX(px: Double, py: Double): Double = this.a * px + this.c * py + this.tx
 	fun transformY(px: Double, py: Double): Double = this.d * py + this.b * px + this.ty
+
+	inline fun transformX(px: Number, py: Number): Double = transformX(px.toDouble(), py.toDouble())
+	inline fun transformY(px: Number, py: Number): Double = transformY(px.toDouble(), py.toDouble())
 
 	inline fun transformX(p: Point2d): Double = transformX(p.x, p.y)
 	inline fun transformY(p: Point2d): Double = transformY(p.x, p.y)

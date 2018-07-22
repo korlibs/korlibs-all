@@ -19,6 +19,7 @@ class Bitmap32Context2d(val bmp: Bitmap32) : Context2d.Renderer() {
 
 	val colorFiller = ColorFiller()
 	val gradientFiller = GradientFiller()
+	val bitmapFiller = BitmapFiller()
 	val noneFiller = NoneFiller()
 
 	// Super slow
@@ -29,6 +30,7 @@ class Bitmap32Context2d(val bmp: Bitmap32) : Context2d.Renderer() {
 			is Context2d.None -> noneFiller.apply { this.set(fillStyle, state) }
 			is Context2d.Color -> colorFiller.apply { this.set(fillStyle, state) }
 			is Context2d.Gradient -> gradientFiller.apply { this.set(fillStyle, state) }
+			is Context2d.BitmapPaint -> bitmapFiller.apply { this.set(fillStyle, state) }
 			else -> TODO()
 		}
 		val points = state.path.getApproximatedPoints().map { it.transformed(state.transform) }
@@ -114,13 +116,37 @@ class Bitmap32Context2d(val bmp: Bitmap32) : Context2d.Renderer() {
 		}
 	}
 
+	class BitmapFiller : Filler<Context2d.BitmapPaint>() {
+		lateinit var stateTrans: Matrix2d
+		lateinit var fillTrans: Matrix2d
+
+		override fun updated() {
+			stateTrans = state.transform.inverted()
+			fillTrans = fill.transform.inverted()
+		}
+
+		override fun fill(data: IntArray, offset: Int, x: Int, y: Int, count: Int) {
+			for (n in 0 until count) {
+				// @TODO: Optimize. We can calculate start and end points and interpolate
+				val bmpX = fillTrans.transformX(x + n, y)
+				val bmpY = fillTrans.transformY(y + n, y)
+				data[offset + n] = fill.bitmap.get32Sampled(bmpX, bmpY)
+			}
+		}
+	}
+
 	class GradientFiller : Filler<Context2d.Gradient>() {
 		val NCOLORS = 256
 		val colors = IntArray(NCOLORS)
 
 		fun stopN(n: Int): Int = (fill.stops[n] * NCOLORS).toInt()
 
+		lateinit var stateTrans: Matrix2d
+		lateinit var fillTrans: Matrix2d
+
 		override fun updated() {
+			stateTrans = state.transform.inverted()
+			fillTrans = fill.transform.inverted()
 			for (n in 0 until stopN(0)) colors[n] = fill.colors.first()
 			for (n in 0 until fill.numberOfStops - 1) {
 				val stop0 = stopN(n + 0)
@@ -137,8 +163,6 @@ class Bitmap32Context2d(val bmp: Bitmap32) : Context2d.Renderer() {
 		}
 
 		override fun fill(data: IntArray, offset: Int, x: Int, y: Int, count: Int) {
-			val stateTrans = state.transform.inverted()
-			val fillTrans = fill.transform.inverted()
 
 			val p0 = Point2d(fill.x0, fill.y0)
 			val p1 = Point2d(fill.x1, fill.y1)
