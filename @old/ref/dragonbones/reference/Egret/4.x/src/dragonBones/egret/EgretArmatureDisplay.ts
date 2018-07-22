@@ -1,12 +1,46 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 namespace dragonBones {
     /**
-     * Egret 事件。
+     * - The egret event.
+     * @version DragonBones 4.5
+     * @language en_US
+     */
+    /**
+     * - Egret 事件。
      * @version DragonBones 4.5
      * @language zh_CN
      */
     export class EgretEvent extends egret.Event {
         /**
-         * 事件对象。
+         * - The event object.
+         * @see dragonBones.EventObject
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 事件对象。
          * @see dragonBones.EventObject
          * @version DragonBones 4.5
          * @language zh_CN
@@ -14,154 +48,6 @@ namespace dragonBones {
         public get eventObject(): EventObject {
             return this.data;
         }
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see #eventObject
-         * @see dragonBones.EventObject#animationState
-         */
-        public get animationName(): string {
-            const animationState = this.eventObject.animationState;
-            return animationState !== null ? animationState.name : "";
-        }
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see #eventObject
-         * @see dragonBones.EventObject#armature
-         */
-        public get armature(): Armature {
-            return this.eventObject.armature;
-        }
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see #eventObject
-         * @see dragonBones.EventObject#bone
-         */
-        public get bone(): Bone | null {
-            return this.eventObject.bone;
-        }
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see #eventObject
-         * @see dragonBones.EventObject#slot
-         */
-        public get slot(): Slot | null {
-            return this.eventObject.slot;
-        }
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see #eventObject
-         * @see dragonBones.EventObject#animationState
-         */
-        public get animationState(): AnimationState | null {
-            return this.eventObject.animationState;
-        }
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject#name
-         */
-        public get frameLabel(): string {
-            return this.eventObject.name;
-        }
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject#name
-         */
-        public get sound(): string {
-            return this.eventObject.name;
-        }
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see #animationName
-         */
-        public get movementID(): string {
-            return this.animationName;
-        }
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.START
-         */
-        public static START: string = EventObject.START;
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.LOOP_COMPLETE
-         */
-        public static LOOP_COMPLETE: string = EventObject.LOOP_COMPLETE;
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.COMPLETE
-         */
-        public static COMPLETE: string = EventObject.COMPLETE;
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.FADE_IN
-         */
-        public static FADE_IN: string = EventObject.FADE_IN;
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.FADE_IN_COMPLETE
-         */
-        public static FADE_IN_COMPLETE: string = EventObject.FADE_IN_COMPLETE;
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.FADE_OUT
-         */
-        public static FADE_OUT: string = EventObject.FADE_OUT;
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.FADE_OUT_COMPLETE
-         */
-        public static FADE_OUT_COMPLETE: string = EventObject.FADE_OUT_COMPLETE;
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.FRAME_EVENT
-         */
-        public static FRAME_EVENT: string = EventObject.FRAME_EVENT;
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.SOUND_EVENT
-         */
-        public static SOUND_EVENT: string = EventObject.SOUND_EVENT;
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.FRAME_EVENT
-         */
-        public static ANIMATION_FRAME_EVENT: string = EventObject.FRAME_EVENT;
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.FRAME_EVENT
-         */
-        public static BONE_FRAME_EVENT: string = EventObject.FRAME_EVENT;
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.FRAME_EVENT
-         */
-        public static MOVEMENT_FRAME_EVENT: string = EventObject.FRAME_EVENT;
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.SOUND_EVENT
-         */
-        public static SOUND: string = EventObject.SOUND_EVENT;
     }
     /**
      * @inheritDoc
@@ -169,36 +55,183 @@ namespace dragonBones {
     export class EgretArmatureDisplay extends egret.DisplayObjectContainer implements IArmatureProxy {
         private static _cleanBeforeRender(): void { }
         /**
-         * @internal
          * @private
          */
-        public _batchEnabled: boolean = true;
-        private _disposeProxy: boolean = false;
-        protected _armature: Armature = null as any; //
+        public debugDraw: boolean = false;
+        /**
+         * @internal
+         */
+        public _batchEnabled: boolean = !(global["nativeRender"] || global["bricks"]); //
+        /**
+         * @internal
+         */
+        public _childDirty: boolean = true;
+        private _debugDraw: boolean = false;
+        private _armature: Armature = null as any; //
+        private _bounds: egret.Rectangle | null = null;
         private _debugDrawer: egret.Sprite | null = null;
         /**
          * @inheritDoc
          */
-        public init(armature: Armature): void {
+        public dbInit(armature: Armature): void {
             this._armature = armature;
 
-            //
-            this.$renderNode = new egret.sys.GroupNode();
-            this.$renderNode.cleanBeforeRender = EgretArmatureDisplay._cleanBeforeRender;
+            if (this._batchEnabled) {
+                this.$renderNode = new egret.sys.GroupNode();
+                this.$renderNode.cleanBeforeRender = EgretArmatureDisplay._cleanBeforeRender;
+            }
         }
         /**
          * @inheritDoc
          */
-        public clear(): void {
-            this._disposeProxy = false;
+        public dbClear(): void {
             this._armature = null as any;
+            this._bounds = null;
             this._debugDrawer = null;
         }
         /**
          * @inheritDoc
          */
+        public dbUpdate(): void {
+            const drawed = DragonBones.debugDraw || this.debugDraw;
+            if (drawed || this._debugDraw) {
+                this._debugDraw = drawed;
+                if (this._debugDraw) {
+                    if (this._debugDrawer === null) {
+                        this._debugDrawer = new egret.Sprite();
+                    }
+
+                    if (this._debugDrawer.parent !== this) {
+                        this.addChild(this._debugDrawer);
+                    }
+
+                    const boneStep = 2.0;
+                    const graphics = this._debugDrawer.graphics;
+                    graphics.clear();
+
+                    for (const bone of this._armature.getBones()) {
+                        if (bone.boneData.type === BoneType.Bone) {
+                            const boneLength = Math.max(bone.boneData.length, boneStep);
+                            const startX = bone.globalTransformMatrix.tx;
+                            const startY = bone.globalTransformMatrix.ty;
+                            const aX = startX - bone.globalTransformMatrix.a * boneStep;
+                            const aY = startY - bone.globalTransformMatrix.b * boneStep;
+                            const bX = startX + bone.globalTransformMatrix.a * boneLength;
+                            const bY = startY + bone.globalTransformMatrix.b * boneLength;
+                            const cX = startX + aY - startY;
+                            const cY = startY + aX - startX;
+                            const dX = startX - aY + startY;
+                            const dY = startY - aX + startX;
+                            //
+                            graphics.lineStyle(2.0, 0x00FFFF, 0.7);
+                            graphics.moveTo(aX, aY);
+                            graphics.lineTo(bX, bY);
+                            graphics.moveTo(cX, cY);
+                            graphics.lineTo(dX, dY);
+                        }
+                        else {
+                            const surface = bone as Surface;
+                            const surfaceData = surface._boneData as SurfaceData;
+                            const segmentX = surfaceData.segmentX;
+                            const segmentY = surfaceData.segmentY;
+                            const vertices = surface._vertices;
+                            graphics.lineStyle(2.0, 0xFFFF00, 0.3);
+
+                            for (let iY = 0; iY < segmentY; ++iY) {
+                                for (let iX = 0; iX < segmentX; ++iX) {
+                                    const vertexIndex = (iX + iY * (segmentX + 1)) * 2;
+                                    const x = vertices[vertexIndex];
+                                    const y = vertices[vertexIndex + 1];
+                                    graphics.moveTo(x, y);
+                                    graphics.lineTo(vertices[vertexIndex + 2], vertices[vertexIndex + 3]);
+                                    graphics.moveTo(x, y);
+                                    graphics.lineTo(vertices[vertexIndex + (segmentX + 1) * 2], vertices[vertexIndex + (segmentX + 1) * 2 + 1]);
+
+                                    if (iX === segmentX - 1) {
+                                        graphics.moveTo(vertices[vertexIndex + 2], vertices[vertexIndex + 3]);
+                                        graphics.lineTo(vertices[vertexIndex + (segmentX + 2) * 2], vertices[vertexIndex + (segmentX + 2) * 2 + 1]);
+                                    }
+
+                                    if (iY === segmentY - 1) {
+                                        graphics.moveTo(vertices[vertexIndex + (segmentX + 1) * 2], vertices[vertexIndex + (segmentX + 1) * 2 + 1]);
+                                        graphics.lineTo(vertices[vertexIndex + (segmentX + 2) * 2], vertices[vertexIndex + (segmentX + 2) * 2 + 1]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    for (const slot of this._armature.getSlots()) {
+                        const boundingBoxData = slot.boundingBoxData;
+
+                        if (boundingBoxData !== null) {
+                            let child = this._debugDrawer.getChildByName(slot.name) as egret.Shape;
+                            if (child === null) {
+                                child = new egret.Shape();
+                                child.name = slot.name;
+                                this._debugDrawer.addChild(child);
+                            }
+
+                            child.graphics.clear();
+                            child.graphics.lineStyle(2.0, 0xFF00FF, 0.7);
+
+                            switch (boundingBoxData.type) {
+                                case BoundingBoxType.Rectangle:
+                                    child.graphics.drawRect(-boundingBoxData.width * 0.5, -boundingBoxData.height * 0.5, boundingBoxData.width, boundingBoxData.height);
+                                    break;
+
+                                case BoundingBoxType.Ellipse:
+                                    child.graphics.drawEllipse(-boundingBoxData.width * 0.5, -boundingBoxData.height * 0.5, boundingBoxData.width, boundingBoxData.height);
+                                    break;
+
+                                case BoundingBoxType.Polygon:
+                                    const vertices = (boundingBoxData as PolygonBoundingBoxData).vertices;
+                                    for (let i = 0; i < vertices.length; i += 2) {
+                                        const x = vertices[i];
+                                        const y = vertices[i + 1];
+
+                                        if (i === 0) {
+                                            child.graphics.moveTo(x, y);
+                                        }
+                                        else {
+                                            child.graphics.lineTo(x, y);
+                                        }
+                                    }
+
+                                    child.graphics.lineTo(vertices[0], vertices[1]);
+                                    break;
+
+                                default:
+                                    break;
+                            }
+
+                            slot.updateTransformAndMatrix();
+                            slot.updateGlobalTransform();
+                            child.$setMatrix((slot.globalTransformMatrix as any) as egret.Matrix, false);
+                        }
+                        else {
+                            const child = this._debugDrawer.getChildByName(slot.name);
+                            if (child !== null) {
+                                this._debugDrawer.removeChild(child);
+                            }
+                        }
+                    }
+                }
+                else if (this._debugDrawer !== null && this._debugDrawer.parent === this) {
+                    this.removeChild(this._debugDrawer);
+                }
+            }
+
+            if (!isV5 && this._batchEnabled && this._childDirty) {
+                (this as any).$invalidateContentBounds();
+            }
+        }
+        /**
+         * @inheritDoc
+         */
         public dispose(disposeProxy: boolean = true): void {
-            this._disposeProxy = disposeProxy;
+            // tslint:disable-next-line:no-unused-expression
+            disposeProxy;
 
             if (this._armature !== null) {
                 this._armature.dispose();
@@ -208,92 +241,7 @@ namespace dragonBones {
         /**
          * @inheritDoc
          */
-        public debugUpdate(isEnabled: boolean): void {
-            if (isEnabled) {
-                if (this._debugDrawer === null) {
-                    this._debugDrawer = new egret.Sprite();
-                }
-
-                this.addChild(this._debugDrawer);
-                this._debugDrawer.graphics.clear();
-
-                for (const bone of this._armature.getBones()) {
-                    const boneLength = bone.boneData.length;
-                    const startX = bone.globalTransformMatrix.tx;
-                    const startY = bone.globalTransformMatrix.ty;
-                    const endX = startX + bone.globalTransformMatrix.a * boneLength;
-                    const endY = startY + bone.globalTransformMatrix.b * boneLength;
-
-                    this._debugDrawer.graphics.lineStyle(2.0, 0x00FFFF, 0.7);
-                    this._debugDrawer.graphics.moveTo(startX, startY);
-                    this._debugDrawer.graphics.lineTo(endX, endY);
-                    this._debugDrawer.graphics.lineStyle(0.0, 0, 0.0);
-                    this._debugDrawer.graphics.beginFill(0x00FFFF, 0.7);
-                    this._debugDrawer.graphics.drawCircle(startX, startY, 3.0);
-                    this._debugDrawer.graphics.endFill();
-                }
-
-                for (const slot of this._armature.getSlots()) {
-                    const boundingBoxData = slot.boundingBoxData;
-
-                    if (boundingBoxData !== null) {
-                        let child = this._debugDrawer.getChildByName(slot.name) as egret.Shape;
-                        if (child === null) {
-                            child = new egret.Shape();
-                            child.name = slot.name;
-                            this._debugDrawer.addChild(child);
-                        }
-
-                        child.graphics.clear();
-                        child.graphics.beginFill(boundingBoxData.color ? boundingBoxData.color : 0xFF00FF, 0.3);
-
-                        switch (boundingBoxData.type) {
-                            case BoundingBoxType.Rectangle:
-                                child.graphics.drawRect(-boundingBoxData.width * 0.5, -boundingBoxData.height * 0.5, boundingBoxData.width, boundingBoxData.height);
-                                break;
-
-                            case BoundingBoxType.Ellipse:
-                                child.graphics.drawEllipse(-boundingBoxData.width * 0.5, -boundingBoxData.height * 0.5, boundingBoxData.width, boundingBoxData.height);
-                                break;
-
-                            case BoundingBoxType.Polygon:
-                                const polygon = boundingBoxData as PolygonBoundingBoxData;
-                                const vertices = polygon.vertices;
-                                for (let j = 0; j < polygon.count; j += 2) {
-                                    if (j === 0) {
-                                        child.graphics.moveTo(vertices[polygon.offset + j], vertices[polygon.offset + j + 1]);
-                                    }
-                                    else {
-                                        child.graphics.lineTo(vertices[polygon.offset + j], vertices[polygon.offset + j + 1]);
-                                    }
-                                }
-                                break;
-
-                            default:
-                                break;
-                        }
-
-                        child.graphics.endFill();
-                        slot.updateTransformAndMatrix();
-                        slot.updateGlobalTransform();
-                        child.$setMatrix((slot.globalTransformMatrix as any) as egret.Matrix, true);
-                    }
-                    else {
-                        const child = this._debugDrawer.getChildByName(slot.name);
-                        if (child !== null) {
-                            this._debugDrawer.removeChild(child);
-                        }
-                    }
-                }
-            }
-            else if (this._debugDrawer !== null && this._debugDrawer.parent === this) {
-                this.removeChild(this._debugDrawer);
-            }
-        }
-        /**
-         * @inheritDoc
-         */
-        public _dispatchEvent(type: EventStringType, eventObject: EventObject): void {
+        public dispatchDBEvent(type: EventStringType, eventObject: EventObject): void {
             const event = egret.Event.create(EgretEvent, type);
             event.data = eventObject;
             super.dispatchEvent(event);
@@ -302,36 +250,58 @@ namespace dragonBones {
         /**
          * @inheritDoc
          */
-        public hasEvent(type: EventStringType): boolean {
+        public hasDBEventListener(type: EventStringType): boolean {
             return this.hasEventListener(type);
         }
         /**
          * @inheritDoc
          */
-        public addEvent(type: EventStringType, listener: (event: EgretEvent) => void, target: any): void {
+        public addDBEventListener(type: EventStringType, listener: (event: EgretEvent) => void, target: any): void {
             this.addEventListener(type, listener, target);
         }
         /**
          * @inheritDoc
          */
-        public removeEvent(type: EventStringType, listener: (event: EgretEvent) => void, target: any): void {
+        public removeDBEventListener(type: EventStringType, listener: (event: EgretEvent) => void, target: any): void {
             this.removeEventListener(type, listener, target);
         }
         /**
-         * 关闭批次渲染。（批次渲染处于性能考虑，不会更新渲染对象的边界属性，这样无法正确获得渲染对象的绘制区域，如果需要使用这些属性，可以关闭批次渲染）
+         * - Disable the batch.
+         * Batch rendering for performance reasons, the boundary properties of the render object are not updated.
+         * This will not correctly obtain the wide-height properties of the rendered object and the transformation properties of its internal display objects,
+         * which can turn off batch rendering if you need to use these properties.
+         * @version DragonBones 5.1
+         * @language en_US
+         */
+        /**
+         * - 关闭批次渲染。
+         * 批次渲染出于性能考虑，不会更新渲染对象的边界属性。
+         * 这样将无法正确获得渲染对象的宽高属性以及其内部显示对象的变换属性，如果需要使用这些属性，可以关闭批次渲染。
          * @version DragonBones 5.1
          * @language zh_CN
          */
         public disableBatch(): void {
+            if (!this._batchEnabled || !this._armature) {
+                return;
+            }
+
             for (const slot of this._armature.getSlots()) {
                 // (slot as EgretSlot).transformUpdateEnabled = true;
-                const display = (slot.rawDisplay || slot.meshDisplay) as (egret.Bitmap | egret.Mesh);
+                let display = (slot._geometryData ? slot.meshDisplay : slot.rawDisplay) as (egret.Mesh | egret.Bitmap);
+                if (!slot.display && display === slot.meshDisplay) {
+                    display = slot.rawDisplay;
+                }
+
                 const node = display.$renderNode as (egret.sys.BitmapNode | egret.sys.MeshNode);
 
                 // Transform.
                 if (node.matrix) {
                     display.$setMatrix(slot.globalTransformMatrix as any, false);
                 }
+
+                // Color.
+                node.alpha = 1.0;
+                node.filter = null as any;
 
                 // ZOrder.
                 this.addChild(display);
@@ -340,6 +310,7 @@ namespace dragonBones {
             this._batchEnabled = false;
             this.$renderNode.cleanBeforeRender = null as any;
             this.$renderNode = null as any;
+            this.armature.invalidUpdate(null, true);
         }
         /**
          * @inheritDoc
@@ -353,140 +324,116 @@ namespace dragonBones {
         public get animation(): Animation {
             return this._armature.animation;
         }
-
         /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.Armature#clock
-         * @see dragonBones.EgretFactory#clock
-         * @see dragonBones.Animation#timescale
-         * @see dragonBones.Animation#stop()
+         * @inheritDoc
          */
-        public advanceTimeBySelf(on: boolean): void {
-            if (on) {
-                this._armature.clock = EgretFactory.clock;
+        $measureContentBounds(bounds: egret.Rectangle): void {
+            if (this._batchEnabled && this._armature) {
+                if (this._childDirty) {
+                    this._childDirty = false;
+
+                    let isFirst = true;
+                    const helpRectangle = new egret.Rectangle();
+
+                    for (const slot of this._armature.getSlots()) {
+                        const display = slot.display;
+                        if (!display || !display.$renderNode || !display.$renderNode.image) {
+                            continue;
+                        }
+
+                        const matrix = (display.$renderNode as (egret.sys.BitmapNode | egret.sys.MeshNode)).matrix;
+
+                        if (display === slot.meshDisplay) {
+                            const vertices = ((display as egret.Mesh).$renderNode as egret.sys.MeshNode).vertices;
+
+                            if (vertices && vertices.length > 0) {
+                                helpRectangle.setTo(999999.0, 999999.0, -999999.0, -999999.0);
+
+                                for (let i = 0, l = vertices.length; i < l; i += 2) {
+                                    const x = vertices[i];
+                                    const y = vertices[i + 1];
+                                    if (helpRectangle.x > x) helpRectangle.x = x;
+                                    if (helpRectangle.width < x) helpRectangle.width = x;
+                                    if (helpRectangle.y > y) helpRectangle.y = y;
+                                    if (helpRectangle.height < y) helpRectangle.height = y;
+                                }
+                                helpRectangle.width -= helpRectangle.x;
+                                helpRectangle.height -= helpRectangle.y;
+                            }
+                            else {
+                                continue;
+                            }
+                        }
+                        else if (slot._displayFrame) {
+                            const textureData = slot._displayFrame.getTextureData();
+                            if (textureData) {
+                                const scale = textureData.parent.scale;
+                                helpRectangle.x = 0;
+                                helpRectangle.y = 0;
+                                helpRectangle.width = textureData.region.width * scale;
+                                helpRectangle.height = textureData.region.height * scale;
+                            }
+                            else {
+                                continue;
+                            }
+                        }
+
+                        matrix.$transformBounds(helpRectangle);
+
+                        const left = helpRectangle.x;
+                        const top = helpRectangle.y;
+                        const right = helpRectangle.x + helpRectangle.width;
+                        const bottom = helpRectangle.y + helpRectangle.height;
+
+                        if (isFirst) {
+                            isFirst = false;
+                            bounds.x = left;
+                            bounds.y = top;
+                            bounds.width = right;
+                            bounds.height = bottom;
+                        }
+                        else {
+                            if (left < bounds.x) {
+                                bounds.x = left;
+                            }
+
+                            if (top < bounds.y) {
+                                bounds.y = top;
+                            }
+
+                            if (right > bounds.width) {
+                                bounds.width = right;
+                            }
+
+                            if (bottom > bounds.height) {
+                                bounds.height = bottom;
+                            }
+                        }
+                    }
+
+                    bounds.width -= bounds.x;
+                    bounds.height -= bounds.y;
+
+                    if (isV5) {
+                        if (this._bounds === null) {
+                            this._bounds = new egret.Rectangle();
+                        }
+
+                        this._bounds.copyFrom(bounds);
+                    }
+                }
+                else if (isV5) {
+                    if (this._bounds === null) {
+                        this._bounds = new egret.Rectangle();
+                    }
+
+                    bounds.copyFrom(this._bounds);
+                }
+
+                return bounds as any; // V5
             }
-            else {
-                this._armature.clock = null;
-            }
-        }
-    }
 
-    /**
-     * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.Armature
-     */
-    export type FastArmature = Armature;
-    /**
-     * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.Bone
-     */
-    export type FastBone = Bone;
-    /**
-     * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.Slot
-     */
-    export type FastSlot = Slot;
-    /**
-     * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.Animation
-     */
-    export type FastAnimation = Animation;
-    /**
-     * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.AnimationState
-     */
-    export type FastAnimationState = AnimationState;
-    /**
-     * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.EgretEvent
-     */
-    export class Event extends EgretEvent { }
-    /**
-     * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.EgretEvent
-     */
-    export class ArmatureEvent extends EgretEvent { }
-    /**
-     * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.EgretEvent
-     */
-    export class AnimationEvent extends EgretEvent { }
-    /**
-     * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.EgretEvent
-     */
-    export class FrameEvent extends EgretEvent { }
-    /**
-     * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.EgretEvent
-     */
-    export class SoundEvent extends EgretEvent { }
-    /**
-     * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.BaseFacory#parseTextureAtlasData()
-     */
-    export class EgretTextureAtlas extends EgretTextureAtlasData {
-        /**
-         * @private
-         */
-        public static toString(): string {
-            return "[class dragonBones.EgretTextureAtlas]";
-        }
-
-        public constructor(texture: egret.Texture, rawData: any, scale: number = 1) {
-            super();
-            console.warn("已废弃，请参考 @see");
-
-            this._onClear();
-
-            ObjectDataParser.getInstance().parseTextureAtlasData(rawData, this, scale);
-            this.renderTexture = texture;
-        }
-    }
-    /**
-     * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.EgretTextureAtlasData
-     */
-    export class EgretSheetAtlas extends EgretTextureAtlas {
-    }
-    /**
-     * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.EgretFactory#soundEventManager
-     */
-    export class SoundEventManager {
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EgretFactory#soundEventManager
-         */
-        public static getInstance(): EgretArmatureDisplay {
-            console.warn("已废弃，请参考 @see");
-            return EgretFactory.factory.soundEventManager;
-        }
-    }
-    /**
-     * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.Armature#cacheFrameRate
-     * @see dragonBones.Armature#enableAnimationCache()
-     */
-    export class AnimationCacheManager {
-        public constructor() {
-            console.warn("已废弃，请参考 @see");
+            return super.$measureContentBounds(bounds) as any; // V5
         }
     }
 }

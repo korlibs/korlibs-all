@@ -1,91 +1,161 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 namespace dragonBones {
     /**
-     * @internal
-     * @private
+     * - The animation state is generated when the animation data is played.
+     * @see dragonBones.Animation
+     * @see dragonBones.AnimationData
+     * @version DragonBones 3.0
+     * @language en_US
      */
-    export class BonePose extends BaseObject {
-        public static toString(): string {
-            return "[class dragonBones.BonePose]";
-        }
-
-        public readonly current: Transform = new Transform();
-        public readonly delta: Transform = new Transform();
-        public readonly result: Transform = new Transform();
-
-        protected _onClear(): void {
-            this.current.identity();
-            this.delta.identity();
-            this.result.identity();
-        }
-    }
     /**
-     * 动画状态，播放动画时产生，可以对每个播放的动画进行更细致的控制和调节。
+     * - 动画状态由播放动画数据时产生。
      * @see dragonBones.Animation
      * @see dragonBones.AnimationData
      * @version DragonBones 3.0
      * @language zh_CN
      */
     export class AnimationState extends BaseObject {
-        /**
-         * @private
-         */
         public static toString(): string {
             return "[class dragonBones.AnimationState]";
         }
         /**
-         * 是否将骨架的骨骼和插槽重置为绑定姿势（如果骨骼和插槽在这个动画状态中没有动画）。
+         * @private
+         */
+        public actionEnabled: boolean;
+        /**
+         * @private
+         */
+        public additive: boolean;
+        /**
+         * - Whether the animation state has control over the display object properties of the slots.
+         * Sometimes blend a animation state does not want it to control the display object properties of the slots,
+         * especially if other animation state are controlling the display object properties of the slots.
+         * @default true
+         * @version DragonBones 5.0
+         * @language en_US
+         */
+        /**
+         * - 动画状态是否对插槽的显示对象属性有控制权。
+         * 有时混合一个动画状态并不希望其控制插槽的显示对象属性，
+         * 尤其是其他动画状态正在控制这些插槽的显示对象属性时。
+         * @default true
+         * @version DragonBones 5.0
+         * @language zh_CN
+         */
+        public displayControl: boolean;
+        /**
+         * - Whether to reset the objects without animation to the armature pose when the animation state is start to play.
+         * This property should usually be set to false when blend multiple animation states.
+         * @default true
+         * @version DragonBones 5.1
+         * @language en_US
+         */
+        /**
+         * - 开始播放动画状态时是否将没有动画的对象重置为骨架初始值。
+         * 通常在混合多个动画状态时应该将该属性设置为 false。
+         * @default true
          * @version DragonBones 5.1
          * @language zh_CN
          */
         public resetToPose: boolean;
         /**
-         * 是否以增加的方式混合。
+         * @private
+         */
+        public blendType: AnimationBlendType;
+        /**
+         * - The play times. [0: Loop play, [1~N]: Play N times]
          * @version DragonBones 3.0
-         * @language zh_CN
+         * @language en_US
          */
-        public additiveBlending: boolean;
         /**
-         * 是否对插槽的显示对象有控制权。
-         * @see dragonBones.Slot#displayController
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
-        public displayControl: boolean;
-        /**
-         * 是否能触发行为。
-         * @version DragonBones 5.0
-         * @language zh_CN
-         */
-        public actionEnabled: boolean;
-        /**
-         * 混合图层。
-         * @version DragonBones 3.0
-         * @readonly
-         * @language zh_CN
-         */
-        public layer: number;
-        /**
-         * 播放次数。 [0: 无限循环播放, [1~N]: 循环播放 N 次]
+         * - 播放次数。 [0: 无限循环播放, [1~N]: 循环播放 N 次]
          * @version DragonBones 3.0
          * @language zh_CN
          */
         public playTimes: number;
         /**
-         * 播放速度。 [(-N~0): 倒转播放, 0: 停止播放, (0~1): 慢速播放, 1: 正常播放, (1~N): 快速播放]
+         * - The blend layer.
+         * High layer animation state will get the blend weight first.
+         * When the blend weight is assigned more than 1, the remaining animation states will no longer get the weight assigned.
+         * @readonly
+         * @version DragonBones 5.0
+         * @language en_US
+         */
+        /**
+         * - 混合图层。
+         * 图层高的动画状态会优先获取混合权重。
+         * 当混合权重分配超过 1 时，剩余的动画状态将不再获得权重分配。
+         * @readonly
+         * @version DragonBones 5.0
+         * @language zh_CN
+         */
+        public layer: number;
+        /**
+         * - The play speed.
+         * The value is an overlay relationship with {@link dragonBones.Animation#timeScale}.
+         * [(-N~0): Reverse play, 0: Stop play, (0~1): Slow play, 1: Normal play, (1~N): Fast play]
+         * @default 1.0
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 播放速度。
+         * 该值与 {@link dragonBones.Animation#timeScale} 是叠加关系。
+         * [(-N~0): 倒转播放, 0: 停止播放, (0~1): 慢速播放, 1: 正常播放, (1~N): 快速播放]
+         * @default 1.0
          * @version DragonBones 3.0
          * @language zh_CN
          */
         public timeScale: number;
         /**
-         * 混合权重。
-         * @version DragonBones 3.0
-         * @language zh_CN
+         * @private
          */
-        public weight: number;
+        public parameterX: number;
         /**
-         * 自动淡出时间。 [-1: 不自动淡出, [0~N]: 淡出时间] (以秒为单位)
-         * 当设置一个大于等于 0 的值，动画状态将会在播放完成后自动淡出。
-         * @version DragonBones 3.0
+         * @private
+         */
+        public parameterY: number;
+        /**
+         * @private
+         */
+        public positionX: number;
+        /**
+         * @private
+         */
+        public positionY: number;
+        /**
+         * - The auto fade out time when the animation state play completed.
+         * [-1: Do not fade out automatically, [0~N]: The fade out time] (In seconds)
+         * @default -1.0
+         * @version DragonBones 5.0
+         * @language en_US
+         */
+        /**
+         * - 动画状态播放完成后的自动淡出时间。
+         * [-1: 不自动淡出, [0~N]: 淡出时间] （以秒为单位）
+         * @default -1.0
+         * @version DragonBones 5.0
          * @language zh_CN
          */
         public autoFadeOutTime: number;
@@ -94,81 +164,96 @@ namespace dragonBones {
          */
         public fadeTotalTime: number;
         /**
-         * 动画名称。
-         * @version DragonBones 3.0
+         * - The name of the animation state. (Can be different from the name of the animation data)
          * @readonly
+         * @version DragonBones 5.0
+         * @language en_US
+         */
+        /**
+         * - 动画状态名称。 （可以不同于动画数据）
+         * @readonly
+         * @version DragonBones 5.0
          * @language zh_CN
          */
         public name: string;
         /**
-         * 混合组。
-         * @version DragonBones 3.0
+         * - The blend group name of the animation state.
+         * This property is typically used to specify the substitution of multiple animation states blend.
          * @readonly
+         * @version DragonBones 5.0
+         * @language en_US
+         */
+        /**
+         * - 混合组名称。
+         * 该属性通常用来指定多个动画状态混合时的相互替换关系。
+         * @readonly
+         * @version DragonBones 5.0
          * @language zh_CN
          */
         public group: string;
+        private _timelineDirty: number;
         /**
-         * 动画数据。
-         * @see dragonBones.AnimationData
-         * @version DragonBones 3.0
-         * @readonly
-         * @language zh_CN
-         */
-        public animationData: AnimationData;
-
-        private _timelineDirty: boolean;
-        /**
+         * - xx: Play Enabled, Fade Play Enabled
          * @internal
-         * @private
-         * xx: Play Enabled, Fade Play Enabled
          */
         public _playheadState: number;
         /**
-         * @internal
-         * @private
          * -1: Fade in, 0: Fade complete, 1: Fade out;
+         * @internal
          */
         public _fadeState: number;
         /**
-         * @internal
-         * @private
          * -1: Fade start, 0: Fading, 1: Fade complete;
+         * @internal
          */
         public _subFadeState: number;
         /**
          * @internal
-         * @private
          */
         public _position: number;
         /**
          * @internal
-         * @private
          */
         public _duration: number;
+        private _weight: number;
         private _fadeTime: number;
         private _time: number;
         /**
          * @internal
-         * @private
          */
         public _fadeProgress: number;
-        private _weightResult: number;
+        /**
+         * @internal
+         */
+        public _weightResult: number;
         private readonly _boneMask: Array<string> = [];
-        private readonly _boneTimelines: Array<BoneTimelineState> = [];
-        private readonly _slotTimelines: Array<SlotTimelineState> = [];
-        private readonly _bonePoses: Map<BonePose> = {};
+        private readonly _boneTimelines: Array<TimelineState> = [];
+        private readonly _boneBlendTimelines: Array<TimelineState> = [];
+        private readonly _slotTimelines: Array<TimelineState> = [];
+        private readonly _slotBlendTimelines: Array<TimelineState> = [];
+        private readonly _constraintTimelines: Array<TimelineState> = [];
+        private readonly _animationTimelines: Array<TimelineState> = [];
+        private readonly _poseTimelines: Array<TimelineState> = [];
+        private _animationData: AnimationData;
         private _armature: Armature;
         /**
          * @internal
-         * @private
          */
         public _actionTimeline: ActionTimelineState = null as any; // Initial value.
         private _zOrderTimeline: ZOrderTimelineState | null = null; // Initial value.
+        private _activeChildA: AnimationState | null;
+        private _activeChildB: AnimationState | null;
         /**
-         * @private
+         * @internal
          */
+        public _parent: AnimationState | null;
+
         protected _onClear(): void {
             for (const timeline of this._boneTimelines) {
+                timeline.returnToPool();
+            }
+
+            for (const timeline of this._boneBlendTimelines) {
                 timeline.returnToPool();
             }
 
@@ -176,9 +261,23 @@ namespace dragonBones {
                 timeline.returnToPool();
             }
 
-            for (let k in this._bonePoses) {
-                this._bonePoses[k].returnToPool();
-                delete this._bonePoses[k];
+            for (const timeline of this._slotBlendTimelines) {
+                timeline.returnToPool();
+            }
+
+            for (const timeline of this._constraintTimelines) {
+                timeline.returnToPool();
+            }
+
+            for (const timeline of this._animationTimelines) {
+                const animationState = timeline.target as AnimationState;
+                if (animationState._parent === this) {
+                    animationState._fadeState = 1;
+                    animationState._subFadeState = 1;
+                    animationState._parent = null;
+                }
+
+                timeline.returnToPool();
             }
 
             if (this._actionTimeline !== null) {
@@ -189,21 +288,25 @@ namespace dragonBones {
                 this._zOrderTimeline.returnToPool();
             }
 
-            this.resetToPose = false;
-            this.additiveBlending = false;
-            this.displayControl = false;
             this.actionEnabled = false;
-            this.layer = 0;
+            this.additive = false;
+            this.displayControl = false;
+            this.resetToPose = false;
+            this.blendType = AnimationBlendType.None;
             this.playTimes = 1;
+            this.layer = 0;
             this.timeScale = 1.0;
-            this.weight = 1.0;
+            this._weight = 1.0;
+            this.parameterX = 0.0;
+            this.parameterY = 0.0;
+            this.positionX = 0.0;
+            this.positionY = 0.0;
             this.autoFadeOutTime = 0.0;
             this.fadeTotalTime = 0.0;
             this.name = "";
             this.group = "";
-            this.animationData = null as any; //
 
-            this._timelineDirty = true;
+            this._timelineDirty = 2;
             this._playheadState = 0;
             this._fadeState = -1;
             this._subFadeState = -1;
@@ -215,26 +318,331 @@ namespace dragonBones {
             this._weightResult = 0.0;
             this._boneMask.length = 0;
             this._boneTimelines.length = 0;
+            this._boneBlendTimelines.length = 0;
             this._slotTimelines.length = 0;
+            this._slotBlendTimelines.length = 0;
+            this._constraintTimelines.length = 0;
+            this._animationTimelines.length = 0;
+            this._poseTimelines.length = 0;
             // this._bonePoses.clear();
+            this._animationData = null as any; //
             this._armature = null as any; //
             this._actionTimeline = null as any; //
             this._zOrderTimeline = null;
+            this._activeChildA = null;
+            this._activeChildB = null;
+            this._parent = null;
         }
 
-        private _isDisabled(slot: Slot): boolean {
-            if (this.displayControl) {
-                const displayController = slot.displayController;
-                if (
-                    displayController === null ||
-                    displayController === this.name ||
-                    displayController === this.group
-                ) {
-                    return false;
+        private _updateTimelines(): void {
+            { // Update constraint timelines.
+                for (const constraint of this._armature._constraints) {
+                    const timelineDatas = this._animationData.getConstraintTimelines(constraint.name);
+
+                    if (timelineDatas !== null) {
+                        for (const timelineData of timelineDatas) {
+                            switch (timelineData.type) {
+                                case TimelineType.IKConstraint: {
+                                    const timeline = BaseObject.borrowObject(IKConstraintTimelineState);
+                                    timeline.target = constraint;
+                                    timeline.init(this._armature, this, timelineData);
+                                    this._constraintTimelines.push(timeline);
+                                    break;
+                                }
+
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                    else if (this.resetToPose) { // Pose timeline.
+                        const timeline = BaseObject.borrowObject(IKConstraintTimelineState);
+                        timeline.target = constraint;
+                        timeline.init(this._armature, this, null);
+                        this._constraintTimelines.push(timeline);
+                        this._poseTimelines.push(timeline);
+                    }
+                }
+            }
+        }
+
+        private _updateBoneAndSlotTimelines(): void {
+            { // Update bone and surface timelines.
+                const boneTimelines: Map<Array<TimelineState>> = {};
+                // Create bone timelines map.
+                for (const timeline of this._boneTimelines) {
+                    const timelineName = ((timeline.target as BlendState).target as Bone).name;
+                    if (!(timelineName in boneTimelines)) {
+                        boneTimelines[timelineName] = [];
+                    }
+
+                    boneTimelines[timelineName].push(timeline);
+                }
+
+                for (const timeline of this._boneBlendTimelines) {
+                    const timelineName = ((timeline.target as BlendState).target as Bone).name;
+                    if (!(timelineName in boneTimelines)) {
+                        boneTimelines[timelineName] = [];
+                    }
+
+                    boneTimelines[timelineName].push(timeline);
+                }
+                //
+                for (const bone of this._armature.getBones()) {
+                    const timelineName = bone.name;
+                    if (!this.containsBoneMask(timelineName)) {
+                        continue;
+                    }
+
+                    if (timelineName in boneTimelines) { // Remove bone timeline from map.
+                        delete boneTimelines[timelineName];
+                    }
+                    else { // Create new bone timeline.
+                        const timelineDatas = this._animationData.getBoneTimelines(timelineName);
+                        const blendState = this._armature.animation.getBlendState(BlendState.BONE_TRANSFORM, bone.name, bone);
+
+                        if (timelineDatas !== null) {
+                            for (const timelineData of timelineDatas) {
+                                switch (timelineData.type) {
+                                    case TimelineType.BoneAll: {
+                                        const timeline = BaseObject.borrowObject(BoneAllTimelineState);
+                                        timeline.target = blendState;
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._boneTimelines.push(timeline);
+                                        break;
+                                    }
+
+                                    case TimelineType.BoneTranslate: {
+                                        const timeline = BaseObject.borrowObject(BoneTranslateTimelineState);
+                                        timeline.target = blendState;
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._boneTimelines.push(timeline);
+                                        break;
+                                    }
+
+                                    case TimelineType.BoneRotate: {
+                                        const timeline = BaseObject.borrowObject(BoneRotateTimelineState);
+                                        timeline.target = blendState;
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._boneTimelines.push(timeline);
+                                        break;
+                                    }
+
+                                    case TimelineType.BoneScale: {
+                                        const timeline = BaseObject.borrowObject(BoneScaleTimelineState);
+                                        timeline.target = blendState;
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._boneTimelines.push(timeline);
+                                        break;
+                                    }
+
+                                    case TimelineType.BoneAlpha: {
+                                        const timeline = BaseObject.borrowObject(AlphaTimelineState);
+                                        timeline.target = this._armature.animation.getBlendState(BlendState.BONE_ALPHA, bone.name, bone);
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._boneBlendTimelines.push(timeline);
+                                        break;
+                                    }
+
+                                    case TimelineType.Surface: {
+                                        const timeline = BaseObject.borrowObject(SurfaceTimelineState);
+                                        timeline.target = this._armature.animation.getBlendState(BlendState.SURFACE, bone.name, bone);
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._boneBlendTimelines.push(timeline);
+                                        break;
+                                    }
+
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+                        else if (this.resetToPose) { // Pose timeline.
+                            if (bone._boneData.type === BoneType.Bone) {
+                                const timeline = BaseObject.borrowObject(BoneAllTimelineState);
+                                timeline.target = blendState;
+                                timeline.init(this._armature, this, null);
+                                this._boneTimelines.push(timeline);
+                                this._poseTimelines.push(timeline);
+                            }
+                            else {
+                                const timeline = BaseObject.borrowObject(SurfaceTimelineState);
+                                timeline.target = this._armature.animation.getBlendState(BlendState.SURFACE, bone.name, bone);
+                                timeline.init(this._armature, this, null);
+                                this._boneBlendTimelines.push(timeline);
+                                this._poseTimelines.push(timeline);
+                            }
+                        }
+                    }
+                }
+
+                for (let k in boneTimelines) { // Remove bone timelines.
+                    for (const timeline of boneTimelines[k]) {
+                        let index = this._boneTimelines.indexOf(timeline);
+                        if (index >= 0) {
+                            this._boneTimelines.splice(index, 1);
+                            timeline.returnToPool();
+                        }
+
+                        index = this._boneBlendTimelines.indexOf(timeline);
+                        if (index >= 0) {
+                            this._boneBlendTimelines.splice(index, 1);
+                            timeline.returnToPool();
+                        }
+                    }
                 }
             }
 
-            return true;
+            { // Update slot timelines.
+                const slotTimelines: Map<Array<TimelineState>> = {};
+                const ffdFlags: Array<number> = [];
+                // Create slot timelines map.
+                for (const timeline of this._slotTimelines) {
+                    const timelineName = (timeline.target as Slot).name;
+                    if (!(timelineName in slotTimelines)) {
+                        slotTimelines[timelineName] = [];
+                    }
+
+                    slotTimelines[timelineName].push(timeline);
+                }
+
+                for (const timeline of this._slotBlendTimelines) {
+                    const timelineName = ((timeline.target as BlendState).target as Slot).name;
+                    if (!(timelineName in slotTimelines)) {
+                        slotTimelines[timelineName] = [];
+                    }
+
+                    slotTimelines[timelineName].push(timeline);
+                }
+                //
+                for (const slot of this._armature.getSlots()) {
+                    const boneName = slot.parent.name;
+                    if (!this.containsBoneMask(boneName)) {
+                        continue;
+                    }
+
+                    const timelineName = slot.name;
+                    if (timelineName in slotTimelines) { // Remove slot timeline from map.
+                        delete slotTimelines[timelineName];
+                    }
+                    else { // Create new slot timeline.
+                        let displayIndexFlag = false;
+                        let colorFlag = false;
+                        ffdFlags.length = 0;
+
+                        const timelineDatas = this._animationData.getSlotTimelines(timelineName);
+                        if (timelineDatas !== null) {
+                            for (const timelineData of timelineDatas) {
+                                switch (timelineData.type) {
+                                    case TimelineType.SlotDisplay: {
+                                        const timeline = BaseObject.borrowObject(SlotDisplayTimelineState);
+                                        timeline.target = slot;
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._slotTimelines.push(timeline);
+                                        displayIndexFlag = true;
+                                        break;
+                                    }
+
+                                    case TimelineType.SlotZIndex: {
+                                        const timeline = BaseObject.borrowObject(SlotZIndexTimelineState);
+                                        timeline.target = this._armature.animation.getBlendState(BlendState.SLOT_Z_INDEX, slot.name, slot);
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._slotBlendTimelines.push(timeline);
+                                        break;
+                                    }
+
+                                    case TimelineType.SlotColor: {
+                                        const timeline = BaseObject.borrowObject(SlotColorTimelineState);
+                                        timeline.target = slot;
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._slotTimelines.push(timeline);
+                                        colorFlag = true;
+                                        break;
+                                    }
+
+                                    case TimelineType.SlotDeform: {
+                                        const timeline = BaseObject.borrowObject(DeformTimelineState);
+                                        timeline.target = this._armature.animation.getBlendState(BlendState.SLOT_DEFORM, slot.name, slot);
+                                        timeline.init(this._armature, this, timelineData);
+
+                                        if (timeline.target !== null) {
+                                            this._slotBlendTimelines.push(timeline);
+                                            ffdFlags.push(timeline.geometryOffset);
+                                        }
+                                        else {
+                                            timeline.returnToPool();
+                                        }
+                                        break;
+                                    }
+
+                                    case TimelineType.SlotAlpha: {
+                                        const timeline = BaseObject.borrowObject(AlphaTimelineState);
+                                        timeline.target = this._armature.animation.getBlendState(BlendState.SLOT_ALPHA, slot.name, slot);
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._slotBlendTimelines.push(timeline);
+                                        break;
+                                    }
+
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+
+                        if (this.resetToPose) { // Pose timeline.
+                            if (!displayIndexFlag) {
+                                const timeline = BaseObject.borrowObject(SlotDisplayTimelineState);
+                                timeline.target = slot;
+                                timeline.init(this._armature, this, null);
+                                this._slotTimelines.push(timeline);
+                                this._poseTimelines.push(timeline);
+                            }
+
+                            if (!colorFlag) {
+                                const timeline = BaseObject.borrowObject(SlotColorTimelineState);
+                                timeline.target = slot;
+                                timeline.init(this._armature, this, null);
+                                this._slotTimelines.push(timeline);
+                                this._poseTimelines.push(timeline);
+                            }
+
+                            for (let i = 0, l = slot.displayFrameCount; i < l; ++i) {
+                                const displayFrame = slot.getDisplayFrameAt(i);
+                                if (displayFrame.deformVertices.length === 0) {
+                                    continue;
+                                }
+
+                                const geometryData = displayFrame.getGeometryData();
+                                if (geometryData !== null && ffdFlags.indexOf(geometryData.offset) < 0) {
+                                    const timeline = BaseObject.borrowObject(DeformTimelineState);
+                                    timeline.geometryOffset = geometryData.offset; //
+                                    timeline.displayFrame = displayFrame; //
+                                    timeline.target = this._armature.animation.getBlendState(BlendState.SLOT_DEFORM, slot.name, slot);
+                                    timeline.init(this._armature, this, null);
+                                    this._slotBlendTimelines.push(timeline);
+                                    this._poseTimelines.push(timeline);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                for (let k in slotTimelines) { // Remove slot timelines.
+                    for (const timeline of slotTimelines[k]) {
+                        let index = this._slotTimelines.indexOf(timeline);
+                        if (index >= 0) {
+                            this._slotTimelines.splice(index, 1);
+                            timeline.returnToPool();
+                        }
+
+                        index = this._slotBlendTimelines.indexOf(timeline);
+                        if (index >= 0) {
+                            this._slotBlendTimelines.splice(index, 1);
+                            timeline.returnToPool();
+                        }
+                    }
+                }
+            }
         }
 
         private _advanceFadeTime(passedTime: number): void {
@@ -243,13 +651,16 @@ namespace dragonBones {
             if (this._subFadeState < 0) { // Fade start event.
                 this._subFadeState = 0;
 
-                const eventType = isFadeOut ? EventObject.FADE_OUT : EventObject.FADE_IN;
-                if (this._armature.eventDispatcher.hasEvent(eventType)) {
-                    const eventObject = BaseObject.borrowObject(EventObject);
-                    eventObject.type = eventType;
-                    eventObject.armature = this._armature;
-                    eventObject.animationState = this;
-                    this._armature._dragonBones.bufferEvent(eventObject);
+                const eventActive = this._parent === null && this.actionEnabled;
+                if (eventActive) {
+                    const eventType = isFadeOut ? EventObject.FADE_OUT : EventObject.FADE_IN;
+                    if (this._armature.eventDispatcher.hasDBEventListener(eventType)) {
+                        const eventObject = BaseObject.borrowObject(EventObject);
+                        eventObject.type = eventType;
+                        eventObject.armature = this._armature;
+                        eventObject.animationState = this;
+                        this._armature._dragonBones.bufferEvent(eventObject);
+                    }
                 }
             }
 
@@ -276,54 +687,20 @@ namespace dragonBones {
                     this._fadeState = 0;
                 }
 
-                const eventType = isFadeOut ? EventObject.FADE_OUT_COMPLETE : EventObject.FADE_IN_COMPLETE;
-                if (this._armature.eventDispatcher.hasEvent(eventType)) {
-                    const eventObject = BaseObject.borrowObject(EventObject);
-                    eventObject.type = eventType;
-                    eventObject.armature = this._armature;
-                    eventObject.animationState = this;
-                    this._armature._dragonBones.bufferEvent(eventObject);
+                const eventActive = this._parent === null && this.actionEnabled;
+                if (eventActive) {
+                    const eventType = isFadeOut ? EventObject.FADE_OUT_COMPLETE : EventObject.FADE_IN_COMPLETE;
+                    if (this._armature.eventDispatcher.hasDBEventListener(eventType)) {
+                        const eventObject = BaseObject.borrowObject(EventObject);
+                        eventObject.type = eventType;
+                        eventObject.armature = this._armature;
+                        eventObject.animationState = this;
+                        this._armature._dragonBones.bufferEvent(eventObject);
+                    }
                 }
             }
         }
-
-        private _blendBoneTimline(timeline: BoneTimelineState): void {
-            const bone = timeline.bone;
-            const bonePose = timeline.bonePose.result;
-            const animationPose = bone.animationPose;
-            let boneWeight = this._weightResult > 0.0 ? this._weightResult : -this._weightResult;
-
-            if (!bone._blendDirty) {
-                bone._blendDirty = true;
-                bone._blendLayer = this.layer;
-                bone._blendLayerWeight = boneWeight;
-                bone._blendLeftWeight = 1.0;
-
-                animationPose.x = bonePose.x * boneWeight;
-                animationPose.y = bonePose.y * boneWeight;
-                animationPose.rotation = bonePose.rotation * boneWeight;
-                animationPose.skew = bonePose.skew * boneWeight;
-                animationPose.scaleX = (bonePose.scaleX - 1.0) * boneWeight + 1.0;
-                animationPose.scaleY = (bonePose.scaleY - 1.0) * boneWeight + 1.0;
-            }
-            else {
-                boneWeight *= bone._blendLeftWeight;
-                bone._blendLayerWeight += boneWeight;
-
-                animationPose.x += bonePose.x * boneWeight;
-                animationPose.y += bonePose.y * boneWeight;
-                animationPose.rotation += bonePose.rotation * boneWeight;
-                animationPose.skew += bonePose.skew * boneWeight;
-                animationPose.scaleX += (bonePose.scaleX - 1.0) * boneWeight;
-                animationPose.scaleY += (bonePose.scaleY - 1.0) * boneWeight;
-            }
-
-            if (this._fadeState !== 0 || this._subFadeState !== 0) {
-                bone._transformDirty = true;
-            }
-        }
         /**
-         * @private
          * @internal
          */
         public init(armature: Armature, animationData: AnimationData, animationConfig: AnimationConfig): void {
@@ -332,20 +709,22 @@ namespace dragonBones {
             }
 
             this._armature = armature;
-
-            this.animationData = animationData;
+            this._animationData = animationData;
+            //
             this.resetToPose = animationConfig.resetToPose;
-            this.additiveBlending = animationConfig.additiveBlending;
+            this.additive = animationConfig.additive;
             this.displayControl = animationConfig.displayControl;
             this.actionEnabled = animationConfig.actionEnabled;
+            this.blendType = animationData.blendType;
             this.layer = animationConfig.layer;
             this.playTimes = animationConfig.playTimes;
             this.timeScale = animationConfig.timeScale;
             this.fadeTotalTime = animationConfig.fadeInTime;
             this.autoFadeOutTime = animationConfig.autoFadeOutTime;
-            this.weight = animationConfig.weight;
             this.name = animationConfig.name.length > 0 ? animationConfig.name : animationConfig.animation;
             this.group = animationConfig.group;
+            //
+            this._weight = animationConfig.weight;
 
             if (animationConfig.pauseFadeIn) {
                 this._playheadState = 2; // 10
@@ -356,7 +735,8 @@ namespace dragonBones {
 
             if (animationConfig.duration < 0.0) {
                 this._position = 0.0;
-                this._duration = this.animationData.duration;
+                this._duration = this._animationData.duration;
+
                 if (animationConfig.position !== 0.0) {
                     if (this.timeScale >= 0.0) {
                         this._time = animationConfig.position;
@@ -391,188 +771,19 @@ namespace dragonBones {
             }
 
             this._actionTimeline = BaseObject.borrowObject(ActionTimelineState);
-            this._actionTimeline.init(this._armature, this, this.animationData.actionTimeline);
+            this._actionTimeline.init(this._armature, this, this._animationData.actionTimeline);
             this._actionTimeline.currentTime = this._time;
+
             if (this._actionTimeline.currentTime < 0.0) {
                 this._actionTimeline.currentTime = this._duration - this._actionTimeline.currentTime;
             }
 
-            if (this.animationData.zOrderTimeline !== null) {
+            if (this._animationData.zOrderTimeline !== null) {
                 this._zOrderTimeline = BaseObject.borrowObject(ZOrderTimelineState);
-                this._zOrderTimeline.init(this._armature, this, this.animationData.zOrderTimeline);
+                this._zOrderTimeline.init(this._armature, this, this._animationData.zOrderTimeline);
             }
         }
         /**
-         * @private
-         * @internal
-         */
-        public updateTimelines(): void {
-            const boneTimelines: Map<Array<BoneTimelineState>> = {};
-            for (const timeline of this._boneTimelines) { // Create bone timelines map.
-                const timelineName = timeline.bone.name;
-                if (!(timelineName in boneTimelines)) {
-                    boneTimelines[timelineName] = [];
-                }
-
-                boneTimelines[timelineName].push(timeline);
-            }
-
-            for (const bone of this._armature.getBones()) {
-                const timelineName = bone.name;
-                if (!this.containsBoneMask(timelineName)) {
-                    continue;
-                }
-
-                const timelineDatas = this.animationData.getBoneTimelines(timelineName);
-                if (timelineName in boneTimelines) { // Remove bone timeline from map.
-                    delete boneTimelines[timelineName];
-                }
-                else { // Create new bone timeline.
-                    const bonePose = timelineName in this._bonePoses ? this._bonePoses[timelineName] : (this._bonePoses[timelineName] = BaseObject.borrowObject(BonePose));
-                    if (timelineDatas !== null) {
-                        for (const timelineData of timelineDatas) {
-                            switch (timelineData.type) {
-                                case TimelineType.BoneAll:
-                                    const timeline = BaseObject.borrowObject(BoneAllTimelineState);
-                                    timeline.bone = bone;
-                                    timeline.bonePose = bonePose;
-                                    timeline.init(this._armature, this, timelineData);
-                                    this._boneTimelines.push(timeline);
-                                    break;
-
-                                case TimelineType.BoneT:
-                                case TimelineType.BoneR:
-                                case TimelineType.BoneS:
-                                    // TODO
-                                    break;
-
-                                case TimelineType.BoneX:
-                                case TimelineType.BoneY:
-                                case TimelineType.BoneRotate:
-                                case TimelineType.BoneSkew:
-                                case TimelineType.BoneScaleX:
-                                case TimelineType.BoneScaleY:
-                                    // TODO
-                                    break;
-                            }
-                        }
-                    }
-                    else if (this.resetToPose) { // Pose timeline.
-                        const timeline = BaseObject.borrowObject(BoneAllTimelineState);
-                        timeline.bone = bone;
-                        timeline.bonePose = bonePose;
-                        timeline.init(this._armature, this, null);
-                        this._boneTimelines.push(timeline);
-                    }
-                }
-            }
-
-            for (let k in boneTimelines) { // Remove bone timelines.
-                for (const timeline of boneTimelines[k]) {
-                    this._boneTimelines.splice(this._boneTimelines.indexOf(timeline), 1);
-                    timeline.returnToPool();
-                }
-            }
-
-            const slotTimelines: Map<Array<SlotTimelineState>> = {};
-            const ffdFlags: Array<number> = [];
-            for (const timeline of this._slotTimelines) { // Create slot timelines map.
-                const timelineName = timeline.slot.name;
-                if (!(timelineName in slotTimelines)) {
-                    slotTimelines[timelineName] = [];
-                }
-
-                slotTimelines[timelineName].push(timeline);
-            }
-
-            for (const slot of this._armature.getSlots()) {
-                const boneName = slot.parent.name;
-                if (!this.containsBoneMask(boneName)) {
-                    continue;
-                }
-
-                const timelineName = slot.name;
-                const timelineDatas = this.animationData.getSlotTimeline(timelineName);
-                if (timelineName in slotTimelines) { // Remove slot timeline from map.
-                    delete slotTimelines[timelineName];
-                }
-                else { // Create new slot timeline.
-                    let displayIndexFlag = false;
-                    let colorFlag = false;
-                    ffdFlags.length = 0;
-
-                    if (timelineDatas !== null) {
-                        for (const timelineData of timelineDatas) {
-                            switch (timelineData.type) {
-                                case TimelineType.SlotDisplay:
-                                    {
-                                        const timeline = BaseObject.borrowObject(SlotDislayIndexTimelineState);
-                                        timeline.slot = slot;
-                                        timeline.init(this._armature, this, timelineData);
-                                        this._slotTimelines.push(timeline);
-                                        displayIndexFlag = true;
-                                        break;
-                                    }
-
-                                case TimelineType.SlotColor:
-                                    {
-                                        const timeline = BaseObject.borrowObject(SlotColorTimelineState);
-                                        timeline.slot = slot;
-                                        timeline.init(this._armature, this, timelineData);
-                                        this._slotTimelines.push(timeline);
-                                        colorFlag = true;
-                                        break;
-                                    }
-
-                                case TimelineType.SlotFFD:
-                                    {
-                                        const timeline = BaseObject.borrowObject(SlotFFDTimelineState);
-                                        timeline.slot = slot;
-                                        timeline.init(this._armature, this, timelineData);
-                                        this._slotTimelines.push(timeline);
-                                        ffdFlags.push(timeline.meshOffset);
-                                        break;
-                                    }
-                            }
-                        }
-                    }
-
-                    if (this.resetToPose) { // Pose timeline.
-                        if (!displayIndexFlag) {
-                            const timeline = BaseObject.borrowObject(SlotDislayIndexTimelineState);
-                            timeline.slot = slot;
-                            timeline.init(this._armature, this, null);
-                            this._slotTimelines.push(timeline);
-                        }
-
-                        if (!colorFlag) {
-                            const timeline = BaseObject.borrowObject(SlotColorTimelineState);
-                            timeline.slot = slot;
-                            timeline.init(this._armature, this, null);
-                            this._slotTimelines.push(timeline);
-                        }
-
-                        for (const displayData of slot._rawDisplayDatas) {
-                            if (displayData !== null && displayData.type === DisplayType.Mesh && ffdFlags.indexOf((displayData as MeshDisplayData).offset) < 0) {
-                                const timeline = BaseObject.borrowObject(SlotFFDTimelineState);
-                                timeline.slot = slot;
-                                timeline.init(this._armature, this, null);
-                                this._slotTimelines.push(timeline);
-                            }
-                        }
-                    }
-                }
-            }
-
-            for (let k in slotTimelines) { // Remove slot timelines.
-                for (const timeline of slotTimelines[k]) {
-                    this._slotTimelines.splice(this._slotTimelines.indexOf(timeline), 1);
-                    timeline.returnToPool();
-                }
-            }
-        }
-        /**
-         * @private
          * @internal
          */
         public advanceTime(passedTime: number, cacheFrameRate: number): void {
@@ -580,7 +791,6 @@ namespace dragonBones {
             if (this._fadeState !== 0 || this._subFadeState !== 0) {
                 this._advanceFadeTime(passedTime);
             }
-
             // Update time.
             if (this._playheadState === 3) { // 11
                 if (this.timeScale !== 1.0) {
@@ -589,30 +799,41 @@ namespace dragonBones {
 
                 this._time += passedTime;
             }
+            // Update timeline.
+            if (this._timelineDirty !== 0) {
+                if (this._timelineDirty === 2) {
+                    this._updateTimelines();
+                }
 
-            if (this._timelineDirty) {
-                this._timelineDirty = false;
-                this.updateTimelines();
+                this._timelineDirty = 0;
+                this._updateBoneAndSlotTimelines();
             }
 
-            if (this.weight === 0.0) {
-                return;
-            }
-
+            const isBlendDirty = this._fadeState !== 0 || this._subFadeState === 0;
             const isCacheEnabled = this._fadeState === 0 && cacheFrameRate > 0.0;
             let isUpdateTimeline = true;
             let isUpdateBoneTimeline = true;
             let time = this._time;
-            this._weightResult = this.weight * this._fadeProgress;
+            this._weightResult = this._weight * this._fadeProgress;
 
-            this._actionTimeline.update(time); // Update main timeline.
+            if (this._parent !== null) {
+                this._weightResult *= this._parent._weightResult;
+            }
+
+            if (this._actionTimeline.playState <= 0) { // Update main timeline.
+                this._actionTimeline.update(time);
+            }
+
+            if (this._weight === 0.0) {
+                return;
+            }
 
             if (isCacheEnabled) { // Cache time internval.
                 const internval = cacheFrameRate * 2.0;
                 this._actionTimeline.currentTime = Math.floor(this._actionTimeline.currentTime * internval) / internval;
             }
 
-            if (this._zOrderTimeline !== null) { // Update zOrder timeline.
+            if (this._zOrderTimeline !== null && this._zOrderTimeline.playState <= 0) { // Update zOrder timeline.
                 this._zOrderTimeline.update(time);
             }
 
@@ -624,73 +845,201 @@ namespace dragonBones {
                 }
                 else {
                     this._armature._cacheFrameIndex = cacheFrameIndex;
-                    if (this.animationData.cachedFrames[cacheFrameIndex]) { // Cached.
+
+                    if (this._animationData.cachedFrames[cacheFrameIndex]) { // Cached.
                         isUpdateBoneTimeline = false;
                     }
                     else { // Cache.
-                        this.animationData.cachedFrames[cacheFrameIndex] = true;
+                        this._animationData.cachedFrames[cacheFrameIndex] = true;
                     }
                 }
             }
 
             if (isUpdateTimeline) {
-                if (isUpdateBoneTimeline) { // Update bone timelines.
-                    let bone: Bone | null = null;
-                    let prevTimeline: BoneTimelineState = null as any; //
+                let isBlend = false;
+                let prevTarget: BlendState | null = null as any; //
+
+                if (isUpdateBoneTimeline) {
                     for (let i = 0, l = this._boneTimelines.length; i < l; ++i) {
                         const timeline = this._boneTimelines[i];
-                        if (bone !== timeline.bone) { // Blend bone pose.
-                            if (bone !== null) {
-                                this._blendBoneTimline(prevTimeline);
 
-                                if (bone._blendDirty) {
-                                    if (bone._blendLeftWeight > 0.0) {
-                                        if (bone._blendLayer !== this.layer) {
-                                            if (bone._blendLayerWeight >= bone._blendLeftWeight) {
-                                                bone._blendLeftWeight = 0.0;
-                                                bone = null;
-                                            }
-                                            else {
-                                                bone._blendLayer = this.layer;
-                                                bone._blendLeftWeight -= bone._blendLayerWeight;
-                                                bone._blendLayerWeight = 0.0;
-                                            }
-                                        }
-                                    }
-                                    else {
-                                        bone = null;
-                                    }
-                                }
-                            }
-
-                            bone = timeline.bone;
+                        if (timeline.playState <= 0) {
+                            timeline.update(time);
                         }
 
-                        if (bone !== null) {
-                            timeline.update(time);
-                            if (i === l - 1) {
-                                this._blendBoneTimline(timeline);
+                        if (timeline.target !== prevTarget) {
+                            const blendState = timeline.target as BlendState;
+                            isBlend = blendState.update(this);
+                            prevTarget = blendState;
+
+                            if (blendState.dirty === 1) {
+                                const pose = (blendState.target as Bone).animationPose;
+                                pose.x = 0.0;
+                                pose.y = 0.0;
+                                pose.rotation = 0.0;
+                                pose.skew = 0.0;
+                                pose.scaleX = 1.0;
+                                pose.scaleY = 1.0;
                             }
-                            else {
-                                prevTimeline = timeline;
+                        }
+
+                        if (isBlend) {
+                            timeline.blend(isBlendDirty);
+                        }
+                    }
+                }
+
+                for (let i = 0, l = this._boneBlendTimelines.length; i < l; ++i) {
+                    const timeline = this._boneBlendTimelines[i];
+
+                    if (timeline.playState <= 0) {
+                        timeline.update(time);
+                    }
+
+                    if ((timeline.target as BlendState).update(this)) {
+                        timeline.blend(isBlendDirty);
+                    }
+                }
+
+                if (this.displayControl) {
+                    for (let i = 0, l = this._slotTimelines.length; i < l; ++i) {
+                        const timeline = this._slotTimelines[i];
+                        if (timeline.playState <= 0) {
+                            const slot = timeline.target as Slot;
+                            const displayController = slot.displayController;
+
+                            if (
+                                displayController === null ||
+                                displayController === this.name ||
+                                displayController === this.group
+                            ) {
+                                timeline.update(time);
                             }
                         }
                     }
                 }
 
-                for (let i = 0, l = this._slotTimelines.length; i < l; ++i) {
-                    const timeline = this._slotTimelines[i];
-                    if (this._isDisabled(timeline.slot)) {
-                        continue;
+                for (let i = 0, l = this._slotBlendTimelines.length; i < l; ++i) {
+                    const timeline = this._slotBlendTimelines[i];
+                    if (timeline.playState <= 0) {
+                        const blendState = timeline.target as BlendState;
+                        timeline.update(time);
+
+                        if (blendState.update(this)) {
+                            timeline.blend(isBlendDirty);
+                        }
+                    }
+                }
+
+                for (let i = 0, l = this._constraintTimelines.length; i < l; ++i) {
+                    const timeline = this._constraintTimelines[i];
+                    if (timeline.playState <= 0) {
+                        timeline.update(time);
+                    }
+                }
+
+                if (this._animationTimelines.length > 0) {
+                    let dL = 100.0;
+                    let dR = 100.0;
+                    let leftState: AnimationState | null = null;
+                    let rightState: AnimationState | null = null;
+
+                    for (let i = 0, l = this._animationTimelines.length; i < l; ++i) {
+                        const timeline = this._animationTimelines[i];
+                        if (timeline.playState <= 0) {
+                            timeline.update(time);
+                        }
+
+                        if (this.blendType === AnimationBlendType.E1D) { // TODO
+                            const animationState = timeline.target as AnimationState;
+                            const d = this.parameterX - animationState.positionX;
+
+                            if (d >= 0.0) {
+                                if (d < dL) {
+                                    dL = d;
+                                    leftState = animationState;
+                                }
+                            }
+                            else {
+                                if (-d < dR) {
+                                    dR = -d;
+                                    rightState = animationState;
+                                }
+                            }
+                        }
                     }
 
-                    timeline.update(time);
+                    if (leftState !== null) {
+                        if (this._activeChildA !== leftState) {
+                            if (this._activeChildA !== null) {
+                                this._activeChildA.weight = 0.0;
+                            }
+
+                            this._activeChildA = leftState;
+                            this._activeChildA.activeTimeline();
+                        }
+
+                        if (this._activeChildB !== rightState) {
+                            if (this._activeChildB !== null) {
+                                this._activeChildB.weight = 0.0;
+                            }
+
+                            this._activeChildB = rightState;
+                        }
+
+                        leftState.weight = dR / (dL + dR);
+
+                        if (rightState) {
+                            rightState.weight = 1.0 - leftState.weight;
+                        }
+                    }
                 }
             }
 
             if (this._fadeState === 0) {
                 if (this._subFadeState > 0) {
                     this._subFadeState = 0;
+
+                    if (this._poseTimelines.length > 0) { // Remove pose timelines.
+                        for (const timeline of this._poseTimelines) {
+                            let index = this._boneTimelines.indexOf(timeline);
+                            if (index >= 0) {
+                                this._boneTimelines.splice(index, 1);
+                                timeline.returnToPool();
+                                continue;
+                            }
+
+                            index = this._boneBlendTimelines.indexOf(timeline);
+                            if (index >= 0) {
+                                this._boneBlendTimelines.splice(index, 1);
+                                timeline.returnToPool();
+                                continue;
+                            }
+
+                            index = this._slotTimelines.indexOf(timeline);
+                            if (index >= 0) {
+                                this._slotTimelines.splice(index, 1);
+                                timeline.returnToPool();
+                                continue;
+                            }
+
+                            index = this._slotBlendTimelines.indexOf(timeline);
+                            if (index >= 0) {
+                                this._slotBlendTimelines.splice(index, 1);
+                                timeline.returnToPool();
+                                continue;
+                            }
+
+                            index = this._constraintTimelines.indexOf(timeline);
+                            if (index >= 0) {
+                                this._constraintTimelines.splice(index, 1);
+                                timeline.returnToPool();
+                                continue;
+                            }
+                        }
+
+                        this._poseTimelines.length = 0;
+                    }
                 }
 
                 if (this._actionTimeline.playState > 0) {
@@ -701,7 +1050,12 @@ namespace dragonBones {
             }
         }
         /**
-         * 继续播放。
+         * - Continue play.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 继续播放。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -709,7 +1063,12 @@ namespace dragonBones {
             this._playheadState = 3; // 11
         }
         /**
-         * 暂停播放。
+         * - Stop play.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 暂停播放。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -717,9 +1076,16 @@ namespace dragonBones {
             this._playheadState &= 1; // 0x
         }
         /**
-         * 淡出动画。
-         * @param fadeOutTime 淡出时间。 (以秒为单位)
-         * @param pausePlayhead 淡出时是否暂停动画。
+         * - Fade out the animation state.
+         * @param fadeOutTime - The fade out time. (In seconds)
+         * @param pausePlayhead - Whether to pause the animation playing when fade out.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 淡出动画状态。
+         * @param fadeOutTime - 淡出时间。 （以秒为单位）
+         * @param pausePlayhead - 淡出时是否暂停播放。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -749,8 +1115,27 @@ namespace dragonBones {
                     timeline.fadeOut();
                 }
 
+                for (const timeline of this._boneBlendTimelines) {
+                    timeline.fadeOut();
+                }
+
                 for (const timeline of this._slotTimelines) {
                     timeline.fadeOut();
+                }
+
+                for (const timeline of this._slotBlendTimelines) {
+                    timeline.fadeOut();
+                }
+
+                for (const timeline of this._constraintTimelines) {
+                    timeline.fadeOut();
+                }
+
+                for (const timeline of this._animationTimelines) {
+                    timeline.fadeOut();
+                    //
+                    const animaitonState = timeline.target as AnimationState;
+                    animaitonState.fadeOut(999999.0, true);
                 }
             }
 
@@ -759,29 +1144,42 @@ namespace dragonBones {
             this._fadeTime = this.fadeTotalTime * (1.0 - this._fadeProgress);
         }
         /**
-         * 是否包含骨骼遮罩。
-         * @param name 指定的骨骼名称。
+         * - Check if a specific bone mask is included.
+         * @param boneName - The bone name.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 检查是否包含特定骨骼遮罩。
+         * @param boneName - 骨骼名称。
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public containsBoneMask(name: string): boolean {
-            return this._boneMask.length === 0 || this._boneMask.indexOf(name) >= 0;
+        public containsBoneMask(boneName: string): boolean {
+            return this._boneMask.length === 0 || this._boneMask.indexOf(boneName) >= 0;
         }
         /**
-         * 添加骨骼遮罩。
-         * @param name 指定的骨骼名称。
-         * @param recursive 是否为该骨骼的子骨骼添加遮罩。
+         * - Add a specific bone mask.
+         * @param boneName - The bone name.
+         * @param recursive - Whether or not to add a mask to the bone's sub-bone.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 添加特定的骨骼遮罩。
+         * @param boneName - 骨骼名称。
+         * @param recursive - 是否为该骨骼的子骨骼添加遮罩。
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public addBoneMask(name: string, recursive: boolean = true): void {
-            const currentBone = this._armature.getBone(name);
+        public addBoneMask(boneName: string, recursive: boolean = true): void {
+            const currentBone = this._armature.getBone(boneName);
             if (currentBone === null) {
                 return;
             }
 
-            if (this._boneMask.indexOf(name) < 0) { // Add mixing
-                this._boneMask.push(name);
+            if (this._boneMask.indexOf(boneName) < 0) { // Add mixing
+                this._boneMask.push(boneName);
             }
 
             if (recursive) { // Add recursive mixing.
@@ -792,23 +1190,30 @@ namespace dragonBones {
                 }
             }
 
-            this._timelineDirty = true;
+            this._timelineDirty = 1;
         }
         /**
-         * 删除骨骼遮罩。
-         * @param name 指定的骨骼名称。
-         * @param recursive 是否删除该骨骼的子骨骼遮罩。
+         * - Remove the mask of a specific bone.
+         * @param boneName - The bone name.
+         * @param recursive - Whether to remove the bone's sub-bone mask.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 删除特定骨骼的遮罩。
+         * @param boneName - 骨骼名称。
+         * @param recursive - 是否删除该骨骼的子骨骼遮罩。
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public removeBoneMask(name: string, recursive: boolean = true): void {
-            const index = this._boneMask.indexOf(name);
+        public removeBoneMask(boneName: string, recursive: boolean = true): void {
+            const index = this._boneMask.indexOf(boneName);
             if (index >= 0) { // Remove mixing.
                 this._boneMask.splice(index, 1);
             }
 
             if (recursive) {
-                const currentBone = this._armature.getBone(name);
+                const currentBone = this._armature.getBone(boneName);
                 if (currentBone !== null) {
                     const bones = this._armature.getBones();
                     if (this._boneMask.length > 0) { // Remove recursive mixing.
@@ -833,19 +1238,89 @@ namespace dragonBones {
                 }
             }
 
-            this._timelineDirty = true;
+            this._timelineDirty = 1;
         }
         /**
-         * 删除所有骨骼遮罩。
+         * - Remove all bone masks.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 删除所有骨骼遮罩。
          * @version DragonBones 3.0
          * @language zh_CN
          */
         public removeAllBoneMask(): void {
             this._boneMask.length = 0;
-            this._timelineDirty = true;
+            this._timelineDirty = 1;
         }
         /**
-         * 是否正在淡入。
+         * @private
+         */
+        public addState(animationState: AnimationState, timelineDatas: TimelineData[] | null = null) {
+            if (timelineDatas !== null) {
+                for (const timelineData of timelineDatas) {
+                    switch (timelineData.type) {
+                        case TimelineType.AnimationProgress: {
+                            const timeline = BaseObject.borrowObject(AnimationProgressTimelineState);
+                            timeline.target = animationState;
+                            timeline.init(this._armature, this, timelineData);
+                            this._animationTimelines.push(timeline);
+
+                            if (this.blendType !== AnimationBlendType.None) {
+                                const animaitonTimelineData = timelineData as AnimationTimelineData;
+                                animationState.positionX = animaitonTimelineData.x;
+                                animationState.positionY = animaitonTimelineData.y;
+                                animationState.weight = 0.0;
+                            }
+
+                            animationState._parent = this;
+                            this.resetToPose = false;
+                            break;
+                        }
+
+                        case TimelineType.AnimationWeight: {
+                            const timeline = BaseObject.borrowObject(AnimationWeightTimelineState);
+                            timeline.target = animationState;
+                            timeline.init(this._armature, this, timelineData);
+                            this._animationTimelines.push(timeline);
+                            break;
+                        }
+
+                        case TimelineType.AnimationParameter: {
+                            const timeline = BaseObject.borrowObject(AnimationParametersTimelineState);
+                            timeline.target = animationState;
+                            timeline.init(this._armature, this, timelineData);
+                            this._animationTimelines.push(timeline);
+                            break;
+                        }
+
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            if (animationState._parent === null) {
+                animationState._parent = this;
+            }
+        }
+        /**
+         * @internal
+         */
+        public activeTimeline(): void {
+            for (const timeline of this._slotTimelines) {
+                timeline.dirty = true;
+                timeline.currentTime = -1.0;
+            }
+        }
+        /**
+         * - Whether the animation state is fading in.
+         * @version DragonBones 5.1
+         * @language en_US
+         */
+        /**
+         * - 是否正在淡入。
          * @version DragonBones 5.1
          * @language zh_CN
          */
@@ -853,7 +1328,12 @@ namespace dragonBones {
             return this._fadeState < 0;
         }
         /**
-         * 是否正在淡出。
+         * - Whether the animation state is fading out.
+         * @version DragonBones 5.1
+         * @language en_US
+         */
+        /**
+         * - 是否正在淡出。
          * @version DragonBones 5.1
          * @language zh_CN
          */
@@ -861,7 +1341,12 @@ namespace dragonBones {
             return this._fadeState > 0;
         }
         /**
-         * 是否淡入完毕。
+         * - Whether the animation state is fade completed.
+         * @version DragonBones 5.1
+         * @language en_US
+         */
+        /**
+         * - 是否淡入或淡出完毕。
          * @version DragonBones 5.1
          * @language zh_CN
          */
@@ -869,7 +1354,12 @@ namespace dragonBones {
             return this._fadeState === 0;
         }
         /**
-         * 是否正在播放。
+         * - Whether the animation state is playing.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 是否正在播放。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -877,7 +1367,12 @@ namespace dragonBones {
             return (this._playheadState & 2) !== 0 && this._actionTimeline.playState <= 0;
         }
         /**
-         * 是否播放完毕。
+         * - Whether the animation state is play completed.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 是否播放完毕。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -885,7 +1380,12 @@ namespace dragonBones {
             return this._actionTimeline.playState > 0;
         }
         /**
-         * 当前播放次数。
+         * - The times has been played.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 已经循环播放的次数。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -893,7 +1393,12 @@ namespace dragonBones {
             return this._actionTimeline.currentPlayTimes;
         }
         /**
-         * 总时间。 (以秒为单位)
+         * - The total time. (In seconds)
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 总播放时间。 （以秒为单位）
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -901,7 +1406,12 @@ namespace dragonBones {
             return this._duration;
         }
         /**
-         * 当前播放的时间。 (以秒为单位)
+         * - The time is currently playing. (In seconds)
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 当前播放的时间。 （以秒为单位）
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -917,8 +1427,11 @@ namespace dragonBones {
                 }
             }
 
-            if (this.playTimes > 0 && currentPlayTimes === this.playTimes - 1 && value === this._duration) {
-                value = this._duration - 0.000001;
+            if (
+                this.playTimes > 0 && currentPlayTimes === this.playTimes - 1 &&
+                value === this._duration && this._parent === null
+            ) {
+                value = this._duration - 0.000001; // 
             }
 
             if (this._time === value) {
@@ -940,14 +1453,131 @@ namespace dragonBones {
                 timeline.playState = -1;
             }
         }
-
         /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see #animationData
+         * - The blend weight.
+         * @default 1.0
+         * @version DragonBones 5.0
+         * @language en_US
          */
-        public get clip(): AnimationData {
-            return this.animationData;
+        /**
+         * - 混合权重。
+         * @default 1.0
+         * @version DragonBones 5.0
+         * @language zh_CN
+         */
+        /**
+         * - The animation data.
+         * @see dragonBones.AnimationData
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        public get weight(): number {
+            return this._weight;
+        }
+        public set weight(value: number) {
+            if (this._weight === value) {
+                return;
+            }
+
+            this._weight = value;
+
+            for (const timeline of this._boneTimelines) {
+                timeline.dirty = true;
+            }
+
+            for (const timeline of this._boneBlendTimelines) {
+                timeline.dirty = true;
+            }
+
+            for (const timeline of this._slotBlendTimelines) {
+                timeline.dirty = true;
+            }
+        }
+        /**
+         * - 动画数据。
+         * @see dragonBones.AnimationData
+         * @version DragonBones 3.0
+         * @language zh_CN
+         */
+        public get animationData(): AnimationData {
+            return this._animationData;
+        }
+    }
+    /**
+     * @internal
+     */
+    export class BlendState extends BaseObject {
+        public static readonly BONE_TRANSFORM: string = "boneTransform";
+        public static readonly BONE_ALPHA: string = "boneAlpha";
+        public static readonly SURFACE: string = "surface";
+        public static readonly SLOT_DEFORM: string = "slotDeform";
+        public static readonly SLOT_ALPHA: string = "slotAlpha";
+        public static readonly SLOT_Z_INDEX: string = "slotZIndex";
+
+        public static toString(): string {
+            return "[class dragonBones.BlendState]";
+        }
+
+        public dirty: number;
+        public layer: number;
+        public leftWeight: number;
+        public layerWeight: number;
+        public blendWeight: number;
+        public target: BaseObject;
+
+        protected _onClear(): void {
+            this.reset();
+
+            this.target = null as any;
+        }
+
+        public update(animationState: AnimationState): boolean {
+            const animationLayer = animationState.layer;
+            let animationWeight = animationState._weightResult;
+
+            if (this.dirty > 0) {
+                if (this.leftWeight > 0.0) {
+                    if (this.layer !== animationLayer) {
+                        if (this.layerWeight >= this.leftWeight) {
+                            this.dirty++;
+                            this.layer = animationLayer;
+                            this.leftWeight = 0.0;
+                            this.blendWeight = 0.0;
+
+                            return false;
+                        }
+
+                        this.layer = animationLayer;
+                        this.leftWeight -= this.layerWeight;
+                        this.layerWeight = 0.0;
+                    }
+
+                    animationWeight *= this.leftWeight;
+                    this.dirty++;
+                    this.blendWeight = animationWeight;
+                    this.layerWeight += this.blendWeight;
+
+                    return true;
+                }
+
+                return false;
+            }
+
+            this.dirty++;
+            this.layer = animationLayer;
+            this.leftWeight = 1.0;
+            this.blendWeight = animationWeight;
+            this.layerWeight = animationWeight;
+
+            return true;
+        }
+
+        public reset(): void {
+            this.dirty = 0;
+            this.layer = 0;
+            this.leftWeight = 0.0;
+            this.layerWeight = 0.0;
+            this.blendWeight = 0.0;
         }
     }
 }

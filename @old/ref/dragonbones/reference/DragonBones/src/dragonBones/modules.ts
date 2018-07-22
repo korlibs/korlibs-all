@@ -1,1 +1,0 @@
-declare const Module: any; // TODO need remove.

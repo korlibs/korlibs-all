@@ -117,7 +117,7 @@ class PolygonBoundingBoxData : BoundingBoxData() {
         ) {
             intersectionCount = PolygonBoundingBoxData.polygonIntersectsSegment(
                 xA, yA, xB, yB,
-                this.vertices, this.offset, this.count,
+                this.vertices!!, this.offset, this.count,
                 intersectionPointA, intersectionPointB, normalRadians
             )
         }
@@ -133,16 +133,21 @@ class PolygonBoundingBoxData : BoundingBoxData() {
         @JvmOverloads
         fun polygonIntersectsSegment(
             xA: Float, yA: Float, xB: Float, yB: Float,
-            vertices: FloatArray?, offset: Int, count: Int,
+            vertices: FloatArray, offset: Int, count: Int,
             intersectionPointA: Point? = null,
             intersectionPointB: Point? = null,
             normalRadians: Point? = null
         ): Int {
-			if (xA === xB) {
+			var xA = xA
+			var xB = xB
+			var yA = yA
+			var yB = yB
+
+			if (xA == xB) {
 				xA = xB + 0.000001f
 			}
 
-			if (yA === yB) {
+			if (yA == yB) {
 				yA = yB + 0.000001f
 			}
 
@@ -150,8 +155,8 @@ class PolygonBoundingBoxData : BoundingBoxData() {
 			val dYAB = yA - yB
 			val llAB = xA * yB - yA * xB
 			var intersectionCount = 0
-			var xC = vertices.get(offset + count - 2)
-			var yC = vertices.get(offset + count - 1)
+			var xC = vertices[offset + count - 2]
+			var yC = vertices[offset + count - 1]
 			var dMin = 0f
 			var dMax = 0f
 			var xMin = 0f

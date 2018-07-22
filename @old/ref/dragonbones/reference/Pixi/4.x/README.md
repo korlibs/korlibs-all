@@ -1,11 +1,13 @@
 ## How to build
-```
-$npm install
-$npm run build
-```
+* Clone or download [DragonBonesJS](https://github.com/DragonBones/DragonBonesJS/).
+* Install [Node.JS](https://nodejs.org/).
+* Open `DragonBonesJS/Pixi/4.x/` in command.
+* $ `npm install`
+* $ `npm run build`
 
-## Project structure
+## Make sure project structure like this:
 ```
+Your project
     |-- libs
         |-- pixi.js.d.ts
     |-- node_modules
@@ -18,4 +20,4 @@ $npm run build
 ```
 
 ## Pixi declaration
-[pixi.js.d.ts](https://github.com/pixijs/pixi-typescript/blob/v4.x/pixi.js.d.ts)
+* [Get pixi.js.d.ts](https://github.com/pixijs/pixi-typescript/blob/v4.x/pixi.js.d.ts)

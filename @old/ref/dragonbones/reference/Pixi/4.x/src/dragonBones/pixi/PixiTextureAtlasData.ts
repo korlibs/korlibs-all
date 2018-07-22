@@ -1,8 +1,36 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 namespace dragonBones {
     /**
-     * @language zh_CN
-     * Pixi 贴图集数据。
+     * - The PixiJS texture atlas data.
      * @version DragonBones 3.0
+     * @language en_US
+     */
+    /**
+     * - PixiJS 贴图集数据。
+     * @version DragonBones 3.0
+     * @language zh_CN
      */
     export class PixiTextureAtlasData extends TextureAtlasData {
         public static toString(): string {
@@ -10,26 +38,29 @@ namespace dragonBones {
         }
 
         private _renderTexture: PIXI.BaseTexture | null = null; // Initial value.
-        /**
-         * @private
-         */
+
         protected _onClear(): void {
             super._onClear();
 
-            if (this.renderTexture !== null) {
-                //this.texture.dispose();
+            if (this._renderTexture !== null) {
+                // this._renderTexture.dispose();
             }
 
-            this.renderTexture = null;
+            this._renderTexture = null;
         }
         /**
-         * @private
+         * @inheritDoc
          */
         public createTexture(): TextureData {
             return BaseObject.borrowObject(PixiTextureData);
         }
         /**
-         * Pixi 贴图。
+         * - The PixiJS texture.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - PixiJS 贴图。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -49,8 +80,8 @@ namespace dragonBones {
 
                     textureData.renderTexture = new PIXI.Texture(
                         this._renderTexture,
-                        <any>textureData.region as PIXI.Rectangle, // No need to set frame.
-                        <any>textureData.region as PIXI.Rectangle,
+                        new PIXI.Rectangle(textureData.region.x, textureData.region.y, textureData.region.width, textureData.region.height),
+                        new PIXI.Rectangle(textureData.region.x, textureData.region.y, textureData.region.width, textureData.region.height),
                         new PIXI.Rectangle(0, 0, textureData.region.width, textureData.region.height),
                         textureData.rotated as any // .d.ts bug
                     );
@@ -65,7 +96,7 @@ namespace dragonBones {
         }
     }
     /**
-     * @private
+     * @internal
      */
     export class PixiTextureData extends TextureData {
         public static toString(): string {
@@ -74,15 +105,11 @@ namespace dragonBones {
 
         public renderTexture: PIXI.Texture | null = null; // Initial value.
 
-        public constructor() {
-            super();
-        }
-
         protected _onClear(): void {
             super._onClear();
 
             if (this.renderTexture !== null) {
-                this.renderTexture.destroy();
+                this.renderTexture.destroy(false);
             }
 
             this.renderTexture = null;

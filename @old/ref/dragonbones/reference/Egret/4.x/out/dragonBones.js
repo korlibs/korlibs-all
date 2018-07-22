@@ -9,18 +9,41 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
     /**
      * @private
      */
-    var DragonBones = (function () {
+    var DragonBones = /** @class */ (function () {
         function DragonBones(eventManager) {
             this._clock = new dragonBones.WorldClock();
             this._events = [];
             this._objects = [];
             this._eventManager = null;
             this._eventManager = eventManager;
+            console.info("DragonBones: " + DragonBones.VERSION + "\nWebsite: http://dragonbones.com/\nSource and Demo: https://github.com/DragonBones/");
         }
         DragonBones.prototype.advanceTime = function (passedTime) {
             if (this._objects.length > 0) {
@@ -35,9 +58,11 @@ var dragonBones;
                 for (var i = 0; i < this._events.length; ++i) {
                     var eventObject = this._events[i];
                     var armature = eventObject.armature;
-                    armature.eventDispatcher._dispatchEvent(eventObject.type, eventObject);
-                    if (eventObject.type === dragonBones.EventObject.SOUND_EVENT) {
-                        this._eventManager._dispatchEvent(eventObject.type, eventObject);
+                    if (armature._armatureData !== null) {
+                        armature.eventDispatcher.dispatchDBEvent(eventObject.type, eventObject);
+                        if (eventObject.type === dragonBones.EventObject.SOUND_EVENT) {
+                            this._eventManager.dispatchDBEvent(eventObject.type, eventObject);
+                        }
                     }
                     this.bufferObject(eventObject);
                 }
@@ -68,32 +93,100 @@ var dragonBones;
             enumerable: true,
             configurable: true
         });
+        DragonBones.VERSION = "5.7.000";
         DragonBones.yDown = true;
         DragonBones.debug = false;
         DragonBones.debugDraw = false;
-        DragonBones.webAssembly = false;
-        DragonBones.VERSION = "5.1.0";
         return DragonBones;
     }());
     dragonBones.DragonBones = DragonBones;
-    if (!console.warn) {
-        console.warn = function () { };
-    }
-    if (!console.assert) {
-        console.assert = function () { };
-    }
 })(dragonBones || (dragonBones = {}));
+//
+if (!console.warn) {
+    console.warn = function () { };
+}
+if (!console.assert) {
+    console.assert = function () { };
+}
+//
+if (!Date.now) {
+    Date.now = function now() {
+        return new Date().getTime();
+    };
+}
+// Weixin can not support typescript extends.
+var __extends = function (t, e) {
+    function r() {
+        this.constructor = t;
+    }
+    for (var i in e) {
+        if (e.hasOwnProperty(i)) {
+            t[i] = e[i];
+        }
+    }
+    r.prototype = e.prototype, t.prototype = new r();
+};
+//
+if (typeof global === "undefined" && typeof window !== "undefined") {
+    var global = window;
+}
+if (typeof exports === "object" && typeof module === "object") {
+    module.exports = dragonBones;
+}
+else if (typeof define === "function" && define["amd"]) {
+    define(["dragonBones"], function () { return dragonBones; });
+}
+else if (typeof exports === "object") {
+    exports = dragonBones;
+}
+else if (typeof global !== "undefined") {
+    global.dragonBones = dragonBones;
+}
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
     /**
-     * 基础对象。
+     * - The BaseObject is the base class for all objects in the DragonBones framework.
+     * All BaseObject instances are cached to the object pool to reduce the performance consumption of frequent requests for memory or memory recovery.
+     * @version DragonBones 4.5
+     * @language en_US
+     */
+    /**
+     * - 基础对象，通常 DragonBones 的对象都继承自该类。
+     * 所有基础对象的实例都会缓存到对象池，以减少频繁申请内存或内存回收的性能消耗。
      * @version DragonBones 4.5
      * @language zh_CN
      */
-    var BaseObject = (function () {
+    var BaseObject = /** @class */ (function () {
         function BaseObject() {
             /**
-             * 对象的唯一标识。
+             * - A unique identification number assigned to the object.
+             * @version DragonBones 4.5
+             * @language en_US
+             */
+            /**
+             * - 分配给此实例的唯一标识号。
              * @version DragonBones 4.5
              * @language zh_CN
              */
@@ -102,7 +195,7 @@ var dragonBones;
         }
         BaseObject._returnObject = function (object) {
             var classType = String(object.constructor);
-            var maxCount = classType in BaseObject._maxCountMap ? BaseObject._defaultMaxCount : BaseObject._maxCountMap[classType];
+            var maxCount = classType in BaseObject._maxCountMap ? BaseObject._maxCountMap[classType] : BaseObject._defaultMaxCount;
             var pool = BaseObject._poolsMap[classType] = BaseObject._poolsMap[classType] || [];
             if (pool.length < maxCount) {
                 if (!object._isInPool) {
@@ -110,22 +203,26 @@ var dragonBones;
                     pool.push(object);
                 }
                 else {
-                    console.assert(false, "The object is already in the pool.");
+                    console.warn("The object is already in the pool.");
                 }
             }
             else {
             }
         };
-        /**
-         * @private
-         */
         BaseObject.toString = function () {
             throw new Error();
         };
         /**
-         * 设置每种对象池的最大缓存数量。
-         * @param objectConstructor 对象类。
-         * @param maxCount 最大缓存数量。 (设置为 0 则不缓存)
+         * - Set the maximum cache count of the specify object pool.
+         * @param objectConstructor - The specify class. (Set all object pools max cache count if not set)
+         * @param maxCount - Max count.
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 设置特定对象池的最大缓存数量。
+         * @param objectConstructor - 特定的类。 (不设置则设置所有对象池的最大缓存数量)
+         * @param maxCount - 最大缓存数量。
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -144,20 +241,25 @@ var dragonBones;
             else {
                 BaseObject._defaultMaxCount = maxCount;
                 for (var classType in BaseObject._poolsMap) {
-                    if (classType in BaseObject._maxCountMap) {
-                        continue;
-                    }
                     var pool = BaseObject._poolsMap[classType];
                     if (pool.length > maxCount) {
                         pool.length = maxCount;
                     }
-                    BaseObject._maxCountMap[classType] = maxCount;
+                    if (classType in BaseObject._maxCountMap) {
+                        BaseObject._maxCountMap[classType] = maxCount;
+                    }
                 }
             }
         };
         /**
-         * 清除对象池缓存的对象。
-         * @param objectConstructor 对象类。 (不设置则清除所有缓存)
+         * - Clear the cached instances of a specify object pool.
+         * @param objectConstructor - Specify class. (Clear all cached instances if not set)
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 清除特定对象池的缓存实例。
+         * @param objectConstructor - 特定的类。 (不设置则清除所有缓存的实例)
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -178,8 +280,14 @@ var dragonBones;
             }
         };
         /**
-         * 从对象池中创建指定对象。
-         * @param objectConstructor 对象类。
+         * - Get an instance of the specify class from object pool.
+         * @param objectConstructor - The specify class.
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 从对象池中获取特定类的实例。
+         * @param objectConstructor - 特定的类。
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -196,7 +304,12 @@ var dragonBones;
             return object;
         };
         /**
-         * 清除数据并返还对象池。
+         * - Clear the object and return it back to object pool。
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 清除该实例的所有数据并将其返还对象池。
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -205,21 +318,51 @@ var dragonBones;
             BaseObject._returnObject(this);
         };
         BaseObject._hashCode = 0;
-        BaseObject._defaultMaxCount = 1000;
+        BaseObject._defaultMaxCount = 3000;
         BaseObject._maxCountMap = {};
         BaseObject._poolsMap = {};
         return BaseObject;
     }());
     dragonBones.BaseObject = BaseObject;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
     /**
-     * 2D 矩阵。
+     * - 2D Transform matrix.
+     * @version DragonBones 3.0
+     * @language en_US
+     */
+    /**
+     * - 2D 转换矩阵。
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var Matrix = (function () {
+    var Matrix = /** @class */ (function () {
+        /**
+         * @private
+         */
         function Matrix(a, b, c, d, tx, ty) {
             if (a === void 0) { a = 1.0; }
             if (b === void 0) { b = 0.0; }
@@ -234,9 +377,6 @@ var dragonBones;
             this.tx = tx;
             this.ty = ty;
         }
-        /**
-         * @private
-         */
         Matrix.prototype.toString = function () {
             return "[object dragonBones.Matrix] a:" + this.a + " b:" + this.b + " c:" + this.c + " d:" + this.d + " tx:" + this.tx + " ty:" + this.ty;
         };
@@ -266,7 +406,14 @@ var dragonBones;
             return this;
         };
         /**
-         * 转换为单位矩阵。
+         * - Convert to unit matrix.
+         * The resulting matrix has the following properties: a=1, b=0, c=0, d=1, tx=0, ty=0.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 转换为单位矩阵。
+         * 该矩阵具有以下属性：a=1、b=0、c=0、d=1、tx=0、ty=0。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -277,8 +424,14 @@ var dragonBones;
             return this;
         };
         /**
-         * 将当前矩阵与另一个矩阵相乘。
-         * @param value 需要相乘的矩阵。
+         * - Multiplies the current matrix with another matrix.
+         * @param value - The matrix that needs to be multiplied.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 将当前矩阵与另一个矩阵相乘。
+         * @param value - 需要相乘的矩阵。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -310,7 +463,12 @@ var dragonBones;
             return this;
         };
         /**
-         * 转换为逆矩阵。
+         * - Convert to inverse matrix.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 转换为逆矩阵。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -351,11 +509,20 @@ var dragonBones;
             return this;
         };
         /**
-         * 将矩阵转换应用于指定点。
-         * @param x 横坐标。
-         * @param y 纵坐标。
-         * @param result 应用转换之后的坐标。
-         * @params delta 是否忽略 tx，ty 对坐标的转换。
+         * - Apply a matrix transformation to a specific point.
+         * @param x - X coordinate.
+         * @param y - Y coordinate.
+         * @param result - The point after the transformation is applied.
+         * @param delta - Whether to ignore tx, ty's conversion to point.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 将矩阵转换应用于特定点。
+         * @param x - 横坐标。
+         * @param y - 纵坐标。
+         * @param result - 应用转换之后的点。
+         * @param delta - 是否忽略 tx，ty 对点的转换。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -368,55 +535,98 @@ var dragonBones;
                 result.y += this.ty;
             }
         };
+        /**
+         * @private
+         */
+        Matrix.prototype.transformRectangle = function (rectangle, delta) {
+            if (delta === void 0) { delta = false; }
+            var a = this.a;
+            var b = this.b;
+            var c = this.c;
+            var d = this.d;
+            var tx = delta ? 0.0 : this.tx;
+            var ty = delta ? 0.0 : this.ty;
+            var x = rectangle.x;
+            var y = rectangle.y;
+            var xMax = x + rectangle.width;
+            var yMax = y + rectangle.height;
+            var x0 = a * x + c * y + tx;
+            var y0 = b * x + d * y + ty;
+            var x1 = a * xMax + c * y + tx;
+            var y1 = b * xMax + d * y + ty;
+            var x2 = a * xMax + c * yMax + tx;
+            var y2 = b * xMax + d * yMax + ty;
+            var x3 = a * x + c * yMax + tx;
+            var y3 = b * x + d * yMax + ty;
+            var tmp = 0.0;
+            if (x0 > x1) {
+                tmp = x0;
+                x0 = x1;
+                x1 = tmp;
+            }
+            if (x2 > x3) {
+                tmp = x2;
+                x2 = x3;
+                x3 = tmp;
+            }
+            rectangle.x = Math.floor(x0 < x2 ? x0 : x2);
+            rectangle.width = Math.ceil((x1 > x3 ? x1 : x3) - rectangle.x);
+            if (y0 > y1) {
+                tmp = y0;
+                y0 = y1;
+                y1 = tmp;
+            }
+            if (y2 > y3) {
+                tmp = y2;
+                y2 = y3;
+                y3 = tmp;
+            }
+            rectangle.y = Math.floor(y0 < y2 ? y0 : y2);
+            rectangle.height = Math.ceil((y1 > y3 ? y1 : y3) - rectangle.y);
+        };
         return Matrix;
     }());
     dragonBones.Matrix = Matrix;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
     /**
-     * 2D 变换。
+     * - 2D Transform.
+     * @version DragonBones 3.0
+     * @language en_US
+     */
+    /**
+     * - 2D 变换。
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var Transform = (function () {
-        function Transform(
-            /**
-             * 水平位移。
-             * @version DragonBones 3.0
-             * @language zh_CN
-             */
-            x, 
-            /**
-             * 垂直位移。
-             * @version DragonBones 3.0
-             * @language zh_CN
-             */
-            y, 
-            /**
-             * 倾斜。 (以弧度为单位)
-             * @version DragonBones 3.0
-             * @language zh_CN
-             */
-            skew, 
-            /**
-             * 旋转。 (以弧度为单位)
-             * @version DragonBones 3.0
-             * @language zh_CN
-             */
-            rotation, 
-            /**
-             * 水平缩放。
-             * @version DragonBones 3.0
-             * @language zh_CN
-             */
-            scaleX, 
-            /**
-             * 垂直缩放。
-             * @version DragonBones 3.0
-             * @language zh_CN
-             */
-            scaleY) {
+    var Transform = /** @class */ (function () {
+        /**
+         * @private
+         */
+        function Transform(x, y, skew, rotation, scaleX, scaleY) {
             if (x === void 0) { x = 0.0; }
             if (y === void 0) { y = 0.0; }
             if (skew === void 0) { skew = 0.0; }
@@ -438,9 +648,6 @@ var dragonBones;
             value += value > 0.0 ? -Math.PI : Math.PI;
             return value;
         };
-        /**
-         * @private
-         */
         Transform.prototype.toString = function () {
             return "[object dragonBones.Transform] x:" + this.x + " y:" + this.y + " skewX:" + this.skew * 180.0 / Math.PI + " skewY:" + this.rotation * 180.0 / Math.PI + " scaleX:" + this.scaleX + " scaleY:" + this.scaleY;
         };
@@ -490,10 +697,7 @@ var dragonBones;
             return this;
         };
         /**
-         * 矩阵转换为变换。
-         * @param matrix 矩阵。
-         * @version DragonBones 3.0
-         * @language zh_CN
+         * @private
          */
         Transform.prototype.fromMatrix = function (matrix) {
             var backupScaleX = this.scaleX, backupScaleY = this.scaleY;
@@ -516,42 +720,41 @@ var dragonBones;
             return this;
         };
         /**
-         * 转换为矩阵。
-         * @param matrix 矩阵。
-         * @version DragonBones 3.0
-         * @language zh_CN
+         * @private
          */
         Transform.prototype.toMatrix = function (matrix) {
-            if (this.skew !== 0.0 || this.rotation !== 0.0) {
-                matrix.a = Math.cos(this.rotation);
-                matrix.b = Math.sin(this.rotation);
-                if (this.skew === 0.0) {
-                    matrix.c = -matrix.b;
-                    matrix.d = matrix.a;
-                }
-                else {
-                    matrix.c = -Math.sin(this.skew + this.rotation);
-                    matrix.d = Math.cos(this.skew + this.rotation);
-                }
-                if (this.scaleX !== 1.0) {
-                    matrix.a *= this.scaleX;
-                    matrix.b *= this.scaleX;
-                }
-                if (this.scaleY !== 1.0) {
-                    matrix.c *= this.scaleY;
-                    matrix.d *= this.scaleY;
-                }
+            if (this.rotation === 0.0) {
+                matrix.a = 1.0;
+                matrix.b = 0.0;
             }
             else {
-                matrix.a = this.scaleX;
-                matrix.b = 0.0;
-                matrix.c = 0.0;
-                matrix.d = this.scaleY;
+                matrix.a = Math.cos(this.rotation);
+                matrix.b = Math.sin(this.rotation);
+            }
+            if (this.skew === 0.0) {
+                matrix.c = -matrix.b;
+                matrix.d = matrix.a;
+            }
+            else {
+                matrix.c = -Math.sin(this.skew + this.rotation);
+                matrix.d = Math.cos(this.skew + this.rotation);
+            }
+            if (this.scaleX !== 1.0) {
+                matrix.a *= this.scaleX;
+                matrix.b *= this.scaleX;
+            }
+            if (this.scaleY !== 1.0) {
+                matrix.c *= this.scaleY;
+                matrix.d *= this.scaleY;
             }
             matrix.tx = this.x;
             matrix.ty = this.y;
             return this;
         };
+        /**
+         * @private
+         */
+        Transform.PI = Math.PI;
         /**
          * @private
          */
@@ -576,12 +779,34 @@ var dragonBones;
     }());
     dragonBones.Transform = Transform;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
     /**
      * @private
      */
-    var ColorTransform = (function () {
+    var ColorTransform = /** @class */ (function () {
         function ColorTransform(alphaMultiplier, redMultiplier, greenMultiplier, blueMultiplier, alphaOffset, redOffset, greenOffset, blueOffset) {
             if (alphaMultiplier === void 0) { alphaMultiplier = 1.0; }
             if (redMultiplier === void 0) { redMultiplier = 1.0; }
@@ -618,19 +843,71 @@ var dragonBones;
     }());
     dragonBones.ColorTransform = ColorTransform;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
-    var Point = (function () {
+    /**
+     * - The Point object represents a location in a two-dimensional coordinate system.
+     * @version DragonBones 3.0
+     * @language en_US
+     */
+    /**
+     * - Point 对象表示二维坐标系统中的某个位置。
+     * @version DragonBones 3.0
+     * @language zh_CN
+     */
+    var Point = /** @class */ (function () {
+        /**
+         * - Creates a new point. If you pass no parameters to this method, a point is created at (0,0).
+         * @param x - The horizontal coordinate.
+         * @param y - The vertical coordinate.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 创建一个 egret.Point 对象.若不传入任何参数，将会创建一个位于（0，0）位置的点。
+         * @param x - 该对象的x属性值，默认为 0.0。
+         * @param y - 该对象的y属性值，默认为 0.0。
+         * @version DragonBones 3.0
+         * @language zh_CN
+         */
         function Point(x, y) {
             if (x === void 0) { x = 0.0; }
             if (y === void 0) { y = 0.0; }
             this.x = x;
             this.y = y;
         }
+        /**
+         * @private
+         */
         Point.prototype.copyFrom = function (value) {
             this.x = value.x;
             this.y = value.y;
         };
+        /**
+         * @private
+         */
         Point.prototype.clear = function () {
             this.x = this.y = 0.0;
         };
@@ -638,9 +915,52 @@ var dragonBones;
     }());
     dragonBones.Point = Point;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
-    var Rectangle = (function () {
+    /**
+     * - A Rectangle object is an area defined by its position, as indicated by its top-left corner point (x, y) and by its
+     * width and its height.<br/>
+     * The x, y, width, and height properties of the Rectangle class are independent of each other; changing the value of
+     * one property has no effect on the others. However, the right and bottom properties are integrally related to those
+     * four properties. For example, if you change the value of the right property, the value of the width property changes;
+     * if you change the bottom property, the value of the height property changes.
+     * @version DragonBones 3.0
+     * @language en_US
+     */
+    /**
+     * - Rectangle 对象是按其位置（由它左上角的点 (x, y) 确定）以及宽度和高度定义的区域。<br/>
+     * Rectangle 类的 x、y、width 和 height 属性相互独立；更改一个属性的值不会影响其他属性。
+     * 但是，right 和 bottom 属性与这四个属性是整体相关的。例如，如果更改 right 属性的值，则 width
+     * 属性的值将发生变化；如果更改 bottom 属性，则 height 属性的值将发生变化。
+     * @version DragonBones 3.0
+     * @language zh_CN
+     */
+    var Rectangle = /** @class */ (function () {
+        /**
+         * @private
+         */
         function Rectangle(x, y, width, height) {
             if (x === void 0) { x = 0.0; }
             if (y === void 0) { y = 0.0; }
@@ -651,12 +971,18 @@ var dragonBones;
             this.width = width;
             this.height = height;
         }
+        /**
+         * @private
+         */
         Rectangle.prototype.copyFrom = function (value) {
             this.x = value.x;
             this.y = value.y;
             this.width = value.width;
             this.height = value.height;
         };
+        /**
+         * @private
+         */
         Rectangle.prototype.clear = function () {
             this.x = this.y = 0.0;
             this.width = this.height = 0.0;
@@ -665,53 +991,112 @@ var dragonBones;
     }());
     dragonBones.Rectangle = Rectangle;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
     /**
-     * 自定义数据。
+     * - The user custom data.
+     * @version DragonBones 5.0
+     * @language en_US
+     */
+    /**
+     * - 用户自定义数据。
      * @version DragonBones 5.0
      * @language zh_CN
      */
-    var UserData = (function (_super) {
+    var UserData = /** @class */ (function (_super) {
         __extends(UserData, _super);
         function UserData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
             /**
-             * 自定义整数。
+             * - The custom int numbers.
+             * @version DragonBones 5.0
+             * @language en_US
+             */
+            /**
+             * - 自定义整数。
              * @version DragonBones 5.0
              * @language zh_CN
              */
             _this.ints = [];
             /**
-             * 自定义浮点数。
+             * - The custom float numbers.
+             * @version DragonBones 5.0
+             * @language en_US
+             */
+            /**
+             * - 自定义浮点数。
              * @version DragonBones 5.0
              * @language zh_CN
              */
             _this.floats = [];
             /**
-             * 自定义字符串。
+             * - The custom strings.
+             * @version DragonBones 5.0
+             * @language en_US
+             */
+            /**
+             * - 自定义字符串。
              * @version DragonBones 5.0
              * @language zh_CN
              */
             _this.strings = [];
             return _this;
         }
-        /**
-         * @private
-         */
         UserData.toString = function () {
             return "[class dragonBones.UserData]";
         };
-        /**
-         * @private
-         */
         UserData.prototype._onClear = function () {
             this.ints.length = 0;
             this.floats.length = 0;
             this.strings.length = 0;
         };
         /**
-         * 获取自定义整数。
+         * @internal
+         */
+        UserData.prototype.addInt = function (value) {
+            this.ints.push(value);
+        };
+        /**
+         * @internal
+         */
+        UserData.prototype.addFloat = function (value) {
+            this.floats.push(value);
+        };
+        /**
+         * @internal
+         */
+        UserData.prototype.addString = function (value) {
+            this.strings.push(value);
+        };
+        /**
+         * - Get the custom int number.
+         * @version DragonBones 5.0
+         * @language en_US
+         */
+        /**
+         * - 获取自定义整数。
          * @version DragonBones 5.0
          * @language zh_CN
          */
@@ -720,7 +1105,12 @@ var dragonBones;
             return index >= 0 && index < this.ints.length ? this.ints[index] : 0;
         };
         /**
-         * 获取自定义浮点数。
+         * - Get the custom float number.
+         * @version DragonBones 5.0
+         * @language en_US
+         */
+        /**
+         * - 获取自定义浮点数。
          * @version DragonBones 5.0
          * @language zh_CN
          */
@@ -729,7 +1119,12 @@ var dragonBones;
             return index >= 0 && index < this.floats.length ? this.floats[index] : 0.0;
         };
         /**
-         * 获取自定义字符串。
+         * - Get the custom string.
+         * @version DragonBones 5.0
+         * @language en_US
+         */
+        /**
+         * - 获取自定义字符串。
          * @version DragonBones 5.0
          * @language zh_CN
          */
@@ -743,7 +1138,7 @@ var dragonBones;
     /**
      * @private
      */
-    var ActionData = (function (_super) {
+    var ActionData = /** @class */ (function (_super) {
         __extends(ActionData, _super);
         function ActionData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -767,39 +1162,69 @@ var dragonBones;
     }(dragonBones.BaseObject));
     dragonBones.ActionData = ActionData;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
     /**
-     * 龙骨数据。
+     * - The DragonBones data.
+     * A DragonBones data contains multiple armature data.
+     * @see dragonBones.ArmatureData
+     * @version DragonBones 3.0
+     * @language en_US
+     */
+    /**
+     * - 龙骨数据。
      * 一个龙骨数据包含多个骨架数据。
      * @see dragonBones.ArmatureData
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var DragonBonesData = (function (_super) {
+    var DragonBonesData = /** @class */ (function (_super) {
         __extends(DragonBonesData, _super);
         function DragonBonesData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
             /**
-             * @private
+             * @internal
              */
             _this.frameIndices = [];
             /**
-             * @private
+             * @internal
              */
             _this.cachedFrames = [];
             /**
-             * 所有骨架数据名称。
-             * @see #armatures
+             * - All armature data names.
+             * @version DragonBones 3.0
+             * @language en_US
+             */
+            /**
+             * - 所有的骨架数据名称。
              * @version DragonBones 3.0
              * @language zh_CN
              */
             _this.armatureNames = [];
             /**
-             * 所有骨架数据。
-             * @see dragonBones.ArmatureData
-             * @version DragonBones 3.0
-             * @language zh_CN
+             * @private
              */
             _this.armatures = {};
             /**
@@ -808,15 +1233,9 @@ var dragonBones;
             _this.userData = null; // Initial value.
             return _this;
         }
-        /**
-         * @private
-         */
         DragonBonesData.toString = function () {
             return "[class dragonBones.DragonBonesData]";
         };
-        /**
-         * @private
-         */
         DragonBonesData.prototype._onClear = function () {
             for (var k in this.armatures) {
                 this.armatures[k].returnToPool();
@@ -829,89 +1248,87 @@ var dragonBones;
             this.frameRate = 0;
             this.version = "";
             this.name = "";
+            this.stage = null;
             this.frameIndices.length = 0;
             this.cachedFrames.length = 0;
             this.armatureNames.length = 0;
             //this.armatures.clear();
+            this.binary = null; //
             this.intArray = null; //
             this.floatArray = null; //
             this.frameIntArray = null; //
             this.frameFloatArray = null; //
             this.frameArray = null; //
             this.timelineArray = null; //
+            this.colorArray = null; //
             this.userData = null;
         };
         /**
-         * @private
+         * @internal
          */
         DragonBonesData.prototype.addArmature = function (value) {
             if (value.name in this.armatures) {
-                console.warn("Replace armature: " + value.name);
-                this.armatures[value.name].returnToPool();
+                console.warn("Same armature: " + value.name);
+                return;
             }
             value.parent = this;
             this.armatures[value.name] = value;
             this.armatureNames.push(value.name);
         };
         /**
-         * 获取骨架数据。
-         * @param name 骨架数据名称。
-         * @see dragonBones.ArmatureData
+         * - Get a specific armature data.
+         * @param armatureName - The armature data name.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 获取特定的骨架数据。
+         * @param armatureName - 骨架数据名称。
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        DragonBonesData.prototype.getArmature = function (name) {
-            return name in this.armatures ? this.armatures[name] : null;
-        };
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.BaseFactory#removeDragonBonesData()
-         */
-        DragonBonesData.prototype.dispose = function () {
-            console.warn("已废弃，请参考 @see");
-            this.returnToPool();
+        DragonBonesData.prototype.getArmature = function (armatureName) {
+            return armatureName in this.armatures ? this.armatures[armatureName] : null;
         };
         return DragonBonesData;
     }(dragonBones.BaseObject));
     dragonBones.DragonBonesData = DragonBonesData;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
     /**
-     * @private
+     * - The armature data.
+     * @version DragonBones 3.0
+     * @language en_US
      */
-    var CanvasData = (function (_super) {
-        __extends(CanvasData, _super);
-        function CanvasData() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        /**
-         * @private
-         */
-        CanvasData.toString = function () {
-            return "[class dragonBones.CanvasData]";
-        };
-        /**
-         * @private
-         */
-        CanvasData.prototype._onClear = function () {
-            this.hasBackground = false;
-            this.color = 0x000000;
-            this.x = 0;
-            this.y = 0;
-            this.width = 0;
-            this.height = 0;
-        };
-        return CanvasData;
-    }(dragonBones.BaseObject));
-    dragonBones.CanvasData = CanvasData;
     /**
-     * 骨架数据。
+     * - 骨架数据。
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var ArmatureData = (function (_super) {
+    var ArmatureData = /** @class */ (function (_super) {
         __extends(ArmatureData, _super);
         function ArmatureData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -920,8 +1337,12 @@ var dragonBones;
              */
             _this.aabb = new dragonBones.Rectangle();
             /**
-             * 所有动画数据名称。
-             * @see #armatures
+             * - The names of all the animation data.
+             * @version DragonBones 3.0
+             * @language en_US
+             */
+            /**
+             * - 所有的动画数据名称。
              * @version DragonBones 3.0
              * @language zh_CN
              */
@@ -943,31 +1364,23 @@ var dragonBones;
              */
             _this.actions = [];
             /**
-             * 所有骨骼数据。
-             * @see dragonBones.BoneData
-             * @version DragonBones 3.0
-             * @language zh_CN
+             * @private
              */
             _this.bones = {};
             /**
-             * 所有插槽数据。
-             * @see dragonBones.SlotData
-             * @version DragonBones 3.0
-             * @language zh_CN
+             * @private
              */
             _this.slots = {};
             /**
-             * 所有皮肤数据。
-             * @see dragonBones.SkinData
-             * @version DragonBones 3.0
-             * @language zh_CN
+             * @private
+             */
+            _this.constraints = {};
+            /**
+             * @private
              */
             _this.skins = {};
             /**
-             * 所有动画数据。
-             * @see dragonBones.AnimationData
-             * @version DragonBones 3.0
-             * @language zh_CN
+             * @private
              */
             _this.animations = {};
             /**
@@ -980,15 +1393,9 @@ var dragonBones;
             _this.userData = null; // Initial value.
             return _this;
         }
-        /**
-         * @private
-         */
         ArmatureData.toString = function () {
             return "[class dragonBones.ArmatureData]";
         };
-        /**
-         * @private
-         */
         ArmatureData.prototype._onClear = function () {
             for (var _i = 0, _a = this.defaultActions; _i < _a.length; _i++) {
                 var action = _a[_i];
@@ -1005,6 +1412,10 @@ var dragonBones;
             for (var k in this.slots) {
                 this.slots[k].returnToPool();
                 delete this.slots[k];
+            }
+            for (var k in this.constraints) {
+                this.constraints[k].returnToPool();
+                delete this.constraints[k];
             }
             for (var k in this.skins) {
                 this.skins[k].returnToPool();
@@ -1031,10 +1442,11 @@ var dragonBones;
             this.sortedSlots.length = 0;
             this.defaultActions.length = 0;
             this.actions.length = 0;
-            //this.bones.clear();
-            //this.slots.clear();
-            //this.skins.clear();
-            //this.animations.clear();
+            // this.bones.clear();
+            // this.slots.clear();
+            // this.constraints.clear();
+            // this.skins.clear();
+            // this.animations.clear();
             this.defaultSkin = null;
             this.defaultAnimation = null;
             this.canvas = null;
@@ -1042,7 +1454,7 @@ var dragonBones;
             this.parent = null; //
         };
         /**
-         * @private
+         * @internal
          */
         ArmatureData.prototype.sortBones = function () {
             var total = this.sortedBones.length;
@@ -1061,17 +1473,16 @@ var dragonBones;
                 if (this.sortedBones.indexOf(bone) >= 0) {
                     continue;
                 }
-                if (bone.constraints.length > 0) {
-                    var flag = false;
-                    for (var _i = 0, _a = bone.constraints; _i < _a.length; _i++) {
-                        var constraint = _a[_i];
-                        if (this.sortedBones.indexOf(constraint.target) < 0) {
-                            flag = true;
-                        }
+                var flag = false;
+                for (var k in this.constraints) {
+                    var constraint = this.constraints[k];
+                    if (constraint.root === bone && this.sortedBones.indexOf(constraint.target) < 0) {
+                        flag = true;
+                        break;
                     }
-                    if (flag) {
-                        continue;
-                    }
+                }
+                if (flag) {
+                    continue;
                 }
                 if (bone.parent !== null && this.sortedBones.indexOf(bone.parent) < 0) {
                     continue;
@@ -1081,7 +1492,7 @@ var dragonBones;
             }
         };
         /**
-         * @private
+         * @internal
          */
         ArmatureData.prototype.cacheFrames = function (frameRate) {
             if (this.cacheFrameRate > 0) {
@@ -1093,7 +1504,7 @@ var dragonBones;
             }
         };
         /**
-         * @private
+         * @internal
          */
         ArmatureData.prototype.setCacheFrame = function (globalTransformMatrix, transform) {
             var dataArray = this.parent.cachedFrames;
@@ -1112,7 +1523,7 @@ var dragonBones;
             return arrayOffset;
         };
         /**
-         * @private
+         * @internal
          */
         ArmatureData.prototype.getCacheFrame = function (globalTransformMatrix, transform, arrayOffset) {
             var dataArray = this.parent.cachedFrames;
@@ -1130,47 +1541,61 @@ var dragonBones;
             transform.y = globalTransformMatrix.ty;
         };
         /**
-         * @private
+         * @internal
          */
         ArmatureData.prototype.addBone = function (value) {
             if (value.name in this.bones) {
-                console.warn("Replace bone: " + value.name);
-                this.bones[value.name].returnToPool();
+                console.warn("Same bone: " + value.name);
+                return;
             }
             this.bones[value.name] = value;
             this.sortedBones.push(value);
         };
         /**
-         * @private
+         * @internal
          */
         ArmatureData.prototype.addSlot = function (value) {
             if (value.name in this.slots) {
-                console.warn("Replace slot: " + value.name);
-                this.slots[value.name].returnToPool();
+                console.warn("Same slot: " + value.name);
+                return;
             }
             this.slots[value.name] = value;
             this.sortedSlots.push(value);
         };
         /**
-         * @private
+         * @internal
+         */
+        ArmatureData.prototype.addConstraint = function (value) {
+            if (value.name in this.constraints) {
+                console.warn("Same constraint: " + value.name);
+                return;
+            }
+            this.constraints[value.name] = value;
+        };
+        /**
+         * @internal
          */
         ArmatureData.prototype.addSkin = function (value) {
             if (value.name in this.skins) {
-                console.warn("Replace skin: " + value.name);
-                this.skins[value.name].returnToPool();
+                console.warn("Same skin: " + value.name);
+                return;
             }
+            value.parent = this;
             this.skins[value.name] = value;
             if (this.defaultSkin === null) {
                 this.defaultSkin = value;
             }
+            if (value.name === "default") {
+                this.defaultSkin = value;
+            }
         };
         /**
-         * @private
+         * @internal
          */
         ArmatureData.prototype.addAnimation = function (value) {
             if (value.name in this.animations) {
-                console.warn("Replace animation: " + value.name);
-                this.animations[value.name].returnToPool();
+                console.warn("Same animation: " + value.name);
+                return;
             }
             value.parent = this;
             this.animations[value.name] = value;
@@ -1180,54 +1605,106 @@ var dragonBones;
             }
         };
         /**
-         * 获取骨骼数据。
-         * @param name 数据名称。
-         * @version DragonBones 3.0
-         * @see dragonBones.BoneData
-         * @language zh_CN
+         * @internal
          */
-        ArmatureData.prototype.getBone = function (name) {
-            return name in this.bones ? this.bones[name] : null;
+        ArmatureData.prototype.addAction = function (value, isDefault) {
+            if (isDefault) {
+                this.defaultActions.push(value);
+            }
+            else {
+                this.actions.push(value);
+            }
         };
         /**
-         * 获取插槽数据。
-         * @param name 数据名称。
+         * - Get a specific done data.
+         * @param boneName - The bone name.
          * @version DragonBones 3.0
-         * @see dragonBones.SlotData
+         * @language en_US
+         */
+        /**
+         * - 获取特定的骨骼数据。
+         * @param boneName - 骨骼名称。
+         * @version DragonBones 3.0
          * @language zh_CN
          */
-        ArmatureData.prototype.getSlot = function (name) {
-            return name in this.slots ? this.slots[name] : null;
+        ArmatureData.prototype.getBone = function (boneName) {
+            return boneName in this.bones ? this.bones[boneName] : null;
         };
         /**
-         * 获取皮肤数据。
-         * @param name 数据名称。
+         * - Get a specific slot data.
+         * @param slotName - The slot name.
          * @version DragonBones 3.0
-         * @see dragonBones.SkinData
+         * @language en_US
+         */
+        /**
+         * - 获取特定的插槽数据。
+         * @param slotName - 插槽名称。
+         * @version DragonBones 3.0
          * @language zh_CN
          */
-        ArmatureData.prototype.getSkin = function (name) {
-            return name in this.skins ? this.skins[name] : null;
+        ArmatureData.prototype.getSlot = function (slotName) {
+            return slotName in this.slots ? this.slots[slotName] : null;
         };
         /**
-         * 获取动画数据。
-         * @param name 数据名称。
+         * @private
+         */
+        ArmatureData.prototype.getConstraint = function (constraintName) {
+            return constraintName in this.constraints ? this.constraints[constraintName] : null;
+        };
+        /**
+         * - Get a specific skin data.
+         * @param skinName - The skin name.
          * @version DragonBones 3.0
-         * @see dragonBones.AnimationData
+         * @language en_US
+         */
+        /**
+         * - 获取特定皮肤数据。
+         * @param skinName - 皮肤名称。
+         * @version DragonBones 3.0
          * @language zh_CN
          */
-        ArmatureData.prototype.getAnimation = function (name) {
-            return name in this.animations ? this.animations[name] : null;
+        ArmatureData.prototype.getSkin = function (skinName) {
+            return skinName in this.skins ? this.skins[skinName] : null;
+        };
+        /**
+         * @private
+         */
+        ArmatureData.prototype.getMesh = function (skinName, slotName, meshName) {
+            var skin = this.getSkin(skinName);
+            if (skin === null) {
+                return null;
+            }
+            return skin.getDisplay(slotName, meshName);
+        };
+        /**
+         * - Get a specific animation data.
+         * @param animationName - The animation animationName.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 获取特定的动画数据。
+         * @param animationName - 动画名称。
+         * @version DragonBones 3.0
+         * @language zh_CN
+         */
+        ArmatureData.prototype.getAnimation = function (animationName) {
+            return animationName in this.animations ? this.animations[animationName] : null;
         };
         return ArmatureData;
     }(dragonBones.BaseObject));
     dragonBones.ArmatureData = ArmatureData;
     /**
-     * 骨骼数据。
+     * - The bone data.
+     * @version DragonBones 3.0
+     * @language en_US
+     */
+    /**
+     * - 骨骼数据。
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var BoneData = (function (_super) {
+    var BoneData = /** @class */ (function (_super) {
         __extends(BoneData, _super);
         function BoneData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -1238,27 +1715,13 @@ var dragonBones;
             /**
              * @private
              */
-            _this.constraints = [];
-            /**
-             * @private
-             */
             _this.userData = null; // Initial value.
             return _this;
         }
-        /**
-         * @private
-         */
         BoneData.toString = function () {
             return "[class dragonBones.BoneData]";
         };
-        /**
-         * @private
-         */
         BoneData.prototype._onClear = function () {
-            for (var _i = 0, _a = this.constraints; _i < _a.length; _i++) {
-                var constraint = _a[_i];
-                constraint.returnToPool();
-            }
             if (this.userData !== null) {
                 this.userData.returnToPool();
             }
@@ -1266,10 +1729,11 @@ var dragonBones;
             this.inheritRotation = false;
             this.inheritScale = false;
             this.inheritReflection = false;
+            this.type = 0 /* Bone */;
             this.length = 0.0;
+            this.alpha = 1.0;
             this.name = "";
             this.transform.identity();
-            this.constraints.length = 0;
             this.userData = null;
             this.parent = null;
         };
@@ -1277,12 +1741,39 @@ var dragonBones;
     }(dragonBones.BaseObject));
     dragonBones.BoneData = BoneData;
     /**
-     * 插槽数据。
-     * @see dragonBones.Slot
+     * @internal
+     */
+    var SurfaceData = /** @class */ (function (_super) {
+        __extends(SurfaceData, _super);
+        function SurfaceData() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.geometry = new dragonBones.GeometryData();
+            return _this;
+        }
+        SurfaceData.toString = function () {
+            return "[class dragonBones.SurfaceData]";
+        };
+        SurfaceData.prototype._onClear = function () {
+            _super.prototype._onClear.call(this);
+            this.type = 1 /* Surface */;
+            this.segmentX = 0;
+            this.segmentY = 0;
+            this.geometry.clear();
+        };
+        return SurfaceData;
+    }(BoneData));
+    dragonBones.SurfaceData = SurfaceData;
+    /**
+     * - The slot data.
+     * @version DragonBones 3.0
+     * @language en_US
+     */
+    /**
+     * - 插槽数据。
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var SlotData = (function (_super) {
+    var SlotData = /** @class */ (function (_super) {
         __extends(SlotData, _super);
         function SlotData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -1297,20 +1788,14 @@ var dragonBones;
             return _this;
         }
         /**
-         * @private
+         * @internal
          */
         SlotData.createColor = function () {
             return new dragonBones.ColorTransform();
         };
-        /**
-         * @private
-         */
         SlotData.toString = function () {
             return "[class dragonBones.SlotData]";
         };
-        /**
-         * @private
-         */
         SlotData.prototype._onClear = function () {
             if (this.userData !== null) {
                 this.userData.returnToPool();
@@ -1318,24 +1803,103 @@ var dragonBones;
             this.blendMode = 0 /* Normal */;
             this.displayIndex = 0;
             this.zOrder = 0;
+            this.zIndex = 0;
+            this.alpha = 1.0;
             this.name = "";
             this.color = null; //
             this.userData = null;
             this.parent = null; //
         };
         /**
-         * @private
+         * @internal
          */
         SlotData.DEFAULT_COLOR = new dragonBones.ColorTransform();
         return SlotData;
     }(dragonBones.BaseObject));
     dragonBones.SlotData = SlotData;
+})(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+var dragonBones;
+(function (dragonBones) {
     /**
-     * 皮肤数据。（通常一个骨架数据至少包含一个皮肤数据）
+     * @private
+     */
+    var CanvasData = /** @class */ (function (_super) {
+        __extends(CanvasData, _super);
+        function CanvasData() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        CanvasData.toString = function () {
+            return "[class dragonBones.CanvasData]";
+        };
+        CanvasData.prototype._onClear = function () {
+            this.hasBackground = false;
+            this.color = 0x000000;
+            this.x = 0;
+            this.y = 0;
+            this.width = 0;
+            this.height = 0;
+        };
+        return CanvasData;
+    }(dragonBones.BaseObject));
+    dragonBones.CanvasData = CanvasData;
+})(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+var dragonBones;
+(function (dragonBones) {
+    /**
+     * - The skin data, typically a armature data instance contains at least one skinData.
+     * @version DragonBones 3.0
+     * @language en_US
+     */
+    /**
+     * - 皮肤数据，通常一个骨架数据至少包含一个皮肤数据。
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var SkinData = (function (_super) {
+    var SkinData = /** @class */ (function (_super) {
         __extends(SkinData, _super);
         function SkinData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -1348,9 +1912,6 @@ var dragonBones;
         SkinData.toString = function () {
             return "[class dragonBones.SkinData]";
         };
-        /**
-         * @private
-         */
         SkinData.prototype._onClear = function () {
             for (var k in this.displays) {
                 var slotDisplays = this.displays[k];
@@ -1364,13 +1925,17 @@ var dragonBones;
             }
             this.name = "";
             // this.displays.clear();
+            this.parent = null; //
         };
         /**
-         * @private
+         * @internal
          */
         SkinData.prototype.addDisplay = function (slotName, value) {
             if (!(slotName in this.displays)) {
                 this.displays[slotName] = [];
+            }
+            if (value !== null) {
+                value.parent = this;
             }
             var slotDisplays = this.displays[slotName]; // TODO clear prev
             slotDisplays.push(value);
@@ -1403,29 +1968,53 @@ var dragonBones;
     }(dragonBones.BaseObject));
     dragonBones.SkinData = SkinData;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
     /**
      * @private
      */
-    var ConstraintData = (function (_super) {
+    var ConstraintData = /** @class */ (function (_super) {
         __extends(ConstraintData, _super);
         function ConstraintData() {
             return _super !== null && _super.apply(this, arguments) || this;
         }
         ConstraintData.prototype._onClear = function () {
             this.order = 0;
+            this.name = "";
+            this.type = 0 /* IK */;
             this.target = null; //
-            this.bone = null; //
-            this.root = null;
+            this.root = null; //
+            this.bone = null;
         };
         return ConstraintData;
     }(dragonBones.BaseObject));
     dragonBones.ConstraintData = ConstraintData;
     /**
-     * @private
+     * @internal
      */
-    var IKConstraintData = (function (_super) {
+    var IKConstraintData = /** @class */ (function (_super) {
         __extends(IKConstraintData, _super);
         function IKConstraintData() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -1435,20 +2024,116 @@ var dragonBones;
         };
         IKConstraintData.prototype._onClear = function () {
             _super.prototype._onClear.call(this);
-            this.bendPositive = false;
             this.scaleEnabled = false;
+            this.bendPositive = false;
             this.weight = 1.0;
         };
         return IKConstraintData;
     }(ConstraintData));
     dragonBones.IKConstraintData = IKConstraintData;
+    /**
+     * @internal
+     */
+    var PathConstraintData = /** @class */ (function (_super) {
+        __extends(PathConstraintData, _super);
+        function PathConstraintData() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.bones = [];
+            return _this;
+        }
+        PathConstraintData.toString = function () {
+            return "[class dragonBones.PathConstraintData]";
+        };
+        PathConstraintData.prototype._onClear = function () {
+            _super.prototype._onClear.call(this);
+            this.pathSlot = null;
+            this.pathDisplayData = null;
+            this.bones.length = 0;
+            this.positionMode = 0 /* Fixed */;
+            this.spacingMode = 1 /* Fixed */;
+            this.rotateMode = 1 /* Chain */;
+            this.position = 0.0;
+            this.spacing = 0.0;
+            this.rotateOffset = 0.0;
+            this.rotateMix = 0.0;
+            this.translateMix = 0.0;
+        };
+        PathConstraintData.prototype.AddBone = function (value) {
+            this.bones.push(value);
+        };
+        return PathConstraintData;
+    }(ConstraintData));
+    dragonBones.PathConstraintData = PathConstraintData;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
     /**
      * @private
      */
-    var DisplayData = (function (_super) {
+    var GeometryData = /** @class */ (function () {
+        function GeometryData() {
+            this.weight = null; // Initial value.
+        }
+        GeometryData.prototype.clear = function () {
+            if (!this.isShared && this.weight !== null) {
+                this.weight.returnToPool();
+            }
+            this.isShared = false;
+            this.inheritDeform = false;
+            this.offset = 0;
+            this.data = null;
+            this.weight = null;
+        };
+        GeometryData.prototype.shareFrom = function (value) {
+            this.isShared = true;
+            this.offset = value.offset;
+            this.weight = value.weight;
+        };
+        Object.defineProperty(GeometryData.prototype, "vertexCount", {
+            get: function () {
+                var intArray = this.data.intArray;
+                return intArray[this.offset + 0 /* GeometryVertexCount */];
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(GeometryData.prototype, "triangleCount", {
+            get: function () {
+                var intArray = this.data.intArray;
+                return intArray[this.offset + 1 /* GeometryTriangleCount */];
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return GeometryData;
+    }());
+    dragonBones.GeometryData = GeometryData;
+    /**
+     * @private
+     */
+    var DisplayData = /** @class */ (function (_super) {
         __extends(DisplayData, _super);
         function DisplayData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -1467,7 +2152,7 @@ var dragonBones;
     /**
      * @private
      */
-    var ImageDisplayData = (function (_super) {
+    var ImageDisplayData = /** @class */ (function (_super) {
         __extends(ImageDisplayData, _super);
         function ImageDisplayData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -1489,7 +2174,7 @@ var dragonBones;
     /**
      * @private
      */
-    var ArmatureDisplayData = (function (_super) {
+    var ArmatureDisplayData = /** @class */ (function (_super) {
         __extends(ArmatureDisplayData, _super);
         function ArmatureDisplayData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -1510,17 +2195,23 @@ var dragonBones;
             this.actions.length = 0;
             this.armature = null;
         };
+        /**
+         * @private
+         */
+        ArmatureDisplayData.prototype.addAction = function (value) {
+            this.actions.push(value);
+        };
         return ArmatureDisplayData;
     }(DisplayData));
     dragonBones.ArmatureDisplayData = ArmatureDisplayData;
     /**
      * @private
      */
-    var MeshDisplayData = (function (_super) {
+    var MeshDisplayData = /** @class */ (function (_super) {
         __extends(MeshDisplayData, _super);
         function MeshDisplayData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.weight = null; // Initial value.
+            _this.geometry = new GeometryData();
             return _this;
         }
         MeshDisplayData.toString = function () {
@@ -1528,21 +2219,17 @@ var dragonBones;
         };
         MeshDisplayData.prototype._onClear = function () {
             _super.prototype._onClear.call(this);
-            if (this.weight !== null) {
-                this.weight.returnToPool();
-            }
             this.type = 2 /* Mesh */;
-            this.inheritAnimation = false;
-            this.offset = 0;
-            this.weight = null;
+            this.geometry.clear();
+            this.texture = null;
         };
         return MeshDisplayData;
-    }(ImageDisplayData));
+    }(DisplayData));
     dragonBones.MeshDisplayData = MeshDisplayData;
     /**
      * @private
      */
-    var BoundingBoxDisplayData = (function (_super) {
+    var BoundingBoxDisplayData = /** @class */ (function (_super) {
         __extends(BoundingBoxDisplayData, _super);
         function BoundingBoxDisplayData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -1566,7 +2253,32 @@ var dragonBones;
     /**
      * @private
      */
-    var WeightData = (function (_super) {
+    var PathDisplayData = /** @class */ (function (_super) {
+        __extends(PathDisplayData, _super);
+        function PathDisplayData() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.geometry = new GeometryData();
+            _this.curveLengths = [];
+            return _this;
+        }
+        PathDisplayData.toString = function () {
+            return "[class dragonBones.PathDisplayData]";
+        };
+        PathDisplayData.prototype._onClear = function () {
+            _super.prototype._onClear.call(this);
+            this.type = 4 /* Path */;
+            this.closed = false;
+            this.constantSpeed = false;
+            this.geometry.clear();
+            this.curveLengths.length = 0;
+        };
+        return PathDisplayData;
+    }(DisplayData));
+    dragonBones.PathDisplayData = PathDisplayData;
+    /**
+     * @private
+     */
+    var WeightData = /** @class */ (function (_super) {
         __extends(WeightData, _super);
         function WeightData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -1581,28 +2293,58 @@ var dragonBones;
             this.offset = 0;
             this.bones.length = 0;
         };
+        WeightData.prototype.addBone = function (value) {
+            this.bones.push(value);
+        };
         return WeightData;
     }(dragonBones.BaseObject));
     dragonBones.WeightData = WeightData;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
     /**
-     * 边界框数据基类。
+     * - The base class of bounding box data.
+     * @see dragonBones.RectangleData
+     * @see dragonBones.EllipseData
+     * @see dragonBones.PolygonData
+     * @version DragonBones 5.0
+     * @language en_US
+     */
+    /**
+     * - 边界框数据基类。
      * @see dragonBones.RectangleData
      * @see dragonBones.EllipseData
      * @see dragonBones.PolygonData
      * @version DragonBones 5.0
      * @language zh_CN
      */
-    var BoundingBoxData = (function (_super) {
+    var BoundingBoxData = /** @class */ (function (_super) {
         __extends(BoundingBoxData, _super);
         function BoundingBoxData() {
             return _super !== null && _super.apply(this, arguments) || this;
         }
-        /**
-         * @private
-         */
         BoundingBoxData.prototype._onClear = function () {
             this.color = 0x000000;
             this.width = 0.0;
@@ -1612,23 +2354,25 @@ var dragonBones;
     }(dragonBones.BaseObject));
     dragonBones.BoundingBoxData = BoundingBoxData;
     /**
-     * 矩形边界框。
+     * - The rectangle bounding box data.
+     * @version DragonBones 5.1
+     * @language en_US
+     */
+    /**
+     * - 矩形边界框数据。
      * @version DragonBones 5.1
      * @language zh_CN
      */
-    var RectangleBoundingBoxData = (function (_super) {
+    var RectangleBoundingBoxData = /** @class */ (function (_super) {
         __extends(RectangleBoundingBoxData, _super);
         function RectangleBoundingBoxData() {
             return _super !== null && _super.apply(this, arguments) || this;
         }
-        /**
-         * @private
-         */
         RectangleBoundingBoxData.toString = function () {
             return "[class dragonBones.RectangleBoundingBoxData]";
         };
         /**
-         * Compute the bit code for a point (x, y) using the clip rectangle
+         * - Compute the bit code for a point (x, y) using the clip rectangle
          */
         RectangleBoundingBoxData._computeOutCode = function (x, y, xMin, yMin, xMax, yMax) {
             var code = 0 /* InSide */; // initialised as being inside of [[clip window]]
@@ -1767,15 +2511,12 @@ var dragonBones;
             }
             return intersectionCount;
         };
-        /**
-         * @private
-         */
         RectangleBoundingBoxData.prototype._onClear = function () {
             _super.prototype._onClear.call(this);
             this.type = 0 /* Rectangle */;
         };
         /**
-         * @inherDoc
+         * @inheritDoc
          */
         RectangleBoundingBoxData.prototype.containsPoint = function (pX, pY) {
             var widthH = this.width * 0.5;
@@ -1788,7 +2529,7 @@ var dragonBones;
             return false;
         };
         /**
-         * @inherDoc
+         * @inheritDoc
          */
         RectangleBoundingBoxData.prototype.intersectsSegment = function (xA, yA, xB, yB, intersectionPointA, intersectionPointB, normalRadians) {
             if (intersectionPointA === void 0) { intersectionPointA = null; }
@@ -1803,18 +2544,20 @@ var dragonBones;
     }(BoundingBoxData));
     dragonBones.RectangleBoundingBoxData = RectangleBoundingBoxData;
     /**
-     * 椭圆边界框。
+     * - The ellipse bounding box data.
+     * @version DragonBones 5.1
+     * @language en_US
+     */
+    /**
+     * - 椭圆边界框数据。
      * @version DragonBones 5.1
      * @language zh_CN
      */
-    var EllipseBoundingBoxData = (function (_super) {
+    var EllipseBoundingBoxData = /** @class */ (function (_super) {
         __extends(EllipseBoundingBoxData, _super);
         function EllipseBoundingBoxData() {
             return _super !== null && _super.apply(this, arguments) || this;
         }
-        /**
-         * @private
-         */
         EllipseBoundingBoxData.toString = function () {
             return "[class dragonBones.EllipseData]";
         };
@@ -1906,15 +2649,12 @@ var dragonBones;
             }
             return intersectionCount;
         };
-        /**
-         * @private
-         */
         EllipseBoundingBoxData.prototype._onClear = function () {
             _super.prototype._onClear.call(this);
             this.type = 1 /* Ellipse */;
         };
         /**
-         * @inherDoc
+         * @inheritDoc
          */
         EllipseBoundingBoxData.prototype.containsPoint = function (pX, pY) {
             var widthH = this.width * 0.5;
@@ -1928,7 +2668,7 @@ var dragonBones;
             return false;
         };
         /**
-         * @inherDoc
+         * @inheritDoc
          */
         EllipseBoundingBoxData.prototype.intersectsSegment = function (xA, yA, xB, yB, intersectionPointA, intersectionPointB, normalRadians) {
             if (intersectionPointA === void 0) { intersectionPointA = null; }
@@ -1941,30 +2681,39 @@ var dragonBones;
     }(BoundingBoxData));
     dragonBones.EllipseBoundingBoxData = EllipseBoundingBoxData;
     /**
-     * 多边形边界框。
+     * - The polygon bounding box data.
+     * @version DragonBones 5.1
+     * @language en_US
+     */
+    /**
+     * - 多边形边界框数据。
      * @version DragonBones 5.1
      * @language zh_CN
      */
-    var PolygonBoundingBoxData = (function (_super) {
+    var PolygonBoundingBoxData = /** @class */ (function (_super) {
         __extends(PolygonBoundingBoxData, _super);
         function PolygonBoundingBoxData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
             /**
-             * @private
+             * - The polygon vertices.
+             * @version DragonBones 5.1
+             * @language en_US
              */
-            _this.weight = null; // Initial value.
+            /**
+             * - 多边形顶点。
+             * @version DragonBones 5.1
+             * @language zh_CN
+             */
+            _this.vertices = [];
             return _this;
         }
-        /**
-         * @private
-         */
         PolygonBoundingBoxData.toString = function () {
             return "[class dragonBones.PolygonBoundingBoxData]";
         };
         /**
          * @private
          */
-        PolygonBoundingBoxData.polygonIntersectsSegment = function (xA, yA, xB, yB, vertices, offset, count, intersectionPointA, intersectionPointB, normalRadians) {
+        PolygonBoundingBoxData.polygonIntersectsSegment = function (xA, yA, xB, yB, vertices, intersectionPointA, intersectionPointB, normalRadians) {
             if (intersectionPointA === void 0) { intersectionPointA = null; }
             if (intersectionPointB === void 0) { intersectionPointB = null; }
             if (normalRadians === void 0) { normalRadians = null; }
@@ -1974,12 +2723,13 @@ var dragonBones;
             if (yA === yB) {
                 yA = yB + 0.000001;
             }
+            var count = vertices.length;
             var dXAB = xA - xB;
             var dYAB = yA - yB;
             var llAB = xA * yB - yA * xB;
             var intersectionCount = 0;
-            var xC = vertices[offset + count - 2];
-            var yC = vertices[offset + count - 1];
+            var xC = vertices[count - 2];
+            var yC = vertices[count - 1];
             var dMin = 0.0;
             var dMax = 0.0;
             var xMin = 0.0;
@@ -1987,8 +2737,8 @@ var dragonBones;
             var xMax = 0.0;
             var yMax = 0.0;
             for (var i = 0; i < count; i += 2) {
-                var xD = vertices[offset + i];
-                var yD = vertices[offset + i + 1];
+                var xD = vertices[i];
+                var yD = vertices[i + 1];
                 if (xC === xD) {
                     xC = xD + 0.0001;
                 }
@@ -2083,34 +2833,25 @@ var dragonBones;
             }
             return intersectionCount;
         };
-        /**
-         * @private
-         */
         PolygonBoundingBoxData.prototype._onClear = function () {
             _super.prototype._onClear.call(this);
-            if (this.weight !== null) {
-                this.weight.returnToPool();
-            }
             this.type = 2 /* Polygon */;
-            this.count = 0;
-            this.offset = 0;
             this.x = 0.0;
             this.y = 0.0;
-            this.vertices = null; //
-            this.weight = null;
+            this.vertices.length = 0;
         };
         /**
-         * @inherDoc
+         * @inheritDoc
          */
         PolygonBoundingBoxData.prototype.containsPoint = function (pX, pY) {
             var isInSide = false;
             if (pX >= this.x && pX <= this.width && pY >= this.y && pY <= this.height) {
-                for (var i = 0, l = this.count, iP = l - 2; i < l; i += 2) {
-                    var yA = this.vertices[this.offset + iP + 1];
-                    var yB = this.vertices[this.offset + i + 1];
+                for (var i = 0, l = this.vertices.length, iP = l - 2; i < l; i += 2) {
+                    var yA = this.vertices[iP + 1];
+                    var yB = this.vertices[i + 1];
                     if ((yB < pY && yA >= pY) || (yA < pY && yB >= pY)) {
-                        var xA = this.vertices[this.offset + iP];
-                        var xB = this.vertices[this.offset + i];
+                        var xA = this.vertices[iP];
+                        var xB = this.vertices[i];
                         if ((pY - yB) * (xA - xB) / (yA - yB) + xB < pX) {
                             isInSide = !isInSide;
                         }
@@ -2121,15 +2862,15 @@ var dragonBones;
             return isInSide;
         };
         /**
-         * @inherDoc
+         * @inheritDoc
          */
         PolygonBoundingBoxData.prototype.intersectsSegment = function (xA, yA, xB, yB, intersectionPointA, intersectionPointB, normalRadians) {
             if (intersectionPointA === void 0) { intersectionPointA = null; }
             if (intersectionPointB === void 0) { intersectionPointB = null; }
             if (normalRadians === void 0) { normalRadians = null; }
             var intersectionCount = 0;
-            if (RectangleBoundingBoxData.rectangleIntersectsSegment(xA, yA, xB, yB, this.x, this.y, this.width, this.height, null, null, null) !== 0) {
-                intersectionCount = PolygonBoundingBoxData.polygonIntersectsSegment(xA, yA, xB, yB, this.vertices, this.offset, this.count, intersectionPointA, intersectionPointB, normalRadians);
+            if (RectangleBoundingBoxData.rectangleIntersectsSegment(xA, yA, xB, yB, this.x, this.y, this.x + this.width, this.y + this.height, null, null, null) !== 0) {
+                intersectionCount = PolygonBoundingBoxData.polygonIntersectsSegment(xA, yA, xB, yB, this.vertices, intersectionPointA, intersectionPointB, normalRadians);
             }
             return intersectionCount;
         };
@@ -2137,14 +2878,41 @@ var dragonBones;
     }(BoundingBoxData));
     dragonBones.PolygonBoundingBoxData = PolygonBoundingBoxData;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
     /**
-     * 动画数据。
+     * - The animation data.
+     * @version DragonBones 3.0
+     * @language en_US
+     */
+    /**
+     * - 动画数据。
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var AnimationData = (function (_super) {
+    var AnimationData = /** @class */ (function (_super) {
         __extends(AnimationData, _super);
         function AnimationData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -2163,6 +2931,14 @@ var dragonBones;
             /**
              * @private
              */
+            _this.constraintTimelines = {};
+            /**
+             * @private
+             */
+            _this.animationTimelines = {};
+            /**
+             * @private
+             */
             _this.boneCachedFrameIndices = {};
             /**
              * @private
@@ -2178,27 +2954,37 @@ var dragonBones;
             _this.zOrderTimeline = null; // Initial value.
             return _this;
         }
-        /**
-         * @private
-         */
         AnimationData.toString = function () {
             return "[class dragonBones.AnimationData]";
         };
-        /**
-         * @private
-         */
         AnimationData.prototype._onClear = function () {
             for (var k in this.boneTimelines) {
-                for (var kA in this.boneTimelines[k]) {
-                    this.boneTimelines[k][kA].returnToPool();
+                for (var _i = 0, _a = this.boneTimelines[k]; _i < _a.length; _i++) {
+                    var timeline = _a[_i];
+                    timeline.returnToPool();
                 }
                 delete this.boneTimelines[k];
             }
             for (var k in this.slotTimelines) {
-                for (var kA in this.slotTimelines[k]) {
-                    this.slotTimelines[k][kA].returnToPool();
+                for (var _b = 0, _c = this.slotTimelines[k]; _b < _c.length; _b++) {
+                    var timeline = _c[_b];
+                    timeline.returnToPool();
                 }
                 delete this.slotTimelines[k];
+            }
+            for (var k in this.constraintTimelines) {
+                for (var _d = 0, _e = this.constraintTimelines[k]; _d < _e.length; _d++) {
+                    var timeline = _e[_d];
+                    timeline.returnToPool();
+                }
+                delete this.constraintTimelines[k];
+            }
+            for (var k in this.animationTimelines) {
+                for (var _f = 0, _g = this.animationTimelines[k]; _f < _g.length; _f++) {
+                    var timeline = _g[_f];
+                    timeline.returnToPool();
+                }
+                delete this.animationTimelines[k];
             }
             for (var k in this.boneCachedFrameIndices) {
                 delete this.boneCachedFrameIndices[k];
@@ -2215,6 +3001,7 @@ var dragonBones;
             this.frameIntOffset = 0;
             this.frameFloatOffset = 0;
             this.frameOffset = 0;
+            this.blendType = 0 /* None */;
             this.frameCount = 0;
             this.playTimes = 0;
             this.duration = 0.0;
@@ -2223,16 +3010,18 @@ var dragonBones;
             this.cacheFrameRate = 0.0;
             this.name = "";
             this.cachedFrames.length = 0;
-            //this.boneTimelines.clear();
-            //this.slotTimelines.clear();
-            //this.boneCachedFrameIndices.clear();
-            //this.slotCachedFrameIndices.clear();
+            // this.boneTimelines.clear();
+            // this.slotTimelines.clear();
+            // this.constraintTimelines.clear();
+            // this.animationTimelines.clear();
+            // this.boneCachedFrameIndices.clear();
+            // this.slotCachedFrameIndices.clear();
             this.actionTimeline = null;
             this.zOrderTimeline = null;
             this.parent = null; //
         };
         /**
-         * @private
+         * @internal
          */
         AnimationData.prototype.cacheFrames = function (frameRate) {
             if (this.cacheFrameRate > 0.0) {
@@ -2264,8 +3053,8 @@ var dragonBones;
         /**
          * @private
          */
-        AnimationData.prototype.addBoneTimeline = function (bone, timeline) {
-            var timelines = bone.name in this.boneTimelines ? this.boneTimelines[bone.name] : (this.boneTimelines[bone.name] = []);
+        AnimationData.prototype.addBoneTimeline = function (timelineName, timeline) {
+            var timelines = timelineName in this.boneTimelines ? this.boneTimelines[timelineName] : (this.boneTimelines[timelineName] = []);
             if (timelines.indexOf(timeline) < 0) {
                 timelines.push(timeline);
             }
@@ -2273,8 +3062,8 @@ var dragonBones;
         /**
          * @private
          */
-        AnimationData.prototype.addSlotTimeline = function (slot, timeline) {
-            var timelines = slot.name in this.slotTimelines ? this.slotTimelines[slot.name] : (this.slotTimelines[slot.name] = []);
+        AnimationData.prototype.addSlotTimeline = function (timelineName, timeline) {
+            var timelines = timelineName in this.slotTimelines ? this.slotTimelines[timelineName] : (this.slotTimelines[timelineName] = []);
             if (timelines.indexOf(timeline) < 0) {
                 timelines.push(timeline);
             }
@@ -2282,26 +3071,56 @@ var dragonBones;
         /**
          * @private
          */
-        AnimationData.prototype.getBoneTimelines = function (name) {
-            return name in this.boneTimelines ? this.boneTimelines[name] : null;
+        AnimationData.prototype.addConstraintTimeline = function (timelineName, timeline) {
+            var timelines = timelineName in this.constraintTimelines ? this.constraintTimelines[timelineName] : (this.constraintTimelines[timelineName] = []);
+            if (timelines.indexOf(timeline) < 0) {
+                timelines.push(timeline);
+            }
         };
         /**
          * @private
          */
-        AnimationData.prototype.getSlotTimeline = function (name) {
-            return name in this.slotTimelines ? this.slotTimelines[name] : null;
+        AnimationData.prototype.addAnimationTimeline = function (timelineName, timeline) {
+            var timelines = timelineName in this.animationTimelines ? this.animationTimelines[timelineName] : (this.animationTimelines[timelineName] = []);
+            if (timelines.indexOf(timeline) < 0) {
+                timelines.push(timeline);
+            }
         };
         /**
          * @private
          */
-        AnimationData.prototype.getBoneCachedFrameIndices = function (name) {
-            return name in this.boneCachedFrameIndices ? this.boneCachedFrameIndices[name] : null;
+        AnimationData.prototype.getBoneTimelines = function (timelineName) {
+            return timelineName in this.boneTimelines ? this.boneTimelines[timelineName] : null;
         };
         /**
          * @private
          */
-        AnimationData.prototype.getSlotCachedFrameIndices = function (name) {
-            return name in this.slotCachedFrameIndices ? this.slotCachedFrameIndices[name] : null;
+        AnimationData.prototype.getSlotTimelines = function (timelineName) {
+            return timelineName in this.slotTimelines ? this.slotTimelines[timelineName] : null;
+        };
+        /**
+         * @private
+         */
+        AnimationData.prototype.getConstraintTimelines = function (timelineName) {
+            return timelineName in this.constraintTimelines ? this.constraintTimelines[timelineName] : null;
+        };
+        /**
+         * @private
+         */
+        AnimationData.prototype.getAnimationTimelines = function (timelineName) {
+            return timelineName in this.animationTimelines ? this.animationTimelines[timelineName] : null;
+        };
+        /**
+         * @private
+         */
+        AnimationData.prototype.getBoneCachedFrameIndices = function (boneName) {
+            return boneName in this.boneCachedFrameIndices ? this.boneCachedFrameIndices[boneName] : null;
+        };
+        /**
+         * @private
+         */
+        AnimationData.prototype.getSlotCachedFrameIndices = function (slotName) {
+            return slotName in this.slotCachedFrameIndices ? this.slotCachedFrameIndices[slotName] : null;
         };
         return AnimationData;
     }(dragonBones.BaseObject));
@@ -2309,7 +3128,7 @@ var dragonBones;
     /**
      * @private
      */
-    var TimelineData = (function (_super) {
+    var TimelineData = /** @class */ (function (_super) {
         __extends(TimelineData, _super);
         function TimelineData() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -2325,24 +3144,72 @@ var dragonBones;
         return TimelineData;
     }(dragonBones.BaseObject));
     dragonBones.TimelineData = TimelineData;
+    /**
+     * @internal
+     */
+    var AnimationTimelineData = /** @class */ (function (_super) {
+        __extends(AnimationTimelineData, _super);
+        function AnimationTimelineData() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        AnimationTimelineData.toString = function () {
+            return "[class dragonBones.AnimationTimelineData]";
+        };
+        AnimationTimelineData.prototype._onClear = function () {
+            _super.prototype._onClear.call(this);
+            this.x = 0.0;
+            this.y = 0.0;
+        };
+        return AnimationTimelineData;
+    }(TimelineData));
+    dragonBones.AnimationTimelineData = AnimationTimelineData;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
     /**
-     * 动画配置，描述播放一个动画所需要的全部信息。
+     * - The animation config is used to describe all the information needed to play an animation state.
+     * The API is still in the experimental phase and may encounter bugs or stability or compatibility issues when used.
      * @see dragonBones.AnimationState
-     * @version DragonBones 5.0
      * @beta
+     * @version DragonBones 5.0
+     * @language en_US
+     */
+    /**
+     * - 动画配置用来描述播放一个动画状态所需要的全部信息。
+     * 该 API 仍在实验阶段，使用时可能遭遇 bug 或稳定性或兼容性问题。
+     * @see dragonBones.AnimationState
+     * @beta
+     * @version DragonBones 5.0
      * @language zh_CN
      */
-    var AnimationConfig = (function (_super) {
+    var AnimationConfig = /** @class */ (function (_super) {
         __extends(AnimationConfig, _super);
         function AnimationConfig() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
             /**
-             * 骨骼遮罩。
-             * @version DragonBones 5.0
-             * @language zh_CN
+             * @private
              */
             _this.boneMask = [];
             return _this;
@@ -2350,16 +3217,13 @@ var dragonBones;
         AnimationConfig.toString = function () {
             return "[class dragonBones.AnimationConfig]";
         };
-        /**
-         * @private
-         */
         AnimationConfig.prototype._onClear = function () {
             this.pauseFadeOut = true;
             this.fadeOutMode = 4 /* All */;
             this.fadeOutTweenType = 1 /* Line */;
             this.fadeOutTime = -1.0;
             this.actionEnabled = true;
-            this.additiveBlending = false;
+            this.additive = false;
             this.displayControl = true;
             this.pauseFadeIn = true;
             this.resetToPose = true;
@@ -2369,24 +3233,30 @@ var dragonBones;
             this.position = 0.0;
             this.duration = -1.0;
             this.timeScale = -100.0;
+            this.weight = 1.0;
             this.fadeInTime = -1.0;
             this.autoFadeOutTime = -1.0;
-            this.weight = 1.0;
             this.name = "";
             this.animation = "";
             this.group = "";
             this.boneMask.length = 0;
         };
+        /**
+         * @private
+         */
         AnimationConfig.prototype.clear = function () {
             this._onClear();
         };
+        /**
+         * @private
+         */
         AnimationConfig.prototype.copyFrom = function (value) {
             this.pauseFadeOut = value.pauseFadeOut;
             this.fadeOutMode = value.fadeOutMode;
             this.autoFadeOutTime = value.autoFadeOutTime;
             this.fadeOutTweenType = value.fadeOutTweenType;
             this.actionEnabled = value.actionEnabled;
-            this.additiveBlending = value.additiveBlending;
+            this.additive = value.additive;
             this.displayControl = value.displayControl;
             this.pauseFadeIn = value.pauseFadeIn;
             this.resetToPose = value.resetToPose;
@@ -2407,71 +3277,45 @@ var dragonBones;
                 this.boneMask[i] = value.boneMask[i];
             }
         };
-        AnimationConfig.prototype.containsBoneMask = function (name) {
-            return this.boneMask.length === 0 || this.boneMask.indexOf(name) >= 0;
-        };
-        AnimationConfig.prototype.addBoneMask = function (armature, name, recursive) {
-            if (recursive === void 0) { recursive = true; }
-            var currentBone = armature.getBone(name);
-            if (currentBone === null) {
-                return;
-            }
-            if (this.boneMask.indexOf(name) < 0) {
-                this.boneMask.push(name);
-            }
-            if (recursive) {
-                for (var _i = 0, _a = armature.getBones(); _i < _a.length; _i++) {
-                    var bone = _a[_i];
-                    if (this.boneMask.indexOf(bone.name) < 0 && currentBone.contains(bone)) {
-                        this.boneMask.push(bone.name);
-                    }
-                }
-            }
-        };
-        AnimationConfig.prototype.removeBoneMask = function (armature, name, recursive) {
-            if (recursive === void 0) { recursive = true; }
-            var index = this.boneMask.indexOf(name);
-            if (index >= 0) {
-                this.boneMask.splice(index, 1);
-            }
-            if (recursive) {
-                var currentBone = armature.getBone(name);
-                if (currentBone !== null) {
-                    if (this.boneMask.length > 0) {
-                        for (var _i = 0, _a = armature.getBones(); _i < _a.length; _i++) {
-                            var bone = _a[_i];
-                            var index_1 = this.boneMask.indexOf(bone.name);
-                            if (index_1 >= 0 && currentBone.contains(bone)) {
-                                this.boneMask.splice(index_1, 1);
-                            }
-                        }
-                    }
-                    else {
-                        for (var _b = 0, _c = armature.getBones(); _b < _c.length; _b++) {
-                            var bone = _c[_b];
-                            if (bone === currentBone) {
-                                continue;
-                            }
-                            if (!currentBone.contains(bone)) {
-                                this.boneMask.push(bone.name);
-                            }
-                        }
-                    }
-                }
-            }
-        };
         return AnimationConfig;
     }(dragonBones.BaseObject));
     dragonBones.AnimationConfig = AnimationConfig;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
     /**
-     * 贴图集数据。
+     * - The texture atlas data.
+     * @version DragonBones 3.0
+     * @language en_US
+     */
+    /**
+     * - 贴图集数据。
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var TextureAtlasData = (function (_super) {
+    var TextureAtlasData = /** @class */ (function (_super) {
         __extends(TextureAtlasData, _super);
         function TextureAtlasData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -2481,9 +3325,6 @@ var dragonBones;
             _this.textures = {};
             return _this;
         }
-        /**
-         * @private
-         */
         TextureAtlasData.prototype._onClear = function () {
             for (var k in this.textures) {
                 this.textures[k].returnToPool();
@@ -2519,12 +3360,12 @@ var dragonBones;
             }
         };
         /**
-         * @private
+         * @internal
          */
         TextureAtlasData.prototype.addTexture = function (value) {
             if (value.name in this.textures) {
-                console.warn("Replace texture: " + value.name);
-                this.textures[value.name].returnToPool();
+                console.warn("Same texture: " + value.name);
+                return;
             }
             value.parent = this;
             this.textures[value.name] = value;
@@ -2532,8 +3373,8 @@ var dragonBones;
         /**
          * @private
          */
-        TextureAtlasData.prototype.getTexture = function (name) {
-            return name in this.textures ? this.textures[name] : null;
+        TextureAtlasData.prototype.getTexture = function (textureName) {
+            return textureName in this.textures ? this.textures[textureName] : null;
         };
         return TextureAtlasData;
     }(dragonBones.BaseObject));
@@ -2541,7 +3382,7 @@ var dragonBones;
     /**
      * @private
      */
-    var TextureData = (function (_super) {
+    var TextureData = /** @class */ (function (_super) {
         __extends(TextureData, _super);
         function TextureData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -2578,10 +3419,41 @@ var dragonBones;
     }(dragonBones.BaseObject));
     dragonBones.TextureData = TextureData;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones_1) {
     /**
-     * 骨架，是骨骼动画系统的核心，由显示容器、骨骼、插槽、动画、事件系统构成。
+     * - Armature is the core of the skeleton animation system.
+     * @see dragonBones.ArmatureData
+     * @see dragonBones.Bone
+     * @see dragonBones.Slot
+     * @see dragonBones.Animation
+     * @version DragonBones 3.0
+     * @language en_US
+     */
+    /**
+     * - 骨架是骨骼动画系统的核心。
      * @see dragonBones.ArmatureData
      * @see dragonBones.Bone
      * @see dragonBones.Slot
@@ -2589,17 +3461,21 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var Armature = (function (_super) {
+    var Armature = /** @class */ (function (_super) {
         __extends(Armature, _super);
         function Armature() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
             _this._bones = [];
             _this._slots = [];
+            /**
+             * @internal
+             */
+            _this._constraints = [];
             _this._actions = [];
             _this._animation = null; // Initial value.
             _this._proxy = null; // Initial value.
             /**
-             * @private
+             * @internal
              */
             _this._replaceTextureAtlasData = null; // Initial value.
             _this._clock = null; // Initial value.
@@ -2609,11 +3485,8 @@ var dragonBones;
             return "[class dragonBones.Armature]";
         };
         Armature._onSortSlots = function (a, b) {
-            return a._zOrder > b._zOrder ? 1 : -1;
+            return a._zIndex * 1000 + a._zOrder > b._zIndex * 1000 + b._zOrder ? 1 : -1;
         };
-        /**
-         * @private
-         */
         Armature.prototype._onClear = function () {
             if (this._clock !== null) {
                 this._clock.remove(this);
@@ -2626,34 +3499,40 @@ var dragonBones;
                 var slot = _c[_b];
                 slot.returnToPool();
             }
-            for (var _d = 0, _e = this._actions; _d < _e.length; _d++) {
-                var action = _e[_d];
+            for (var _d = 0, _e = this._constraints; _d < _e.length; _d++) {
+                var constraint = _e[_d];
+                constraint.returnToPool();
+            }
+            for (var _f = 0, _g = this._actions; _f < _g.length; _f++) {
+                var action = _g[_f];
                 action.returnToPool();
             }
             if (this._animation !== null) {
                 this._animation.returnToPool();
             }
             if (this._proxy !== null) {
-                this._proxy.clear();
+                this._proxy.dbClear();
             }
             if (this._replaceTextureAtlasData !== null) {
                 this._replaceTextureAtlasData.returnToPool();
             }
             this.inheritAnimation = true;
-            this.debugDraw = false;
-            this.armatureData = null; //
             this.userData = null;
-            this._debugDraw = false;
             this._lockUpdate = false;
-            this._bonesDirty = false;
-            this._slotsDirty = false;
+            this._slotsDirty = true;
             this._zOrderDirty = false;
+            this._zIndexDirty = false;
+            this._alphaDirty = true;
             this._flipX = false;
             this._flipY = false;
             this._cacheFrameIndex = -1;
+            this._alpha = 1.0;
+            this._globalAlpha = 1.0;
             this._bones.length = 0;
             this._slots.length = 0;
+            this._constraints.length = 0;
             this._actions.length = 0;
+            this._armatureData = null; //
             this._animation = null; //
             this._proxy = null; //
             this._display = null;
@@ -2663,52 +3542,11 @@ var dragonBones;
             this._clock = null;
             this._parent = null;
         };
-        Armature.prototype._sortBones = function () {
-            var total = this._bones.length;
-            if (total <= 0) {
-                return;
-            }
-            var sortHelper = this._bones.concat();
-            var index = 0;
-            var count = 0;
-            this._bones.length = 0;
-            while (count < total) {
-                var bone = sortHelper[index++];
-                if (index >= total) {
-                    index = 0;
-                }
-                if (this._bones.indexOf(bone) >= 0) {
-                    continue;
-                }
-                if (bone.constraints.length > 0) {
-                    var flag = false;
-                    for (var _i = 0, _a = bone.constraints; _i < _a.length; _i++) {
-                        var constraint = _a[_i];
-                        if (this._bones.indexOf(constraint.target) < 0) {
-                            flag = true;
-                            break;
-                        }
-                    }
-                    if (flag) {
-                        continue;
-                    }
-                }
-                if (bone.parent !== null && this._bones.indexOf(bone.parent) < 0) {
-                    continue;
-                }
-                this._bones.push(bone);
-                count++;
-            }
-        };
-        Armature.prototype._sortSlots = function () {
-            this._slots.sort(Armature._onSortSlots);
-        };
         /**
          * @internal
-         * @private
          */
         Armature.prototype._sortZOrder = function (slotIndices, offset) {
-            var slotDatas = this.armatureData.sortedSlots;
+            var slotDatas = this._armatureData.sortedSlots;
             var isOriginal = slotIndices === null;
             if (this._zOrderDirty || !isOriginal) {
                 for (var i = 0, l = slotDatas.length; i < l; ++i) {
@@ -2719,7 +3557,7 @@ var dragonBones;
                     var slotData = slotDatas[slotIndex];
                     var slot = this.getSlot(slotData.name);
                     if (slot !== null) {
-                        slot._setZorder(i);
+                        slot._setZOrder(i);
                     }
                 }
                 this._slotsDirty = true;
@@ -2728,51 +3566,30 @@ var dragonBones;
         };
         /**
          * @internal
-         * @private
          */
-        Armature.prototype._addBoneToBoneList = function (value) {
+        Armature.prototype._addBone = function (value) {
             if (this._bones.indexOf(value) < 0) {
-                this._bonesDirty = true;
                 this._bones.push(value);
-                this._animation._timelineDirty = true;
             }
         };
         /**
          * @internal
-         * @private
          */
-        Armature.prototype._removeBoneFromBoneList = function (value) {
-            var index = this._bones.indexOf(value);
-            if (index >= 0) {
-                this._bones.splice(index, 1);
-                this._animation._timelineDirty = true;
-            }
-        };
-        /**
-         * @internal
-         * @private
-         */
-        Armature.prototype._addSlotToSlotList = function (value) {
+        Armature.prototype._addSlot = function (value) {
             if (this._slots.indexOf(value) < 0) {
-                this._slotsDirty = true;
                 this._slots.push(value);
-                this._animation._timelineDirty = true;
             }
         };
         /**
          * @internal
-         * @private
          */
-        Armature.prototype._removeSlotFromSlotList = function (value) {
-            var index = this._slots.indexOf(value);
-            if (index >= 0) {
-                this._slots.splice(index, 1);
-                this._animation._timelineDirty = true;
+        Armature.prototype._addConstraint = function (value) {
+            if (this._constraints.indexOf(value) < 0) {
+                this._constraints.push(value);
             }
         };
         /**
          * @internal
-         * @private
          */
         Armature.prototype._bufferAction = function (action, append) {
             if (this._actions.indexOf(action) < 0) {
@@ -2785,63 +3602,89 @@ var dragonBones;
             }
         };
         /**
-         * 释放骨架。 (回收到对象池)
+         * - Dispose the armature. (Return to the object pool)
+         * @example
+         * <pre>
+         *     removeChild(armature.display);
+         *     armature.dispose();
+         * </pre>
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 释放骨架。 （回收到对象池）
+         * @example
+         * <pre>
+         *     removeChild(armature.display);
+         *     armature.dispose();
+         * </pre>
          * @version DragonBones 3.0
          * @language zh_CN
          */
         Armature.prototype.dispose = function () {
-            if (this.armatureData !== null) {
+            if (this._armatureData !== null) {
                 this._lockUpdate = true;
                 this._dragonBones.bufferObject(this);
             }
         };
         /**
-         * @private
+         * @internal
          */
         Armature.prototype.init = function (armatureData, proxy, display, dragonBones) {
-            if (this.armatureData !== null) {
+            if (this._armatureData !== null) {
                 return;
             }
-            this.armatureData = armatureData;
+            this._armatureData = armatureData;
             this._animation = dragonBones_1.BaseObject.borrowObject(dragonBones_1.Animation);
             this._proxy = proxy;
             this._display = display;
             this._dragonBones = dragonBones;
-            this._proxy.init(this);
+            this._proxy.dbInit(this);
             this._animation.init(this);
-            this._animation.animations = this.armatureData.animations;
+            this._animation.animations = this._armatureData.animations;
         };
         /**
-         * 更新骨架和动画。
-         * @param passedTime 两帧之间的时间间隔。 (以秒为单位)
-         * @see dragonBones.IAnimateble
-         * @see dragonBones.WorldClock
-         * @version DragonBones 3.0
-         * @language zh_CN
+         * @inheritDoc
          */
         Armature.prototype.advanceTime = function (passedTime) {
             if (this._lockUpdate) {
                 return;
             }
-            if (this.armatureData === null) {
-                console.assert(false, "The armature has been disposed.");
+            this._lockUpdate = true;
+            if (this._armatureData === null) {
+                console.warn("The armature has been disposed.");
                 return;
             }
-            else if (this.armatureData.parent === null) {
-                console.assert(false, "The armature data has been disposed.");
+            else if (this._armatureData.parent === null) {
+                console.warn("The armature data has been disposed.\nPlease make sure dispose armature before call factory.clear().");
                 return;
             }
             var prevCacheFrameIndex = this._cacheFrameIndex;
-            // Update nimation.
+            // Update animation.
             this._animation.advanceTime(passedTime);
-            // Sort bones and slots.
-            if (this._bonesDirty) {
-                this._bonesDirty = false;
-                this._sortBones();
-            }
-            if (this._slotsDirty) {
+            // Sort slots.
+            if (this._slotsDirty || this._zIndexDirty) {
+                this._slots.sort(Armature._onSortSlots);
+                if (this._zIndexDirty) {
+                    for (var i = 0, l = this._slots.length; i < l; ++i) {
+                        this._slots[i]._setZOrder(i); // 
+                    }
+                }
                 this._slotsDirty = false;
-                this._sortSlots();
+                this._zIndexDirty = false;
+            }
+            // Update alpha.
+            if (this._alphaDirty) {
+                this._alphaDirty = false;
+                this._globalAlpha = this._alpha * (this._parent !== null ? this._parent._globalAlpha : 1.0);
+                for (var _i = 0, _a = this._bones; _i < _a.length; _i++) {
+                    var bone = _a[_i];
+                    bone._updateAlpha();
+                }
+                for (var _b = 0, _c = this._slots; _b < _c.length; _b++) {
+                    var slot = _c[_b];
+                    slot._updateAlpha();
+                }
             }
             // Update bones and slots.
             if (this._cacheFrameIndex < 0 || this._cacheFrameIndex !== prevCacheFrameIndex) {
@@ -2853,41 +3696,68 @@ var dragonBones;
                     this._slots[i].update(this._cacheFrameIndex);
                 }
             }
+            // Do actions.
             if (this._actions.length > 0) {
-                this._lockUpdate = true;
-                for (var _i = 0, _a = this._actions; _i < _a.length; _i++) {
-                    var action = _a[_i];
-                    if (action.type === 0 /* Play */) {
-                        this._animation.fadeIn(action.name);
+                for (var _d = 0, _e = this._actions; _d < _e.length; _d++) {
+                    var action = _e[_d];
+                    var actionData = action.actionData;
+                    if (actionData !== null) {
+                        if (actionData.type === 0 /* Play */) {
+                            if (action.slot !== null) {
+                                var childArmature = action.slot.childArmature;
+                                if (childArmature !== null) {
+                                    childArmature.animation.fadeIn(actionData.name);
+                                }
+                            }
+                            else if (action.bone !== null) {
+                                for (var _f = 0, _g = this.getSlots(); _f < _g.length; _f++) {
+                                    var slot = _g[_f];
+                                    if (slot.parent === action.bone) {
+                                        var childArmature = slot.childArmature;
+                                        if (childArmature !== null) {
+                                            childArmature.animation.fadeIn(actionData.name);
+                                        }
+                                    }
+                                }
+                            }
+                            else {
+                                this._animation.fadeIn(actionData.name);
+                            }
+                        }
                     }
+                    action.returnToPool();
                 }
                 this._actions.length = 0;
-                this._lockUpdate = false;
             }
-            //
-            var drawed = this.debugDraw || dragonBones_1.DragonBones.debugDraw;
-            if (drawed || this._debugDraw) {
-                this._debugDraw = drawed;
-                this._proxy.debugUpdate(this._debugDraw);
-            }
+            this._lockUpdate = false;
+            this._proxy.dbUpdate();
         };
         /**
-         * 更新骨骼和插槽。 (当骨骼没有动画状态或动画状态播放完成时，骨骼将不在更新)
-         * @param boneName 指定的骨骼名称，如果未设置，将更新所有骨骼。
-         * @param updateSlotDisplay 是否更新插槽的显示对象。
-         * @see dragonBones.Bone
-         * @see dragonBones.Slot
+         * - Forces a specific bone or its owning slot to update the transform or display property in the next frame.
+         * @param boneName - The bone name. (If not set, all bones will be update)
+         * @param updateSlot - Whether to update the bone's slots. (Default: false)
+         * @see dragonBones.Bone#invalidUpdate()
+         * @see dragonBones.Slot#invalidUpdate()
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 强制特定骨骼或其拥有的插槽在下一帧更新变换或显示属性。
+         * @param boneName - 骨骼名称。 （如果未设置，将更新所有骨骼）
+         * @param updateSlot - 是否更新骨骼的插槽。 （默认: false）
+         * @see dragonBones.Bone#invalidUpdate()
+         * @see dragonBones.Slot#invalidUpdate()
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        Armature.prototype.invalidUpdate = function (boneName, updateSlotDisplay) {
+        Armature.prototype.invalidUpdate = function (boneName, updateSlot) {
             if (boneName === void 0) { boneName = null; }
-            if (updateSlotDisplay === void 0) { updateSlotDisplay = false; }
+            if (updateSlot === void 0) { updateSlot = false; }
             if (boneName !== null && boneName.length > 0) {
                 var bone = this.getBone(boneName);
                 if (bone !== null) {
                     bone.invalidUpdate();
-                    if (updateSlotDisplay) {
+                    if (updateSlot) {
                         for (var _i = 0, _a = this._slots; _i < _a.length; _i++) {
                             var slot = _a[_i];
                             if (slot.parent === bone) {
@@ -2902,7 +3772,7 @@ var dragonBones;
                     var bone = _c[_b];
                     bone.invalidUpdate();
                 }
-                if (updateSlotDisplay) {
+                if (updateSlot) {
                     for (var _d = 0, _e = this._slots; _d < _e.length; _d++) {
                         var slot = _e[_d];
                         slot.invalidUpdate();
@@ -2911,9 +3781,20 @@ var dragonBones;
             }
         };
         /**
-         * 判断点是否在所有插槽的自定义包围盒内。
-         * @param x 点的水平坐标。（骨架内坐标系）
-         * @param y 点的垂直坐标。（骨架内坐标系）
+         * - Check whether a specific point is inside a custom bounding box in a slot.
+         * The coordinate system of the point is the inner coordinate system of the armature.
+         * Custom bounding boxes need to be customized in Dragonbones Pro.
+         * @param x - The horizontal coordinate of the point.
+         * @param y - The vertical coordinate of the point.
+         * @version DragonBones 5.0
+         * @language en_US
+         */
+        /**
+         * - 检查特定点是否在某个插槽的自定义边界框内。
+         * 点的坐标系为骨架内坐标系。
+         * 自定义边界框需要在 DragonBones Pro 中自定义。
+         * @param x - 点的水平坐标。
+         * @param y - 点的垂直坐标。
          * @version DragonBones 5.0
          * @language zh_CN
          */
@@ -2927,15 +3808,32 @@ var dragonBones;
             return null;
         };
         /**
-         * 判断线段是否与骨架的所有插槽的自定义包围盒相交。
-         * @param xA 线段起点的水平坐标。（骨架内坐标系）
-         * @param yA 线段起点的垂直坐标。（骨架内坐标系）
-         * @param xB 线段终点的水平坐标。（骨架内坐标系）
-         * @param yB 线段终点的垂直坐标。（骨架内坐标系）
-         * @param intersectionPointA 线段从起点到终点与包围盒相交的第一个交点。（骨架内坐标系）
-         * @param intersectionPointB 线段从终点到起点与包围盒相交的第一个交点。（骨架内坐标系）
-         * @param normalRadians 碰撞点处包围盒切线的法线弧度。 [x: 第一个碰撞点处切线的法线弧度, y: 第二个碰撞点处切线的法线弧度]
-         * @returns 线段从起点到终点相交的第一个自定义包围盒的插槽。
+         * - Check whether a specific segment intersects a custom bounding box for a slot in the armature.
+         * The coordinate system of the segment and intersection is the inner coordinate system of the armature.
+         * Custom bounding boxes need to be customized in Dragonbones Pro.
+         * @param xA - The horizontal coordinate of the beginning of the segment.
+         * @param yA - The vertical coordinate of the beginning of the segment.
+         * @param xB - The horizontal coordinate of the end point of the segment.
+         * @param yB - The vertical coordinate of the end point of the segment.
+         * @param intersectionPointA - The first intersection at which a line segment intersects the bounding box from the beginning to the end. (If not set, the intersection point will not calculated)
+         * @param intersectionPointB - The first intersection at which a line segment intersects the bounding box from the end to the beginning. (If not set, the intersection point will not calculated)
+         * @param normalRadians - The normal radians of the tangent of the intersection boundary box. [x: Normal radian of the first intersection tangent, y: Normal radian of the second intersection tangent] (If not set, the normal will not calculated)
+         * @returns The slot of the first custom bounding box where the segment intersects from the start point to the end point.
+         * @version DragonBones 5.0
+         * @language en_US
+         */
+        /**
+         * - 检查特定线段是否与骨架的某个插槽的自定义边界框相交。
+         * 线段和交点的坐标系均为骨架内坐标系。
+         * 自定义边界框需要在 DragonBones Pro 中自定义。
+         * @param xA - 线段起点的水平坐标。
+         * @param yA - 线段起点的垂直坐标。
+         * @param xB - 线段终点的水平坐标。
+         * @param yB - 线段终点的垂直坐标。
+         * @param intersectionPointA - 线段从起点到终点与边界框相交的第一个交点。 （如果未设置，则不计算交点）
+         * @param intersectionPointB - 线段从终点到起点与边界框相交的第一个交点。 （如果未设置，则不计算交点）
+         * @param normalRadians - 交点边界框切线的法线弧度。 [x: 第一个交点切线的法线弧度, y: 第二个交点切线的法线弧度] （如果未设置，则不计算法线）
+         * @returns 线段从起点到终点相交的第一个自定义边界框的插槽。
          * @version DragonBones 5.0
          * @language zh_CN
          */
@@ -3013,9 +3911,15 @@ var dragonBones;
             return intSlotA;
         };
         /**
-         * 获取指定名称的骨骼。
-         * @param name 骨骼的名称。
-         * @returns 骨骼。
+         * - Get a specific bone.
+         * @param name - The bone name.
+         * @see dragonBones.Bone
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 获取特定的骨骼。
+         * @param name - 骨骼名称。
          * @see dragonBones.Bone
          * @version DragonBones 3.0
          * @language zh_CN
@@ -3030,9 +3934,15 @@ var dragonBones;
             return null;
         };
         /**
-         * 通过显示对象获取骨骼。
-         * @param display 显示对象。
-         * @returns 包含这个显示对象的骨骼。
+         * - Get a specific bone by the display.
+         * @param display - The display object.
+         * @see dragonBones.Bone
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 通过显示对象获取特定的骨骼。
+         * @param display - 显示对象。
          * @see dragonBones.Bone
          * @version DragonBones 3.0
          * @language zh_CN
@@ -3042,9 +3952,15 @@ var dragonBones;
             return slot !== null ? slot.parent : null;
         };
         /**
-         * 获取插槽。
-         * @param name 插槽的名称。
-         * @returns 插槽。
+         * - Get a specific slot.
+         * @param name - The slot name.
+         * @see dragonBones.Slot
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 获取特定的插槽。
+         * @param name - 插槽名称。
          * @see dragonBones.Slot
          * @version DragonBones 3.0
          * @language zh_CN
@@ -3059,9 +3975,15 @@ var dragonBones;
             return null;
         };
         /**
-         * 通过显示对象获取插槽。
-         * @param display 显示对象。
-         * @returns 包含这个显示对象的插槽。
+         * - Get a specific slot by the display.
+         * @param display - The display object.
+         * @see dragonBones.Slot
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 通过显示对象获取特定的插槽。
+         * @param display - 显示对象。
          * @see dragonBones.Slot
          * @version DragonBones 3.0
          * @language zh_CN
@@ -3078,41 +4000,13 @@ var dragonBones;
             return null;
         };
         /**
-         * @deprecated
+         * - Get all bones.
+         * @see dragonBones.Bone
+         * @version DragonBones 3.0
+         * @language en_US
          */
-        Armature.prototype.addBone = function (value, parentName) {
-            if (parentName === void 0) { parentName = null; }
-            console.assert(value !== null);
-            value._setArmature(this);
-            value._setParent(parentName !== null ? this.getBone(parentName) : null);
-        };
         /**
-         * @deprecated
-         */
-        Armature.prototype.removeBone = function (value) {
-            console.assert(value !== null && value.armature === this);
-            value._setParent(null);
-            value._setArmature(null);
-        };
-        /**
-         * @deprecated
-         */
-        Armature.prototype.addSlot = function (value, parentName) {
-            var bone = this.getBone(parentName);
-            console.assert(value !== null && bone !== null);
-            value._setArmature(this);
-            value._setParent(bone);
-        };
-        /**
-         * @deprecated
-         */
-        Armature.prototype.removeSlot = function (value) {
-            console.assert(value !== null && value.armature === this);
-            value._setParent(null);
-            value._setArmature(null);
-        };
-        /**
-         * 获取所有骨骼。
+         * - 获取所有的骨骼。
          * @see dragonBones.Bone
          * @version DragonBones 3.0
          * @language zh_CN
@@ -3121,7 +4015,13 @@ var dragonBones;
             return this._bones;
         };
         /**
-         * 获取所有插槽。
+         * - Get all slots.
+         * @see dragonBones.Slot
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 获取所有的插槽。
          * @see dragonBones.Slot
          * @version DragonBones 3.0
          * @language zh_CN
@@ -3130,6 +4030,16 @@ var dragonBones;
             return this._slots;
         };
         Object.defineProperty(Armature.prototype, "flipX", {
+            /**
+             * - Whether to flip the armature horizontally.
+             * @version DragonBones 5.5
+             * @language en_US
+             */
+            /**
+             * - 是否将骨架水平翻转。
+             * @version DragonBones 5.5
+             * @language zh_CN
+             */
             get: function () {
                 return this._flipX;
             },
@@ -3144,6 +4054,16 @@ var dragonBones;
             configurable: true
         });
         Object.defineProperty(Armature.prototype, "flipY", {
+            /**
+             * - Whether to flip the armature vertically.
+             * @version DragonBones 5.5
+             * @language en_US
+             */
+            /**
+             * - 是否将骨架垂直翻转。
+             * @version DragonBones 5.5
+             * @language zh_CN
+             */
             get: function () {
                 return this._flipY;
             },
@@ -3159,21 +4079,39 @@ var dragonBones;
         });
         Object.defineProperty(Armature.prototype, "cacheFrameRate", {
             /**
-             * 动画缓存帧率，当设置的值大于 0 的时，将会开启动画缓存。
+             * - The animation cache frame rate, which turns on the animation cache when the set value is greater than 0.
+             * There is a certain amount of memory overhead to improve performance by caching animation data in memory.
+             * The frame rate should not be set too high, usually with the frame rate of the animation is similar and lower than the program running frame rate.
+             * When the animation cache is turned on, some features will fail, such as the offset property of bone.
+             * @example
+             * <pre>
+             *     armature.cacheFrameRate = 24;
+             * </pre>
+             * @see dragonBones.DragonBonesData#frameRate
+             * @see dragonBones.ArmatureData#frameRate
+             * @version DragonBones 4.5
+             * @language en_US
+             */
+            /**
+             * - 动画缓存帧率，当设置的值大于 0 的时，将会开启动画缓存。
              * 通过将动画数据缓存在内存中来提高运行性能，会有一定的内存开销。
              * 帧率不宜设置的过高，通常跟动画的帧率相当且低于程序运行的帧率。
-             * 开启动画缓存后，某些功能将会失效，比如 Bone 和 Slot 的 offset 属性等。
+             * 开启动画缓存后，某些功能将会失效，比如骨骼的 offset 属性等。
+             * @example
+             * <pre>
+             *     armature.cacheFrameRate = 24;
+             * </pre>
              * @see dragonBones.DragonBonesData#frameRate
              * @see dragonBones.ArmatureData#frameRate
              * @version DragonBones 4.5
              * @language zh_CN
              */
             get: function () {
-                return this.armatureData.cacheFrameRate;
+                return this._armatureData.cacheFrameRate;
             },
             set: function (value) {
-                if (this.armatureData.cacheFrameRate !== value) {
-                    this.armatureData.cacheFrames(value);
+                if (this._armatureData.cacheFrameRate !== value) {
+                    this._armatureData.cacheFrames(value);
                     // Set child armature frameRate.
                     for (var _i = 0, _a = this._slots; _i < _a.length; _i++) {
                         var slot = _a[_i];
@@ -3189,20 +4127,49 @@ var dragonBones;
         });
         Object.defineProperty(Armature.prototype, "name", {
             /**
-             * 骨架名称。
-             * @see dragonBones.ArmatureData#name
+             * - The armature name.
+             * @version DragonBones 3.0
+             * @language en_US
+             */
+            /**
+             * - 骨架名称。
              * @version DragonBones 3.0
              * @language zh_CN
              */
             get: function () {
-                return this.armatureData.name;
+                return this._armatureData.name;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Armature.prototype, "armatureData", {
+            /**
+             * - The armature data.
+             * @see dragonBones.ArmatureData
+             * @version DragonBones 4.5
+             * @language en_US
+             */
+            /**
+             * - 骨架数据。
+             * @see dragonBones.ArmatureData
+             * @version DragonBones 4.5
+             * @language zh_CN
+             */
+            get: function () {
+                return this._armatureData;
             },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(Armature.prototype, "animation", {
             /**
-             * 获得动画控制器。
+             * - The animation player.
+             * @see dragonBones.Animation
+             * @version DragonBones 3.0
+             * @language en_US
+             */
+            /**
+             * - 动画播放器。
              * @see dragonBones.Animation
              * @version DragonBones 3.0
              * @language zh_CN
@@ -3225,7 +4192,14 @@ var dragonBones;
         });
         Object.defineProperty(Armature.prototype, "eventDispatcher", {
             /**
-             * @pivate
+             * - The EventDispatcher instance of the armature.
+             * @version DragonBones 4.5
+             * @language en_US
+             */
+            /**
+             * - 该骨架的 EventDispatcher 实例。
+             * @version DragonBones 4.5
+             * @language zh_CN
              */
             get: function () {
                 return this._proxy;
@@ -3235,7 +4209,16 @@ var dragonBones;
         });
         Object.defineProperty(Armature.prototype, "display", {
             /**
-             * 获取显示容器，插槽的显示对象都会以此显示容器为父级，根据渲染平台的不同，类型会不同，通常是 DisplayObjectContainer 类型。
+             * - The display container.
+             * The display of the slot is displayed as the parent.
+             * Depending on the rendering engine, the type will be different, usually the DisplayObjectContainer type.
+             * @version DragonBones 3.0
+             * @language en_US
+             */
+            /**
+             * - 显示容器实例。
+             * 插槽的显示对象都会以此显示容器为父级。
+             * 根据渲染引擎的不同，类型会不同，通常是 DisplayObjectContainer 类型。
              * @version DragonBones 3.0
              * @language zh_CN
              */
@@ -3247,9 +4230,7 @@ var dragonBones;
         });
         Object.defineProperty(Armature.prototype, "replacedTexture", {
             /**
-             * @language zh_CN
-             * 替换骨架的主贴图，根据渲染引擎的不同，提供不同的贴图数据。
-             * @version DragonBones 4.5
+             * @private
              */
             get: function () {
                 return this._replacedTexture;
@@ -3304,7 +4285,13 @@ var dragonBones;
         });
         Object.defineProperty(Armature.prototype, "parent", {
             /**
-             * 获取父插槽。 (当此骨架是某个骨架的子骨架时，可以通过此属性向上查找从属关系)
+             * - Get the parent slot which the armature belongs to.
+             * @see dragonBones.Slot
+             * @version DragonBones 4.5
+             * @language en_US
+             */
+            /**
+             * - 该骨架所属的父插槽。
              * @see dragonBones.Slot
              * @version DragonBones 4.5
              * @language zh_CN
@@ -3316,49 +4303,14 @@ var dragonBones;
             configurable: true
         });
         /**
+         * - Deprecated, please refer to {@link #display}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.Armature#replacedTexture
+         * @language en_US
          */
-        Armature.prototype.replaceTexture = function (texture) {
-            this.replacedTexture = texture;
-        };
         /**
+         * - 已废弃，请参考 {@link #display}。
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.Armature#eventDispatcher
-         */
-        Armature.prototype.hasEventListener = function (type) {
-            return this._proxy.hasEvent(type);
-        };
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.Armature#eventDispatcher
-         */
-        Armature.prototype.addEventListener = function (type, listener, target) {
-            this._proxy.addEvent(type, listener, target);
-        };
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.Armature#eventDispatcher
-         */
-        Armature.prototype.removeEventListener = function (type, listener, target) {
-            this._proxy.removeEvent(type, listener, target);
-        };
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see #cacheFrameRate
-         */
-        Armature.prototype.enableAnimationCache = function (frameRate) {
-            this.cacheFrameRate = frameRate;
-        };
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see #display
+         * @language zh_CN
          */
         Armature.prototype.getDisplay = function () {
             return this._display;
@@ -3367,33 +4319,79 @@ var dragonBones;
     }(dragonBones_1.BaseObject));
     dragonBones_1.Armature = Armature;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
     /**
-     * 基础变换对象。
+     * - The base class of the transform object.
+     * @see dragonBones.Transform
+     * @version DragonBones 4.5
+     * @language en_US
+     */
+    /**
+     * - 变换对象的基类。
+     * @see dragonBones.Transform
      * @version DragonBones 4.5
      * @language zh_CN
      */
-    var TransformObject = (function (_super) {
+    var TransformObject = /** @class */ (function (_super) {
         __extends(TransformObject, _super);
         function TransformObject() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
             /**
-             * 相对于骨架坐标系的矩阵。
+             * - A matrix relative to the armature coordinate system.
+             * @version DragonBones 3.0
+             * @language en_US
+             */
+            /**
+             * - 相对于骨架坐标系的矩阵。
              * @version DragonBones 3.0
              * @language zh_CN
              */
             _this.globalTransformMatrix = new dragonBones.Matrix();
             /**
-             * 相对于骨架坐标系的变换。
-             * @see dragonBones.Transform
+             * - A transform relative to the armature coordinate system.
+             * @see #updateGlobalTransform()
+             * @version DragonBones 3.0
+             * @language en_US
+             */
+            /**
+             * - 相对于骨架坐标系的变换。
+             * @see #updateGlobalTransform()
              * @version DragonBones 3.0
              * @language zh_CN
              */
             _this.global = new dragonBones.Transform();
             /**
-             * 相对于骨架或父骨骼坐标系的偏移变换。
-             * @see dragonBones.Transform
+             * - The offset transform relative to the armature or the parent bone coordinate system.
+             * @see #dragonBones.Bone#invalidUpdate()
+             * @version DragonBones 3.0
+             * @language en_US
+             */
+            /**
+             * - 相对于骨架或父骨骼坐标系的偏移变换。
+             * @see #dragonBones.Bone#invalidUpdate()
              * @version DragonBones 3.0
              * @language zh_CN
              */
@@ -3401,35 +4399,40 @@ var dragonBones;
             return _this;
         }
         /**
-         * @private
          */
         TransformObject.prototype._onClear = function () {
-            this.name = "";
             this.globalTransformMatrix.identity();
             this.global.identity();
             this.offset.identity();
-            this.origin = null; //
+            this.origin = null;
             this.userData = null;
             this._globalDirty = false;
+            this._alpha = 1.0;
+            this._globalAlpha = 1.0;
             this._armature = null; //
-            this._parent = null; //
         };
         /**
-         * @internal
-         * @private
+         * - For performance considerations, rotation or scale in the {@link #global} attribute of the bone or slot is not always properly accessible,
+         * some engines do not rely on these attributes to update rendering, such as Egret.
+         * The use of this method ensures that the access to the {@link #global} property is correctly rotation or scale.
+         * @example
+         * <pre>
+         *     bone.updateGlobalTransform();
+         *     let rotation = bone.global.rotation;
+         * </pre>
+         * @version DragonBones 3.0
+         * @language en_US
          */
-        TransformObject.prototype._setArmature = function (value) {
-            this._armature = value;
-        };
         /**
-         * @internal
-         * @private
-         */
-        TransformObject.prototype._setParent = function (value) {
-            this._parent = value;
-        };
-        /**
-         * @private
+         * - 出于性能的考虑，骨骼或插槽的 {@link #global} 属性中的旋转或缩放并不总是正确可访问的，有些引擎并不依赖这些属性更新渲染，比如 Egret。
+         * 使用此方法可以保证访问到 {@link #global} 属性中正确的旋转或缩放。
+         * @example
+         * <pre>
+         *     bone.updateGlobalTransform();
+         *     let rotation = bone.global.rotation;
+         * </pre>
+         * @version DragonBones 3.0
+         * @language zh_CN
          */
         TransformObject.prototype.updateGlobalTransform = function () {
             if (this._globalDirty) {
@@ -3439,8 +4442,12 @@ var dragonBones;
         };
         Object.defineProperty(TransformObject.prototype, "armature", {
             /**
-             * 所属的骨架。
-             * @see dragonBones.Armature
+             * - The armature to which it belongs.
+             * @version DragonBones 3.0
+             * @language en_US
+             */
+            /**
+             * - 所属的骨架。
              * @version DragonBones 3.0
              * @language zh_CN
              */
@@ -3450,150 +4457,186 @@ var dragonBones;
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(TransformObject.prototype, "parent", {
-            /**
-             * 所属的父骨骼。
-             * @see dragonBones.Bone
-             * @version DragonBones 3.0
-             * @language zh_CN
-             */
-            get: function () {
-                return this._parent;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        /**
-         * @private
-         */
         TransformObject._helpMatrix = new dragonBones.Matrix();
-        /**
-         * @private
-         */
         TransformObject._helpTransform = new dragonBones.Transform();
-        /**
-         * @private
-         */
         TransformObject._helpPoint = new dragonBones.Point();
         return TransformObject;
     }(dragonBones.BaseObject));
     dragonBones.TransformObject = TransformObject;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
     /**
-     * 骨骼，一个骨架中可以包含多个骨骼，骨骼以树状结构组成骨架。
-     * 骨骼在骨骼动画体系中是最重要的逻辑单元之一，负责动画中的平移旋转缩放的实现。
+     * - Bone is one of the most important logical units in the armature animation system,
+     * and is responsible for the realization of translate, rotation, scaling in the animations.
+     * A armature can contain multiple bones.
+     * @see dragonBones.BoneData
+     * @see dragonBones.Armature
+     * @see dragonBones.Slot
+     * @version DragonBones 3.0
+     * @language en_US
+     */
+    /**
+     * - 骨骼在骨骼动画体系中是最重要的逻辑单元之一，负责动画中的平移、旋转、缩放的实现。
+     * 一个骨架中可以包含多个骨骼。
      * @see dragonBones.BoneData
      * @see dragonBones.Armature
      * @see dragonBones.Slot
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var Bone = (function (_super) {
+    var Bone = /** @class */ (function (_super) {
         __extends(Bone, _super);
         function Bone() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
             /**
              * @internal
-             * @private
              */
             _this.animationPose = new dragonBones.Transform();
-            /**
-             * @internal
-             * @private
-             */
-            _this.constraints = [];
-            _this._bones = [];
-            _this._slots = [];
             return _this;
         }
         Bone.toString = function () {
             return "[class dragonBones.Bone]";
         };
-        /**
-         * @private
-         */
         Bone.prototype._onClear = function () {
             _super.prototype._onClear.call(this);
-            for (var _i = 0, _a = this.constraints; _i < _a.length; _i++) {
-                var constraint = _a[_i];
-                constraint.returnToPool();
-            }
             this.offsetMode = 1 /* Additive */;
             this.animationPose.identity();
-            this.constraints.length = 0;
-            this.boneData = null; //
             this._transformDirty = false;
             this._childrenTransformDirty = false;
-            this._blendDirty = false;
             this._localDirty = true;
+            this._hasConstraint = false;
             this._visible = true;
             this._cachedFrameIndex = -1;
-            this._blendLayer = 0;
-            this._blendLeftWeight = 1.0;
-            this._blendLayerWeight = 0.0;
-            this._bones.length = 0;
-            this._slots.length = 0;
+            this._boneData = null; //
+            this._parent = null; //
             this._cachedFrameIndices = null;
         };
-        /**
-         * @private
-         */
         Bone.prototype._updateGlobalTransformMatrix = function (isCache) {
-            var flipX = this._armature.flipX;
-            var flipY = this._armature.flipY === dragonBones.DragonBones.yDown;
+            // For typescript.
+            var boneData = this._boneData;
             var global = this.global;
             var globalTransformMatrix = this.globalTransformMatrix;
-            var inherit = this._parent !== null;
-            var dR = 0.0;
+            var origin = this.origin;
+            var offset = this.offset;
+            var animationPose = this.animationPose;
+            var parent = this._parent; //
+            var flipX = this._armature.flipX;
+            var flipY = this._armature.flipY === dragonBones.DragonBones.yDown;
+            var inherit = parent !== null;
+            var rotation = 0.0;
             if (this.offsetMode === 1 /* Additive */) {
-                // global.copyFrom(this.origin).add(this.offset).add(this.animationPose);
-                global.x = this.origin.x + this.offset.x + this.animationPose.x;
-                global.y = this.origin.y + this.offset.y + this.animationPose.y;
-                global.skew = this.origin.skew + this.offset.skew + this.animationPose.skew;
-                global.rotation = this.origin.rotation + this.offset.rotation + this.animationPose.rotation;
-                global.scaleX = this.origin.scaleX * this.offset.scaleX * this.animationPose.scaleX;
-                global.scaleY = this.origin.scaleY * this.offset.scaleY * this.animationPose.scaleY;
+                if (origin !== null) {
+                    // global.copyFrom(this.origin).add(this.offset).add(this.animationPose);
+                    global.x = origin.x + offset.x + animationPose.x;
+                    global.y = origin.y + offset.y + animationPose.y;
+                    global.skew = origin.skew + offset.skew + animationPose.skew;
+                    global.rotation = origin.rotation + offset.rotation + animationPose.rotation;
+                    global.scaleX = origin.scaleX * offset.scaleX * animationPose.scaleX;
+                    global.scaleY = origin.scaleY * offset.scaleY * animationPose.scaleY;
+                }
+                else {
+                    global.copyFrom(offset).add(animationPose);
+                }
             }
             else if (this.offsetMode === 0 /* None */) {
-                global.copyFrom(this.origin).add(this.animationPose);
+                if (origin !== null) {
+                    global.copyFrom(origin).add(animationPose);
+                }
+                else {
+                    global.copyFrom(animationPose);
+                }
             }
             else {
                 inherit = false;
-                global.copyFrom(this.offset);
+                global.copyFrom(offset);
             }
             if (inherit) {
-                var parentMatrix = this._parent.globalTransformMatrix;
-                if (this.boneData.inheritScale) {
-                    if (!this.boneData.inheritRotation) {
-                        this._parent.updateGlobalTransform();
-                        dR = this._parent.global.rotation; //
-                        global.rotation -= dR;
-                    }
-                    global.toMatrix(globalTransformMatrix);
-                    globalTransformMatrix.concat(parentMatrix);
-                    if (this.boneData.inheritTranslation) {
-                        global.x = globalTransformMatrix.tx;
-                        global.y = globalTransformMatrix.ty;
+                var isSurface = parent._boneData.type === 1 /* Surface */;
+                var surfaceBone = isSurface ? parent._bone : null;
+                var parentMatrix = isSurface ? parent._getGlobalTransformMatrix(global.x, global.y) : parent.globalTransformMatrix;
+                if (boneData.inheritScale && (!isSurface || surfaceBone !== null)) {
+                    if (isSurface) {
+                        if (boneData.inheritRotation) {
+                            global.rotation += parent.global.rotation;
+                        }
+                        surfaceBone.updateGlobalTransform();
+                        global.scaleX *= surfaceBone.global.scaleX;
+                        global.scaleY *= surfaceBone.global.scaleY;
+                        parentMatrix.transformPoint(global.x, global.y, global);
+                        global.toMatrix(globalTransformMatrix);
+                        if (boneData.inheritTranslation) {
+                            global.x = globalTransformMatrix.tx;
+                            global.y = globalTransformMatrix.ty;
+                        }
+                        else {
+                            globalTransformMatrix.tx = global.x;
+                            globalTransformMatrix.ty = global.y;
+                        }
                     }
                     else {
-                        globalTransformMatrix.tx = global.x;
-                        globalTransformMatrix.ty = global.y;
-                    }
-                    if (isCache) {
-                        global.fromMatrix(globalTransformMatrix);
-                    }
-                    else {
-                        this._globalDirty = true;
+                        if (!boneData.inheritRotation) {
+                            parent.updateGlobalTransform();
+                            if (flipX && flipY) {
+                                rotation = global.rotation - (parent.global.rotation + Math.PI);
+                            }
+                            else if (flipX) {
+                                rotation = global.rotation + parent.global.rotation + Math.PI;
+                            }
+                            else if (flipY) {
+                                rotation = global.rotation + parent.global.rotation;
+                            }
+                            else {
+                                rotation = global.rotation - parent.global.rotation;
+                            }
+                            global.rotation = rotation;
+                        }
+                        global.toMatrix(globalTransformMatrix);
+                        globalTransformMatrix.concat(parentMatrix);
+                        if (boneData.inheritTranslation) {
+                            global.x = globalTransformMatrix.tx;
+                            global.y = globalTransformMatrix.ty;
+                        }
+                        else {
+                            globalTransformMatrix.tx = global.x;
+                            globalTransformMatrix.ty = global.y;
+                        }
+                        if (isCache) {
+                            global.fromMatrix(globalTransformMatrix);
+                        }
+                        else {
+                            this._globalDirty = true;
+                        }
                     }
                 }
                 else {
-                    if (this.boneData.inheritTranslation) {
+                    if (boneData.inheritTranslation) {
                         var x = global.x;
                         var y = global.y;
                         global.x = parentMatrix.a * x + parentMatrix.c * y + parentMatrix.tx;
-                        global.y = parentMatrix.d * y + parentMatrix.b * x + parentMatrix.ty;
+                        global.y = parentMatrix.b * x + parentMatrix.d * y + parentMatrix.ty;
                     }
                     else {
                         if (flipX) {
@@ -3603,32 +4646,36 @@ var dragonBones;
                             global.y = -global.y;
                         }
                     }
-                    if (this.boneData.inheritRotation) {
-                        this._parent.updateGlobalTransform();
-                        dR = this._parent.global.rotation;
-                        if (this._parent.global.scaleX < 0.0) {
-                            dR += Math.PI;
+                    if (boneData.inheritRotation) {
+                        parent.updateGlobalTransform();
+                        if (parent.global.scaleX < 0.0) {
+                            rotation = global.rotation + parent.global.rotation + Math.PI;
+                        }
+                        else {
+                            rotation = global.rotation + parent.global.rotation;
                         }
                         if (parentMatrix.a * parentMatrix.d - parentMatrix.b * parentMatrix.c < 0.0) {
-                            dR -= global.rotation * 2.0;
-                            if (flipX !== flipY || this.boneData.inheritReflection) {
+                            rotation -= global.rotation * 2.0;
+                            if (flipX !== flipY || boneData.inheritReflection) {
                                 global.skew += Math.PI;
                             }
                         }
-                        global.rotation += dR;
+                        global.rotation = rotation;
                     }
                     else if (flipX || flipY) {
                         if (flipX && flipY) {
-                            dR = Math.PI;
+                            rotation = global.rotation + Math.PI;
                         }
                         else {
-                            dR = -global.rotation * 2.0;
                             if (flipX) {
-                                dR += Math.PI;
+                                rotation = Math.PI - global.rotation;
+                            }
+                            else {
+                                rotation = -global.rotation;
                             }
                             global.skew += Math.PI;
                         }
-                        global.rotation += dR;
+                        global.rotation = rotation;
                     }
                     global.toMatrix(globalTransformMatrix);
                 }
@@ -3642,74 +4689,54 @@ var dragonBones;
                         global.y = -global.y;
                     }
                     if (flipX && flipY) {
-                        dR = Math.PI;
+                        rotation = global.rotation + Math.PI;
                     }
                     else {
-                        dR = -global.rotation * 2.0;
                         if (flipX) {
-                            dR += Math.PI;
+                            rotation = Math.PI - global.rotation;
+                        }
+                        else {
+                            rotation = -global.rotation;
                         }
                         global.skew += Math.PI;
                     }
-                    global.rotation += dR;
+                    global.rotation = rotation;
                 }
                 global.toMatrix(globalTransformMatrix);
             }
         };
         /**
          * @internal
-         * @private
          */
-        Bone.prototype._setArmature = function (value) {
-            if (this._armature === value) {
-                return;
+        Bone.prototype._updateAlpha = function () {
+            if (this._parent !== null) {
+                this._globalAlpha = this._alpha * this._parent._globalAlpha;
             }
-            var oldSlots = null;
-            var oldBones = null;
-            if (this._armature !== null) {
-                oldSlots = this.getSlots();
-                oldBones = this.getBones();
-                this._armature._removeBoneFromBoneList(this);
-            }
-            this._armature = value; //
-            if (this._armature !== null) {
-                this._armature._addBoneToBoneList(this);
-            }
-            if (oldSlots !== null) {
-                for (var _i = 0, oldSlots_1 = oldSlots; _i < oldSlots_1.length; _i++) {
-                    var slot = oldSlots_1[_i];
-                    if (slot.parent === this) {
-                        slot._setArmature(this._armature);
-                    }
-                }
-            }
-            if (oldBones !== null) {
-                for (var _a = 0, oldBones_1 = oldBones; _a < oldBones_1.length; _a++) {
-                    var bone = oldBones_1[_a];
-                    if (bone.parent === this) {
-                        bone._setArmature(this._armature);
-                    }
-                }
+            else {
+                this._globalAlpha = this._alpha * this._armature._globalAlpha;
             }
         };
         /**
          * @internal
-         * @private
          */
-        Bone.prototype.init = function (boneData) {
-            if (this.boneData !== null) {
+        Bone.prototype.init = function (boneData, armatureValue) {
+            if (this._boneData !== null) {
                 return;
             }
-            this.boneData = boneData;
-            this.name = this.boneData.name;
-            this.origin = this.boneData.transform;
+            this._boneData = boneData;
+            this._armature = armatureValue;
+            this._alpha = this._boneData.alpha;
+            if (this._boneData.parent !== null) {
+                this._parent = this._armature.getBone(this._boneData.parent.name);
+            }
+            this._armature._addBone(this);
+            //
+            this.origin = this._boneData.transform;
         };
         /**
          * @internal
-         * @private
          */
         Bone.prototype.update = function (cacheFrameIndex) {
-            this._blendDirty = false;
             if (cacheFrameIndex >= 0 && this._cachedFrameIndices !== null) {
                 var cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex];
                 if (cachedFrameIndex >= 0 && this._cachedFrameIndex === cachedFrameIndex) {
@@ -3720,10 +4747,12 @@ var dragonBones;
                     this._cachedFrameIndex = cachedFrameIndex;
                 }
                 else {
-                    if (this.constraints.length > 0) {
-                        for (var _i = 0, _a = this.constraints; _i < _a.length; _i++) {
+                    if (this._hasConstraint) {
+                        for (var _i = 0, _a = this._armature._constraints; _i < _a.length; _i++) {
                             var constraint = _a[_i];
-                            constraint.update();
+                            if (constraint._root === this) {
+                                constraint.update();
+                            }
                         }
                     }
                     if (this._transformDirty ||
@@ -3742,10 +4771,12 @@ var dragonBones;
                 }
             }
             else {
-                if (this.constraints.length > 0) {
-                    for (var _b = 0, _c = this.constraints; _b < _c.length; _b++) {
+                if (this._hasConstraint) {
+                    for (var _b = 0, _c = this._armature._constraints; _b < _c.length; _b++) {
                         var constraint = _c[_b];
-                        constraint.update();
+                        if (constraint._root === this) {
+                            constraint.update();
+                        }
                     }
                 }
                 if (this._transformDirty || (this._parent !== null && this._parent._childrenTransformDirty)) {
@@ -3757,18 +4788,20 @@ var dragonBones;
             if (this._transformDirty) {
                 this._transformDirty = false;
                 this._childrenTransformDirty = true;
+                //
                 if (this._cachedFrameIndex < 0) {
                     var isCache = cacheFrameIndex >= 0;
                     if (this._localDirty) {
                         this._updateGlobalTransformMatrix(isCache);
                     }
                     if (isCache && this._cachedFrameIndices !== null) {
-                        this._cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex] = this._armature.armatureData.setCacheFrame(this.globalTransformMatrix, this.global);
+                        this._cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex] = this._armature._armatureData.setCacheFrame(this.globalTransformMatrix, this.global);
                     }
                 }
                 else {
-                    this._armature.armatureData.getCacheFrame(this.globalTransformMatrix, this.global, this._cachedFrameIndex);
+                    this._armature._armatureData.getCacheFrame(this.globalTransformMatrix, this.global, this._cachedFrameIndex);
                 }
+                //
             }
             else if (this._childrenTransformDirty) {
                 this._childrenTransformDirty = false;
@@ -3777,7 +4810,6 @@ var dragonBones;
         };
         /**
          * @internal
-         * @private
          */
         Bone.prototype.updateByConstraint = function () {
             if (this._localDirty) {
@@ -3789,16 +4821,27 @@ var dragonBones;
             }
         };
         /**
-         * @internal
-         * @private
+         * - Forces the bone to update the transform in the next frame.
+         * When the bone is not animated or its animation state is finished, the bone will not continue to update,
+         * and when the skeleton must be updated for some reason, the method needs to be called explicitly.
+         * @example
+         * <pre>
+         *     let bone = armature.getBone("arm");
+         *     bone.offset.scaleX = 2.0;
+         *     bone.invalidUpdate();
+         * </pre>
+         * @version DragonBones 3.0
+         * @language en_US
          */
-        Bone.prototype.addConstraint = function (constraint) {
-            if (this.constraints.indexOf(constraint) < 0) {
-                this.constraints.push(constraint);
-            }
-        };
         /**
-         * 下一帧更新变换。 (当骨骼没有动画状态或动画状态播放完成时，骨骼将不在更新)
+         * - 强制骨骼在下一帧更新变换。
+         * 当该骨骼没有动画状态或其动画状态播放完成时，骨骼将不在继续更新，而此时由于某些原因必须更新骨骼时，则需要显式调用该方法。
+         * @example
+         * <pre>
+         *     let bone = armature.getBone("arm");
+         *     bone.offset.scaleX = 2.0;
+         *     bone.invalidUpdate();
+         * </pre>
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -3806,58 +4849,56 @@ var dragonBones;
             this._transformDirty = true;
         };
         /**
-         * 是否包含骨骼或插槽。
-         * @returns
-         * @see dragonBones.TransformObject
+         * - Check whether the bone contains a specific bone.
+         * @see dragonBones.Bone
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 检查该骨骼是否包含特定的骨骼。
+         * @see dragonBones.Bone
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        Bone.prototype.contains = function (child) {
-            if (child === this) {
+        Bone.prototype.contains = function (value) {
+            if (value === this) {
                 return false;
             }
-            var ancestor = child;
+            var ancestor = value;
             while (ancestor !== this && ancestor !== null) {
                 ancestor = ancestor.parent;
             }
             return ancestor === this;
         };
-        /**
-         * 所有的子骨骼。
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
-        Bone.prototype.getBones = function () {
-            this._bones.length = 0;
-            for (var _i = 0, _a = this._armature.getBones(); _i < _a.length; _i++) {
-                var bone = _a[_i];
-                if (bone.parent === this) {
-                    this._bones.push(bone);
-                }
-            }
-            return this._bones;
-        };
-        /**
-         * 所有的插槽。
-         * @see dragonBones.Slot
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
-        Bone.prototype.getSlots = function () {
-            this._slots.length = 0;
-            for (var _i = 0, _a = this._armature.getSlots(); _i < _a.length; _i++) {
-                var slot = _a[_i];
-                if (slot.parent === this) {
-                    this._slots.push(slot);
-                }
-            }
-            return this._slots;
-        };
+        Object.defineProperty(Bone.prototype, "boneData", {
+            /**
+             * - The bone data.
+             * @version DragonBones 4.5
+             * @language en_US
+             */
+            /**
+             * - 骨骼数据。
+             * @version DragonBones 4.5
+             * @language zh_CN
+             */
+            get: function () {
+                return this._boneData;
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Bone.prototype, "visible", {
             /**
-             * 控制此骨骼所有插槽的可见。
+             * - The visible of all slots in the bone.
              * @default true
-             * @see dragonBones.Slot
+             * @see dragonBones.Slot#visible
+             * @version DragonBones 3.0
+             * @language en_US
+             */
+            /**
+             * - 此骨骼所有插槽的可见。
+             * @default true
+             * @see dragonBones.Slot#visible
              * @version DragonBones 3.0
              * @language zh_CN
              */
@@ -3871,7 +4912,7 @@ var dragonBones;
                 this._visible = value;
                 for (var _i = 0, _a = this._armature.getSlots(); _i < _a.length; _i++) {
                     var slot = _a[_i];
-                    if (slot._parent === this) {
+                    if (slot.parent === this) {
                         slot._updateVisible();
                     }
                 }
@@ -3879,33 +4920,36 @@ var dragonBones;
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(Bone.prototype, "length", {
+        Object.defineProperty(Bone.prototype, "name", {
             /**
-             * @deprecated
-             * 已废弃，请参考 @see
-             * @see #boneData
-             * @see #dragonBones.BoneData#length
+             * - The bone name.
+             * @version DragonBones 3.0
+             * @language en_US
+             */
+            /**
+             * - 骨骼名称。
+             * @version DragonBones 3.0
+             * @language zh_CN
              */
             get: function () {
-                return this.boneData.length;
+                return this._boneData.name;
             },
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(Bone.prototype, "slot", {
+        Object.defineProperty(Bone.prototype, "parent", {
             /**
-             * @deprecated
-             * 已废弃，请参考 @see
-             * @see dragonBones.Armature#getSlot()
+             * - The parent bone to which it belongs.
+             * @version DragonBones 3.0
+             * @language en_US
+             */
+            /**
+             * - 所属的父骨骼。
+             * @version DragonBones 3.0
+             * @language zh_CN
              */
             get: function () {
-                for (var _i = 0, _a = this._armature.getSlots(); _i < _a.length; _i++) {
-                    var slot = _a[_i];
-                    if (slot.parent === this) {
-                        return slot;
-                    }
-                }
-                return null;
+                return this._parent;
             },
             enumerable: true,
             configurable: true
@@ -3914,10 +4958,609 @@ var dragonBones;
     }(dragonBones.TransformObject));
     dragonBones.Bone = Bone;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
     /**
-     * 插槽，附着在骨骼上，控制显示对象的显示状态和属性。
+     * @internal
+     */
+    var Surface = /** @class */ (function (_super) {
+        __extends(Surface, _super);
+        function Surface() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this._vertices = [];
+            _this._deformVertices = [];
+            /**
+             * - x1, y1, x2, y2, x3, y3, x4, y4, d1X, d1Y, d2X, d2Y
+             */
+            _this._hullCache = [];
+            /**
+             * - Inside [flag, a, b, c, d, tx, ty], Outside [flag, a, b, c, d, tx, ty]
+             */
+            _this._matrixCahce = [];
+            return _this;
+        }
+        Surface.toString = function () {
+            return "[class dragonBones.Surface]";
+        };
+        Surface.prototype._onClear = function () {
+            _super.prototype._onClear.call(this);
+            this._dX = 0.0;
+            this._dY = 0.0;
+            this._k = 0.0;
+            this._kX = 0.0;
+            this._kY = 0.0;
+            this._vertices.length = 0;
+            this._deformVertices.length = 0;
+            this._matrixCahce.length = 0;
+            this._hullCache.length = 0;
+            this._bone = null;
+        };
+        Surface.prototype._getAffineTransform = function (x, y, lX, lY, aX, aY, bX, bY, cX, cY, transform, matrix, isDown) {
+            var dabX = bX - aX;
+            var dabY = bY - aY;
+            var dacX = cX - aX;
+            var dacY = cY - aY;
+            transform.rotation = Math.atan2(dabY, dabX);
+            transform.skew = Math.atan2(dacY, dacX) - Math.PI * 0.5 - transform.rotation;
+            if (isDown) {
+                transform.rotation += Math.PI;
+            }
+            transform.scaleX = Math.sqrt(dabX * dabX + dabY * dabY) / lX;
+            transform.scaleY = Math.sqrt(dacX * dacX + dacY * dacY) / lY;
+            transform.toMatrix(matrix);
+            transform.x = matrix.tx = aX - (matrix.a * x + matrix.c * y);
+            transform.y = matrix.ty = aY - (matrix.b * x + matrix.d * y);
+        };
+        Surface.prototype._updateVertices = function () {
+            var data = this._armature.armatureData.parent;
+            var geometry = this._boneData.geometry;
+            var intArray = data.intArray;
+            var floatArray = data.floatArray;
+            var vertexCount = intArray[geometry.offset + 0 /* GeometryVertexCount */];
+            var verticesOffset = intArray[geometry.offset + 2 /* GeometryFloatOffset */];
+            var vertices = this._vertices;
+            var animationVertices = this._deformVertices;
+            if (this._parent !== null) {
+                if (this._parent._boneData.type === 1 /* Surface */) {
+                    for (var i = 0, l = vertexCount; i < l; ++i) {
+                        var iD = i * 2;
+                        var x = floatArray[verticesOffset + iD] + animationVertices[iD];
+                        var y = floatArray[verticesOffset + iD + 1] + animationVertices[iD + 1];
+                        var matrix = this._parent._getGlobalTransformMatrix(x, y);
+                        //
+                        vertices[iD] = matrix.a * x + matrix.c * y + matrix.tx;
+                        vertices[iD + 1] = matrix.b * x + matrix.d * y + matrix.ty;
+                    }
+                }
+                else {
+                    var parentMatrix = this._parent.globalTransformMatrix;
+                    for (var i = 0, l = vertexCount; i < l; ++i) {
+                        var iD = i * 2;
+                        var x = floatArray[verticesOffset + iD] + animationVertices[iD];
+                        var y = floatArray[verticesOffset + iD + 1] + animationVertices[iD + 1];
+                        //
+                        vertices[iD] = parentMatrix.a * x + parentMatrix.c * y + parentMatrix.tx;
+                        vertices[iD + 1] = parentMatrix.b * x + parentMatrix.d * y + parentMatrix.ty;
+                    }
+                }
+            }
+            else {
+                for (var i = 0, l = vertexCount; i < l; ++i) {
+                    var iD = i * 2;
+                    vertices[iD] = floatArray[verticesOffset + iD] + animationVertices[iD];
+                    vertices[iD + 1] = floatArray[verticesOffset + iD + 1] + animationVertices[iD + 1];
+                }
+            }
+        };
+        Surface.prototype._updateGlobalTransformMatrix = function (isCache) {
+            // tslint:disable-next-line:no-unused-expression
+            isCache;
+            var segmentXD = this._boneData.segmentX * 2;
+            var lastIndex = this._vertices.length - 2;
+            var lA = 200.0;
+            //
+            var raX = this._vertices[0];
+            var raY = this._vertices[1];
+            var rbX = this._vertices[segmentXD];
+            var rbY = this._vertices[segmentXD + 1];
+            var rcX = this._vertices[lastIndex];
+            var rcY = this._vertices[lastIndex + 1];
+            var rdX = this._vertices[lastIndex - segmentXD];
+            var rdY = this._vertices[lastIndex - segmentXD + 1];
+            //
+            var dacX = raX + (rcX - raX) * 0.5;
+            var dacY = raY + (rcY - raY) * 0.5;
+            var dbdX = rbX + (rdX - rbX) * 0.5;
+            var dbdY = rbY + (rdY - rbY) * 0.5;
+            var aX = dacX + (dbdX - dacX) * 0.5;
+            var aY = dacY + (dbdY - dacY) * 0.5;
+            var bX = rbX + (rcX - rbX) * 0.5;
+            var bY = rbY + (rcY - rbY) * 0.5;
+            var cX = rdX + (rcX - rdX) * 0.5;
+            var cY = rdY + (rcY - rdY) * 0.5;
+            // TODO interpolation
+            this._getAffineTransform(0.0, 0.0, lA, lA, aX, aY, bX, bY, cX, cY, this.global, this.globalTransformMatrix, false);
+            this._globalDirty = false;
+        };
+        Surface.prototype._getGlobalTransformMatrix = function (x, y) {
+            var lA = 200.0;
+            var lB = 1000.0;
+            if (x < -lB || lB < x || y < -lB || lB < y) {
+                return this.globalTransformMatrix;
+            }
+            var isDown = false;
+            var surfaceData = this._boneData;
+            var segmentX = surfaceData.segmentX;
+            var segmentY = surfaceData.segmentY;
+            var segmentXD = surfaceData.segmentX * 2;
+            var dX = this._dX;
+            var dY = this._dY;
+            var indexX = Math.floor((x + lA) / dX); // -1 ~ segmentX - 1
+            var indexY = Math.floor((y + lA) / dY); // -1 ~ segmentY - 1
+            var matrixIndex = 0;
+            var pX = indexX * dX - lA;
+            var pY = indexY * dY - lA;
+            //
+            var matrices = this._matrixCahce;
+            var helpMatrix = Surface._helpMatrix;
+            if (x < -lA) {
+                if (y < -lA || y >= lA) {
+                    return this.globalTransformMatrix;
+                }
+                // Left.
+                isDown = y > this._kX * (x + lA) + pY;
+                matrixIndex = ((segmentX * segmentY + segmentX + segmentY + segmentY + indexY) * 2 + (isDown ? 1 : 0)) * 7;
+                if (matrices[matrixIndex] > 0.0) {
+                    helpMatrix.copyFromArray(matrices, matrixIndex + 1);
+                }
+                else {
+                    var vertexIndex = indexY * (segmentXD + 2);
+                    var ddX = this._hullCache[4];
+                    var ddY = this._hullCache[5];
+                    var sX = this._hullCache[2] - (segmentY - indexY) * ddX;
+                    var sY = this._hullCache[3] - (segmentY - indexY) * ddY;
+                    var vertices = this._vertices;
+                    if (isDown) {
+                        this._getAffineTransform(-lA, pY + dY, lB - lA, dY, vertices[vertexIndex + segmentXD + 2], vertices[vertexIndex + segmentXD + 3], sX + ddX, sY + ddY, vertices[vertexIndex], vertices[vertexIndex + 1], Surface._helpTransform, helpMatrix, true);
+                    }
+                    else {
+                        this._getAffineTransform(-lB, pY, lB - lA, dY, sX, sY, vertices[vertexIndex], vertices[vertexIndex + 1], sX + ddX, sY + ddY, Surface._helpTransform, helpMatrix, false);
+                    }
+                    matrices[matrixIndex] = 1.0;
+                    matrices[matrixIndex + 1] = helpMatrix.a;
+                    matrices[matrixIndex + 2] = helpMatrix.b;
+                    matrices[matrixIndex + 3] = helpMatrix.c;
+                    matrices[matrixIndex + 4] = helpMatrix.d;
+                    matrices[matrixIndex + 5] = helpMatrix.tx;
+                    matrices[matrixIndex + 6] = helpMatrix.ty;
+                }
+            }
+            else if (x >= lA) {
+                if (y < -lA || y >= lA) {
+                    return this.globalTransformMatrix;
+                }
+                // Right.
+                isDown = y > this._kX * (x - lB) + pY;
+                matrixIndex = ((segmentX * segmentY + segmentX + indexY) * 2 + (isDown ? 1 : 0)) * 7;
+                if (matrices[matrixIndex] > 0.0) {
+                    helpMatrix.copyFromArray(matrices, matrixIndex + 1);
+                }
+                else {
+                    var vertexIndex = (indexY + 1) * (segmentXD + 2) - 2;
+                    var ddX = this._hullCache[4];
+                    var ddY = this._hullCache[5];
+                    var sX = this._hullCache[0] + indexY * ddX;
+                    var sY = this._hullCache[1] + indexY * ddY;
+                    var vertices = this._vertices;
+                    if (isDown) {
+                        this._getAffineTransform(lB, pY + dY, lB - lA, dY, sX + ddX, sY + ddY, vertices[vertexIndex + segmentXD + 2], vertices[vertexIndex + segmentXD + 3], sX, sY, Surface._helpTransform, helpMatrix, true);
+                    }
+                    else {
+                        this._getAffineTransform(lA, pY, lB - lA, dY, vertices[vertexIndex], vertices[vertexIndex + 1], sX, sY, vertices[vertexIndex + segmentXD + 2], vertices[vertexIndex + segmentXD + 3], Surface._helpTransform, helpMatrix, false);
+                    }
+                    matrices[matrixIndex] = 1.0;
+                    matrices[matrixIndex + 1] = helpMatrix.a;
+                    matrices[matrixIndex + 2] = helpMatrix.b;
+                    matrices[matrixIndex + 3] = helpMatrix.c;
+                    matrices[matrixIndex + 4] = helpMatrix.d;
+                    matrices[matrixIndex + 5] = helpMatrix.tx;
+                    matrices[matrixIndex + 6] = helpMatrix.ty;
+                }
+            }
+            else if (y < -lA) {
+                if (x < -lA || x >= lA) {
+                    return this.globalTransformMatrix;
+                }
+                // Up.
+                isDown = y > this._kY * (x - pX - dX) - lB;
+                matrixIndex = ((segmentX * segmentY + indexX) * 2 + (isDown ? 1 : 0)) * 7;
+                if (matrices[matrixIndex] > 0.0) {
+                    helpMatrix.copyFromArray(matrices, matrixIndex + 1);
+                }
+                else {
+                    var vertexIndex = indexX * 2;
+                    var ddX = this._hullCache[10];
+                    var ddY = this._hullCache[11];
+                    var sX = this._hullCache[8] + indexX * ddX;
+                    var sY = this._hullCache[9] + indexX * ddY;
+                    var vertices = this._vertices;
+                    if (isDown) {
+                        this._getAffineTransform(pX + dX, -lA, dX, lB - lA, vertices[vertexIndex + 2], vertices[vertexIndex + 3], vertices[vertexIndex], vertices[vertexIndex + 1], sX + ddX, sY + ddY, Surface._helpTransform, helpMatrix, true);
+                    }
+                    else {
+                        this._getAffineTransform(pX, -lB, dX, lB - lA, sX, sY, sX + ddX, sY + ddY, vertices[vertexIndex], vertices[vertexIndex + 1], Surface._helpTransform, helpMatrix, false);
+                    }
+                    matrices[matrixIndex] = 1.0;
+                    matrices[matrixIndex + 1] = helpMatrix.a;
+                    matrices[matrixIndex + 2] = helpMatrix.b;
+                    matrices[matrixIndex + 3] = helpMatrix.c;
+                    matrices[matrixIndex + 4] = helpMatrix.d;
+                    matrices[matrixIndex + 5] = helpMatrix.tx;
+                    matrices[matrixIndex + 6] = helpMatrix.ty;
+                }
+            }
+            else if (y >= lA) {
+                if (x < -lA || x >= lA) {
+                    return this.globalTransformMatrix;
+                }
+                // Down
+                isDown = y > this._kY * (x - pX - dX) + lA;
+                matrixIndex = ((segmentX * segmentY + segmentX + segmentY + indexX) * 2 + (isDown ? 1 : 0)) * 7;
+                if (matrices[matrixIndex] > 0.0) {
+                    helpMatrix.copyFromArray(matrices, matrixIndex + 1);
+                }
+                else {
+                    var vertexIndex = segmentY * (segmentXD + 2) + indexX * 2;
+                    var ddX = this._hullCache[10];
+                    var ddY = this._hullCache[11];
+                    var sX = this._hullCache[6] - (segmentX - indexX) * ddX;
+                    var sY = this._hullCache[7] - (segmentX - indexX) * ddY;
+                    var vertices = this._vertices;
+                    if (isDown) {
+                        this._getAffineTransform(pX + dX, lB, dX, lB - lA, sX + ddX, sY + ddY, sX, sY, vertices[vertexIndex + 2], vertices[vertexIndex + 3], Surface._helpTransform, helpMatrix, true);
+                    }
+                    else {
+                        this._getAffineTransform(pX, lA, dX, lB - lA, vertices[vertexIndex], vertices[vertexIndex + 1], vertices[vertexIndex + 2], vertices[vertexIndex + 3], sX, sY, Surface._helpTransform, helpMatrix, false);
+                    }
+                    matrices[matrixIndex] = 1.0;
+                    matrices[matrixIndex + 1] = helpMatrix.a;
+                    matrices[matrixIndex + 2] = helpMatrix.b;
+                    matrices[matrixIndex + 3] = helpMatrix.c;
+                    matrices[matrixIndex + 4] = helpMatrix.d;
+                    matrices[matrixIndex + 5] = helpMatrix.tx;
+                    matrices[matrixIndex + 6] = helpMatrix.ty;
+                }
+            }
+            else {
+                isDown = y > this._k * (x - pX - dX) + pY;
+                matrixIndex = ((segmentX * indexY + indexX) * 2 + (isDown ? 1 : 0)) * 7;
+                if (matrices[matrixIndex] > 0.0) {
+                    helpMatrix.copyFromArray(matrices, matrixIndex + 1);
+                }
+                else {
+                    var vertexIndex = indexX * 2 + indexY * (segmentXD + 2);
+                    var vertices = this._vertices;
+                    if (isDown) {
+                        this._getAffineTransform(pX + dX, pY + dY, dX, dY, vertices[vertexIndex + segmentXD + 4], vertices[vertexIndex + segmentXD + 5], vertices[vertexIndex + segmentXD + 2], vertices[vertexIndex + segmentXD + 3], vertices[vertexIndex + 2], vertices[vertexIndex + 3], Surface._helpTransform, helpMatrix, true);
+                    }
+                    else {
+                        this._getAffineTransform(pX, pY, dX, dY, vertices[vertexIndex], vertices[vertexIndex + 1], vertices[vertexIndex + 2], vertices[vertexIndex + 3], vertices[vertexIndex + segmentXD + 2], vertices[vertexIndex + segmentXD + 3], Surface._helpTransform, helpMatrix, false);
+                    }
+                    matrices[matrixIndex] = 1.0;
+                    matrices[matrixIndex + 1] = helpMatrix.a;
+                    matrices[matrixIndex + 2] = helpMatrix.b;
+                    matrices[matrixIndex + 3] = helpMatrix.c;
+                    matrices[matrixIndex + 4] = helpMatrix.d;
+                    matrices[matrixIndex + 5] = helpMatrix.tx;
+                    matrices[matrixIndex + 6] = helpMatrix.ty;
+                }
+            }
+            return helpMatrix;
+        };
+        /**
+         * @internal
+         * @private
+         */
+        Surface.prototype.init = function (surfaceData, armatureValue) {
+            if (this._boneData !== null) {
+                return;
+            }
+            _super.prototype.init.call(this, surfaceData, armatureValue);
+            var segmentX = surfaceData.segmentX;
+            var segmentY = surfaceData.segmentY;
+            var vertexCount = this._armature.armatureData.parent.intArray[surfaceData.geometry.offset + 0 /* GeometryVertexCount */];
+            var lB = 1000.0;
+            var lA = 200.0;
+            //
+            this._dX = lA * 2.0 / segmentX;
+            this._dY = lA * 2.0 / segmentY;
+            this._k = -this._dY / this._dX;
+            this._kX = -this._dY / (lB - lA);
+            this._kY = -(lB - lA) / this._dX;
+            this._vertices.length = vertexCount * 2;
+            this._deformVertices.length = vertexCount * 2;
+            this._matrixCahce.length = (segmentX * segmentY + segmentX * 2 + segmentY * 2) * 2 * 7;
+            this._hullCache.length = 10;
+            for (var i = 0; i < vertexCount * 2; ++i) {
+                this._deformVertices[i] = 0.0;
+            }
+            if (this._parent !== null) {
+                if (this._parent.boneData.type === 0 /* Bone */) {
+                    this._bone = this._parent;
+                }
+                else {
+                    this._bone = this._parent._bone;
+                }
+            }
+        };
+        /**
+         * @internal
+         */
+        Surface.prototype.update = function (cacheFrameIndex) {
+            if (cacheFrameIndex >= 0 && this._cachedFrameIndices !== null) {
+                var cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex];
+                if (cachedFrameIndex >= 0 && this._cachedFrameIndex === cachedFrameIndex) {
+                    this._transformDirty = false;
+                }
+                else if (cachedFrameIndex >= 0) {
+                    this._transformDirty = true;
+                    this._cachedFrameIndex = cachedFrameIndex;
+                }
+                else {
+                    if (this._hasConstraint) {
+                        for (var _i = 0, _a = this._armature._constraints; _i < _a.length; _i++) {
+                            var constraint = _a[_i];
+                            if (constraint._root === this) {
+                                constraint.update();
+                            }
+                        }
+                    }
+                    if (this._transformDirty ||
+                        (this._parent !== null && this._parent._childrenTransformDirty)) {
+                        this._transformDirty = true;
+                        this._cachedFrameIndex = -1;
+                    }
+                    else if (this._cachedFrameIndex >= 0) {
+                        this._transformDirty = false;
+                        this._cachedFrameIndices[cacheFrameIndex] = this._cachedFrameIndex;
+                    }
+                    else {
+                        this._transformDirty = true;
+                        this._cachedFrameIndex = -1;
+                    }
+                }
+            }
+            else {
+                if (this._hasConstraint) {
+                    for (var _b = 0, _c = this._armature._constraints; _b < _c.length; _b++) {
+                        var constraint = _c[_b];
+                        if (constraint._root === this) {
+                            constraint.update();
+                        }
+                    }
+                }
+                if (this._transformDirty || (this._parent !== null && this._parent._childrenTransformDirty)) {
+                    cacheFrameIndex = -1;
+                    this._transformDirty = true;
+                    this._cachedFrameIndex = -1;
+                }
+            }
+            if (this._transformDirty) {
+                this._transformDirty = false;
+                this._childrenTransformDirty = true;
+                //
+                for (var i = 0, l = this._matrixCahce.length; i < l; i += 7) {
+                    this._matrixCahce[i] = -1.0;
+                }
+                //
+                this._updateVertices();
+                //
+                if (this._cachedFrameIndex < 0) {
+                    var isCache = cacheFrameIndex >= 0;
+                    if (this._localDirty) {
+                        this._updateGlobalTransformMatrix(isCache);
+                    }
+                    if (isCache && this._cachedFrameIndices !== null) {
+                        this._cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex] = this._armature._armatureData.setCacheFrame(this.globalTransformMatrix, this.global);
+                    }
+                }
+                else {
+                    this._armature._armatureData.getCacheFrame(this.globalTransformMatrix, this.global, this._cachedFrameIndex);
+                }
+                // Update hull vertices.
+                var lB = 1000.0;
+                var lA = 200.0;
+                var ddX = 2 * this.global.x;
+                var ddY = 2 * this.global.y;
+                //
+                var helpPoint = Surface._helpPoint;
+                this.globalTransformMatrix.transformPoint(lB, -lA, helpPoint);
+                this._hullCache[0] = helpPoint.x;
+                this._hullCache[1] = helpPoint.y;
+                this._hullCache[2] = ddX - helpPoint.x;
+                this._hullCache[3] = ddY - helpPoint.y;
+                this.globalTransformMatrix.transformPoint(0.0, this._dY, helpPoint, true);
+                this._hullCache[4] = helpPoint.x;
+                this._hullCache[5] = helpPoint.y;
+                //
+                this.globalTransformMatrix.transformPoint(lA, lB, helpPoint);
+                this._hullCache[6] = helpPoint.x;
+                this._hullCache[7] = helpPoint.y;
+                this._hullCache[8] = ddX - helpPoint.x;
+                this._hullCache[9] = ddY - helpPoint.y;
+                this.globalTransformMatrix.transformPoint(this._dX, 0.0, helpPoint, true);
+                this._hullCache[10] = helpPoint.x;
+                this._hullCache[11] = helpPoint.y;
+            }
+            else if (this._childrenTransformDirty) {
+                this._childrenTransformDirty = false;
+            }
+            this._localDirty = true;
+        };
+        return Surface;
+    }(dragonBones.Bone));
+    dragonBones.Surface = Surface;
+})(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+var dragonBones;
+(function (dragonBones) {
+    /**
+     * @private
+     */
+    var DisplayFrame = /** @class */ (function (_super) {
+        __extends(DisplayFrame, _super);
+        function DisplayFrame() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.deformVertices = [];
+            return _this;
+        }
+        DisplayFrame.toString = function () {
+            return "[class dragonBones.DisplayFrame]";
+        };
+        DisplayFrame.prototype._onClear = function () {
+            this.rawDisplayData = null;
+            this.displayData = null;
+            this.textureData = null;
+            this.display = null;
+            this.deformVertices.length = 0;
+        };
+        DisplayFrame.prototype.updateDeformVertices = function () {
+            if (this.rawDisplayData === null || this.deformVertices.length !== 0) {
+                return;
+            }
+            var rawGeometryData;
+            if (this.rawDisplayData.type === 2 /* Mesh */) {
+                rawGeometryData = this.rawDisplayData.geometry;
+            }
+            else if (this.rawDisplayData.type === 4 /* Path */) {
+                rawGeometryData = this.rawDisplayData.geometry;
+            }
+            else {
+                return;
+            }
+            var vertexCount = 0;
+            if (rawGeometryData.weight !== null) {
+                vertexCount = rawGeometryData.weight.count * 2;
+            }
+            else {
+                vertexCount = rawGeometryData.data.intArray[rawGeometryData.offset + 0 /* GeometryVertexCount */] * 2;
+            }
+            this.deformVertices.length = vertexCount;
+            for (var i = 0, l = this.deformVertices.length; i < l; ++i) {
+                this.deformVertices[i] = 0.0;
+            }
+        };
+        DisplayFrame.prototype.getGeometryData = function () {
+            if (this.displayData !== null) {
+                if (this.displayData.type === 2 /* Mesh */) {
+                    return this.displayData.geometry;
+                }
+                if (this.displayData.type === 4 /* Path */) {
+                    return this.displayData.geometry;
+                }
+            }
+            if (this.rawDisplayData !== null) {
+                if (this.rawDisplayData.type === 2 /* Mesh */) {
+                    return this.rawDisplayData.geometry;
+                }
+                if (this.rawDisplayData.type === 4 /* Path */) {
+                    return this.rawDisplayData.geometry;
+                }
+            }
+            return null;
+        };
+        DisplayFrame.prototype.getBoundingBox = function () {
+            if (this.displayData !== null && this.displayData.type === 3 /* BoundingBox */) {
+                return this.displayData.boundingBox;
+            }
+            if (this.rawDisplayData !== null && this.rawDisplayData.type === 3 /* BoundingBox */) {
+                return this.rawDisplayData.boundingBox;
+            }
+            return null;
+        };
+        DisplayFrame.prototype.getTextureData = function () {
+            if (this.displayData !== null) {
+                if (this.displayData.type === 0 /* Image */) {
+                    return this.displayData.texture;
+                }
+                if (this.displayData.type === 2 /* Mesh */) {
+                    return this.displayData.texture;
+                }
+            }
+            if (this.textureData !== null) {
+                return this.textureData;
+            }
+            if (this.rawDisplayData !== null) {
+                if (this.rawDisplayData.type === 0 /* Image */) {
+                    return this.rawDisplayData.texture;
+                }
+                if (this.rawDisplayData.type === 2 /* Mesh */) {
+                    return this.rawDisplayData.texture;
+                }
+            }
+            return null;
+        };
+        return DisplayFrame;
+    }(dragonBones.BaseObject));
+    dragonBones.DisplayFrame = DisplayFrame;
+    /**
+     * - The slot attached to the armature, controls the display status and properties of the display object.
+     * A bone can contain multiple slots.
+     * A slot can contain multiple display objects, displaying only one of the display objects at a time,
+     * but you can toggle the display object into frame animation while the animation is playing.
+     * The display object can be a normal texture, or it can be a display of a child armature, a grid display object,
+     * and a custom other display object.
+     * @see dragonBones.Armature
+     * @see dragonBones.Bone
+     * @see dragonBones.SlotData
+     * @version DragonBones 3.0
+     * @language en_US
+     */
+    /**
+     * - 插槽附着在骨骼上，控制显示对象的显示状态和属性。
      * 一个骨骼上可以包含多个插槽。
      * 一个插槽中可以包含多个显示对象，同一时间只能显示其中的一个显示对象，但可以在动画播放的过程中切换显示对象实现帧动画。
      * 显示对象可以是普通的图片纹理，也可以是子骨架的显示容器，网格显示对象，还可以是自定义的其他显示对象。
@@ -3927,56 +5570,39 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var Slot = (function (_super) {
+    var Slot = /** @class */ (function (_super) {
         __extends(Slot, _super);
         function Slot() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            /**
-             * @private
-             */
             _this._localMatrix = new dragonBones.Matrix();
             /**
-             * @private
+             * @internal
              */
             _this._colorTransform = new dragonBones.ColorTransform();
             /**
-             * @private
+             * @internal
              */
-            _this._ffdVertices = [];
+            _this._displayFrames = [];
             /**
-             * @private
+             * @internal
              */
-            _this._displayDatas = [];
-            /**
-             * @private
-             */
-            _this._displayList = [];
-            /**
-             * @private
-             */
-            _this._meshBones = [];
-            /**
-             * @private
-             */
+            _this._geometryBones = [];
             _this._rawDisplay = null; // Initial value.
-            /**
-             * @private
-             */
             _this._meshDisplay = null; // Initial value.
+            _this._display = null;
             return _this;
         }
-        /**
-         * @private
-         */
         Slot.prototype._onClear = function () {
             _super.prototype._onClear.call(this);
             var disposeDisplayList = [];
-            for (var _i = 0, _a = this._displayList; _i < _a.length; _i++) {
-                var eachDisplay = _a[_i];
-                if (eachDisplay !== null && eachDisplay !== this._rawDisplay && eachDisplay !== this._meshDisplay &&
-                    disposeDisplayList.indexOf(eachDisplay) < 0) {
-                    disposeDisplayList.push(eachDisplay);
+            for (var _i = 0, _a = this._displayFrames; _i < _a.length; _i++) {
+                var dispayFrame = _a[_i];
+                var display = dispayFrame.display;
+                if (display !== this._rawDisplay && display !== this._meshDisplay &&
+                    disposeDisplayList.indexOf(display) < 0) {
+                    disposeDisplayList.push(display);
                 }
+                dispayFrame.returnToPool();
             }
             for (var _b = 0, disposeDisplayList_1 = disposeDisplayList; _b < disposeDisplayList_1.length; _b++) {
                 var eachDisplay = disposeDisplayList_1[_b];
@@ -3984,185 +5610,188 @@ var dragonBones;
                     eachDisplay.dispose();
                 }
                 else {
-                    this._disposeDisplay(eachDisplay);
+                    this._disposeDisplay(eachDisplay, true);
                 }
             }
             if (this._meshDisplay !== null && this._meshDisplay !== this._rawDisplay) {
-                this._disposeDisplay(this._meshDisplay);
+                this._disposeDisplay(this._meshDisplay, false);
             }
             if (this._rawDisplay !== null) {
-                this._disposeDisplay(this._rawDisplay);
+                this._disposeDisplay(this._rawDisplay, false);
             }
             this.displayController = null;
-            this.slotData = null; //
+            this._displayDataDirty = false;
             this._displayDirty = false;
-            this._zOrderDirty = false;
+            this._geometryDirty = false;
+            this._textureDirty = false;
+            this._visibleDirty = false;
             this._blendModeDirty = false;
+            this._zOrderDirty = false;
             this._colorDirty = false;
-            this._meshDirty = false;
+            this._verticesDirty = false;
             this._transformDirty = false;
             this._visible = true;
             this._blendMode = 0 /* Normal */;
             this._displayIndex = -1;
             this._animationDisplayIndex = -1;
             this._zOrder = 0;
+            this._zIndex = 0;
             this._cachedFrameIndex = -1;
             this._pivotX = 0.0;
             this._pivotY = 0.0;
             this._localMatrix.identity();
             this._colorTransform.identity();
-            this._ffdVertices.length = 0;
-            this._displayList.length = 0;
-            this._displayDatas.length = 0;
-            this._meshBones.length = 0;
-            this._rawDisplayDatas = null; //
-            this._displayData = null;
-            this._textureData = null;
-            this._meshData = null;
+            this._displayFrames.length = 0;
+            this._geometryBones.length = 0;
+            this._slotData = null; //
+            this._displayFrame = null;
+            this._geometryData = null;
             this._boundingBoxData = null;
+            this._textureData = null;
             this._rawDisplay = null;
             this._meshDisplay = null;
             this._display = null;
             this._childArmature = null;
+            this._parent = null; //
             this._cachedFrameIndices = null;
         };
+        Slot.prototype._hasDisplay = function (display) {
+            for (var _i = 0, _a = this._displayFrames; _i < _a.length; _i++) {
+                var displayFrame = _a[_i];
+                if (displayFrame.display === display) {
+                    return true;
+                }
+            }
+            return false;
+        };
         /**
-         * @private
+         * @internal
          */
+        Slot.prototype._isBonesUpdate = function () {
+            for (var _i = 0, _a = this._geometryBones; _i < _a.length; _i++) {
+                var bone = _a[_i];
+                if (bone !== null && bone._childrenTransformDirty) {
+                    return true;
+                }
+            }
+            return false;
+        };
+        /**
+         * @internal
+         */
+        Slot.prototype._updateAlpha = function () {
+            var globalAlpha = this._alpha * this._parent._globalAlpha;
+            if (this._globalAlpha !== globalAlpha) {
+                this._globalAlpha = globalAlpha;
+                this._colorDirty = true;
+            }
+        };
         Slot.prototype._updateDisplayData = function () {
-            var prevDisplayData = this._displayData;
+            var prevDisplayFrame = this._displayFrame;
+            var prevGeometryData = this._geometryData;
             var prevTextureData = this._textureData;
-            var prevMeshData = this._meshData;
-            var rawDisplayData = this._displayIndex >= 0 && this._displayIndex < this._rawDisplayDatas.length ? this._rawDisplayDatas[this._displayIndex] : null;
-            if (this._displayIndex >= 0 && this._displayIndex < this._displayDatas.length) {
-                this._displayData = this._displayDatas[this._displayIndex];
+            var rawDisplayData = null;
+            var displayData = null;
+            this._displayFrame = null;
+            this._geometryData = null;
+            this._boundingBoxData = null;
+            this._textureData = null;
+            if (this._displayIndex >= 0 && this._displayIndex < this._displayFrames.length) {
+                this._displayFrame = this._displayFrames[this._displayIndex];
+                rawDisplayData = this._displayFrame.rawDisplayData;
+                displayData = this._displayFrame.displayData;
+                this._geometryData = this._displayFrame.getGeometryData();
+                this._boundingBoxData = this._displayFrame.getBoundingBox();
+                this._textureData = this._displayFrame.getTextureData();
             }
-            else {
-                this._displayData = null;
-            }
-            // Update texture and mesh data.
-            if (this._displayData !== null) {
-                if (this._displayData.type === 0 /* Image */ || this._displayData.type === 2 /* Mesh */) {
-                    this._textureData = this._displayData.texture;
-                    if (this._displayData.type === 2 /* Mesh */) {
-                        this._meshData = this._displayData;
-                    }
-                    else if (rawDisplayData !== null && rawDisplayData.type === 2 /* Mesh */) {
-                        this._meshData = rawDisplayData;
-                    }
-                    else {
-                        this._meshData = null;
-                    }
-                }
-                else {
-                    this._textureData = null;
-                    this._meshData = null;
-                }
-            }
-            else {
-                this._textureData = null;
-                this._meshData = null;
-            }
-            // Update bounding box data.
-            if (this._displayData !== null && this._displayData.type === 3 /* BoundingBox */) {
-                this._boundingBoxData = this._displayData.boundingBox;
-            }
-            else if (rawDisplayData !== null && rawDisplayData.type === 3 /* BoundingBox */) {
-                this._boundingBoxData = rawDisplayData.boundingBox;
-            }
-            else {
-                this._boundingBoxData = null;
-            }
-            if (this._displayData !== prevDisplayData || this._textureData !== prevTextureData || this._meshData !== prevMeshData) {
+            if (this._displayFrame !== prevDisplayFrame ||
+                this._geometryData !== prevGeometryData || this._textureData !== prevTextureData) {
                 // Update pivot offset.
-                if (this._meshData !== null) {
-                    this._pivotX = 0.0;
-                    this._pivotY = 0.0;
-                }
-                else if (this._textureData !== null) {
-                    var imageDisplayData = this._displayData;
-                    var scale = this._armature.armatureData.scale;
+                if (this._geometryData === null && this._textureData !== null) {
+                    var imageDisplayData = ((displayData !== null && displayData.type === 0 /* Image */) ? displayData : rawDisplayData); //
+                    var scale = this._textureData.parent.scale * this._armature._armatureData.scale;
                     var frame = this._textureData.frame;
                     this._pivotX = imageDisplayData.pivot.x;
                     this._pivotY = imageDisplayData.pivot.y;
                     var rect = frame !== null ? frame : this._textureData.region;
-                    var width = rect.width * scale;
-                    var height = rect.height * scale;
+                    var width = rect.width;
+                    var height = rect.height;
                     if (this._textureData.rotated && frame === null) {
                         width = rect.height;
                         height = rect.width;
                     }
-                    this._pivotX *= width;
-                    this._pivotY *= height;
+                    this._pivotX *= width * scale;
+                    this._pivotY *= height * scale;
                     if (frame !== null) {
                         this._pivotX += frame.x * scale;
                         this._pivotY += frame.y * scale;
+                    }
+                    // Update replace pivot. TODO
+                    if (rawDisplayData !== null && imageDisplayData !== rawDisplayData) {
+                        rawDisplayData.transform.toMatrix(Slot._helpMatrix);
+                        Slot._helpMatrix.invert();
+                        Slot._helpMatrix.transformPoint(0.0, 0.0, Slot._helpPoint);
+                        this._pivotX -= Slot._helpPoint.x;
+                        this._pivotY -= Slot._helpPoint.y;
+                        imageDisplayData.transform.toMatrix(Slot._helpMatrix);
+                        Slot._helpMatrix.invert();
+                        Slot._helpMatrix.transformPoint(0.0, 0.0, Slot._helpPoint);
+                        this._pivotX += Slot._helpPoint.x;
+                        this._pivotY += Slot._helpPoint.y;
+                    }
+                    if (!dragonBones.DragonBones.yDown) {
+                        this._pivotY = (this._textureData.rotated ? this._textureData.region.width : this._textureData.region.height) * scale - this._pivotY;
                     }
                 }
                 else {
                     this._pivotX = 0.0;
                     this._pivotY = 0.0;
-                }
-                // Update mesh bones and ffd vertices.
-                if (this._meshData !== prevMeshData) {
-                    if (this._meshData !== null) {
-                        if (this._meshData.weight !== null) {
-                            this._ffdVertices.length = this._meshData.weight.count * 2;
-                            this._meshBones.length = this._meshData.weight.bones.length;
-                            for (var i = 0, l = this._meshBones.length; i < l; ++i) {
-                                this._meshBones[i] = this._armature.getBone(this._meshData.weight.bones[i].name);
-                            }
-                        }
-                        else {
-                            var vertexCount = this._meshData.parent.parent.intArray[this._meshData.offset + 0 /* MeshVertexCount */];
-                            this._ffdVertices.length = vertexCount * 2;
-                            this._meshBones.length = 0;
-                        }
-                        for (var i = 0, l = this._ffdVertices.length; i < l; ++i) {
-                            this._ffdVertices[i] = 0.0;
-                        }
-                        this._meshDirty = true;
-                    }
-                    else {
-                        this._ffdVertices.length = 0;
-                        this._meshBones.length = 0;
-                    }
-                }
-                else if (this._meshData !== null && this._textureData !== prevTextureData) {
-                    this._meshDirty = true;
-                }
-                if (this._displayData !== null && rawDisplayData !== null && this._displayData !== rawDisplayData && this._meshData === null) {
-                    rawDisplayData.transform.toMatrix(Slot._helpMatrix);
-                    Slot._helpMatrix.invert();
-                    Slot._helpMatrix.transformPoint(0.0, 0.0, Slot._helpPoint);
-                    this._pivotX -= Slot._helpPoint.x;
-                    this._pivotY -= Slot._helpPoint.y;
-                    this._displayData.transform.toMatrix(Slot._helpMatrix);
-                    Slot._helpMatrix.invert();
-                    Slot._helpMatrix.transformPoint(0.0, 0.0, Slot._helpPoint);
-                    this._pivotX += Slot._helpPoint.x;
-                    this._pivotY += Slot._helpPoint.y;
                 }
                 // Update original transform.
                 if (rawDisplayData !== null) {
                     this.origin = rawDisplayData.transform;
                 }
-                else if (this._displayData !== null) {
-                    this.origin = this._displayData.transform;
+                else if (displayData !== null) {
+                    this.origin = displayData.transform;
                 }
-                this._displayDirty = true;
+                else {
+                    this.origin = null;
+                }
+                // TODO remove slot offset.
+                if (this.origin !== null) {
+                    this.global.copyFrom(this.origin).add(this.offset).toMatrix(this._localMatrix);
+                }
+                else {
+                    this.global.copyFrom(this.offset).toMatrix(this._localMatrix);
+                }
+                // Update geometry.
+                if (this._geometryData !== prevGeometryData) {
+                    this._geometryDirty = true;
+                    this._verticesDirty = true;
+                    if (this._geometryData !== null) {
+                        this._geometryBones.length = 0;
+                        if (this._geometryData.weight !== null) {
+                            for (var i = 0, l = this._geometryData.weight.bones.length; i < l; ++i) {
+                                var bone = this._armature.getBone(this._geometryData.weight.bones[i].name);
+                                this._geometryBones.push(bone);
+                            }
+                        }
+                    }
+                    else {
+                        this._geometryBones.length = 0;
+                        this._geometryData = null;
+                    }
+                }
+                this._textureDirty = this._textureData !== prevTextureData;
                 this._transformDirty = true;
             }
         };
-        /**
-         * @private
-         */
         Slot.prototype._updateDisplay = function () {
             var prevDisplay = this._display !== null ? this._display : this._rawDisplay;
             var prevChildArmature = this._childArmature;
             // Update display and child armature.
-            if (this._displayIndex >= 0 && this._displayIndex < this._displayList.length) {
-                this._display = this._displayList[this._displayIndex];
+            if (this._displayFrame !== null) {
+                this._display = this._displayFrame.display;
                 if (this._display !== null && this._display instanceof dragonBones.Armature) {
                     this._childArmature = this._display;
                     this._display = this._childArmature.display;
@@ -4178,15 +5807,14 @@ var dragonBones;
             // Update display.
             var currentDisplay = this._display !== null ? this._display : this._rawDisplay;
             if (currentDisplay !== prevDisplay) {
-                this._onUpdateDisplay();
-                this._replaceDisplay(prevDisplay);
+                this._textureDirty = true;
                 this._visibleDirty = true;
                 this._blendModeDirty = true;
+                // this._zOrderDirty = true;
                 this._colorDirty = true;
-            }
-            // Update frame.
-            if (currentDisplay === this._rawDisplay || currentDisplay === this._meshDisplay) {
-                this._updateFrame();
+                this._transformDirty = true;
+                this._onUpdateDisplay();
+                this._replaceDisplay(prevDisplay);
             }
             // Update child armature.
             if (this._childArmature !== prevChildArmature) {
@@ -4208,35 +5836,33 @@ var dragonBones;
                             }
                         }
                         // Child armature action.
-                        var actions = null;
-                        if (this._displayData !== null && this._displayData.type === 1 /* Armature */) {
-                            actions = this._displayData.actions;
-                        }
-                        else {
-                            var rawDisplayData = this._displayIndex >= 0 && this._displayIndex < this._rawDisplayDatas.length ? this._rawDisplayDatas[this._displayIndex] : null;
-                            if (rawDisplayData !== null && rawDisplayData.type === 1 /* Armature */) {
-                                actions = rawDisplayData.actions;
+                        if (this._displayFrame !== null) {
+                            var actions = null;
+                            var displayData = this._displayFrame.displayData !== null ? this._displayFrame.displayData : this._displayFrame.rawDisplayData;
+                            if (displayData !== null && displayData.type === 1 /* Armature */) {
+                                actions = displayData.actions;
                             }
-                        }
-                        if (actions !== null && actions.length > 0) {
-                            for (var _i = 0, actions_1 = actions; _i < actions_1.length; _i++) {
-                                var action = actions_1[_i];
-                                this._childArmature._bufferAction(action, false); // Make sure default action at the beginning.
+                            if (actions !== null && actions.length > 0) {
+                                for (var _i = 0, actions_1 = actions; _i < actions_1.length; _i++) {
+                                    var action = actions_1[_i];
+                                    var eventObject = dragonBones.BaseObject.borrowObject(dragonBones.EventObject);
+                                    dragonBones.EventObject.actionDataToInstance(action, eventObject, this._armature);
+                                    eventObject.slot = this;
+                                    this._armature._bufferAction(eventObject, false);
+                                }
                             }
-                        }
-                        else {
-                            this._childArmature.animation.play();
+                            else {
+                                this._childArmature.animation.play();
+                            }
                         }
                     }
                 }
             }
         };
-        /**
-         * @private
-         */
         Slot.prototype._updateGlobalTransformMatrix = function (isCache) {
+            var parentMatrix = this._parent._boneData.type === 0 /* Bone */ ? this._parent.globalTransformMatrix : this._parent._getGlobalTransformMatrix(this.global.x, this.global.y);
             this.globalTransformMatrix.copyFrom(this._localMatrix);
-            this.globalTransformMatrix.concat(this._parent.globalTransformMatrix);
+            this.globalTransformMatrix.concat(parentMatrix);
             if (isCache) {
                 this.global.fromMatrix(this.globalTransformMatrix);
             }
@@ -4245,65 +5871,29 @@ var dragonBones;
             }
         };
         /**
-         * @private
-         */
-        Slot.prototype._isMeshBonesUpdate = function () {
-            for (var _i = 0, _a = this._meshBones; _i < _a.length; _i++) {
-                var bone = _a[_i];
-                if (bone !== null && bone._childrenTransformDirty) {
-                    return true;
-                }
-            }
-            return false;
-        };
-        /**
          * @internal
-         * @private
-         */
-        Slot.prototype._setArmature = function (value) {
-            if (this._armature === value) {
-                return;
-            }
-            if (this._armature !== null) {
-                this._armature._removeSlotFromSlotList(this);
-            }
-            this._armature = value; //
-            this._onUpdateDisplay();
-            if (this._armature !== null) {
-                this._armature._addSlotToSlotList(this);
-                this._addDisplay();
-            }
-            else {
-                this._removeDisplay();
-            }
-        };
-        /**
-         * @internal
-         * @private
          */
         Slot.prototype._setDisplayIndex = function (value, isAnimation) {
             if (isAnimation === void 0) { isAnimation = false; }
             if (isAnimation) {
                 if (this._animationDisplayIndex === value) {
-                    return false;
+                    return;
                 }
                 this._animationDisplayIndex = value;
             }
             if (this._displayIndex === value) {
-                return false;
+                return;
             }
-            this._displayIndex = value;
-            this._displayDirty = true;
-            this._updateDisplayData();
-            return this._displayDirty;
+            this._displayIndex = value < this._displayFrames.length ? value : this._displayFrames.length - 1;
+            this._displayDataDirty = true;
+            this._displayDirty = this._displayIndex < 0 || this._display !== this._displayFrames[this._displayIndex].display;
         };
         /**
          * @internal
-         * @private
          */
-        Slot.prototype._setZorder = function (value) {
+        Slot.prototype._setZOrder = function (value) {
             if (this._zOrder === value) {
-                //return false;
+                // return false;
             }
             this._zOrder = value;
             this._zOrderDirty = true;
@@ -4311,85 +5901,96 @@ var dragonBones;
         };
         /**
          * @internal
-         * @private
          */
         Slot.prototype._setColor = function (value) {
             this._colorTransform.copyFrom(value);
-            this._colorDirty = true;
-            return this._colorDirty;
-        };
-        /**
-         * @private
-         */
-        Slot.prototype._setDisplayList = function (value) {
-            if (value !== null && value.length > 0) {
-                if (this._displayList.length !== value.length) {
-                    this._displayList.length = value.length;
-                }
-                for (var i = 0, l = value.length; i < l; ++i) {
-                    var eachDisplay = value[i];
-                    if (eachDisplay !== null && eachDisplay !== this._rawDisplay && eachDisplay !== this._meshDisplay &&
-                        !(eachDisplay instanceof dragonBones.Armature) && this._displayList.indexOf(eachDisplay) < 0) {
-                        this._initDisplay(eachDisplay);
-                    }
-                    this._displayList[i] = eachDisplay;
-                }
-            }
-            else if (this._displayList.length > 0) {
-                this._displayList.length = 0;
-            }
-            if (this._displayIndex >= 0 && this._displayIndex < this._displayList.length) {
-                this._displayDirty = this._display !== this._displayList[this._displayIndex];
-            }
-            else {
-                this._displayDirty = this._display !== null;
-            }
-            this._updateDisplayData();
-            return this._displayDirty;
-        };
-        /**
-         * @private
-         */
-        Slot.prototype.init = function (slotData, displayDatas, rawDisplay, meshDisplay) {
-            if (this.slotData !== null) {
-                return;
-            }
-            this.slotData = slotData;
-            this.name = this.slotData.name;
-            this._visibleDirty = true;
-            this._blendModeDirty = true;
-            this._colorDirty = true;
-            this._blendMode = this.slotData.blendMode;
-            this._zOrder = this.slotData.zOrder;
-            this._colorTransform.copyFrom(this.slotData.color);
-            this._rawDisplayDatas = displayDatas;
-            this._rawDisplay = rawDisplay;
-            this._meshDisplay = meshDisplay;
-            this._displayDatas.length = this._rawDisplayDatas.length;
-            for (var i = 0, l = this._displayDatas.length; i < l; ++i) {
-                this._displayDatas[i] = this._rawDisplayDatas[i];
-            }
+            return this._colorDirty = true;
         };
         /**
          * @internal
-         * @private
+         */
+        Slot.prototype.init = function (slotData, armatureValue, rawDisplay, meshDisplay) {
+            if (this._slotData !== null) {
+                return;
+            }
+            this._slotData = slotData;
+            this._colorDirty = true; //
+            this._blendModeDirty = true; //
+            this._blendMode = this._slotData.blendMode;
+            this._zOrder = this._slotData.zOrder;
+            this._zIndex = this._slotData.zIndex;
+            this._alpha = this._slotData.alpha;
+            this._colorTransform.copyFrom(this._slotData.color);
+            this._rawDisplay = rawDisplay;
+            this._meshDisplay = meshDisplay;
+            //
+            this._armature = armatureValue;
+            var slotParent = this._armature.getBone(this._slotData.parent.name);
+            if (slotParent !== null) {
+                this._parent = slotParent;
+            }
+            else {
+                // Never;
+            }
+            this._armature._addSlot(this);
+            //
+            this._initDisplay(this._rawDisplay, false);
+            if (this._rawDisplay !== this._meshDisplay) {
+                this._initDisplay(this._meshDisplay, false);
+            }
+            this._onUpdateDisplay();
+            this._addDisplay();
+        };
+        /**
+         * @internal
          */
         Slot.prototype.update = function (cacheFrameIndex) {
+            if (this._displayDataDirty) {
+                this._updateDisplayData();
+                this._displayDataDirty = false;
+            }
             if (this._displayDirty) {
-                this._displayDirty = false;
                 this._updateDisplay();
-                if (this._transformDirty) {
-                    if (this.origin !== null) {
-                        this.global.copyFrom(this.origin).add(this.offset).toMatrix(this._localMatrix);
-                    }
-                    else {
-                        this.global.copyFrom(this.offset).toMatrix(this._localMatrix);
-                    }
+                this._displayDirty = false;
+            }
+            if (this._geometryDirty || this._textureDirty) {
+                if (this._display === null || this._display === this._rawDisplay || this._display === this._meshDisplay) {
+                    this._updateFrame();
                 }
+                this._geometryDirty = false;
+                this._textureDirty = false;
+            }
+            if (this._display === null) {
+                return;
+            }
+            if (this._visibleDirty) {
+                this._updateVisible();
+                this._visibleDirty = false;
+            }
+            if (this._blendModeDirty) {
+                this._updateBlendMode();
+                this._blendModeDirty = false;
+            }
+            if (this._colorDirty) {
+                this._updateColor();
+                this._colorDirty = false;
             }
             if (this._zOrderDirty) {
-                this._zOrderDirty = false;
                 this._updateZOrder();
+                this._zOrderDirty = false;
+            }
+            if (this._geometryData !== null && this._display === this._meshDisplay) {
+                var isSkinned = this._geometryData.weight !== null;
+                var isSurface = this._parent._boneData.type !== 0 /* Bone */;
+                if (this._verticesDirty ||
+                    (isSkinned && this._isBonesUpdate()) ||
+                    (isSurface && this._parent._childrenTransformDirty)) {
+                    this._updateMesh();
+                    this._verticesDirty = false;
+                }
+                if (isSkinned || isSurface) {
+                    return;
+                }
             }
             if (cacheFrameIndex >= 0 && this._cachedFrameIndices !== null) {
                 var cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex];
@@ -4418,60 +6019,164 @@ var dragonBones;
                 this._transformDirty = true;
                 this._cachedFrameIndex = -1;
             }
-            if (this._display === null) {
-                return;
-            }
-            if (this._blendModeDirty) {
-                this._blendModeDirty = false;
-                this._updateBlendMode();
-            }
-            if (this._colorDirty) {
-                this._colorDirty = false;
-                this._updateColor();
-            }
-            if (this._meshData !== null && this._display === this._meshDisplay) {
-                var isSkinned = this._meshData.weight !== null;
-                if (this._meshDirty || (isSkinned && this._isMeshBonesUpdate())) {
-                    this._meshDirty = false;
-                    this._updateMesh();
-                }
-                if (isSkinned) {
-                    if (this._transformDirty) {
-                        this._transformDirty = false;
-                        this._updateTransform(true);
-                    }
-                    return;
-                }
-            }
             if (this._transformDirty) {
-                this._transformDirty = false;
                 if (this._cachedFrameIndex < 0) {
                     var isCache = cacheFrameIndex >= 0;
                     this._updateGlobalTransformMatrix(isCache);
                     if (isCache && this._cachedFrameIndices !== null) {
-                        this._cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex] = this._armature.armatureData.setCacheFrame(this.globalTransformMatrix, this.global);
+                        this._cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex] = this._armature._armatureData.setCacheFrame(this.globalTransformMatrix, this.global);
                     }
                 }
                 else {
-                    this._armature.armatureData.getCacheFrame(this.globalTransformMatrix, this.global, this._cachedFrameIndex);
+                    this._armature._armatureData.getCacheFrame(this.globalTransformMatrix, this.global, this._cachedFrameIndex);
                 }
-                this._updateTransform(false);
+                this._updateTransform();
+                this._transformDirty = false;
             }
+        };
+        /**
+         * - Forces the slot to update the state of the display object in the next frame.
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 强制插槽在下一帧更新显示对象的状态。
+         * @version DragonBones 4.5
+         * @language zh_CN
+         */
+        Slot.prototype.invalidUpdate = function () {
+            this._displayDataDirty = true;
+            this._displayDirty = true;
+            //
+            this._transformDirty = true;
         };
         /**
          * @private
          */
         Slot.prototype.updateTransformAndMatrix = function () {
             if (this._transformDirty) {
-                this._transformDirty = false;
                 this._updateGlobalTransformMatrix(false);
+                this._transformDirty = false;
             }
         };
         /**
-         * 判断指定的点是否在插槽的自定义包围盒内。
-         * @param x 点的水平坐标。（骨架内坐标系）
-         * @param y 点的垂直坐标。（骨架内坐标系）
-         * @param color 指定的包围盒颜色。 [0: 与所有包围盒进行判断, N: 仅当包围盒的颜色为 N 时才进行判断]
+         * @private
+         */
+        Slot.prototype.replaceRawDisplayData = function (displayData, index) {
+            if (index === void 0) { index = -1; }
+            if (index < 0) {
+                index = this._displayIndex < 0 ? 0 : this._displayIndex;
+            }
+            else if (index >= this._displayFrames.length) {
+                return;
+            }
+            var displayFrame = this._displayFrames[index];
+            if (displayFrame.rawDisplayData !== displayData) {
+                displayFrame.deformVertices.length = 0;
+                displayFrame.rawDisplayData = displayData;
+                if (displayFrame.rawDisplayData === null) {
+                    var defaultSkin = this._armature._armatureData.defaultSkin;
+                    if (defaultSkin !== null) {
+                        var defaultRawDisplayDatas = defaultSkin.getDisplays(this._slotData.name);
+                        if (defaultRawDisplayDatas !== null && index < defaultRawDisplayDatas.length) {
+                            displayFrame.rawDisplayData = defaultRawDisplayDatas[index];
+                        }
+                    }
+                }
+                if (index === this._displayIndex) {
+                    this._displayDataDirty = true;
+                }
+            }
+        };
+        /**
+         * @private
+         */
+        Slot.prototype.replaceDisplayData = function (displayData, index) {
+            if (index === void 0) { index = -1; }
+            if (index < 0) {
+                index = this._displayIndex < 0 ? 0 : this._displayIndex;
+            }
+            else if (index >= this._displayFrames.length) {
+                return;
+            }
+            var displayFrame = this._displayFrames[index];
+            if (displayFrame.displayData !== displayData && displayFrame.rawDisplayData !== displayData) {
+                displayFrame.displayData = displayData;
+                if (index === this._displayIndex) {
+                    this._displayDataDirty = true;
+                }
+            }
+        };
+        /**
+         * @private
+         */
+        Slot.prototype.replaceTextureData = function (textureData, index) {
+            if (index === void 0) { index = -1; }
+            if (index < 0) {
+                index = this._displayIndex < 0 ? 0 : this._displayIndex;
+            }
+            else if (index >= this._displayFrames.length) {
+                return;
+            }
+            var displayFrame = this._displayFrames[index];
+            if (displayFrame.textureData !== textureData) {
+                displayFrame.textureData = textureData;
+                if (index === this._displayIndex) {
+                    this._displayDataDirty = true;
+                }
+            }
+        };
+        /**
+         * @private
+         */
+        Slot.prototype.replaceDisplay = function (value, index) {
+            if (index === void 0) { index = -1; }
+            if (index < 0) {
+                index = this._displayIndex < 0 ? 0 : this._displayIndex;
+            }
+            else if (index >= this._displayFrames.length) {
+                return;
+            }
+            var displayFrame = this._displayFrames[index];
+            if (displayFrame.display !== value) {
+                var prevDisplay = displayFrame.display;
+                displayFrame.display = value;
+                if (prevDisplay !== null &&
+                    prevDisplay !== this._rawDisplay && prevDisplay !== this._meshDisplay &&
+                    !this._hasDisplay(prevDisplay)) {
+                    if (prevDisplay instanceof dragonBones.Armature) {
+                        // (eachDisplay as Armature).dispose();
+                    }
+                    else {
+                        this._disposeDisplay(prevDisplay, true);
+                    }
+                }
+                if (value !== null &&
+                    value !== this._rawDisplay && value !== this._meshDisplay &&
+                    !this._hasDisplay(prevDisplay) &&
+                    !(value instanceof dragonBones.Armature)) {
+                    this._initDisplay(value, true);
+                }
+                if (index === this._displayIndex) {
+                    this._displayDirty = true;
+                }
+            }
+        };
+        /**
+         * - Check whether a specific point is inside a custom bounding box in the slot.
+         * The coordinate system of the point is the inner coordinate system of the armature.
+         * Custom bounding boxes need to be customized in Dragonbones Pro.
+         * @param x - The horizontal coordinate of the point.
+         * @param y - The vertical coordinate of the point.
+         * @version DragonBones 5.0
+         * @language en_US
+         */
+        /**
+         * - 检查特定点是否在插槽的自定义边界框内。
+         * 点的坐标系为骨架内坐标系。
+         * 自定义边界框需要在 DragonBones Pro 中自定义。
+         * @param x - 点的水平坐标。
+         * @param y - 点的垂直坐标。
          * @version DragonBones 5.0
          * @language zh_CN
          */
@@ -4486,14 +6191,31 @@ var dragonBones;
             return this._boundingBoxData.containsPoint(Slot._helpPoint.x, Slot._helpPoint.y);
         };
         /**
-         * 判断指定的线段与插槽的自定义包围盒是否相交。
-         * @param xA 线段起点的水平坐标。（骨架内坐标系）
-         * @param yA 线段起点的垂直坐标。（骨架内坐标系）
-         * @param xB 线段终点的水平坐标。（骨架内坐标系）
-         * @param yB 线段终点的垂直坐标。（骨架内坐标系）
-         * @param intersectionPointA 线段从起点到终点与包围盒相交的第一个交点。（骨架内坐标系）
-         * @param intersectionPointB 线段从终点到起点与包围盒相交的第一个交点。（骨架内坐标系）
-         * @param normalRadians 碰撞点处包围盒切线的法线弧度。 [x: 第一个碰撞点处切线的法线弧度, y: 第二个碰撞点处切线的法线弧度]
+         * - Check whether a specific segment intersects a custom bounding box for the slot.
+         * The coordinate system of the segment and intersection is the inner coordinate system of the armature.
+         * Custom bounding boxes need to be customized in Dragonbones Pro.
+         * @param xA - The horizontal coordinate of the beginning of the segment.
+         * @param yA - The vertical coordinate of the beginning of the segment.
+         * @param xB - The horizontal coordinate of the end point of the segment.
+         * @param yB - The vertical coordinate of the end point of the segment.
+         * @param intersectionPointA - The first intersection at which a line segment intersects the bounding box from the beginning to the end. (If not set, the intersection point will not calculated)
+         * @param intersectionPointB - The first intersection at which a line segment intersects the bounding box from the end to the beginning. (If not set, the intersection point will not calculated)
+         * @param normalRadians - The normal radians of the tangent of the intersection boundary box. [x: Normal radian of the first intersection tangent, y: Normal radian of the second intersection tangent] (If not set, the normal will not calculated)
+         * @returns Intersection situation. [1: Disjoint and segments within the bounding box, 0: Disjoint, 1: Intersecting and having a nodal point and ending in the bounding box, 2: Intersecting and having a nodal point and starting at the bounding box, 3: Intersecting and having two intersections, N: Intersecting and having N intersections]
+         * @version DragonBones 5.0
+         * @language en_US
+         */
+        /**
+         * - 检查特定线段是否与插槽的自定义边界框相交。
+         * 线段和交点的坐标系均为骨架内坐标系。
+         * 自定义边界框需要在 DragonBones Pro 中自定义。
+         * @param xA - 线段起点的水平坐标。
+         * @param yA - 线段起点的垂直坐标。
+         * @param xB - 线段终点的水平坐标。
+         * @param yB - 线段终点的垂直坐标。
+         * @param intersectionPointA - 线段从起点到终点与边界框相交的第一个交点。 （如果未设置，则不计算交点）
+         * @param intersectionPointB - 线段从终点到起点与边界框相交的第一个交点。 （如果未设置，则不计算交点）
+         * @param normalRadians - 交点边界框切线的法线弧度。 [x: 第一个交点切线的法线弧度, y: 第二个交点切线的法线弧度] （如果未设置，则不计算法线）
          * @returns 相交的情况。 [-1: 不相交且线段在包围盒内, 0: 不相交, 1: 相交且有一个交点且终点在包围盒内, 2: 相交且有一个交点且起点在包围盒内, 3: 相交且有两个交点, N: 相交且有 N 个交点]
          * @version DragonBones 5.0
          * @language zh_CN
@@ -4546,17 +6268,83 @@ var dragonBones;
             return intersectionCount;
         };
         /**
-         * 在下一帧更新显示对象的状态。
-         * @version DragonBones 4.5
-         * @language zh_CN
+         * @private
          */
-        Slot.prototype.invalidUpdate = function () {
-            this._displayDirty = true;
-            this._transformDirty = true;
+        Slot.prototype.getDisplayFrameAt = function (index) {
+            return this._displayFrames[index];
         };
+        Object.defineProperty(Slot.prototype, "visible", {
+            /**
+             * - The visible of slot's display object.
+             * @default true
+             * @version DragonBones 5.6
+             * @language en_US
+             */
+            /**
+             * - 插槽的显示对象的可见。
+             * @default true
+             * @version DragonBones 5.6
+             * @language zh_CN
+             */
+            get: function () {
+                return this._visible;
+            },
+            set: function (value) {
+                if (this._visible === value) {
+                    return;
+                }
+                this._visible = value;
+                this._updateVisible();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Slot.prototype, "displayFrameCount", {
+            /**
+             * @private
+             */
+            get: function () {
+                return this._displayFrames.length;
+            },
+            set: function (value) {
+                var prevCount = this._displayFrames.length;
+                if (prevCount < value) {
+                    this._displayFrames.length = value;
+                    for (var i = prevCount; i < value; ++i) {
+                        this._displayFrames[i] = dragonBones.BaseObject.borrowObject(DisplayFrame);
+                    }
+                }
+                else if (prevCount > value) {
+                    for (var i = prevCount - 1; i < value; --i) {
+                        this.replaceDisplay(null, i);
+                        this._displayFrames[i].returnToPool();
+                    }
+                    this._displayFrames.length = value;
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Slot.prototype, "displayIndex", {
             /**
-             * 此时显示的显示对象在显示列表中的索引。
+             * - The index of the display object displayed in the display list.
+             * @example
+             * <pre>
+             *     let slot = armature.getSlot("weapon");
+             *     slot.displayIndex = 3;
+             *     slot.displayController = "none";
+             * </pre>
+             * @version DragonBones 4.5
+             * @language en_US
+             */
+            /**
+             * - 此时显示的显示对象在显示列表中的索引。
+             * @example
+             * <pre>
+             *     let slot = armature.getSlot("weapon");
+             *     slot.displayIndex = 3;
+             *     slot.displayController = "none";
+             * </pre>
              * @version DragonBones 4.5
              * @language zh_CN
              */
@@ -4564,56 +6352,90 @@ var dragonBones;
                 return this._displayIndex;
             },
             set: function (value) {
-                if (this._setDisplayIndex(value)) {
-                    this.update(-1);
-                }
+                this._setDisplayIndex(value);
+                this.update(-1);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Slot.prototype, "name", {
+            /**
+             * - The slot name.
+             * @see dragonBones.SlotData#name
+             * @version DragonBones 3.0
+             * @language en_US
+             */
+            /**
+             * - 插槽名称。
+             * @see dragonBones.SlotData#name
+             * @version DragonBones 3.0
+             * @language zh_CN
+             */
+            get: function () {
+                return this._slotData.name;
             },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(Slot.prototype, "displayList", {
             /**
-             * 包含显示对象或子骨架的显示列表。
+             * - Contains a display list of display objects or child armatures.
+             * @version DragonBones 3.0
+             * @language en_US
+             */
+            /**
+             * - 包含显示对象或子骨架的显示列表。
              * @version DragonBones 3.0
              * @language zh_CN
              */
             get: function () {
-                return this._displayList.concat();
+                var displays = new Array();
+                for (var _i = 0, _a = this._displayFrames; _i < _a.length; _i++) {
+                    var displayFrame = _a[_i];
+                    displays.push(displayFrame.display);
+                }
+                return displays;
             },
             set: function (value) {
-                var backupDisplayList = this._displayList.concat(); // Copy.
-                var disposeDisplayList = new Array();
-                if (this._setDisplayList(value)) {
-                    this.update(-1);
+                this.displayFrameCount = value.length;
+                var index = 0;
+                for (var _i = 0, value_1 = value; _i < value_1.length; _i++) {
+                    var eachDisplay = value_1[_i];
+                    this.replaceDisplay(eachDisplay, index++);
                 }
-                // Release replaced displays.
-                for (var _i = 0, backupDisplayList_1 = backupDisplayList; _i < backupDisplayList_1.length; _i++) {
-                    var eachDisplay = backupDisplayList_1[_i];
-                    if (eachDisplay !== null && eachDisplay !== this._rawDisplay && eachDisplay !== this._meshDisplay &&
-                        this._displayList.indexOf(eachDisplay) < 0 &&
-                        disposeDisplayList.indexOf(eachDisplay) < 0) {
-                        disposeDisplayList.push(eachDisplay);
-                    }
-                }
-                for (var _a = 0, disposeDisplayList_2 = disposeDisplayList; _a < disposeDisplayList_2.length; _a++) {
-                    var eachDisplay = disposeDisplayList_2[_a];
-                    if (eachDisplay instanceof dragonBones.Armature) {
-                        eachDisplay.dispose();
-                    }
-                    else {
-                        this._disposeDisplay(eachDisplay);
-                    }
-                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Slot.prototype, "slotData", {
+            /**
+             * - The slot data.
+             * @see dragonBones.SlotData
+             * @version DragonBones 4.5
+             * @language en_US
+             */
+            /**
+             * - 插槽数据。
+             * @see dragonBones.SlotData
+             * @version DragonBones 4.5
+             * @language zh_CN
+             */
+            get: function () {
+                return this._slotData;
             },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(Slot.prototype, "boundingBoxData", {
             /**
+             * - The custom bounding box data for the slot at current time.
+             * @version DragonBones 5.0
+             * @language en_US
+             */
+            /**
+             * - 插槽此时的自定义包围盒数据。
+             * @version DragonBones 5.0
              * @language zh_CN
-             * 插槽此时的自定义包围盒数据。
-             * @see dragonBones.Armature
-             * @version DragonBones 3.0
              */
             get: function () {
                 return this._boundingBoxData;
@@ -4643,7 +6465,22 @@ var dragonBones;
         });
         Object.defineProperty(Slot.prototype, "display", {
             /**
-             * 此时显示的显示对象。
+             * - The display object that the slot displays at this time.
+             * @example
+             * <pre>
+             *     let slot = armature.getSlot("text");
+             *     slot.display = new yourEngine.TextField();
+             * </pre>
+             * @version DragonBones 3.0
+             * @language en_US
+             */
+            /**
+             * - 插槽此时显示的显示对象。
+             * @example
+             * <pre>
+             *     let slot = armature.getSlot("text");
+             *     slot.display = new yourEngine.TextField();
+             * </pre>
              * @version DragonBones 3.0
              * @language zh_CN
              */
@@ -4654,29 +6491,42 @@ var dragonBones;
                 if (this._display === value) {
                     return;
                 }
-                var displayListLength = this._displayList.length;
-                if (this._displayIndex < 0 && displayListLength === 0) {
+                if (this._displayFrames.length === 0) {
+                    this.displayFrameCount = 1;
                     this._displayIndex = 0;
                 }
-                if (this._displayIndex < 0) {
-                    return;
-                }
-                else {
-                    var replaceDisplayList = this.displayList; // Copy.
-                    if (displayListLength <= this._displayIndex) {
-                        replaceDisplayList.length = this._displayIndex + 1;
-                    }
-                    replaceDisplayList[this._displayIndex] = value;
-                    this.displayList = replaceDisplayList;
-                }
+                this.replaceDisplay(value, this._displayIndex);
             },
             enumerable: true,
             configurable: true
         });
         Object.defineProperty(Slot.prototype, "childArmature", {
             /**
-             * 此时显示的子骨架。
-             * @see dragonBones.Armature
+             * - The child armature that the slot displayed at current time.
+             * @example
+             * <pre>
+             *     let slot = armature.getSlot("weapon");
+             *     let prevChildArmature = slot.childArmature;
+             *     if (prevChildArmature) {
+             *         prevChildArmature.dispose();
+             *     }
+             *     slot.childArmature = factory.buildArmature("weapon_blabla", "weapon_blabla_project");
+             * </pre>
+             * @version DragonBones 3.0
+             * @language en_US
+             */
+            /**
+             * - 插槽此时显示的子骨架。
+             * 注意，被替换的对象或子骨架并不会被回收，根据语言和引擎的不同，需要额外处理。
+             * @example
+             * <pre>
+             *     let slot = armature.getSlot("weapon");
+             *     let prevChildArmature = slot.childArmature;
+             *     if (prevChildArmature) {
+             *         prevChildArmature.dispose();
+             *     }
+             *     slot.childArmature = factory.buildArmature("weapon_blabla", "weapon_blabla_project");
+             * </pre>
              * @version DragonBones 3.0
              * @language zh_CN
              */
@@ -4692,18 +6542,45 @@ var dragonBones;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(Slot.prototype, "parent", {
+            /**
+             * - The parent bone to which it belongs.
+             * @version DragonBones 3.0
+             * @language en_US
+             */
+            /**
+             * - 所属的父骨骼。
+             * @version DragonBones 3.0
+             * @language zh_CN
+             */
+            get: function () {
+                return this._parent;
+            },
+            enumerable: true,
+            configurable: true
+        });
         /**
+         * - Deprecated, please refer to {@link #display}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see #display
+         * @language en_US
+         */
+        /**
+         * - 已废弃，请参考 {@link #display}。
+         * @deprecated
+         * @language zh_CN
          */
         Slot.prototype.getDisplay = function () {
             return this._display;
         };
         /**
+         * - Deprecated, please refer to {@link #display}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see #display
+         * @language en_US
+         */
+        /**
+         * - 已废弃，请参考 {@link #display}。
+         * @deprecated
+         * @language zh_CN
          */
         Slot.prototype.setDisplay = function (value) {
             this.display = value;
@@ -4712,22 +6589,51 @@ var dragonBones;
     }(dragonBones.TransformObject));
     dragonBones.Slot = Slot;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
     /**
-     * @private
      * @internal
      */
-    var Constraint = (function (_super) {
+    var Constraint = /** @class */ (function (_super) {
         __extends(Constraint, _super);
         function Constraint() {
             return _super !== null && _super.apply(this, arguments) || this;
         }
         Constraint.prototype._onClear = function () {
-            this.target = null; //
-            this.bone = null; //
-            this.root = null; //
+            this._armature = null; //
+            this._target = null; //
+            this._root = null; //
+            this._bone = null;
         };
+        Object.defineProperty(Constraint.prototype, "name", {
+            get: function () {
+                return this._constraintData.name;
+            },
+            enumerable: true,
+            configurable: true
+        });
         Constraint._helpMatrix = new dragonBones.Matrix();
         Constraint._helpTransform = new dragonBones.Transform();
         Constraint._helpPoint = new dragonBones.Point();
@@ -4735,10 +6641,9 @@ var dragonBones;
     }(dragonBones.BaseObject));
     dragonBones.Constraint = Constraint;
     /**
-     * @private
      * @internal
      */
-    var IKConstraint = (function (_super) {
+    var IKConstraint = /** @class */ (function (_super) {
         __extends(IKConstraint, _super);
         function IKConstraint() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -4748,30 +6653,29 @@ var dragonBones;
         };
         IKConstraint.prototype._onClear = function () {
             _super.prototype._onClear.call(this);
-            this.bendPositive = false;
-            this.scaleEnabled = false;
-            this.weight = 1.0;
+            this._scaleEnabled = false;
+            this._bendPositive = false;
+            this._weight = 1.0;
+            this._constraintData = null;
         };
         IKConstraint.prototype._computeA = function () {
-            var ikGlobal = this.target.global;
-            var global = this.bone.global;
-            var globalTransformMatrix = this.bone.globalTransformMatrix;
-            // const boneLength = this.bone.boneData.length;
-            // const x = globalTransformMatrix.a * boneLength; 
-            var ikRadian = Math.atan2(ikGlobal.y - global.y, ikGlobal.x - global.x);
+            var ikGlobal = this._target.global;
+            var global = this._root.global;
+            var globalTransformMatrix = this._root.globalTransformMatrix;
+            var radian = Math.atan2(ikGlobal.y - global.y, ikGlobal.x - global.x);
             if (global.scaleX < 0.0) {
-                ikRadian += Math.PI;
+                radian += Math.PI;
             }
-            global.rotation += (ikRadian - global.rotation) * this.weight;
+            global.rotation += dragonBones.Transform.normalizeRadian(radian - global.rotation) * this._weight;
             global.toMatrix(globalTransformMatrix);
         };
         IKConstraint.prototype._computeB = function () {
-            var boneLength = this.bone.boneData.length;
-            var parent = this.root;
-            var ikGlobal = this.target.global;
+            var boneLength = this._bone._boneData.length;
+            var parent = this._root;
+            var ikGlobal = this._target.global;
             var parentGlobal = parent.global;
-            var global = this.bone.global;
-            var globalTransformMatrix = this.bone.globalTransformMatrix;
+            var global = this._bone.global;
+            var globalTransformMatrix = this._bone.globalTransformMatrix;
             var x = globalTransformMatrix.a * boneLength;
             var y = globalTransformMatrix.b * boneLength;
             var lLL = x * x + y * y;
@@ -4780,18 +6684,20 @@ var dragonBones;
             var dY = global.y - parentGlobal.y;
             var lPP = dX * dX + dY * dY;
             var lP = Math.sqrt(lPP);
+            var rawRadian = global.rotation;
+            var rawParentRadian = parentGlobal.rotation;
             var rawRadianA = Math.atan2(dY, dX);
             dX = ikGlobal.x - parentGlobal.x;
             dY = ikGlobal.y - parentGlobal.y;
             var lTT = dX * dX + dY * dY;
             var lT = Math.sqrt(lTT);
-            var ikRadianA = 0.0;
+            var radianA = 0.0;
             if (lL + lP <= lT || lT + lL <= lP || lT + lP <= lL) {
-                ikRadianA = Math.atan2(ikGlobal.y - parentGlobal.y, ikGlobal.x - parentGlobal.x);
+                radianA = Math.atan2(ikGlobal.y - parentGlobal.y, ikGlobal.x - parentGlobal.x);
                 if (lL + lP <= lT) {
                 }
                 else if (lP < lL) {
-                    ikRadianA += Math.PI;
+                    radianA += Math.PI;
                 }
             }
             else {
@@ -4802,11 +6708,12 @@ var dragonBones;
                 var rX = -dY * r;
                 var rY = dX * r;
                 var isPPR = false;
-                if (parent._parent !== null) {
-                    var parentParentMatrix = parent._parent.globalTransformMatrix;
+                var parentParent = parent.parent;
+                if (parentParent !== null) {
+                    var parentParentMatrix = parentParent.globalTransformMatrix;
                     isPPR = parentParentMatrix.a * parentParentMatrix.d - parentParentMatrix.b * parentParentMatrix.c < 0.0;
                 }
-                if (isPPR !== this.bendPositive) {
+                if (isPPR !== this._bendPositive) {
                     global.x = hX - rX;
                     global.y = hY - rY;
                 }
@@ -4814,81 +6721,673 @@ var dragonBones;
                     global.x = hX + rX;
                     global.y = hY + rY;
                 }
-                ikRadianA = Math.atan2(global.y - parentGlobal.y, global.x - parentGlobal.x);
+                radianA = Math.atan2(global.y - parentGlobal.y, global.x - parentGlobal.x);
             }
-            var dR = (ikRadianA - rawRadianA) * this.weight;
-            parentGlobal.rotation += dR;
+            var dR = dragonBones.Transform.normalizeRadian(radianA - rawRadianA);
+            parentGlobal.rotation = rawParentRadian + dR * this._weight;
             parentGlobal.toMatrix(parent.globalTransformMatrix);
-            var parentRadian = rawRadianA + dR;
-            global.x = parentGlobal.x + Math.cos(parentRadian) * lP;
-            global.y = parentGlobal.y + Math.sin(parentRadian) * lP;
-            var ikRadianB = Math.atan2(ikGlobal.y - global.y, ikGlobal.x - global.x);
+            //
+            var currentRadianA = rawRadianA + dR * this._weight;
+            global.x = parentGlobal.x + Math.cos(currentRadianA) * lP;
+            global.y = parentGlobal.y + Math.sin(currentRadianA) * lP;
+            //
+            var radianB = Math.atan2(ikGlobal.y - global.y, ikGlobal.x - global.x);
             if (global.scaleX < 0.0) {
-                ikRadianB += Math.PI;
+                radianB += Math.PI;
             }
-            dR = (ikRadianB - global.rotation) * this.weight;
-            global.rotation += dR;
+            global.rotation = parentGlobal.rotation + rawRadian - rawParentRadian + dragonBones.Transform.normalizeRadian(radianB - dR - rawRadian) * this._weight;
             global.toMatrix(globalTransformMatrix);
         };
+        IKConstraint.prototype.init = function (constraintData, armature) {
+            if (this._constraintData !== null) {
+                return;
+            }
+            this._constraintData = constraintData;
+            this._armature = armature;
+            this._target = this._armature.getBone(this._constraintData.target.name);
+            this._root = this._armature.getBone(this._constraintData.root.name);
+            this._bone = this._constraintData.bone !== null ? this._armature.getBone(this._constraintData.bone.name) : null;
+            {
+                var ikConstraintData = this._constraintData;
+                this._scaleEnabled = ikConstraintData.scaleEnabled;
+                this._bendPositive = ikConstraintData.bendPositive;
+                this._weight = ikConstraintData.weight;
+            }
+            this._root._hasConstraint = true;
+        };
         IKConstraint.prototype.update = function () {
-            if (this.root === null) {
-                this.bone.updateByConstraint();
-                this._computeA();
+            this._root.updateByConstraint();
+            if (this._bone !== null) {
+                this._bone.updateByConstraint();
+                this._computeB();
             }
             else {
-                this.root.updateByConstraint();
-                this.bone.updateByConstraint();
-                this._computeB();
+                this._computeA();
+            }
+        };
+        IKConstraint.prototype.invalidUpdate = function () {
+            this._root.invalidUpdate();
+            if (this._bone !== null) {
+                this._bone.invalidUpdate();
             }
         };
         return IKConstraint;
     }(Constraint));
     dragonBones.IKConstraint = IKConstraint;
+    /**
+     * @internal
+     */
+    var PathConstraint = /** @class */ (function (_super) {
+        __extends(PathConstraint, _super);
+        function PathConstraint() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this._bones = [];
+            _this._spaces = [];
+            _this._positions = [];
+            _this._curves = [];
+            _this._boneLengths = [];
+            _this._pathGlobalVertices = [];
+            _this._segments = [10];
+            return _this;
+        }
+        PathConstraint.toString = function () {
+            return "[class dragonBones.PathConstraint]";
+        };
+        PathConstraint.prototype._onClear = function () {
+            _super.prototype._onClear.call(this);
+            this.dirty = false;
+            this.pathOffset = 0;
+            this.position = 0.0;
+            this.spacing = 0.0;
+            this.rotateOffset = 0.0;
+            this.rotateMix = 1.0;
+            this.translateMix = 1.0;
+            this._pathSlot = null;
+            this._bones.length = 0;
+            this._spaces.length = 0;
+            this._positions.length = 0;
+            this._curves.length = 0;
+            this._boneLengths.length = 0;
+            this._pathGlobalVertices.length = 0;
+        };
+        PathConstraint.prototype._updatePathVertices = function (verticesData) {
+            //计算曲线的节点数据
+            var armature = this._armature;
+            var dragonBonesData = armature.armatureData.parent;
+            var scale = armature.armatureData.scale;
+            var intArray = dragonBonesData.intArray;
+            var floatArray = dragonBonesData.floatArray;
+            var pathOffset = verticesData.offset;
+            var pathVertexCount = intArray[pathOffset + 0 /* GeometryVertexCount */];
+            var pathVertexOffset = intArray[pathOffset + 2 /* GeometryFloatOffset */];
+            this._pathGlobalVertices.length = pathVertexCount * 2;
+            var weightData = verticesData.weight;
+            //没有骨骼约束我,那节点只受自己的Bone控制
+            if (weightData === null) {
+                var parentBone = this._pathSlot.parent;
+                parentBone.updateByConstraint();
+                var matrix = parentBone.globalTransformMatrix;
+                for (var i = 0, iV_1 = pathVertexOffset; i < pathVertexCount; i += 2) {
+                    var vx = floatArray[iV_1++] * scale;
+                    var vy = floatArray[iV_1++] * scale;
+                    var x = matrix.a * vx + matrix.c * vy + matrix.tx;
+                    var y = matrix.b * vx + matrix.d * vy + matrix.ty;
+                    //
+                    this._pathGlobalVertices[i] = x;
+                    this._pathGlobalVertices[i + 1] = y;
+                }
+                return;
+            }
+            //有骨骼约束我,那我的节点受骨骼权重控制
+            var bones = this._pathSlot._geometryBones;
+            var weightBoneCount = weightData.bones.length;
+            var weightOffset = weightData.offset;
+            var floatOffset = intArray[weightOffset + 1 /* WeigthFloatOffset */];
+            var iV = floatOffset;
+            var iB = weightOffset + 2 /* WeigthBoneIndices */ + weightBoneCount;
+            for (var i = 0, iW = 0; i < pathVertexCount; i++) {
+                var vertexBoneCount = intArray[iB++]; //
+                var xG = 0.0, yG = 0.0;
+                for (var ii = 0, ll = vertexBoneCount; ii < ll; ii++) {
+                    var boneIndex = intArray[iB++];
+                    var bone = bones[boneIndex];
+                    if (bone === null) {
+                        continue;
+                    }
+                    bone.updateByConstraint();
+                    var matrix = bone.globalTransformMatrix;
+                    var weight = floatArray[iV++];
+                    var vx = floatArray[iV++] * scale;
+                    var vy = floatArray[iV++] * scale;
+                    xG += (matrix.a * vx + matrix.c * vy + matrix.tx) * weight;
+                    yG += (matrix.b * vx + matrix.d * vy + matrix.ty) * weight;
+                }
+                this._pathGlobalVertices[iW++] = xG;
+                this._pathGlobalVertices[iW++] = yG;
+            }
+        };
+        PathConstraint.prototype._computeVertices = function (start, count, offset, out) {
+            //TODO优化
+            for (var i = offset, iW = start; i < count; i += 2) {
+                out[i] = this._pathGlobalVertices[iW++];
+                out[i + 1] = this._pathGlobalVertices[iW++];
+            }
+        };
+        PathConstraint.prototype._computeBezierCurve = function (pathDisplayDta, spaceCount, tangents, percentPosition, percentSpacing) {
+            //计算当前的骨骼在曲线上的位置
+            var armature = this._armature;
+            var intArray = armature.armatureData.parent.intArray;
+            var vertexCount = intArray[pathDisplayDta.geometry.offset + 0 /* GeometryVertexCount */];
+            var positions = this._positions;
+            var spaces = this._spaces;
+            var isClosed = pathDisplayDta.closed;
+            var curveVertices = Array();
+            var verticesLength = vertexCount * 2;
+            var curveCount = verticesLength / 6;
+            var preCurve = -1;
+            var position = this.position;
+            positions.length = spaceCount * 3 + 2;
+            var pathLength = 0.0;
+            //不需要匀速运动，效率高些
+            if (!pathDisplayDta.constantSpeed) {
+                var lenghts = pathDisplayDta.curveLengths;
+                curveCount -= isClosed ? 1 : 2;
+                pathLength = lenghts[curveCount];
+                if (percentPosition) {
+                    position *= pathLength;
+                }
+                if (percentSpacing) {
+                    for (var i = 0; i < spaceCount; i++) {
+                        spaces[i] *= pathLength;
+                    }
+                }
+                curveVertices.length = 8;
+                for (var i = 0, o = 0, curve = 0; i < spaceCount; i++, o += 3) {
+                    var space = spaces[i];
+                    position += space;
+                    if (isClosed) {
+                        position %= pathLength;
+                        if (position < 0) {
+                            position += pathLength;
+                        }
+                        curve = 0;
+                    }
+                    else if (position < 0) {
+                        //TODO
+                        continue;
+                    }
+                    else if (position > pathLength) {
+                        //TODO
+                        continue;
+                    }
+                    var percent = 0.0;
+                    for (;; curve++) {
+                        var len = lenghts[curve];
+                        if (position > len) {
+                            continue;
+                        }
+                        if (curve === 0) {
+                            percent = position / len;
+                        }
+                        else {
+                            var preLen = lenghts[curve - 1];
+                            percent = (position - preLen) / (len - preLen);
+                        }
+                        break;
+                    }
+                    if (curve !== preCurve) {
+                        preCurve = curve;
+                        if (isClosed && curve === curveCount) {
+                            //计算曲线
+                            this._computeVertices(verticesLength - 4, 4, 0, curveVertices);
+                            this._computeVertices(0, 4, 4, curveVertices);
+                        }
+                        else {
+                            this._computeVertices(curve * 6 + 2, 8, 0, curveVertices);
+                        }
+                    }
+                    //
+                    this.addCurvePosition(percent, curveVertices[0], curveVertices[1], curveVertices[2], curveVertices[3], curveVertices[4], curveVertices[5], curveVertices[6], curveVertices[7], positions, o, tangents);
+                }
+                return;
+            }
+            //匀速的
+            if (isClosed) {
+                verticesLength += 2;
+                curveVertices.length = vertexCount;
+                this._computeVertices(2, verticesLength - 4, 0, curveVertices);
+                this._computeVertices(0, 2, verticesLength - 4, curveVertices);
+                curveVertices[verticesLength - 2] = curveVertices[0];
+                curveVertices[verticesLength - 1] = curveVertices[1];
+            }
+            else {
+                curveCount--;
+                verticesLength -= 4;
+                curveVertices.length = verticesLength;
+                this._computeVertices(2, verticesLength, 0, curveVertices);
+            }
+            //
+            var curves = new Array(curveCount);
+            pathLength = 0;
+            var x1 = curveVertices[0], y1 = curveVertices[1], cx1 = 0, cy1 = 0, cx2 = 0, cy2 = 0, x2 = 0, y2 = 0;
+            var tmpx, tmpy, dddfx, dddfy, ddfx, ddfy, dfx, dfy;
+            for (var i = 0, w = 2; i < curveCount; i++, w += 6) {
+                cx1 = curveVertices[w];
+                cy1 = curveVertices[w + 1];
+                cx2 = curveVertices[w + 2];
+                cy2 = curveVertices[w + 3];
+                x2 = curveVertices[w + 4];
+                y2 = curveVertices[w + 5];
+                tmpx = (x1 - cx1 * 2 + cx2) * 0.1875;
+                tmpy = (y1 - cy1 * 2 + cy2) * 0.1875;
+                dddfx = ((cx1 - cx2) * 3 - x1 + x2) * 0.09375;
+                dddfy = ((cy1 - cy2) * 3 - y1 + y2) * 0.09375;
+                ddfx = tmpx * 2 + dddfx;
+                ddfy = tmpy * 2 + dddfy;
+                dfx = (cx1 - x1) * 0.75 + tmpx + dddfx * 0.16666667;
+                dfy = (cy1 - y1) * 0.75 + tmpy + dddfy * 0.16666667;
+                pathLength += Math.sqrt(dfx * dfx + dfy * dfy);
+                dfx += ddfx;
+                dfy += ddfy;
+                ddfx += dddfx;
+                ddfy += dddfy;
+                pathLength += Math.sqrt(dfx * dfx + dfy * dfy);
+                dfx += ddfx;
+                dfy += ddfy;
+                pathLength += Math.sqrt(dfx * dfx + dfy * dfy);
+                dfx += ddfx + dddfx;
+                dfy += ddfy + dddfy;
+                pathLength += Math.sqrt(dfx * dfx + dfy * dfy);
+                curves[i] = pathLength;
+                x1 = x2;
+                y1 = y2;
+            }
+            if (percentPosition) {
+                position *= pathLength;
+            }
+            if (percentSpacing) {
+                for (var i = 0; i < spaceCount; i++) {
+                    spaces[i] *= pathLength;
+                }
+            }
+            var segments = this._segments;
+            var curveLength = 0;
+            for (var i = 0, o = 0, curve = 0, segment = 0; i < spaceCount; i++, o += 3) {
+                var space = spaces[i];
+                position += space;
+                var p = position;
+                if (isClosed) {
+                    p %= pathLength;
+                    if (p < 0)
+                        p += pathLength;
+                    curve = 0;
+                }
+                else if (p < 0) {
+                    continue;
+                }
+                else if (p > pathLength) {
+                    continue;
+                }
+                // Determine curve containing position.
+                for (;; curve++) {
+                    var length_1 = curves[curve];
+                    if (p > length_1)
+                        continue;
+                    if (curve === 0)
+                        p /= length_1;
+                    else {
+                        var prev = curves[curve - 1];
+                        p = (p - prev) / (length_1 - prev);
+                    }
+                    break;
+                }
+                if (curve !== preCurve) {
+                    preCurve = curve;
+                    var ii = curve * 6;
+                    x1 = curveVertices[ii];
+                    y1 = curveVertices[ii + 1];
+                    cx1 = curveVertices[ii + 2];
+                    cy1 = curveVertices[ii + 3];
+                    cx2 = curveVertices[ii + 4];
+                    cy2 = curveVertices[ii + 5];
+                    x2 = curveVertices[ii + 6];
+                    y2 = curveVertices[ii + 7];
+                    tmpx = (x1 - cx1 * 2 + cx2) * 0.03;
+                    tmpy = (y1 - cy1 * 2 + cy2) * 0.03;
+                    dddfx = ((cx1 - cx2) * 3 - x1 + x2) * 0.006;
+                    dddfy = ((cy1 - cy2) * 3 - y1 + y2) * 0.006;
+                    ddfx = tmpx * 2 + dddfx;
+                    ddfy = tmpy * 2 + dddfy;
+                    dfx = (cx1 - x1) * 0.3 + tmpx + dddfx * 0.16666667;
+                    dfy = (cy1 - y1) * 0.3 + tmpy + dddfy * 0.16666667;
+                    curveLength = Math.sqrt(dfx * dfx + dfy * dfy);
+                    segments[0] = curveLength;
+                    for (ii = 1; ii < 8; ii++) {
+                        dfx += ddfx;
+                        dfy += ddfy;
+                        ddfx += dddfx;
+                        ddfy += dddfy;
+                        curveLength += Math.sqrt(dfx * dfx + dfy * dfy);
+                        segments[ii] = curveLength;
+                    }
+                    dfx += ddfx;
+                    dfy += ddfy;
+                    curveLength += Math.sqrt(dfx * dfx + dfy * dfy);
+                    segments[8] = curveLength;
+                    dfx += ddfx + dddfx;
+                    dfy += ddfy + dddfy;
+                    curveLength += Math.sqrt(dfx * dfx + dfy * dfy);
+                    segments[9] = curveLength;
+                    segment = 0;
+                }
+                // Weight by segment length.
+                p *= curveLength;
+                for (;; segment++) {
+                    var length_2 = segments[segment];
+                    if (p > length_2)
+                        continue;
+                    if (segment === 0)
+                        p /= length_2;
+                    else {
+                        var prev = segments[segment - 1];
+                        p = segment + (p - prev) / (length_2 - prev);
+                    }
+                    break;
+                }
+                this.addCurvePosition(p * 0.1, x1, y1, cx1, cy1, cx2, cy2, x2, y2, positions, o, tangents);
+            }
+        };
+        //Calculates a point on the curve, for a given t value between 0 and 1.
+        PathConstraint.prototype.addCurvePosition = function (t, x1, y1, cx1, cy1, cx2, cy2, x2, y2, out, offset, tangents) {
+            if (t === 0) {
+                out[offset] = x1;
+                out[offset + 1] = y1;
+                out[offset + 2] = 0;
+                return;
+            }
+            if (t === 1) {
+                out[offset] = x2;
+                out[offset + 1] = y2;
+                out[offset + 2] = 0;
+                return;
+            }
+            var mt = 1 - t;
+            var mt2 = mt * mt;
+            var t2 = t * t;
+            var a = mt2 * mt;
+            var b = mt2 * t * 3;
+            var c = mt * t2 * 3;
+            var d = t * t2;
+            var x = a * x1 + b * cx1 + c * cx2 + d * x2;
+            var y = a * y1 + b * cy1 + c * cy2 + d * y2;
+            out[offset] = x;
+            out[offset + 1] = y;
+            if (tangents) {
+                //Calculates the curve tangent at the specified t value
+                out[offset + 2] = Math.atan2(y - (a * y1 + b * cy1 + c * cy2), x - (a * x1 + b * cx1 + c * cx2));
+            }
+            else {
+                out[offset + 2] = 0;
+            }
+        };
+        PathConstraint.prototype.init = function (constraintData, armature) {
+            this._constraintData = constraintData;
+            this._armature = armature;
+            var data = constraintData;
+            this.pathOffset = data.pathDisplayData.geometry.offset;
+            //
+            this.position = data.position;
+            this.spacing = data.spacing;
+            this.rotateOffset = data.rotateOffset;
+            this.rotateMix = data.rotateMix;
+            this.translateMix = data.translateMix;
+            //
+            this._root = this._armature.getBone(data.root.name);
+            this._target = this._armature.getBone(data.target.name);
+            this._pathSlot = this._armature.getSlot(data.pathSlot.name);
+            for (var i = 0, l = data.bones.length; i < l; i++) {
+                var bone = this._armature.getBone(data.bones[i].name);
+                if (bone !== null) {
+                    this._bones.push(bone);
+                }
+            }
+            if (data.rotateMode === 2 /* ChainScale */) {
+                this._boneLengths.length = this._bones.length;
+            }
+            this._root._hasConstraint = true;
+        };
+        PathConstraint.prototype.update = function () {
+            var pathSlot = this._pathSlot;
+            if (pathSlot._geometryData === null ||
+                pathSlot._geometryData.offset !== this.pathOffset) {
+                return;
+            }
+            var constraintData = this._constraintData;
+            //
+            //曲线节点数据改变:父亲bone改变，权重bones改变，变形顶点改变
+            var isPathVerticeDirty = false;
+            if (this._root._childrenTransformDirty) {
+                this._updatePathVertices(pathSlot._geometryData);
+                isPathVerticeDirty = true;
+            }
+            else if (pathSlot._verticesDirty || pathSlot._isBonesUpdate()) {
+                this._updatePathVertices(pathSlot._geometryData);
+                pathSlot._verticesDirty = false;
+                isPathVerticeDirty = true;
+            }
+            if (!isPathVerticeDirty && !this.dirty) {
+                return;
+            }
+            //
+            var positionMode = constraintData.positionMode;
+            var spacingMode = constraintData.spacingMode;
+            var rotateMode = constraintData.rotateMode;
+            var bones = this._bones;
+            var isLengthMode = spacingMode === 0 /* Length */;
+            var isChainScaleMode = rotateMode === 2 /* ChainScale */;
+            var isTangentMode = rotateMode === 0 /* Tangent */;
+            var boneCount = bones.length;
+            var spacesCount = isTangentMode ? boneCount : boneCount + 1;
+            var spacing = this.spacing;
+            var spaces = this._spaces;
+            spaces.length = spacesCount;
+            //计曲线间隔和长度
+            if (isChainScaleMode || isLengthMode) {
+                //Bone改变和spacing改变触发
+                spaces[0] = 0;
+                for (var i = 0, l = spacesCount - 1; i < l; i++) {
+                    var bone = bones[i];
+                    bone.updateByConstraint();
+                    var boneLength = bone._boneData.length;
+                    var matrix = bone.globalTransformMatrix;
+                    var x = boneLength * matrix.a;
+                    var y = boneLength * matrix.b;
+                    var len = Math.sqrt(x * x + y * y);
+                    if (isChainScaleMode) {
+                        this._boneLengths[i] = len;
+                    }
+                    spaces[i + 1] = (boneLength + spacing) * len / boneLength;
+                }
+            }
+            else {
+                for (var i = 0; i < spacesCount; i++) {
+                    spaces[i] = spacing;
+                }
+            }
+            //
+            this._computeBezierCurve(pathSlot._displayFrame.rawDisplayData, spacesCount, isTangentMode, positionMode === 1 /* Percent */, spacingMode === 2 /* Percent */);
+            //根据新的节点数据重新采样
+            var positions = this._positions;
+            var rotateOffset = this.rotateOffset;
+            var boneX = positions[0], boneY = positions[1];
+            var tip;
+            if (rotateOffset === 0) {
+                tip = rotateMode === 1 /* Chain */;
+            }
+            else {
+                tip = false;
+                var bone = pathSlot.parent;
+                if (bone !== null) {
+                    var matrix = bone.globalTransformMatrix;
+                    rotateOffset *= matrix.a * matrix.d - matrix.b * matrix.c > 0 ? dragonBones.Transform.DEG_RAD : -dragonBones.Transform.DEG_RAD;
+                }
+            }
+            //
+            var rotateMix = this.rotateMix;
+            var translateMix = this.translateMix;
+            for (var i = 0, p = 3; i < boneCount; i++, p += 3) {
+                var bone = bones[i];
+                bone.updateByConstraint();
+                var matrix = bone.globalTransformMatrix;
+                matrix.tx += (boneX - matrix.tx) * translateMix;
+                matrix.ty += (boneY - matrix.ty) * translateMix;
+                var x = positions[p], y = positions[p + 1];
+                var dx = x - boneX, dy = y - boneY;
+                if (isChainScaleMode) {
+                    var lenght = this._boneLengths[i];
+                    var s = (Math.sqrt(dx * dx + dy * dy) / lenght - 1) * rotateMix + 1;
+                    matrix.a *= s;
+                    matrix.b *= s;
+                }
+                boneX = x;
+                boneY = y;
+                if (rotateMix > 0) {
+                    var a = matrix.a, b = matrix.b, c = matrix.c, d = matrix.d, r = void 0, cos = void 0, sin = void 0;
+                    if (isTangentMode) {
+                        r = positions[p - 1];
+                    }
+                    else {
+                        r = Math.atan2(dy, dx);
+                    }
+                    r -= Math.atan2(b, a);
+                    if (tip) {
+                        cos = Math.cos(r);
+                        sin = Math.sin(r);
+                        var length_3 = bone._boneData.length;
+                        boneX += (length_3 * (cos * a - sin * b) - dx) * rotateMix;
+                        boneY += (length_3 * (sin * a + cos * b) - dy) * rotateMix;
+                    }
+                    else {
+                        r += rotateOffset;
+                    }
+                    if (r > dragonBones.Transform.PI) {
+                        r -= dragonBones.Transform.PI_D;
+                    }
+                    else if (r < -dragonBones.Transform.PI) {
+                        r += dragonBones.Transform.PI_D;
+                    }
+                    r *= rotateMix;
+                    cos = Math.cos(r);
+                    sin = Math.sin(r);
+                    matrix.a = cos * a - sin * b;
+                    matrix.b = sin * a + cos * b;
+                    matrix.c = cos * c - sin * d;
+                    matrix.d = sin * c + cos * d;
+                }
+                bone.global.fromMatrix(matrix);
+            }
+            this.dirty = false;
+        };
+        PathConstraint.prototype.invalidUpdate = function () {
+        };
+        return PathConstraint;
+    }(Constraint));
+    dragonBones.PathConstraint = PathConstraint;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
     /**
-     * WorldClock 提供时钟支持，为每个加入到时钟的 IAnimatable 对象更新时间。
+     * - Worldclock provides clock support for animations, advance time for each IAnimatable object added to the instance.
+     * @see dragonBones.IAnimateble
+     * @see dragonBones.Armature
+     * @version DragonBones 3.0
+     * @language en_US
+     */
+    /**
+     * - WorldClock 对动画提供时钟支持，为每个加入到该实例的 IAnimatable 对象更新时间。
      * @see dragonBones.IAnimateble
      * @see dragonBones.Armature
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var WorldClock = (function () {
+    var WorldClock = /** @class */ (function () {
         /**
-         * 创建一个新的 WorldClock 实例。
-         * 通常并不需要单独创建 WorldClock 实例，可以直接使用 WorldClock.clock 静态实例。
-         * (创建更多独立的 WorldClock 实例可以更灵活的为需要更新的 IAnimateble 实例分组，用于控制不同组不同的播放速度)
+         * - Creating a Worldclock instance. Typically, you do not need to create Worldclock instance.
+         * When multiple Worldclock instances are running at different speeds, can achieving some specific animation effects, such as bullet time.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 创建一个 WorldClock 实例。通常并不需要创建 WorldClock 实例。
+         * 当多个 WorldClock 实例使用不同的速度运行时，可以实现一些特殊的动画效果，比如子弹时间等。
          * @version DragonBones 3.0
          * @language zh_CN
          */
         function WorldClock(time) {
-            if (time === void 0) { time = -1.0; }
+            if (time === void 0) { time = 0.0; }
             /**
-             * 当前时间。 (以秒为单位)
+             * - Current time. (In seconds)
+             * @version DragonBones 3.0
+             * @language en_US
+             */
+            /**
+             * - 当前的时间。 (以秒为单位)
              * @version DragonBones 3.0
              * @language zh_CN
              */
             this.time = 0.0;
             /**
-             * 时间流逝速度，用于控制动画变速播放。 [0: 停止播放, (0~1): 慢速播放, 1: 正常播放, (1~N): 快速播放]
+             * - The play speed, used to control animation speed-shift play.
+             * [0: Stop play, (0~1): Slow play, 1: Normal play, (1~N): Fast play]
+             * @default 1.0
+             * @version DragonBones 3.0
+             * @language en_US
+             */
+            /**
+             * - 播放速度，用于控制动画变速播放。
+             * [0: 停止播放, (0~1): 慢速播放, 1: 正常播放, (1~N): 快速播放]
              * @default 1.0
              * @version DragonBones 3.0
              * @language zh_CN
              */
             this.timeScale = 1.0;
+            this._systemTime = 0.0;
             this._animatebles = [];
             this._clock = null;
-            if (time < 0.0) {
-                this.time = new Date().getTime() * 0.001;
-            }
-            else {
-                this.time = time;
-            }
+            this.time = time;
+            this._systemTime = new Date().getTime() * 0.001;
         }
         /**
-         * 为所有的 IAnimatable 实例更新时间。
-         * @param passedTime 前进的时间。 (以秒为单位，当设置为 -1 时将自动计算当前帧与上一帧的时间差)
+         * - Advance time for all IAnimatable instances.
+         * @param passedTime - Passed time. [-1: Automatically calculates the time difference between the current frame and the previous frame, [0~N): Passed time] (In seconds)
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 为所有的 IAnimatable 实例更新时间。
+         * @param passedTime - 前进的时间。 [-1: 自动计算当前帧与上一帧的时间差, [0~N): 前进的时间] (以秒为单位)
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -4896,20 +7395,22 @@ var dragonBones;
             if (passedTime !== passedTime) {
                 passedTime = 0.0;
             }
+            var currentTime = Date.now() * 0.001;
             if (passedTime < 0.0) {
-                passedTime = new Date().getTime() * 0.001 - this.time;
+                passedTime = currentTime - this._systemTime;
             }
+            this._systemTime = currentTime;
             if (this.timeScale !== 1.0) {
                 passedTime *= this.timeScale;
+            }
+            if (passedTime === 0.0) {
+                return;
             }
             if (passedTime < 0.0) {
                 this.time -= passedTime;
             }
             else {
                 this.time += passedTime;
-            }
-            if (passedTime === 0.0) {
-                return;
             }
             var i = 0, r = 0, l = this._animatebles.length;
             for (; i < l; ++i) {
@@ -4940,17 +7441,36 @@ var dragonBones;
             }
         };
         /**
-         * 是否包含 IAnimatable 实例
-         * @param value IAnimatable 实例。
+         * - Check whether contains a specific instance of IAnimatable.
+         * @param value - The IAnimatable instance.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 检查是否包含特定的 IAnimatable 实例。
+         * @param value - IAnimatable 实例。
          * @version DragonBones 3.0
          * @language zh_CN
          */
         WorldClock.prototype.contains = function (value) {
-            return this._animatebles.indexOf(value) >= 0;
+            if (value === this) {
+                return false;
+            }
+            var ancestor = value;
+            while (ancestor !== this && ancestor !== null) {
+                ancestor = ancestor.clock;
+            }
+            return ancestor === this;
         };
         /**
-         * 添加 IAnimatable 实例。
-         * @param value IAnimatable 实例。
+         * - Add IAnimatable instance.
+         * @param value - The IAnimatable instance.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 添加 IAnimatable 实例。
+         * @param value - IAnimatable 实例。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -4961,8 +7481,14 @@ var dragonBones;
             }
         };
         /**
-         * 移除 IAnimatable 实例。
-         * @param value IAnimatable 实例。
+         * - Removes a specified IAnimatable instance.
+         * @param value - The IAnimatable instance.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 移除特定的 IAnimatable 实例。
+         * @param value - IAnimatable 实例。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -4974,7 +7500,12 @@ var dragonBones;
             }
         };
         /**
-         * 清除所有的 IAnimatable 实例。
+         * - Clear all IAnimatable instances.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 清除所有的 IAnimatable 实例。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -5008,44 +7539,62 @@ var dragonBones;
             enumerable: true,
             configurable: true
         });
-        /**
-         * 一个可以直接使用的全局 WorldClock 实例.
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
-        WorldClock.clock = new WorldClock();
         return WorldClock;
     }());
     dragonBones.WorldClock = WorldClock;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
     /**
-     * 动画控制器，用来播放动画数据，管理动画状态。
+     * - The animation player is used to play the animation data and manage the animation states.
+     * @see dragonBones.AnimationData
+     * @see dragonBones.AnimationState
+     * @version DragonBones 3.0
+     * @language en_US
+     */
+    /**
+     * - 动画播放器用来播放动画数据和管理动画状态。
      * @see dragonBones.AnimationData
      * @see dragonBones.AnimationState
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var Animation = (function (_super) {
+    var Animation = /** @class */ (function (_super) {
         __extends(Animation, _super);
         function Animation() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
             _this._animationNames = [];
             _this._animationStates = [];
             _this._animations = {};
+            _this._blendStates = {};
             _this._animationConfig = null; // Initial value.
             return _this;
         }
-        /**
-         * @private
-         */
         Animation.toString = function () {
             return "[class dragonBones.Animation]";
         };
-        /**
-         * @private
-         */
         Animation.prototype._onClear = function () {
             for (var _i = 0, _a = this._animationStates; _i < _a.length; _i++) {
                 var animationState = _a[_i];
@@ -5054,12 +7603,19 @@ var dragonBones;
             for (var k in this._animations) {
                 delete this._animations[k];
             }
+            for (var k in this._blendStates) {
+                var blendStates = this._blendStates[k];
+                for (var kB in blendStates) {
+                    blendStates[kB].returnToPool();
+                }
+                delete this._blendStates[k];
+            }
             if (this._animationConfig !== null) {
                 this._animationConfig.returnToPool();
             }
             this.timeScale = 1.0;
             this._animationDirty = false;
-            this._timelineDirty = false;
+            this._inheritTimeScale = 1.0;
             this._animationNames.length = 0;
             this._animationStates.length = 0;
             //this._animations.clear();
@@ -5072,6 +7628,9 @@ var dragonBones;
                 case 1 /* SameLayer */:
                     for (var _i = 0, _a = this._animationStates; _i < _a.length; _i++) {
                         var animationState = _a[_i];
+                        if (animationState._parent !== null) {
+                            continue;
+                        }
                         if (animationState.layer === animationConfig.layer) {
                             animationState.fadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut);
                         }
@@ -5080,6 +7639,9 @@ var dragonBones;
                 case 2 /* SameGroup */:
                     for (var _b = 0, _c = this._animationStates; _b < _c.length; _b++) {
                         var animationState = _c[_b];
+                        if (animationState._parent !== null) {
+                            continue;
+                        }
                         if (animationState.group === animationConfig.group) {
                             animationState.fadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut);
                         }
@@ -5088,6 +7650,9 @@ var dragonBones;
                 case 3 /* SameLayerAndGroup */:
                     for (var _d = 0, _e = this._animationStates; _d < _e.length; _d++) {
                         var animationState = _e[_d];
+                        if (animationState._parent !== null) {
+                            continue;
+                        }
                         if (animationState.layer === animationConfig.layer &&
                             animationState.group === animationConfig.group) {
                             animationState.fadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut);
@@ -5097,18 +7662,19 @@ var dragonBones;
                 case 4 /* All */:
                     for (var _f = 0, _g = this._animationStates; _f < _g.length; _f++) {
                         var animationState = _g[_f];
+                        if (animationState._parent !== null) {
+                            continue;
+                        }
                         animationState.fadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut);
                     }
                     break;
-                case 0 /* None */:
-                case 5 /* Single */:
+                case 5 /* Single */: // TODO
                 default:
                     break;
             }
         };
         /**
          * @internal
-         * @private
          */
         Animation.prototype.init = function (armature) {
             if (this._armature !== null) {
@@ -5119,17 +7685,25 @@ var dragonBones;
         };
         /**
          * @internal
-         * @private
          */
         Animation.prototype.advanceTime = function (passedTime) {
             if (passedTime < 0.0) {
                 passedTime = -passedTime;
             }
             if (this._armature.inheritAnimation && this._armature._parent !== null) {
-                passedTime *= this._armature._parent._armature.animation.timeScale;
+                this._inheritTimeScale = this._armature._parent._armature.animation._inheritTimeScale * this.timeScale;
             }
-            if (this.timeScale !== 1.0) {
-                passedTime *= this.timeScale;
+            else {
+                this._inheritTimeScale = this.timeScale;
+            }
+            if (this._inheritTimeScale !== 1.0) {
+                passedTime *= this._inheritTimeScale;
+            }
+            for (var k in this._blendStates) {
+                var blendStates = this._blendStates[k];
+                for (var kB in blendStates) {
+                    blendStates[kB].reset();
+                }
             }
             var animationStateCount = this._animationStates.length;
             if (animationStateCount === 1) {
@@ -5150,11 +7724,16 @@ var dragonBones;
                         }
                         for (var _b = 0, _c = this._armature.getSlots(); _b < _c.length; _b++) {
                             var slot = _c[_b];
-                            slot._cachedFrameIndices = animationData.getSlotCachedFrameIndices(slot.name);
+                            if (slot.displayFrameCount > 0) {
+                                var rawDisplayData = slot.getDisplayFrameAt(0).rawDisplayData;
+                                if (rawDisplayData !== null &&
+                                    rawDisplayData.parent === this._armature.armatureData.defaultSkin) {
+                                    slot._cachedFrameIndices = animationData.getSlotCachedFrameIndices(slot.name);
+                                    continue;
+                                }
+                            }
+                            slot._cachedFrameIndices = null;
                         }
-                    }
-                    if (this._timelineDirty) {
-                        animationState.updateTimelines();
                     }
                     animationState.advanceTime(passedTime, cacheFrameRate);
                 }
@@ -5174,9 +7753,6 @@ var dragonBones;
                         if (r > 0) {
                             this._animationStates[i - r] = animationState;
                         }
-                        if (this._timelineDirty) {
-                            animationState.updateTimelines();
-                        }
                         animationState.advanceTime(passedTime, 0.0);
                     }
                     if (i === animationStateCount - 1 && r > 0) {
@@ -5191,10 +7767,15 @@ var dragonBones;
             else {
                 this._armature._cacheFrameIndex = -1;
             }
-            this._timelineDirty = false;
         };
         /**
-         * 清除所有动画状态。
+         * - Clear all animations states.
+         * @see dragonBones.AnimationState
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 清除所有的动画状态。
          * @see dragonBones.AnimationState
          * @version DragonBones 4.5
          * @language zh_CN
@@ -5205,14 +7786,20 @@ var dragonBones;
                 animationState.returnToPool();
             }
             this._animationDirty = false;
-            this._timelineDirty = false;
             this._animationConfig.clear();
             this._animationStates.length = 0;
             this._lastAnimationState = null;
         };
         /**
-         * 暂停播放动画。
-         * @param animationName 动画状态的名称，如果未设置，则暂停所有动画状态。
+         * - Pause a specific animation state.
+         * @param animationName - The name of animation state. (If not set, it will pause all animations)
+         * @see dragonBones.AnimationState
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 暂停指定动画状态的播放。
+         * @param animationName - 动画状态名称。 （如果未设置，则暂停所有动画）
          * @see dragonBones.AnimationState
          * @version DragonBones 3.0
          * @language zh_CN
@@ -5233,13 +7820,23 @@ var dragonBones;
             }
         };
         /**
-         * 通过动画配置来播放动画。
-         * @param animationConfig 动画配置。
-         * @returns 对应的动画状态。
+         * - Play animation with a specific animation config.
+         * The API is still in the experimental phase and may encounter bugs or stability or compatibility issues when used.
+         * @param animationConfig - The animation config.
+         * @returns The playing animation state.
          * @see dragonBones.AnimationConfig
-         * @see dragonBones.AnimationState
-         * @version DragonBones 5.0
          * @beta
+         * @version DragonBones 5.0
+         * @language en_US
+         */
+        /**
+         * - 通过指定的动画配置来播放动画。
+         * 该 API 仍在实验阶段，使用时可能遭遇 bug 或稳定性或兼容性问题。
+         * @param animationConfig - 动画配置。
+         * @returns 播放的动画状态。
+         * @see dragonBones.AnimationConfig
+         * @beta
+         * @version DragonBones 5.0
          * @language zh_CN
          */
         Animation.prototype.playConfig = function (animationConfig) {
@@ -5252,7 +7849,9 @@ var dragonBones;
             if (animationConfig.fadeOutMode === 5 /* Single */) {
                 for (var _i = 0, _a = this._animationStates; _i < _a.length; _i++) {
                     var animationState_1 = _a[_i];
-                    if (animationState_1.animationData === animationData) {
+                    if (animationState_1._fadeState < 1 &&
+                        animationState_1.layer === animationConfig.layer &&
+                        animationState_1.animationData === animationData) {
                         return animationState_1;
                     }
                 }
@@ -5269,7 +7868,7 @@ var dragonBones;
             if (animationConfig.timeScale <= -100.0) {
                 animationConfig.timeScale = 1.0 / animationData.scale;
             }
-            if (animationData.frameCount > 1) {
+            if (animationData.frameCount > 0) {
                 if (animationConfig.position < 0.0) {
                     animationConfig.position %= animationData.duration;
                     animationConfig.position = animationData.duration - animationConfig.position;
@@ -5298,6 +7897,7 @@ var dragonBones;
                 animationConfig.duration = -1.0;
             }
             this._fadeOut(animationConfig);
+            //
             var animationState = dragonBones.BaseObject.borrowObject(dragonBones.AnimationState);
             animationState.init(this._armature, animationData, animationConfig);
             this._animationDirty = true;
@@ -5305,9 +7905,12 @@ var dragonBones;
             if (this._animationStates.length > 0) {
                 var added = false;
                 for (var i = 0, l = this._animationStates.length; i < l; ++i) {
-                    if (animationState.layer >= this._animationStates[i].layer) {
+                    if (animationState.layer > this._animationStates[i].layer) {
+                        added = true;
+                        this._animationStates.splice(i, 0, animationState);
+                        break;
                     }
-                    else {
+                    else if (i !== l - 1 && animationState.layer > this._animationStates[i + 1].layer) {
                         added = true;
                         this._animationStates.splice(i + 1, 0, animationState);
                         break;
@@ -5320,7 +7923,6 @@ var dragonBones;
             else {
                 this._animationStates.push(animationState);
             }
-            // Child armature play same name animation.
             for (var _b = 0, _c = this._armature.getSlots(); _b < _c.length; _b++) {
                 var slot = _c[_b];
                 var childArmature = slot.childArmature;
@@ -5330,18 +7932,51 @@ var dragonBones;
                     childArmature.animation.fadeIn(animationName); //
                 }
             }
-            if (animationConfig.fadeInTime <= 0.0) {
-                this._armature.advanceTime(0.0);
+            for (var k in animationData.animationTimelines) {
+                var childAnimationState = this.fadeIn(k, 0.0, 1, animationState.layer, "", 5 /* Single */);
+                if (childAnimationState === null) {
+                    continue;
+                }
+                var timelines = animationData.animationTimelines[k];
+                childAnimationState.actionEnabled = false;
+                childAnimationState.resetToPose = false;
+                childAnimationState.stop();
+                animationState.addState(childAnimationState, timelines);
+                //
+                var index = this._animationStates.indexOf(animationState);
+                var childIndex = this._animationStates.indexOf(childAnimationState);
+                if (childIndex < index) {
+                    this._animationStates.splice(index, 1);
+                    this._animationStates.splice(childIndex, 0, animationState);
+                }
             }
+            // if (!this._armature._lockUpdate && animationConfig.fadeInTime <= 0.0) { // Blend animation state, update armature.
+            //     this._armature.advanceTime(0.0);
+            // }
             this._lastAnimationState = animationState;
             return animationState;
         };
         /**
-         * 播放动画。
-         * @param animationName 动画数据名称，如果未设置，则播放默认动画，或将暂停状态切换为播放状态，或重新播放上一个正在播放的动画。
-         * @param playTimes 播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @returns 对应的动画状态。
-         * @see dragonBones.AnimationState
+         * - Play a specific animation.
+         * @param animationName - The name of animation data. (If not set, The default animation will be played, or resume the animation playing from pause status, or replay the last playing animation)
+         * @param playTimes - Playing repeat times. [-1: Use default value of the animation data, 0: No end loop playing, [1~N]: Repeat N times] (default: -1)
+         * @returns The playing animation state.
+         * @example
+         * <pre>
+         *     armature.animation.play("walk");
+         * </pre>
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 播放指定动画。
+         * @param animationName - 动画数据名称。 （如果未设置，则播放默认动画，或将暂停状态切换为播放状态，或重新播放之前播放的动画）
+         * @param playTimes - 循环播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次] （默认: -1）
+         * @returns 播放的动画状态。
+         * @example
+         * <pre>
+         *     armature.animation.play("walk");
+         * </pre>
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -5373,17 +8008,36 @@ var dragonBones;
             return this._lastAnimationState;
         };
         /**
-         * 淡入播放动画。
-         * @param animationName 动画数据名称。
-         * @param playTimes 播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @param fadeInTime 淡入时间。 [-1: 使用动画数据默认值, [0~N]: 淡入时间] (以秒为单位)
-         * @param layer 混合图层，图层高会优先获取混合权重。
-         * @param group 混合组，用于动画状态编组，方便控制淡出。
-         * @param fadeOutMode 淡出模式。
-         * @param resetToPose
-         * @returns 对应的动画状态。
-         * @see dragonBones.AnimationFadeOutMode
-         * @see dragonBones.AnimationState
+         * - Fade in a specific animation.
+         * @param animationName - The name of animation data.
+         * @param fadeInTime - The fade in time. [-1: Use the default value of animation data, [0~N]: The fade in time (In seconds)] (Default: -1)
+         * @param playTimes - playing repeat times. [-1: Use the default value of animation data, 0: No end loop playing, [1~N]: Repeat N times] (Default: -1)
+         * @param layer - The blending layer, the animation states in high level layer will get the blending weights with high priority, when the total blending weights are more than 1.0, there will be no more weights can be allocated to the other animation states. (Default: 0)
+         * @param group - The blending group name, it is typically used to specify the substitution of multiple animation states blending. (Default: null)
+         * @param fadeOutMode - The fade out mode, which is typically used to specify alternate mode of multiple animation states blending. (Default: AnimationFadeOutMode.SameLayerAndGroup)
+         * @returns The playing animation state.
+         * @example
+         * <pre>
+         *     armature.animation.fadeIn("walk", 0.3, 0, 0, "normalGroup").resetToPose = false;
+         *     armature.animation.fadeIn("attack", 0.3, 1, 0, "attackGroup").resetToPose = false;
+         * </pre>
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 淡入播放指定的动画。
+         * @param animationName - 动画数据名称。
+         * @param fadeInTime - 淡入时间。 [-1: 使用动画数据默认值, [0~N]: 淡入时间 (以秒为单位)] （默认: -1）
+         * @param playTimes - 播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次] （默认: -1）
+         * @param layer - 混合图层，图层高的动画状态会优先获取混合权重，当混合权重分配总和超过 1.0 时，剩余的动画状态将不能再获得权重分配。 （默认: 0）
+         * @param group - 混合组名称，该属性通常用来指定多个动画状态混合时的相互替换关系。 （默认: null）
+         * @param fadeOutMode - 淡出模式，该属性通常用来指定多个动画状态混合时的相互替换模式。 （默认: AnimationFadeOutMode.SameLayerAndGroup）
+         * @returns 播放的动画状态。
+         * @example
+         * <pre>
+         *     armature.animation.fadeIn("walk", 0.3, 0, 0, "normalGroup").resetToPose = false;
+         *     armature.animation.fadeIn("attack", 0.3, 1, 0, "attackGroup").resetToPose = false;
+         * </pre>
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -5403,12 +8057,20 @@ var dragonBones;
             return this.playConfig(this._animationConfig);
         };
         /**
-         * 从指定时间开始播放动画。
-         * @param animationName 动画数据的名称。
-         * @param time 开始时间。 (以秒为单位)
-         * @param playTimes 播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @returns 对应的动画状态。
-         * @see dragonBones.AnimationState
+         * - Play a specific animation from the specific time.
+         * @param animationName - The name of animation data.
+         * @param time - The start time point of playing. (In seconds)
+         * @param playTimes - Playing repeat times. [-1: Use the default value of animation data, 0: No end loop playing, [1~N]: Repeat N times] (Default: -1)
+         * @returns The played animation state.
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 从指定时间开始播放指定的动画。
+         * @param animationName - 动画数据名称。
+         * @param time - 播放开始的时间。 (以秒为单位)
+         * @param playTimes - 循环播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次] （默认: -1）
+         * @returns 播放的动画状态。
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -5424,12 +8086,20 @@ var dragonBones;
             return this.playConfig(this._animationConfig);
         };
         /**
-         * 从指定帧开始播放动画。
-         * @param animationName 动画数据的名称。
-         * @param frame 帧。
-         * @param playTimes 播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @returns 对应的动画状态。
-         * @see dragonBones.AnimationState
+         * - Play a specific animation from the specific frame.
+         * @param animationName - The name of animation data.
+         * @param frame - The start frame of playing.
+         * @param playTimes - Playing repeat times. [-1: Use the default value of animation data, 0: No end loop playing, [1~N]: Repeat N times] (Default: -1)
+         * @returns The played animation state.
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 从指定帧开始播放指定的动画。
+         * @param animationName - 动画数据名称。
+         * @param frame - 播放开始的帧数。
+         * @param playTimes - 播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次] （默认: -1）
+         * @returns 播放的动画状态。
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -5443,17 +8113,25 @@ var dragonBones;
             this._animationConfig.animation = animationName;
             var animationData = animationName in this._animations ? this._animations[animationName] : null;
             if (animationData !== null) {
-                this._animationConfig.position = animationData.duration * frame / animationData.frameCount;
+                this._animationConfig.position = animationData.frameCount > 0 ? animationData.duration * frame / animationData.frameCount : 0.0;
             }
             return this.playConfig(this._animationConfig);
         };
         /**
-         * 从指定进度开始播放动画。
-         * @param animationName 动画数据的名称。
-         * @param progress 进度。 [0~1]
-         * @param playTimes 播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @returns 对应的动画状态。
-         * @see dragonBones.AnimationState
+         * - Play a specific animation from the specific progress.
+         * @param animationName - The name of animation data.
+         * @param progress - The start progress value of playing.
+         * @param playTimes - Playing repeat times. [-1: Use the default value of animation data, 0: No end loop playing, [1~N]: Repeat N times] (Default: -1)
+         * @returns The played animation state.
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 从指定进度开始播放指定的动画。
+         * @param animationName - 动画数据名称。
+         * @param progress - 开始播放的进度。
+         * @param playTimes - 播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次] （默认: -1）
+         * @returns 播放的动画状态。
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -5472,11 +8150,18 @@ var dragonBones;
             return this.playConfig(this._animationConfig);
         };
         /**
-         * 将动画停止到指定的时间。
-         * @param animationName 动画数据的名称。
-         * @param time 时间。 (以秒为单位)
-         * @returns 对应的动画状态。
-         * @see dragonBones.AnimationState
+         * - Stop a specific animation at the specific time.
+         * @param animationName - The name of animation data.
+         * @param time - The stop time. (In seconds)
+         * @returns The played animation state.
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 在指定时间停止指定动画播放
+         * @param animationName - 动画数据名称。
+         * @param time - 停止的时间。 (以秒为单位)
+         * @returns 播放的动画状态。
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -5489,11 +8174,18 @@ var dragonBones;
             return animationState;
         };
         /**
-         * 将动画停止到指定的帧。
-         * @param animationName 动画数据的名称。
-         * @param frame 帧。
-         * @returns 对应的动画状态。
-         * @see dragonBones.AnimationState
+         * - Stop a specific animation at the specific frame.
+         * @param animationName - The name of animation data.
+         * @param frame - The stop frame.
+         * @returns The played animation state.
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 在指定帧停止指定动画的播放
+         * @param animationName - 动画数据名称。
+         * @param frame - 停止的帧数。
+         * @returns 播放的动画状态。
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -5506,11 +8198,18 @@ var dragonBones;
             return animationState;
         };
         /**
-         * 将动画停止到指定的进度。
-         * @param animationName 动画数据的名称。
-         * @param progress 进度。 [0 ~ 1]
-         * @returns 对应的动画状态。
-         * @see dragonBones.AnimationState
+         * - Stop a specific animation at the specific progress.
+         * @param animationName - The name of animation data.
+         * @param progress - The stop progress value.
+         * @returns The played animation state.
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 在指定的进度停止指定的动画播放。
+         * @param animationName - 动画数据名称。
+         * @param progress - 停止进度。
+         * @returns 播放的动画状态。
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -5523,25 +8222,66 @@ var dragonBones;
             return animationState;
         };
         /**
-         * 获取动画状态。
-         * @param animationName 动画状态的名称。
-         * @see dragonBones.AnimationState
+         * @internal
+         */
+        Animation.prototype.getBlendState = function (type, name, target) {
+            if (!(type in this._blendStates)) {
+                this._blendStates[type] = {};
+            }
+            var blendStates = this._blendStates[type];
+            if (!(name in blendStates)) {
+                var blendState = blendStates[name] = dragonBones.BaseObject.borrowObject(dragonBones.BlendState);
+                blendState.target = target;
+            }
+            return blendStates[name];
+        };
+        /**
+         * - Get a specific animation state.
+         * @param animationName - The name of animation state.
+         * @param layer - The layer of find animation states. [-1: Find all layers, [0~N]: Specified layer] (default: -1)
+         * @example
+         * <pre>
+         *     armature.animation.play("walk");
+         *     let walkState = armature.animation.getState("walk");
+         *     walkState.timeScale = 0.5;
+         * </pre>
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 获取指定的动画状态。
+         * @param animationName - 动画状态名称。
+         * @param layer - 查找动画状态的层级。 [-1: 查找所有层级, [0~N]: 指定层级] （默认: -1）
+         * @example
+         * <pre>
+         *     armature.animation.play("walk");
+         *     let walkState = armature.animation.getState("walk");
+         *     walkState.timeScale = 0.5;
+         * </pre>
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        Animation.prototype.getState = function (animationName) {
+        Animation.prototype.getState = function (animationName, layer) {
+            if (layer === void 0) { layer = -1; }
             var i = this._animationStates.length;
             while (i--) {
                 var animationState = this._animationStates[i];
-                if (animationState.name === animationName) {
+                if (animationState.name === animationName && (layer < 0 || animationState.layer === layer)) {
                     return animationState;
                 }
             }
             return null;
         };
         /**
-         * 是否包含动画数据。
-         * @param animationName 动画数据的名称。
+         * - Check whether a specific animation data is included.
+         * @param animationName - The name of animation data.
+         * @see dragonBones.AnimationData
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 检查是否包含指定的动画数据
+         * @param animationName - 动画数据名称。
          * @see dragonBones.AnimationData
          * @version DragonBones 3.0
          * @language zh_CN
@@ -5550,8 +8290,12 @@ var dragonBones;
             return animationName in this._animations;
         };
         /**
-         * 获取所有的动画状态。
-         * @see dragonBones.AnimationState
+         * - Get all the animation states.
+         * @version DragonBones 5.1
+         * @language en_US
+         */
+        /**
+         * - 获取所有的动画状态
          * @version DragonBones 5.1
          * @language zh_CN
          */
@@ -5560,7 +8304,14 @@ var dragonBones;
         };
         Object.defineProperty(Animation.prototype, "isPlaying", {
             /**
-             * 动画是否处于播放状态。
+             * - Check whether there is an animation state is playing
+             * @see dragonBones.AnimationState
+             * @version DragonBones 3.0
+             * @language en_US
+             */
+            /**
+             * - 检查是否有动画状态正在播放
+             * @see dragonBones.AnimationState
              * @version DragonBones 3.0
              * @language zh_CN
              */
@@ -5578,7 +8329,13 @@ var dragonBones;
         });
         Object.defineProperty(Animation.prototype, "isCompleted", {
             /**
-             * 所有动画状态是否均已播放完毕。
+             * - Check whether all the animation states' playing were finished.
+             * @see dragonBones.AnimationState
+             * @version DragonBones 3.0
+             * @language en_US
+             */
+            /**
+             * - 检查是否所有的动画状态均已播放完毕。
              * @see dragonBones.AnimationState
              * @version DragonBones 3.0
              * @language zh_CN
@@ -5597,7 +8354,13 @@ var dragonBones;
         });
         Object.defineProperty(Animation.prototype, "lastAnimationName", {
             /**
-             * 上一个正在播放的动画状态名称。
+             * - The name of the last playing animation state.
+             * @see #lastAnimationState
+             * @version DragonBones 3.0
+             * @language en_US
+             */
+            /**
+             * - 上一个播放的动画状态名称
              * @see #lastAnimationState
              * @version DragonBones 3.0
              * @language zh_CN
@@ -5610,8 +8373,12 @@ var dragonBones;
         });
         Object.defineProperty(Animation.prototype, "animationNames", {
             /**
-             * 所有动画数据名称。
-             * @see #animations
+             * - The name of all animation data
+             * @version DragonBones 4.5
+             * @language en_US
+             */
+            /**
+             * - 所有动画数据的名称
              * @version DragonBones 4.5
              * @language zh_CN
              */
@@ -5623,8 +8390,12 @@ var dragonBones;
         });
         Object.defineProperty(Animation.prototype, "animations", {
             /**
-             * 所有动画数据。
-             * @see dragonBones.AnimationData
+             * - All animation data.
+             * @version DragonBones 4.5
+             * @language en_US
+             */
+            /**
+             * - 所有的动画数据。
              * @version DragonBones 4.5
              * @language zh_CN
              */
@@ -5640,8 +8411,8 @@ var dragonBones;
                     delete this._animations[k];
                 }
                 for (var k in value) {
-                    this._animations[k] = value[k];
                     this._animationNames.push(k);
+                    this._animations[k] = value[k];
                 }
             },
             enumerable: true,
@@ -5649,7 +8420,13 @@ var dragonBones;
         });
         Object.defineProperty(Animation.prototype, "animationConfig", {
             /**
-             * 一个可以快速使用的动画配置实例。
+             * - An AnimationConfig instance that can be used quickly.
+             * @see dragonBones.AnimationConfig
+             * @version DragonBones 5.0
+             * @language en_US
+             */
+            /**
+             * - 一个可以快速使用的动画配置实例。
              * @see dragonBones.AnimationConfig
              * @version DragonBones 5.0
              * @language zh_CN
@@ -5663,7 +8440,13 @@ var dragonBones;
         });
         Object.defineProperty(Animation.prototype, "lastAnimationState", {
             /**
-             * 上一个正在播放的动画状态。
+             * - The last playing animation state
+             * @see dragonBones.AnimationState
+             * @version DragonBones 3.0
+             * @language en_US
+             */
+            /**
+             * - 上一个播放的动画状态
              * @see dragonBones.AnimationState
              * @version DragonBones 3.0
              * @language zh_CN
@@ -5674,155 +8457,100 @@ var dragonBones;
             enumerable: true,
             configurable: true
         });
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see #play()
-         * @see #fadeIn()
-         * @see #gotoAndPlayByTime()
-         * @see #gotoAndPlayByFrame()
-         * @see #gotoAndPlayByProgress()
-         */
-        Animation.prototype.gotoAndPlay = function (animationName, fadeInTime, duration, playTimes, layer, group, fadeOutMode, pauseFadeOut, pauseFadeIn) {
-            if (fadeInTime === void 0) { fadeInTime = -1; }
-            if (duration === void 0) { duration = -1; }
-            if (playTimes === void 0) { playTimes = -1; }
-            if (layer === void 0) { layer = 0; }
-            if (group === void 0) { group = null; }
-            if (fadeOutMode === void 0) { fadeOutMode = 3 /* SameLayerAndGroup */; }
-            if (pauseFadeOut === void 0) { pauseFadeOut = true; }
-            if (pauseFadeIn === void 0) { pauseFadeIn = true; }
-            pauseFadeOut;
-            pauseFadeIn;
-            this._animationConfig.clear();
-            this._animationConfig.resetToPose = true;
-            this._animationConfig.fadeOutMode = fadeOutMode;
-            this._animationConfig.playTimes = playTimes;
-            this._animationConfig.layer = layer;
-            this._animationConfig.fadeInTime = fadeInTime;
-            this._animationConfig.animation = animationName;
-            this._animationConfig.group = group !== null ? group : "";
-            var animationData = this._animations[animationName];
-            if (animationData && duration > 0.0) {
-                this._animationConfig.timeScale = animationData.duration / duration;
-            }
-            return this.playConfig(this._animationConfig);
-        };
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see #gotoAndStopByTime()
-         * @see #gotoAndStopByFrame()
-         * @see #gotoAndStopByProgress()
-         */
-        Animation.prototype.gotoAndStop = function (animationName, time) {
-            if (time === void 0) { time = 0; }
-            return this.gotoAndStopByTime(animationName, time);
-        };
-        Object.defineProperty(Animation.prototype, "animationList", {
-            /**
-             * @deprecated
-             * 已废弃，请参考 @see
-             * @see #animationNames
-             * @see #animations
-             */
-            get: function () {
-                return this._animationNames;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Animation.prototype, "animationDataList", {
-            /**
-             * @deprecated
-             * 已废弃，请参考 @see
-             * @see #animationNames
-             * @see #animations
-             */
-            get: function () {
-                var list = [];
-                for (var i = 0, l = this._animationNames.length; i < l; ++i) {
-                    list.push(this._animations[this._animationNames[i]]);
-                }
-                return list;
-            },
-            enumerable: true,
-            configurable: true
-        });
         return Animation;
     }(dragonBones.BaseObject));
     dragonBones.Animation = Animation;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
     /**
-     * @internal
-     * @private
+     * - The animation state is generated when the animation data is played.
+     * @see dragonBones.Animation
+     * @see dragonBones.AnimationData
+     * @version DragonBones 3.0
+     * @language en_US
      */
-    var BonePose = (function (_super) {
-        __extends(BonePose, _super);
-        function BonePose() {
-            var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.current = new dragonBones.Transform();
-            _this.delta = new dragonBones.Transform();
-            _this.result = new dragonBones.Transform();
-            return _this;
-        }
-        BonePose.toString = function () {
-            return "[class dragonBones.BonePose]";
-        };
-        BonePose.prototype._onClear = function () {
-            this.current.identity();
-            this.delta.identity();
-            this.result.identity();
-        };
-        return BonePose;
-    }(dragonBones.BaseObject));
-    dragonBones.BonePose = BonePose;
     /**
-     * 动画状态，播放动画时产生，可以对每个播放的动画进行更细致的控制和调节。
+     * - 动画状态由播放动画数据时产生。
      * @see dragonBones.Animation
      * @see dragonBones.AnimationData
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var AnimationState = (function (_super) {
+    var AnimationState = /** @class */ (function (_super) {
         __extends(AnimationState, _super);
         function AnimationState() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
             _this._boneMask = [];
             _this._boneTimelines = [];
+            _this._boneBlendTimelines = [];
             _this._slotTimelines = [];
-            _this._bonePoses = {};
+            _this._slotBlendTimelines = [];
+            _this._constraintTimelines = [];
+            _this._animationTimelines = [];
+            _this._poseTimelines = [];
             /**
              * @internal
-             * @private
              */
             _this._actionTimeline = null; // Initial value.
             _this._zOrderTimeline = null; // Initial value.
             return _this;
         }
-        /**
-         * @private
-         */
         AnimationState.toString = function () {
             return "[class dragonBones.AnimationState]";
         };
-        /**
-         * @private
-         */
         AnimationState.prototype._onClear = function () {
             for (var _i = 0, _a = this._boneTimelines; _i < _a.length; _i++) {
                 var timeline = _a[_i];
                 timeline.returnToPool();
             }
-            for (var _b = 0, _c = this._slotTimelines; _b < _c.length; _b++) {
+            for (var _b = 0, _c = this._boneBlendTimelines; _b < _c.length; _b++) {
                 var timeline = _c[_b];
                 timeline.returnToPool();
             }
-            for (var k in this._bonePoses) {
-                this._bonePoses[k].returnToPool();
-                delete this._bonePoses[k];
+            for (var _d = 0, _e = this._slotTimelines; _d < _e.length; _d++) {
+                var timeline = _e[_d];
+                timeline.returnToPool();
+            }
+            for (var _f = 0, _g = this._slotBlendTimelines; _f < _g.length; _f++) {
+                var timeline = _g[_f];
+                timeline.returnToPool();
+            }
+            for (var _h = 0, _j = this._constraintTimelines; _h < _j.length; _h++) {
+                var timeline = _j[_h];
+                timeline.returnToPool();
+            }
+            for (var _k = 0, _l = this._animationTimelines; _k < _l.length; _k++) {
+                var timeline = _l[_k];
+                var animationState = timeline.target;
+                if (animationState._parent === this) {
+                    animationState._fadeState = 1;
+                    animationState._subFadeState = 1;
+                    animationState._parent = null;
+                }
+                timeline.returnToPool();
             }
             if (this._actionTimeline !== null) {
                 this._actionTimeline.returnToPool();
@@ -5830,20 +8558,24 @@ var dragonBones;
             if (this._zOrderTimeline !== null) {
                 this._zOrderTimeline.returnToPool();
             }
-            this.resetToPose = false;
-            this.additiveBlending = false;
-            this.displayControl = false;
             this.actionEnabled = false;
-            this.layer = 0;
+            this.additive = false;
+            this.displayControl = false;
+            this.resetToPose = false;
+            this.blendType = 0 /* None */;
             this.playTimes = 1;
+            this.layer = 0;
             this.timeScale = 1.0;
-            this.weight = 1.0;
+            this._weight = 1.0;
+            this.parameterX = 0.0;
+            this.parameterY = 0.0;
+            this.positionX = 0.0;
+            this.positionY = 0.0;
             this.autoFadeOutTime = 0.0;
             this.fadeTotalTime = 0.0;
             this.name = "";
             this.group = "";
-            this.animationData = null; //
-            this._timelineDirty = true;
+            this._timelineDirty = 2;
             this._playheadState = 0;
             this._fadeState = -1;
             this._subFadeState = -1;
@@ -5855,34 +8587,323 @@ var dragonBones;
             this._weightResult = 0.0;
             this._boneMask.length = 0;
             this._boneTimelines.length = 0;
+            this._boneBlendTimelines.length = 0;
             this._slotTimelines.length = 0;
+            this._slotBlendTimelines.length = 0;
+            this._constraintTimelines.length = 0;
+            this._animationTimelines.length = 0;
+            this._poseTimelines.length = 0;
             // this._bonePoses.clear();
+            this._animationData = null; //
             this._armature = null; //
             this._actionTimeline = null; //
             this._zOrderTimeline = null;
+            this._activeChildA = null;
+            this._activeChildB = null;
+            this._parent = null;
         };
-        AnimationState.prototype._isDisabled = function (slot) {
-            if (this.displayControl) {
-                var displayController = slot.displayController;
-                if (displayController === null ||
-                    displayController === this.name ||
-                    displayController === this.group) {
-                    return false;
+        AnimationState.prototype._updateTimelines = function () {
+            {
+                for (var _i = 0, _a = this._armature._constraints; _i < _a.length; _i++) {
+                    var constraint = _a[_i];
+                    var timelineDatas = this._animationData.getConstraintTimelines(constraint.name);
+                    if (timelineDatas !== null) {
+                        for (var _b = 0, timelineDatas_1 = timelineDatas; _b < timelineDatas_1.length; _b++) {
+                            var timelineData = timelineDatas_1[_b];
+                            switch (timelineData.type) {
+                                case 30 /* IKConstraint */: {
+                                    var timeline = dragonBones.BaseObject.borrowObject(dragonBones.IKConstraintTimelineState);
+                                    timeline.target = constraint;
+                                    timeline.init(this._armature, this, timelineData);
+                                    this._constraintTimelines.push(timeline);
+                                    break;
+                                }
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                    else if (this.resetToPose) {
+                        var timeline = dragonBones.BaseObject.borrowObject(dragonBones.IKConstraintTimelineState);
+                        timeline.target = constraint;
+                        timeline.init(this._armature, this, null);
+                        this._constraintTimelines.push(timeline);
+                        this._poseTimelines.push(timeline);
+                    }
                 }
             }
-            return true;
+        };
+        AnimationState.prototype._updateBoneAndSlotTimelines = function () {
+            {
+                var boneTimelines = {};
+                // Create bone timelines map.
+                for (var _i = 0, _a = this._boneTimelines; _i < _a.length; _i++) {
+                    var timeline = _a[_i];
+                    var timelineName = timeline.target.target.name;
+                    if (!(timelineName in boneTimelines)) {
+                        boneTimelines[timelineName] = [];
+                    }
+                    boneTimelines[timelineName].push(timeline);
+                }
+                for (var _b = 0, _c = this._boneBlendTimelines; _b < _c.length; _b++) {
+                    var timeline = _c[_b];
+                    var timelineName = timeline.target.target.name;
+                    if (!(timelineName in boneTimelines)) {
+                        boneTimelines[timelineName] = [];
+                    }
+                    boneTimelines[timelineName].push(timeline);
+                }
+                //
+                for (var _d = 0, _e = this._armature.getBones(); _d < _e.length; _d++) {
+                    var bone = _e[_d];
+                    var timelineName = bone.name;
+                    if (!this.containsBoneMask(timelineName)) {
+                        continue;
+                    }
+                    if (timelineName in boneTimelines) {
+                        delete boneTimelines[timelineName];
+                    }
+                    else {
+                        var timelineDatas = this._animationData.getBoneTimelines(timelineName);
+                        var blendState = this._armature.animation.getBlendState(BlendState.BONE_TRANSFORM, bone.name, bone);
+                        if (timelineDatas !== null) {
+                            for (var _f = 0, timelineDatas_2 = timelineDatas; _f < timelineDatas_2.length; _f++) {
+                                var timelineData = timelineDatas_2[_f];
+                                switch (timelineData.type) {
+                                    case 10 /* BoneAll */: {
+                                        var timeline = dragonBones.BaseObject.borrowObject(dragonBones.BoneAllTimelineState);
+                                        timeline.target = blendState;
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._boneTimelines.push(timeline);
+                                        break;
+                                    }
+                                    case 11 /* BoneTranslate */: {
+                                        var timeline = dragonBones.BaseObject.borrowObject(dragonBones.BoneTranslateTimelineState);
+                                        timeline.target = blendState;
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._boneTimelines.push(timeline);
+                                        break;
+                                    }
+                                    case 12 /* BoneRotate */: {
+                                        var timeline = dragonBones.BaseObject.borrowObject(dragonBones.BoneRotateTimelineState);
+                                        timeline.target = blendState;
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._boneTimelines.push(timeline);
+                                        break;
+                                    }
+                                    case 13 /* BoneScale */: {
+                                        var timeline = dragonBones.BaseObject.borrowObject(dragonBones.BoneScaleTimelineState);
+                                        timeline.target = blendState;
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._boneTimelines.push(timeline);
+                                        break;
+                                    }
+                                    case 60 /* BoneAlpha */: {
+                                        var timeline = dragonBones.BaseObject.borrowObject(dragonBones.AlphaTimelineState);
+                                        timeline.target = this._armature.animation.getBlendState(BlendState.BONE_ALPHA, bone.name, bone);
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._boneBlendTimelines.push(timeline);
+                                        break;
+                                    }
+                                    case 50 /* Surface */: {
+                                        var timeline = dragonBones.BaseObject.borrowObject(dragonBones.SurfaceTimelineState);
+                                        timeline.target = this._armature.animation.getBlendState(BlendState.SURFACE, bone.name, bone);
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._boneBlendTimelines.push(timeline);
+                                        break;
+                                    }
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+                        else if (this.resetToPose) {
+                            if (bone._boneData.type === 0 /* Bone */) {
+                                var timeline = dragonBones.BaseObject.borrowObject(dragonBones.BoneAllTimelineState);
+                                timeline.target = blendState;
+                                timeline.init(this._armature, this, null);
+                                this._boneTimelines.push(timeline);
+                                this._poseTimelines.push(timeline);
+                            }
+                            else {
+                                var timeline = dragonBones.BaseObject.borrowObject(dragonBones.SurfaceTimelineState);
+                                timeline.target = this._armature.animation.getBlendState(BlendState.SURFACE, bone.name, bone);
+                                timeline.init(this._armature, this, null);
+                                this._boneBlendTimelines.push(timeline);
+                                this._poseTimelines.push(timeline);
+                            }
+                        }
+                    }
+                }
+                for (var k in boneTimelines) {
+                    for (var _g = 0, _h = boneTimelines[k]; _g < _h.length; _g++) {
+                        var timeline = _h[_g];
+                        var index = this._boneTimelines.indexOf(timeline);
+                        if (index >= 0) {
+                            this._boneTimelines.splice(index, 1);
+                            timeline.returnToPool();
+                        }
+                        index = this._boneBlendTimelines.indexOf(timeline);
+                        if (index >= 0) {
+                            this._boneBlendTimelines.splice(index, 1);
+                            timeline.returnToPool();
+                        }
+                    }
+                }
+            }
+            {
+                var slotTimelines = {};
+                var ffdFlags = [];
+                // Create slot timelines map.
+                for (var _j = 0, _k = this._slotTimelines; _j < _k.length; _j++) {
+                    var timeline = _k[_j];
+                    var timelineName = timeline.target.name;
+                    if (!(timelineName in slotTimelines)) {
+                        slotTimelines[timelineName] = [];
+                    }
+                    slotTimelines[timelineName].push(timeline);
+                }
+                for (var _l = 0, _m = this._slotBlendTimelines; _l < _m.length; _l++) {
+                    var timeline = _m[_l];
+                    var timelineName = timeline.target.target.name;
+                    if (!(timelineName in slotTimelines)) {
+                        slotTimelines[timelineName] = [];
+                    }
+                    slotTimelines[timelineName].push(timeline);
+                }
+                //
+                for (var _o = 0, _p = this._armature.getSlots(); _o < _p.length; _o++) {
+                    var slot = _p[_o];
+                    var boneName = slot.parent.name;
+                    if (!this.containsBoneMask(boneName)) {
+                        continue;
+                    }
+                    var timelineName = slot.name;
+                    if (timelineName in slotTimelines) {
+                        delete slotTimelines[timelineName];
+                    }
+                    else {
+                        var displayIndexFlag = false;
+                        var colorFlag = false;
+                        ffdFlags.length = 0;
+                        var timelineDatas = this._animationData.getSlotTimelines(timelineName);
+                        if (timelineDatas !== null) {
+                            for (var _q = 0, timelineDatas_3 = timelineDatas; _q < timelineDatas_3.length; _q++) {
+                                var timelineData = timelineDatas_3[_q];
+                                switch (timelineData.type) {
+                                    case 20 /* SlotDisplay */: {
+                                        var timeline = dragonBones.BaseObject.borrowObject(dragonBones.SlotDislayTimelineState);
+                                        timeline.target = slot;
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._slotTimelines.push(timeline);
+                                        displayIndexFlag = true;
+                                        break;
+                                    }
+                                    case 23 /* SlotZIndex */: {
+                                        var timeline = dragonBones.BaseObject.borrowObject(dragonBones.SlotZIndexTimelineState);
+                                        timeline.target = this._armature.animation.getBlendState(BlendState.SLOT_Z_INDEX, slot.name, slot);
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._slotBlendTimelines.push(timeline);
+                                        break;
+                                    }
+                                    case 21 /* SlotColor */: {
+                                        var timeline = dragonBones.BaseObject.borrowObject(dragonBones.SlotColorTimelineState);
+                                        timeline.target = slot;
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._slotTimelines.push(timeline);
+                                        colorFlag = true;
+                                        break;
+                                    }
+                                    case 22 /* SlotDeform */: {
+                                        var timeline = dragonBones.BaseObject.borrowObject(dragonBones.DeformTimelineState);
+                                        timeline.target = this._armature.animation.getBlendState(BlendState.SLOT_DEFORM, slot.name, slot);
+                                        timeline.init(this._armature, this, timelineData);
+                                        if (timeline.target !== null) {
+                                            this._slotBlendTimelines.push(timeline);
+                                            ffdFlags.push(timeline.geometryOffset);
+                                        }
+                                        else {
+                                            timeline.returnToPool();
+                                        }
+                                        break;
+                                    }
+                                    case 24 /* SlotAlpha */: {
+                                        var timeline = dragonBones.BaseObject.borrowObject(dragonBones.AlphaTimelineState);
+                                        timeline.target = this._armature.animation.getBlendState(BlendState.SLOT_ALPHA, slot.name, slot);
+                                        timeline.init(this._armature, this, timelineData);
+                                        this._slotBlendTimelines.push(timeline);
+                                        break;
+                                    }
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+                        if (this.resetToPose) {
+                            if (!displayIndexFlag) {
+                                var timeline = dragonBones.BaseObject.borrowObject(dragonBones.SlotDislayTimelineState);
+                                timeline.target = slot;
+                                timeline.init(this._armature, this, null);
+                                this._slotTimelines.push(timeline);
+                                this._poseTimelines.push(timeline);
+                            }
+                            if (!colorFlag) {
+                                var timeline = dragonBones.BaseObject.borrowObject(dragonBones.SlotColorTimelineState);
+                                timeline.target = slot;
+                                timeline.init(this._armature, this, null);
+                                this._slotTimelines.push(timeline);
+                                this._poseTimelines.push(timeline);
+                            }
+                            for (var i = 0, l = slot.displayFrameCount; i < l; ++i) {
+                                var displayFrame = slot.getDisplayFrameAt(i);
+                                if (displayFrame.deformVertices.length === 0) {
+                                    continue;
+                                }
+                                var geometryData = displayFrame.getGeometryData();
+                                if (geometryData !== null && ffdFlags.indexOf(geometryData.offset) < 0) {
+                                    var timeline = dragonBones.BaseObject.borrowObject(dragonBones.DeformTimelineState);
+                                    timeline.geometryOffset = geometryData.offset; //
+                                    timeline.displayFrame = displayFrame; //
+                                    timeline.target = this._armature.animation.getBlendState(BlendState.SLOT_DEFORM, slot.name, slot);
+                                    timeline.init(this._armature, this, null);
+                                    this._slotBlendTimelines.push(timeline);
+                                    this._poseTimelines.push(timeline);
+                                }
+                            }
+                        }
+                    }
+                }
+                for (var k in slotTimelines) {
+                    for (var _r = 0, _s = slotTimelines[k]; _r < _s.length; _r++) {
+                        var timeline = _s[_r];
+                        var index = this._slotTimelines.indexOf(timeline);
+                        if (index >= 0) {
+                            this._slotTimelines.splice(index, 1);
+                            timeline.returnToPool();
+                        }
+                        index = this._slotBlendTimelines.indexOf(timeline);
+                        if (index >= 0) {
+                            this._slotBlendTimelines.splice(index, 1);
+                            timeline.returnToPool();
+                        }
+                    }
+                }
+            }
         };
         AnimationState.prototype._advanceFadeTime = function (passedTime) {
             var isFadeOut = this._fadeState > 0;
             if (this._subFadeState < 0) {
                 this._subFadeState = 0;
-                var eventType = isFadeOut ? dragonBones.EventObject.FADE_OUT : dragonBones.EventObject.FADE_IN;
-                if (this._armature.eventDispatcher.hasEvent(eventType)) {
-                    var eventObject = dragonBones.BaseObject.borrowObject(dragonBones.EventObject);
-                    eventObject.type = eventType;
-                    eventObject.armature = this._armature;
-                    eventObject.animationState = this;
-                    this._armature._dragonBones.bufferEvent(eventObject);
+                var eventActive = this._parent === null && this.actionEnabled;
+                if (eventActive) {
+                    var eventType = isFadeOut ? dragonBones.EventObject.FADE_OUT : dragonBones.EventObject.FADE_IN;
+                    if (this._armature.eventDispatcher.hasDBEventListener(eventType)) {
+                        var eventObject = dragonBones.BaseObject.borrowObject(dragonBones.EventObject);
+                        eventObject.type = eventType;
+                        eventObject.armature = this._armature;
+                        eventObject.animationState = this;
+                        this._armature._dragonBones.bufferEvent(eventObject);
+                    }
                 }
             }
             if (passedTime < 0.0) {
@@ -5904,49 +8925,20 @@ var dragonBones;
                     this._playheadState |= 1; // x1
                     this._fadeState = 0;
                 }
-                var eventType = isFadeOut ? dragonBones.EventObject.FADE_OUT_COMPLETE : dragonBones.EventObject.FADE_IN_COMPLETE;
-                if (this._armature.eventDispatcher.hasEvent(eventType)) {
-                    var eventObject = dragonBones.BaseObject.borrowObject(dragonBones.EventObject);
-                    eventObject.type = eventType;
-                    eventObject.armature = this._armature;
-                    eventObject.animationState = this;
-                    this._armature._dragonBones.bufferEvent(eventObject);
+                var eventActive = this._parent === null && this.actionEnabled;
+                if (eventActive) {
+                    var eventType = isFadeOut ? dragonBones.EventObject.FADE_OUT_COMPLETE : dragonBones.EventObject.FADE_IN_COMPLETE;
+                    if (this._armature.eventDispatcher.hasDBEventListener(eventType)) {
+                        var eventObject = dragonBones.BaseObject.borrowObject(dragonBones.EventObject);
+                        eventObject.type = eventType;
+                        eventObject.armature = this._armature;
+                        eventObject.animationState = this;
+                        this._armature._dragonBones.bufferEvent(eventObject);
+                    }
                 }
             }
         };
-        AnimationState.prototype._blendBoneTimline = function (timeline) {
-            var bone = timeline.bone;
-            var bonePose = timeline.bonePose.result;
-            var animationPose = bone.animationPose;
-            var boneWeight = this._weightResult > 0.0 ? this._weightResult : -this._weightResult;
-            if (!bone._blendDirty) {
-                bone._blendDirty = true;
-                bone._blendLayer = this.layer;
-                bone._blendLayerWeight = boneWeight;
-                bone._blendLeftWeight = 1.0;
-                animationPose.x = bonePose.x * boneWeight;
-                animationPose.y = bonePose.y * boneWeight;
-                animationPose.rotation = bonePose.rotation * boneWeight;
-                animationPose.skew = bonePose.skew * boneWeight;
-                animationPose.scaleX = (bonePose.scaleX - 1.0) * boneWeight + 1.0;
-                animationPose.scaleY = (bonePose.scaleY - 1.0) * boneWeight + 1.0;
-            }
-            else {
-                boneWeight *= bone._blendLeftWeight;
-                bone._blendLayerWeight += boneWeight;
-                animationPose.x += bonePose.x * boneWeight;
-                animationPose.y += bonePose.y * boneWeight;
-                animationPose.rotation += bonePose.rotation * boneWeight;
-                animationPose.skew += bonePose.skew * boneWeight;
-                animationPose.scaleX += (bonePose.scaleX - 1.0) * boneWeight;
-                animationPose.scaleY += (bonePose.scaleY - 1.0) * boneWeight;
-            }
-            if (this._fadeState !== 0 || this._subFadeState !== 0) {
-                bone._transformDirty = true;
-            }
-        };
         /**
-         * @private
          * @internal
          */
         AnimationState.prototype.init = function (armature, animationData, animationConfig) {
@@ -5954,19 +8946,22 @@ var dragonBones;
                 return;
             }
             this._armature = armature;
-            this.animationData = animationData;
+            this._animationData = animationData;
+            //
             this.resetToPose = animationConfig.resetToPose;
-            this.additiveBlending = animationConfig.additiveBlending;
+            this.additive = animationConfig.additive;
             this.displayControl = animationConfig.displayControl;
             this.actionEnabled = animationConfig.actionEnabled;
+            this.blendType = animationData.blendType;
             this.layer = animationConfig.layer;
             this.playTimes = animationConfig.playTimes;
             this.timeScale = animationConfig.timeScale;
             this.fadeTotalTime = animationConfig.fadeInTime;
             this.autoFadeOutTime = animationConfig.autoFadeOutTime;
-            this.weight = animationConfig.weight;
             this.name = animationConfig.name.length > 0 ? animationConfig.name : animationConfig.animation;
             this.group = animationConfig.group;
+            //
+            this._weight = animationConfig.weight;
             if (animationConfig.pauseFadeIn) {
                 this._playheadState = 2; // 10
             }
@@ -5975,7 +8970,7 @@ var dragonBones;
             }
             if (animationConfig.duration < 0.0) {
                 this._position = 0.0;
-                this._duration = this.animationData.duration;
+                this._duration = this._animationData.duration;
                 if (animationConfig.position !== 0.0) {
                     if (this.timeScale >= 0.0) {
                         this._time = animationConfig.position;
@@ -6006,179 +9001,17 @@ var dragonBones;
                 }
             }
             this._actionTimeline = dragonBones.BaseObject.borrowObject(dragonBones.ActionTimelineState);
-            this._actionTimeline.init(this._armature, this, this.animationData.actionTimeline);
+            this._actionTimeline.init(this._armature, this, this._animationData.actionTimeline);
             this._actionTimeline.currentTime = this._time;
             if (this._actionTimeline.currentTime < 0.0) {
                 this._actionTimeline.currentTime = this._duration - this._actionTimeline.currentTime;
             }
-            if (this.animationData.zOrderTimeline !== null) {
+            if (this._animationData.zOrderTimeline !== null) {
                 this._zOrderTimeline = dragonBones.BaseObject.borrowObject(dragonBones.ZOrderTimelineState);
-                this._zOrderTimeline.init(this._armature, this, this.animationData.zOrderTimeline);
+                this._zOrderTimeline.init(this._armature, this, this._animationData.zOrderTimeline);
             }
         };
         /**
-         * @private
-         * @internal
-         */
-        AnimationState.prototype.updateTimelines = function () {
-            var boneTimelines = {};
-            for (var _i = 0, _a = this._boneTimelines; _i < _a.length; _i++) {
-                var timeline = _a[_i];
-                var timelineName = timeline.bone.name;
-                if (!(timelineName in boneTimelines)) {
-                    boneTimelines[timelineName] = [];
-                }
-                boneTimelines[timelineName].push(timeline);
-            }
-            for (var _b = 0, _c = this._armature.getBones(); _b < _c.length; _b++) {
-                var bone = _c[_b];
-                var timelineName = bone.name;
-                if (!this.containsBoneMask(timelineName)) {
-                    continue;
-                }
-                var timelineDatas = this.animationData.getBoneTimelines(timelineName);
-                if (timelineName in boneTimelines) {
-                    delete boneTimelines[timelineName];
-                }
-                else {
-                    var bonePose = timelineName in this._bonePoses ? this._bonePoses[timelineName] : (this._bonePoses[timelineName] = dragonBones.BaseObject.borrowObject(BonePose));
-                    if (timelineDatas !== null) {
-                        for (var _d = 0, timelineDatas_1 = timelineDatas; _d < timelineDatas_1.length; _d++) {
-                            var timelineData = timelineDatas_1[_d];
-                            switch (timelineData.type) {
-                                case 10 /* BoneAll */:
-                                    var timeline = dragonBones.BaseObject.borrowObject(dragonBones.BoneAllTimelineState);
-                                    timeline.bone = bone;
-                                    timeline.bonePose = bonePose;
-                                    timeline.init(this._armature, this, timelineData);
-                                    this._boneTimelines.push(timeline);
-                                    break;
-                                case 11 /* BoneT */:
-                                case 12 /* BoneR */:
-                                case 13 /* BoneS */:
-                                    // TODO
-                                    break;
-                                case 14 /* BoneX */:
-                                case 15 /* BoneY */:
-                                case 16 /* BoneRotate */:
-                                case 17 /* BoneSkew */:
-                                case 18 /* BoneScaleX */:
-                                case 19 /* BoneScaleY */:
-                                    // TODO
-                                    break;
-                            }
-                        }
-                    }
-                    else if (this.resetToPose) {
-                        var timeline = dragonBones.BaseObject.borrowObject(dragonBones.BoneAllTimelineState);
-                        timeline.bone = bone;
-                        timeline.bonePose = bonePose;
-                        timeline.init(this._armature, this, null);
-                        this._boneTimelines.push(timeline);
-                    }
-                }
-            }
-            for (var k in boneTimelines) {
-                for (var _e = 0, _f = boneTimelines[k]; _e < _f.length; _e++) {
-                    var timeline = _f[_e];
-                    this._boneTimelines.splice(this._boneTimelines.indexOf(timeline), 1);
-                    timeline.returnToPool();
-                }
-            }
-            var slotTimelines = {};
-            var ffdFlags = [];
-            for (var _g = 0, _h = this._slotTimelines; _g < _h.length; _g++) {
-                var timeline = _h[_g];
-                var timelineName = timeline.slot.name;
-                if (!(timelineName in slotTimelines)) {
-                    slotTimelines[timelineName] = [];
-                }
-                slotTimelines[timelineName].push(timeline);
-            }
-            for (var _j = 0, _k = this._armature.getSlots(); _j < _k.length; _j++) {
-                var slot = _k[_j];
-                var boneName = slot.parent.name;
-                if (!this.containsBoneMask(boneName)) {
-                    continue;
-                }
-                var timelineName = slot.name;
-                var timelineDatas = this.animationData.getSlotTimeline(timelineName);
-                if (timelineName in slotTimelines) {
-                    delete slotTimelines[timelineName];
-                }
-                else {
-                    var displayIndexFlag = false;
-                    var colorFlag = false;
-                    ffdFlags.length = 0;
-                    if (timelineDatas !== null) {
-                        for (var _l = 0, timelineDatas_2 = timelineDatas; _l < timelineDatas_2.length; _l++) {
-                            var timelineData = timelineDatas_2[_l];
-                            switch (timelineData.type) {
-                                case 20 /* SlotDisplay */:
-                                    {
-                                        var timeline = dragonBones.BaseObject.borrowObject(dragonBones.SlotDislayIndexTimelineState);
-                                        timeline.slot = slot;
-                                        timeline.init(this._armature, this, timelineData);
-                                        this._slotTimelines.push(timeline);
-                                        displayIndexFlag = true;
-                                        break;
-                                    }
-                                case 21 /* SlotColor */:
-                                    {
-                                        var timeline = dragonBones.BaseObject.borrowObject(dragonBones.SlotColorTimelineState);
-                                        timeline.slot = slot;
-                                        timeline.init(this._armature, this, timelineData);
-                                        this._slotTimelines.push(timeline);
-                                        colorFlag = true;
-                                        break;
-                                    }
-                                case 22 /* SlotFFD */:
-                                    {
-                                        var timeline = dragonBones.BaseObject.borrowObject(dragonBones.SlotFFDTimelineState);
-                                        timeline.slot = slot;
-                                        timeline.init(this._armature, this, timelineData);
-                                        this._slotTimelines.push(timeline);
-                                        ffdFlags.push(timeline.meshOffset);
-                                        break;
-                                    }
-                            }
-                        }
-                    }
-                    if (this.resetToPose) {
-                        if (!displayIndexFlag) {
-                            var timeline = dragonBones.BaseObject.borrowObject(dragonBones.SlotDislayIndexTimelineState);
-                            timeline.slot = slot;
-                            timeline.init(this._armature, this, null);
-                            this._slotTimelines.push(timeline);
-                        }
-                        if (!colorFlag) {
-                            var timeline = dragonBones.BaseObject.borrowObject(dragonBones.SlotColorTimelineState);
-                            timeline.slot = slot;
-                            timeline.init(this._armature, this, null);
-                            this._slotTimelines.push(timeline);
-                        }
-                        for (var _m = 0, _o = slot._rawDisplayDatas; _m < _o.length; _m++) {
-                            var displayData = _o[_m];
-                            if (displayData !== null && displayData.type === 2 /* Mesh */ && ffdFlags.indexOf(displayData.offset) < 0) {
-                                var timeline = dragonBones.BaseObject.borrowObject(dragonBones.SlotFFDTimelineState);
-                                timeline.slot = slot;
-                                timeline.init(this._armature, this, null);
-                                this._slotTimelines.push(timeline);
-                            }
-                        }
-                    }
-                }
-            }
-            for (var k in slotTimelines) {
-                for (var _p = 0, _q = slotTimelines[k]; _p < _q.length; _p++) {
-                    var timeline = _q[_p];
-                    this._slotTimelines.splice(this._slotTimelines.indexOf(timeline), 1);
-                    timeline.returnToPool();
-                }
-            }
-        };
-        /**
-         * @private
          * @internal
          */
         AnimationState.prototype.advanceTime = function (passedTime, cacheFrameRate) {
@@ -6193,24 +9026,34 @@ var dragonBones;
                 }
                 this._time += passedTime;
             }
-            if (this._timelineDirty) {
-                this._timelineDirty = false;
-                this.updateTimelines();
+            // Update timeline.
+            if (this._timelineDirty !== 0) {
+                if (this._timelineDirty === 2) {
+                    this._updateTimelines();
+                }
+                this._timelineDirty = 0;
+                this._updateBoneAndSlotTimelines();
             }
-            if (this.weight === 0.0) {
-                return;
-            }
+            var isBlendDirty = this._fadeState !== 0 || this._subFadeState === 0;
             var isCacheEnabled = this._fadeState === 0 && cacheFrameRate > 0.0;
             var isUpdateTimeline = true;
             var isUpdateBoneTimeline = true;
             var time = this._time;
-            this._weightResult = this.weight * this._fadeProgress;
-            this._actionTimeline.update(time); // Update main timeline.
+            this._weightResult = this._weight * this._fadeProgress;
+            if (this._parent !== null) {
+                this._weightResult *= this._parent._weightResult;
+            }
+            if (this._actionTimeline.playState <= 0) {
+                this._actionTimeline.update(time);
+            }
+            if (this._weight === 0.0) {
+                return;
+            }
             if (isCacheEnabled) {
                 var internval = cacheFrameRate * 2.0;
                 this._actionTimeline.currentTime = Math.floor(this._actionTimeline.currentTime * internval) / internval;
             }
-            if (this._zOrderTimeline !== null) {
+            if (this._zOrderTimeline !== null && this._zOrderTimeline.playState <= 0) {
                 this._zOrderTimeline.update(time);
             }
             if (isCacheEnabled) {
@@ -6221,66 +9064,168 @@ var dragonBones;
                 }
                 else {
                     this._armature._cacheFrameIndex = cacheFrameIndex;
-                    if (this.animationData.cachedFrames[cacheFrameIndex]) {
+                    if (this._animationData.cachedFrames[cacheFrameIndex]) {
                         isUpdateBoneTimeline = false;
                     }
                     else {
-                        this.animationData.cachedFrames[cacheFrameIndex] = true;
+                        this._animationData.cachedFrames[cacheFrameIndex] = true;
                     }
                 }
             }
             if (isUpdateTimeline) {
+                var isBlend = false;
+                var prevTarget = null; //
                 if (isUpdateBoneTimeline) {
-                    var bone = null;
-                    var prevTimeline = null; //
                     for (var i = 0, l = this._boneTimelines.length; i < l; ++i) {
                         var timeline = this._boneTimelines[i];
-                        if (bone !== timeline.bone) {
-                            if (bone !== null) {
-                                this._blendBoneTimline(prevTimeline);
-                                if (bone._blendDirty) {
-                                    if (bone._blendLeftWeight > 0.0) {
-                                        if (bone._blendLayer !== this.layer) {
-                                            if (bone._blendLayerWeight >= bone._blendLeftWeight) {
-                                                bone._blendLeftWeight = 0.0;
-                                                bone = null;
-                                            }
-                                            else {
-                                                bone._blendLayer = this.layer;
-                                                bone._blendLeftWeight -= bone._blendLayerWeight;
-                                                bone._blendLayerWeight = 0.0;
-                                            }
-                                        }
-                                    }
-                                    else {
-                                        bone = null;
-                                    }
-                                }
-                            }
-                            bone = timeline.bone;
-                        }
-                        if (bone !== null) {
+                        if (timeline.playState <= 0) {
                             timeline.update(time);
-                            if (i === l - 1) {
-                                this._blendBoneTimline(timeline);
+                        }
+                        if (timeline.target !== prevTarget) {
+                            var blendState = timeline.target;
+                            isBlend = blendState.update(this);
+                            prevTarget = blendState;
+                            if (blendState.dirty === 1) {
+                                var pose = blendState.target.animationPose;
+                                pose.x = 0.0;
+                                pose.y = 0.0;
+                                pose.rotation = 0.0;
+                                pose.skew = 0.0;
+                                pose.scaleX = 1.0;
+                                pose.scaleY = 1.0;
                             }
-                            else {
-                                prevTimeline = timeline;
+                        }
+                        if (isBlend) {
+                            timeline.blend(isBlendDirty);
+                        }
+                    }
+                }
+                for (var i = 0, l = this._boneBlendTimelines.length; i < l; ++i) {
+                    var timeline = this._boneBlendTimelines[i];
+                    if (timeline.playState <= 0) {
+                        timeline.update(time);
+                    }
+                    if (timeline.target.update(this)) {
+                        timeline.blend(isBlendDirty);
+                    }
+                }
+                if (this.displayControl) {
+                    for (var i = 0, l = this._slotTimelines.length; i < l; ++i) {
+                        var timeline = this._slotTimelines[i];
+                        if (timeline.playState <= 0) {
+                            var slot = timeline.target;
+                            var displayController = slot.displayController;
+                            if (displayController === null ||
+                                displayController === this.name ||
+                                displayController === this.group) {
+                                timeline.update(time);
                             }
                         }
                     }
                 }
-                for (var i = 0, l = this._slotTimelines.length; i < l; ++i) {
-                    var timeline = this._slotTimelines[i];
-                    if (this._isDisabled(timeline.slot)) {
-                        continue;
+                for (var i = 0, l = this._slotBlendTimelines.length; i < l; ++i) {
+                    var timeline = this._slotBlendTimelines[i];
+                    if (timeline.playState <= 0) {
+                        var blendState = timeline.target;
+                        timeline.update(time);
+                        if (blendState.update(this)) {
+                            timeline.blend(isBlendDirty);
+                        }
                     }
-                    timeline.update(time);
+                }
+                for (var i = 0, l = this._constraintTimelines.length; i < l; ++i) {
+                    var timeline = this._constraintTimelines[i];
+                    if (timeline.playState <= 0) {
+                        timeline.update(time);
+                    }
+                }
+                if (this._animationTimelines.length > 0) {
+                    var dL = 100.0;
+                    var dR = 100.0;
+                    var leftState = null;
+                    var rightState = null;
+                    for (var i = 0, l = this._animationTimelines.length; i < l; ++i) {
+                        var timeline = this._animationTimelines[i];
+                        if (timeline.playState <= 0) {
+                            timeline.update(time);
+                        }
+                        if (this.blendType === 1 /* E1D */) {
+                            var animationState = timeline.target;
+                            var d = this.parameterX - animationState.positionX;
+                            if (d >= 0.0) {
+                                if (d < dL) {
+                                    dL = d;
+                                    leftState = animationState;
+                                }
+                            }
+                            else {
+                                if (-d < dR) {
+                                    dR = -d;
+                                    rightState = animationState;
+                                }
+                            }
+                        }
+                    }
+                    if (leftState !== null) {
+                        if (this._activeChildA !== leftState) {
+                            if (this._activeChildA !== null) {
+                                this._activeChildA.weight = 0.0;
+                            }
+                            this._activeChildA = leftState;
+                            this._activeChildA.activeTimeline();
+                        }
+                        if (this._activeChildB !== rightState) {
+                            if (this._activeChildB !== null) {
+                                this._activeChildB.weight = 0.0;
+                            }
+                            this._activeChildB = rightState;
+                        }
+                        leftState.weight = dR / (dL + dR);
+                        if (rightState) {
+                            rightState.weight = 1.0 - leftState.weight;
+                        }
+                    }
                 }
             }
             if (this._fadeState === 0) {
                 if (this._subFadeState > 0) {
                     this._subFadeState = 0;
+                    if (this._poseTimelines.length > 0) {
+                        for (var _i = 0, _a = this._poseTimelines; _i < _a.length; _i++) {
+                            var timeline = _a[_i];
+                            var index = this._boneTimelines.indexOf(timeline);
+                            if (index >= 0) {
+                                this._boneTimelines.splice(index, 1);
+                                timeline.returnToPool();
+                                continue;
+                            }
+                            index = this._boneBlendTimelines.indexOf(timeline);
+                            if (index >= 0) {
+                                this._boneBlendTimelines.splice(index, 1);
+                                timeline.returnToPool();
+                                continue;
+                            }
+                            index = this._slotTimelines.indexOf(timeline);
+                            if (index >= 0) {
+                                this._slotTimelines.splice(index, 1);
+                                timeline.returnToPool();
+                                continue;
+                            }
+                            index = this._slotBlendTimelines.indexOf(timeline);
+                            if (index >= 0) {
+                                this._slotBlendTimelines.splice(index, 1);
+                                timeline.returnToPool();
+                                continue;
+                            }
+                            index = this._constraintTimelines.indexOf(timeline);
+                            if (index >= 0) {
+                                this._constraintTimelines.splice(index, 1);
+                                timeline.returnToPool();
+                                continue;
+                            }
+                        }
+                        this._poseTimelines.length = 0;
+                    }
                 }
                 if (this._actionTimeline.playState > 0) {
                     if (this.autoFadeOutTime >= 0.0) {
@@ -6290,7 +9235,12 @@ var dragonBones;
             }
         };
         /**
-         * 继续播放。
+         * - Continue play.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 继续播放。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -6298,7 +9248,12 @@ var dragonBones;
             this._playheadState = 3; // 11
         };
         /**
-         * 暂停播放。
+         * - Stop play.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 暂停播放。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -6306,9 +9261,16 @@ var dragonBones;
             this._playheadState &= 1; // 0x
         };
         /**
-         * 淡出动画。
-         * @param fadeOutTime 淡出时间。 (以秒为单位)
-         * @param pausePlayhead 淡出时是否暂停动画。
+         * - Fade out the animation state.
+         * @param fadeOutTime - The fade out time. (In seconds)
+         * @param pausePlayhead - Whether to pause the animation playing when fade out.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 淡出动画状态。
+         * @param fadeOutTime - 淡出时间。 （以秒为单位）
+         * @param pausePlayhead - 淡出时是否暂停播放。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -6335,9 +9297,28 @@ var dragonBones;
                     var timeline = _a[_i];
                     timeline.fadeOut();
                 }
-                for (var _b = 0, _c = this._slotTimelines; _b < _c.length; _b++) {
+                for (var _b = 0, _c = this._boneBlendTimelines; _b < _c.length; _b++) {
                     var timeline = _c[_b];
                     timeline.fadeOut();
+                }
+                for (var _d = 0, _e = this._slotTimelines; _d < _e.length; _d++) {
+                    var timeline = _e[_d];
+                    timeline.fadeOut();
+                }
+                for (var _f = 0, _g = this._slotBlendTimelines; _f < _g.length; _f++) {
+                    var timeline = _g[_f];
+                    timeline.fadeOut();
+                }
+                for (var _h = 0, _j = this._constraintTimelines; _h < _j.length; _h++) {
+                    var timeline = _j[_h];
+                    timeline.fadeOut();
+                }
+                for (var _k = 0, _l = this._animationTimelines; _k < _l.length; _k++) {
+                    var timeline = _l[_k];
+                    timeline.fadeOut();
+                    //
+                    var animaitonState = timeline.target;
+                    animaitonState.fadeOut(999999.0, true);
                 }
             }
             this.displayControl = false; //
@@ -6345,29 +9326,42 @@ var dragonBones;
             this._fadeTime = this.fadeTotalTime * (1.0 - this._fadeProgress);
         };
         /**
-         * 是否包含骨骼遮罩。
-         * @param name 指定的骨骼名称。
+         * - Check if a specific bone mask is included.
+         * @param boneName - The bone name.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 检查是否包含特定骨骼遮罩。
+         * @param boneName - 骨骼名称。
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        AnimationState.prototype.containsBoneMask = function (name) {
-            return this._boneMask.length === 0 || this._boneMask.indexOf(name) >= 0;
+        AnimationState.prototype.containsBoneMask = function (boneName) {
+            return this._boneMask.length === 0 || this._boneMask.indexOf(boneName) >= 0;
         };
         /**
-         * 添加骨骼遮罩。
-         * @param name 指定的骨骼名称。
-         * @param recursive 是否为该骨骼的子骨骼添加遮罩。
+         * - Add a specific bone mask.
+         * @param boneName - The bone name.
+         * @param recursive - Whether or not to add a mask to the bone's sub-bone.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 添加特定的骨骼遮罩。
+         * @param boneName - 骨骼名称。
+         * @param recursive - 是否为该骨骼的子骨骼添加遮罩。
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        AnimationState.prototype.addBoneMask = function (name, recursive) {
+        AnimationState.prototype.addBoneMask = function (boneName, recursive) {
             if (recursive === void 0) { recursive = true; }
-            var currentBone = this._armature.getBone(name);
+            var currentBone = this._armature.getBone(boneName);
             if (currentBone === null) {
                 return;
             }
-            if (this._boneMask.indexOf(name) < 0) {
-                this._boneMask.push(name);
+            if (this._boneMask.indexOf(boneName) < 0) {
+                this._boneMask.push(boneName);
             }
             if (recursive) {
                 for (var _i = 0, _a = this._armature.getBones(); _i < _a.length; _i++) {
@@ -6377,31 +9371,38 @@ var dragonBones;
                     }
                 }
             }
-            this._timelineDirty = true;
+            this._timelineDirty = 1;
         };
         /**
-         * 删除骨骼遮罩。
-         * @param name 指定的骨骼名称。
-         * @param recursive 是否删除该骨骼的子骨骼遮罩。
+         * - Remove the mask of a specific bone.
+         * @param boneName - The bone name.
+         * @param recursive - Whether to remove the bone's sub-bone mask.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 删除特定骨骼的遮罩。
+         * @param boneName - 骨骼名称。
+         * @param recursive - 是否删除该骨骼的子骨骼遮罩。
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        AnimationState.prototype.removeBoneMask = function (name, recursive) {
+        AnimationState.prototype.removeBoneMask = function (boneName, recursive) {
             if (recursive === void 0) { recursive = true; }
-            var index = this._boneMask.indexOf(name);
+            var index = this._boneMask.indexOf(boneName);
             if (index >= 0) {
                 this._boneMask.splice(index, 1);
             }
             if (recursive) {
-                var currentBone = this._armature.getBone(name);
+                var currentBone = this._armature.getBone(boneName);
                 if (currentBone !== null) {
                     var bones = this._armature.getBones();
                     if (this._boneMask.length > 0) {
                         for (var _i = 0, bones_1 = bones; _i < bones_1.length; _i++) {
                             var bone = bones_1[_i];
-                            var index_2 = this._boneMask.indexOf(bone.name);
-                            if (index_2 >= 0 && currentBone.contains(bone)) {
-                                this._boneMask.splice(index_2, 1);
+                            var index_1 = this._boneMask.indexOf(bone.name);
+                            if (index_1 >= 0 && currentBone.contains(bone)) {
+                                this._boneMask.splice(index_1, 1);
                             }
                         }
                     }
@@ -6418,20 +9419,87 @@ var dragonBones;
                     }
                 }
             }
-            this._timelineDirty = true;
+            this._timelineDirty = 1;
         };
         /**
-         * 删除所有骨骼遮罩。
+         * - Remove all bone masks.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 删除所有骨骼遮罩。
          * @version DragonBones 3.0
          * @language zh_CN
          */
         AnimationState.prototype.removeAllBoneMask = function () {
             this._boneMask.length = 0;
-            this._timelineDirty = true;
+            this._timelineDirty = 1;
+        };
+        /**
+         * @private
+         */
+        AnimationState.prototype.addState = function (animationState, timelineDatas) {
+            if (timelineDatas === void 0) { timelineDatas = null; }
+            if (timelineDatas !== null) {
+                for (var _i = 0, timelineDatas_4 = timelineDatas; _i < timelineDatas_4.length; _i++) {
+                    var timelineData = timelineDatas_4[_i];
+                    switch (timelineData.type) {
+                        case 40 /* AnimationProgress */: {
+                            var timeline = dragonBones.BaseObject.borrowObject(dragonBones.AnimationProgressTimelineState);
+                            timeline.target = animationState;
+                            timeline.init(this._armature, this, timelineData);
+                            this._animationTimelines.push(timeline);
+                            if (this.blendType !== 0 /* None */) {
+                                var animaitonTimelineData = timelineData;
+                                animationState.positionX = animaitonTimelineData.x;
+                                animationState.positionY = animaitonTimelineData.y;
+                                animationState.weight = 0.0;
+                            }
+                            animationState._parent = this;
+                            this.resetToPose = false;
+                            break;
+                        }
+                        case 41 /* AnimationWeight */: {
+                            var timeline = dragonBones.BaseObject.borrowObject(dragonBones.AnimationWeightTimelineState);
+                            timeline.target = animationState;
+                            timeline.init(this._armature, this, timelineData);
+                            this._animationTimelines.push(timeline);
+                            break;
+                        }
+                        case 42 /* AnimationParameter */: {
+                            var timeline = dragonBones.BaseObject.borrowObject(dragonBones.AnimationParametersTimelineState);
+                            timeline.target = animationState;
+                            timeline.init(this._armature, this, timelineData);
+                            this._animationTimelines.push(timeline);
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                }
+            }
+            if (animationState._parent === null) {
+                animationState._parent = this;
+            }
+        };
+        /**
+         * @internal
+         */
+        AnimationState.prototype.activeTimeline = function () {
+            for (var _i = 0, _a = this._slotTimelines; _i < _a.length; _i++) {
+                var timeline = _a[_i];
+                timeline.dirty = true;
+                timeline.currentTime = -1.0;
+            }
         };
         Object.defineProperty(AnimationState.prototype, "isFadeIn", {
             /**
-             * 是否正在淡入。
+             * - Whether the animation state is fading in.
+             * @version DragonBones 5.1
+             * @language en_US
+             */
+            /**
+             * - 是否正在淡入。
              * @version DragonBones 5.1
              * @language zh_CN
              */
@@ -6443,7 +9511,12 @@ var dragonBones;
         });
         Object.defineProperty(AnimationState.prototype, "isFadeOut", {
             /**
-             * 是否正在淡出。
+             * - Whether the animation state is fading out.
+             * @version DragonBones 5.1
+             * @language en_US
+             */
+            /**
+             * - 是否正在淡出。
              * @version DragonBones 5.1
              * @language zh_CN
              */
@@ -6455,7 +9528,12 @@ var dragonBones;
         });
         Object.defineProperty(AnimationState.prototype, "isFadeComplete", {
             /**
-             * 是否淡入完毕。
+             * - Whether the animation state is fade completed.
+             * @version DragonBones 5.1
+             * @language en_US
+             */
+            /**
+             * - 是否淡入或淡出完毕。
              * @version DragonBones 5.1
              * @language zh_CN
              */
@@ -6467,7 +9545,12 @@ var dragonBones;
         });
         Object.defineProperty(AnimationState.prototype, "isPlaying", {
             /**
-             * 是否正在播放。
+             * - Whether the animation state is playing.
+             * @version DragonBones 3.0
+             * @language en_US
+             */
+            /**
+             * - 是否正在播放。
              * @version DragonBones 3.0
              * @language zh_CN
              */
@@ -6479,7 +9562,12 @@ var dragonBones;
         });
         Object.defineProperty(AnimationState.prototype, "isCompleted", {
             /**
-             * 是否播放完毕。
+             * - Whether the animation state is play completed.
+             * @version DragonBones 3.0
+             * @language en_US
+             */
+            /**
+             * - 是否播放完毕。
              * @version DragonBones 3.0
              * @language zh_CN
              */
@@ -6491,7 +9579,12 @@ var dragonBones;
         });
         Object.defineProperty(AnimationState.prototype, "currentPlayTimes", {
             /**
-             * 当前播放次数。
+             * - The times has been played.
+             * @version DragonBones 3.0
+             * @language en_US
+             */
+            /**
+             * - 已经循环播放的次数。
              * @version DragonBones 3.0
              * @language zh_CN
              */
@@ -6503,7 +9596,12 @@ var dragonBones;
         });
         Object.defineProperty(AnimationState.prototype, "totalTime", {
             /**
-             * 总时间。 (以秒为单位)
+             * - The total time. (In seconds)
+             * @version DragonBones 3.0
+             * @language en_US
+             */
+            /**
+             * - 总播放时间。 （以秒为单位）
              * @version DragonBones 3.0
              * @language zh_CN
              */
@@ -6515,7 +9613,12 @@ var dragonBones;
         });
         Object.defineProperty(AnimationState.prototype, "currentTime", {
             /**
-             * 当前播放的时间。 (以秒为单位)
+             * - The time is currently playing. (In seconds)
+             * @version DragonBones 3.0
+             * @language en_US
+             */
+            /**
+             * - 当前播放的时间。 （以秒为单位）
              * @version DragonBones 3.0
              * @language zh_CN
              */
@@ -6530,8 +9633,9 @@ var dragonBones;
                         value += this._duration;
                     }
                 }
-                if (this.playTimes > 0 && currentPlayTimes === this.playTimes - 1 && value === this._duration) {
-                    value = this._duration - 0.000001;
+                if (this.playTimes > 0 && currentPlayTimes === this.playTimes - 1 &&
+                    value === this._duration && this._parent === null) {
+                    value = this._duration - 0.000001; // 
                 }
                 if (this._time === value) {
                     return;
@@ -6553,14 +9657,58 @@ var dragonBones;
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(AnimationState.prototype, "clip", {
+        Object.defineProperty(AnimationState.prototype, "weight", {
             /**
-             * @deprecated
-             * 已废弃，请参考 @see
-             * @see #animationData
+             * - The blend weight.
+             * @default 1.0
+             * @version DragonBones 5.0
+             * @language en_US
+             */
+            /**
+             * - 混合权重。
+             * @default 1.0
+             * @version DragonBones 5.0
+             * @language zh_CN
+             */
+            /**
+             * - The animation data.
+             * @see dragonBones.AnimationData
+             * @version DragonBones 3.0
+             * @language en_US
              */
             get: function () {
-                return this.animationData;
+                return this._weight;
+            },
+            set: function (value) {
+                if (this._weight === value) {
+                    return;
+                }
+                this._weight = value;
+                for (var _i = 0, _a = this._boneTimelines; _i < _a.length; _i++) {
+                    var timeline = _a[_i];
+                    timeline.dirty = true;
+                }
+                for (var _b = 0, _c = this._boneBlendTimelines; _b < _c.length; _b++) {
+                    var timeline = _c[_b];
+                    timeline.dirty = true;
+                }
+                for (var _d = 0, _e = this._slotBlendTimelines; _d < _e.length; _d++) {
+                    var timeline = _e[_d];
+                    timeline.dirty = true;
+                }
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(AnimationState.prototype, "animationData", {
+            /**
+             * - 动画数据。
+             * @see dragonBones.AnimationData
+             * @version DragonBones 3.0
+             * @language zh_CN
+             */
+            get: function () {
+                return this._animationData;
             },
             enumerable: true,
             configurable: true
@@ -6568,42 +9716,127 @@ var dragonBones;
         return AnimationState;
     }(dragonBones.BaseObject));
     dragonBones.AnimationState = AnimationState;
+    /**
+     * @internal
+     */
+    var BlendState = /** @class */ (function (_super) {
+        __extends(BlendState, _super);
+        function BlendState() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        BlendState.toString = function () {
+            return "[class dragonBones.BlendState]";
+        };
+        BlendState.prototype._onClear = function () {
+            this.reset();
+            this.target = null;
+        };
+        BlendState.prototype.update = function (animationState) {
+            var animationLayer = animationState.layer;
+            var animationWeight = animationState._weightResult;
+            if (this.dirty > 0) {
+                if (this.leftWeight > 0.0) {
+                    if (this.layer !== animationLayer) {
+                        if (this.layerWeight >= this.leftWeight) {
+                            this.dirty++;
+                            this.layer = animationLayer;
+                            this.leftWeight = 0.0;
+                            this.blendWeight = 0.0;
+                            return false;
+                        }
+                        this.layer = animationLayer;
+                        this.leftWeight -= this.layerWeight;
+                        this.layerWeight = 0.0;
+                    }
+                    animationWeight *= this.leftWeight;
+                    this.dirty++;
+                    this.blendWeight = animationWeight;
+                    this.layerWeight += this.blendWeight;
+                    return true;
+                }
+                return false;
+            }
+            this.dirty++;
+            this.layer = animationLayer;
+            this.leftWeight = 1.0;
+            this.blendWeight = animationWeight;
+            this.layerWeight = animationWeight;
+            return true;
+        };
+        BlendState.prototype.reset = function () {
+            this.dirty = 0;
+            this.layer = 0;
+            this.leftWeight = 0.0;
+            this.layerWeight = 0.0;
+            this.blendWeight = 0.0;
+        };
+        BlendState.BONE_TRANSFORM = "boneTransform";
+        BlendState.BONE_ALPHA = "boneAlpha";
+        BlendState.SURFACE = "surface";
+        BlendState.SLOT_DEFORM = "slotDeform";
+        BlendState.SLOT_ALPHA = "slotAlpha";
+        BlendState.SLOT_Z_INDEX = "slotZIndex";
+        return BlendState;
+    }(dragonBones.BaseObject));
+    dragonBones.BlendState = BlendState;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
     /**
      * @internal
-     * @private
      */
-    var TimelineState = (function (_super) {
+    var TimelineState = /** @class */ (function (_super) {
         __extends(TimelineState, _super);
         function TimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
         }
         TimelineState.prototype._onClear = function () {
+            this.dirty = false;
             this.playState = -1;
             this.currentPlayTimes = -1;
             this.currentTime = -1.0;
-            this._tweenState = 0 /* None */;
-            this._frameRate = 0;
+            this.target = null;
+            this._isTween = false;
+            this._valueOffset = 0;
             this._frameValueOffset = 0;
-            this._frameCount = 0;
             this._frameOffset = 0;
+            this._frameRate = 0;
+            this._frameCount = 0;
             this._frameIndex = -1;
             this._frameRateR = 0.0;
             this._position = 0.0;
             this._duration = 0.0;
             this._timeScale = 1.0;
             this._timeOffset = 0.0;
-            this._dragonBonesData = null; //
             this._animationData = null; //
             this._timelineData = null; //
             this._armature = null; //
             this._animationState = null; //
             this._actionTimeline = null; //
             this._frameArray = null; //
-            this._frameIntArray = null; //
-            this._frameFloatArray = null; //
+            this._valueArray = null; //
             this._timelineArray = null; //
             this._frameIndices = null; //
         };
@@ -6632,7 +9865,7 @@ var dragonBones;
                         this.currentTime = 0.0;
                     }
                     else {
-                        this.currentTime = this._duration;
+                        this.currentTime = this._duration + 0.000001; // Precision problem
                     }
                 }
                 else {
@@ -6674,27 +9907,29 @@ var dragonBones;
             if (this === this._actionTimeline) {
                 this._actionTimeline = null; //
             }
-            this._frameRate = this._armature.armatureData.frameRate;
+            this._animationData = this._animationState.animationData;
+            //
+            this._frameRate = this._animationData.parent.frameRate;
             this._frameRateR = 1.0 / this._frameRate;
             this._position = this._animationState._position;
             this._duration = this._animationState._duration;
-            this._dragonBonesData = this._armature.armatureData.parent;
-            this._animationData = this._animationState.animationData;
             if (this._timelineData !== null) {
-                this._frameIntArray = this._dragonBonesData.frameIntArray;
-                this._frameFloatArray = this._dragonBonesData.frameFloatArray;
-                this._frameArray = this._dragonBonesData.frameArray;
-                this._timelineArray = this._dragonBonesData.timelineArray;
-                this._frameIndices = this._dragonBonesData.frameIndices;
+                var dragonBonesData = this._animationData.parent.parent; // May by the animation data is not belone to this armature data.
+                this._frameArray = dragonBonesData.frameArray;
+                this._timelineArray = dragonBonesData.timelineArray;
+                this._frameIndices = dragonBonesData.frameIndices;
+                //
                 this._frameCount = this._timelineArray[this._timelineData.offset + 2 /* TimelineKeyFrameCount */];
                 this._frameValueOffset = this._timelineArray[this._timelineData.offset + 4 /* TimelineFrameValueOffset */];
                 this._timeScale = 100.0 / this._timelineArray[this._timelineData.offset + 0 /* TimelineScale */];
                 this._timeOffset = this._timelineArray[this._timelineData.offset + 1 /* TimelineOffset */] * 0.01;
             }
         };
-        TimelineState.prototype.fadeOut = function () { };
+        TimelineState.prototype.fadeOut = function () {
+            this.dirty = false;
+        };
         TimelineState.prototype.update = function (passedTime) {
-            if (this.playState <= 0 && this._setCurrentTime(passedTime)) {
+            if (this._setCurrentTime(passedTime)) {
                 if (this._frameCount > 1) {
                     var timelineFrameIndex = Math.floor(this.currentTime * this._frameRate); // uint
                     var frameIndex = this._frameIndices[this._timelineData.frameIndicesOffset + timelineFrameIndex];
@@ -6711,19 +9946,20 @@ var dragonBones;
                     }
                     this._onArriveAtFrame();
                 }
-                if (this._tweenState !== 0 /* None */) {
+                if (this._isTween || this.dirty) {
                     this._onUpdateFrame();
                 }
             }
+        };
+        TimelineState.prototype.blend = function (_isDirty) {
         };
         return TimelineState;
     }(dragonBones.BaseObject));
     dragonBones.TimelineState = TimelineState;
     /**
      * @internal
-     * @private
      */
-    var TweenTimelineState = (function (_super) {
+    var TweenTimelineState = /** @class */ (function (_super) {
         __extends(TweenTimelineState, _super);
         function TweenTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -6750,10 +9986,19 @@ var dragonBones;
             else if (progress >= 1.0) {
                 return 1.0;
             }
+            var isOmited = count > 0;
             var segmentCount = count + 1; // + 2 - 1
             var valueIndex = Math.floor(progress * segmentCount);
-            var fromValue = valueIndex === 0 ? 0.0 : samples[offset + valueIndex - 1];
-            var toValue = (valueIndex === segmentCount - 1) ? 10000.0 : samples[offset + valueIndex];
+            var fromValue = 0.0;
+            var toValue = 0.0;
+            if (isOmited) {
+                fromValue = valueIndex === 0 ? 0.0 : samples[offset + valueIndex - 1];
+                toValue = (valueIndex === segmentCount - 1) ? 10000.0 : samples[offset + valueIndex];
+            }
+            else {
+                fromValue = samples[offset + valueIndex - 1];
+                toValue = samples[offset + valueIndex];
+            }
             return (fromValue + (toValue - fromValue) * (progress * segmentCount - valueIndex)) * 0.0001;
         };
         TweenTimelineState.prototype._onClear = function () {
@@ -6762,21 +10007,27 @@ var dragonBones;
             this._curveCount = 0;
             this._framePosition = 0.0;
             this._frameDurationR = 0.0;
-            this._tweenProgress = 0.0;
             this._tweenEasing = 0.0;
+            this._tweenProgress = 0.0;
+            this._valueScale = 1.0;
         };
         TweenTimelineState.prototype._onArriveAtFrame = function () {
             if (this._frameCount > 1 &&
                 (this._frameIndex !== this._frameCount - 1 ||
                     this._animationState.playTimes === 0 ||
                     this._animationState.currentPlayTimes < this._animationState.playTimes - 1)) {
-                this._tweenType = this._frameArray[this._frameOffset + 1 /* FrameTweenType */]; // TODO recode ture tween type.
-                this._tweenState = this._tweenType === 0 /* None */ ? 1 /* Once */ : 2 /* Always */;
-                if (this._tweenType === 2 /* Curve */) {
-                    this._curveCount = this._frameArray[this._frameOffset + 2 /* FrameTweenEasingOrCurveSampleCount */];
+                this._tweenType = this._frameArray[this._frameOffset + 1 /* FrameTweenType */];
+                this._isTween = this._tweenType !== 0 /* None */;
+                if (this._isTween) {
+                    if (this._tweenType === 2 /* Curve */) {
+                        this._curveCount = this._frameArray[this._frameOffset + 2 /* FrameTweenEasingOrCurveSampleCount */];
+                    }
+                    else if (this._tweenType !== 0 /* None */ && this._tweenType !== 1 /* Line */) {
+                        this._tweenEasing = this._frameArray[this._frameOffset + 2 /* FrameTweenEasingOrCurveSampleCount */] * 0.01;
+                    }
                 }
-                else if (this._tweenType !== 0 /* None */ && this._tweenType !== 1 /* Line */) {
-                    this._tweenEasing = this._frameArray[this._frameOffset + 2 /* FrameTweenEasingOrCurveSampleCount */] * 0.01;
+                else {
+                    this.dirty = true;
                 }
                 this._framePosition = this._frameArray[this._frameOffset] * this._frameRateR;
                 if (this._frameIndex === this._frameCount - 1) {
@@ -6784,15 +10035,23 @@ var dragonBones;
                 }
                 else {
                     var nextFrameOffset = this._animationData.frameOffset + this._timelineArray[this._timelineData.offset + 5 /* TimelineFrameOffset */ + this._frameIndex + 1];
-                    this._frameDurationR = 1.0 / (this._frameArray[nextFrameOffset] * this._frameRateR - this._framePosition);
+                    var frameDuration = this._frameArray[nextFrameOffset] * this._frameRateR - this._framePosition;
+                    if (frameDuration > 0) {
+                        this._frameDurationR = 1.0 / frameDuration;
+                    }
+                    else {
+                        this._frameDurationR = 0.0;
+                    }
                 }
             }
             else {
-                this._tweenState = 1 /* Once */;
+                this.dirty = true;
+                this._isTween = false;
             }
         };
         TweenTimelineState.prototype._onUpdateFrame = function () {
-            if (this._tweenState === 2 /* Always */) {
+            if (this._isTween) {
+                this.dirty = true;
                 this._tweenProgress = (this.currentTime - this._framePosition) * this._frameDurationR;
                 if (this._tweenType === 2 /* Curve */) {
                     this._tweenProgress = TweenTimelineState._getEasingCurveValue(this._tweenProgress, this._frameArray, this._curveCount, this._frameOffset + 3 /* FrameCurveSamples */);
@@ -6801,54 +10060,232 @@ var dragonBones;
                     this._tweenProgress = TweenTimelineState._getEasingValue(this._tweenType, this._tweenProgress, this._tweenEasing);
                 }
             }
-            else {
-                this._tweenProgress = 0.0;
-            }
         };
         return TweenTimelineState;
     }(TimelineState));
     dragonBones.TweenTimelineState = TweenTimelineState;
     /**
      * @internal
-     * @private
      */
-    var BoneTimelineState = (function (_super) {
-        __extends(BoneTimelineState, _super);
-        function BoneTimelineState() {
+    var SingleValueTimelineState = /** @class */ (function (_super) {
+        __extends(SingleValueTimelineState, _super);
+        function SingleValueTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
         }
-        BoneTimelineState.prototype._onClear = function () {
+        SingleValueTimelineState.prototype._onClear = function () {
             _super.prototype._onClear.call(this);
-            this.bone = null; //
-            this.bonePose = null; //
+            this._current = 0.0;
+            this._difference = 0.0;
+            this._result = 0.0;
         };
-        return BoneTimelineState;
+        SingleValueTimelineState.prototype._onArriveAtFrame = function () {
+            _super.prototype._onArriveAtFrame.call(this);
+            if (this._timelineData !== null) {
+                var valueScale = this._valueScale;
+                var valueArray = this._valueArray;
+                //
+                var valueOffset = this._valueOffset + this._frameValueOffset + this._frameIndex;
+                if (this._isTween) {
+                    var nextValueOffset = this._frameIndex === this._frameCount - 1 ?
+                        this._valueOffset + this._frameValueOffset :
+                        valueOffset + 1;
+                    if (valueScale === 1.0) {
+                        this._current = valueArray[valueOffset];
+                        this._difference = valueArray[nextValueOffset] - this._current;
+                    }
+                    else {
+                        this._current = valueArray[valueOffset] * valueScale;
+                        this._difference = valueArray[nextValueOffset] * valueScale - this._current;
+                    }
+                }
+                else {
+                    this._result = valueArray[valueOffset] * valueScale;
+                }
+            }
+            else {
+                this._result = 0.0;
+            }
+        };
+        SingleValueTimelineState.prototype._onUpdateFrame = function () {
+            _super.prototype._onUpdateFrame.call(this);
+            if (this._isTween) {
+                this._result = this._current + this._difference * this._tweenProgress;
+            }
+        };
+        return SingleValueTimelineState;
     }(TweenTimelineState));
-    dragonBones.BoneTimelineState = BoneTimelineState;
+    dragonBones.SingleValueTimelineState = SingleValueTimelineState;
     /**
      * @internal
-     * @private
      */
-    var SlotTimelineState = (function (_super) {
-        __extends(SlotTimelineState, _super);
-        function SlotTimelineState() {
+    var DoubleValueTimelineState = /** @class */ (function (_super) {
+        __extends(DoubleValueTimelineState, _super);
+        function DoubleValueTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
         }
-        SlotTimelineState.prototype._onClear = function () {
+        DoubleValueTimelineState.prototype._onClear = function () {
             _super.prototype._onClear.call(this);
-            this.slot = null; //
+            this._currentA = 0.0;
+            this._currentB = 0.0;
+            this._differenceA = 0.0;
+            this._differenceB = 0.0;
+            this._resultA = 0.0;
+            this._resultB = 0.0;
         };
-        return SlotTimelineState;
+        DoubleValueTimelineState.prototype._onArriveAtFrame = function () {
+            _super.prototype._onArriveAtFrame.call(this);
+            if (this._timelineData !== null) {
+                var valueScale = this._valueScale;
+                var valueArray = this._valueArray;
+                //
+                var valueOffset = this._valueOffset + this._frameValueOffset + this._frameIndex * 2;
+                if (this._isTween) {
+                    var nextValueOffset = this._frameIndex === this._frameCount - 1 ?
+                        this._valueOffset + this._frameValueOffset :
+                        valueOffset + 2;
+                    if (valueScale === 1.0) {
+                        this._currentA = valueArray[valueOffset];
+                        this._currentB = valueArray[valueOffset + 1];
+                        this._differenceA = valueArray[nextValueOffset] - this._currentA;
+                        this._differenceB = valueArray[nextValueOffset + 1] - this._currentB;
+                    }
+                    else {
+                        this._currentA = valueArray[valueOffset] * valueScale;
+                        this._currentB = valueArray[valueOffset + 1] * valueScale;
+                        this._differenceA = valueArray[nextValueOffset] * valueScale - this._currentA;
+                        this._differenceB = valueArray[nextValueOffset + 1] * valueScale - this._currentB;
+                    }
+                }
+                else {
+                    this._resultA = valueArray[valueOffset] * valueScale;
+                    this._resultB = valueArray[valueOffset + 1] * valueScale;
+                }
+            }
+            else {
+                this._resultA = 0.0;
+                this._resultB = 0.0;
+            }
+        };
+        DoubleValueTimelineState.prototype._onUpdateFrame = function () {
+            _super.prototype._onUpdateFrame.call(this);
+            if (this._isTween) {
+                this._resultA = this._currentA + this._differenceA * this._tweenProgress;
+                this._resultB = this._currentB + this._differenceB * this._tweenProgress;
+            }
+        };
+        return DoubleValueTimelineState;
     }(TweenTimelineState));
-    dragonBones.SlotTimelineState = SlotTimelineState;
+    dragonBones.DoubleValueTimelineState = DoubleValueTimelineState;
+    /**
+     * @internal
+     */
+    var MutilpleValueTimelineState = /** @class */ (function (_super) {
+        __extends(MutilpleValueTimelineState, _super);
+        function MutilpleValueTimelineState() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this._rd = [];
+            return _this;
+        }
+        MutilpleValueTimelineState.prototype._onClear = function () {
+            _super.prototype._onClear.call(this);
+            this._valueCount = 0;
+            this._rd.length = 0;
+        };
+        MutilpleValueTimelineState.prototype._onArriveAtFrame = function () {
+            _super.prototype._onArriveAtFrame.call(this);
+            var valueCount = this._valueCount;
+            var rd = this._rd;
+            if (this._timelineData !== null) {
+                var valueScale = this._valueScale;
+                var valueArray = this._valueArray;
+                //
+                var valueOffset = this._valueOffset + this._frameValueOffset + this._frameIndex * valueCount;
+                if (this._isTween) {
+                    var nextValueOffset = this._frameIndex === this._frameCount - 1 ?
+                        this._valueOffset + this._frameValueOffset :
+                        valueOffset + valueCount;
+                    if (valueScale === 1.0) {
+                        for (var i = 0; i < valueCount; ++i) {
+                            rd[valueCount + i] = valueArray[nextValueOffset + i] - valueArray[valueOffset + i];
+                        }
+                    }
+                    else {
+                        for (var i = 0; i < valueCount; ++i) {
+                            rd[valueCount + i] = (valueArray[nextValueOffset + i] - valueArray[valueOffset + i]) * valueScale;
+                        }
+                    }
+                }
+                else if (valueScale === 1.0) {
+                    for (var i = 0; i < valueCount; ++i) {
+                        rd[i] = valueArray[valueOffset + i];
+                    }
+                }
+                else {
+                    for (var i = 0; i < valueCount; ++i) {
+                        rd[i] = valueArray[valueOffset + i] * valueScale;
+                    }
+                }
+            }
+            else {
+                for (var i = 0; i < valueCount; ++i) {
+                    rd[i] = 0.0;
+                }
+            }
+        };
+        MutilpleValueTimelineState.prototype._onUpdateFrame = function () {
+            _super.prototype._onUpdateFrame.call(this);
+            if (this._isTween) {
+                var valueCount = this._valueCount;
+                var valueScale = this._valueScale;
+                var tweenProgress = this._tweenProgress;
+                var valueArray = this._valueArray;
+                var rd = this._rd;
+                //
+                var valueOffset = this._valueOffset + this._frameValueOffset + this._frameIndex * valueCount;
+                if (valueScale === 1.0) {
+                    for (var i = 0; i < valueCount; ++i) {
+                        rd[i] = valueArray[valueOffset + i] + rd[valueCount + i] * tweenProgress;
+                    }
+                }
+                else {
+                    for (var i = 0; i < valueCount; ++i) {
+                        rd[i] = valueArray[valueOffset + i] * valueScale + rd[valueCount + i] * tweenProgress;
+                    }
+                }
+            }
+        };
+        return MutilpleValueTimelineState;
+    }(TweenTimelineState));
+    dragonBones.MutilpleValueTimelineState = MutilpleValueTimelineState;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
     /**
      * @internal
-     * @private
      */
-    var ActionTimelineState = (function (_super) {
+    var ActionTimelineState = /** @class */ (function (_super) {
         __extends(ActionTimelineState, _super);
         function ActionTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -6861,50 +10298,26 @@ var dragonBones;
             if (this._animationState.actionEnabled) {
                 var frameOffset = this._animationData.frameOffset + this._timelineArray[this._timelineData.offset + 5 /* TimelineFrameOffset */ + frameIndex];
                 var actionCount = this._frameArray[frameOffset + 1];
-                var actions = this._armature.armatureData.actions;
+                var actions = this._animationData.parent.actions; // May be the animaton data not belong to this armature data.
                 for (var i = 0; i < actionCount; ++i) {
                     var actionIndex = this._frameArray[frameOffset + 2 + i];
                     var action = actions[actionIndex];
                     if (action.type === 0 /* Play */) {
-                        if (action.slot !== null) {
-                            var slot = this._armature.getSlot(action.slot.name);
-                            if (slot !== null) {
-                                var childArmature = slot.childArmature;
-                                if (childArmature !== null) {
-                                    childArmature._bufferAction(action, true);
-                                }
-                            }
-                        }
-                        else if (action.bone !== null) {
-                            for (var _i = 0, _a = this._armature.getSlots(); _i < _a.length; _i++) {
-                                var slot = _a[_i];
-                                var childArmature = slot.childArmature;
-                                if (childArmature !== null && slot.parent.boneData === action.bone) {
-                                    childArmature._bufferAction(action, true);
-                                }
-                            }
-                        }
-                        else {
-                            this._armature._bufferAction(action, true);
-                        }
+                        var eventObject = dragonBones.BaseObject.borrowObject(dragonBones.EventObject);
+                        // eventObject.time = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
+                        eventObject.time = this._frameArray[frameOffset] / this._frameRate;
+                        eventObject.animationState = this._animationState;
+                        dragonBones.EventObject.actionDataToInstance(action, eventObject, this._armature);
+                        this._armature._bufferAction(eventObject, true);
                     }
                     else {
                         var eventType = action.type === 10 /* Frame */ ? dragonBones.EventObject.FRAME_EVENT : dragonBones.EventObject.SOUND_EVENT;
-                        if (action.type === 11 /* Sound */ || eventDispatcher.hasEvent(eventType)) {
+                        if (action.type === 11 /* Sound */ || eventDispatcher.hasDBEventListener(eventType)) {
                             var eventObject = dragonBones.BaseObject.borrowObject(dragonBones.EventObject);
                             // eventObject.time = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
                             eventObject.time = this._frameArray[frameOffset] / this._frameRate;
-                            eventObject.type = eventType;
-                            eventObject.name = action.name;
-                            eventObject.data = action.data;
-                            eventObject.armature = this._armature;
                             eventObject.animationState = this._animationState;
-                            if (action.bone !== null) {
-                                eventObject.bone = this._armature.getBone(action.bone.name);
-                            }
-                            if (action.slot !== null) {
-                                eventObject.slot = this._armature.getSlot(action.slot.name);
-                            }
+                            dragonBones.EventObject.actionDataToInstance(action, eventObject, this._armature);
                             this._armature._dragonBones.bufferEvent(eventObject);
                         }
                     }
@@ -6917,7 +10330,8 @@ var dragonBones;
             var prevState = this.playState;
             var prevPlayTimes = this.currentPlayTimes;
             var prevTime = this.currentTime;
-            if (this.playState <= 0 && this._setCurrentTime(passedTime)) {
+            if (this._setCurrentTime(passedTime)) {
+                var eventActive = this._animationState._parent === null && this._animationState.actionEnabled;
                 var eventDispatcher = this._armature.eventDispatcher;
                 if (prevState < 0) {
                     if (this.playState !== prevState) {
@@ -6925,7 +10339,7 @@ var dragonBones;
                             this._armature._sortZOrder(null, 0);
                         }
                         prevPlayTimes = this.currentPlayTimes;
-                        if (eventDispatcher.hasEvent(dragonBones.EventObject.START)) {
+                        if (eventActive && eventDispatcher.hasDBEventListener(dragonBones.EventObject.START)) {
                             var eventObject = dragonBones.BaseObject.borrowObject(dragonBones.EventObject);
                             eventObject.type = dragonBones.EventObject.START;
                             eventObject.armature = this._armature;
@@ -6940,15 +10354,15 @@ var dragonBones;
                 var isReverse = this._animationState.timeScale < 0.0;
                 var loopCompleteEvent = null;
                 var completeEvent = null;
-                if (this.currentPlayTimes !== prevPlayTimes) {
-                    if (eventDispatcher.hasEvent(dragonBones.EventObject.LOOP_COMPLETE)) {
+                if (eventActive && this.currentPlayTimes !== prevPlayTimes) {
+                    if (eventDispatcher.hasDBEventListener(dragonBones.EventObject.LOOP_COMPLETE)) {
                         loopCompleteEvent = dragonBones.BaseObject.borrowObject(dragonBones.EventObject);
                         loopCompleteEvent.type = dragonBones.EventObject.LOOP_COMPLETE;
                         loopCompleteEvent.armature = this._armature;
                         loopCompleteEvent.animationState = this._animationState;
                     }
                     if (this.playState > 0) {
-                        if (eventDispatcher.hasEvent(dragonBones.EventObject.COMPLETE)) {
+                        if (eventDispatcher.hasDBEventListener(dragonBones.EventObject.COMPLETE)) {
                             completeEvent = dragonBones.BaseObject.borrowObject(dragonBones.EventObject);
                             completeEvent.type = dragonBones.EventObject.COMPLETE;
                             completeEvent.armature = this._armature;
@@ -7030,7 +10444,8 @@ var dragonBones;
                                     // const framePosition = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
                                     var framePosition = this._frameArray[frameOffset] / this._frameRate;
                                     if (this._position <= framePosition &&
-                                        framePosition <= this._position + this._duration) {
+                                        framePosition <= this._position + this._duration //
+                                    ) {
                                         this._onCrossFrame(crossedFrameIndex);
                                     }
                                     if (loopCompleteEvent !== null && crossedFrameIndex === 0) {
@@ -7082,9 +10497,8 @@ var dragonBones;
     dragonBones.ActionTimelineState = ActionTimelineState;
     /**
      * @internal
-     * @private
      */
-    var ZOrderTimelineState = (function (_super) {
+    var ZOrderTimelineState = /** @class */ (function (_super) {
         __extends(ZOrderTimelineState, _super);
         function ZOrderTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -7109,9 +10523,8 @@ var dragonBones;
     dragonBones.ZOrderTimelineState = ZOrderTimelineState;
     /**
      * @internal
-     * @private
      */
-    var BoneAllTimelineState = (function (_super) {
+    var BoneAllTimelineState = /** @class */ (function (_super) {
         __extends(BoneAllTimelineState, _super);
         function BoneAllTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -7121,183 +10534,448 @@ var dragonBones;
         };
         BoneAllTimelineState.prototype._onArriveAtFrame = function () {
             _super.prototype._onArriveAtFrame.call(this);
-            if (this._timelineData !== null) {
-                var frameFloatArray = this._dragonBonesData.frameFloatArray;
-                var current = this.bonePose.current;
-                var delta = this.bonePose.delta;
-                var valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset + this._frameIndex * 6; // ...(timeline value offset)|xxxxxx|xxxxxx|(Value offset)xxxxx|(Next offset)xxxxx|xxxxxx|xxxxxx|...
-                current.x = frameFloatArray[valueOffset++];
-                current.y = frameFloatArray[valueOffset++];
-                current.rotation = frameFloatArray[valueOffset++];
-                current.skew = frameFloatArray[valueOffset++];
-                current.scaleX = frameFloatArray[valueOffset++];
-                current.scaleY = frameFloatArray[valueOffset++];
-                if (this._tweenState === 2 /* Always */) {
-                    if (this._frameIndex === this._frameCount - 1) {
-                        valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset;
-                    }
-                    delta.x = frameFloatArray[valueOffset++] - current.x;
-                    delta.y = frameFloatArray[valueOffset++] - current.y;
-                    delta.rotation = frameFloatArray[valueOffset++] - current.rotation;
-                    delta.skew = frameFloatArray[valueOffset++] - current.skew;
-                    delta.scaleX = frameFloatArray[valueOffset++] - current.scaleX;
-                    delta.scaleY = frameFloatArray[valueOffset++] - current.scaleY;
-                }
-                // else {
-                //     delta.x = 0.0;
-                //     delta.y = 0.0;
-                //     delta.rotation = 0.0;
-                //     delta.skew = 0.0;
-                //     delta.scaleX = 0.0;
-                //     delta.scaleY = 0.0;
-                // }
+            if (this._isTween && this._frameIndex === this._frameCount - 1) {
+                this._rd[2] = dragonBones.Transform.normalizeRadian(this._rd[2]);
+                this._rd[3] = dragonBones.Transform.normalizeRadian(this._rd[3]);
             }
-            else {
-                var current = this.bonePose.current;
-                current.x = 0.0;
-                current.y = 0.0;
-                current.rotation = 0.0;
-                current.skew = 0.0;
-                current.scaleX = 1.0;
-                current.scaleY = 1.0;
+            if (this._timelineData === null) {
+                this._rd[4] = 1.0;
+                this._rd[5] = 1.0;
             }
         };
-        BoneAllTimelineState.prototype._onUpdateFrame = function () {
-            _super.prototype._onUpdateFrame.call(this);
-            var current = this.bonePose.current;
-            var delta = this.bonePose.delta;
-            var result = this.bonePose.result;
-            this.bone._transformDirty = true;
-            if (this._tweenState !== 2 /* Always */) {
-                this._tweenState = 0 /* None */;
-            }
-            var scale = this._armature.armatureData.scale;
-            result.x = (current.x + delta.x * this._tweenProgress) * scale;
-            result.y = (current.y + delta.y * this._tweenProgress) * scale;
-            result.rotation = current.rotation + delta.rotation * this._tweenProgress;
-            result.skew = current.skew + delta.skew * this._tweenProgress;
-            result.scaleX = current.scaleX + delta.scaleX * this._tweenProgress;
-            result.scaleY = current.scaleY + delta.scaleY * this._tweenProgress;
+        BoneAllTimelineState.prototype.init = function (armature, animationState, timelineData) {
+            _super.prototype.init.call(this, armature, animationState, timelineData);
+            this._valueOffset = this._animationData.frameFloatOffset;
+            this._valueCount = 6;
+            this._valueArray = this._animationData.parent.parent.frameFloatArray;
         };
         BoneAllTimelineState.prototype.fadeOut = function () {
-            var result = this.bonePose.result;
-            result.rotation = dragonBones.Transform.normalizeRadian(result.rotation);
-            result.skew = dragonBones.Transform.normalizeRadian(result.skew);
+            this.dirty = false;
+            this._rd[2] = dragonBones.Transform.normalizeRadian(this._rd[2]);
+            this._rd[3] = dragonBones.Transform.normalizeRadian(this._rd[3]);
+        };
+        BoneAllTimelineState.prototype.blend = function (isDirty) {
+            var valueScale = this._armature.armatureData.scale;
+            var rd = this._rd;
+            //
+            var blendState = this.target;
+            var bone = blendState.target;
+            var blendWeight = blendState.blendWeight;
+            var result = bone.animationPose;
+            if (blendState.dirty > 1) {
+                result.x += rd[0] * blendWeight * valueScale;
+                result.y += rd[1] * blendWeight * valueScale;
+                result.rotation += rd[2] * blendWeight;
+                result.skew += rd[3] * blendWeight;
+                result.scaleX += (rd[4] - 1.0) * blendWeight;
+                result.scaleY += (rd[5] - 1.0) * blendWeight;
+            }
+            else {
+                result.x = rd[0] * blendWeight * valueScale;
+                result.y = rd[1] * blendWeight * valueScale;
+                result.rotation = rd[2] * blendWeight;
+                result.skew = rd[3] * blendWeight;
+                result.scaleX = (rd[4] - 1.0) * blendWeight + 1.0; // 
+                result.scaleY = (rd[5] - 1.0) * blendWeight + 1.0; //
+            }
+            if (isDirty || this.dirty) {
+                this.dirty = false;
+                bone._transformDirty = true;
+            }
         };
         return BoneAllTimelineState;
-    }(dragonBones.BoneTimelineState));
+    }(dragonBones.MutilpleValueTimelineState));
     dragonBones.BoneAllTimelineState = BoneAllTimelineState;
     /**
      * @internal
-     * @private
      */
-    var SlotDislayIndexTimelineState = (function (_super) {
-        __extends(SlotDislayIndexTimelineState, _super);
-        function SlotDislayIndexTimelineState() {
+    var BoneTranslateTimelineState = /** @class */ (function (_super) {
+        __extends(BoneTranslateTimelineState, _super);
+        function BoneTranslateTimelineState() {
             return _super !== null && _super.apply(this, arguments) || this;
         }
-        SlotDislayIndexTimelineState.toString = function () {
-            return "[class dragonBones.SlotDislayIndexTimelineState]";
+        BoneTranslateTimelineState.toString = function () {
+            return "[class dragonBones.BoneTranslateTimelineState]";
         };
-        SlotDislayIndexTimelineState.prototype._onArriveAtFrame = function () {
+        BoneTranslateTimelineState.prototype.init = function (armature, animationState, timelineData) {
+            _super.prototype.init.call(this, armature, animationState, timelineData);
+            this._valueOffset = this._animationData.frameFloatOffset;
+            this._valueScale = this._armature.armatureData.scale;
+            this._valueArray = this._animationData.parent.parent.frameFloatArray;
+        };
+        BoneTranslateTimelineState.prototype.blend = function (isDirty) {
+            var blendState = this.target;
+            var bone = blendState.target;
+            var blendWeight = blendState.blendWeight;
+            var result = bone.animationPose;
+            if (blendState.dirty > 1) {
+                result.x += this._resultA * blendWeight;
+                result.y += this._resultB * blendWeight;
+            }
+            else if (blendWeight !== 1.0) {
+                result.x = this._resultA * blendWeight;
+                result.y = this._resultB * blendWeight;
+            }
+            else {
+                result.x = this._resultA;
+                result.y = this._resultB;
+            }
+            if (isDirty || this.dirty) {
+                this.dirty = false;
+                bone._transformDirty = true;
+            }
+        };
+        return BoneTranslateTimelineState;
+    }(dragonBones.DoubleValueTimelineState));
+    dragonBones.BoneTranslateTimelineState = BoneTranslateTimelineState;
+    /**
+     * @internal
+     */
+    var BoneRotateTimelineState = /** @class */ (function (_super) {
+        __extends(BoneRotateTimelineState, _super);
+        function BoneRotateTimelineState() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        BoneRotateTimelineState.toString = function () {
+            return "[class dragonBones.BoneRotateTimelineState]";
+        };
+        BoneRotateTimelineState.prototype._onArriveAtFrame = function () {
+            _super.prototype._onArriveAtFrame.call(this);
+            if (this._isTween && this._frameIndex === this._frameCount - 1) {
+                this._differenceA = dragonBones.Transform.normalizeRadian(this._differenceA);
+                this._differenceB = dragonBones.Transform.normalizeRadian(this._differenceB);
+            }
+        };
+        BoneRotateTimelineState.prototype.init = function (armature, animationState, timelineData) {
+            _super.prototype.init.call(this, armature, animationState, timelineData);
+            this._valueOffset = this._animationData.frameFloatOffset;
+            this._valueArray = this._animationData.parent.parent.frameFloatArray;
+        };
+        BoneRotateTimelineState.prototype.fadeOut = function () {
+            this.dirty = false;
+            this._resultA = dragonBones.Transform.normalizeRadian(this._resultA);
+            this._resultB = dragonBones.Transform.normalizeRadian(this._resultB);
+        };
+        BoneRotateTimelineState.prototype.blend = function (isDirty) {
+            var blendState = this.target;
+            var bone = blendState.target;
+            var blendWeight = blendState.blendWeight;
+            var result = bone.animationPose;
+            if (blendState.dirty > 1) {
+                result.rotation += this._resultA * blendWeight;
+                result.skew += this._resultB * blendWeight;
+            }
+            else if (blendWeight !== 1.0) {
+                result.rotation = this._resultA * blendWeight;
+                result.skew = this._resultB * blendWeight;
+            }
+            else {
+                result.rotation = this._resultA;
+                result.skew = this._resultB;
+            }
+            if (isDirty || this.dirty) {
+                this.dirty = false;
+                bone._transformDirty = true;
+            }
+        };
+        return BoneRotateTimelineState;
+    }(dragonBones.DoubleValueTimelineState));
+    dragonBones.BoneRotateTimelineState = BoneRotateTimelineState;
+    /**
+     * @internal
+     */
+    var BoneScaleTimelineState = /** @class */ (function (_super) {
+        __extends(BoneScaleTimelineState, _super);
+        function BoneScaleTimelineState() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        BoneScaleTimelineState.toString = function () {
+            return "[class dragonBones.BoneScaleTimelineState]";
+        };
+        BoneScaleTimelineState.prototype._onArriveAtFrame = function () {
+            _super.prototype._onArriveAtFrame.call(this);
+            if (this._timelineData === null) {
+                this._resultA = 1.0;
+                this._resultB = 1.0;
+            }
+        };
+        BoneScaleTimelineState.prototype.init = function (armature, animationState, timelineData) {
+            _super.prototype.init.call(this, armature, animationState, timelineData);
+            this._valueOffset = this._animationData.frameFloatOffset;
+            this._valueArray = this._animationData.parent.parent.frameFloatArray;
+        };
+        BoneScaleTimelineState.prototype.blend = function (isDirty) {
+            var blendState = this.target;
+            var bone = blendState.target;
+            var blendWeight = blendState.blendWeight;
+            var result = bone.animationPose;
+            if (blendState.dirty > 1) {
+                result.scaleX += (this._resultA - 1.0) * blendWeight;
+                result.scaleY += (this._resultB - 1.0) * blendWeight;
+            }
+            else if (blendWeight !== 1.0) {
+                result.scaleX = (this._resultA - 1.0) * blendWeight + 1.0;
+                result.scaleY = (this._resultB - 1.0) * blendWeight + 1.0;
+            }
+            else {
+                result.scaleX = this._resultA;
+                result.scaleY = this._resultB;
+            }
+            if (isDirty || this.dirty) {
+                this.dirty = false;
+                bone._transformDirty = true;
+            }
+        };
+        return BoneScaleTimelineState;
+    }(dragonBones.DoubleValueTimelineState));
+    dragonBones.BoneScaleTimelineState = BoneScaleTimelineState;
+    /**
+     * @internal
+     */
+    var SurfaceTimelineState = /** @class */ (function (_super) {
+        __extends(SurfaceTimelineState, _super);
+        function SurfaceTimelineState() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        SurfaceTimelineState.toString = function () {
+            return "[class dragonBones.SurfaceTimelineState]";
+        };
+        SurfaceTimelineState.prototype._onClear = function () {
+            _super.prototype._onClear.call(this);
+            this._deformCount = 0;
+            this._deformOffset = 0;
+            this._sameValueOffset = 0;
+        };
+        SurfaceTimelineState.prototype.init = function (armature, animationState, timelineData) {
+            _super.prototype.init.call(this, armature, animationState, timelineData);
+            if (this._timelineData !== null) {
+                var dragonBonesData = this._animationData.parent.parent;
+                var frameIntArray = dragonBonesData.frameIntArray;
+                var frameIntOffset = this._animationData.frameIntOffset + this._timelineArray[this._timelineData.offset + 3 /* TimelineFrameValueCount */];
+                this._valueOffset = this._animationData.frameFloatOffset;
+                this._valueCount = frameIntArray[frameIntOffset + 2 /* DeformValueCount */];
+                this._deformCount = frameIntArray[frameIntOffset + 1 /* DeformCount */];
+                this._deformOffset = frameIntArray[frameIntOffset + 3 /* DeformValueOffset */];
+                this._sameValueOffset = frameIntArray[frameIntOffset + 4 /* DeformFloatOffset */] + this._animationData.frameFloatOffset;
+                this._valueScale = this._armature.armatureData.scale;
+                this._valueArray = dragonBonesData.frameFloatArray;
+                this._rd.length = this._valueCount * 2;
+            }
+            else {
+                this._deformCount = this.target.target._deformVertices.length;
+            }
+        };
+        SurfaceTimelineState.prototype.blend = function (isDirty) {
+            var blendState = this.target;
+            var surface = blendState.target;
+            var blendWeight = blendState.blendWeight;
+            var result = surface._deformVertices;
+            var valueArray = this._valueArray;
+            if (valueArray !== null) {
+                var valueCount = this._valueCount;
+                var deformOffset = this._deformOffset;
+                var sameValueOffset = this._sameValueOffset;
+                var rd = this._rd;
+                for (var i = 0; i < this._deformCount; ++i) {
+                    var value = 0.0;
+                    if (i < deformOffset) {
+                        value = valueArray[sameValueOffset + i];
+                    }
+                    else if (i < deformOffset + valueCount) {
+                        value = rd[i - deformOffset];
+                    }
+                    else {
+                        value = valueArray[sameValueOffset + i - valueCount];
+                    }
+                    if (blendState.dirty > 1) {
+                        result[i] += value * blendWeight;
+                    }
+                    else {
+                        result[i] = value * blendWeight;
+                    }
+                }
+            }
+            else if (blendState.dirty === 1) {
+                for (var i = 0; i < this._deformCount; ++i) {
+                    result[i] = 0.0;
+                }
+            }
+            if (isDirty || this.dirty) {
+                this.dirty = false;
+                surface._transformDirty = true;
+            }
+        };
+        return SurfaceTimelineState;
+    }(dragonBones.MutilpleValueTimelineState));
+    dragonBones.SurfaceTimelineState = SurfaceTimelineState;
+    /**
+     * @internal
+     */
+    var AlphaTimelineState = /** @class */ (function (_super) {
+        __extends(AlphaTimelineState, _super);
+        function AlphaTimelineState() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        AlphaTimelineState.toString = function () {
+            return "[class dragonBones.AlphaTimelineState]";
+        };
+        AlphaTimelineState.prototype._onArriveAtFrame = function () {
+            _super.prototype._onArriveAtFrame.call(this);
+            if (this._timelineData === null) {
+                this._result = 1.0;
+            }
+        };
+        AlphaTimelineState.prototype.init = function (armature, animationState, timelineData) {
+            _super.prototype.init.call(this, armature, animationState, timelineData);
+            this._valueOffset = this._animationData.frameIntOffset;
+            this._valueScale = 0.01;
+            this._valueArray = this._animationData.parent.parent.frameIntArray;
+        };
+        AlphaTimelineState.prototype.blend = function (isDirty) {
+            var blendState = this.target;
+            var alphaTarget = blendState.target;
+            var blendWeight = blendState.blendWeight;
+            if (blendState.dirty > 1) {
+                alphaTarget._alpha += this._result * blendWeight;
+                if (alphaTarget._alpha > 1.0) {
+                    alphaTarget._alpha = 1.0;
+                }
+            }
+            else {
+                alphaTarget._alpha = this._result * blendWeight;
+            }
+            if (isDirty || this.dirty) {
+                this.dirty = false;
+                this._armature._alphaDirty = true;
+            }
+        };
+        return AlphaTimelineState;
+    }(dragonBones.SingleValueTimelineState));
+    dragonBones.AlphaTimelineState = AlphaTimelineState;
+    /**
+     * @internal
+     */
+    var SlotDislayTimelineState = /** @class */ (function (_super) {
+        __extends(SlotDislayTimelineState, _super);
+        function SlotDislayTimelineState() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        SlotDislayTimelineState.toString = function () {
+            return "[class dragonBones.SlotDislayTimelineState]";
+        };
+        SlotDislayTimelineState.prototype._onArriveAtFrame = function () {
             if (this.playState >= 0) {
-                var displayIndex = this._timelineData !== null ? this._frameArray[this._frameOffset + 1] : this.slot.slotData.displayIndex;
-                if (this.slot.displayIndex !== displayIndex) {
-                    this.slot._setDisplayIndex(displayIndex, true);
+                var slot = this.target;
+                var displayIndex = this._timelineData !== null ? this._frameArray[this._frameOffset + 1] : slot._slotData.displayIndex;
+                if (slot.displayIndex !== displayIndex) {
+                    slot._setDisplayIndex(displayIndex, true);
                 }
             }
         };
-        return SlotDislayIndexTimelineState;
-    }(dragonBones.SlotTimelineState));
-    dragonBones.SlotDislayIndexTimelineState = SlotDislayIndexTimelineState;
+        SlotDislayTimelineState.prototype._onUpdateFrame = function () {
+        };
+        return SlotDislayTimelineState;
+    }(dragonBones.TimelineState));
+    dragonBones.SlotDislayTimelineState = SlotDislayTimelineState;
     /**
      * @internal
-     * @private
      */
-    var SlotColorTimelineState = (function (_super) {
+    var SlotColorTimelineState = /** @class */ (function (_super) {
         __extends(SlotColorTimelineState, _super);
         function SlotColorTimelineState() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
             _this._current = [0, 0, 0, 0, 0, 0, 0, 0];
-            _this._delta = [0, 0, 0, 0, 0, 0, 0, 0];
+            _this._difference = [0, 0, 0, 0, 0, 0, 0, 0];
             _this._result = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
             return _this;
         }
         SlotColorTimelineState.toString = function () {
             return "[class dragonBones.SlotColorTimelineState]";
         };
-        SlotColorTimelineState.prototype._onClear = function () {
-            _super.prototype._onClear.call(this);
-            this._dirty = false;
-        };
         SlotColorTimelineState.prototype._onArriveAtFrame = function () {
             _super.prototype._onArriveAtFrame.call(this);
             if (this._timelineData !== null) {
-                var intArray = this._dragonBonesData.intArray;
-                var frameIntArray = this._dragonBonesData.frameIntArray;
-                var valueOffset = this._animationData.frameIntOffset + this._frameValueOffset + this._frameIndex * 1; // ...(timeline value offset)|x|x|(Value offset)|(Next offset)|x|x|...
+                var dragonBonesData = this._animationData.parent.parent;
+                var colorArray = dragonBonesData.colorArray;
+                var frameIntArray = dragonBonesData.frameIntArray;
+                var valueOffset = this._animationData.frameIntOffset + this._frameValueOffset + this._frameIndex;
                 var colorOffset = frameIntArray[valueOffset];
-                this._current[0] = intArray[colorOffset++];
-                this._current[1] = intArray[colorOffset++];
-                this._current[2] = intArray[colorOffset++];
-                this._current[3] = intArray[colorOffset++];
-                this._current[4] = intArray[colorOffset++];
-                this._current[5] = intArray[colorOffset++];
-                this._current[6] = intArray[colorOffset++];
-                this._current[7] = intArray[colorOffset++];
-                if (this._tweenState === 2 /* Always */) {
+                if (colorOffset < 0) {
+                    colorOffset += 65536; // Fixed out of bounds bug. 
+                }
+                if (this._isTween) {
+                    this._current[0] = colorArray[colorOffset++];
+                    this._current[1] = colorArray[colorOffset++];
+                    this._current[2] = colorArray[colorOffset++];
+                    this._current[3] = colorArray[colorOffset++];
+                    this._current[4] = colorArray[colorOffset++];
+                    this._current[5] = colorArray[colorOffset++];
+                    this._current[6] = colorArray[colorOffset++];
+                    this._current[7] = colorArray[colorOffset++];
                     if (this._frameIndex === this._frameCount - 1) {
                         colorOffset = frameIntArray[this._animationData.frameIntOffset + this._frameValueOffset];
                     }
                     else {
-                        colorOffset = frameIntArray[valueOffset + 1 * 1];
+                        colorOffset = frameIntArray[valueOffset + 1];
                     }
-                    this._delta[0] = intArray[colorOffset++] - this._current[0];
-                    this._delta[1] = intArray[colorOffset++] - this._current[1];
-                    this._delta[2] = intArray[colorOffset++] - this._current[2];
-                    this._delta[3] = intArray[colorOffset++] - this._current[3];
-                    this._delta[4] = intArray[colorOffset++] - this._current[4];
-                    this._delta[5] = intArray[colorOffset++] - this._current[5];
-                    this._delta[6] = intArray[colorOffset++] - this._current[6];
-                    this._delta[7] = intArray[colorOffset++] - this._current[7];
+                    if (colorOffset < 0) {
+                        colorOffset += 65536; // Fixed out of bounds bug. 
+                    }
+                    this._difference[0] = colorArray[colorOffset++] - this._current[0];
+                    this._difference[1] = colorArray[colorOffset++] - this._current[1];
+                    this._difference[2] = colorArray[colorOffset++] - this._current[2];
+                    this._difference[3] = colorArray[colorOffset++] - this._current[3];
+                    this._difference[4] = colorArray[colorOffset++] - this._current[4];
+                    this._difference[5] = colorArray[colorOffset++] - this._current[5];
+                    this._difference[6] = colorArray[colorOffset++] - this._current[6];
+                    this._difference[7] = colorArray[colorOffset++] - this._current[7];
+                }
+                else {
+                    this._result[0] = colorArray[colorOffset++] * 0.01;
+                    this._result[1] = colorArray[colorOffset++] * 0.01;
+                    this._result[2] = colorArray[colorOffset++] * 0.01;
+                    this._result[3] = colorArray[colorOffset++] * 0.01;
+                    this._result[4] = colorArray[colorOffset++];
+                    this._result[5] = colorArray[colorOffset++];
+                    this._result[6] = colorArray[colorOffset++];
+                    this._result[7] = colorArray[colorOffset++];
                 }
             }
             else {
-                var color = this.slot.slotData.color;
-                this._current[0] = color.alphaMultiplier * 100.0;
-                this._current[1] = color.redMultiplier * 100.0;
-                this._current[2] = color.greenMultiplier * 100.0;
-                this._current[3] = color.blueMultiplier * 100.0;
-                this._current[4] = color.alphaOffset;
-                this._current[5] = color.redOffset;
-                this._current[6] = color.greenOffset;
-                this._current[7] = color.blueOffset;
+                var slot = this.target;
+                var color = slot.slotData.color;
+                this._result[0] = color.alphaMultiplier;
+                this._result[1] = color.redMultiplier;
+                this._result[2] = color.greenMultiplier;
+                this._result[3] = color.blueMultiplier;
+                this._result[4] = color.alphaOffset;
+                this._result[5] = color.redOffset;
+                this._result[6] = color.greenOffset;
+                this._result[7] = color.blueOffset;
             }
         };
         SlotColorTimelineState.prototype._onUpdateFrame = function () {
             _super.prototype._onUpdateFrame.call(this);
-            this._dirty = true;
-            if (this._tweenState !== 2 /* Always */) {
-                this._tweenState = 0 /* None */;
+            if (this._isTween) {
+                this._result[0] = (this._current[0] + this._difference[0] * this._tweenProgress) * 0.01;
+                this._result[1] = (this._current[1] + this._difference[1] * this._tweenProgress) * 0.01;
+                this._result[2] = (this._current[2] + this._difference[2] * this._tweenProgress) * 0.01;
+                this._result[3] = (this._current[3] + this._difference[3] * this._tweenProgress) * 0.01;
+                this._result[4] = this._current[4] + this._difference[4] * this._tweenProgress;
+                this._result[5] = this._current[5] + this._difference[5] * this._tweenProgress;
+                this._result[6] = this._current[6] + this._difference[6] * this._tweenProgress;
+                this._result[7] = this._current[7] + this._difference[7] * this._tweenProgress;
             }
-            this._result[0] = (this._current[0] + this._delta[0] * this._tweenProgress) * 0.01;
-            this._result[1] = (this._current[1] + this._delta[1] * this._tweenProgress) * 0.01;
-            this._result[2] = (this._current[2] + this._delta[2] * this._tweenProgress) * 0.01;
-            this._result[3] = (this._current[3] + this._delta[3] * this._tweenProgress) * 0.01;
-            this._result[4] = this._current[4] + this._delta[4] * this._tweenProgress;
-            this._result[5] = this._current[5] + this._delta[5] * this._tweenProgress;
-            this._result[6] = this._current[6] + this._delta[6] * this._tweenProgress;
-            this._result[7] = this._current[7] + this._delta[7] * this._tweenProgress;
         };
         SlotColorTimelineState.prototype.fadeOut = function () {
-            this._tweenState = 0 /* None */;
-            this._dirty = false;
+            this._isTween = false;
         };
         SlotColorTimelineState.prototype.update = function (passedTime) {
             _super.prototype.update.call(this, passedTime);
             // Fade animation.
-            if (this._tweenState !== 0 /* None */ || this._dirty) {
-                var result = this.slot._colorTransform;
+            if (this._isTween || this.dirty) {
+                var slot = this.target;
+                var result = slot._colorTransform;
                 if (this._animationState._fadeState !== 0 || this._animationState._subFadeState !== 0) {
                     if (result.alphaMultiplier !== this._result[0] ||
                         result.redMultiplier !== this._result[1] ||
@@ -7316,11 +10994,11 @@ var dragonBones;
                         result.redOffset += (this._result[5] - result.redOffset) * fadeProgress;
                         result.greenOffset += (this._result[6] - result.greenOffset) * fadeProgress;
                         result.blueOffset += (this._result[7] - result.blueOffset) * fadeProgress;
-                        this.slot._colorDirty = true;
+                        slot._colorDirty = true;
                     }
                 }
-                else if (this._dirty) {
-                    this._dirty = false;
+                else if (this.dirty) {
+                    this.dirty = false;
                     if (result.alphaMultiplier !== this._result[0] ||
                         result.redMultiplier !== this._result[1] ||
                         result.greenMultiplier !== this._result[2] ||
@@ -7337,189 +11015,346 @@ var dragonBones;
                         result.redOffset = this._result[5];
                         result.greenOffset = this._result[6];
                         result.blueOffset = this._result[7];
-                        this.slot._colorDirty = true;
+                        slot._colorDirty = true;
                     }
                 }
             }
         };
         return SlotColorTimelineState;
-    }(dragonBones.SlotTimelineState));
+    }(dragonBones.TweenTimelineState));
     dragonBones.SlotColorTimelineState = SlotColorTimelineState;
     /**
      * @internal
-     * @private
      */
-    var SlotFFDTimelineState = (function (_super) {
-        __extends(SlotFFDTimelineState, _super);
-        function SlotFFDTimelineState() {
-            var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this._current = [];
-            _this._delta = [];
-            _this._result = [];
-            return _this;
+    var SlotZIndexTimelineState = /** @class */ (function (_super) {
+        __extends(SlotZIndexTimelineState, _super);
+        function SlotZIndexTimelineState() {
+            return _super !== null && _super.apply(this, arguments) || this;
         }
-        SlotFFDTimelineState.toString = function () {
-            return "[class dragonBones.SlotFFDTimelineState]";
+        SlotZIndexTimelineState.toString = function () {
+            return "[class dragonBones.SlotZIndexTimelineState]";
         };
-        SlotFFDTimelineState.prototype._onClear = function () {
-            _super.prototype._onClear.call(this);
-            this.meshOffset = 0;
-            this._dirty = false;
-            this._frameFloatOffset = 0;
-            this._valueCount = 0;
-            this._ffdCount = 0;
-            this._valueOffset = 0;
-            this._current.length = 0;
-            this._delta.length = 0;
-            this._result.length = 0;
-        };
-        SlotFFDTimelineState.prototype._onArriveAtFrame = function () {
+        SlotZIndexTimelineState.prototype._onArriveAtFrame = function () {
             _super.prototype._onArriveAtFrame.call(this);
-            if (this._timelineData !== null) {
-                var isTween = this._tweenState === 2 /* Always */;
-                var frameFloatArray = this._dragonBonesData.frameFloatArray;
-                var valueOffset = this._animationData.frameFloatOffset + this._frameValueOffset + this._frameIndex * this._valueCount;
-                if (isTween) {
-                    var nextValueOffset = valueOffset + this._valueCount;
-                    if (this._frameIndex === this._frameCount - 1) {
-                        nextValueOffset = this._animationData.frameFloatOffset + this._frameValueOffset;
-                    }
-                    for (var i = 0; i < this._valueCount; ++i) {
-                        this._delta[i] = frameFloatArray[nextValueOffset + i] - (this._current[i] = frameFloatArray[valueOffset + i]);
-                    }
-                }
-                else {
-                    for (var i = 0; i < this._valueCount; ++i) {
-                        this._current[i] = frameFloatArray[valueOffset + i];
-                    }
-                }
+            if (this._timelineData === null) {
+                var blendState = this.target;
+                var slot = blendState.target;
+                this._result = slot.slotData.zIndex;
+            }
+        };
+        SlotZIndexTimelineState.prototype.init = function (armature, animationState, timelineData) {
+            _super.prototype.init.call(this, armature, animationState, timelineData);
+            this._valueOffset = this._animationData.frameIntOffset;
+            this._valueArray = this._animationData.parent.parent.frameIntArray;
+        };
+        SlotZIndexTimelineState.prototype.blend = function (isDirty) {
+            var blendState = this.target;
+            var slot = blendState.target;
+            var blendWeight = blendState.blendWeight;
+            if (blendState.dirty > 1) {
+                slot._zIndex += this._result * blendWeight;
             }
             else {
-                for (var i = 0; i < this._valueCount; ++i) {
-                    this._current[i] = 0.0;
-                }
+                slot._zIndex = this._result * blendWeight;
+            }
+            if (isDirty || this.dirty) {
+                this.dirty = false;
+                this._armature._zIndexDirty = true;
             }
         };
-        SlotFFDTimelineState.prototype._onUpdateFrame = function () {
-            _super.prototype._onUpdateFrame.call(this);
-            this._dirty = true;
-            if (this._tweenState !== 2 /* Always */) {
-                this._tweenState = 0 /* None */;
-            }
-            for (var i = 0; i < this._valueCount; ++i) {
-                this._result[i] = this._current[i] + this._delta[i] * this._tweenProgress;
-            }
+        return SlotZIndexTimelineState;
+    }(dragonBones.SingleValueTimelineState));
+    dragonBones.SlotZIndexTimelineState = SlotZIndexTimelineState;
+    /**
+     * @internal
+     */
+    var DeformTimelineState = /** @class */ (function (_super) {
+        __extends(DeformTimelineState, _super);
+        function DeformTimelineState() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        DeformTimelineState.toString = function () {
+            return "[class dragonBones.DeformTimelineState]";
         };
-        SlotFFDTimelineState.prototype.init = function (armature, animationState, timelineData) {
+        DeformTimelineState.prototype._onClear = function () {
+            _super.prototype._onClear.call(this);
+            this.geometryOffset = 0;
+            this.displayFrame = null;
+            this._deformCount = 0;
+            this._deformOffset = 0;
+            this._sameValueOffset = 0;
+        };
+        DeformTimelineState.prototype.init = function (armature, animationState, timelineData) {
             _super.prototype.init.call(this, armature, animationState, timelineData);
             if (this._timelineData !== null) {
-                var frameIntArray = this._dragonBonesData.frameIntArray;
                 var frameIntOffset = this._animationData.frameIntOffset + this._timelineArray[this._timelineData.offset + 3 /* TimelineFrameValueCount */];
-                this.meshOffset = frameIntArray[frameIntOffset + 0 /* FFDTimelineMeshOffset */];
-                this._ffdCount = frameIntArray[frameIntOffset + 1 /* FFDTimelineFFDCount */];
-                this._valueCount = frameIntArray[frameIntOffset + 2 /* FFDTimelineValueCount */];
-                this._valueOffset = frameIntArray[frameIntOffset + 3 /* FFDTimelineValueOffset */];
-                this._frameFloatOffset = frameIntArray[frameIntOffset + 4 /* FFDTimelineFloatOffset */] + this._animationData.frameFloatOffset;
+                var dragonBonesData = this._animationData.parent.parent;
+                var frameIntArray = dragonBonesData.frameIntArray;
+                var slot = this.target.target;
+                this.geometryOffset = frameIntArray[frameIntOffset + 0 /* DeformVertexOffset */];
+                if (this.geometryOffset < 0) {
+                    this.geometryOffset += 65536; // Fixed out of bounds bug. 
+                }
+                for (var i = 0, l = slot.displayFrameCount; i < l; ++i) {
+                    var displayFrame = slot.getDisplayFrameAt(i);
+                    var geometryData = displayFrame.getGeometryData();
+                    if (geometryData === null) {
+                        continue;
+                    }
+                    if (geometryData.offset === this.geometryOffset) {
+                        this.displayFrame = displayFrame;
+                        this.displayFrame.updateDeformVertices();
+                        break;
+                    }
+                }
+                if (this.displayFrame === null) {
+                    this.returnToPool(); //
+                    return;
+                }
+                this._valueOffset = this._animationData.frameFloatOffset;
+                this._valueCount = frameIntArray[frameIntOffset + 2 /* DeformValueCount */];
+                this._deformCount = frameIntArray[frameIntOffset + 1 /* DeformCount */];
+                this._deformOffset = frameIntArray[frameIntOffset + 3 /* DeformValueOffset */];
+                this._sameValueOffset = frameIntArray[frameIntOffset + 4 /* DeformFloatOffset */] + this._animationData.frameFloatOffset;
+                this._valueScale = this._armature.armatureData.scale;
+                this._valueArray = dragonBonesData.frameFloatArray;
+                this._rd.length = this._valueCount * 2;
             }
             else {
-                this._valueCount = 0;
-            }
-            this._current.length = this._valueCount;
-            this._delta.length = this._valueCount;
-            this._result.length = this._valueCount;
-            for (var i = 0; i < this._valueCount; ++i) {
-                this._delta[i] = 0.0;
+                this._deformCount = this.displayFrame.deformVertices.length;
             }
         };
-        SlotFFDTimelineState.prototype.fadeOut = function () {
-            this._tweenState = 0 /* None */;
-            this._dirty = false;
-        };
-        SlotFFDTimelineState.prototype.update = function (passedTime) {
-            if (this.slot._meshData === null || (this._timelineData !== null && this.slot._meshData.offset !== this.meshOffset)) {
-                return;
-            }
-            _super.prototype.update.call(this, passedTime);
-            // Fade animation.
-            if (this._tweenState !== 0 /* None */ || this._dirty) {
-                var result = this.slot._ffdVertices;
-                if (this._timelineData !== null) {
-                    var frameFloatArray = this._dragonBonesData.frameFloatArray;
-                    if (this._animationState._fadeState !== 0 || this._animationState._subFadeState !== 0) {
-                        var fadeProgress = Math.pow(this._animationState._fadeProgress, 2);
-                        for (var i = 0; i < this._ffdCount; ++i) {
-                            if (i < this._valueOffset) {
-                                result[i] += (frameFloatArray[this._frameFloatOffset + i] - result[i]) * fadeProgress;
-                            }
-                            else if (i < this._valueOffset + this._valueCount) {
-                                result[i] += (this._result[i - this._valueOffset] - result[i]) * fadeProgress;
-                            }
-                            else {
-                                result[i] += (frameFloatArray[this._frameFloatOffset + i - this._valueCount] - result[i]) * fadeProgress;
-                            }
-                        }
-                        this.slot._meshDirty = true;
+        DeformTimelineState.prototype.blend = function (isDirty) {
+            var blendState = this.target;
+            var slot = blendState.target;
+            var blendWeight = blendState.blendWeight;
+            var result = this.displayFrame.deformVertices;
+            var valueArray = this._valueArray;
+            if (valueArray !== null) {
+                var valueCount = this._valueCount;
+                var deformOffset = this._deformOffset;
+                var sameValueOffset = this._sameValueOffset;
+                var rd = this._rd;
+                for (var i = 0; i < this._deformCount; ++i) {
+                    var value = 0.0;
+                    if (i < deformOffset) {
+                        value = valueArray[sameValueOffset + i];
                     }
-                    else if (this._dirty) {
-                        this._dirty = false;
-                        for (var i = 0; i < this._ffdCount; ++i) {
-                            if (i < this._valueOffset) {
-                                result[i] = frameFloatArray[this._frameFloatOffset + i];
-                            }
-                            else if (i < this._valueOffset + this._valueCount) {
-                                result[i] = this._result[i - this._valueOffset];
-                            }
-                            else {
-                                result[i] = frameFloatArray[this._frameFloatOffset + i - this._valueCount];
-                            }
-                        }
-                        this.slot._meshDirty = true;
+                    else if (i < deformOffset + valueCount) {
+                        value = rd[i - deformOffset];
                     }
-                }
-                else {
-                    this._ffdCount = result.length; //
-                    if (this._animationState._fadeState !== 0 || this._animationState._subFadeState !== 0) {
-                        var fadeProgress = Math.pow(this._animationState._fadeProgress, 2);
-                        for (var i = 0; i < this._ffdCount; ++i) {
-                            result[i] += (0.0 - result[i]) * fadeProgress;
-                        }
-                        this.slot._meshDirty = true;
+                    else {
+                        value = valueArray[sameValueOffset + i - valueCount];
                     }
-                    else if (this._dirty) {
-                        this._dirty = false;
-                        for (var i = 0; i < this._ffdCount; ++i) {
-                            result[i] = 0.0;
-                        }
-                        this.slot._meshDirty = true;
+                    if (blendState.dirty > 1) {
+                        result[i] += value * blendWeight;
+                    }
+                    else {
+                        result[i] = value * blendWeight;
                     }
                 }
             }
+            else if (blendState.dirty === 1) {
+                for (var i = 0; i < this._deformCount; ++i) {
+                    result[i] = 0.0;
+                }
+            }
+            if (isDirty || this.dirty) {
+                this.dirty = false;
+                if (slot._geometryData === this.displayFrame.getGeometryData()) {
+                    slot._verticesDirty = true;
+                }
+            }
         };
-        return SlotFFDTimelineState;
-    }(dragonBones.SlotTimelineState));
-    dragonBones.SlotFFDTimelineState = SlotFFDTimelineState;
+        return DeformTimelineState;
+    }(dragonBones.MutilpleValueTimelineState));
+    dragonBones.DeformTimelineState = DeformTimelineState;
+    /**
+     * @internal
+     */
+    var IKConstraintTimelineState = /** @class */ (function (_super) {
+        __extends(IKConstraintTimelineState, _super);
+        function IKConstraintTimelineState() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        IKConstraintTimelineState.toString = function () {
+            return "[class dragonBones.IKConstraintTimelineState]";
+        };
+        IKConstraintTimelineState.prototype._onUpdateFrame = function () {
+            _super.prototype._onUpdateFrame.call(this);
+            var ikConstraint = this.target;
+            if (this._timelineData !== null) {
+                ikConstraint._bendPositive = this._currentA > 0.0;
+                ikConstraint._weight = this._currentB;
+            }
+            else {
+                var ikConstraintData = ikConstraint._constraintData;
+                ikConstraint._bendPositive = ikConstraintData.bendPositive;
+                ikConstraint._weight = ikConstraintData.weight;
+            }
+            ikConstraint.invalidUpdate();
+            this.dirty = false;
+        };
+        IKConstraintTimelineState.prototype.init = function (armature, animationState, timelineData) {
+            _super.prototype.init.call(this, armature, animationState, timelineData);
+            this._valueOffset = this._animationData.frameIntOffset;
+            this._valueScale = 0.01;
+            this._valueArray = this._animationData.parent.parent.frameIntArray;
+        };
+        return IKConstraintTimelineState;
+    }(dragonBones.DoubleValueTimelineState));
+    dragonBones.IKConstraintTimelineState = IKConstraintTimelineState;
+    /**
+     * @internal
+     */
+    var AnimationProgressTimelineState = /** @class */ (function (_super) {
+        __extends(AnimationProgressTimelineState, _super);
+        function AnimationProgressTimelineState() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        AnimationProgressTimelineState.toString = function () {
+            return "[class dragonBones.AnimationProgressTimelineState]";
+        };
+        AnimationProgressTimelineState.prototype._onUpdateFrame = function () {
+            _super.prototype._onUpdateFrame.call(this);
+            var animationState = this.target;
+            if (animationState._parent !== null) {
+                animationState.currentTime = this._result * animationState.totalTime;
+            }
+            this.dirty = false;
+        };
+        AnimationProgressTimelineState.prototype.init = function (armature, animationState, timelineData) {
+            _super.prototype.init.call(this, armature, animationState, timelineData);
+            this._valueOffset = this._animationData.frameIntOffset;
+            this._valueScale = 0.0001;
+            this._valueArray = this._animationData.parent.parent.frameIntArray;
+        };
+        return AnimationProgressTimelineState;
+    }(dragonBones.SingleValueTimelineState));
+    dragonBones.AnimationProgressTimelineState = AnimationProgressTimelineState;
+    /**
+     * @internal
+     */
+    var AnimationWeightTimelineState = /** @class */ (function (_super) {
+        __extends(AnimationWeightTimelineState, _super);
+        function AnimationWeightTimelineState() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        AnimationWeightTimelineState.toString = function () {
+            return "[class dragonBones.AnimationWeightTimelineState]";
+        };
+        AnimationWeightTimelineState.prototype._onUpdateFrame = function () {
+            _super.prototype._onUpdateFrame.call(this);
+            var animationState = this.target;
+            if (animationState._parent !== null) {
+                animationState.weight = this._result;
+            }
+            this.dirty = false;
+        };
+        AnimationWeightTimelineState.prototype.init = function (armature, animationState, timelineData) {
+            _super.prototype.init.call(this, armature, animationState, timelineData);
+            this._valueOffset = this._animationData.frameIntOffset;
+            this._valueScale = 0.0001;
+            this._valueArray = this._animationData.parent.parent.frameIntArray;
+        };
+        return AnimationWeightTimelineState;
+    }(dragonBones.SingleValueTimelineState));
+    dragonBones.AnimationWeightTimelineState = AnimationWeightTimelineState;
+    /**
+     * @internal
+     */
+    var AnimationParametersTimelineState = /** @class */ (function (_super) {
+        __extends(AnimationParametersTimelineState, _super);
+        function AnimationParametersTimelineState() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        AnimationParametersTimelineState.toString = function () {
+            return "[class dragonBones.AnimationParametersTimelineState]";
+        };
+        AnimationParametersTimelineState.prototype._onUpdateFrame = function () {
+            _super.prototype._onUpdateFrame.call(this);
+            var animationState = this.target;
+            if (animationState._parent !== null) {
+                animationState.parameterX = this._resultA;
+                animationState.parameterY = this._resultB;
+            }
+            this.dirty = false;
+        };
+        AnimationParametersTimelineState.prototype.init = function (armature, animationState, timelineData) {
+            _super.prototype.init.call(this, armature, animationState, timelineData);
+            this._valueOffset = this._animationData.frameIntOffset;
+            this._valueScale = 0.0001;
+            this._valueArray = this._animationData.parent.parent.frameIntArray;
+        };
+        return AnimationParametersTimelineState;
+    }(dragonBones.DoubleValueTimelineState));
+    dragonBones.AnimationParametersTimelineState = AnimationParametersTimelineState;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
     /**
-     * 事件数据。
+     * - The properties of the object carry basic information about an event,
+     * which are passed as parameter or parameter's parameter to event listeners when an event occurs.
+     * @version DragonBones 4.5
+     * @language en_US
+     */
+    /**
+     * - 事件对象，包含有关事件的基本信息，当发生事件时，该实例将作为参数或参数的参数传递给事件侦听器。
      * @version DragonBones 4.5
      * @language zh_CN
      */
-    var EventObject = (function (_super) {
+    var EventObject = /** @class */ (function (_super) {
         __extends(EventObject, _super);
         function EventObject() {
             return _super !== null && _super.apply(this, arguments) || this;
         }
         /**
+         * @internal
          * @private
          */
+        EventObject.actionDataToInstance = function (data, instance, armature) {
+            if (data.type === 0 /* Play */) {
+                instance.type = EventObject.FRAME_EVENT;
+            }
+            else {
+                instance.type = data.type === 10 /* Frame */ ? EventObject.FRAME_EVENT : EventObject.SOUND_EVENT;
+            }
+            instance.name = data.name;
+            instance.armature = armature;
+            instance.actionData = data;
+            instance.data = data.data;
+            if (data.bone !== null) {
+                instance.bone = armature.getBone(data.bone.name);
+            }
+            if (data.slot !== null) {
+                instance.slot = armature.getSlot(data.slot.name);
+            }
+        };
         EventObject.toString = function () {
             return "[class dragonBones.EventObject]";
         };
-        /**
-         * @private
-         */
         EventObject.prototype._onClear = function () {
             this.time = 0.0;
             this.type = "";
@@ -7528,58 +11363,104 @@ var dragonBones;
             this.bone = null;
             this.slot = null;
             this.animationState = null;
+            this.actionData = null;
             this.data = null;
         };
         /**
-         * 动画开始。
+         * - Animation start play.
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 动画开始播放。
          * @version DragonBones 4.5
          * @language zh_CN
          */
         EventObject.START = "start";
         /**
-         * 动画循环播放一次完成。
+         * - Animation loop play complete once.
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 动画循环播放完成一次。
          * @version DragonBones 4.5
          * @language zh_CN
          */
         EventObject.LOOP_COMPLETE = "loopComplete";
         /**
-         * 动画播放完成。
+         * - Animation play complete.
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 动画播放完成。
          * @version DragonBones 4.5
          * @language zh_CN
          */
         EventObject.COMPLETE = "complete";
         /**
-         * 动画淡入开始。
+         * - Animation fade in start.
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 动画淡入开始。
          * @version DragonBones 4.5
          * @language zh_CN
          */
         EventObject.FADE_IN = "fadeIn";
         /**
-         * 动画淡入完成。
+         * - Animation fade in complete.
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 动画淡入完成。
          * @version DragonBones 4.5
          * @language zh_CN
          */
         EventObject.FADE_IN_COMPLETE = "fadeInComplete";
         /**
-         * 动画淡出开始。
+         * - Animation fade out start.
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 动画淡出开始。
          * @version DragonBones 4.5
          * @language zh_CN
          */
         EventObject.FADE_OUT = "fadeOut";
         /**
-         * 动画淡出完成。
+         * - Animation fade out complete.
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 动画淡出完成。
          * @version DragonBones 4.5
          * @language zh_CN
          */
         EventObject.FADE_OUT_COMPLETE = "fadeOutComplete";
         /**
-         * 动画帧事件。
+         * - Animation frame event.
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 动画帧事件。
          * @version DragonBones 4.5
          * @language zh_CN
          */
         EventObject.FRAME_EVENT = "frameEvent";
         /**
-         * 动画声音事件。
+         * - Animation frame sound event.
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 动画帧声音事件。
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -7588,12 +11469,34 @@ var dragonBones;
     }(dragonBones.BaseObject));
     dragonBones.EventObject = EventObject;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
     /**
      * @private
      */
-    var DataParser = (function () {
+    var DataParser = /** @class */ (function () {
         function DataParser() {
         }
         DataParser._getArmatureType = function (value) {
@@ -7608,6 +11511,50 @@ var dragonBones;
                     return 0 /* Armature */;
             }
         };
+        DataParser._getBoneType = function (value) {
+            switch (value.toLowerCase()) {
+                case "bone":
+                    return 0 /* Bone */;
+                case "surface":
+                    return 1 /* Surface */;
+                default:
+                    return 0 /* Bone */;
+            }
+        };
+        DataParser._getPositionMode = function (value) {
+            switch (value.toLocaleLowerCase()) {
+                case "percent":
+                    return 1 /* Percent */;
+                case "fixed":
+                    return 0 /* Fixed */;
+                default:
+                    return 1 /* Percent */;
+            }
+        };
+        DataParser._getSpacingMode = function (value) {
+            switch (value.toLocaleLowerCase()) {
+                case "length":
+                    return 0 /* Length */;
+                case "percent":
+                    return 2 /* Percent */;
+                case "fixed":
+                    return 1 /* Fixed */;
+                default:
+                    return 0 /* Length */;
+            }
+        };
+        DataParser._getRotateMode = function (value) {
+            switch (value.toLocaleLowerCase()) {
+                case "tangent":
+                    return 0 /* Tangent */;
+                case "chain":
+                    return 1 /* Chain */;
+                case "chainscale":
+                    return 2 /* ChainScale */;
+                default:
+                    return 0 /* Tangent */;
+            }
+        };
         DataParser._getDisplayType = function (value) {
             switch (value.toLowerCase()) {
                 case "image":
@@ -7618,6 +11565,8 @@ var dragonBones;
                     return 1 /* Armature */;
                 case "boundingbox":
                     return 3 /* BoundingBox */;
+                case "path":
+                    return 4 /* Path */;
                 default:
                     return 0 /* Image */;
             }
@@ -7632,18 +11581,6 @@ var dragonBones;
                     return 2 /* Polygon */;
                 default:
                     return 0 /* Rectangle */;
-            }
-        };
-        DataParser._getActionType = function (value) {
-            switch (value.toLowerCase()) {
-                case "play":
-                    return 0 /* Play */;
-                case "frame":
-                    return 10 /* Frame */;
-                case "sound":
-                    return 11 /* Sound */;
-                default:
-                    return 0 /* Play */;
             }
         };
         DataParser._getBlendMode = function (value) {
@@ -7680,59 +11617,42 @@ var dragonBones;
                     return 0 /* Normal */;
             }
         };
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.BaseFactory#parseDragonBonesData()
-         */
-        DataParser.parseDragonBonesData = function (rawData) {
-            if (rawData instanceof ArrayBuffer) {
-                return dragonBones.BinaryDataParser.getInstance().parseDragonBonesData(rawData);
-            }
-            else {
-                return dragonBones.ObjectDataParser.getInstance().parseDragonBonesData(rawData);
+        DataParser._getAnimationBlendType = function (value) {
+            switch (value.toLowerCase()) {
+                case "none":
+                    return 0 /* None */;
+                case "1d":
+                    return 1 /* E1D */;
+                default:
+                    return 0 /* None */;
             }
         };
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.BaseFactory#parsetTextureAtlasData()
-         */
-        DataParser.parseTextureAtlasData = function (rawData, scale) {
-            if (scale === void 0) { scale = 1; }
-            console.warn("已废弃，请参考 @see");
-            var textureAtlasData = {};
-            var subTextureList = rawData[DataParser.SUB_TEXTURE];
-            for (var i = 0, len = subTextureList.length; i < len; i++) {
-                var subTextureObject = subTextureList[i];
-                var subTextureName = subTextureObject[DataParser.NAME];
-                var subTextureRegion = new dragonBones.Rectangle();
-                var subTextureFrame = null;
-                subTextureRegion.x = subTextureObject[DataParser.X] / scale;
-                subTextureRegion.y = subTextureObject[DataParser.Y] / scale;
-                subTextureRegion.width = subTextureObject[DataParser.WIDTH] / scale;
-                subTextureRegion.height = subTextureObject[DataParser.HEIGHT] / scale;
-                if (DataParser.FRAME_WIDTH in subTextureObject) {
-                    subTextureFrame = new dragonBones.Rectangle();
-                    subTextureFrame.x = subTextureObject[DataParser.FRAME_X] / scale;
-                    subTextureFrame.y = subTextureObject[DataParser.FRAME_Y] / scale;
-                    subTextureFrame.width = subTextureObject[DataParser.FRAME_WIDTH] / scale;
-                    subTextureFrame.height = subTextureObject[DataParser.FRAME_HEIGHT] / scale;
-                }
-                textureAtlasData[subTextureName] = { region: subTextureRegion, frame: subTextureFrame, rotated: false };
+        DataParser._getActionType = function (value) {
+            switch (value.toLowerCase()) {
+                case "play":
+                    return 0 /* Play */;
+                case "frame":
+                    return 10 /* Frame */;
+                case "sound":
+                    return 11 /* Sound */;
+                default:
+                    return 0 /* Play */;
             }
-            return textureAtlasData;
         };
         DataParser.DATA_VERSION_2_3 = "2.3";
         DataParser.DATA_VERSION_3_0 = "3.0";
         DataParser.DATA_VERSION_4_0 = "4.0";
         DataParser.DATA_VERSION_4_5 = "4.5";
         DataParser.DATA_VERSION_5_0 = "5.0";
-        DataParser.DATA_VERSION = DataParser.DATA_VERSION_5_0;
+        DataParser.DATA_VERSION_5_5 = "5.5";
+        DataParser.DATA_VERSION_5_6 = "5.6";
+        DataParser.DATA_VERSION = DataParser.DATA_VERSION_5_6;
         DataParser.DATA_VERSIONS = [
             DataParser.DATA_VERSION_4_0,
             DataParser.DATA_VERSION_4_5,
-            DataParser.DATA_VERSION_5_0
+            DataParser.DATA_VERSION_5_0,
+            DataParser.DATA_VERSION_5_5,
+            DataParser.DATA_VERSION_5_6
         ];
         DataParser.TEXTURE_ATLAS = "textureAtlas";
         DataParser.SUB_TEXTURE = "SubTexture";
@@ -7748,19 +11668,22 @@ var dragonBones;
         DataParser.DRADON_BONES = "dragonBones";
         DataParser.USER_DATA = "userData";
         DataParser.ARMATURE = "armature";
+        DataParser.CANVAS = "canvas";
         DataParser.BONE = "bone";
-        DataParser.IK = "ik";
+        DataParser.SURFACE = "surface";
         DataParser.SLOT = "slot";
+        DataParser.CONSTRAINT = "constraint";
         DataParser.SKIN = "skin";
         DataParser.DISPLAY = "display";
-        DataParser.ANIMATION = "animation";
-        DataParser.Z_ORDER = "zOrder";
-        DataParser.FFD = "ffd";
         DataParser.FRAME = "frame";
+        DataParser.IK = "ik";
+        DataParser.PATH_CONSTRAINT = "path";
+        DataParser.ANIMATION = "animation";
+        DataParser.TIMELINE = "timeline";
+        DataParser.FFD = "ffd";
         DataParser.TRANSLATE_FRAME = "translateFrame";
         DataParser.ROTATE_FRAME = "rotateFrame";
         DataParser.SCALE_FRAME = "scaleFrame";
-        DataParser.VISIBLE_FRAME = "visibleFrame";
         DataParser.DISPLAY_FRAME = "displayFrame";
         DataParser.COLOR_FRAME = "colorFrame";
         DataParser.DEFAULT_ACTIONS = "defaultActions";
@@ -7769,7 +11692,6 @@ var dragonBones;
         DataParser.INTS = "ints";
         DataParser.FLOATS = "floats";
         DataParser.STRINGS = "strings";
-        DataParser.CANVAS = "canvas";
         DataParser.TRANSFORM = "transform";
         DataParser.PIVOT = "pivot";
         DataParser.AABB = "aabb";
@@ -7782,30 +11704,36 @@ var dragonBones;
         DataParser.NAME = "name";
         DataParser.PARENT = "parent";
         DataParser.TARGET = "target";
+        DataParser.STAGE = "stage";
         DataParser.SHARE = "share";
         DataParser.PATH = "path";
         DataParser.LENGTH = "length";
         DataParser.DISPLAY_INDEX = "displayIndex";
+        DataParser.Z_ORDER = "zOrder";
+        DataParser.Z_INDEX = "zIndex";
         DataParser.BLEND_MODE = "blendMode";
         DataParser.INHERIT_TRANSLATION = "inheritTranslation";
         DataParser.INHERIT_ROTATION = "inheritRotation";
         DataParser.INHERIT_SCALE = "inheritScale";
         DataParser.INHERIT_REFLECTION = "inheritReflection";
         DataParser.INHERIT_ANIMATION = "inheritAnimation";
-        DataParser.INHERIT_FFD = "inheritFFD";
+        DataParser.INHERIT_DEFORM = "inheritDeform";
+        DataParser.SEGMENT_X = "segmentX";
+        DataParser.SEGMENT_Y = "segmentY";
         DataParser.BEND_POSITIVE = "bendPositive";
         DataParser.CHAIN = "chain";
         DataParser.WEIGHT = "weight";
+        DataParser.BLEND_TYPE = "blendType";
         DataParser.FADE_IN_TIME = "fadeInTime";
         DataParser.PLAY_TIMES = "playTimes";
         DataParser.SCALE = "scale";
         DataParser.OFFSET = "offset";
         DataParser.POSITION = "position";
         DataParser.DURATION = "duration";
-        DataParser.TWEEN_TYPE = "tweenType";
         DataParser.TWEEN_EASING = "tweenEasing";
         DataParser.TWEEN_ROTATE = "tweenRotate";
         DataParser.TWEEN_SCALE = "tweenScale";
+        DataParser.CLOCK_WISE = "clockwise";
         DataParser.CURVE = "curve";
         DataParser.SOUND = "sound";
         DataParser.EVENT = "event";
@@ -7819,6 +11747,7 @@ var dragonBones;
         DataParser.VALUE = "value";
         DataParser.ROTATE = "rotate";
         DataParser.SKEW = "skew";
+        DataParser.ALPHA = "alpha";
         DataParser.ALPHA_OFFSET = "aO";
         DataParser.RED_OFFSET = "rO";
         DataParser.GREEN_OFFSET = "gO";
@@ -7833,56 +11762,93 @@ var dragonBones;
         DataParser.WEIGHTS = "weights";
         DataParser.SLOT_POSE = "slotPose";
         DataParser.BONE_POSE = "bonePose";
+        DataParser.BONES = "bones";
+        DataParser.POSITION_MODE = "positionMode";
+        DataParser.SPACING_MODE = "spacingMode";
+        DataParser.ROTATE_MODE = "rotateMode";
+        DataParser.SPACING = "spacing";
+        DataParser.ROTATE_OFFSET = "rotateOffset";
+        DataParser.ROTATE_MIX = "rotateMix";
+        DataParser.TRANSLATE_MIX = "translateMix";
+        DataParser.TARGET_DISPLAY = "targetDisplay";
+        DataParser.CLOSED = "closed";
+        DataParser.CONSTANT_SPEED = "constantSpeed";
+        DataParser.VERTEX_COUNT = "vertexCount";
+        DataParser.LENGTHS = "lengths";
         DataParser.GOTO_AND_PLAY = "gotoAndPlay";
         DataParser.DEFAULT_NAME = "default";
         return DataParser;
     }());
     dragonBones.DataParser = DataParser;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
     /**
      * @private
      */
-    var ObjectDataParser = (function (_super) {
+    var ObjectDataParser = /** @class */ (function (_super) {
         __extends(ObjectDataParser, _super);
         function ObjectDataParser() {
-            /**
-             * @private
-             */
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this._intArrayJson = [];
-            _this._floatArrayJson = [];
-            _this._frameIntArrayJson = [];
-            _this._frameFloatArrayJson = [];
-            _this._frameArrayJson = [];
-            _this._timelineArrayJson = [];
             _this._rawTextureAtlasIndex = 0;
             _this._rawBones = [];
             _this._data = null; //
             _this._armature = null; //
             _this._bone = null; //
+            _this._geometry = null; //
             _this._slot = null; //
             _this._skin = null; //
             _this._mesh = null; //
             _this._animation = null; //
             _this._timeline = null; //
             _this._rawTextureAtlases = null;
-            _this._defalultColorOffset = -1;
-            _this._prevTweenRotate = 0;
+            _this._frameValueType = 0 /* Step */;
+            _this._defaultColorOffset = -1;
+            _this._prevClockwise = 0;
             _this._prevRotation = 0.0;
+            _this._frameDefaultValue = 0.0;
+            _this._frameValueScale = 1.0;
             _this._helpMatrixA = new dragonBones.Matrix();
             _this._helpMatrixB = new dragonBones.Matrix();
             _this._helpTransform = new dragonBones.Transform();
             _this._helpColorTransform = new dragonBones.ColorTransform();
             _this._helpPoint = new dragonBones.Point();
             _this._helpArray = [];
+            _this._intArray = [];
+            _this._floatArray = [];
+            _this._frameIntArray = [];
+            _this._frameFloatArray = [];
+            _this._frameArray = [];
+            _this._timelineArray = [];
+            _this._colorArray = [];
+            _this._cacheRawMeshes = [];
+            _this._cacheMeshes = [];
             _this._actionFrames = [];
             _this._weightSlotPose = {};
             _this._weightBonePoses = {};
-            _this._weightBoneIndices = {};
             _this._cacheBones = {};
-            _this._meshs = {};
             _this._slotChildActions = {};
             return _this;
         }
@@ -7912,9 +11878,6 @@ var dragonBones;
             }
             return defaultValue;
         };
-        /**
-         * @private
-         */
         ObjectDataParser._getNumber = function (rawData, key, defaultValue) {
             if (key in rawData) {
                 var value = rawData[key];
@@ -7925,36 +11888,17 @@ var dragonBones;
             }
             return defaultValue;
         };
-        /**
-         * @private
-         */
         ObjectDataParser._getString = function (rawData, key, defaultValue) {
             if (key in rawData) {
                 var value = rawData[key];
                 var type = typeof value;
                 if (type === "string") {
-                    if (dragonBones.DragonBones.webAssembly) {
-                        for (var i = 0, l = value.length; i < l; ++i) {
-                            if (value.charCodeAt(i) > 255) {
-                                return encodeURI(value);
-                            }
-                        }
-                    }
                     return value;
                 }
                 return String(value);
             }
             return defaultValue;
         };
-        // private readonly _intArray: Array<number> = [];
-        // private readonly _floatArray: Array<number> = [];
-        // private readonly _frameIntArray: Array<number> = [];
-        // private readonly _frameFloatArray: Array<number> = [];
-        // private readonly _frameArray: Array<number> = [];
-        // private readonly _timelineArray: Array<number> = [];
-        /**
-         * @private
-         */
         ObjectDataParser.prototype._getCurvePoint = function (x1, y1, x2, y2, x3, y3, x4, y4, t, result) {
             var l_t = 1.0 - t;
             var powA = l_t * l_t;
@@ -7966,147 +11910,167 @@ var dragonBones;
             result.x = kA * x1 + kB * x2 + kC * x3 + kD * x4;
             result.y = kA * y1 + kB * y2 + kC * y3 + kD * y4;
         };
-        /**
-         * @private
-         */
         ObjectDataParser.prototype._samplingEasingCurve = function (curve, samples) {
             var curveCount = curve.length;
-            var stepIndex = -2;
-            for (var i = 0, l = samples.length; i < l; ++i) {
-                var t = (i + 1) / (l + 1);
-                while ((stepIndex + 6 < curveCount ? curve[stepIndex + 6] : 1) < t) {
-                    stepIndex += 6;
-                }
-                var isInCurve = stepIndex >= 0 && stepIndex + 6 < curveCount;
-                var x1 = isInCurve ? curve[stepIndex] : 0.0;
-                var y1 = isInCurve ? curve[stepIndex + 1] : 0.0;
-                var x2 = curve[stepIndex + 2];
-                var y2 = curve[stepIndex + 3];
-                var x3 = curve[stepIndex + 4];
-                var y3 = curve[stepIndex + 5];
-                var x4 = isInCurve ? curve[stepIndex + 6] : 1.0;
-                var y4 = isInCurve ? curve[stepIndex + 7] : 1.0;
-                var lower = 0.0;
-                var higher = 1.0;
-                while (higher - lower > 0.0001) {
-                    var percentage = (higher + lower) * 0.5;
-                    this._getCurvePoint(x1, y1, x2, y2, x3, y3, x4, y4, percentage, this._helpPoint);
-                    if (t - this._helpPoint.x > 0.0) {
-                        lower = percentage;
+            if (curveCount % 3 === 1) {
+                var stepIndex = -2;
+                for (var i = 0, l = samples.length; i < l; ++i) {
+                    var t = (i + 1) / (l + 1); // float
+                    while ((stepIndex + 6 < curveCount ? curve[stepIndex + 6] : 1) < t) {
+                        stepIndex += 6;
                     }
-                    else {
-                        higher = percentage;
+                    var isInCurve = stepIndex >= 0 && stepIndex + 6 < curveCount;
+                    var x1 = isInCurve ? curve[stepIndex] : 0.0;
+                    var y1 = isInCurve ? curve[stepIndex + 1] : 0.0;
+                    var x2 = curve[stepIndex + 2];
+                    var y2 = curve[stepIndex + 3];
+                    var x3 = curve[stepIndex + 4];
+                    var y3 = curve[stepIndex + 5];
+                    var x4 = isInCurve ? curve[stepIndex + 6] : 1.0;
+                    var y4 = isInCurve ? curve[stepIndex + 7] : 1.0;
+                    var lower = 0.0;
+                    var higher = 1.0;
+                    while (higher - lower > 0.0001) {
+                        var percentage = (higher + lower) * 0.5;
+                        this._getCurvePoint(x1, y1, x2, y2, x3, y3, x4, y4, percentage, this._helpPoint);
+                        if (t - this._helpPoint.x > 0.0) {
+                            lower = percentage;
+                        }
+                        else {
+                            higher = percentage;
+                        }
                     }
+                    samples[i] = this._helpPoint.y;
                 }
-                samples[i] = this._helpPoint.y;
+                return true;
             }
-        };
-        ObjectDataParser.prototype._sortActionFrame = function (a, b) {
-            return a.frameStart > b.frameStart ? 1 : -1;
+            else {
+                var stepIndex = 0;
+                for (var i = 0, l = samples.length; i < l; ++i) {
+                    var t = (i + 1) / (l + 1); // float
+                    while (curve[stepIndex + 6] < t) {
+                        stepIndex += 6;
+                    }
+                    var x1 = curve[stepIndex];
+                    var y1 = curve[stepIndex + 1];
+                    var x2 = curve[stepIndex + 2];
+                    var y2 = curve[stepIndex + 3];
+                    var x3 = curve[stepIndex + 4];
+                    var y3 = curve[stepIndex + 5];
+                    var x4 = curve[stepIndex + 6];
+                    var y4 = curve[stepIndex + 7];
+                    var lower = 0.0;
+                    var higher = 1.0;
+                    while (higher - lower > 0.0001) {
+                        var percentage = (higher + lower) * 0.5;
+                        this._getCurvePoint(x1, y1, x2, y2, x3, y3, x4, y4, percentage, this._helpPoint);
+                        if (t - this._helpPoint.x > 0.0) {
+                            lower = percentage;
+                        }
+                        else {
+                            higher = percentage;
+                        }
+                    }
+                    samples[i] = this._helpPoint.y;
+                }
+                return false;
+            }
         };
         ObjectDataParser.prototype._parseActionDataInFrame = function (rawData, frameStart, bone, slot) {
-            if (ObjectDataParser.EVENT in rawData) {
-                this._mergeActionFrame(rawData[ObjectDataParser.EVENT], frameStart, 10 /* Frame */, bone, slot);
+            if (dragonBones.DataParser.EVENT in rawData) {
+                this._mergeActionFrame(rawData[dragonBones.DataParser.EVENT], frameStart, 10 /* Frame */, bone, slot);
             }
-            if (ObjectDataParser.SOUND in rawData) {
-                this._mergeActionFrame(rawData[ObjectDataParser.SOUND], frameStart, 11 /* Sound */, bone, slot);
+            if (dragonBones.DataParser.SOUND in rawData) {
+                this._mergeActionFrame(rawData[dragonBones.DataParser.SOUND], frameStart, 11 /* Sound */, bone, slot);
             }
-            if (ObjectDataParser.ACTION in rawData) {
-                this._mergeActionFrame(rawData[ObjectDataParser.ACTION], frameStart, 0 /* Play */, bone, slot);
+            if (dragonBones.DataParser.ACTION in rawData) {
+                this._mergeActionFrame(rawData[dragonBones.DataParser.ACTION], frameStart, 0 /* Play */, bone, slot);
             }
-            if (ObjectDataParser.EVENTS in rawData) {
-                this._mergeActionFrame(rawData[ObjectDataParser.EVENTS], frameStart, 10 /* Frame */, bone, slot);
+            if (dragonBones.DataParser.EVENTS in rawData) {
+                this._mergeActionFrame(rawData[dragonBones.DataParser.EVENTS], frameStart, 10 /* Frame */, bone, slot);
             }
-            if (ObjectDataParser.ACTIONS in rawData) {
-                this._mergeActionFrame(rawData[ObjectDataParser.ACTIONS], frameStart, 0 /* Play */, bone, slot);
+            if (dragonBones.DataParser.ACTIONS in rawData) {
+                this._mergeActionFrame(rawData[dragonBones.DataParser.ACTIONS], frameStart, 0 /* Play */, bone, slot);
             }
         };
         ObjectDataParser.prototype._mergeActionFrame = function (rawData, frameStart, type, bone, slot) {
-            var actionOffset = dragonBones.DragonBones.webAssembly ? this._armature.actions.size() : this._armature.actions.length;
-            var actionCount = this._parseActionData(rawData, this._armature.actions, type, bone, slot);
+            var actionOffset = this._armature.actions.length;
+            var actions = this._parseActionData(rawData, type, bone, slot);
+            var frameIndex = 0;
             var frame = null;
+            for (var _i = 0, actions_2 = actions; _i < actions_2.length; _i++) {
+                var action = actions_2[_i];
+                this._armature.addAction(action, false);
+            }
             if (this._actionFrames.length === 0) {
                 frame = new ActionFrame();
                 frame.frameStart = 0;
                 this._actionFrames.push(frame);
                 frame = null;
             }
-            for (var _i = 0, _a = this._actionFrames; _i < _a.length; _i++) {
-                var eachFrame = _a[_i];
+            for (var _a = 0, _b = this._actionFrames; _a < _b.length; _a++) {
+                var eachFrame = _b[_a];
                 if (eachFrame.frameStart === frameStart) {
                     frame = eachFrame;
                     break;
                 }
+                else if (eachFrame.frameStart > frameStart) {
+                    break;
+                }
+                frameIndex++;
             }
             if (frame === null) {
                 frame = new ActionFrame();
                 frame.frameStart = frameStart;
-                this._actionFrames.push(frame);
+                this._actionFrames.splice(frameIndex, 0, frame);
             }
-            for (var i = 0; i < actionCount; ++i) {
+            for (var i = 0; i < actions.length; ++i) {
                 frame.actions.push(actionOffset + i);
             }
         };
-        ObjectDataParser.prototype._parseCacheActionFrame = function (frame) {
-            var frameArray = dragonBones.DragonBones.webAssembly ? this._frameArrayJson : this._data.frameArray;
-            var frameOffset = frameArray.length;
-            var actionCount = frame.actions.length;
-            frameArray.length += 1 + 1 + actionCount;
-            frameArray[frameOffset + 0 /* FramePosition */] = frame.frameStart;
-            frameArray[frameOffset + 0 /* FramePosition */ + 1] = actionCount; // Action count.
-            for (var i = 0; i < actionCount; ++i) {
-                frameArray[frameOffset + 0 /* FramePosition */ + 2 + i] = frame.actions[i];
-            }
-            return frameOffset;
-        };
-        /**
-         * @private
-         */
         ObjectDataParser.prototype._parseArmature = function (rawData, scale) {
-            // const armature = BaseObject.borrowObject(ArmatureData);
-            var armature = dragonBones.DragonBones.webAssembly ? new Module["ArmatureData"]() : dragonBones.BaseObject.borrowObject(dragonBones.ArmatureData);
-            armature.name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, "");
-            armature.frameRate = ObjectDataParser._getNumber(rawData, ObjectDataParser.FRAME_RATE, this._data.frameRate);
+            var armature = dragonBones.BaseObject.borrowObject(dragonBones.ArmatureData);
+            armature.name = ObjectDataParser._getString(rawData, dragonBones.DataParser.NAME, "");
+            armature.frameRate = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.FRAME_RATE, this._data.frameRate);
             armature.scale = scale;
-            if (ObjectDataParser.TYPE in rawData && typeof rawData[ObjectDataParser.TYPE] === "string") {
-                armature.type = ObjectDataParser._getArmatureType(rawData[ObjectDataParser.TYPE]);
+            if (dragonBones.DataParser.TYPE in rawData && typeof rawData[dragonBones.DataParser.TYPE] === "string") {
+                armature.type = dragonBones.DataParser._getArmatureType(rawData[dragonBones.DataParser.TYPE]);
             }
             else {
-                armature.type = ObjectDataParser._getNumber(rawData, ObjectDataParser.TYPE, 0 /* Armature */);
+                armature.type = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.TYPE, 0 /* Armature */);
             }
             if (armature.frameRate === 0) {
                 armature.frameRate = 24;
             }
             this._armature = armature;
-            if (ObjectDataParser.AABB in rawData) {
-                var rawAABB = rawData[ObjectDataParser.AABB];
-                armature.aabb.x = ObjectDataParser._getNumber(rawAABB, ObjectDataParser.X, 0.0);
-                armature.aabb.y = ObjectDataParser._getNumber(rawAABB, ObjectDataParser.Y, 0.0);
-                armature.aabb.width = ObjectDataParser._getNumber(rawAABB, ObjectDataParser.WIDTH, 0.0);
-                armature.aabb.height = ObjectDataParser._getNumber(rawAABB, ObjectDataParser.HEIGHT, 0.0);
-            }
-            if (ObjectDataParser.CANVAS in rawData) {
-                var rawCanvas = rawData[ObjectDataParser.CANVAS];
+            if (dragonBones.DataParser.CANVAS in rawData) {
+                var rawCanvas = rawData[dragonBones.DataParser.CANVAS];
                 var canvas = dragonBones.BaseObject.borrowObject(dragonBones.CanvasData);
-                if (ObjectDataParser.COLOR in rawCanvas) {
-                    ObjectDataParser._getNumber(rawCanvas, ObjectDataParser.COLOR, 0);
+                if (dragonBones.DataParser.COLOR in rawCanvas) {
                     canvas.hasBackground = true;
                 }
                 else {
                     canvas.hasBackground = false;
                 }
-                canvas.color = ObjectDataParser._getNumber(rawCanvas, ObjectDataParser.COLOR, 0);
-                canvas.x = ObjectDataParser._getNumber(rawCanvas, ObjectDataParser.X, 0);
-                canvas.y = ObjectDataParser._getNumber(rawCanvas, ObjectDataParser.Y, 0);
-                canvas.width = ObjectDataParser._getNumber(rawCanvas, ObjectDataParser.WIDTH, 0);
-                canvas.height = ObjectDataParser._getNumber(rawCanvas, ObjectDataParser.HEIGHT, 0);
+                canvas.color = ObjectDataParser._getNumber(rawCanvas, dragonBones.DataParser.COLOR, 0);
+                canvas.x = ObjectDataParser._getNumber(rawCanvas, dragonBones.DataParser.X, 0) * armature.scale;
+                canvas.y = ObjectDataParser._getNumber(rawCanvas, dragonBones.DataParser.Y, 0) * armature.scale;
+                canvas.width = ObjectDataParser._getNumber(rawCanvas, dragonBones.DataParser.WIDTH, 0) * armature.scale;
+                canvas.height = ObjectDataParser._getNumber(rawCanvas, dragonBones.DataParser.HEIGHT, 0) * armature.scale;
                 armature.canvas = canvas;
             }
-            if (ObjectDataParser.BONE in rawData) {
-                var rawBones = rawData[ObjectDataParser.BONE];
+            if (dragonBones.DataParser.AABB in rawData) {
+                var rawAABB = rawData[dragonBones.DataParser.AABB];
+                armature.aabb.x = ObjectDataParser._getNumber(rawAABB, dragonBones.DataParser.X, 0.0) * armature.scale;
+                armature.aabb.y = ObjectDataParser._getNumber(rawAABB, dragonBones.DataParser.Y, 0.0) * armature.scale;
+                armature.aabb.width = ObjectDataParser._getNumber(rawAABB, dragonBones.DataParser.WIDTH, 0.0) * armature.scale;
+                armature.aabb.height = ObjectDataParser._getNumber(rawAABB, dragonBones.DataParser.HEIGHT, 0.0) * armature.scale;
+            }
+            if (dragonBones.DataParser.BONE in rawData) {
+                var rawBones = rawData[dragonBones.DataParser.BONE];
                 for (var _i = 0, rawBones_1 = rawBones; _i < rawBones_1.length; _i++) {
                     var rawBone = rawBones_1[_i];
-                    var parentName = ObjectDataParser._getString(rawBone, ObjectDataParser.PARENT, "");
+                    var parentName = ObjectDataParser._getString(rawBone, dragonBones.DataParser.PARENT, "");
                     var bone = this._parseBone(rawBone);
                     if (parentName.length > 0) {
                         var parent_1 = armature.getBone(parentName);
@@ -8114,7 +12078,10 @@ var dragonBones;
                             bone.parent = parent_1;
                         }
                         else {
-                            (this._cacheBones[parentName] = this._cacheBones[parentName] || []).push(bone);
+                            if (!(parentName in this._cacheBones)) {
+                                this._cacheBones[parentName] = [];
+                            }
+                            this._cacheBones[parentName].push(bone);
                         }
                     }
                     if (bone.name in this._cacheBones) {
@@ -8125,61 +12092,100 @@ var dragonBones;
                         delete this._cacheBones[bone.name];
                     }
                     armature.addBone(bone);
-                    this._rawBones.push(bone); // Raw bone sort.
+                    this._rawBones.push(bone); // Cache raw bones sort.
                 }
             }
-            if (ObjectDataParser.IK in rawData) {
-                var rawIKS = rawData[ObjectDataParser.IK];
+            if (dragonBones.DataParser.IK in rawData) {
+                var rawIKS = rawData[dragonBones.DataParser.IK];
                 for (var _c = 0, rawIKS_1 = rawIKS; _c < rawIKS_1.length; _c++) {
                     var rawIK = rawIKS_1[_c];
-                    this._parseIKConstraint(rawIK);
+                    var constraint = this._parseIKConstraint(rawIK);
+                    if (constraint) {
+                        armature.addConstraint(constraint);
+                    }
                 }
             }
             armature.sortBones();
-            if (ObjectDataParser.SLOT in rawData) {
-                var rawSlots = rawData[ObjectDataParser.SLOT];
+            if (dragonBones.DataParser.SLOT in rawData) {
+                var zOrder = 0;
+                var rawSlots = rawData[dragonBones.DataParser.SLOT];
                 for (var _d = 0, rawSlots_1 = rawSlots; _d < rawSlots_1.length; _d++) {
                     var rawSlot = rawSlots_1[_d];
-                    armature.addSlot(this._parseSlot(rawSlot));
+                    armature.addSlot(this._parseSlot(rawSlot, zOrder++));
                 }
             }
-            if (ObjectDataParser.SKIN in rawData) {
-                var rawSkins = rawData[ObjectDataParser.SKIN];
+            if (dragonBones.DataParser.SKIN in rawData) {
+                var rawSkins = rawData[dragonBones.DataParser.SKIN];
                 for (var _e = 0, rawSkins_1 = rawSkins; _e < rawSkins_1.length; _e++) {
                     var rawSkin = rawSkins_1[_e];
                     armature.addSkin(this._parseSkin(rawSkin));
                 }
             }
-            if (ObjectDataParser.ANIMATION in rawData) {
-                var rawAnimations = rawData[ObjectDataParser.ANIMATION];
-                for (var _f = 0, rawAnimations_1 = rawAnimations; _f < rawAnimations_1.length; _f++) {
-                    var rawAnimation = rawAnimations_1[_f];
+            if (dragonBones.DataParser.PATH_CONSTRAINT in rawData) {
+                var rawPaths = rawData[dragonBones.DataParser.PATH_CONSTRAINT];
+                for (var _f = 0, rawPaths_1 = rawPaths; _f < rawPaths_1.length; _f++) {
+                    var rawPath = rawPaths_1[_f];
+                    var constraint = this._parsePathConstraint(rawPath);
+                    if (constraint) {
+                        armature.addConstraint(constraint);
+                    }
+                }
+            }
+            for (var i = 0, l = this._cacheRawMeshes.length; i < l; ++i) {
+                var rawData_1 = this._cacheRawMeshes[i];
+                var shareName = ObjectDataParser._getString(rawData_1, dragonBones.DataParser.SHARE, "");
+                if (shareName.length === 0) {
+                    continue;
+                }
+                var skinName = ObjectDataParser._getString(rawData_1, dragonBones.DataParser.SKIN, dragonBones.DataParser.DEFAULT_NAME);
+                if (skinName.length === 0) {
+                    skinName = dragonBones.DataParser.DEFAULT_NAME;
+                }
+                var shareMesh = armature.getMesh(skinName, "", shareName); // TODO slot;
+                if (shareMesh === null) {
+                    continue; // Error.
+                }
+                var mesh = this._cacheMeshes[i];
+                mesh.geometry.shareFrom(shareMesh.geometry);
+            }
+            if (dragonBones.DataParser.ANIMATION in rawData) {
+                var rawAnimations = rawData[dragonBones.DataParser.ANIMATION];
+                for (var _g = 0, rawAnimations_1 = rawAnimations; _g < rawAnimations_1.length; _g++) {
+                    var rawAnimation = rawAnimations_1[_g];
                     var animation = this._parseAnimation(rawAnimation);
                     armature.addAnimation(animation);
                 }
             }
-            if (ObjectDataParser.DEFAULT_ACTIONS in rawData) {
-                this._parseActionData(rawData[ObjectDataParser.DEFAULT_ACTIONS], armature.defaultActions, 0 /* Play */, null, null);
-            }
-            if (ObjectDataParser.ACTIONS in rawData) {
-                this._parseActionData(rawData[ObjectDataParser.ACTIONS], armature.actions, 0 /* Play */, null, null);
-            }
-            // for (const action of armature.defaultActions) { // Set default animation from default action.
-            for (var i = 0; i < (dragonBones.DragonBones.webAssembly ? armature.defaultActions.size() : armature.defaultActions.length); ++i) {
-                var action = dragonBones.DragonBones.webAssembly ? armature.defaultActions.get(i) : armature.defaultActions[i];
-                if (action.type === 0 /* Play */) {
-                    var animation = armature.getAnimation(action.name);
-                    if (animation !== null) {
-                        armature.defaultAnimation = animation;
+            if (dragonBones.DataParser.DEFAULT_ACTIONS in rawData) {
+                var actions = this._parseActionData(rawData[dragonBones.DataParser.DEFAULT_ACTIONS], 0 /* Play */, null, null);
+                for (var _h = 0, actions_3 = actions; _h < actions_3.length; _h++) {
+                    var action = actions_3[_h];
+                    armature.addAction(action, true);
+                    if (action.type === 0 /* Play */) {
+                        var animation = armature.getAnimation(action.name);
+                        if (animation !== null) {
+                            armature.defaultAnimation = animation;
+                        }
                     }
-                    break;
+                }
+            }
+            if (dragonBones.DataParser.ACTIONS in rawData) {
+                var actions = this._parseActionData(rawData[dragonBones.DataParser.ACTIONS], 0 /* Play */, null, null);
+                for (var _j = 0, actions_4 = actions; _j < actions_4.length; _j++) {
+                    var action = actions_4[_j];
+                    armature.addAction(action, false);
                 }
             }
             // Clear helper.
             this._rawBones.length = 0;
+            this._cacheRawMeshes.length = 0;
+            this._cacheMeshes.length = 0;
             this._armature = null;
-            for (var k in this._meshs) {
-                delete this._meshs[k];
+            for (var k in this._weightSlotPose) {
+                delete this._weightSlotPose[k];
+            }
+            for (var k in this._weightBonePoses) {
+                delete this._weightBonePoses[k];
             }
             for (var k in this._cacheBones) {
                 delete this._cacheBones[k];
@@ -8187,119 +12193,162 @@ var dragonBones;
             for (var k in this._slotChildActions) {
                 delete this._slotChildActions[k];
             }
-            for (var k in this._weightSlotPose) {
-                delete this._weightSlotPose[k];
-            }
-            for (var k in this._weightBonePoses) {
-                delete this._weightBonePoses[k];
-            }
-            for (var k in this._weightBoneIndices) {
-                delete this._weightBoneIndices[k];
-            }
             return armature;
         };
-        /**
-         * @private
-         */
         ObjectDataParser.prototype._parseBone = function (rawData) {
-            // const bone = BaseObject.borrowObject(BoneData);
-            var bone = dragonBones.DragonBones.webAssembly ? new Module["BoneData"]() : dragonBones.BaseObject.borrowObject(dragonBones.BoneData);
-            bone.inheritTranslation = ObjectDataParser._getBoolean(rawData, ObjectDataParser.INHERIT_TRANSLATION, true);
-            bone.inheritRotation = ObjectDataParser._getBoolean(rawData, ObjectDataParser.INHERIT_ROTATION, true);
-            bone.inheritScale = ObjectDataParser._getBoolean(rawData, ObjectDataParser.INHERIT_SCALE, true);
-            bone.inheritReflection = ObjectDataParser._getBoolean(rawData, ObjectDataParser.INHERIT_REFLECTION, true);
-            bone.length = ObjectDataParser._getNumber(rawData, ObjectDataParser.LENGTH, 0) * this._armature.scale;
-            bone.name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, "");
-            if (ObjectDataParser.TRANSFORM in rawData) {
-                this._parseTransform(rawData[ObjectDataParser.TRANSFORM], bone.transform, this._armature.scale);
+            var type = 0 /* Bone */;
+            if (dragonBones.DataParser.TYPE in rawData && typeof rawData[dragonBones.DataParser.TYPE] === "string") {
+                type = dragonBones.DataParser._getBoneType(rawData[dragonBones.DataParser.TYPE]);
             }
-            return bone;
+            else {
+                type = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.TYPE, 0 /* Bone */);
+            }
+            if (type === 0 /* Bone */) {
+                var scale = this._armature.scale;
+                var bone = dragonBones.BaseObject.borrowObject(dragonBones.BoneData);
+                bone.inheritTranslation = ObjectDataParser._getBoolean(rawData, dragonBones.DataParser.INHERIT_TRANSLATION, true);
+                bone.inheritRotation = ObjectDataParser._getBoolean(rawData, dragonBones.DataParser.INHERIT_ROTATION, true);
+                bone.inheritScale = ObjectDataParser._getBoolean(rawData, dragonBones.DataParser.INHERIT_SCALE, true);
+                bone.inheritReflection = ObjectDataParser._getBoolean(rawData, dragonBones.DataParser.INHERIT_REFLECTION, true);
+                bone.length = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.LENGTH, 0) * scale;
+                bone.alpha = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.ALPHA, 1.0);
+                bone.name = ObjectDataParser._getString(rawData, dragonBones.DataParser.NAME, "");
+                if (dragonBones.DataParser.TRANSFORM in rawData) {
+                    this._parseTransform(rawData[dragonBones.DataParser.TRANSFORM], bone.transform, scale);
+                }
+                return bone;
+            }
+            var surface = dragonBones.BaseObject.borrowObject(dragonBones.SurfaceData);
+            surface.alpha = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.ALPHA, 1.0);
+            surface.name = ObjectDataParser._getString(rawData, dragonBones.DataParser.NAME, "");
+            surface.segmentX = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.SEGMENT_X, 0);
+            surface.segmentY = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.SEGMENT_Y, 0);
+            this._parseGeometry(rawData, surface.geometry);
+            return surface;
         };
-        /**
-         * @private
-         */
         ObjectDataParser.prototype._parseIKConstraint = function (rawData) {
-            var bone = this._armature.getBone(ObjectDataParser._getString(rawData, (ObjectDataParser.BONE in rawData) ? ObjectDataParser.BONE : ObjectDataParser.NAME, ""));
+            var bone = this._armature.getBone(ObjectDataParser._getString(rawData, dragonBones.DataParser.BONE, ""));
             if (bone === null) {
-                return;
+                return null;
             }
-            var target = this._armature.getBone(ObjectDataParser._getString(rawData, ObjectDataParser.TARGET, ""));
+            var target = this._armature.getBone(ObjectDataParser._getString(rawData, dragonBones.DataParser.TARGET, ""));
             if (target === null) {
-                return;
+                return null;
             }
-            // const constraint = BaseObject.borrowObject(IKConstraintData);
-            var constraint = dragonBones.DragonBones.webAssembly ? new Module["IKConstraintData"]() : dragonBones.BaseObject.borrowObject(dragonBones.IKConstraintData);
-            constraint.bendPositive = ObjectDataParser._getBoolean(rawData, ObjectDataParser.BEND_POSITIVE, true);
-            constraint.scaleEnabled = ObjectDataParser._getBoolean(rawData, ObjectDataParser.SCALE, false);
-            constraint.weight = ObjectDataParser._getNumber(rawData, ObjectDataParser.WEIGHT, 1.0);
-            constraint.bone = bone;
+            var chain = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.CHAIN, 0);
+            var constraint = dragonBones.BaseObject.borrowObject(dragonBones.IKConstraintData);
+            constraint.scaleEnabled = ObjectDataParser._getBoolean(rawData, dragonBones.DataParser.SCALE, false);
+            constraint.bendPositive = ObjectDataParser._getBoolean(rawData, dragonBones.DataParser.BEND_POSITIVE, true);
+            constraint.weight = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.WEIGHT, 1.0);
+            constraint.name = ObjectDataParser._getString(rawData, dragonBones.DataParser.NAME, "");
+            constraint.type = 0 /* IK */;
             constraint.target = target;
-            var chain = ObjectDataParser._getNumber(rawData, ObjectDataParser.CHAIN, 0);
-            if (chain > 0) {
+            if (chain > 0 && bone.parent !== null) {
                 constraint.root = bone.parent;
-            }
-            if (dragonBones.DragonBones.webAssembly) {
-                bone.constraints.push_back(constraint);
+                constraint.bone = bone;
             }
             else {
-                bone.constraints.push(constraint);
+                constraint.root = bone;
+                constraint.bone = null;
             }
+            return constraint;
         };
-        /**
-         * @private
-         */
-        ObjectDataParser.prototype._parseSlot = function (rawData) {
-            // const slot = BaseObject.borrowObject(SlotData);
-            var slot = dragonBones.DragonBones.webAssembly ? new Module["SlotData"]() : dragonBones.BaseObject.borrowObject(dragonBones.SlotData);
-            slot.displayIndex = ObjectDataParser._getNumber(rawData, ObjectDataParser.DISPLAY_INDEX, 0);
-            slot.zOrder = dragonBones.DragonBones.webAssembly ? this._armature.sortedSlots.size() : this._armature.sortedSlots.length;
-            slot.name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, "");
-            slot.parent = this._armature.getBone(ObjectDataParser._getString(rawData, ObjectDataParser.PARENT, "")); //
-            if (ObjectDataParser.BLEND_MODE in rawData && typeof rawData[ObjectDataParser.BLEND_MODE] === "string") {
-                slot.blendMode = ObjectDataParser._getBlendMode(rawData[ObjectDataParser.BLEND_MODE]);
+        ObjectDataParser.prototype._parsePathConstraint = function (rawData) {
+            var target = this._armature.getSlot(ObjectDataParser._getString(rawData, dragonBones.DataParser.TARGET, ""));
+            if (target === null) {
+                return null;
+            }
+            var defaultSkin = this._armature.defaultSkin;
+            if (defaultSkin === null) {
+                return null;
+            }
+            //TODO
+            var targetDisplay = defaultSkin.getDisplay(target.name, ObjectDataParser._getString(rawData, dragonBones.DataParser.TARGET_DISPLAY, target.name));
+            if (targetDisplay === null || !(targetDisplay instanceof dragonBones.PathDisplayData)) {
+                return null;
+            }
+            var bones = rawData[dragonBones.DataParser.BONES];
+            if (bones === null || bones.length === 0) {
+                return null;
+            }
+            var constraint = dragonBones.BaseObject.borrowObject(dragonBones.PathConstraintData);
+            constraint.name = ObjectDataParser._getString(rawData, dragonBones.DataParser.NAME, "");
+            constraint.type = 1 /* Path */;
+            constraint.pathSlot = target;
+            constraint.pathDisplayData = targetDisplay;
+            constraint.target = target.parent;
+            constraint.positionMode = dragonBones.DataParser._getPositionMode(ObjectDataParser._getString(rawData, dragonBones.DataParser.POSITION_MODE, ""));
+            constraint.spacingMode = dragonBones.DataParser._getSpacingMode(ObjectDataParser._getString(rawData, dragonBones.DataParser.SPACING_MODE, ""));
+            constraint.rotateMode = dragonBones.DataParser._getRotateMode(ObjectDataParser._getString(rawData, dragonBones.DataParser.ROTATE_MODE, ""));
+            constraint.position = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.POSITION, 0);
+            constraint.spacing = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.SPACING, 0);
+            constraint.rotateOffset = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.ROTATE_OFFSET, 0);
+            constraint.rotateMix = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.ROTATE_MIX, 1);
+            constraint.translateMix = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.TRANSLATE_MIX, 1);
+            //
+            for (var _i = 0, bones_3 = bones; _i < bones_3.length; _i++) {
+                var boneName = bones_3[_i];
+                var bone = this._armature.getBone(boneName);
+                if (bone !== null) {
+                    constraint.AddBone(bone);
+                    if (constraint.root === null) {
+                        constraint.root = bone;
+                    }
+                }
+            }
+            return constraint;
+        };
+        ObjectDataParser.prototype._parseSlot = function (rawData, zOrder) {
+            var slot = dragonBones.BaseObject.borrowObject(dragonBones.SlotData);
+            slot.displayIndex = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.DISPLAY_INDEX, 0);
+            slot.zOrder = zOrder;
+            slot.zIndex = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.Z_INDEX, 0);
+            slot.alpha = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.ALPHA, 1.0);
+            slot.name = ObjectDataParser._getString(rawData, dragonBones.DataParser.NAME, "");
+            slot.parent = this._armature.getBone(ObjectDataParser._getString(rawData, dragonBones.DataParser.PARENT, "")); //
+            if (dragonBones.DataParser.BLEND_MODE in rawData && typeof rawData[dragonBones.DataParser.BLEND_MODE] === "string") {
+                slot.blendMode = dragonBones.DataParser._getBlendMode(rawData[dragonBones.DataParser.BLEND_MODE]);
             }
             else {
-                slot.blendMode = ObjectDataParser._getNumber(rawData, ObjectDataParser.BLEND_MODE, 0 /* Normal */);
+                slot.blendMode = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.BLEND_MODE, 0 /* Normal */);
             }
-            if (ObjectDataParser.COLOR in rawData) {
-                // slot.color = SlotData.createColor();
-                slot.color = dragonBones.DragonBones.webAssembly ? Module["SlotData"].createColor() : dragonBones.SlotData.createColor();
-                this._parseColorTransform(rawData[ObjectDataParser.COLOR], slot.color);
+            if (dragonBones.DataParser.COLOR in rawData) {
+                slot.color = dragonBones.SlotData.createColor();
+                this._parseColorTransform(rawData[dragonBones.DataParser.COLOR], slot.color);
             }
             else {
-                // slot.color = SlotData.DEFAULT_COLOR;
-                slot.color = dragonBones.DragonBones.webAssembly ? Module["SlotData"].DEFAULT_COLOR : dragonBones.SlotData.DEFAULT_COLOR;
+                slot.color = dragonBones.SlotData.DEFAULT_COLOR;
             }
-            if (ObjectDataParser.ACTIONS in rawData) {
-                var actions = this._slotChildActions[slot.name] = [];
-                this._parseActionData(rawData[ObjectDataParser.ACTIONS], actions, 0 /* Play */, null, null);
+            if (dragonBones.DataParser.ACTIONS in rawData) {
+                this._slotChildActions[slot.name] = this._parseActionData(rawData[dragonBones.DataParser.ACTIONS], 0 /* Play */, null, null);
             }
             return slot;
         };
-        /**
-         * @private
-         */
         ObjectDataParser.prototype._parseSkin = function (rawData) {
-            // const skin = BaseObject.borrowObject(SkinData);
-            var skin = dragonBones.DragonBones.webAssembly ? new Module["SkinData"]() : dragonBones.BaseObject.borrowObject(dragonBones.SkinData);
-            skin.name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, ObjectDataParser.DEFAULT_NAME);
+            var skin = dragonBones.BaseObject.borrowObject(dragonBones.SkinData);
+            skin.name = ObjectDataParser._getString(rawData, dragonBones.DataParser.NAME, dragonBones.DataParser.DEFAULT_NAME);
             if (skin.name.length === 0) {
-                skin.name = ObjectDataParser.DEFAULT_NAME;
+                skin.name = dragonBones.DataParser.DEFAULT_NAME;
             }
-            if (ObjectDataParser.SLOT in rawData) {
+            if (dragonBones.DataParser.SLOT in rawData) {
+                var rawSlots = rawData[dragonBones.DataParser.SLOT];
                 this._skin = skin;
-                var rawSlots = rawData[ObjectDataParser.SLOT];
                 for (var _i = 0, rawSlots_2 = rawSlots; _i < rawSlots_2.length; _i++) {
                     var rawSlot = rawSlots_2[_i];
-                    var slotName = ObjectDataParser._getString(rawSlot, ObjectDataParser.NAME, "");
+                    var slotName = ObjectDataParser._getString(rawSlot, dragonBones.DataParser.NAME, "");
                     var slot = this._armature.getSlot(slotName);
                     if (slot !== null) {
                         this._slot = slot;
-                        if (ObjectDataParser.DISPLAY in rawSlot) {
-                            var rawDisplays = rawSlot[ObjectDataParser.DISPLAY];
+                        if (dragonBones.DataParser.DISPLAY in rawSlot) {
+                            var rawDisplays = rawSlot[dragonBones.DataParser.DISPLAY];
                             for (var _a = 0, rawDisplays_1 = rawDisplays; _a < rawDisplays_1.length; _a++) {
                                 var rawDisplay = rawDisplays_1[_a];
-                                skin.addDisplay(slotName, this._parseDisplay(rawDisplay));
+                                if (rawDisplay) {
+                                    skin.addDisplay(slotName, this._parseDisplay(rawDisplay));
+                                }
+                                else {
+                                    skin.addDisplay(slotName, null);
+                                }
                             }
                         }
                         this._slot = null; //
@@ -8309,742 +12358,903 @@ var dragonBones;
             }
             return skin;
         };
-        /**
-         * @private
-         */
         ObjectDataParser.prototype._parseDisplay = function (rawData) {
-            var display = null;
-            var name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, "");
-            var path = ObjectDataParser._getString(rawData, ObjectDataParser.PATH, "");
+            var name = ObjectDataParser._getString(rawData, dragonBones.DataParser.NAME, "");
+            var path = ObjectDataParser._getString(rawData, dragonBones.DataParser.PATH, "");
             var type = 0 /* Image */;
-            if (ObjectDataParser.TYPE in rawData && typeof rawData[ObjectDataParser.TYPE] === "string") {
-                type = ObjectDataParser._getDisplayType(rawData[ObjectDataParser.TYPE]);
+            var display = null;
+            if (dragonBones.DataParser.TYPE in rawData && typeof rawData[dragonBones.DataParser.TYPE] === "string") {
+                type = dragonBones.DataParser._getDisplayType(rawData[dragonBones.DataParser.TYPE]);
             }
             else {
-                type = ObjectDataParser._getNumber(rawData, ObjectDataParser.TYPE, type);
+                type = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.TYPE, type);
             }
             switch (type) {
-                case 0 /* Image */:
-                    // const imageDisplay = display = BaseObject.borrowObject(ImageDisplayData);
-                    var imageDisplay = display = dragonBones.DragonBones.webAssembly ? new Module["ImageDisplayData"]() : dragonBones.BaseObject.borrowObject(dragonBones.ImageDisplayData);
+                case 0 /* Image */: {
+                    var imageDisplay = display = dragonBones.BaseObject.borrowObject(dragonBones.ImageDisplayData);
                     imageDisplay.name = name;
                     imageDisplay.path = path.length > 0 ? path : name;
                     this._parsePivot(rawData, imageDisplay);
                     break;
-                case 1 /* Armature */:
-                    // const armatureDisplay = display = BaseObject.borrowObject(ArmatureDisplayData);
-                    var armatureDisplay = display = dragonBones.DragonBones.webAssembly ? new Module["ArmatureDisplayData"]() : dragonBones.BaseObject.borrowObject(dragonBones.ArmatureDisplayData);
+                }
+                case 1 /* Armature */: {
+                    var armatureDisplay = display = dragonBones.BaseObject.borrowObject(dragonBones.ArmatureDisplayData);
                     armatureDisplay.name = name;
                     armatureDisplay.path = path.length > 0 ? path : name;
                     armatureDisplay.inheritAnimation = true;
-                    if (ObjectDataParser.ACTIONS in rawData) {
-                        this._parseActionData(rawData[ObjectDataParser.ACTIONS], armatureDisplay.actions, 0 /* Play */, null, null);
+                    if (dragonBones.DataParser.ACTIONS in rawData) {
+                        var actions = this._parseActionData(rawData[dragonBones.DataParser.ACTIONS], 0 /* Play */, null, null);
+                        for (var _i = 0, actions_5 = actions; _i < actions_5.length; _i++) {
+                            var action = actions_5[_i];
+                            armatureDisplay.addAction(action);
+                        }
                     }
                     else if (this._slot.name in this._slotChildActions) {
                         var displays = this._skin.getDisplays(this._slot.name);
                         if (displays === null ? this._slot.displayIndex === 0 : this._slot.displayIndex === displays.length) {
-                            for (var _i = 0, _a = this._slotChildActions[this._slot.name]; _i < _a.length; _i++) {
-                                var action = _a[_i];
-                                if (dragonBones.DragonBones.webAssembly) {
-                                    armatureDisplay.actions.push_back(action);
-                                }
-                                else {
-                                    armatureDisplay.actions.push(action);
-                                }
+                            for (var _a = 0, _b = this._slotChildActions[this._slot.name]; _a < _b.length; _a++) {
+                                var action = _b[_a];
+                                armatureDisplay.addAction(action);
                             }
                             delete this._slotChildActions[this._slot.name];
                         }
                     }
                     break;
-                case 2 /* Mesh */:
-                    // const meshDisplay = display = BaseObject.borrowObject(MeshDisplayData);
-                    var meshDisplay = display = dragonBones.DragonBones.webAssembly ? new Module["MeshDisplayData"]() : dragonBones.BaseObject.borrowObject(dragonBones.MeshDisplayData);
+                }
+                case 2 /* Mesh */: {
+                    var meshDisplay = display = dragonBones.BaseObject.borrowObject(dragonBones.MeshDisplayData);
+                    meshDisplay.geometry.inheritDeform = ObjectDataParser._getBoolean(rawData, dragonBones.DataParser.INHERIT_DEFORM, true);
                     meshDisplay.name = name;
                     meshDisplay.path = path.length > 0 ? path : name;
-                    meshDisplay.inheritAnimation = ObjectDataParser._getBoolean(rawData, ObjectDataParser.INHERIT_FFD, true);
-                    this._parsePivot(rawData, meshDisplay);
-                    var shareName = ObjectDataParser._getString(rawData, ObjectDataParser.SHARE, "");
-                    if (shareName.length > 0) {
-                        var shareMesh = this._meshs[shareName];
-                        meshDisplay.offset = shareMesh.offset;
-                        meshDisplay.weight = shareMesh.weight;
+                    if (dragonBones.DataParser.SHARE in rawData) {
+                        meshDisplay.geometry.data = this._data;
+                        this._cacheRawMeshes.push(rawData);
+                        this._cacheMeshes.push(meshDisplay);
                     }
                     else {
                         this._parseMesh(rawData, meshDisplay);
-                        this._meshs[meshDisplay.name] = meshDisplay;
                     }
                     break;
-                case 3 /* BoundingBox */:
+                }
+                case 3 /* BoundingBox */: {
                     var boundingBox = this._parseBoundingBox(rawData);
                     if (boundingBox !== null) {
-                        // const boundingBoxDisplay = display = BaseObject.borrowObject(BoundingBoxDisplayData);
-                        var boundingBoxDisplay = display = dragonBones.DragonBones.webAssembly ? new Module["BoundingBoxDisplayData"]() : dragonBones.BaseObject.borrowObject(dragonBones.BoundingBoxDisplayData);
+                        var boundingBoxDisplay = display = dragonBones.BaseObject.borrowObject(dragonBones.BoundingBoxDisplayData);
                         boundingBoxDisplay.name = name;
                         boundingBoxDisplay.path = path.length > 0 ? path : name;
                         boundingBoxDisplay.boundingBox = boundingBox;
                     }
                     break;
-            }
-            if (display !== null) {
-                display.parent = this._armature;
-                if (ObjectDataParser.TRANSFORM in rawData) {
-                    this._parseTransform(rawData[ObjectDataParser.TRANSFORM], display.transform, this._armature.scale);
                 }
+                case 4 /* Path */: {
+                    var rawCurveLengths = rawData[dragonBones.DataParser.LENGTHS];
+                    var pathDisplay = display = dragonBones.BaseObject.borrowObject(dragonBones.PathDisplayData);
+                    pathDisplay.closed = ObjectDataParser._getBoolean(rawData, dragonBones.DataParser.CLOSED, false);
+                    pathDisplay.constantSpeed = ObjectDataParser._getBoolean(rawData, dragonBones.DataParser.CONSTANT_SPEED, false);
+                    pathDisplay.name = name;
+                    pathDisplay.path = path.length > 0 ? path : name;
+                    pathDisplay.curveLengths.length = rawCurveLengths.length;
+                    for (var i = 0, l = rawCurveLengths.length; i < l; ++i) {
+                        pathDisplay.curveLengths[i] = rawCurveLengths[i];
+                    }
+                    this._parsePath(rawData, pathDisplay);
+                    break;
+                }
+            }
+            if (display !== null && dragonBones.DataParser.TRANSFORM in rawData) {
+                this._parseTransform(rawData[dragonBones.DataParser.TRANSFORM], display.transform, this._armature.scale);
             }
             return display;
         };
-        /**
-         * @private
-         */
+        ObjectDataParser.prototype._parsePath = function (rawData, display) {
+            this._parseGeometry(rawData, display.geometry);
+        };
         ObjectDataParser.prototype._parsePivot = function (rawData, display) {
-            if (ObjectDataParser.PIVOT in rawData) {
-                var rawPivot = rawData[ObjectDataParser.PIVOT];
-                display.pivot.x = ObjectDataParser._getNumber(rawPivot, ObjectDataParser.X, 0.0);
-                display.pivot.y = ObjectDataParser._getNumber(rawPivot, ObjectDataParser.Y, 0.0);
+            if (dragonBones.DataParser.PIVOT in rawData) {
+                var rawPivot = rawData[dragonBones.DataParser.PIVOT];
+                display.pivot.x = ObjectDataParser._getNumber(rawPivot, dragonBones.DataParser.X, 0.0);
+                display.pivot.y = ObjectDataParser._getNumber(rawPivot, dragonBones.DataParser.Y, 0.0);
             }
             else {
                 display.pivot.x = 0.5;
                 display.pivot.y = 0.5;
             }
         };
-        /**
-         * @private
-         */
         ObjectDataParser.prototype._parseMesh = function (rawData, mesh) {
-            var rawVertices = rawData[ObjectDataParser.VERTICES];
-            var rawUVs = rawData[ObjectDataParser.UVS];
-            var rawTriangles = rawData[ObjectDataParser.TRIANGLES];
-            var intArray = dragonBones.DragonBones.webAssembly ? this._intArrayJson : this._data.intArray;
-            var floatArray = dragonBones.DragonBones.webAssembly ? this._floatArrayJson : this._data.floatArray;
-            var vertexCount = Math.floor(rawVertices.length / 2); // uint
-            var triangleCount = Math.floor(rawTriangles.length / 3); // uint
-            var vertexOffset = floatArray.length;
-            var uvOffset = vertexOffset + vertexCount * 2;
-            mesh.offset = intArray.length;
-            intArray.length += 1 + 1 + 1 + 1 + triangleCount * 3;
-            intArray[mesh.offset + 0 /* MeshVertexCount */] = vertexCount;
-            intArray[mesh.offset + 1 /* MeshTriangleCount */] = triangleCount;
-            intArray[mesh.offset + 2 /* MeshFloatOffset */] = vertexOffset;
-            for (var i = 0, l = triangleCount * 3; i < l; ++i) {
-                intArray[mesh.offset + 4 /* MeshVertexIndices */ + i] = rawTriangles[i];
-            }
-            floatArray.length += vertexCount * 2 + vertexCount * 2;
-            for (var i = 0, l = vertexCount * 2; i < l; ++i) {
-                floatArray[vertexOffset + i] = rawVertices[i];
-                floatArray[uvOffset + i] = rawUVs[i];
-            }
-            if (ObjectDataParser.WEIGHTS in rawData) {
-                var rawWeights = rawData[ObjectDataParser.WEIGHTS];
-                var rawSlotPose = rawData[ObjectDataParser.SLOT_POSE];
-                var rawBonePoses = rawData[ObjectDataParser.BONE_POSE];
-                var weightBoneIndices = new Array();
-                var weightBoneCount = Math.floor(rawBonePoses.length / 7); // uint
-                var floatOffset = floatArray.length;
-                // const weight = BaseObject.borrowObject(WeightData);
-                var weight = dragonBones.DragonBones.webAssembly ? new Module["WeightData"]() : dragonBones.BaseObject.borrowObject(dragonBones.WeightData);
-                weight.count = (rawWeights.length - vertexCount) / 2;
-                weight.offset = intArray.length;
-                weight.bones.length = weightBoneCount;
-                weightBoneIndices.length = weightBoneCount;
-                intArray.length += 1 + 1 + weightBoneCount + vertexCount + weight.count;
-                intArray[weight.offset + 1 /* WeigthFloatOffset */] = floatOffset;
-                for (var i = 0; i < weightBoneCount; ++i) {
-                    var rawBoneIndex = rawBonePoses[i * 7]; // uint
-                    var bone = this._rawBones[rawBoneIndex];
-                    weight.bones[i] = bone;
-                    weightBoneIndices[i] = rawBoneIndex;
-                    if (dragonBones.DragonBones.webAssembly) {
-                        for (var j = 0; j < this._armature.sortedBones.size(); j++) {
-                            if (this._armature.sortedBones.get(j) === bone) {
-                                intArray[weight.offset + 2 /* WeigthBoneIndices */ + i] = j;
-                            }
-                        }
-                    }
-                    else {
-                        intArray[weight.offset + 2 /* WeigthBoneIndices */ + i] = this._armature.sortedBones.indexOf(bone);
-                    }
-                }
-                floatArray.length += weight.count * 3;
-                this._helpMatrixA.copyFromArray(rawSlotPose, 0);
-                for (var i = 0, iW = 0, iB = weight.offset + 2 /* WeigthBoneIndices */ + weightBoneCount, iV = floatOffset; i < vertexCount; ++i) {
-                    var iD = i * 2;
-                    var vertexBoneCount = intArray[iB++] = rawWeights[iW++]; // uint
-                    var x = floatArray[vertexOffset + iD];
-                    var y = floatArray[vertexOffset + iD + 1];
-                    this._helpMatrixA.transformPoint(x, y, this._helpPoint);
-                    x = this._helpPoint.x;
-                    y = this._helpPoint.y;
-                    for (var j = 0; j < vertexBoneCount; ++j) {
-                        var rawBoneIndex = rawWeights[iW++]; // uint
-                        var bone = this._rawBones[rawBoneIndex];
-                        this._helpMatrixB.copyFromArray(rawBonePoses, weightBoneIndices.indexOf(rawBoneIndex) * 7 + 1);
-                        this._helpMatrixB.invert();
-                        this._helpMatrixB.transformPoint(x, y, this._helpPoint);
-                        intArray[iB++] = weight.bones.indexOf(bone);
-                        floatArray[iV++] = rawWeights[iW++];
-                        floatArray[iV++] = this._helpPoint.x;
-                        floatArray[iV++] = this._helpPoint.y;
-                    }
-                }
-                mesh.weight = weight;
-                //
-                this._weightSlotPose[mesh.name] = rawSlotPose;
-                this._weightBonePoses[mesh.name] = rawBonePoses;
-                this._weightBoneIndices[mesh.name] = weightBoneIndices;
+            this._parseGeometry(rawData, mesh.geometry);
+            if (dragonBones.DataParser.WEIGHTS in rawData) {
+                var rawSlotPose = rawData[dragonBones.DataParser.SLOT_POSE];
+                var rawBonePoses = rawData[dragonBones.DataParser.BONE_POSE];
+                var meshName = this._skin.name + "_" + this._slot.name + "_" + mesh.name;
+                this._weightSlotPose[meshName] = rawSlotPose;
+                this._weightBonePoses[meshName] = rawBonePoses;
             }
         };
-        /**
-         * @private
-         */
         ObjectDataParser.prototype._parseBoundingBox = function (rawData) {
             var boundingBox = null;
             var type = 0 /* Rectangle */;
-            if (ObjectDataParser.SUB_TYPE in rawData && typeof rawData[ObjectDataParser.SUB_TYPE] === "string") {
-                type = ObjectDataParser._getBoundingBoxType(rawData[ObjectDataParser.SUB_TYPE]);
+            if (dragonBones.DataParser.SUB_TYPE in rawData && typeof rawData[dragonBones.DataParser.SUB_TYPE] === "string") {
+                type = dragonBones.DataParser._getBoundingBoxType(rawData[dragonBones.DataParser.SUB_TYPE]);
             }
             else {
-                type = ObjectDataParser._getNumber(rawData, ObjectDataParser.SUB_TYPE, type);
+                type = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.SUB_TYPE, type);
             }
             switch (type) {
                 case 0 /* Rectangle */:
-                    // boundingBox = BaseObject.borrowObject(RectangleBoundingBoxData);
-                    boundingBox = dragonBones.DragonBones.webAssembly ? new Module["RectangleBoundingBoxData"]() : dragonBones.BaseObject.borrowObject(dragonBones.RectangleBoundingBoxData);
+                    boundingBox = dragonBones.BaseObject.borrowObject(dragonBones.RectangleBoundingBoxData);
                     break;
                 case 1 /* Ellipse */:
-                    // boundingBox = BaseObject.borrowObject(EllipseBoundingBoxData);
-                    boundingBox = dragonBones.DragonBones.webAssembly ? new Module["EllipseBoundingBoxData"]() : dragonBones.BaseObject.borrowObject(dragonBones.EllipseBoundingBoxData);
+                    boundingBox = dragonBones.BaseObject.borrowObject(dragonBones.EllipseBoundingBoxData);
                     break;
                 case 2 /* Polygon */:
                     boundingBox = this._parsePolygonBoundingBox(rawData);
                     break;
             }
             if (boundingBox !== null) {
-                boundingBox.color = ObjectDataParser._getNumber(rawData, ObjectDataParser.COLOR, 0x000000);
+                boundingBox.color = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.COLOR, 0x000000);
                 if (boundingBox.type === 0 /* Rectangle */ || boundingBox.type === 1 /* Ellipse */) {
-                    boundingBox.width = ObjectDataParser._getNumber(rawData, ObjectDataParser.WIDTH, 0.0);
-                    boundingBox.height = ObjectDataParser._getNumber(rawData, ObjectDataParser.HEIGHT, 0.0);
+                    boundingBox.width = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.WIDTH, 0.0);
+                    boundingBox.height = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.HEIGHT, 0.0);
                 }
             }
             return boundingBox;
         };
-        /**
-         * @private
-         */
         ObjectDataParser.prototype._parsePolygonBoundingBox = function (rawData) {
-            var rawVertices = rawData[ObjectDataParser.VERTICES];
-            var floatArray = dragonBones.DragonBones.webAssembly ? this._floatArrayJson : this._data.floatArray;
-            // const polygonBoundingBox = BaseObject.borrowObject(PolygonBoundingBoxData);
-            var polygonBoundingBox = dragonBones.DragonBones.webAssembly ? new Module["PolygonBoundingBoxData"]() : dragonBones.BaseObject.borrowObject(dragonBones.PolygonBoundingBoxData);
-            polygonBoundingBox.offset = floatArray.length;
-            polygonBoundingBox.count = rawVertices.length;
-            polygonBoundingBox.vertices = floatArray;
-            floatArray.length += polygonBoundingBox.count;
-            for (var i = 0, l = polygonBoundingBox.count; i < l; i += 2) {
-                var iN = i + 1;
-                var x = rawVertices[i];
-                var y = rawVertices[iN];
-                floatArray[polygonBoundingBox.offset + i] = x;
-                floatArray[polygonBoundingBox.offset + iN] = y;
-                // AABB.
-                if (i === 0) {
-                    polygonBoundingBox.x = x;
-                    polygonBoundingBox.y = y;
-                    polygonBoundingBox.width = x;
-                    polygonBoundingBox.height = y;
-                }
-                else {
-                    if (x < polygonBoundingBox.x) {
+            var polygonBoundingBox = dragonBones.BaseObject.borrowObject(dragonBones.PolygonBoundingBoxData);
+            if (dragonBones.DataParser.VERTICES in rawData) {
+                var scale = this._armature.scale;
+                var rawVertices = rawData[dragonBones.DataParser.VERTICES];
+                var vertices = polygonBoundingBox.vertices;
+                vertices.length = rawVertices.length;
+                for (var i = 0, l = rawVertices.length; i < l; i += 2) {
+                    var x = rawVertices[i] * scale;
+                    var y = rawVertices[i + 1] * scale;
+                    vertices[i] = x;
+                    vertices[i + 1] = y;
+                    // AABB.
+                    if (i === 0) {
                         polygonBoundingBox.x = x;
-                    }
-                    else if (x > polygonBoundingBox.width) {
-                        polygonBoundingBox.width = x;
-                    }
-                    if (y < polygonBoundingBox.y) {
                         polygonBoundingBox.y = y;
-                    }
-                    else if (y > polygonBoundingBox.height) {
+                        polygonBoundingBox.width = x;
                         polygonBoundingBox.height = y;
                     }
+                    else {
+                        if (x < polygonBoundingBox.x) {
+                            polygonBoundingBox.x = x;
+                        }
+                        else if (x > polygonBoundingBox.width) {
+                            polygonBoundingBox.width = x;
+                        }
+                        if (y < polygonBoundingBox.y) {
+                            polygonBoundingBox.y = y;
+                        }
+                        else if (y > polygonBoundingBox.height) {
+                            polygonBoundingBox.height = y;
+                        }
+                    }
                 }
+                polygonBoundingBox.width -= polygonBoundingBox.x;
+                polygonBoundingBox.height -= polygonBoundingBox.y;
+            }
+            else {
+                console.warn("Data error.\n Please reexport DragonBones Data to fixed the bug.");
             }
             return polygonBoundingBox;
         };
-        /**
-         * @private
-         */
         ObjectDataParser.prototype._parseAnimation = function (rawData) {
-            // const animation = BaseObject.borrowObject(AnimationData);
-            var animation = dragonBones.DragonBones.webAssembly ? new Module["AnimationData"]() : dragonBones.BaseObject.borrowObject(dragonBones.AnimationData);
-            animation.frameCount = Math.max(ObjectDataParser._getNumber(rawData, ObjectDataParser.DURATION, 1), 1);
-            animation.playTimes = ObjectDataParser._getNumber(rawData, ObjectDataParser.PLAY_TIMES, 1);
-            animation.duration = animation.frameCount / this._armature.frameRate;
-            animation.fadeInTime = ObjectDataParser._getNumber(rawData, ObjectDataParser.FADE_IN_TIME, 0.0);
-            animation.scale = ObjectDataParser._getNumber(rawData, ObjectDataParser.SCALE, 1.0);
-            animation.name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, ObjectDataParser.DEFAULT_NAME);
-            // TDOO Check std::string length
-            if (animation.name.length < 1) {
-                animation.name = ObjectDataParser.DEFAULT_NAME;
+            var animation = dragonBones.BaseObject.borrowObject(dragonBones.AnimationData);
+            animation.blendType = dragonBones.DataParser._getAnimationBlendType(ObjectDataParser._getString(rawData, dragonBones.DataParser.BLEND_TYPE, ""));
+            animation.frameCount = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.DURATION, 0);
+            animation.playTimes = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.PLAY_TIMES, 1);
+            animation.duration = animation.frameCount / this._armature.frameRate; // float
+            animation.fadeInTime = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.FADE_IN_TIME, 0.0);
+            animation.scale = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.SCALE, 1.0);
+            animation.name = ObjectDataParser._getString(rawData, dragonBones.DataParser.NAME, dragonBones.DataParser.DEFAULT_NAME);
+            if (animation.name.length === 0) {
+                animation.name = dragonBones.DataParser.DEFAULT_NAME;
             }
-            if (dragonBones.DragonBones.webAssembly) {
-                animation.frameIntOffset = this._frameIntArrayJson.length;
-                animation.frameFloatOffset = this._frameFloatArrayJson.length;
-                animation.frameOffset = this._frameArrayJson.length;
-            }
-            else {
-                animation.frameIntOffset = this._data.frameIntArray.length;
-                animation.frameFloatOffset = this._data.frameFloatArray.length;
-                animation.frameOffset = this._data.frameArray.length;
-            }
+            animation.frameIntOffset = this._frameIntArray.length;
+            animation.frameFloatOffset = this._frameFloatArray.length;
+            animation.frameOffset = this._frameArray.length;
             this._animation = animation;
-            if (ObjectDataParser.FRAME in rawData) {
-                var rawFrames = rawData[ObjectDataParser.FRAME];
+            if (dragonBones.DataParser.FRAME in rawData) {
+                var rawFrames = rawData[dragonBones.DataParser.FRAME];
                 var keyFrameCount = rawFrames.length;
                 if (keyFrameCount > 0) {
                     for (var i = 0, frameStart = 0; i < keyFrameCount; ++i) {
                         var rawFrame = rawFrames[i];
                         this._parseActionDataInFrame(rawFrame, frameStart, null, null);
-                        frameStart += ObjectDataParser._getNumber(rawFrame, ObjectDataParser.DURATION, 1);
+                        frameStart += ObjectDataParser._getNumber(rawFrame, dragonBones.DataParser.DURATION, 1);
                     }
                 }
             }
-            if (ObjectDataParser.Z_ORDER in rawData) {
-                this._animation.zOrderTimeline = this._parseTimeline(rawData[ObjectDataParser.Z_ORDER], 1 /* ZOrder */, false, false, 0, this._parseZOrderFrame);
+            if (dragonBones.DataParser.Z_ORDER in rawData) {
+                this._animation.zOrderTimeline = this._parseTimeline(rawData[dragonBones.DataParser.Z_ORDER], null, dragonBones.DataParser.FRAME, 1 /* ZOrder */, 0 /* Step */, 0, this._parseZOrderFrame);
             }
-            if (ObjectDataParser.BONE in rawData) {
-                var rawTimelines = rawData[ObjectDataParser.BONE];
+            if (dragonBones.DataParser.BONE in rawData) {
+                var rawTimelines = rawData[dragonBones.DataParser.BONE];
                 for (var _i = 0, rawTimelines_1 = rawTimelines; _i < rawTimelines_1.length; _i++) {
                     var rawTimeline = rawTimelines_1[_i];
                     this._parseBoneTimeline(rawTimeline);
                 }
             }
-            if (ObjectDataParser.SLOT in rawData) {
-                var rawTimelines = rawData[ObjectDataParser.SLOT];
+            if (dragonBones.DataParser.SLOT in rawData) {
+                var rawTimelines = rawData[dragonBones.DataParser.SLOT];
                 for (var _a = 0, rawTimelines_2 = rawTimelines; _a < rawTimelines_2.length; _a++) {
                     var rawTimeline = rawTimelines_2[_a];
                     this._parseSlotTimeline(rawTimeline);
                 }
             }
-            if (ObjectDataParser.FFD in rawData) {
-                var rawTimelines = rawData[ObjectDataParser.FFD];
+            if (dragonBones.DataParser.FFD in rawData) {
+                var rawTimelines = rawData[dragonBones.DataParser.FFD];
                 for (var _b = 0, rawTimelines_3 = rawTimelines; _b < rawTimelines_3.length; _b++) {
                     var rawTimeline = rawTimelines_3[_b];
-                    var slotName = ObjectDataParser._getString(rawTimeline, ObjectDataParser.SLOT, "");
-                    var displayName = ObjectDataParser._getString(rawTimeline, ObjectDataParser.NAME, "");
-                    var slot = this._armature.getSlot(slotName);
-                    if (slot === null) {
+                    var skinName = ObjectDataParser._getString(rawTimeline, dragonBones.DataParser.SKIN, dragonBones.DataParser.DEFAULT_NAME);
+                    var slotName = ObjectDataParser._getString(rawTimeline, dragonBones.DataParser.SLOT, "");
+                    var displayName = ObjectDataParser._getString(rawTimeline, dragonBones.DataParser.NAME, "");
+                    if (skinName.length === 0) {
+                        skinName = dragonBones.DataParser.DEFAULT_NAME;
+                    }
+                    this._slot = this._armature.getSlot(slotName);
+                    this._mesh = this._armature.getMesh(skinName, slotName, displayName);
+                    if (this._slot === null || this._mesh === null) {
                         continue;
                     }
-                    this._slot = slot;
-                    this._mesh = this._meshs[displayName];
-                    var timelineFFD = this._parseTimeline(rawTimeline, 22 /* SlotFFD */, false, true, 0, this._parseSlotFFDFrame);
-                    if (timelineFFD !== null) {
-                        this._animation.addSlotTimeline(slot, timelineFFD);
+                    var timeline = this._parseTimeline(rawTimeline, null, dragonBones.DataParser.FRAME, 22 /* SlotDeform */, 2 /* Float */, 0, this._parseSlotDeformFrame);
+                    if (timeline !== null) {
+                        this._animation.addSlotTimeline(slotName, timeline);
                     }
                     this._slot = null; //
                     this._mesh = null; //
                 }
             }
-            if (this._actionFrames.length > 0) {
-                this._actionFrames.sort(this._sortActionFrame);
-                // const timeline = this._animation.actionTimeline = BaseObject.borrowObject(TimelineData);
-                var timeline = this._animation.actionTimeline = dragonBones.DragonBones.webAssembly ? new Module["TimelineData"]() : dragonBones.BaseObject.borrowObject(dragonBones.TimelineData);
-                var timelineArray = dragonBones.DragonBones.webAssembly ? this._timelineArrayJson : this._data.timelineArray;
-                var keyFrameCount = this._actionFrames.length;
-                timeline.type = 0 /* Action */;
-                timeline.offset = timelineArray.length;
-                timelineArray.length += 1 + 1 + 1 + 1 + 1 + keyFrameCount;
-                timelineArray[timeline.offset + 0 /* TimelineScale */] = 100;
-                timelineArray[timeline.offset + 1 /* TimelineOffset */] = 0;
-                timelineArray[timeline.offset + 2 /* TimelineKeyFrameCount */] = keyFrameCount;
-                timelineArray[timeline.offset + 3 /* TimelineFrameValueCount */] = 0;
-                timelineArray[timeline.offset + 4 /* TimelineFrameValueOffset */] = 0;
-                this._timeline = timeline;
-                if (keyFrameCount === 1) {
-                    timeline.frameIndicesOffset = -1;
-                    timelineArray[timeline.offset + 5 /* TimelineFrameOffset */ + 0] = this._parseCacheActionFrame(this._actionFrames[0]) - this._animation.frameOffset;
+            if (dragonBones.DataParser.IK in rawData) {
+                var rawTimelines = rawData[dragonBones.DataParser.IK];
+                for (var _c = 0, rawTimelines_4 = rawTimelines; _c < rawTimelines_4.length; _c++) {
+                    var rawTimeline = rawTimelines_4[_c];
+                    var constraintName = ObjectDataParser._getString(rawTimeline, dragonBones.DataParser.NAME, "");
+                    var constraint = this._armature.getConstraint(constraintName);
+                    if (constraint === null) {
+                        continue;
+                    }
+                    var timeline = this._parseTimeline(rawTimeline, null, dragonBones.DataParser.FRAME, 30 /* IKConstraint */, 1 /* Int */, 2, this._parseIKConstraintFrame);
+                    if (timeline !== null) {
+                        this._animation.addConstraintTimeline(constraintName, timeline);
+                    }
                 }
-                else {
-                    var totalFrameCount = this._animation.frameCount + 1; // One more frame than animation.
-                    var frameIndices = this._data.frameIndices;
-                    if (dragonBones.DragonBones.webAssembly) {
-                        timeline.frameIndicesOffset = frameIndices.size();
-                        //(frameIndices as any).resize(timeline.frameIndicesOffset + totalFrameCount);
-                        for (var j = 0; j < totalFrameCount; ++j) {
-                            frameIndices.push_back(0);
-                        }
-                    }
-                    else {
-                        timeline.frameIndicesOffset = frameIndices.length;
-                        frameIndices.length += totalFrameCount;
-                    }
-                    for (var i = 0, iK = 0, frameStart = 0, frameCount = 0; i < totalFrameCount; ++i) {
-                        if (frameStart + frameCount <= i && iK < keyFrameCount) {
-                            var frame = this._actionFrames[iK];
-                            frameStart = frame.frameStart;
-                            if (iK === keyFrameCount - 1) {
-                                frameCount = this._animation.frameCount - frameStart;
+            }
+            if (this._actionFrames.length > 0) {
+                this._animation.actionTimeline = this._parseTimeline(null, this._actionFrames, "", 0 /* Action */, 0 /* Step */, 0, this._parseActionFrame);
+                this._actionFrames.length = 0;
+            }
+            if (dragonBones.DataParser.TIMELINE in rawData) {
+                var rawTimelines = rawData[dragonBones.DataParser.TIMELINE];
+                for (var _d = 0, rawTimelines_5 = rawTimelines; _d < rawTimelines_5.length; _d++) {
+                    var rawTimeline = rawTimelines_5[_d];
+                    var timelineType = ObjectDataParser._getNumber(rawTimeline, dragonBones.DataParser.TYPE, 0 /* Action */);
+                    var timelineName = ObjectDataParser._getString(rawTimeline, dragonBones.DataParser.NAME, "");
+                    var timeline = null;
+                    switch (timelineType) {
+                        case 0 /* Action */:
+                            // TODO
+                            break;
+                        case 20 /* SlotDisplay */: // TODO
+                        case 23 /* SlotZIndex */:
+                        case 60 /* BoneAlpha */:
+                        case 24 /* SlotAlpha */:
+                        case 40 /* AnimationProgress */:
+                        case 41 /* AnimationWeight */:
+                            if (timelineType === 20 /* SlotDisplay */) {
+                                this._frameValueType = 0 /* Step */;
+                                this._frameValueScale = 1.0;
                             }
                             else {
-                                frameCount = this._actionFrames[iK + 1].frameStart - frameStart;
+                                this._frameValueType = 1 /* Int */;
+                                if (timelineType === 23 /* SlotZIndex */) {
+                                    this._frameValueScale = 1.0;
+                                }
+                                else if (timelineType === 40 /* AnimationProgress */ ||
+                                    timelineType === 41 /* AnimationWeight */) {
+                                    this._frameValueScale = 10000.0;
+                                }
+                                else {
+                                    this._frameValueScale = 100.0;
+                                }
                             }
-                            timelineArray[timeline.offset + 5 /* TimelineFrameOffset */ + iK] = this._parseCacheActionFrame(frame) - this._animation.frameOffset;
-                            iK++;
+                            if (timelineType === 60 /* BoneAlpha */ ||
+                                timelineType === 24 /* SlotAlpha */ ||
+                                timelineType === 41 /* AnimationWeight */) {
+                                this._frameDefaultValue = 1.0;
+                            }
+                            else {
+                                this._frameDefaultValue = 0.0;
+                            }
+                            if (timelineType === 40 /* AnimationProgress */ && animation.blendType !== 0 /* None */) {
+                                timeline = dragonBones.BaseObject.borrowObject(dragonBones.AnimationTimelineData);
+                                var animaitonTimeline = timeline;
+                                animaitonTimeline.x = ObjectDataParser._getNumber(rawTimeline, dragonBones.DataParser.X, 0.0);
+                                animaitonTimeline.y = ObjectDataParser._getNumber(rawTimeline, dragonBones.DataParser.Y, 0.0);
+                            }
+                            timeline = this._parseTimeline(rawTimeline, null, dragonBones.DataParser.FRAME, timelineType, this._frameValueType, 1, this._parseSingleValueFrame, timeline);
+                            break;
+                        case 11 /* BoneTranslate */:
+                        case 12 /* BoneRotate */:
+                        case 13 /* BoneScale */:
+                        case 30 /* IKConstraint */:
+                        case 42 /* AnimationParameter */:
+                            if (timelineType === 30 /* IKConstraint */ ||
+                                timelineType === 42 /* AnimationParameter */) {
+                                this._frameValueType = 1 /* Int */;
+                                if (timelineType === 42 /* AnimationParameter */) {
+                                    this._frameValueScale = 10000.0;
+                                }
+                                else {
+                                    this._frameValueScale = 100.0;
+                                }
+                            }
+                            else {
+                                if (timelineType === 12 /* BoneRotate */) {
+                                    this._frameValueScale = dragonBones.Transform.DEG_RAD;
+                                }
+                                else {
+                                    this._frameValueScale = 1.0;
+                                }
+                                this._frameValueType = 2 /* Float */;
+                            }
+                            if (timelineType === 13 /* BoneScale */ ||
+                                timelineType === 30 /* IKConstraint */) {
+                                this._frameDefaultValue = 1.0;
+                            }
+                            else {
+                                this._frameDefaultValue = 0.0;
+                            }
+                            timeline = this._parseTimeline(rawTimeline, null, dragonBones.DataParser.FRAME, timelineType, this._frameValueType, 2, this._parseDoubleValueFrame);
+                            break;
+                        case 1 /* ZOrder */:
+                            // TODO
+                            break;
+                        case 50 /* Surface */: {
+                            var surface = this._armature.getBone(timelineName);
+                            if (surface === null) {
+                                continue;
+                            }
+                            this._geometry = surface.geometry;
+                            timeline = this._parseTimeline(rawTimeline, null, dragonBones.DataParser.FRAME, timelineType, 2 /* Float */, 0, this._parseDeformFrame);
+                            this._geometry = null; //
+                            break;
                         }
-                        if (dragonBones.DragonBones.webAssembly) {
-                            frameIndices.set(timeline.frameIndicesOffset + i, iK - 1);
+                        case 22 /* SlotDeform */: {
+                            this._geometry = null; //
+                            for (var skinName in this._armature.skins) {
+                                var skin = this._armature.skins[skinName];
+                                for (var slontName in skin.displays) {
+                                    var displays = skin.displays[slontName];
+                                    for (var _e = 0, displays_1 = displays; _e < displays_1.length; _e++) {
+                                        var display = displays_1[_e];
+                                        if (display !== null && display.name === timelineName) {
+                                            this._geometry = display.geometry;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            if (this._geometry === null) {
+                                continue;
+                            }
+                            timeline = this._parseTimeline(rawTimeline, null, dragonBones.DataParser.FRAME, timelineType, 2 /* Float */, 0, this._parseDeformFrame);
+                            this._geometry = null; //
+                            break;
                         }
-                        else {
-                            frameIndices[timeline.frameIndicesOffset + i] = iK - 1;
+                        case 21 /* SlotColor */:
+                            timeline = this._parseTimeline(rawTimeline, null, dragonBones.DataParser.FRAME, timelineType, 1 /* Int */, 1, this._parseSlotColorFrame);
+                            break;
+                    }
+                    if (timeline !== null) {
+                        switch (timelineType) {
+                            case 0 /* Action */:
+                                // TODO
+                                break;
+                            case 1 /* ZOrder */:
+                                // TODO
+                                break;
+                            case 11 /* BoneTranslate */:
+                            case 12 /* BoneRotate */:
+                            case 13 /* BoneScale */:
+                            case 50 /* Surface */:
+                            case 60 /* BoneAlpha */:
+                                this._animation.addBoneTimeline(timelineName, timeline);
+                                break;
+                            case 20 /* SlotDisplay */:
+                            case 21 /* SlotColor */:
+                            case 22 /* SlotDeform */:
+                            case 23 /* SlotZIndex */:
+                            case 24 /* SlotAlpha */:
+                                this._animation.addSlotTimeline(timelineName, timeline);
+                                break;
+                            case 30 /* IKConstraint */:
+                                this._animation.addConstraintTimeline(timelineName, timeline);
+                                break;
+                            case 40 /* AnimationProgress */:
+                            case 41 /* AnimationWeight */:
+                            case 42 /* AnimationParameter */:
+                                this._animation.addAnimationTimeline(timelineName, timeline);
+                                break;
                         }
                     }
                 }
-                this._timeline = null; //
-                this._actionFrames.length = 0;
             }
             this._animation = null; //
             return animation;
         };
-        /**
-         * @private
-         */
-        ObjectDataParser.prototype._parseTimeline = function (rawData, type, addIntOffset, addFloatOffset, frameValueCount, frameParser) {
-            if (!(ObjectDataParser.FRAME in rawData)) {
+        ObjectDataParser.prototype._parseTimeline = function (rawData, rawFrames, framesKey, timelineType, frameValueType, frameValueCount, frameParser, timeline) {
+            if (timeline === void 0) { timeline = null; }
+            if (rawData !== null && framesKey.length > 0 && framesKey in rawData) {
+                rawFrames = rawData[framesKey];
+            }
+            if (rawFrames === null) {
                 return null;
             }
-            var rawFrames = rawData[ObjectDataParser.FRAME];
             var keyFrameCount = rawFrames.length;
             if (keyFrameCount === 0) {
                 return null;
             }
-            var timelineArray = dragonBones.DragonBones.webAssembly ? this._timelineArrayJson : this._data.timelineArray;
-            var frameIntArrayLength = dragonBones.DragonBones.webAssembly ? this._frameIntArrayJson.length : this._data.frameIntArray.length;
-            var frameFloatArrayLength = dragonBones.DragonBones.webAssembly ? this._frameFloatArrayJson.length : this._data.frameFloatArray.length;
-            // const timeline = BaseObject.borrowObject(TimelineData);
-            var timeline = dragonBones.DragonBones.webAssembly ? new Module["TimelineData"]() : dragonBones.BaseObject.borrowObject(dragonBones.TimelineData);
-            timeline.type = type;
-            timeline.offset = timelineArray.length;
-            timelineArray.length += 1 + 1 + 1 + 1 + 1 + keyFrameCount;
-            timelineArray[timeline.offset + 0 /* TimelineScale */] = Math.round(ObjectDataParser._getNumber(rawData, ObjectDataParser.SCALE, 1.0) * 100);
-            timelineArray[timeline.offset + 1 /* TimelineOffset */] = Math.round(ObjectDataParser._getNumber(rawData, ObjectDataParser.OFFSET, 0.0) * 100);
-            timelineArray[timeline.offset + 2 /* TimelineKeyFrameCount */] = keyFrameCount;
-            timelineArray[timeline.offset + 3 /* TimelineFrameValueCount */] = frameValueCount;
-            if (addIntOffset) {
-                timelineArray[timeline.offset + 4 /* TimelineFrameValueOffset */] = frameIntArrayLength - this._animation.frameIntOffset;
+            var frameIntArrayLength = this._frameIntArray.length;
+            var frameFloatArrayLength = this._frameFloatArray.length;
+            var timelineOffset = this._timelineArray.length;
+            if (timeline === null) {
+                timeline = dragonBones.BaseObject.borrowObject(dragonBones.TimelineData);
             }
-            else if (addFloatOffset) {
-                timelineArray[timeline.offset + 4 /* TimelineFrameValueOffset */] = frameFloatArrayLength - this._animation.frameFloatOffset;
+            timeline.type = timelineType;
+            timeline.offset = timelineOffset;
+            this._frameValueType = frameValueType;
+            this._timeline = timeline;
+            this._timelineArray.length += 1 + 1 + 1 + 1 + 1 + keyFrameCount;
+            if (rawData !== null) {
+                this._timelineArray[timelineOffset + 0 /* TimelineScale */] = Math.round(ObjectDataParser._getNumber(rawData, dragonBones.DataParser.SCALE, 1.0) * 100);
+                this._timelineArray[timelineOffset + 1 /* TimelineOffset */] = Math.round(ObjectDataParser._getNumber(rawData, dragonBones.DataParser.OFFSET, 0.0) * 100);
             }
             else {
-                timelineArray[timeline.offset + 4 /* TimelineFrameValueOffset */] = 0;
+                this._timelineArray[timelineOffset + 0 /* TimelineScale */] = 100;
+                this._timelineArray[timelineOffset + 1 /* TimelineOffset */] = 0;
             }
-            this._timeline = timeline;
+            this._timelineArray[timelineOffset + 2 /* TimelineKeyFrameCount */] = keyFrameCount;
+            this._timelineArray[timelineOffset + 3 /* TimelineFrameValueCount */] = frameValueCount;
+            switch (this._frameValueType) {
+                case 0 /* Step */:
+                    this._timelineArray[timelineOffset + 4 /* TimelineFrameValueOffset */] = 0;
+                    break;
+                case 1 /* Int */:
+                    this._timelineArray[timelineOffset + 4 /* TimelineFrameValueOffset */] = frameIntArrayLength - this._animation.frameIntOffset;
+                    break;
+                case 2 /* Float */:
+                    this._timelineArray[timelineOffset + 4 /* TimelineFrameValueOffset */] = frameFloatArrayLength - this._animation.frameFloatOffset;
+                    break;
+            }
             if (keyFrameCount === 1) {
                 timeline.frameIndicesOffset = -1;
-                timelineArray[timeline.offset + 5 /* TimelineFrameOffset */ + 0] = frameParser.call(this, rawFrames[0], 0, 0) - this._animation.frameOffset;
+                this._timelineArray[timelineOffset + 5 /* TimelineFrameOffset */ + 0] = frameParser.call(this, rawFrames[0], 0, 0) - this._animation.frameOffset;
             }
             else {
-                var frameIndices = this._data.frameIndices;
                 var totalFrameCount = this._animation.frameCount + 1; // One more frame than animation.
-                if (dragonBones.DragonBones.webAssembly) {
-                    timeline.frameIndicesOffset = frameIndices.size();
-                    // frameIndices.resize( frameIndices.size() + totalFrameCount);
-                    for (var j = 0; j < totalFrameCount; ++j) {
-                        frameIndices.push_back(0);
-                    }
-                }
-                else {
-                    timeline.frameIndicesOffset = frameIndices.length;
-                    frameIndices.length += totalFrameCount;
-                }
+                var frameIndices = this._data.frameIndices;
+                var frameIndicesOffset = frameIndices.length;
+                frameIndices.length += totalFrameCount;
+                timeline.frameIndicesOffset = frameIndicesOffset;
                 for (var i = 0, iK = 0, frameStart = 0, frameCount = 0; i < totalFrameCount; ++i) {
                     if (frameStart + frameCount <= i && iK < keyFrameCount) {
                         var rawFrame = rawFrames[iK];
-                        frameStart = i;
-                        frameCount = ObjectDataParser._getNumber(rawFrame, ObjectDataParser.DURATION, 1);
+                        frameStart = i; // frame.frameStart;
                         if (iK === keyFrameCount - 1) {
                             frameCount = this._animation.frameCount - frameStart;
                         }
-                        timelineArray[timeline.offset + 5 /* TimelineFrameOffset */ + iK] = frameParser.call(this, rawFrame, frameStart, frameCount) - this._animation.frameOffset;
+                        else {
+                            if (rawFrame instanceof ActionFrame) {
+                                frameCount = this._actionFrames[iK + 1].frameStart - frameStart;
+                            }
+                            else {
+                                frameCount = ObjectDataParser._getNumber(rawFrame, dragonBones.DataParser.DURATION, 1);
+                            }
+                        }
+                        this._timelineArray[timelineOffset + 5 /* TimelineFrameOffset */ + iK] = frameParser.call(this, rawFrame, frameStart, frameCount) - this._animation.frameOffset;
                         iK++;
                     }
-                    if (dragonBones.DragonBones.webAssembly) {
-                        frameIndices.set(timeline.frameIndicesOffset + i, iK - 1);
-                    }
-                    else {
-                        frameIndices[timeline.frameIndicesOffset + i] = iK - 1;
-                    }
+                    frameIndices[frameIndicesOffset + i] = iK - 1;
                 }
             }
             this._timeline = null; //
             return timeline;
         };
-        /**
-         * @private
-         */
         ObjectDataParser.prototype._parseBoneTimeline = function (rawData) {
-            var bone = this._armature.getBone(ObjectDataParser._getString(rawData, ObjectDataParser.NAME, ""));
+            var bone = this._armature.getBone(ObjectDataParser._getString(rawData, dragonBones.DataParser.NAME, ""));
             if (bone === null) {
                 return;
             }
             this._bone = bone;
             this._slot = this._armature.getSlot(this._bone.name);
-            var timeline = this._parseTimeline(rawData, 10 /* BoneAll */, false, true, 6, this._parseBoneFrame);
-            if (timeline !== null) {
-                this._animation.addBoneTimeline(bone, timeline);
+            if (dragonBones.DataParser.TRANSLATE_FRAME in rawData) {
+                this._frameDefaultValue = 0.0;
+                this._frameValueScale = 1.0;
+                var timeline = this._parseTimeline(rawData, null, dragonBones.DataParser.TRANSLATE_FRAME, 11 /* BoneTranslate */, 2 /* Float */, 2, this._parseDoubleValueFrame);
+                if (timeline !== null) {
+                    this._animation.addBoneTimeline(bone.name, timeline);
+                }
+            }
+            if (dragonBones.DataParser.ROTATE_FRAME in rawData) {
+                this._frameDefaultValue = 0.0;
+                this._frameValueScale = 1.0;
+                var timeline = this._parseTimeline(rawData, null, dragonBones.DataParser.ROTATE_FRAME, 12 /* BoneRotate */, 2 /* Float */, 2, this._parseBoneRotateFrame);
+                if (timeline !== null) {
+                    this._animation.addBoneTimeline(bone.name, timeline);
+                }
+            }
+            if (dragonBones.DataParser.SCALE_FRAME in rawData) {
+                this._frameDefaultValue = 1.0;
+                this._frameValueScale = 1.0;
+                var timeline = this._parseTimeline(rawData, null, dragonBones.DataParser.SCALE_FRAME, 13 /* BoneScale */, 2 /* Float */, 2, this._parseBoneScaleFrame);
+                if (timeline !== null) {
+                    this._animation.addBoneTimeline(bone.name, timeline);
+                }
+            }
+            if (dragonBones.DataParser.FRAME in rawData) {
+                var timeline = this._parseTimeline(rawData, null, dragonBones.DataParser.FRAME, 10 /* BoneAll */, 2 /* Float */, 6, this._parseBoneAllFrame);
+                if (timeline !== null) {
+                    this._animation.addBoneTimeline(bone.name, timeline);
+                }
             }
             this._bone = null; //
             this._slot = null; //
         };
-        /**
-         * @private
-         */
         ObjectDataParser.prototype._parseSlotTimeline = function (rawData) {
-            var slot = this._armature.getSlot(ObjectDataParser._getString(rawData, ObjectDataParser.NAME, ""));
+            var slot = this._armature.getSlot(ObjectDataParser._getString(rawData, dragonBones.DataParser.NAME, ""));
             if (slot === null) {
                 return;
             }
+            var displayTimeline = null;
+            var colorTimeline = null;
             this._slot = slot;
-            var displayIndexTimeline = this._parseTimeline(rawData, 20 /* SlotDisplay */, false, false, 0, this._parseSlotDisplayIndexFrame);
-            if (displayIndexTimeline !== null) {
-                this._animation.addSlotTimeline(slot, displayIndexTimeline);
+            if (dragonBones.DataParser.DISPLAY_FRAME in rawData) {
+                displayTimeline = this._parseTimeline(rawData, null, dragonBones.DataParser.DISPLAY_FRAME, 20 /* SlotDisplay */, 0 /* Step */, 0, this._parseSlotDisplayFrame);
             }
-            var colorTimeline = this._parseTimeline(rawData, 21 /* SlotColor */, true, false, 1, this._parseSlotColorFrame);
+            else {
+                displayTimeline = this._parseTimeline(rawData, null, dragonBones.DataParser.FRAME, 20 /* SlotDisplay */, 0 /* Step */, 0, this._parseSlotDisplayFrame);
+            }
+            if (dragonBones.DataParser.COLOR_FRAME in rawData) {
+                colorTimeline = this._parseTimeline(rawData, null, dragonBones.DataParser.COLOR_FRAME, 21 /* SlotColor */, 1 /* Int */, 1, this._parseSlotColorFrame);
+            }
+            else {
+                colorTimeline = this._parseTimeline(rawData, null, dragonBones.DataParser.FRAME, 21 /* SlotColor */, 1 /* Int */, 1, this._parseSlotColorFrame);
+            }
+            if (displayTimeline !== null) {
+                this._animation.addSlotTimeline(slot.name, displayTimeline);
+            }
             if (colorTimeline !== null) {
-                this._animation.addSlotTimeline(slot, colorTimeline);
+                this._animation.addSlotTimeline(slot.name, colorTimeline);
             }
             this._slot = null; //
         };
-        /**
-         * @private
-         */
-        ObjectDataParser.prototype._parseFrame = function (rawData, frameStart, frameCount, frameArray) {
+        ObjectDataParser.prototype._parseFrame = function (rawData, frameStart, frameCount) {
+            // tslint:disable-next-line:no-unused-expression
             rawData;
+            // tslint:disable-next-line:no-unused-expression
             frameCount;
-            var frameOffset = frameArray.length;
-            frameArray.length += 1;
-            frameArray[frameOffset + 0 /* FramePosition */] = frameStart;
+            var frameOffset = this._frameArray.length;
+            this._frameArray.length += 1;
+            this._frameArray[frameOffset + 0 /* FramePosition */] = frameStart;
             return frameOffset;
         };
-        /**
-         * @private
-         */
-        ObjectDataParser.prototype._parseTweenFrame = function (rawData, frameStart, frameCount, frameArray) {
-            var frameOffset = this._parseFrame(rawData, frameStart, frameCount, frameArray);
+        ObjectDataParser.prototype._parseTweenFrame = function (rawData, frameStart, frameCount) {
+            var frameOffset = this._parseFrame(rawData, frameStart, frameCount);
             if (frameCount > 0) {
-                if (ObjectDataParser.CURVE in rawData) {
+                if (dragonBones.DataParser.CURVE in rawData) {
                     var sampleCount = frameCount + 1;
                     this._helpArray.length = sampleCount;
-                    this._samplingEasingCurve(rawData[ObjectDataParser.CURVE], this._helpArray);
-                    frameArray.length += 1 + 1 + this._helpArray.length;
-                    frameArray[frameOffset + 1 /* FrameTweenType */] = 2 /* Curve */;
-                    frameArray[frameOffset + 2 /* FrameTweenEasingOrCurveSampleCount */] = sampleCount;
+                    var isOmited = this._samplingEasingCurve(rawData[dragonBones.DataParser.CURVE], this._helpArray);
+                    this._frameArray.length += 1 + 1 + this._helpArray.length;
+                    this._frameArray[frameOffset + 1 /* FrameTweenType */] = 2 /* Curve */;
+                    this._frameArray[frameOffset + 2 /* FrameTweenEasingOrCurveSampleCount */] = isOmited ? sampleCount : -sampleCount;
                     for (var i = 0; i < sampleCount; ++i) {
-                        frameArray[frameOffset + 3 /* FrameCurveSamples */ + i] = Math.round(this._helpArray[i] * 10000.0);
+                        this._frameArray[frameOffset + 3 /* FrameCurveSamples */ + i] = Math.round(this._helpArray[i] * 10000.0);
                     }
                 }
                 else {
                     var noTween = -2.0;
                     var tweenEasing = noTween;
-                    if (ObjectDataParser.TWEEN_EASING in rawData) {
-                        tweenEasing = ObjectDataParser._getNumber(rawData, ObjectDataParser.TWEEN_EASING, noTween);
+                    if (dragonBones.DataParser.TWEEN_EASING in rawData) {
+                        tweenEasing = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.TWEEN_EASING, noTween);
                     }
                     if (tweenEasing === noTween) {
-                        frameArray.length += 1;
-                        frameArray[frameOffset + 1 /* FrameTweenType */] = 0 /* None */;
+                        this._frameArray.length += 1;
+                        this._frameArray[frameOffset + 1 /* FrameTweenType */] = 0 /* None */;
                     }
                     else if (tweenEasing === 0.0) {
-                        frameArray.length += 1;
-                        frameArray[frameOffset + 1 /* FrameTweenType */] = 1 /* Line */;
+                        this._frameArray.length += 1;
+                        this._frameArray[frameOffset + 1 /* FrameTweenType */] = 1 /* Line */;
                     }
                     else if (tweenEasing < 0.0) {
-                        frameArray.length += 1 + 1;
-                        frameArray[frameOffset + 1 /* FrameTweenType */] = 3 /* QuadIn */;
-                        frameArray[frameOffset + 2 /* FrameTweenEasingOrCurveSampleCount */] = Math.round(-tweenEasing * 100.0);
+                        this._frameArray.length += 1 + 1;
+                        this._frameArray[frameOffset + 1 /* FrameTweenType */] = 3 /* QuadIn */;
+                        this._frameArray[frameOffset + 2 /* FrameTweenEasingOrCurveSampleCount */] = Math.round(-tweenEasing * 100.0);
                     }
                     else if (tweenEasing <= 1.0) {
-                        frameArray.length += 1 + 1;
-                        frameArray[frameOffset + 1 /* FrameTweenType */] = 4 /* QuadOut */;
-                        frameArray[frameOffset + 2 /* FrameTweenEasingOrCurveSampleCount */] = Math.round(tweenEasing * 100.0);
+                        this._frameArray.length += 1 + 1;
+                        this._frameArray[frameOffset + 1 /* FrameTweenType */] = 4 /* QuadOut */;
+                        this._frameArray[frameOffset + 2 /* FrameTweenEasingOrCurveSampleCount */] = Math.round(tweenEasing * 100.0);
                     }
                     else {
-                        frameArray.length += 1 + 1;
-                        frameArray[frameOffset + 1 /* FrameTweenType */] = 5 /* QuadInOut */;
-                        frameArray[frameOffset + 2 /* FrameTweenEasingOrCurveSampleCount */] = Math.round(tweenEasing * 100.0 - 100.0);
+                        this._frameArray.length += 1 + 1;
+                        this._frameArray[frameOffset + 1 /* FrameTweenType */] = 5 /* QuadInOut */;
+                        this._frameArray[frameOffset + 2 /* FrameTweenEasingOrCurveSampleCount */] = Math.round(tweenEasing * 100.0 - 100.0);
                     }
                 }
             }
             else {
-                frameArray.length += 1;
-                frameArray[frameOffset + 1 /* FrameTweenType */] = 0 /* None */;
+                this._frameArray.length += 1;
+                this._frameArray[frameOffset + 1 /* FrameTweenType */] = 0 /* None */;
             }
             return frameOffset;
         };
-        /**
-         * @private
-         */
+        ObjectDataParser.prototype._parseSingleValueFrame = function (rawData, frameStart, frameCount) {
+            var frameOffset = 0;
+            switch (this._frameValueType) {
+                case 0: {
+                    frameOffset = this._parseFrame(rawData, frameStart, frameCount);
+                    this._frameArray.length += 1;
+                    this._frameArray[frameOffset + 1] = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.VALUE, this._frameDefaultValue);
+                    break;
+                }
+                case 1: {
+                    frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
+                    var frameValueOffset = this._frameIntArray.length;
+                    this._frameIntArray.length += 1;
+                    this._frameIntArray[frameValueOffset] = Math.round(ObjectDataParser._getNumber(rawData, dragonBones.DataParser.VALUE, this._frameDefaultValue) * this._frameValueScale);
+                    break;
+                }
+                case 2: {
+                    frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
+                    var frameValueOffset = this._frameFloatArray.length;
+                    this._frameFloatArray.length += 1;
+                    this._frameFloatArray[frameValueOffset] = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.VALUE, this._frameDefaultValue) * this._frameValueScale;
+                    break;
+                }
+            }
+            return frameOffset;
+        };
+        ObjectDataParser.prototype._parseDoubleValueFrame = function (rawData, frameStart, frameCount) {
+            var frameOffset = 0;
+            switch (this._frameValueType) {
+                case 0: {
+                    frameOffset = this._parseFrame(rawData, frameStart, frameCount);
+                    this._frameArray.length += 2;
+                    this._frameArray[frameOffset + 1] = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.X, this._frameDefaultValue);
+                    this._frameArray[frameOffset + 2] = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.Y, this._frameDefaultValue);
+                    break;
+                }
+                case 1: {
+                    frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
+                    var frameValueOffset = this._frameIntArray.length;
+                    this._frameIntArray.length += 2;
+                    this._frameIntArray[frameValueOffset] = Math.round(ObjectDataParser._getNumber(rawData, dragonBones.DataParser.X, this._frameDefaultValue) * this._frameValueScale);
+                    this._frameIntArray[frameValueOffset + 1] = Math.round(ObjectDataParser._getNumber(rawData, dragonBones.DataParser.Y, this._frameDefaultValue) * this._frameValueScale);
+                    break;
+                }
+                case 2: {
+                    frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
+                    var frameValueOffset = this._frameFloatArray.length;
+                    this._frameFloatArray.length += 2;
+                    this._frameFloatArray[frameValueOffset] = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.X, this._frameDefaultValue) * this._frameValueScale;
+                    this._frameFloatArray[frameValueOffset + 1] = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.Y, this._frameDefaultValue) * this._frameValueScale;
+                    break;
+                }
+            }
+            return frameOffset;
+        };
+        ObjectDataParser.prototype._parseActionFrame = function (frame, frameStart, frameCount) {
+            // tslint:disable-next-line:no-unused-expression
+            frameCount;
+            var frameOffset = this._frameArray.length;
+            var actionCount = frame.actions.length;
+            this._frameArray.length += 1 + 1 + actionCount;
+            this._frameArray[frameOffset + 0 /* FramePosition */] = frameStart;
+            this._frameArray[frameOffset + 0 /* FramePosition */ + 1] = actionCount; // Action count.
+            for (var i = 0; i < actionCount; ++i) {
+                this._frameArray[frameOffset + 0 /* FramePosition */ + 2 + i] = frame.actions[i];
+            }
+            return frameOffset;
+        };
         ObjectDataParser.prototype._parseZOrderFrame = function (rawData, frameStart, frameCount) {
-            var frameArray = dragonBones.DragonBones.webAssembly ? this._frameArrayJson : this._data.frameArray;
-            var frameOffset = this._parseFrame(rawData, frameStart, frameCount, frameArray);
-            if (ObjectDataParser.Z_ORDER in rawData) {
-                var rawZOrder = rawData[ObjectDataParser.Z_ORDER];
+            var frameOffset = this._parseFrame(rawData, frameStart, frameCount);
+            if (dragonBones.DataParser.Z_ORDER in rawData) {
+                var rawZOrder = rawData[dragonBones.DataParser.Z_ORDER];
                 if (rawZOrder.length > 0) {
                     var slotCount = this._armature.sortedSlots.length;
                     var unchanged = new Array(slotCount - rawZOrder.length / 2);
                     var zOrders = new Array(slotCount);
-                    for (var i_1 = 0; i_1 < slotCount; ++i_1) {
-                        zOrders[i_1] = -1;
+                    for (var i_1 = 0; i_1 < unchanged.length; ++i_1) {
+                        unchanged[i_1] = 0;
+                    }
+                    for (var i_2 = 0; i_2 < slotCount; ++i_2) {
+                        zOrders[i_2] = -1;
                     }
                     var originalIndex = 0;
                     var unchangedIndex = 0;
-                    for (var i_2 = 0, l = rawZOrder.length; i_2 < l; i_2 += 2) {
-                        var slotIndex = rawZOrder[i_2];
-                        var zOrderOffset = rawZOrder[i_2 + 1];
+                    for (var i_3 = 0, l = rawZOrder.length; i_3 < l; i_3 += 2) {
+                        var slotIndex = rawZOrder[i_3];
+                        var zOrderOffset = rawZOrder[i_3 + 1];
                         while (originalIndex !== slotIndex) {
                             unchanged[unchangedIndex++] = originalIndex++;
                         }
-                        zOrders[originalIndex + zOrderOffset] = originalIndex++;
+                        var index = originalIndex + zOrderOffset;
+                        zOrders[index] = originalIndex++;
                     }
                     while (originalIndex < slotCount) {
                         unchanged[unchangedIndex++] = originalIndex++;
                     }
-                    frameArray.length += 1 + slotCount;
-                    frameArray[frameOffset + 1] = slotCount;
+                    this._frameArray.length += 1 + slotCount;
+                    this._frameArray[frameOffset + 1] = slotCount;
                     var i = slotCount;
                     while (i--) {
                         if (zOrders[i] === -1) {
-                            frameArray[frameOffset + 2 + i] = unchanged[--unchangedIndex];
+                            this._frameArray[frameOffset + 2 + i] = unchanged[--unchangedIndex] || 0;
                         }
                         else {
-                            frameArray[frameOffset + 2 + i] = zOrders[i];
+                            this._frameArray[frameOffset + 2 + i] = zOrders[i] || 0;
                         }
                     }
                     return frameOffset;
                 }
             }
-            frameArray.length += 1;
-            frameArray[frameOffset + 1] = 0;
+            this._frameArray.length += 1;
+            this._frameArray[frameOffset + 1] = 0;
             return frameOffset;
         };
-        /**
-         * @private
-         */
-        ObjectDataParser.prototype._parseBoneFrame = function (rawData, frameStart, frameCount) {
-            var frameFloatArray = dragonBones.DragonBones.webAssembly ? this._frameFloatArrayJson : this._data.frameFloatArray;
-            var frameArray = dragonBones.DragonBones.webAssembly ? this._frameArrayJson : this._data.frameArray;
-            var frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount, frameArray);
+        ObjectDataParser.prototype._parseBoneAllFrame = function (rawData, frameStart, frameCount) {
             this._helpTransform.identity();
-            if (ObjectDataParser.TRANSFORM in rawData) {
-                this._parseTransform(rawData[ObjectDataParser.TRANSFORM], this._helpTransform, 1.0);
+            if (dragonBones.DataParser.TRANSFORM in rawData) {
+                this._parseTransform(rawData[dragonBones.DataParser.TRANSFORM], this._helpTransform, 1.0);
             }
             // Modify rotation.
             var rotation = this._helpTransform.rotation;
             if (frameStart !== 0) {
-                if (this._prevTweenRotate === 0) {
+                if (this._prevClockwise === 0) {
                     rotation = this._prevRotation + dragonBones.Transform.normalizeRadian(rotation - this._prevRotation);
                 }
                 else {
-                    if (this._prevTweenRotate > 0 ? rotation >= this._prevRotation : rotation <= this._prevRotation) {
-                        this._prevTweenRotate = this._prevTweenRotate > 0 ? this._prevTweenRotate - 1 : this._prevTweenRotate + 1;
+                    if (this._prevClockwise > 0 ? rotation >= this._prevRotation : rotation <= this._prevRotation) {
+                        this._prevClockwise = this._prevClockwise > 0 ? this._prevClockwise - 1 : this._prevClockwise + 1;
                     }
-                    rotation = this._prevRotation + rotation - this._prevRotation + dragonBones.Transform.PI_D * this._prevTweenRotate;
+                    rotation = this._prevRotation + rotation - this._prevRotation + dragonBones.Transform.PI_D * this._prevClockwise;
                 }
             }
-            this._prevTweenRotate = ObjectDataParser._getNumber(rawData, ObjectDataParser.TWEEN_ROTATE, 0.0);
+            this._prevClockwise = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.TWEEN_ROTATE, 0.0);
             this._prevRotation = rotation;
-            var frameFloatOffset = frameFloatArray.length;
-            frameFloatArray.length += 6;
-            frameFloatArray[frameFloatOffset++] = this._helpTransform.x;
-            frameFloatArray[frameFloatOffset++] = this._helpTransform.y;
-            frameFloatArray[frameFloatOffset++] = rotation;
-            frameFloatArray[frameFloatOffset++] = this._helpTransform.skew;
-            frameFloatArray[frameFloatOffset++] = this._helpTransform.scaleX;
-            frameFloatArray[frameFloatOffset++] = this._helpTransform.scaleY;
+            //
+            var frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
+            var frameFloatOffset = this._frameFloatArray.length;
+            this._frameFloatArray.length += 6;
+            this._frameFloatArray[frameFloatOffset++] = this._helpTransform.x;
+            this._frameFloatArray[frameFloatOffset++] = this._helpTransform.y;
+            this._frameFloatArray[frameFloatOffset++] = rotation;
+            this._frameFloatArray[frameFloatOffset++] = this._helpTransform.skew;
+            this._frameFloatArray[frameFloatOffset++] = this._helpTransform.scaleX;
+            this._frameFloatArray[frameFloatOffset++] = this._helpTransform.scaleY;
             this._parseActionDataInFrame(rawData, frameStart, this._bone, this._slot);
             return frameOffset;
         };
-        /**
-         * @private
-         */
-        ObjectDataParser.prototype._parseSlotDisplayIndexFrame = function (rawData, frameStart, frameCount) {
-            var frameArray = dragonBones.DragonBones.webAssembly ? this._frameArrayJson : this._data.frameArray;
-            var frameOffset = this._parseFrame(rawData, frameStart, frameCount, frameArray);
-            frameArray.length += 1;
-            frameArray[frameOffset + 1] = ObjectDataParser._getNumber(rawData, ObjectDataParser.DISPLAY_INDEX, 0);
+        ObjectDataParser.prototype._parseBoneTranslateFrame = function (rawData, frameStart, frameCount) {
+            var frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
+            var frameFloatOffset = this._frameFloatArray.length;
+            this._frameFloatArray.length += 2;
+            this._frameFloatArray[frameFloatOffset++] = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.X, 0.0);
+            this._frameFloatArray[frameFloatOffset++] = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.Y, 0.0);
+            return frameOffset;
+        };
+        ObjectDataParser.prototype._parseBoneRotateFrame = function (rawData, frameStart, frameCount) {
+            // Modify rotation.
+            var rotation = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.ROTATE, 0.0) * dragonBones.Transform.DEG_RAD;
+            if (frameStart !== 0) {
+                if (this._prevClockwise === 0) {
+                    rotation = this._prevRotation + dragonBones.Transform.normalizeRadian(rotation - this._prevRotation);
+                }
+                else {
+                    if (this._prevClockwise > 0 ? rotation >= this._prevRotation : rotation <= this._prevRotation) {
+                        this._prevClockwise = this._prevClockwise > 0 ? this._prevClockwise - 1 : this._prevClockwise + 1;
+                    }
+                    rotation = this._prevRotation + rotation - this._prevRotation + dragonBones.Transform.PI_D * this._prevClockwise;
+                }
+            }
+            this._prevClockwise = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.CLOCK_WISE, 0);
+            this._prevRotation = rotation;
+            //
+            var frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
+            var frameFloatOffset = this._frameFloatArray.length;
+            this._frameFloatArray.length += 2;
+            this._frameFloatArray[frameFloatOffset++] = rotation;
+            this._frameFloatArray[frameFloatOffset++] = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.SKEW, 0.0) * dragonBones.Transform.DEG_RAD;
+            return frameOffset;
+        };
+        ObjectDataParser.prototype._parseBoneScaleFrame = function (rawData, frameStart, frameCount) {
+            var frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
+            var frameFloatOffset = this._frameFloatArray.length;
+            this._frameFloatArray.length += 2;
+            this._frameFloatArray[frameFloatOffset++] = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.X, 1.0);
+            this._frameFloatArray[frameFloatOffset++] = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.Y, 1.0);
+            return frameOffset;
+        };
+        ObjectDataParser.prototype._parseSlotDisplayFrame = function (rawData, frameStart, frameCount) {
+            var frameOffset = this._parseFrame(rawData, frameStart, frameCount);
+            this._frameArray.length += 1;
+            if (dragonBones.DataParser.VALUE in rawData) {
+                this._frameArray[frameOffset + 1] = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.VALUE, 0);
+            }
+            else {
+                this._frameArray[frameOffset + 1] = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.DISPLAY_INDEX, 0);
+            }
             this._parseActionDataInFrame(rawData, frameStart, this._slot.parent, this._slot);
             return frameOffset;
         };
-        /**
-         * @private
-         */
         ObjectDataParser.prototype._parseSlotColorFrame = function (rawData, frameStart, frameCount) {
-            var intArray = dragonBones.DragonBones.webAssembly ? this._intArrayJson : this._data.intArray;
-            var frameIntArray = dragonBones.DragonBones.webAssembly ? this._frameIntArrayJson : this._data.frameIntArray;
-            var frameArray = dragonBones.DragonBones.webAssembly ? this._frameArrayJson : this._data.frameArray;
-            var frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount, frameArray);
+            var frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
             var colorOffset = -1;
-            if (ObjectDataParser.COLOR in rawData) {
-                var rawColor = rawData[ObjectDataParser.COLOR];
+            if (dragonBones.DataParser.VALUE in rawData || dragonBones.DataParser.COLOR in rawData) {
+                var rawColor = dragonBones.DataParser.VALUE in rawData ? rawData[dragonBones.DataParser.VALUE] : rawData[dragonBones.DataParser.COLOR];
                 for (var k in rawColor) {
+                    // tslint:disable-next-line:no-unused-expression
                     k;
                     this._parseColorTransform(rawColor, this._helpColorTransform);
-                    colorOffset = intArray.length;
-                    intArray.length += 8;
-                    intArray[colorOffset++] = Math.round(this._helpColorTransform.alphaMultiplier * 100);
-                    intArray[colorOffset++] = Math.round(this._helpColorTransform.redMultiplier * 100);
-                    intArray[colorOffset++] = Math.round(this._helpColorTransform.greenMultiplier * 100);
-                    intArray[colorOffset++] = Math.round(this._helpColorTransform.blueMultiplier * 100);
-                    intArray[colorOffset++] = Math.round(this._helpColorTransform.alphaOffset);
-                    intArray[colorOffset++] = Math.round(this._helpColorTransform.redOffset);
-                    intArray[colorOffset++] = Math.round(this._helpColorTransform.greenOffset);
-                    intArray[colorOffset++] = Math.round(this._helpColorTransform.blueOffset);
+                    colorOffset = this._colorArray.length;
+                    this._colorArray.length += 8;
+                    this._colorArray[colorOffset++] = Math.round(this._helpColorTransform.alphaMultiplier * 100);
+                    this._colorArray[colorOffset++] = Math.round(this._helpColorTransform.redMultiplier * 100);
+                    this._colorArray[colorOffset++] = Math.round(this._helpColorTransform.greenMultiplier * 100);
+                    this._colorArray[colorOffset++] = Math.round(this._helpColorTransform.blueMultiplier * 100);
+                    this._colorArray[colorOffset++] = Math.round(this._helpColorTransform.alphaOffset);
+                    this._colorArray[colorOffset++] = Math.round(this._helpColorTransform.redOffset);
+                    this._colorArray[colorOffset++] = Math.round(this._helpColorTransform.greenOffset);
+                    this._colorArray[colorOffset++] = Math.round(this._helpColorTransform.blueOffset);
                     colorOffset -= 8;
                     break;
                 }
             }
             if (colorOffset < 0) {
-                if (this._defalultColorOffset < 0) {
-                    this._defalultColorOffset = colorOffset = intArray.length;
-                    intArray.length += 8;
-                    intArray[colorOffset++] = 100;
-                    intArray[colorOffset++] = 100;
-                    intArray[colorOffset++] = 100;
-                    intArray[colorOffset++] = 100;
-                    intArray[colorOffset++] = 0;
-                    intArray[colorOffset++] = 0;
-                    intArray[colorOffset++] = 0;
-                    intArray[colorOffset++] = 0;
+                if (this._defaultColorOffset < 0) {
+                    this._defaultColorOffset = colorOffset = this._colorArray.length;
+                    this._colorArray.length += 8;
+                    this._colorArray[colorOffset++] = 100;
+                    this._colorArray[colorOffset++] = 100;
+                    this._colorArray[colorOffset++] = 100;
+                    this._colorArray[colorOffset++] = 100;
+                    this._colorArray[colorOffset++] = 0;
+                    this._colorArray[colorOffset++] = 0;
+                    this._colorArray[colorOffset++] = 0;
+                    this._colorArray[colorOffset++] = 0;
                 }
-                colorOffset = this._defalultColorOffset;
+                colorOffset = this._defaultColorOffset;
             }
-            var frameIntOffset = frameIntArray.length;
-            frameIntArray.length += 1;
-            frameIntArray[frameIntOffset] = colorOffset;
+            var frameIntOffset = this._frameIntArray.length;
+            this._frameIntArray.length += 1;
+            this._frameIntArray[frameIntOffset] = colorOffset;
             return frameOffset;
         };
-        /**
-         * @private
-         */
-        ObjectDataParser.prototype._parseSlotFFDFrame = function (rawData, frameStart, frameCount) {
-            var intArray = dragonBones.DragonBones.webAssembly ? this._intArrayJson : this._data.intArray;
-            var frameFloatArray = dragonBones.DragonBones.webAssembly ? this._frameFloatArrayJson : this._data.frameFloatArray;
-            var frameArray = dragonBones.DragonBones.webAssembly ? this._frameArrayJson : this._data.frameArray;
-            var frameFloatOffset = frameFloatArray.length;
-            var frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount, frameArray);
-            var rawVertices = ObjectDataParser.VERTICES in rawData ? rawData[ObjectDataParser.VERTICES] : null;
-            var offset = ObjectDataParser._getNumber(rawData, ObjectDataParser.OFFSET, 0); // uint
-            var vertexCount = intArray[this._mesh.offset + 0 /* MeshVertexCount */];
+        ObjectDataParser.prototype._parseSlotDeformFrame = function (rawData, frameStart, frameCount) {
+            var frameFloatOffset = this._frameFloatArray.length;
+            var frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
+            var rawVertices = dragonBones.DataParser.VERTICES in rawData ? rawData[dragonBones.DataParser.VERTICES] : null;
+            var offset = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.OFFSET, 0); // uint
+            var vertexCount = this._intArray[this._mesh.geometry.offset + 0 /* GeometryVertexCount */];
+            var meshName = this._mesh.parent.name + "_" + this._slot.name + "_" + this._mesh.name;
+            var weight = this._mesh.geometry.weight;
             var x = 0.0;
             var y = 0.0;
             var iB = 0;
             var iV = 0;
-            if (this._mesh.weight !== null) {
-                var rawSlotPose = this._weightSlotPose[this._mesh.name];
+            if (weight !== null) {
+                var rawSlotPose = this._weightSlotPose[meshName];
                 this._helpMatrixA.copyFromArray(rawSlotPose, 0);
-                frameFloatArray.length += this._mesh.weight.count * 2;
-                iB = this._mesh.weight.offset + 2 /* WeigthBoneIndices */ + this._mesh.weight.bones.length;
+                this._frameFloatArray.length += weight.count * 2;
+                iB = weight.offset + 2 /* WeigthBoneIndices */ + weight.bones.length;
             }
             else {
-                frameFloatArray.length += vertexCount * 2;
+                this._frameFloatArray.length += vertexCount * 2;
             }
             for (var i = 0; i < vertexCount * 2; i += 2) {
                 if (rawVertices === null) {
@@ -9065,271 +13275,439 @@ var dragonBones;
                         y = rawVertices[i + 1 - offset];
                     }
                 }
-                if (this._mesh.weight !== null) {
-                    var rawBonePoses = this._weightBonePoses[this._mesh.name];
-                    var weightBoneIndices = this._weightBoneIndices[this._mesh.name];
-                    var vertexBoneCount = intArray[iB++];
+                if (weight !== null) {
+                    var rawBonePoses = this._weightBonePoses[meshName];
+                    var vertexBoneCount = this._intArray[iB++];
                     this._helpMatrixA.transformPoint(x, y, this._helpPoint, true);
                     x = this._helpPoint.x;
                     y = this._helpPoint.y;
                     for (var j = 0; j < vertexBoneCount; ++j) {
-                        var boneIndex = intArray[iB++];
-                        var bone = this._mesh.weight.bones[boneIndex];
-                        var rawBoneIndex = this._rawBones.indexOf(bone);
-                        this._helpMatrixB.copyFromArray(rawBonePoses, weightBoneIndices.indexOf(rawBoneIndex) * 7 + 1);
+                        var boneIndex = this._intArray[iB++];
+                        this._helpMatrixB.copyFromArray(rawBonePoses, boneIndex * 7 + 1);
                         this._helpMatrixB.invert();
                         this._helpMatrixB.transformPoint(x, y, this._helpPoint, true);
-                        frameFloatArray[frameFloatOffset + iV++] = this._helpPoint.x;
-                        frameFloatArray[frameFloatOffset + iV++] = this._helpPoint.y;
+                        this._frameFloatArray[frameFloatOffset + iV++] = this._helpPoint.x;
+                        this._frameFloatArray[frameFloatOffset + iV++] = this._helpPoint.y;
                     }
                 }
                 else {
-                    frameFloatArray[frameFloatOffset + i] = x;
-                    frameFloatArray[frameFloatOffset + i + 1] = y;
+                    this._frameFloatArray[frameFloatOffset + i] = x;
+                    this._frameFloatArray[frameFloatOffset + i + 1] = y;
                 }
             }
             if (frameStart === 0) {
-                var frameIntArray = dragonBones.DragonBones.webAssembly ? this._frameIntArrayJson : this._data.frameIntArray;
-                var timelineArray = dragonBones.DragonBones.webAssembly ? this._timelineArrayJson : this._data.timelineArray;
-                var frameIntOffset = frameIntArray.length;
-                frameIntArray.length += 1 + 1 + 1 + 1 + 1;
-                frameIntArray[frameIntOffset + 0 /* FFDTimelineMeshOffset */] = this._mesh.offset;
-                frameIntArray[frameIntOffset + 1 /* FFDTimelineFFDCount */] = frameFloatArray.length - frameFloatOffset;
-                frameIntArray[frameIntOffset + 2 /* FFDTimelineValueCount */] = frameFloatArray.length - frameFloatOffset;
-                frameIntArray[frameIntOffset + 3 /* FFDTimelineValueOffset */] = 0;
-                frameIntArray[frameIntOffset + 4 /* FFDTimelineFloatOffset */] = frameFloatOffset;
-                timelineArray[this._timeline.offset + 3 /* TimelineFrameValueCount */] = frameIntOffset - this._animation.frameIntOffset;
+                var frameIntOffset = this._frameIntArray.length;
+                this._frameIntArray.length += 1 + 1 + 1 + 1 + 1;
+                this._frameIntArray[frameIntOffset + 0 /* DeformVertexOffset */] = this._mesh.geometry.offset;
+                this._frameIntArray[frameIntOffset + 1 /* DeformCount */] = this._frameFloatArray.length - frameFloatOffset;
+                this._frameIntArray[frameIntOffset + 2 /* DeformValueCount */] = this._frameFloatArray.length - frameFloatOffset;
+                this._frameIntArray[frameIntOffset + 3 /* DeformValueOffset */] = 0;
+                this._frameIntArray[frameIntOffset + 4 /* DeformFloatOffset */] = frameFloatOffset - this._animation.frameFloatOffset;
+                this._timelineArray[this._timeline.offset + 3 /* TimelineFrameValueCount */] = frameIntOffset - this._animation.frameIntOffset;
             }
             return frameOffset;
         };
-        /**
-         * @private
-         */
-        ObjectDataParser.prototype._parseActionData = function (rawData, actions, type, bone, slot) {
-            var actionCount = 0;
+        ObjectDataParser.prototype._parseIKConstraintFrame = function (rawData, frameStart, frameCount) {
+            var frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
+            var frameIntOffset = this._frameIntArray.length;
+            this._frameIntArray.length += 2;
+            this._frameIntArray[frameIntOffset++] = ObjectDataParser._getBoolean(rawData, dragonBones.DataParser.BEND_POSITIVE, true) ? 1 : 0;
+            this._frameIntArray[frameIntOffset++] = Math.round(ObjectDataParser._getNumber(rawData, dragonBones.DataParser.WEIGHT, 1.0) * 100.0);
+            return frameOffset;
+        };
+        ObjectDataParser.prototype._parseActionData = function (rawData, type, bone, slot) {
+            var actions = new Array();
             if (typeof rawData === "string") {
-                // const action = BaseObject.borrowObject(ActionData);
-                var action = dragonBones.DragonBones.webAssembly ? new Module["ActionData"]() : dragonBones.BaseObject.borrowObject(dragonBones.ActionData);
+                var action = dragonBones.BaseObject.borrowObject(dragonBones.ActionData);
                 action.type = type;
                 action.name = rawData;
                 action.bone = bone;
                 action.slot = slot;
-                dragonBones.DragonBones.webAssembly ? actions.push_back(action) : actions.push(action);
-                actionCount++;
+                actions.push(action);
             }
             else if (rawData instanceof Array) {
-                for (var _i = 0, rawData_1 = rawData; _i < rawData_1.length; _i++) {
-                    var rawAction = rawData_1[_i];
-                    // const action = BaseObject.borrowObject(ActionData);
-                    var action = dragonBones.DragonBones.webAssembly ? new Module["ActionData"]() : dragonBones.BaseObject.borrowObject(dragonBones.ActionData);
-                    if (ObjectDataParser.GOTO_AND_PLAY in rawAction) {
+                for (var _i = 0, rawData_2 = rawData; _i < rawData_2.length; _i++) {
+                    var rawAction = rawData_2[_i];
+                    var action = dragonBones.BaseObject.borrowObject(dragonBones.ActionData);
+                    if (dragonBones.DataParser.GOTO_AND_PLAY in rawAction) {
                         action.type = 0 /* Play */;
-                        action.name = ObjectDataParser._getString(rawAction, ObjectDataParser.GOTO_AND_PLAY, "");
+                        action.name = ObjectDataParser._getString(rawAction, dragonBones.DataParser.GOTO_AND_PLAY, "");
                     }
                     else {
-                        if (ObjectDataParser.TYPE in rawAction && typeof rawAction[ObjectDataParser.TYPE] === "string") {
-                            action.type = ObjectDataParser._getActionType(rawAction[ObjectDataParser.TYPE]);
+                        if (dragonBones.DataParser.TYPE in rawAction && typeof rawAction[dragonBones.DataParser.TYPE] === "string") {
+                            action.type = dragonBones.DataParser._getActionType(rawAction[dragonBones.DataParser.TYPE]);
                         }
                         else {
-                            action.type = ObjectDataParser._getNumber(rawAction, ObjectDataParser.TYPE, type);
+                            action.type = ObjectDataParser._getNumber(rawAction, dragonBones.DataParser.TYPE, type);
                         }
-                        action.name = ObjectDataParser._getString(rawAction, ObjectDataParser.NAME, "");
+                        action.name = ObjectDataParser._getString(rawAction, dragonBones.DataParser.NAME, "");
                     }
-                    if (ObjectDataParser.BONE in rawAction) {
-                        var boneName = ObjectDataParser._getString(rawAction, ObjectDataParser.BONE, "");
+                    if (dragonBones.DataParser.BONE in rawAction) {
+                        var boneName = ObjectDataParser._getString(rawAction, dragonBones.DataParser.BONE, "");
                         action.bone = this._armature.getBone(boneName);
                     }
                     else {
                         action.bone = bone;
                     }
-                    if (ObjectDataParser.SLOT in rawAction) {
-                        var slotName = ObjectDataParser._getString(rawAction, ObjectDataParser.SLOT, "");
+                    if (dragonBones.DataParser.SLOT in rawAction) {
+                        var slotName = ObjectDataParser._getString(rawAction, dragonBones.DataParser.SLOT, "");
                         action.slot = this._armature.getSlot(slotName);
                     }
                     else {
                         action.slot = slot;
                     }
-                    if (ObjectDataParser.INTS in rawAction) {
-                        if (action.data === null) {
-                            // action.data = BaseObject.borrowObject(UserData);
-                            action.data = dragonBones.DragonBones.webAssembly ? new Module["UserData"]() : dragonBones.BaseObject.borrowObject(dragonBones.UserData);
+                    var userData = null;
+                    if (dragonBones.DataParser.INTS in rawAction) {
+                        if (userData === null) {
+                            userData = dragonBones.BaseObject.borrowObject(dragonBones.UserData);
                         }
-                        var rawInts = rawAction[ObjectDataParser.INTS];
+                        var rawInts = rawAction[dragonBones.DataParser.INTS];
                         for (var _a = 0, rawInts_1 = rawInts; _a < rawInts_1.length; _a++) {
                             var rawValue = rawInts_1[_a];
-                            dragonBones.DragonBones.webAssembly ? action.data.ints.push_back(rawValue) : action.data.ints.push(rawValue);
+                            userData.addInt(rawValue);
                         }
                     }
-                    if (ObjectDataParser.FLOATS in rawAction) {
-                        if (action.data === null) {
-                            // action.data = BaseObject.borrowObject(UserData);
-                            action.data = dragonBones.DragonBones.webAssembly ? new Module["UserData"]() : dragonBones.BaseObject.borrowObject(dragonBones.UserData);
+                    if (dragonBones.DataParser.FLOATS in rawAction) {
+                        if (userData === null) {
+                            userData = dragonBones.BaseObject.borrowObject(dragonBones.UserData);
                         }
-                        var rawFloats = rawAction[ObjectDataParser.FLOATS];
+                        var rawFloats = rawAction[dragonBones.DataParser.FLOATS];
                         for (var _b = 0, rawFloats_1 = rawFloats; _b < rawFloats_1.length; _b++) {
                             var rawValue = rawFloats_1[_b];
-                            dragonBones.DragonBones.webAssembly ? action.data.floats.push_back(rawValue) : action.data.floats.push(rawValue);
+                            userData.addFloat(rawValue);
                         }
                     }
-                    if (ObjectDataParser.STRINGS in rawAction) {
-                        if (action.data === null) {
-                            // action.data = BaseObject.borrowObject(UserData);
-                            action.data = dragonBones.DragonBones.webAssembly ? new Module["UserData"]() : dragonBones.BaseObject.borrowObject(dragonBones.UserData);
+                    if (dragonBones.DataParser.STRINGS in rawAction) {
+                        if (userData === null) {
+                            userData = dragonBones.BaseObject.borrowObject(dragonBones.UserData);
                         }
-                        var rawStrings = rawAction[ObjectDataParser.STRINGS];
+                        var rawStrings = rawAction[dragonBones.DataParser.STRINGS];
                         for (var _c = 0, rawStrings_1 = rawStrings; _c < rawStrings_1.length; _c++) {
                             var rawValue = rawStrings_1[_c];
-                            dragonBones.DragonBones.webAssembly ? action.data.strings.push_back(rawValue) : action.data.strings.push(rawValue);
+                            userData.addString(rawValue);
                         }
                     }
-                    dragonBones.DragonBones.webAssembly ? actions.push_back(action) : actions.push(action);
-                    actionCount++;
+                    action.data = userData;
+                    actions.push(action);
                 }
             }
-            return actionCount;
+            return actions;
         };
-        /**
-         * @private
-         */
+        ObjectDataParser.prototype._parseDeformFrame = function (rawData, frameStart, frameCount) {
+            var frameFloatOffset = this._frameFloatArray.length;
+            var frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
+            var rawVertices = dragonBones.DataParser.VERTICES in rawData ?
+                rawData[dragonBones.DataParser.VERTICES] :
+                (dragonBones.DataParser.VALUE in rawData ? rawData[dragonBones.DataParser.VALUE] : null);
+            var offset = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.OFFSET, 0); // uint
+            var vertexCount = this._intArray[this._geometry.offset + 0 /* GeometryVertexCount */];
+            var weight = this._geometry.weight;
+            var x = 0.0;
+            var y = 0.0;
+            if (weight !== null) {
+                // TODO
+            }
+            else {
+                this._frameFloatArray.length += vertexCount * 2;
+                for (var i = 0; i < vertexCount * 2; i += 2) {
+                    if (rawVertices !== null) {
+                        if (i < offset || i - offset >= rawVertices.length) {
+                            x = 0.0;
+                        }
+                        else {
+                            x = rawVertices[i - offset];
+                        }
+                        if (i + 1 < offset || i + 1 - offset >= rawVertices.length) {
+                            y = 0.0;
+                        }
+                        else {
+                            y = rawVertices[i + 1 - offset];
+                        }
+                    }
+                    else {
+                        x = 0.0;
+                        y = 0.0;
+                    }
+                    this._frameFloatArray[frameFloatOffset + i] = x;
+                    this._frameFloatArray[frameFloatOffset + i + 1] = y;
+                }
+            }
+            if (frameStart === 0) {
+                var frameIntOffset = this._frameIntArray.length;
+                this._frameIntArray.length += 1 + 1 + 1 + 1 + 1;
+                this._frameIntArray[frameIntOffset + 0 /* DeformVertexOffset */] = this._geometry.offset;
+                this._frameIntArray[frameIntOffset + 1 /* DeformCount */] = this._frameFloatArray.length - frameFloatOffset;
+                this._frameIntArray[frameIntOffset + 2 /* DeformValueCount */] = this._frameFloatArray.length - frameFloatOffset;
+                this._frameIntArray[frameIntOffset + 3 /* DeformValueOffset */] = 0;
+                this._frameIntArray[frameIntOffset + 4 /* DeformFloatOffset */] = frameFloatOffset - this._animation.frameFloatOffset;
+                this._timelineArray[this._timeline.offset + 3 /* TimelineFrameValueCount */] = frameIntOffset - this._animation.frameIntOffset;
+            }
+            return frameOffset;
+        };
         ObjectDataParser.prototype._parseTransform = function (rawData, transform, scale) {
-            transform.x = ObjectDataParser._getNumber(rawData, ObjectDataParser.X, 0.0) * scale;
-            transform.y = ObjectDataParser._getNumber(rawData, ObjectDataParser.Y, 0.0) * scale;
-            if (ObjectDataParser.ROTATE in rawData || ObjectDataParser.SKEW in rawData) {
-                transform.rotation = dragonBones.Transform.normalizeRadian(ObjectDataParser._getNumber(rawData, ObjectDataParser.ROTATE, 0.0) * dragonBones.Transform.DEG_RAD);
-                transform.skew = dragonBones.Transform.normalizeRadian(ObjectDataParser._getNumber(rawData, ObjectDataParser.SKEW, 0.0) * dragonBones.Transform.DEG_RAD);
+            transform.x = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.X, 0.0) * scale;
+            transform.y = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.Y, 0.0) * scale;
+            if (dragonBones.DataParser.ROTATE in rawData || dragonBones.DataParser.SKEW in rawData) {
+                transform.rotation = dragonBones.Transform.normalizeRadian(ObjectDataParser._getNumber(rawData, dragonBones.DataParser.ROTATE, 0.0) * dragonBones.Transform.DEG_RAD);
+                transform.skew = dragonBones.Transform.normalizeRadian(ObjectDataParser._getNumber(rawData, dragonBones.DataParser.SKEW, 0.0) * dragonBones.Transform.DEG_RAD);
             }
-            else if (ObjectDataParser.SKEW_X in rawData || ObjectDataParser.SKEW_Y in rawData) {
-                transform.rotation = dragonBones.Transform.normalizeRadian(ObjectDataParser._getNumber(rawData, ObjectDataParser.SKEW_Y, 0.0) * dragonBones.Transform.DEG_RAD);
-                transform.skew = dragonBones.Transform.normalizeRadian(ObjectDataParser._getNumber(rawData, ObjectDataParser.SKEW_X, 0.0) * dragonBones.Transform.DEG_RAD) - transform.rotation;
+            else if (dragonBones.DataParser.SKEW_X in rawData || dragonBones.DataParser.SKEW_Y in rawData) {
+                transform.rotation = dragonBones.Transform.normalizeRadian(ObjectDataParser._getNumber(rawData, dragonBones.DataParser.SKEW_Y, 0.0) * dragonBones.Transform.DEG_RAD);
+                transform.skew = dragonBones.Transform.normalizeRadian(ObjectDataParser._getNumber(rawData, dragonBones.DataParser.SKEW_X, 0.0) * dragonBones.Transform.DEG_RAD) - transform.rotation;
             }
-            transform.scaleX = ObjectDataParser._getNumber(rawData, ObjectDataParser.SCALE_X, 1.0);
-            transform.scaleY = ObjectDataParser._getNumber(rawData, ObjectDataParser.SCALE_Y, 1.0);
+            transform.scaleX = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.SCALE_X, 1.0);
+            transform.scaleY = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.SCALE_Y, 1.0);
         };
-        /**
-         * @private
-         */
         ObjectDataParser.prototype._parseColorTransform = function (rawData, color) {
-            color.alphaMultiplier = ObjectDataParser._getNumber(rawData, ObjectDataParser.ALPHA_MULTIPLIER, 100) * 0.01;
-            color.redMultiplier = ObjectDataParser._getNumber(rawData, ObjectDataParser.RED_MULTIPLIER, 100) * 0.01;
-            color.greenMultiplier = ObjectDataParser._getNumber(rawData, ObjectDataParser.GREEN_MULTIPLIER, 100) * 0.01;
-            color.blueMultiplier = ObjectDataParser._getNumber(rawData, ObjectDataParser.BLUE_MULTIPLIER, 100) * 0.01;
-            color.alphaOffset = ObjectDataParser._getNumber(rawData, ObjectDataParser.ALPHA_OFFSET, 0);
-            color.redOffset = ObjectDataParser._getNumber(rawData, ObjectDataParser.RED_OFFSET, 0);
-            color.greenOffset = ObjectDataParser._getNumber(rawData, ObjectDataParser.GREEN_OFFSET, 0);
-            color.blueOffset = ObjectDataParser._getNumber(rawData, ObjectDataParser.BLUE_OFFSET, 0);
+            color.alphaMultiplier = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.ALPHA_MULTIPLIER, 100) * 0.01;
+            color.redMultiplier = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.RED_MULTIPLIER, 100) * 0.01;
+            color.greenMultiplier = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.GREEN_MULTIPLIER, 100) * 0.01;
+            color.blueMultiplier = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.BLUE_MULTIPLIER, 100) * 0.01;
+            color.alphaOffset = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.ALPHA_OFFSET, 0);
+            color.redOffset = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.RED_OFFSET, 0);
+            color.greenOffset = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.GREEN_OFFSET, 0);
+            color.blueOffset = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.BLUE_OFFSET, 0);
         };
-        /**
-         * @private
-         */
+        ObjectDataParser.prototype._parseGeometry = function (rawData, geometry) {
+            var rawVertices = rawData[dragonBones.DataParser.VERTICES];
+            var vertexCount = Math.floor(rawVertices.length / 2); // uint
+            var triangleCount = 0;
+            var geometryOffset = this._intArray.length;
+            var verticesOffset = this._floatArray.length;
+            //
+            geometry.offset = geometryOffset;
+            geometry.data = this._data;
+            //
+            this._intArray.length += 1 + 1 + 1 + 1;
+            this._intArray[geometryOffset + 0 /* GeometryVertexCount */] = vertexCount;
+            this._intArray[geometryOffset + 2 /* GeometryFloatOffset */] = verticesOffset;
+            this._intArray[geometryOffset + 3 /* GeometryWeightOffset */] = -1; //
+            // 
+            this._floatArray.length += vertexCount * 2;
+            for (var i = 0, l = vertexCount * 2; i < l; ++i) {
+                this._floatArray[verticesOffset + i] = rawVertices[i];
+            }
+            if (dragonBones.DataParser.TRIANGLES in rawData) {
+                var rawTriangles = rawData[dragonBones.DataParser.TRIANGLES];
+                triangleCount = Math.floor(rawTriangles.length / 3); // uint
+                //
+                this._intArray.length += triangleCount * 3;
+                for (var i = 0, l = triangleCount * 3; i < l; ++i) {
+                    this._intArray[geometryOffset + 4 /* GeometryVertexIndices */ + i] = rawTriangles[i];
+                }
+            }
+            // Fill triangle count.
+            this._intArray[geometryOffset + 1 /* GeometryTriangleCount */] = triangleCount;
+            if (dragonBones.DataParser.UVS in rawData) {
+                var rawUVs = rawData[dragonBones.DataParser.UVS];
+                var uvOffset = verticesOffset + vertexCount * 2;
+                this._floatArray.length += vertexCount * 2;
+                for (var i = 0, l = vertexCount * 2; i < l; ++i) {
+                    this._floatArray[uvOffset + i] = rawUVs[i];
+                }
+            }
+            if (dragonBones.DataParser.WEIGHTS in rawData) {
+                var rawWeights = rawData[dragonBones.DataParser.WEIGHTS];
+                var weightCount = Math.floor(rawWeights.length - vertexCount) / 2; // uint
+                var weightOffset = this._intArray.length;
+                var floatOffset = this._floatArray.length;
+                var weightBoneCount = 0;
+                var sortedBones = this._armature.sortedBones;
+                var weight = dragonBones.BaseObject.borrowObject(dragonBones.WeightData);
+                weight.count = weightCount;
+                weight.offset = weightOffset;
+                this._intArray.length += 1 + 1 + weightBoneCount + vertexCount + weightCount;
+                this._intArray[weightOffset + 1 /* WeigthFloatOffset */] = floatOffset;
+                if (dragonBones.DataParser.BONE_POSE in rawData) {
+                    var rawSlotPose = rawData[dragonBones.DataParser.SLOT_POSE];
+                    var rawBonePoses = rawData[dragonBones.DataParser.BONE_POSE];
+                    var weightBoneIndices = new Array();
+                    weightBoneCount = Math.floor(rawBonePoses.length / 7); // uint
+                    weightBoneIndices.length = weightBoneCount;
+                    for (var i = 0; i < weightBoneCount; ++i) {
+                        var rawBoneIndex = rawBonePoses[i * 7]; // uint
+                        var bone = this._rawBones[rawBoneIndex];
+                        weight.addBone(bone);
+                        weightBoneIndices[i] = rawBoneIndex;
+                        this._intArray[weightOffset + 2 /* WeigthBoneIndices */ + i] = sortedBones.indexOf(bone);
+                    }
+                    this._floatArray.length += weightCount * 3;
+                    this._helpMatrixA.copyFromArray(rawSlotPose, 0);
+                    for (var i = 0, iW = 0, iB = weightOffset + 2 /* WeigthBoneIndices */ + weightBoneCount, iV = floatOffset; i < vertexCount; ++i) {
+                        var iD = i * 2;
+                        var vertexBoneCount = this._intArray[iB++] = rawWeights[iW++]; // uint
+                        var x = this._floatArray[verticesOffset + iD];
+                        var y = this._floatArray[verticesOffset + iD + 1];
+                        this._helpMatrixA.transformPoint(x, y, this._helpPoint);
+                        x = this._helpPoint.x;
+                        y = this._helpPoint.y;
+                        for (var j = 0; j < vertexBoneCount; ++j) {
+                            var rawBoneIndex = rawWeights[iW++]; // uint
+                            var boneIndex = weightBoneIndices.indexOf(rawBoneIndex);
+                            this._helpMatrixB.copyFromArray(rawBonePoses, boneIndex * 7 + 1);
+                            this._helpMatrixB.invert();
+                            this._helpMatrixB.transformPoint(x, y, this._helpPoint);
+                            this._intArray[iB++] = boneIndex;
+                            this._floatArray[iV++] = rawWeights[iW++];
+                            this._floatArray[iV++] = this._helpPoint.x;
+                            this._floatArray[iV++] = this._helpPoint.y;
+                        }
+                    }
+                }
+                else {
+                    var rawBones = rawData[dragonBones.DataParser.BONES];
+                    weightBoneCount = rawBones.length;
+                    for (var i = 0; i < weightBoneCount; i++) {
+                        var rawBoneIndex = rawBones[i];
+                        var bone = this._rawBones[rawBoneIndex];
+                        weight.addBone(bone);
+                        this._intArray[weightOffset + 2 /* WeigthBoneIndices */ + i] = sortedBones.indexOf(bone);
+                    }
+                    this._floatArray.length += weightCount * 3;
+                    for (var i = 0, iW = 0, iV = 0, iB = weightOffset + 2 /* WeigthBoneIndices */ + weightBoneCount, iF = floatOffset; i < weightCount; i++) {
+                        var vertexBoneCount = rawWeights[iW++];
+                        this._intArray[iB++] = vertexBoneCount;
+                        for (var j = 0; j < vertexBoneCount; j++) {
+                            var boneIndex = rawWeights[iW++];
+                            var boneWeight = rawWeights[iW++];
+                            var x = rawVertices[iV++];
+                            var y = rawVertices[iV++];
+                            this._intArray[iB++] = rawBones.indexOf(boneIndex);
+                            this._floatArray[iF++] = boneWeight;
+                            this._floatArray[iF++] = x;
+                            this._floatArray[iF++] = y;
+                        }
+                    }
+                }
+                geometry.weight = weight;
+            }
+        };
         ObjectDataParser.prototype._parseArray = function (rawData) {
+            // tslint:disable-next-line:no-unused-expression
             rawData;
-            if (dragonBones.DragonBones.webAssembly) {
-                return;
-            }
-            this._data.intArray = [];
-            this._data.floatArray = [];
-            this._data.frameIntArray = [];
-            this._data.frameFloatArray = [];
-            this._data.frameArray = [];
-            this._data.timelineArray = [];
+            this._intArray.length = 0;
+            this._floatArray.length = 0;
+            this._frameIntArray.length = 0;
+            this._frameFloatArray.length = 0;
+            this._frameArray.length = 0;
+            this._timelineArray.length = 0;
+            this._colorArray.length = 0;
         };
-        /**
-         * @private
-         */
-        ObjectDataParser.prototype._parseWASMArray = function () {
-            var intArrayBuf = Module._malloc(this._intArrayJson.length * 2);
-            this._intArrayBuffer = new Int16Array(Module.HEAP16.buffer, intArrayBuf, this._intArrayJson.length);
-            // Module.HEAP16.set(tmpIntArray, intArrayBuf);
-            for (var i1 = 0; i1 < this._intArrayJson.length; ++i1) {
-                this._intArrayBuffer[i1] = this._intArrayJson[i1];
+        ObjectDataParser.prototype._modifyArray = function () {
+            // Align.
+            if ((this._intArray.length % Int16Array.BYTES_PER_ELEMENT) !== 0) {
+                this._intArray.push(0);
             }
-            var floatArrayBuf = Module._malloc(this._floatArrayJson.length * 4);
-            // Module.HEAPF32.set(this._floatArrayJson, floatArrayBuf);
-            this._floatArrayBuffer = new Float32Array(Module.HEAPF32.buffer, floatArrayBuf, this._floatArrayJson.length);
-            for (var i2 = 0; i2 < this._floatArrayJson.length; ++i2) {
-                this._floatArrayBuffer[i2] = this._floatArrayJson[i2];
+            if ((this._frameIntArray.length % Int16Array.BYTES_PER_ELEMENT) !== 0) {
+                this._frameIntArray.push(0);
             }
-            var frameIntArrayBuf = Module._malloc(this._frameIntArrayJson.length * 2);
-            // Module.HEAP16.set(this._frameIntArrayJson, frameIntArrayBuf);
-            this._frameIntArrayBuffer = new Int16Array(Module.HEAP16.buffer, frameIntArrayBuf, this._frameIntArrayJson.length);
-            for (var i3 = 0; i3 < this._frameIntArrayJson.length; ++i3) {
-                this._frameIntArrayBuffer[i3] = this._frameIntArrayJson[i3];
+            if ((this._frameArray.length % Int16Array.BYTES_PER_ELEMENT) !== 0) {
+                this._frameArray.push(0);
             }
-            var frameFloatArrayBuf = Module._malloc(this._frameFloatArrayJson.length * 4);
-            // Module.HEAPF32.set(this._frameFloatArrayJson, frameFloatArrayBuf);
-            this._frameFloatArrayBuffer = new Float32Array(Module.HEAPF32.buffer, frameFloatArrayBuf, this._frameFloatArrayJson.length);
-            for (var i4 = 0; i4 < this._frameFloatArrayJson.length; ++i4) {
-                this._frameFloatArrayBuffer[i4] = this._frameFloatArrayJson[i4];
+            if ((this._timelineArray.length % Uint16Array.BYTES_PER_ELEMENT) !== 0) {
+                this._timelineArray.push(0);
             }
-            var frameArrayBuf = Module._malloc(this._frameArrayJson.length * 2);
-            // Module.HEAP16.set(this._frameArrayJson, frameArrayBuf);
-            this._frameArrayBuffer = new Int16Array(Module.HEAP16.buffer, frameArrayBuf, this._frameArrayJson.length);
-            for (var i5 = 0; i5 < this._frameArrayJson.length; ++i5) {
-                this._frameArrayBuffer[i5] = this._frameArrayJson[i5];
+            if ((this._timelineArray.length % Int16Array.BYTES_PER_ELEMENT) !== 0) {
+                this._colorArray.push(0);
             }
-            var timelineArrayBuf = Module._malloc(this._timelineArrayJson.length * 2);
-            // Module.HEAPU16.set(this._timelineArrayJson, timelineArrayBuf);
-            this._timelineArrayBuffer = new Uint16Array(Module.HEAPU16.buffer, timelineArrayBuf, this._timelineArrayJson.length);
-            for (var i6 = 0; i6 < this._timelineArrayJson.length; ++i6) {
-                this._timelineArrayBuffer[i6] = this._timelineArrayJson[i6];
+            var l1 = this._intArray.length * Int16Array.BYTES_PER_ELEMENT;
+            var l2 = this._floatArray.length * Float32Array.BYTES_PER_ELEMENT;
+            var l3 = this._frameIntArray.length * Int16Array.BYTES_PER_ELEMENT;
+            var l4 = this._frameFloatArray.length * Float32Array.BYTES_PER_ELEMENT;
+            var l5 = this._frameArray.length * Int16Array.BYTES_PER_ELEMENT;
+            var l6 = this._timelineArray.length * Uint16Array.BYTES_PER_ELEMENT;
+            var l7 = this._colorArray.length * Int16Array.BYTES_PER_ELEMENT;
+            var lTotal = l1 + l2 + l3 + l4 + l5 + l6 + l7;
+            //
+            var binary = new ArrayBuffer(lTotal);
+            var intArray = new Int16Array(binary, 0, this._intArray.length);
+            var floatArray = new Float32Array(binary, l1, this._floatArray.length);
+            var frameIntArray = new Int16Array(binary, l1 + l2, this._frameIntArray.length);
+            var frameFloatArray = new Float32Array(binary, l1 + l2 + l3, this._frameFloatArray.length);
+            var frameArray = new Int16Array(binary, l1 + l2 + l3 + l4, this._frameArray.length);
+            var timelineArray = new Uint16Array(binary, l1 + l2 + l3 + l4 + l5, this._timelineArray.length);
+            var colorArray = new Int16Array(binary, l1 + l2 + l3 + l4 + l5 + l6, this._colorArray.length);
+            for (var i = 0, l = this._intArray.length; i < l; ++i) {
+                intArray[i] = this._intArray[i];
             }
-            Module['DragonBonesData'].setDragonBoneData(this._data);
-            Module.ccall('set_dbData_buffer_ptr', 'number', ['number', 'number', 'number', 'number', 'number', 'number'], [intArrayBuf, floatArrayBuf, frameIntArrayBuf, frameFloatArrayBuf, frameArrayBuf, timelineArrayBuf]);
+            for (var i = 0, l = this._floatArray.length; i < l; ++i) {
+                floatArray[i] = this._floatArray[i];
+            }
+            for (var i = 0, l = this._frameIntArray.length; i < l; ++i) {
+                frameIntArray[i] = this._frameIntArray[i];
+            }
+            for (var i = 0, l = this._frameFloatArray.length; i < l; ++i) {
+                frameFloatArray[i] = this._frameFloatArray[i];
+            }
+            for (var i = 0, l = this._frameArray.length; i < l; ++i) {
+                frameArray[i] = this._frameArray[i];
+            }
+            for (var i = 0, l = this._timelineArray.length; i < l; ++i) {
+                timelineArray[i] = this._timelineArray[i];
+            }
+            for (var i = 0, l = this._colorArray.length; i < l; ++i) {
+                colorArray[i] = this._colorArray[i];
+            }
+            this._data.binary = binary;
+            this._data.intArray = intArray;
+            this._data.floatArray = floatArray;
+            this._data.frameIntArray = frameIntArray;
+            this._data.frameFloatArray = frameFloatArray;
+            this._data.frameArray = frameArray;
+            this._data.timelineArray = timelineArray;
+            this._data.colorArray = colorArray;
+            this._defaultColorOffset = -1;
         };
-        /**
-         * @inheritDoc
-         */
         ObjectDataParser.prototype.parseDragonBonesData = function (rawData, scale) {
             if (scale === void 0) { scale = 1; }
-            console.assert(rawData !== null && rawData !== undefined);
-            var version = ObjectDataParser._getString(rawData, ObjectDataParser.VERSION, "");
-            var compatibleVersion = ObjectDataParser._getString(rawData, ObjectDataParser.COMPATIBLE_VERSION, "");
-            if (ObjectDataParser.DATA_VERSIONS.indexOf(version) >= 0 ||
-                ObjectDataParser.DATA_VERSIONS.indexOf(compatibleVersion) >= 0) {
-                // const data = BaseObject.borrowObject(DragonBonesData);
-                var data = dragonBones.DragonBones.webAssembly ? new Module["DragonBonesData"]() : dragonBones.BaseObject.borrowObject(dragonBones.DragonBonesData);
+            console.assert(rawData !== null && rawData !== undefined, "Data error.");
+            var version = ObjectDataParser._getString(rawData, dragonBones.DataParser.VERSION, "");
+            var compatibleVersion = ObjectDataParser._getString(rawData, dragonBones.DataParser.COMPATIBLE_VERSION, "");
+            if (dragonBones.DataParser.DATA_VERSIONS.indexOf(version) >= 0 ||
+                dragonBones.DataParser.DATA_VERSIONS.indexOf(compatibleVersion) >= 0) {
+                var data = dragonBones.BaseObject.borrowObject(dragonBones.DragonBonesData);
                 data.version = version;
-                data.name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, "");
-                data.frameRate = ObjectDataParser._getNumber(rawData, ObjectDataParser.FRAME_RATE, 24);
+                data.name = ObjectDataParser._getString(rawData, dragonBones.DataParser.NAME, "");
+                data.frameRate = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.FRAME_RATE, 24);
                 if (data.frameRate === 0) {
                     data.frameRate = 24;
                 }
-                if (ObjectDataParser.ARMATURE in rawData) {
-                    this._defalultColorOffset = -1;
+                if (dragonBones.DataParser.ARMATURE in rawData) {
                     this._data = data;
                     this._parseArray(rawData);
-                    var rawArmatures = rawData[ObjectDataParser.ARMATURE];
+                    var rawArmatures = rawData[dragonBones.DataParser.ARMATURE];
                     for (var _i = 0, rawArmatures_1 = rawArmatures; _i < rawArmatures_1.length; _i++) {
                         var rawArmature = rawArmatures_1[_i];
                         data.addArmature(this._parseArmature(rawArmature, scale));
                     }
-                    if (this._intArrayJson.length > 0) {
-                        this._parseWASMArray();
+                    if (!this._data.binary) {
+                        this._modifyArray();
+                    }
+                    if (dragonBones.DataParser.STAGE in rawData) {
+                        data.stage = data.getArmature(ObjectDataParser._getString(rawData, dragonBones.DataParser.STAGE, ""));
+                    }
+                    else if (data.armatureNames.length > 0) {
+                        data.stage = data.getArmature(data.armatureNames[0]);
                     }
                     this._data = null;
                 }
-                this._rawTextureAtlasIndex = 0;
-                if (ObjectDataParser.TEXTURE_ATLAS in rawData) {
-                    this._rawTextureAtlases = rawData[ObjectDataParser.TEXTURE_ATLAS];
-                }
-                else {
-                    this._rawTextureAtlases = null;
+                if (dragonBones.DataParser.TEXTURE_ATLAS in rawData) {
+                    this._rawTextureAtlases = rawData[dragonBones.DataParser.TEXTURE_ATLAS];
                 }
                 return data;
             }
             else {
-                console.assert(false, "Nonsupport data version.");
+                console.assert(false, "Nonsupport data version: " + version + "\n" +
+                    "Please convert DragonBones data to support version.\n" +
+                    "Read more: https://github.com/DragonBones/Tools/");
             }
             return null;
         };
-        /**
-         * @inheritDoc
-         */
         ObjectDataParser.prototype.parseTextureAtlasData = function (rawData, textureAtlasData, scale) {
-            if (scale === void 0) { scale = 0.0; }
+            if (scale === void 0) { scale = 1.0; }
             console.assert(rawData !== undefined);
             if (rawData === null) {
-                if (this._rawTextureAtlases === null) {
+                if (this._rawTextureAtlases === null || this._rawTextureAtlases.length === 0) {
                     return false;
                 }
                 var rawTextureAtlas = this._rawTextureAtlases[this._rawTextureAtlasIndex++];
@@ -9341,36 +13719,30 @@ var dragonBones;
                 return true;
             }
             // Texture format.
-            textureAtlasData.width = ObjectDataParser._getNumber(rawData, ObjectDataParser.WIDTH, 0);
-            textureAtlasData.height = ObjectDataParser._getNumber(rawData, ObjectDataParser.HEIGHT, 0);
-            textureAtlasData.name = ObjectDataParser._getString(rawData, ObjectDataParser.NAME, "");
-            textureAtlasData.imagePath = ObjectDataParser._getString(rawData, ObjectDataParser.IMAGE_PATH, "");
-            if (scale > 0.0) {
-                textureAtlasData.scale = scale;
-            }
-            else {
-                scale = textureAtlasData.scale = ObjectDataParser._getNumber(rawData, ObjectDataParser.SCALE, textureAtlasData.scale);
-            }
-            scale = 1.0 / scale; //
-            if (ObjectDataParser.SUB_TEXTURE in rawData) {
-                var rawTextures = rawData[ObjectDataParser.SUB_TEXTURE];
+            textureAtlasData.width = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.WIDTH, 0);
+            textureAtlasData.height = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.HEIGHT, 0);
+            textureAtlasData.scale = scale === 1.0 ? (1.0 / ObjectDataParser._getNumber(rawData, dragonBones.DataParser.SCALE, 1.0)) : scale;
+            textureAtlasData.name = ObjectDataParser._getString(rawData, dragonBones.DataParser.NAME, "");
+            textureAtlasData.imagePath = ObjectDataParser._getString(rawData, dragonBones.DataParser.IMAGE_PATH, "");
+            if (dragonBones.DataParser.SUB_TEXTURE in rawData) {
+                var rawTextures = rawData[dragonBones.DataParser.SUB_TEXTURE];
                 for (var i = 0, l = rawTextures.length; i < l; ++i) {
                     var rawTexture = rawTextures[i];
+                    var frameWidth = ObjectDataParser._getNumber(rawTexture, dragonBones.DataParser.FRAME_WIDTH, -1.0);
+                    var frameHeight = ObjectDataParser._getNumber(rawTexture, dragonBones.DataParser.FRAME_HEIGHT, -1.0);
                     var textureData = textureAtlasData.createTexture();
-                    textureData.rotated = ObjectDataParser._getBoolean(rawTexture, ObjectDataParser.ROTATED, false);
-                    textureData.name = ObjectDataParser._getString(rawTexture, ObjectDataParser.NAME, "");
-                    textureData.region.x = ObjectDataParser._getNumber(rawTexture, ObjectDataParser.X, 0.0) * scale;
-                    textureData.region.y = ObjectDataParser._getNumber(rawTexture, ObjectDataParser.Y, 0.0) * scale;
-                    textureData.region.width = ObjectDataParser._getNumber(rawTexture, ObjectDataParser.WIDTH, 0.0) * scale;
-                    textureData.region.height = ObjectDataParser._getNumber(rawTexture, ObjectDataParser.HEIGHT, 0.0) * scale;
-                    var frameWidth = ObjectDataParser._getNumber(rawTexture, ObjectDataParser.FRAME_WIDTH, -1.0);
-                    var frameHeight = ObjectDataParser._getNumber(rawTexture, ObjectDataParser.FRAME_HEIGHT, -1.0);
+                    textureData.rotated = ObjectDataParser._getBoolean(rawTexture, dragonBones.DataParser.ROTATED, false);
+                    textureData.name = ObjectDataParser._getString(rawTexture, dragonBones.DataParser.NAME, "");
+                    textureData.region.x = ObjectDataParser._getNumber(rawTexture, dragonBones.DataParser.X, 0.0);
+                    textureData.region.y = ObjectDataParser._getNumber(rawTexture, dragonBones.DataParser.Y, 0.0);
+                    textureData.region.width = ObjectDataParser._getNumber(rawTexture, dragonBones.DataParser.WIDTH, 0.0);
+                    textureData.region.height = ObjectDataParser._getNumber(rawTexture, dragonBones.DataParser.HEIGHT, 0.0);
                     if (frameWidth > 0.0 && frameHeight > 0.0) {
-                        textureData.frame = dragonBones.DragonBones.webAssembly ? Module["TextureData"].createRectangle() : dragonBones.TextureData.createRectangle();
-                        textureData.frame.x = ObjectDataParser._getNumber(rawTexture, ObjectDataParser.FRAME_X, 0.0) * scale;
-                        textureData.frame.y = ObjectDataParser._getNumber(rawTexture, ObjectDataParser.FRAME_Y, 0.0) * scale;
-                        textureData.frame.width = frameWidth * scale;
-                        textureData.frame.height = frameHeight * scale;
+                        textureData.frame = dragonBones.TextureData.createRectangle();
+                        textureData.frame.x = ObjectDataParser._getNumber(rawTexture, dragonBones.DataParser.FRAME_X, 0.0);
+                        textureData.frame.y = ObjectDataParser._getNumber(rawTexture, dragonBones.DataParser.FRAME_Y, 0.0);
+                        textureData.frame.width = frameWidth;
+                        textureData.frame.height = frameHeight;
                     }
                     textureAtlasData.addTexture(textureData);
                 }
@@ -9378,9 +13750,14 @@ var dragonBones;
             return true;
         };
         /**
+         * - Deprecated, please refer to {@link dragonBones.BaseFactory#parseDragonBonesData()}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.BaseFactory#parseDragonBonesData()
+         * @language en_US
+         */
+        /**
+         * - 已废弃，请参考 {@link dragonBones.BaseFactory#parseDragonBonesData()}。
+         * @deprecated
+         * @language zh_CN
          */
         ObjectDataParser.getInstance = function () {
             if (ObjectDataParser._objectDataParserInstance === null) {
@@ -9388,27 +13765,50 @@ var dragonBones;
             }
             return ObjectDataParser._objectDataParserInstance;
         };
-        /**
-         * @private
-         */
         ObjectDataParser._objectDataParserInstance = null;
         return ObjectDataParser;
     }(dragonBones.DataParser));
     dragonBones.ObjectDataParser = ObjectDataParser;
-    var ActionFrame = (function () {
+    /**
+     * @private
+     */
+    var ActionFrame = /** @class */ (function () {
         function ActionFrame() {
             this.frameStart = 0;
             this.actions = [];
         }
         return ActionFrame;
     }());
+    dragonBones.ActionFrame = ActionFrame;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
     /**
      * @private
      */
-    var BinaryDataParser = (function (_super) {
+    var BinaryDataParser = /** @class */ (function (_super) {
         __extends(BinaryDataParser, _super);
         function BinaryDataParser() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -9509,140 +13909,68 @@ var dragonBones;
             }
             return result;
         };
-        BinaryDataParser.prototype._getUTF16Key = function (value) {
-            for (var i = 0, l = value.length; i < l; ++i) {
-                if (value.charCodeAt(i) > 255) {
-                    return encodeURI(value);
-                }
-            }
-            return value;
-        };
         BinaryDataParser.prototype._parseBinaryTimeline = function (type, offset, timelineData) {
             if (timelineData === void 0) { timelineData = null; }
-            // const timeline = timelineData !== null ? timelineData : BaseObject.borrowObject(TimelineData);
-            var timeline = timelineData !== null ? timelineData : (dragonBones.DragonBones.webAssembly ? new Module["TimelineData"]() : dragonBones.BaseObject.borrowObject(dragonBones.TimelineData));
+            var timeline = timelineData !== null ? timelineData : dragonBones.BaseObject.borrowObject(dragonBones.TimelineData);
             timeline.type = type;
             timeline.offset = offset;
             this._timeline = timeline;
-            var keyFrameCount = this._timelineArray[timeline.offset + 2 /* TimelineKeyFrameCount */];
+            var keyFrameCount = this._timelineArrayBuffer[timeline.offset + 2 /* TimelineKeyFrameCount */];
             if (keyFrameCount === 1) {
                 timeline.frameIndicesOffset = -1;
             }
             else {
+                var frameIndicesOffset = 0;
                 var totalFrameCount = this._animation.frameCount + 1; // One more frame than animation.
                 var frameIndices = this._data.frameIndices;
-                if (dragonBones.DragonBones.webAssembly) {
-                    timeline.frameIndicesOffset = frameIndices.size();
-                    // (frameIndices as any).resize(timeline.frameIndicesOffset + totalFrameCount);
-                    for (var j = 0; j < totalFrameCount; ++j) {
-                        frameIndices.push_back(0);
-                    }
-                }
-                else {
-                    timeline.frameIndicesOffset = frameIndices.length;
-                    frameIndices.length += totalFrameCount;
-                }
+                frameIndicesOffset = frameIndices.length;
+                frameIndices.length += totalFrameCount;
+                timeline.frameIndicesOffset = frameIndicesOffset;
                 for (var i = 0, iK = 0, frameStart = 0, frameCount = 0; i < totalFrameCount; ++i) {
                     if (frameStart + frameCount <= i && iK < keyFrameCount) {
-                        frameStart = this._frameArray[this._animation.frameOffset + this._timelineArray[timeline.offset + 5 /* TimelineFrameOffset */ + iK]];
+                        frameStart = this._frameArrayBuffer[this._animation.frameOffset + this._timelineArrayBuffer[timeline.offset + 5 /* TimelineFrameOffset */ + iK]];
                         if (iK === keyFrameCount - 1) {
                             frameCount = this._animation.frameCount - frameStart;
                         }
                         else {
-                            frameCount = this._frameArray[this._animation.frameOffset + this._timelineArray[timeline.offset + 5 /* TimelineFrameOffset */ + iK + 1]] - frameStart;
+                            frameCount = this._frameArrayBuffer[this._animation.frameOffset + this._timelineArrayBuffer[timeline.offset + 5 /* TimelineFrameOffset */ + iK + 1]] - frameStart;
                         }
                         iK++;
                     }
-                    if (dragonBones.DragonBones.webAssembly) {
-                        frameIndices.set(timeline.frameIndicesOffset + i, iK - 1);
-                    }
-                    else {
-                        frameIndices[timeline.frameIndicesOffset + i] = iK - 1;
-                    }
+                    frameIndices[frameIndicesOffset + i] = iK - 1;
                 }
             }
             this._timeline = null; //
             return timeline;
         };
-        /**
-         * @private
-         */
-        BinaryDataParser.prototype._parseMesh = function (rawData, mesh) {
-            mesh.offset = rawData[dragonBones.ObjectDataParser.OFFSET];
-            var weightOffset = this._intArray[mesh.offset + 3 /* MeshWeightOffset */];
-            if (weightOffset >= 0) {
-                // const weight = BaseObject.borrowObject(WeightData);
-                var weight = dragonBones.DragonBones.webAssembly ? new Module["WeightData"]() : dragonBones.BaseObject.borrowObject(dragonBones.WeightData);
-                var vertexCount = this._intArray[mesh.offset + 0 /* MeshVertexCount */];
-                var boneCount = this._intArray[weightOffset + 0 /* WeigthBoneCount */];
-                weight.offset = weightOffset;
-                if (dragonBones.DragonBones.webAssembly) {
-                    weight.bones.resize(boneCount, null);
-                    for (var i = 0; i < boneCount; ++i) {
-                        var boneIndex = this._intArray[weightOffset + 2 /* WeigthBoneIndices */ + i];
-                        weight.bones.set(i, this._rawBones[boneIndex]);
-                    }
-                }
-                else {
-                    weight.bones.length = boneCount;
-                    for (var i = 0; i < boneCount; ++i) {
-                        var boneIndex = this._intArray[weightOffset + 2 /* WeigthBoneIndices */ + i];
-                        weight.bones[i] = this._rawBones[boneIndex];
-                    }
-                }
-                var boneIndicesOffset = weightOffset + 2 /* WeigthBoneIndices */ + boneCount;
-                for (var i = 0, l = vertexCount; i < l; ++i) {
-                    var vertexBoneCount = this._intArray[boneIndicesOffset++];
-                    weight.count += vertexBoneCount;
-                    boneIndicesOffset += vertexBoneCount;
-                }
-                mesh.weight = weight;
-            }
-        };
-        /**
-         * @private
-         */
-        BinaryDataParser.prototype._parsePolygonBoundingBox = function (rawData) {
-            // const polygonBoundingBox = BaseObject.borrowObject(PolygonBoundingBoxData);
-            var polygonBoundingBox = dragonBones.DragonBones.webAssembly ? new Module["PolygonBoundingBoxData"]() : dragonBones.BaseObject.borrowObject(dragonBones.PolygonBoundingBoxData);
-            polygonBoundingBox.offset = rawData[dragonBones.ObjectDataParser.OFFSET];
-            polygonBoundingBox.vertices = this._floatArray;
-            return polygonBoundingBox;
-        };
-        /**
-         * @private
-         */
         BinaryDataParser.prototype._parseAnimation = function (rawData) {
-            // const animation = BaseObject.borrowObject(AnimationData);
-            var animation = dragonBones.DragonBones.webAssembly ? new Module["AnimationData"]() : dragonBones.BaseObject.borrowObject(dragonBones.AnimationData);
-            animation.frameCount = Math.max(dragonBones.ObjectDataParser._getNumber(rawData, dragonBones.ObjectDataParser.DURATION, 1), 1);
-            animation.playTimes = dragonBones.ObjectDataParser._getNumber(rawData, dragonBones.ObjectDataParser.PLAY_TIMES, 1);
-            animation.duration = animation.frameCount / this._armature.frameRate;
-            animation.fadeInTime = dragonBones.ObjectDataParser._getNumber(rawData, dragonBones.ObjectDataParser.FADE_IN_TIME, 0.0);
-            animation.scale = dragonBones.ObjectDataParser._getNumber(rawData, dragonBones.ObjectDataParser.SCALE, 1.0);
-            animation.name = dragonBones.ObjectDataParser._getString(rawData, dragonBones.ObjectDataParser.NAME, dragonBones.ObjectDataParser.DEFAULT_NAME);
+            var animation = dragonBones.BaseObject.borrowObject(dragonBones.AnimationData);
+            animation.blendType = dragonBones.DataParser._getAnimationBlendType(dragonBones.ObjectDataParser._getString(rawData, dragonBones.DataParser.BLEND_TYPE, ""));
+            animation.frameCount = dragonBones.ObjectDataParser._getNumber(rawData, dragonBones.DataParser.DURATION, 0);
+            animation.playTimes = dragonBones.ObjectDataParser._getNumber(rawData, dragonBones.DataParser.PLAY_TIMES, 1);
+            animation.duration = animation.frameCount / this._armature.frameRate; // float
+            animation.fadeInTime = dragonBones.ObjectDataParser._getNumber(rawData, dragonBones.DataParser.FADE_IN_TIME, 0.0);
+            animation.scale = dragonBones.ObjectDataParser._getNumber(rawData, dragonBones.DataParser.SCALE, 1.0);
+            animation.name = dragonBones.ObjectDataParser._getString(rawData, dragonBones.DataParser.NAME, dragonBones.DataParser.DEFAULT_NAME);
             if (animation.name.length === 0) {
-                animation.name = dragonBones.ObjectDataParser.DEFAULT_NAME;
+                animation.name = dragonBones.DataParser.DEFAULT_NAME;
             }
             // Offsets.
-            var offsets = rawData[dragonBones.ObjectDataParser.OFFSET];
+            var offsets = rawData[dragonBones.DataParser.OFFSET];
             animation.frameIntOffset = offsets[0];
             animation.frameFloatOffset = offsets[1];
             animation.frameOffset = offsets[2];
             this._animation = animation;
-            if (dragonBones.ObjectDataParser.ACTION in rawData) {
-                animation.actionTimeline = this._parseBinaryTimeline(0 /* Action */, rawData[dragonBones.ObjectDataParser.ACTION]);
+            if (dragonBones.DataParser.ACTION in rawData) {
+                animation.actionTimeline = this._parseBinaryTimeline(0 /* Action */, rawData[dragonBones.DataParser.ACTION]);
             }
-            if (dragonBones.ObjectDataParser.Z_ORDER in rawData) {
-                animation.zOrderTimeline = this._parseBinaryTimeline(1 /* ZOrder */, rawData[dragonBones.ObjectDataParser.Z_ORDER]);
+            if (dragonBones.DataParser.Z_ORDER in rawData) {
+                animation.zOrderTimeline = this._parseBinaryTimeline(1 /* ZOrder */, rawData[dragonBones.DataParser.Z_ORDER]);
             }
-            if (dragonBones.ObjectDataParser.BONE in rawData) {
-                var rawTimeliness = rawData[dragonBones.ObjectDataParser.BONE];
+            if (dragonBones.DataParser.BONE in rawData) {
+                var rawTimeliness = rawData[dragonBones.DataParser.BONE];
                 for (var k in rawTimeliness) {
                     var rawTimelines = rawTimeliness[k];
-                    if (dragonBones.DragonBones.webAssembly) {
-                        k = this._getUTF16Key(k);
-                    }
                     var bone = this._armature.getBone(k);
                     if (bone === null) {
                         continue;
@@ -9651,17 +13979,14 @@ var dragonBones;
                         var timelineType = rawTimelines[i];
                         var timelineOffset = rawTimelines[i + 1];
                         var timeline = this._parseBinaryTimeline(timelineType, timelineOffset);
-                        this._animation.addBoneTimeline(bone, timeline);
+                        this._animation.addBoneTimeline(bone.name, timeline);
                     }
                 }
             }
-            if (dragonBones.ObjectDataParser.SLOT in rawData) {
-                var rawTimeliness = rawData[dragonBones.ObjectDataParser.SLOT];
+            if (dragonBones.DataParser.SLOT in rawData) {
+                var rawTimeliness = rawData[dragonBones.DataParser.SLOT];
                 for (var k in rawTimeliness) {
                     var rawTimelines = rawTimeliness[k];
-                    if (dragonBones.DragonBones.webAssembly) {
-                        k = this._getUTF16Key(k);
-                    }
                     var slot = this._armature.getSlot(k);
                     if (slot === null) {
                         continue;
@@ -9670,79 +13995,130 @@ var dragonBones;
                         var timelineType = rawTimelines[i];
                         var timelineOffset = rawTimelines[i + 1];
                         var timeline = this._parseBinaryTimeline(timelineType, timelineOffset);
-                        this._animation.addSlotTimeline(slot, timeline);
+                        this._animation.addSlotTimeline(slot.name, timeline);
+                    }
+                }
+            }
+            if (dragonBones.DataParser.CONSTRAINT in rawData) {
+                var rawTimeliness = rawData[dragonBones.DataParser.CONSTRAINT];
+                for (var k in rawTimeliness) {
+                    var rawTimelines = rawTimeliness[k];
+                    var constraint = this._armature.getConstraint(k);
+                    if (constraint === null) {
+                        continue;
+                    }
+                    for (var i = 0, l = rawTimelines.length; i < l; i += 2) {
+                        var timelineType = rawTimelines[i];
+                        var timelineOffset = rawTimelines[i + 1];
+                        var timeline = this._parseBinaryTimeline(timelineType, timelineOffset);
+                        this._animation.addConstraintTimeline(constraint.name, timeline);
+                    }
+                }
+            }
+            if (dragonBones.DataParser.TIMELINE in rawData) {
+                var rawTimelines = rawData[dragonBones.DataParser.TIMELINE];
+                for (var _i = 0, rawTimelines_6 = rawTimelines; _i < rawTimelines_6.length; _i++) {
+                    var rawTimeline = rawTimelines_6[_i];
+                    var timelineOffset = dragonBones.ObjectDataParser._getNumber(rawTimeline, dragonBones.DataParser.OFFSET, 0);
+                    if (timelineOffset >= 0) {
+                        var timelineType = dragonBones.ObjectDataParser._getNumber(rawTimeline, dragonBones.DataParser.TYPE, 0 /* Action */);
+                        var timelineName = dragonBones.ObjectDataParser._getString(rawTimeline, dragonBones.DataParser.NAME, "");
+                        var timeline = null;
+                        if (timelineType === 40 /* AnimationProgress */ && animation.blendType !== 0 /* None */) {
+                            timeline = dragonBones.BaseObject.borrowObject(dragonBones.AnimationTimelineData);
+                            var animaitonTimeline = timeline;
+                            animaitonTimeline.x = dragonBones.ObjectDataParser._getNumber(rawTimeline, dragonBones.DataParser.X, 0.0);
+                            animaitonTimeline.y = dragonBones.ObjectDataParser._getNumber(rawTimeline, dragonBones.DataParser.Y, 0.0);
+                        }
+                        timeline = this._parseBinaryTimeline(timelineType, timelineOffset, timeline);
+                        switch (timelineType) {
+                            case 0 /* Action */:
+                                // TODO
+                                break;
+                            case 1 /* ZOrder */:
+                                // TODO
+                                break;
+                            case 11 /* BoneTranslate */:
+                            case 12 /* BoneRotate */:
+                            case 13 /* BoneScale */:
+                            case 50 /* Surface */:
+                            case 60 /* BoneAlpha */:
+                                this._animation.addBoneTimeline(timelineName, timeline);
+                                break;
+                            case 20 /* SlotDisplay */:
+                            case 21 /* SlotColor */:
+                            case 22 /* SlotDeform */:
+                            case 23 /* SlotZIndex */:
+                            case 24 /* SlotAlpha */:
+                                this._animation.addSlotTimeline(timelineName, timeline);
+                                break;
+                            case 30 /* IKConstraint */:
+                                this._animation.addConstraintTimeline(timelineName, timeline);
+                                break;
+                            case 40 /* AnimationProgress */:
+                            case 41 /* AnimationWeight */:
+                            case 42 /* AnimationParameter */:
+                                this._animation.addAnimationTimeline(timelineName, timeline);
+                                break;
+                        }
                     }
                 }
             }
             this._animation = null;
             return animation;
         };
-        /**
-         * @private
-         */
-        BinaryDataParser.prototype._parseArray = function (rawData) {
-            var offsets = rawData[dragonBones.ObjectDataParser.OFFSET];
-            if (dragonBones.DragonBones.webAssembly) {
-                var tmpIntArray = new Int16Array(this._binary, this._binaryOffset + offsets[0], offsets[1] / Int16Array.BYTES_PER_ELEMENT);
-                var tmpFloatArray = new Float32Array(this._binary, this._binaryOffset + offsets[2], offsets[3] / Float32Array.BYTES_PER_ELEMENT);
-                var tmpFrameIntArray = new Int16Array(this._binary, this._binaryOffset + offsets[4], offsets[5] / Int16Array.BYTES_PER_ELEMENT);
-                var tmpFrameFloatArray = new Float32Array(this._binary, this._binaryOffset + offsets[6], offsets[7] / Float32Array.BYTES_PER_ELEMENT);
-                var tmpFrameArray = new Int16Array(this._binary, this._binaryOffset + offsets[8], offsets[9] / Int16Array.BYTES_PER_ELEMENT);
-                var tmpTimelineArray = new Uint16Array(this._binary, this._binaryOffset + offsets[10], offsets[11] / Uint16Array.BYTES_PER_ELEMENT);
-                var intArrayBuf = Module._malloc(tmpIntArray.length * tmpIntArray.BYTES_PER_ELEMENT);
-                var floatArrayBuf = Module._malloc(tmpFloatArray.length * tmpFloatArray.BYTES_PER_ELEMENT);
-                var frameIntArrayBuf = Module._malloc(tmpFrameIntArray.length * tmpFrameIntArray.BYTES_PER_ELEMENT);
-                var frameFloatArrayBuf = Module._malloc(tmpFrameFloatArray.length * tmpFrameFloatArray.BYTES_PER_ELEMENT);
-                var frameArrayBuf = Module._malloc(tmpFrameArray.length * tmpFrameArray.BYTES_PER_ELEMENT);
-                var timelineArrayBuf = Module._malloc(tmpTimelineArray.length * tmpTimelineArray.BYTES_PER_ELEMENT);
-                this._intArray = new Int16Array(Module.HEAP16.buffer, intArrayBuf, tmpIntArray.length);
-                this._floatArray = new Float32Array(Module.HEAPF32.buffer, floatArrayBuf, tmpFloatArray.length);
-                this._frameIntArray = new Int16Array(Module.HEAP16.buffer, frameIntArrayBuf, tmpFrameIntArray.length);
-                this._frameFloatArray = new Float32Array(Module.HEAPF32.buffer, frameFloatArrayBuf, tmpFrameFloatArray.length);
-                this._frameArray = new Int16Array(Module.HEAP16.buffer, frameArrayBuf, tmpFrameArray.length);
-                this._timelineArray = new Uint16Array(Module.HEAPU16.buffer, timelineArrayBuf, tmpTimelineArray.length);
-                // Module.HEAP16.set(tmpIntArray, intArrayBuf);
-                // Module.HEAPF32.set(tmpFloatArray, floatArrayBuf);
-                // Module.HEAP16.set(tmpFrameIntArray, frameIntArrayBuf);
-                // Module.HEAPF32.set(tmpFrameFloatArray, frameFloatArrayBuf);
-                // Module.HEAP16.set(tmpFrameArray, frameArrayBuf);
-                // Module.HEAPU16.set(tmpTimelineArray, timelineArrayBuf);
-                for (var i1 = 0; i1 < tmpIntArray.length; ++i1) {
-                    this._intArray[i1] = tmpIntArray[i1];
+        BinaryDataParser.prototype._parseGeometry = function (rawData, geometry) {
+            geometry.offset = rawData[dragonBones.DataParser.OFFSET];
+            geometry.data = this._data;
+            var weightOffset = this._intArrayBuffer[geometry.offset + 3 /* GeometryWeightOffset */];
+            if (weightOffset >= 0) {
+                var weight = dragonBones.BaseObject.borrowObject(dragonBones.WeightData);
+                var vertexCount = this._intArrayBuffer[geometry.offset + 0 /* GeometryVertexCount */];
+                var boneCount = this._intArrayBuffer[weightOffset + 0 /* WeigthBoneCount */];
+                weight.offset = weightOffset;
+                for (var i = 0; i < boneCount; ++i) {
+                    var boneIndex = this._intArrayBuffer[weightOffset + 2 /* WeigthBoneIndices */ + i];
+                    weight.addBone(this._rawBones[boneIndex]);
                 }
-                for (var i2 = 0; i2 < tmpFloatArray.length; ++i2) {
-                    this._floatArray[i2] = tmpFloatArray[i2];
+                var boneIndicesOffset = weightOffset + 2 /* WeigthBoneIndices */ + boneCount;
+                var weightCount = 0;
+                for (var i = 0, l = vertexCount; i < l; ++i) {
+                    var vertexBoneCount = this._intArrayBuffer[boneIndicesOffset++];
+                    weightCount += vertexBoneCount;
+                    boneIndicesOffset += vertexBoneCount;
                 }
-                for (var i3 = 0; i3 < tmpFrameIntArray.length; ++i3) {
-                    this._frameIntArray[i3] = tmpFrameIntArray[i3];
-                }
-                for (var i4 = 0; i4 < tmpFrameFloatArray.length; ++i4) {
-                    this._frameFloatArray[i4] = tmpFrameFloatArray[i4];
-                }
-                for (var i5 = 0; i5 < tmpFrameArray.length; ++i5) {
-                    this._frameArray[i5] = tmpFrameArray[i5];
-                }
-                for (var i6 = 0; i6 < tmpTimelineArray.length; ++i6) {
-                    this._timelineArray[i6] = tmpTimelineArray[i6];
-                }
-                Module['DragonBonesData'].setDragonBoneData(this._data);
-                Module.ccall('set_dbData_buffer_ptr', 'number', ['number', 'number', 'number', 'number', 'number', 'number'], [intArrayBuf, floatArrayBuf, frameIntArrayBuf, frameFloatArrayBuf, frameArrayBuf, timelineArrayBuf]);
-            }
-            else {
-                this._data.intArray = this._intArray = new Int16Array(this._binary, this._binaryOffset + offsets[0], offsets[1] / Int16Array.BYTES_PER_ELEMENT);
-                this._data.floatArray = this._floatArray = new Float32Array(this._binary, this._binaryOffset + offsets[2], offsets[3] / Float32Array.BYTES_PER_ELEMENT);
-                this._data.frameIntArray = this._frameIntArray = new Int16Array(this._binary, this._binaryOffset + offsets[4], offsets[5] / Int16Array.BYTES_PER_ELEMENT);
-                this._data.frameFloatArray = this._frameFloatArray = new Float32Array(this._binary, this._binaryOffset + offsets[6], offsets[7] / Float32Array.BYTES_PER_ELEMENT);
-                this._data.frameArray = this._frameArray = new Int16Array(this._binary, this._binaryOffset + offsets[8], offsets[9] / Int16Array.BYTES_PER_ELEMENT);
-                this._data.timelineArray = this._timelineArray = new Uint16Array(this._binary, this._binaryOffset + offsets[10], offsets[11] / Uint16Array.BYTES_PER_ELEMENT);
+                weight.count = weightCount;
+                geometry.weight = weight;
             }
         };
-        /**
-         * @inheritDoc
-         */
+        BinaryDataParser.prototype._parseArray = function (rawData) {
+            var offsets = rawData[dragonBones.DataParser.OFFSET];
+            var l1 = offsets[1];
+            var l2 = offsets[3];
+            var l3 = offsets[5];
+            var l4 = offsets[7];
+            var l5 = offsets[9];
+            var l6 = offsets[11];
+            var l7 = offsets.length > 12 ? offsets[13] : 0; // Color.
+            var intArray = new Int16Array(this._binary, this._binaryOffset + offsets[0], l1 / Int16Array.BYTES_PER_ELEMENT);
+            var floatArray = new Float32Array(this._binary, this._binaryOffset + offsets[2], l2 / Float32Array.BYTES_PER_ELEMENT);
+            var frameIntArray = new Int16Array(this._binary, this._binaryOffset + offsets[4], l3 / Int16Array.BYTES_PER_ELEMENT);
+            var frameFloatArray = new Float32Array(this._binary, this._binaryOffset + offsets[6], l4 / Float32Array.BYTES_PER_ELEMENT);
+            var frameArray = new Int16Array(this._binary, this._binaryOffset + offsets[8], l5 / Int16Array.BYTES_PER_ELEMENT);
+            var timelineArray = new Uint16Array(this._binary, this._binaryOffset + offsets[10], l6 / Uint16Array.BYTES_PER_ELEMENT);
+            var colorArray = l7 > 0 ? new Int16Array(this._binary, this._binaryOffset + offsets[12], l7 / Int16Array.BYTES_PER_ELEMENT) : intArray; // Color.
+            this._data.binary = this._binary;
+            this._data.intArray = this._intArrayBuffer = intArray;
+            this._data.floatArray = floatArray;
+            this._data.frameIntArray = frameIntArray;
+            this._data.frameFloatArray = frameFloatArray;
+            this._data.frameArray = this._frameArrayBuffer = frameArray;
+            this._data.timelineArray = this._timelineArrayBuffer = timelineArray;
+            this._data.colorArray = colorArray;
+        };
         BinaryDataParser.prototype.parseDragonBonesData = function (rawData, scale) {
             if (scale === void 0) { scale = 1; }
-            console.assert(rawData !== null && rawData !== undefined && rawData instanceof ArrayBuffer);
+            console.assert(rawData !== null && rawData !== undefined && rawData instanceof ArrayBuffer, "Data error.");
             var tag = new Uint8Array(rawData, 0, 8);
             if (tag[0] !== "D".charCodeAt(0) ||
                 tag[1] !== "B".charCodeAt(0) ||
@@ -9755,14 +14131,20 @@ var dragonBones;
             var headerBytes = new Uint8Array(rawData, 8 + 4, headerLength);
             var headerString = this._decodeUTF8(headerBytes);
             var header = JSON.parse(headerString);
-            this._binary = rawData;
+            //
             this._binaryOffset = 8 + 4 + headerLength;
+            this._binary = rawData;
             return _super.prototype.parseDragonBonesData.call(this, header, scale);
         };
         /**
+         * - Deprecated, please refer to {@link dragonBones.BaseFactory#parseDragonBonesData()}.
          * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.BaseFactory#parseDragonBonesData()
+         * @language en_US
+         */
+        /**
+         * - 已废弃，请参考 {@link dragonBones.BaseFactory#parseDragonBonesData()}。
+         * @deprecated
+         * @language zh_CN
          */
         BinaryDataParser.getInstance = function () {
             if (BinaryDataParser._binaryDataParserInstance === null) {
@@ -9770,30 +14152,50 @@ var dragonBones;
             }
             return BinaryDataParser._binaryDataParserInstance;
         };
-        /**
-         * @private
-         */
         BinaryDataParser._binaryDataParserInstance = null;
         return BinaryDataParser;
     }(dragonBones.ObjectDataParser));
     dragonBones.BinaryDataParser = BinaryDataParser;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
     /**
-     * @private
+     * - Base class for the factory that create the armatures. (Typically only one global factory instance is required)
+     * The factory instance create armatures by parsed and added DragonBonesData instances and TextureAtlasData instances.
+     * Once the data has been parsed, it has been cached in the factory instance and does not need to be parsed again until it is cleared by the factory instance.
+     * @see dragonBones.DragonBonesData
+     * @see dragonBones.TextureAtlasData
+     * @see dragonBones.ArmatureData
+     * @see dragonBones.Armature
+     * @version DragonBones 3.0
+     * @language en_US
      */
-    var BuildArmaturePackage = (function () {
-        function BuildArmaturePackage() {
-            this.dataName = "";
-            this.textureAtlasName = "";
-            this.skin = null;
-        }
-        return BuildArmaturePackage;
-    }());
-    dragonBones.BuildArmaturePackage = BuildArmaturePackage;
     /**
-     * 创建骨架的基础工厂。 (通常只需要一个全局工厂实例)
+     * - 创建骨架的工厂基类。 （通常只需要一个全局工厂实例）
+     * 工厂通过解析并添加的 DragonBonesData 实例和 TextureAtlasData 实例来创建骨架。
+     * 当数据被解析过之后，已经添加到工厂中，在没有被工厂清理之前，不需要再次解析。
      * @see dragonBones.DragonBonesData
      * @see dragonBones.TextureAtlasData
      * @see dragonBones.ArmatureData
@@ -9801,39 +14203,26 @@ var dragonBones;
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var BaseFactory = (function () {
+    var BaseFactory = /** @class */ (function () {
         /**
-         * 创建一个工厂。 (通常只需要一个全局工厂实例)
-         * @param dataParser 龙骨数据解析器，如果不设置，则使用默认解析器。
+         * - Create a factory instance. (typically only one global factory instance is required)
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 创建一个工厂实例。 （通常只需要一个全局工厂实例）
          * @version DragonBones 3.0
          * @language zh_CN
          */
         function BaseFactory(dataParser) {
             if (dataParser === void 0) { dataParser = null; }
             /**
-             * 是否开启共享搜索。
-             * 如果开启，创建一个骨架时，可以从多个龙骨数据中寻找骨架数据，或贴图集数据中寻找贴图数据。 (通常在有共享导出的数据时开启)
-             * @see dragonBones.DragonBonesData#autoSearch
-             * @see dragonBones.TextureAtlasData#autoSearch
-             * @version DragonBones 4.5
-             * @language zh_CN
+             * @private
              */
             this.autoSearch = false;
-            /**
-             * @private
-             */
             this._dragonBonesDataMap = {};
-            /**
-             * @private
-             */
             this._textureAtlasDataMap = {};
-            /**
-             * @private
-             */
             this._dragonBones = null;
-            /**
-             * @private
-             */
             this._dataParser = null;
             if (BaseFactory._objectParser === null) {
                 BaseFactory._objectParser = new dragonBones.ObjectDataParser();
@@ -9843,15 +14232,9 @@ var dragonBones;
             }
             this._dataParser = dataParser !== null ? dataParser : BaseFactory._objectParser;
         }
-        /**
-         * @private
-         */
         BaseFactory.prototype._isSupportMesh = function () {
             return true;
         };
-        /**
-         * @private
-         */
         BaseFactory.prototype._getTextureData = function (textureAtlasName, textureName) {
             if (textureAtlasName in this._textureAtlasDataMap) {
                 for (var _i = 0, _a = this._textureAtlasDataMap[textureAtlasName]; _i < _a.length; _i++) {
@@ -9877,9 +14260,6 @@ var dragonBones;
             }
             return null;
         };
-        /**
-         * @private
-         */
         BaseFactory.prototype._fillBuildArmaturePackage = function (dataPackage, dragonBonesName, armatureName, skinName, textureAtlasName) {
             var dragonBonesData = null;
             var armatureData = null;
@@ -9927,45 +14307,11 @@ var dragonBones;
             }
             return false;
         };
-        /**
-         * @private
-         */
         BaseFactory.prototype._buildBones = function (dataPackage, armature) {
-            var bones = dataPackage.armature.sortedBones;
-            for (var i = 0; i < (dragonBones.DragonBones.webAssembly ? bones.size() : bones.length); ++i) {
-                var boneData = dragonBones.DragonBones.webAssembly ? bones.get(i) : bones[i];
-                var bone = dragonBones.DragonBones.webAssembly ? new Module["Bone"]() : dragonBones.BaseObject.borrowObject(dragonBones.Bone);
-                bone.init(boneData);
-                if (boneData.parent !== null) {
-                    armature.addBone(bone, boneData.parent.name);
-                }
-                else {
-                    armature.addBone(bone);
-                }
-                var constraints = boneData.constraints;
-                for (var j = 0; j < (dragonBones.DragonBones.webAssembly ? constraints.size() : constraints.length); ++j) {
-                    var constraintData = dragonBones.DragonBones.webAssembly ? constraints.get(j) : constraints[j];
-                    var target = armature.getBone(constraintData.target.name);
-                    if (target === null) {
-                        continue;
-                    }
-                    // TODO more constraint type.
-                    var ikConstraintData = constraintData;
-                    var constraint = dragonBones.DragonBones.webAssembly ? new Module["IKConstraint"]() : dragonBones.BaseObject.borrowObject(dragonBones.IKConstraint);
-                    var root = ikConstraintData.root !== null ? armature.getBone(ikConstraintData.root.name) : null;
-                    constraint.target = target;
-                    constraint.bone = bone;
-                    constraint.root = root;
-                    constraint.bendPositive = ikConstraintData.bendPositive;
-                    constraint.scaleEnabled = ikConstraintData.scaleEnabled;
-                    constraint.weight = ikConstraintData.weight;
-                    if (root !== null) {
-                        root.addConstraint(constraint);
-                    }
-                    else {
-                        bone.addConstraint(constraint);
-                    }
-                }
+            for (var _i = 0, _a = dataPackage.armature.sortedBones; _i < _a.length; _i++) {
+                var boneData = _a[_i];
+                var bone = dragonBones.BaseObject.borrowObject(boneData.type === 0 /* Bone */ ? dragonBones.Bone : dragonBones.Surface);
+                bone.init(boneData, armature);
             }
         };
         /**
@@ -9979,66 +14325,83 @@ var dragonBones;
             }
             var skinSlots = {};
             for (var k in defaultSkin.displays) {
-                var displays = defaultSkin.displays[k];
+                var displays = defaultSkin.getDisplays(k);
                 skinSlots[k] = displays;
             }
             if (currentSkin !== defaultSkin) {
                 for (var k in currentSkin.displays) {
-                    var displays = currentSkin.displays[k];
+                    var displays = currentSkin.getDisplays(k);
                     skinSlots[k] = displays;
                 }
             }
             for (var _i = 0, _a = dataPackage.armature.sortedSlots; _i < _a.length; _i++) {
                 var slotData = _a[_i];
-                if (!(slotData.name in skinSlots)) {
-                    continue;
-                }
-                var displays = skinSlots[slotData.name];
-                var slot = this._buildSlot(dataPackage, slotData, displays, armature);
-                var displayList = new Array();
-                for (var _b = 0, displays_1 = displays; _b < displays_1.length; _b++) {
-                    var displayData = displays_1[_b];
-                    if (displayData !== null) {
-                        displayList.push(this._getSlotDisplay(dataPackage, displayData, null, slot));
+                var displayDatas = slotData.name in skinSlots ? skinSlots[slotData.name] : null;
+                var slot = this._buildSlot(dataPackage, slotData, armature);
+                if (displayDatas !== null) {
+                    slot.displayFrameCount = displayDatas.length;
+                    for (var i = 0, l = slot.displayFrameCount; i < l; ++i) {
+                        var displayData = displayDatas[i];
+                        slot.replaceRawDisplayData(displayData, i);
+                        if (displayData !== null) {
+                            if (dataPackage.textureAtlasName.length > 0) {
+                                var textureData = this._getTextureData(dataPackage.textureAtlasName, displayData.path);
+                                slot.replaceTextureData(textureData, i);
+                            }
+                            var display = this._getSlotDisplay(dataPackage, displayData, slot);
+                            slot.replaceDisplay(display, i);
+                        }
+                        else {
+                            slot.replaceDisplay(null);
+                        }
                     }
-                    else {
-                        displayList.push(null);
-                    }
                 }
-                armature.addSlot(slot, slotData.parent.name);
-                slot._setDisplayList(displayList);
                 slot._setDisplayIndex(slotData.displayIndex, true);
             }
         };
-        /**
-         * @private
-         */
-        BaseFactory.prototype._getSlotDisplay = function (dataPackage, displayData, rawDisplayData, slot) {
-            var dataName = dataPackage !== null ? dataPackage.dataName : displayData.parent.parent.name;
+        BaseFactory.prototype._buildConstraints = function (dataPackage, armature) {
+            var constraints = dataPackage.armature.constraints;
+            for (var k in constraints) {
+                var constraintData = constraints[k];
+                // TODO more constraint type.
+                switch (constraintData.type) {
+                    case 0 /* IK */:
+                        var ikConstraint = dragonBones.BaseObject.borrowObject(dragonBones.IKConstraint);
+                        ikConstraint.init(constraintData, armature);
+                        armature._addConstraint(ikConstraint);
+                        break;
+                    case 1 /* Path */:
+                        var pathConstraint = dragonBones.BaseObject.borrowObject(dragonBones.PathConstraint);
+                        pathConstraint.init(constraintData, armature);
+                        armature._addConstraint(pathConstraint);
+                        break;
+                    default:
+                        var constraint = dragonBones.BaseObject.borrowObject(dragonBones.IKConstraint);
+                        constraint.init(constraintData, armature);
+                        armature._addConstraint(constraint);
+                        break;
+                }
+            }
+        };
+        BaseFactory.prototype._buildChildArmature = function (dataPackage, _slot, displayData) {
+            return this.buildArmature(displayData.path, dataPackage !== null ? dataPackage.dataName : "", "", dataPackage !== null ? dataPackage.textureAtlasName : "");
+        };
+        BaseFactory.prototype._getSlotDisplay = function (dataPackage, displayData, slot) {
+            var dataName = dataPackage !== null ? dataPackage.dataName : displayData.parent.parent.parent.name;
             var display = null;
             switch (displayData.type) {
-                case 0 /* Image */:
+                case 0 /* Image */: {
                     var imageDisplayData = displayData;
                     if (imageDisplayData.texture === null) {
                         imageDisplayData.texture = this._getTextureData(dataName, displayData.path);
                     }
-                    else if (dataPackage !== null && dataPackage.textureAtlasName.length > 0) {
-                        imageDisplayData.texture = this._getTextureData(dataPackage.textureAtlasName, displayData.path);
-                    }
-                    if (rawDisplayData !== null && rawDisplayData.type === 2 /* Mesh */ && this._isSupportMesh()) {
-                        display = slot.meshDisplay;
-                    }
-                    else {
-                        display = slot.rawDisplay;
-                    }
+                    display = slot.rawDisplay;
                     break;
-                case 2 /* Mesh */:
+                }
+                case 2 /* Mesh */: {
                     var meshDisplayData = displayData;
                     if (meshDisplayData.texture === null) {
                         meshDisplayData.texture = this._getTextureData(dataName, meshDisplayData.path);
-                    }
-                    else if (dataPackage !== null && dataPackage.textureAtlasName.length > 0) {
-                        meshDisplayData.texture = this._getTextureData(dataPackage.textureAtlasName, meshDisplayData.path);
                     }
                     if (this._isSupportMesh()) {
                         display = slot.meshDisplay;
@@ -10047,17 +14410,21 @@ var dragonBones;
                         display = slot.rawDisplay;
                     }
                     break;
-                case 1 /* Armature */:
+                }
+                case 1 /* Armature */: {
                     var armatureDisplayData = displayData;
-                    var childArmature = this.buildArmature(armatureDisplayData.path, dataName, null, dataPackage !== null ? dataPackage.textureAtlasName : null);
+                    var childArmature = this._buildChildArmature(dataPackage, slot, armatureDisplayData);
                     if (childArmature !== null) {
                         childArmature.inheritAnimation = armatureDisplayData.inheritAnimation;
                         if (!childArmature.inheritAnimation) {
                             var actions = armatureDisplayData.actions.length > 0 ? armatureDisplayData.actions : childArmature.armatureData.defaultActions;
                             if (actions.length > 0) {
-                                for (var _i = 0, actions_2 = actions; _i < actions_2.length; _i++) {
-                                    var action = actions_2[_i];
-                                    childArmature._bufferAction(action, true);
+                                for (var _i = 0, actions_6 = actions; _i < actions_6.length; _i++) {
+                                    var action = actions_6[_i];
+                                    var eventObject = dragonBones.BaseObject.borrowObject(dragonBones.EventObject);
+                                    dragonBones.EventObject.actionDataToInstance(action, eventObject, slot.armature);
+                                    eventObject.slot = slot;
+                                    slot.armature._bufferAction(eventObject, false);
                                 }
                             }
                             else {
@@ -10068,50 +14435,33 @@ var dragonBones;
                     }
                     display = childArmature;
                     break;
+                }
+                case 3 /* BoundingBox */:
+                    break;
+                default:
+                    break;
             }
             return display;
         };
         /**
-         * @private
+         * - Parse the raw data to a DragonBonesData instance and cache it to the factory.
+         * @param rawData - The raw data.
+         * @param name - Specify a cache name for the instance so that the instance can be obtained through this name. (If not set, use the instance name instead)
+         * @param scale - Specify a scaling value for all armatures. (Default: 1.0)
+         * @returns DragonBonesData instance
+         * @see #getDragonBonesData()
+         * @see #addDragonBonesData()
+         * @see #removeDragonBonesData()
+         * @see dragonBones.DragonBonesData
+         * @version DragonBones 4.5
+         * @language en_US
          */
-        BaseFactory.prototype._replaceSlotDisplay = function (dataPackage, displayData, slot, displayIndex) {
-            if (displayIndex < 0) {
-                displayIndex = slot.displayIndex;
-            }
-            if (displayIndex < 0) {
-                displayIndex = 0;
-            }
-            var displayList = slot.displayList; // Copy.
-            if (displayList.length <= displayIndex) {
-                displayList.length = displayIndex + 1;
-                for (var i = 0, l = displayList.length; i < l; ++i) {
-                    if (!displayList[i]) {
-                        displayList[i] = null;
-                    }
-                }
-            }
-            if (slot._displayDatas.length <= displayIndex) {
-                slot._displayDatas.length = displayIndex + 1;
-                for (var i = 0, l = slot._displayDatas.length; i < l; ++i) {
-                    if (!slot._displayDatas[i]) {
-                        slot._displayDatas[i] = null;
-                    }
-                }
-            }
-            slot._displayDatas[displayIndex] = displayData;
-            if (displayData !== null) {
-                displayList[displayIndex] = this._getSlotDisplay(dataPackage, displayData, displayIndex < slot._rawDisplayDatas.length ? slot._rawDisplayDatas[displayIndex] : null, slot);
-            }
-            else {
-                displayList[displayIndex] = null;
-            }
-            slot.displayList = displayList;
-        };
         /**
-         * 解析并添加龙骨数据。
-         * @param rawData 需要解析的原始数据。
-         * @param name 为数据提供一个名称，以便可以通过这个名称获取数据，如果未设置，则使用数据中的名称。
-         * @returns DragonBonesData
+         * - 将原始数据解析为 DragonBonesData 实例，并缓存到工厂中。
+         * @param rawData - 原始数据。
+         * @param name - 为该实例指定一个缓存名称，以便可以通过此名称获取该实例。 （如果未设置，则使用该实例中的名称）
+         * @param scale - 为所有的骨架指定一个缩放值。 （默认: 1.0）
+         * @returns DragonBonesData 实例
          * @see #getDragonBonesData()
          * @see #addDragonBonesData()
          * @see #removeDragonBonesData()
@@ -10122,16 +14472,11 @@ var dragonBones;
         BaseFactory.prototype.parseDragonBonesData = function (rawData, name, scale) {
             if (name === void 0) { name = null; }
             if (scale === void 0) { scale = 1.0; }
-            var dragonBonesData = null;
-            if (rawData instanceof ArrayBuffer) {
-                dragonBonesData = BaseFactory._binaryParser.parseDragonBonesData(rawData, scale);
-            }
-            else {
-                dragonBonesData = this._dataParser.parseDragonBonesData(rawData, scale);
-            }
+            var dataParser = rawData instanceof ArrayBuffer ? BaseFactory._binaryParser : this._dataParser;
+            var dragonBonesData = dataParser.parseDragonBonesData(rawData, scale);
             while (true) {
                 var textureAtlasData = this._buildTextureAtlasData(null, null);
-                if (this._dataParser.parseTextureAtlasData(null, textureAtlasData, scale)) {
+                if (dataParser.parseTextureAtlasData(null, textureAtlasData, scale)) {
                     this.addTextureAtlasData(textureAtlasData, name);
                 }
                 else {
@@ -10145,12 +14490,26 @@ var dragonBones;
             return dragonBonesData;
         };
         /**
-         * 解析并添加贴图集数据。
-         * @param rawData 需要解析的原始数据。 (JSON)
-         * @param textureAtlas 贴图。
-         * @param name 为数据指定一个名称，以便可以通过这个名称获取数据，如果未设置，则使用数据中的名称。
-         * @param scale 为贴图集设置一个缩放值。
-         * @returns 贴图集数据
+         * - Parse the raw texture atlas data and the texture atlas object to a TextureAtlasData instance and cache it to the factory.
+         * @param rawData - The raw texture atlas data.
+         * @param textureAtlas - The texture atlas object.
+         * @param name - Specify a cache name for the instance so that the instance can be obtained through this name. (If not set, use the instance name instead)
+         * @param scale - Specify a scaling value for the map set. (Default: 1.0)
+         * @returns TextureAtlasData instance
+         * @see #getTextureAtlasData()
+         * @see #addTextureAtlasData()
+         * @see #removeTextureAtlasData()
+         * @see dragonBones.TextureAtlasData
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 将原始贴图集数据和贴图集对象解析为 TextureAtlasData 实例，并缓存到工厂中。
+         * @param rawData - 原始贴图集数据。
+         * @param textureAtlas - 贴图集对象。
+         * @param name - 为该实例指定一个缓存名称，以便可以通过此名称获取该实例。 （如果未设置，则使用该实例中的名称）
+         * @param scale - 为贴图集指定一个缩放值。 （默认: 1.0）
+         * @returns TextureAtlasData 实例
          * @see #getTextureAtlasData()
          * @see #addTextureAtlasData()
          * @see #removeTextureAtlasData()
@@ -10160,7 +14519,7 @@ var dragonBones;
          */
         BaseFactory.prototype.parseTextureAtlasData = function (rawData, textureAtlas, name, scale) {
             if (name === void 0) { name = null; }
-            if (scale === void 0) { scale = 0.0; }
+            if (scale === void 0) { scale = 1.0; }
             var textureAtlasData = this._buildTextureAtlasData(null, null);
             this._dataParser.parseTextureAtlasData(rawData, textureAtlasData, scale);
             this._buildTextureAtlasData(textureAtlasData, textureAtlas || null);
@@ -10168,10 +14527,20 @@ var dragonBones;
             return textureAtlasData;
         };
         /**
-         * @version DragonBones 5.1
+         * - Update texture atlases.
+         * @param textureAtlases - The texture atlas objects.
+         * @param name - The texture atlas name.
+         * @version DragonBones 5.7
+         * @language en_US
+         */
+        /**
+         * - 更新贴图集对象。
+         * @param textureAtlases - 多个贴图集对象。
+         * @param name - 贴图集名称。
+         * @version DragonBones 5.7
          * @language zh_CN
          */
-        BaseFactory.prototype.updateTextureAtlasData = function (name, textureAtlases) {
+        BaseFactory.prototype.updateTextureAtlases = function (textureAtlases, name) {
             var textureAtlasDatas = this.getTextureAtlasData(name);
             if (textureAtlasDatas !== null) {
                 for (var i = 0, l = textureAtlasDatas.length; i < l; ++i) {
@@ -10182,9 +14551,20 @@ var dragonBones;
             }
         };
         /**
-         * 获取指定名称的龙骨数据。
-         * @param name 数据名称。
-         * @returns DragonBonesData
+         * - Get a specific DragonBonesData instance.
+         * @param name - The DragonBonesData instance cache name.
+         * @returns DragonBonesData instance
+         * @see #parseDragonBonesData()
+         * @see #addDragonBonesData()
+         * @see #removeDragonBonesData()
+         * @see dragonBones.DragonBonesData
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 获取特定的 DragonBonesData 实例。
+         * @param name - DragonBonesData 实例的缓存名称。
+         * @returns DragonBonesData 实例
          * @see #parseDragonBonesData()
          * @see #addDragonBonesData()
          * @see #removeDragonBonesData()
@@ -10196,9 +14576,20 @@ var dragonBones;
             return (name in this._dragonBonesDataMap) ? this._dragonBonesDataMap[name] : null;
         };
         /**
-         * 添加龙骨数据。
-         * @param data 龙骨数据。
-         * @param name 为数据指定一个名称，以便可以通过这个名称获取数据，如果未设置，则使用数据中的名称。
+         * - Cache a DragonBonesData instance to the factory.
+         * @param data - The DragonBonesData instance.
+         * @param name - Specify a cache name for the instance so that the instance can be obtained through this name. (if not set, use the instance name instead)
+         * @see #parseDragonBonesData()
+         * @see #getDragonBonesData()
+         * @see #removeDragonBonesData()
+         * @see dragonBones.DragonBonesData
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 将 DragonBonesData 实例缓存到工厂中。
+         * @param data - DragonBonesData 实例。
+         * @param name - 为该实例指定一个缓存名称，以便可以通过此名称获取该实例。 （如果未设置，则使用该实例中的名称）
          * @see #parseDragonBonesData()
          * @see #getDragonBonesData()
          * @see #removeDragonBonesData()
@@ -10213,15 +14604,26 @@ var dragonBones;
                 if (this._dragonBonesDataMap[name] === data) {
                     return;
                 }
-                console.warn("Replace data: " + name);
-                this._dragonBonesDataMap[name].returnToPool();
+                console.warn("Can not add same name data: " + name);
+                return;
             }
             this._dragonBonesDataMap[name] = data;
         };
         /**
-         * 移除龙骨数据。
-         * @param name 数据名称。
-         * @param disposeData 是否释放数据。
+         * - Remove a DragonBonesData instance.
+         * @param name - The DragonBonesData instance cache name.
+         * @param disposeData - Whether to dispose data. (Default: true)
+         * @see #parseDragonBonesData()
+         * @see #getDragonBonesData()
+         * @see #addDragonBonesData()
+         * @see dragonBones.DragonBonesData
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 移除 DragonBonesData 实例。
+         * @param name - DragonBonesData 实例缓存名称。
+         * @param disposeData - 是否释放数据。 （默认: true）
          * @see #parseDragonBonesData()
          * @see #getDragonBonesData()
          * @see #addDragonBonesData()
@@ -10239,9 +14641,18 @@ var dragonBones;
             }
         };
         /**
-         * 获取指定名称的贴图集数据列表。
-         * @param name 数据名称。
-         * @returns 贴图集数据列表。
+         * - Get a list of specific TextureAtlasData instances.
+         * @param name - The TextureAtlasData cahce name.
+         * @see #parseTextureAtlasData()
+         * @see #addTextureAtlasData()
+         * @see #removeTextureAtlasData()
+         * @see dragonBones.TextureAtlasData
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 获取特定的 TextureAtlasData 实例列表。
+         * @param name - TextureAtlasData 实例缓存名称。
          * @see #parseTextureAtlasData()
          * @see #addTextureAtlasData()
          * @see #removeTextureAtlasData()
@@ -10253,9 +14664,20 @@ var dragonBones;
             return (name in this._textureAtlasDataMap) ? this._textureAtlasDataMap[name] : null;
         };
         /**
-         * 添加贴图集数据。
-         * @param data 贴图集数据。
-         * @param name 为数据指定一个名称，以便可以通过这个名称获取数据，如果未设置，则使用数据中的名称。
+         * - Cache a TextureAtlasData instance to the factory.
+         * @param data - The TextureAtlasData instance.
+         * @param name - Specify a cache name for the instance so that the instance can be obtained through this name. (if not set, use the instance name instead)
+         * @see #parseTextureAtlasData()
+         * @see #getTextureAtlasData()
+         * @see #removeTextureAtlasData()
+         * @see dragonBones.TextureAtlasData
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 将 TextureAtlasData 实例缓存到工厂中。
+         * @param data - TextureAtlasData 实例。
+         * @param name - 为该实例指定一个缓存名称，以便可以通过此名称获取该实例。 （如果未设置，则使用该实例中的名称）
          * @see #parseTextureAtlasData()
          * @see #getTextureAtlasData()
          * @see #removeTextureAtlasData()
@@ -10272,9 +14694,20 @@ var dragonBones;
             }
         };
         /**
-         * 移除贴图集数据。
-         * @param name 数据名称。
-         * @param disposeData 是否释放数据。
+         * - Remove a TextureAtlasData instance.
+         * @param name - The TextureAtlasData instance cache name.
+         * @param disposeData - Whether to dispose data.
+         * @see #parseTextureAtlasData()
+         * @see #getTextureAtlasData()
+         * @see #addTextureAtlasData()
+         * @see dragonBones.TextureAtlasData
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 移除 TextureAtlasData 实例。
+         * @param name - TextureAtlasData 实例的缓存名称。
+         * @param disposeData - 是否释放数据。
          * @see #parseTextureAtlasData()
          * @see #getTextureAtlasData()
          * @see #addTextureAtlasData()
@@ -10296,9 +14729,17 @@ var dragonBones;
             }
         };
         /**
-         * 获取骨架数据。
-         * @param name 骨架数据名称。
-         * @param dragonBonesName 龙骨数据名称。
+         * - Get a specific armature data.
+         * @param name - The armature data name.
+         * @param dragonBonesName - The cached name for DragonbonesData instance.
+         * @see dragonBones.ArmatureData
+         * @version DragonBones 5.1
+         * @language en_US
+         */
+        /**
+         * - 获取特定的骨架数据。
+         * @param name - 骨架数据名称。
+         * @param dragonBonesName - DragonBonesData 实例的缓存名称。
          * @see dragonBones.ArmatureData
          * @version DragonBones 5.1
          * @language zh_CN
@@ -10312,8 +14753,14 @@ var dragonBones;
             return dataPackage.armature;
         };
         /**
-         * 清除所有的数据。
-         * @param disposeData 是否释放数据。
+         * - Clear all cached DragonBonesData instances and TextureAtlasData instances.
+         * @param disposeData - Whether to dispose data.
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 清除缓存的所有 DragonBonesData 实例和 TextureAtlasData 实例。
+         * @param disposeData - 是否释放数据。
          * @version DragonBones 4.5
          * @language zh_CN
          */
@@ -10337,179 +14784,300 @@ var dragonBones;
             }
         };
         /**
-         * 创建一个骨架。
-         * @param armatureName 骨架数据名称。
-         * @param dragonBonesName 龙骨数据名称，如果未设置，将检索所有的龙骨数据，当多个龙骨数据中包含同名的骨架数据时，可能无法创建出准确的骨架。
-         * @param skinName 皮肤名称，如果未设置，则使用默认皮肤。
-         * @param textureAtlasName 贴图集数据名称，如果未设置，则使用龙骨数据名称。
-         * @returns 骨架
+         * - Create a armature from cached DragonBonesData instances and TextureAtlasData instances.
+         * Note that when the created armature that is no longer in use, you need to explicitly dispose {@link #dragonBones.Armature#dispose()}.
+         * @param armatureName - The armature data name.
+         * @param dragonBonesName - The cached name of the DragonBonesData instance. (If not set, all DragonBonesData instances are retrieved, and when multiple DragonBonesData instances contain a the same name armature data, it may not be possible to accurately create a specific armature)
+         * @param skinName - The skin name, you can set a different ArmatureData name to share it's skin data. (If not set, use the default skin data)
+         * @returns The armature.
+         * @example
+         * <pre>
+         *     let armature = factory.buildArmature("armatureName", "dragonBonesName");
+         *     armature.clock = factory.clock;
+         * </pre>
+         * @see dragonBones.DragonBonesData
          * @see dragonBones.ArmatureData
-         * @see dragonBones.Armature
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 通过缓存的 DragonBonesData 实例和 TextureAtlasData 实例创建一个骨架。
+         * 注意，创建的骨架不再使用时，需要显式释放 {@link #dragonBones.Armature#dispose()}。
+         * @param armatureName - 骨架数据名称。
+         * @param dragonBonesName - DragonBonesData 实例的缓存名称。 （如果未设置，将检索所有的 DragonBonesData 实例，当多个 DragonBonesData 实例中包含同名的骨架数据时，可能无法准确的创建出特定的骨架）
+         * @param skinName - 皮肤名称，可以设置一个其他骨架数据名称来共享其皮肤数据。（如果未设置，则使用默认的皮肤数据）
+         * @returns 骨架。
+         * @example
+         * <pre>
+         *     let armature = factory.buildArmature("armatureName", "dragonBonesName");
+         *     armature.clock = factory.clock;
+         * </pre>
+         * @see dragonBones.DragonBonesData
+         * @see dragonBones.ArmatureData
          * @version DragonBones 3.0
          * @language zh_CN
          */
         BaseFactory.prototype.buildArmature = function (armatureName, dragonBonesName, skinName, textureAtlasName) {
-            if (dragonBonesName === void 0) { dragonBonesName = null; }
-            if (skinName === void 0) { skinName = null; }
-            if (textureAtlasName === void 0) { textureAtlasName = null; }
+            if (dragonBonesName === void 0) { dragonBonesName = ""; }
+            if (skinName === void 0) { skinName = ""; }
+            if (textureAtlasName === void 0) { textureAtlasName = ""; }
             var dataPackage = new BuildArmaturePackage();
             if (!this._fillBuildArmaturePackage(dataPackage, dragonBonesName || "", armatureName, skinName || "", textureAtlasName || "")) {
-                console.warn("No armature data. " + armatureName + ", " + (dragonBonesName !== null ? dragonBonesName : ""));
+                console.warn("No armature data: " + armatureName + ", " + (dragonBonesName !== null ? dragonBonesName : ""));
                 return null;
             }
             var armature = this._buildArmature(dataPackage);
             this._buildBones(dataPackage, armature);
             this._buildSlots(dataPackage, armature);
-            // armature.invalidUpdate(null, true); TODO
-            armature.invalidUpdate("", true);
+            this._buildConstraints(dataPackage, armature);
+            armature.invalidUpdate(null, true);
             armature.advanceTime(0.0); // Update armature pose.
             return armature;
         };
         /**
-         * 用指定资源替换指定插槽的显示对象。(用 "dragonBonesName/armatureName/slotName/displayName" 的资源替换 "slot" 的显示对象)
-         * @param dragonBonesName 指定的龙骨数据名称。
-         * @param armatureName 指定的骨架名称。
-         * @param slotName 指定的插槽名称。
-         * @param displayName 指定的显示对象名称。
-         * @param slot 指定的插槽实例。
-         * @param displayIndex 要替换的显示对象的索引，如果未设置，则替换当前正在显示的显示对象。
+         * @private
+         */
+        BaseFactory.prototype.replaceDisplay = function (slot, displayData, displayIndex) {
+            if (displayIndex === void 0) { displayIndex = -1; }
+            if (displayIndex < 0) {
+                displayIndex = slot.displayIndex;
+            }
+            if (displayIndex < 0) {
+                displayIndex = 0;
+            }
+            slot.replaceDisplayData(displayData, displayIndex);
+            if (displayData !== null) {
+                var display = this._getSlotDisplay(null, displayData, slot);
+                if (displayData.type === 0 /* Image */) {
+                    var rawDisplayData = slot.getDisplayFrameAt(displayIndex).rawDisplayData;
+                    if (rawDisplayData !== null &&
+                        rawDisplayData.type === 2 /* Mesh */) {
+                        display = slot.meshDisplay;
+                    }
+                }
+                slot.replaceDisplay(display, displayIndex);
+            }
+            else {
+                slot.replaceDisplay(null, displayIndex);
+            }
+        };
+        /**
+         * - Replaces the current display data for a particular slot with a specific display data.
+         * Specify display data with "dragonBonesName/armatureName/slotName/displayName".
+         * @param dragonBonesName - The DragonBonesData instance cache name.
+         * @param armatureName - The armature data name.
+         * @param slotName - The slot data name.
+         * @param displayName - The display data name.
+         * @param slot - The slot.
+         * @param displayIndex - The index of the display data that is replaced. (If it is not set, replaces the current display data)
+         * @example
+         * <pre>
+         *     let slot = armature.getSlot("weapon");
+         *     factory.replaceSlotDisplay("dragonBonesName", "armatureName", "slotName", "displayName", slot);
+         * </pre>
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 用特定的显示对象数据替换特定插槽当前的显示对象数据。
+         * 用 "dragonBonesName/armatureName/slotName/displayName" 指定显示对象数据。
+         * @param dragonBonesName - DragonBonesData 实例的缓存名称。
+         * @param armatureName - 骨架数据名称。
+         * @param slotName - 插槽数据名称。
+         * @param displayName - 显示对象数据名称。
+         * @param slot - 插槽。
+         * @param displayIndex - 被替换的显示对象数据的索引。 （如果未设置，则替换当前的显示对象数据）
+         * @example
+         * <pre>
+         *     let slot = armature.getSlot("weapon");
+         *     factory.replaceSlotDisplay("dragonBonesName", "armatureName", "slotName", "displayName", slot);
+         * </pre>
          * @version DragonBones 4.5
          * @language zh_CN
          */
         BaseFactory.prototype.replaceSlotDisplay = function (dragonBonesName, armatureName, slotName, displayName, slot, displayIndex) {
             if (displayIndex === void 0) { displayIndex = -1; }
-            var dataPackage = {};
-            if (!this._fillBuildArmaturePackage(dataPackage, dragonBonesName || "", armatureName, "", "") || dataPackage.skin === null) {
-                return;
+            var armatureData = this.getArmatureData(armatureName, dragonBonesName || "");
+            if (armatureData === null || armatureData.defaultSkin === null) {
+                return false;
             }
-            var displays = dataPackage.skin.getDisplays(slotName);
-            if (displays === null) {
-                return;
-            }
-            for (var _i = 0, displays_2 = displays; _i < displays_2.length; _i++) {
-                var display = displays_2[_i];
-                if (display !== null && display.name === displayName) {
-                    this._replaceSlotDisplay(dataPackage, display, slot, displayIndex);
-                    break;
-                }
-            }
+            var displayData = armatureData.defaultSkin.getDisplay(slotName, displayName);
+            this.replaceDisplay(slot, displayData, displayIndex);
+            return true;
         };
         /**
-         * 用指定资源列表替换插槽的显示对象列表。
-         * @param dragonBonesName 指定的 DragonBonesData 名称。
-         * @param armatureName 指定的骨架名称。
-         * @param slotName 指定的插槽名称。
-         * @param slot 指定的插槽实例。
-         * @version DragonBones 4.5
-         * @language zh_CN
+         * @private
          */
         BaseFactory.prototype.replaceSlotDisplayList = function (dragonBonesName, armatureName, slotName, slot) {
-            var dataPackage = {};
-            if (!this._fillBuildArmaturePackage(dataPackage, dragonBonesName || "", armatureName, "", "") || dataPackage.skin === null) {
-                return;
+            var armatureData = this.getArmatureData(armatureName, dragonBonesName || "");
+            if (!armatureData || !armatureData.defaultSkin) {
+                return false;
             }
-            var displays = dataPackage.skin.getDisplays(slotName);
-            if (displays === null) {
-                return;
+            var displayDatas = armatureData.defaultSkin.getDisplays(slotName);
+            if (!displayDatas) {
+                return false;
             }
-            var displayIndex = 0;
-            for (var _i = 0, displays_3 = displays; _i < displays_3.length; _i++) {
-                var displayData = displays_3[_i];
-                this._replaceSlotDisplay(dataPackage, displayData, slot, displayIndex++);
+            slot.displayFrameCount = displayDatas.length;
+            for (var i = 0, l = slot.displayFrameCount; i < l; ++i) {
+                var displayData = displayDatas[i];
+                this.replaceDisplay(slot, displayData, i);
             }
+            return true;
         };
         /**
-         * 更换骨架皮肤。
-         * @param armature 骨架。
-         * @param skin 皮肤数据。
-         * @param exclude 不需要更新的插槽。
+         * - Share specific skin data with specific armature.
+         * @param armature - The armature.
+         * @param skin - The skin data.
+         * @param isOverride - Whether it completely override the original skin. (Default: false)
+         * @param exclude - A list of slot names that do not need to be replace.
+         * @example
+         * <pre>
+         *     let armatureA = factory.buildArmature("armatureA", "dragonBonesA");
+         *     let armatureDataB = factory.getArmatureData("armatureB", "dragonBonesB");
+         *     if (armatureDataB && armatureDataB.defaultSkin) {
+         *     factory.replaceSkin(armatureA, armatureDataB.defaultSkin, false, ["arm_l", "weapon_l"]);
+         *     }
+         * </pre>
          * @see dragonBones.Armature
          * @see dragonBones.SkinData
-         * @version DragonBones 5.1
+         * @version DragonBones 5.6
+         * @language en_US
+         */
+        /**
+         * - 将特定的皮肤数据共享给特定的骨架使用。
+         * @param armature - 骨架。
+         * @param skin - 皮肤数据。
+         * @param isOverride - 是否完全覆盖原来的皮肤。 （默认: false）
+         * @param exclude - 不需要被替换的插槽名称列表。
+         * @example
+         * <pre>
+         *     let armatureA = factory.buildArmature("armatureA", "dragonBonesA");
+         *     let armatureDataB = factory.getArmatureData("armatureB", "dragonBonesB");
+         *     if (armatureDataB && armatureDataB.defaultSkin) {
+         *     factory.replaceSkin(armatureA, armatureDataB.defaultSkin, false, ["arm_l", "weapon_l"]);
+         *     }
+         * </pre>
+         * @see dragonBones.Armature
+         * @see dragonBones.SkinData
+         * @version DragonBones 5.6
          * @language zh_CN
          */
-        BaseFactory.prototype.changeSkin = function (armature, skin, exclude) {
+        BaseFactory.prototype.replaceSkin = function (armature, skin, isOverride, exclude) {
+            if (isOverride === void 0) { isOverride = false; }
             if (exclude === void 0) { exclude = null; }
+            var success = false;
+            var defaultSkin = skin.parent.defaultSkin;
             for (var _i = 0, _a = armature.getSlots(); _i < _a.length; _i++) {
                 var slot = _a[_i];
-                if (!(slot.name in skin.displays) || (exclude !== null && exclude.indexOf(slot.name) >= 0)) {
+                if (exclude !== null && exclude.indexOf(slot.name) >= 0) {
                     continue;
                 }
-                var displays = skin.displays[slot.name];
-                var displayList = slot.displayList; // Copy.
-                displayList.length = displays.length; // Modify displayList length.
-                for (var i = 0, l = displays.length; i < l; ++i) {
-                    var displayData = displays[i];
+                var displayDatas = skin.getDisplays(slot.name);
+                if (displayDatas === null) {
+                    if (defaultSkin !== null && skin !== defaultSkin) {
+                        displayDatas = defaultSkin.getDisplays(slot.name);
+                    }
+                    if (displayDatas === null) {
+                        if (isOverride) {
+                            slot.displayFrameCount = 0;
+                        }
+                        continue;
+                    }
+                }
+                slot.displayFrameCount = displayDatas.length;
+                for (var i = 0, l = slot.displayFrameCount; i < l; ++i) {
+                    var displayData = displayDatas[i];
+                    slot.replaceRawDisplayData(displayData, i);
                     if (displayData !== null) {
-                        displayList[i] = this._getSlotDisplay(null, displayData, null, slot);
+                        slot.replaceDisplay(this._getSlotDisplay(null, displayData, slot), i);
                     }
                     else {
-                        displayList[i] = null;
+                        slot.replaceDisplay(null, i);
                     }
                 }
-                slot._rawDisplayDatas = displays;
-                slot._displayDatas.length = displays.length;
-                for (var i = 0, l = slot._displayDatas.length; i < l; ++i) {
-                    slot._displayDatas[i] = displays[i];
-                }
-                slot.displayList = displayList;
+                success = true;
             }
+            return success;
         };
         /**
-         * 将骨架的动画替换成其他骨架的动画。 (通常这些骨架应该具有相同的骨架结构)
-         * @param toArmature 指定的骨架。
-         * @param fromArmatreName 其他骨架的名称。
-         * @param fromSkinName 其他骨架的皮肤名称，如果未设置，则使用默认皮肤。
-         * @param fromDragonBonesDataName 其他骨架属于的龙骨数据名称，如果未设置，则检索所有的龙骨数据。
-         * @param replaceOriginalAnimation 是否替换原有的同名动画。
-         * @returns 是否替换成功。
+         * - Replaces the existing animation data for a specific armature with the animation data for the specific armature data.
+         * This enables you to make a armature template so that other armature without animations can share it's animations.
+         * @param armature - The armtaure.
+         * @param armatureData - The armature data.
+         * @param isOverride - Whether to completely overwrite the original animation. (Default: false)
+         * @example
+         * <pre>
+         *     let armatureA = factory.buildArmature("armatureA", "dragonBonesA");
+         *     let armatureDataB = factory.getArmatureData("armatureB", "dragonBonesB");
+         *     if (armatureDataB) {
+         *     factory.replaceAnimation(armatureA, armatureDataB);
+         *     }
+         * </pre>
          * @see dragonBones.Armature
          * @see dragonBones.ArmatureData
-         * @version DragonBones 4.5
+         * @version DragonBones 5.6
+         * @language en_US
+         */
+        /**
+         * - 用特定骨架数据的动画数据替换特定骨架现有的动画数据。
+         * 这样就能实现制作一个骨架动画模板，让其他没有制作动画的骨架共享该动画。
+         * @param armature - 骨架。
+         * @param armatureData - 骨架数据。
+         * @param isOverride - 是否完全覆盖原来的动画。（默认: false）
+         * @example
+         * <pre>
+         *     let armatureA = factory.buildArmature("armatureA", "dragonBonesA");
+         *     let armatureDataB = factory.getArmatureData("armatureB", "dragonBonesB");
+         *     if (armatureDataB) {
+         *     factory.replaceAnimation(armatureA, armatureDataB);
+         *     }
+         * </pre>
+         * @see dragonBones.Armature
+         * @see dragonBones.ArmatureData
+         * @version DragonBones 5.6
          * @language zh_CN
          */
-        BaseFactory.prototype.copyAnimationsToArmature = function (toArmature, fromArmatreName, fromSkinName, fromDragonBonesDataName, replaceOriginalAnimation) {
-            if (fromSkinName === void 0) { fromSkinName = null; }
-            if (fromDragonBonesDataName === void 0) { fromDragonBonesDataName = null; }
-            if (replaceOriginalAnimation === void 0) { replaceOriginalAnimation = true; }
-            var dataPackage = new BuildArmaturePackage();
-            if (this._fillBuildArmaturePackage(dataPackage, fromDragonBonesDataName || "", fromArmatreName, fromSkinName || "", "")) {
-                var fromArmatureData = dataPackage.armature;
-                if (replaceOriginalAnimation) {
-                    toArmature.animation.animations = fromArmatureData.animations;
+        BaseFactory.prototype.replaceAnimation = function (armature, armatureData, isOverride) {
+            if (isOverride === void 0) { isOverride = true; }
+            var skinData = armatureData.defaultSkin;
+            if (skinData === null) {
+                return false;
+            }
+            if (isOverride) {
+                armature.animation.animations = armatureData.animations;
+            }
+            else {
+                var rawAnimations = armature.animation.animations;
+                var animations = {};
+                for (var k in rawAnimations) {
+                    animations[k] = rawAnimations[k];
                 }
-                else {
-                    var animations = {};
-                    for (var animationName in toArmature.animation.animations) {
-                        animations[animationName] = toArmature.animation.animations[animationName];
-                    }
-                    for (var animationName in fromArmatureData.animations) {
-                        animations[animationName] = fromArmatureData.animations[animationName];
-                    }
-                    toArmature.animation.animations = animations;
+                for (var k in armatureData.animations) {
+                    animations[k] = armatureData.animations[k];
                 }
-                if (dataPackage.skin) {
-                    var slots = toArmature.getSlots();
-                    for (var i = 0, l = slots.length; i < l; ++i) {
-                        var toSlot = slots[i];
-                        var toSlotDisplayList = toSlot.displayList;
-                        for (var j = 0, lJ = toSlotDisplayList.length; j < lJ; ++j) {
-                            var toDisplayObject = toSlotDisplayList[j];
-                            if (toDisplayObject instanceof dragonBones.Armature) {
-                                var displays = dataPackage.skin.getDisplays(toSlot.name);
-                                if (displays !== null && j < displays.length) {
-                                    var fromDisplayData = displays[j];
-                                    if (fromDisplayData !== null && fromDisplayData.type === 1 /* Armature */) {
-                                        this.copyAnimationsToArmature(toDisplayObject, fromDisplayData.path, fromSkinName, fromDragonBonesDataName, replaceOriginalAnimation);
-                                    }
+                armature.animation.animations = animations;
+            }
+            for (var _i = 0, _a = armature.getSlots(); _i < _a.length; _i++) {
+                var slot = _a[_i];
+                var index = 0;
+                for (var _b = 0, _c = slot.displayList; _b < _c.length; _b++) {
+                    var display = _c[_b];
+                    if (display instanceof dragonBones.Armature) {
+                        var displayDatas = skinData.getDisplays(slot.name);
+                        if (displayDatas !== null && index < displayDatas.length) {
+                            var displayData = displayDatas[index];
+                            if (displayData !== null && displayData.type === 1 /* Armature */) {
+                                var childArmatureData = this.getArmatureData(displayData.path, displayData.parent.parent.parent.name);
+                                if (childArmatureData) {
+                                    this.replaceAnimation(display, childArmatureData, isOverride);
                                 }
                             }
                         }
                     }
-                    return true;
+                    index++;
                 }
             }
-            return false;
+            return true;
         };
         /**
          * @private
@@ -10523,26 +15091,86 @@ var dragonBones;
         BaseFactory.prototype.getAllTextureAtlasData = function () {
             return this._textureAtlasDataMap;
         };
-        /**
-         * @private
-         */
+        Object.defineProperty(BaseFactory.prototype, "clock", {
+            /**
+             * - An Worldclock instance updated by engine.
+             * @version DragonBones 5.7
+             * @language en_US
+             */
+            /**
+             * - 由引擎驱动的 WorldClock 实例。
+             * @version DragonBones 5.7
+             * @language zh_CN
+             */
+            get: function () {
+                return this._dragonBones.clock;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(BaseFactory.prototype, "dragonBones", {
+            /**
+             * @private
+             */
+            get: function () {
+                return this._dragonBones;
+            },
+            enumerable: true,
+            configurable: true
+        });
         BaseFactory._objectParser = null;
-        /**
-         * @private
-         */
         BaseFactory._binaryParser = null;
         return BaseFactory;
     }());
     dragonBones.BaseFactory = BaseFactory;
+    /**
+     * @private
+     */
+    var BuildArmaturePackage = /** @class */ (function () {
+        function BuildArmaturePackage() {
+            this.dataName = "";
+            this.textureAtlasName = "";
+            this.skin = null;
+        }
+        return BuildArmaturePackage;
+    }());
+    dragonBones.BuildArmaturePackage = BuildArmaturePackage;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
     /**
-     * Egret 贴图集数据。
+     * - The egret texture atlas data.
+     * @version DragonBones 3.0
+     * @language en_US
+     */
+    /**
+     * - Egret 贴图集数据。
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var EgretTextureAtlasData = (function (_super) {
+    var EgretTextureAtlasData = /** @class */ (function (_super) {
         __extends(EgretTextureAtlasData, _super);
         function EgretTextureAtlasData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -10552,25 +15180,28 @@ var dragonBones;
         EgretTextureAtlasData.toString = function () {
             return "[class dragonBones.EgretTextureAtlasData]";
         };
-        /**
-         * @private
-         */
         EgretTextureAtlasData.prototype._onClear = function () {
             _super.prototype._onClear.call(this);
-            if (this._renderTexture !== null) {
-                //this.texture.dispose();
+            if (this.disposeEnabled && this._renderTexture !== null) {
+                this._renderTexture.dispose();
             }
+            this.disposeEnabled = false;
             this._renderTexture = null;
         };
         /**
-         * @private
+         * @inheritDoc
          */
         EgretTextureAtlasData.prototype.createTexture = function () {
             return dragonBones.BaseObject.borrowObject(EgretTextureData);
         };
         Object.defineProperty(EgretTextureAtlasData.prototype, "renderTexture", {
             /**
-             * Egret 贴图。
+             * - The Egret texture.
+             * @version DragonBones 3.0
+             * @language en_US
+             */
+            /**
+             * - Egret 贴图。
              * @version DragonBones 3.0
              * @language zh_CN
              */
@@ -10587,19 +15218,20 @@ var dragonBones;
                     var textureAtlasWidth = this.width > 0.0 ? this.width : bitmapData.width;
                     var textureAtlasHeight = this.height > 0.0 ? this.height : bitmapData.height;
                     for (var k in this.textures) {
+                        var scale = egret.$TextureScaleFactor;
                         var textureData = this.textures[k];
-                        var subTextureWidth = Math.min(textureData.region.width, textureAtlasWidth - textureData.region.x); // TODO need remove
-                        var subTextureHeight = Math.min(textureData.region.height, textureAtlasHeight - textureData.region.y); // TODO need remove
+                        var subTextureWidth = textureData.region.width;
+                        var subTextureHeight = textureData.region.height;
                         if (textureData.renderTexture === null) {
                             textureData.renderTexture = new egret.Texture();
-                            if (textureData.rotated) {
-                                textureData.renderTexture.$initData(textureData.region.x, textureData.region.y, subTextureHeight, subTextureWidth, 0, 0, subTextureHeight, subTextureWidth, textureAtlasWidth, textureAtlasHeight, textureData.rotated);
-                            }
-                            else {
-                                textureData.renderTexture.$initData(textureData.region.x, textureData.region.y, subTextureWidth, subTextureHeight, 0, 0, subTextureWidth, subTextureHeight, textureAtlasWidth, textureAtlasHeight);
-                            }
                         }
-                        textureData.renderTexture._bitmapData = bitmapData;
+                        textureData.renderTexture.bitmapData = bitmapData;
+                        if (textureData.rotated) {
+                            textureData.renderTexture.$initData(textureData.region.x * scale, textureData.region.y * scale, subTextureHeight * scale, subTextureWidth * scale, 0, 0, subTextureHeight * scale, subTextureWidth * scale, textureAtlasWidth, textureAtlasHeight, textureData.rotated);
+                        }
+                        else {
+                            textureData.renderTexture.$initData(textureData.region.x * scale, textureData.region.y * scale, subTextureWidth * scale, subTextureHeight * scale, 0, 0, subTextureWidth * scale, subTextureHeight * scale, textureAtlasWidth, textureAtlasHeight);
+                        }
                     }
                 }
                 else {
@@ -10612,34 +15244,13 @@ var dragonBones;
             enumerable: true,
             configurable: true
         });
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.BaseFactory#removeTextureAtlasData()
-         */
-        EgretTextureAtlasData.prototype.dispose = function () {
-            console.warn("已废弃，请参考 @see");
-            this.returnToPool();
-        };
-        Object.defineProperty(EgretTextureAtlasData.prototype, "texture", {
-            /**
-             * @deprecated
-             * 已废弃，请参考 @see
-             * @see dragonBones.BaseFactory#removeTextureAtlasData()
-             */
-            get: function () {
-                return this.renderTexture;
-            },
-            enumerable: true,
-            configurable: true
-        });
         return EgretTextureAtlasData;
     }(dragonBones.TextureAtlasData));
     dragonBones.EgretTextureAtlasData = EgretTextureAtlasData;
     /**
-     * @private
+     * @internal
      */
-    var EgretTextureData = (function (_super) {
+    var EgretTextureData = /** @class */ (function (_super) {
         __extends(EgretTextureData, _super);
         function EgretTextureData() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -10652,7 +15263,8 @@ var dragonBones;
         EgretTextureData.prototype._onClear = function () {
             _super.prototype._onClear.call(this);
             if (this.renderTexture !== null) {
-                //this.texture.dispose();
+                //this.renderTexture.dispose(false);
+                //this.renderTexture.dispose();
             }
             this.renderTexture = null;
         };
@@ -10660,21 +15272,54 @@ var dragonBones;
     }(dragonBones.TextureData));
     dragonBones.EgretTextureData = EgretTextureData;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
     /**
-     * Egret 事件。
+     * - The egret event.
+     * @version DragonBones 4.5
+     * @language en_US
+     */
+    /**
+     * - Egret 事件。
      * @version DragonBones 4.5
      * @language zh_CN
      */
-    var EgretEvent = (function (_super) {
+    var EgretEvent = /** @class */ (function (_super) {
         __extends(EgretEvent, _super);
         function EgretEvent() {
             return _super !== null && _super.apply(this, arguments) || this;
         }
         Object.defineProperty(EgretEvent.prototype, "eventObject", {
             /**
-             * 事件对象。
+             * - The event object.
+             * @see dragonBones.EventObject
+             * @version DragonBones 4.5
+             * @language en_US
+             */
+            /**
+             * - 事件对象。
              * @see dragonBones.EventObject
              * @version DragonBones 4.5
              * @language zh_CN
@@ -10685,203 +15330,31 @@ var dragonBones;
             enumerable: true,
             configurable: true
         });
-        Object.defineProperty(EgretEvent.prototype, "animationName", {
-            /**
-             * @deprecated
-             * 已废弃，请参考 @see
-             * @see #eventObject
-             * @see dragonBones.EventObject#animationState
-             */
-            get: function () {
-                var animationState = this.eventObject.animationState;
-                return animationState !== null ? animationState.name : "";
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(EgretEvent.prototype, "armature", {
-            /**
-             * @deprecated
-             * 已废弃，请参考 @see
-             * @see #eventObject
-             * @see dragonBones.EventObject#armature
-             */
-            get: function () {
-                return this.eventObject.armature;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(EgretEvent.prototype, "bone", {
-            /**
-             * @deprecated
-             * 已废弃，请参考 @see
-             * @see #eventObject
-             * @see dragonBones.EventObject#bone
-             */
-            get: function () {
-                return this.eventObject.bone;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(EgretEvent.prototype, "slot", {
-            /**
-             * @deprecated
-             * 已废弃，请参考 @see
-             * @see #eventObject
-             * @see dragonBones.EventObject#slot
-             */
-            get: function () {
-                return this.eventObject.slot;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(EgretEvent.prototype, "animationState", {
-            /**
-             * @deprecated
-             * 已废弃，请参考 @see
-             * @see #eventObject
-             * @see dragonBones.EventObject#animationState
-             */
-            get: function () {
-                return this.eventObject.animationState;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(EgretEvent.prototype, "frameLabel", {
-            /**
-             * @deprecated
-             * 已废弃，请参考 @see
-             * @see dragonBones.EventObject#name
-             */
-            get: function () {
-                return this.eventObject.name;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(EgretEvent.prototype, "sound", {
-            /**
-             * @deprecated
-             * 已废弃，请参考 @see
-             * @see dragonBones.EventObject#name
-             */
-            get: function () {
-                return this.eventObject.name;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(EgretEvent.prototype, "movementID", {
-            /**
-             * @deprecated
-             * 已废弃，请参考 @see
-             * @see #animationName
-             */
-            get: function () {
-                return this.animationName;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.START
-         */
-        EgretEvent.START = dragonBones.EventObject.START;
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.LOOP_COMPLETE
-         */
-        EgretEvent.LOOP_COMPLETE = dragonBones.EventObject.LOOP_COMPLETE;
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.COMPLETE
-         */
-        EgretEvent.COMPLETE = dragonBones.EventObject.COMPLETE;
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.FADE_IN
-         */
-        EgretEvent.FADE_IN = dragonBones.EventObject.FADE_IN;
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.FADE_IN_COMPLETE
-         */
-        EgretEvent.FADE_IN_COMPLETE = dragonBones.EventObject.FADE_IN_COMPLETE;
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.FADE_OUT
-         */
-        EgretEvent.FADE_OUT = dragonBones.EventObject.FADE_OUT;
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.FADE_OUT_COMPLETE
-         */
-        EgretEvent.FADE_OUT_COMPLETE = dragonBones.EventObject.FADE_OUT_COMPLETE;
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.FRAME_EVENT
-         */
-        EgretEvent.FRAME_EVENT = dragonBones.EventObject.FRAME_EVENT;
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.SOUND_EVENT
-         */
-        EgretEvent.SOUND_EVENT = dragonBones.EventObject.SOUND_EVENT;
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.FRAME_EVENT
-         */
-        EgretEvent.ANIMATION_FRAME_EVENT = dragonBones.EventObject.FRAME_EVENT;
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.FRAME_EVENT
-         */
-        EgretEvent.BONE_FRAME_EVENT = dragonBones.EventObject.FRAME_EVENT;
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.FRAME_EVENT
-         */
-        EgretEvent.MOVEMENT_FRAME_EVENT = dragonBones.EventObject.FRAME_EVENT;
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EventObject.SOUND_EVENT
-         */
-        EgretEvent.SOUND = dragonBones.EventObject.SOUND_EVENT;
         return EgretEvent;
     }(egret.Event));
     dragonBones.EgretEvent = EgretEvent;
     /**
      * @inheritDoc
      */
-    var EgretArmatureDisplay = (function (_super) {
+    var EgretArmatureDisplay = /** @class */ (function (_super) {
         __extends(EgretArmatureDisplay, _super);
         function EgretArmatureDisplay() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
             /**
-             * @internal
              * @private
              */
-            _this._batchEnabled = true;
-            _this._disposeProxy = false;
+            _this.debugDraw = false;
+            /**
+             * @internal
+             */
+            _this._batchEnabled = !(global["nativeRender"] || global["bricks"]); //
+            /**
+             * @internal
+             */
+            _this._childDirty = true;
+            _this._debugDraw = false;
             _this._armature = null; //
+            _this._bounds = null;
             _this._debugDrawer = null;
             return _this;
         }
@@ -10889,26 +15362,150 @@ var dragonBones;
         /**
          * @inheritDoc
          */
-        EgretArmatureDisplay.prototype.init = function (armature) {
+        EgretArmatureDisplay.prototype.dbInit = function (armature) {
             this._armature = armature;
-            //
-            this.$renderNode = new egret.sys.GroupNode();
-            this.$renderNode.cleanBeforeRender = EgretArmatureDisplay._cleanBeforeRender;
+            if (this._batchEnabled) {
+                this.$renderNode = new egret.sys.GroupNode();
+                this.$renderNode.cleanBeforeRender = EgretArmatureDisplay._cleanBeforeRender;
+            }
         };
         /**
          * @inheritDoc
          */
-        EgretArmatureDisplay.prototype.clear = function () {
-            this._disposeProxy = false;
+        EgretArmatureDisplay.prototype.dbClear = function () {
             this._armature = null;
+            this._bounds = null;
             this._debugDrawer = null;
+        };
+        /**
+         * @inheritDoc
+         */
+        EgretArmatureDisplay.prototype.dbUpdate = function () {
+            var drawed = dragonBones.DragonBones.debugDraw || this.debugDraw;
+            if (drawed || this._debugDraw) {
+                this._debugDraw = drawed;
+                if (this._debugDraw) {
+                    if (this._debugDrawer === null) {
+                        this._debugDrawer = new egret.Sprite();
+                    }
+                    if (this._debugDrawer.parent !== this) {
+                        this.addChild(this._debugDrawer);
+                    }
+                    var boneStep = 2.0;
+                    var graphics = this._debugDrawer.graphics;
+                    graphics.clear();
+                    for (var _i = 0, _a = this._armature.getBones(); _i < _a.length; _i++) {
+                        var bone = _a[_i];
+                        if (bone.boneData.type === 0 /* Bone */) {
+                            var boneLength = Math.max(bone.boneData.length, boneStep);
+                            var startX = bone.globalTransformMatrix.tx;
+                            var startY = bone.globalTransformMatrix.ty;
+                            var aX = startX - bone.globalTransformMatrix.a * boneStep;
+                            var aY = startY - bone.globalTransformMatrix.b * boneStep;
+                            var bX = startX + bone.globalTransformMatrix.a * boneLength;
+                            var bY = startY + bone.globalTransformMatrix.b * boneLength;
+                            var cX = startX + aY - startY;
+                            var cY = startY + aX - startX;
+                            var dX = startX - aY + startY;
+                            var dY = startY - aX + startX;
+                            //
+                            graphics.lineStyle(2.0, 0x00FFFF, 0.7);
+                            graphics.moveTo(aX, aY);
+                            graphics.lineTo(bX, bY);
+                            graphics.moveTo(cX, cY);
+                            graphics.lineTo(dX, dY);
+                        }
+                        else {
+                            var surface = bone;
+                            var surfaceData = surface._boneData;
+                            var segmentX = surfaceData.segmentX;
+                            var segmentY = surfaceData.segmentY;
+                            var vertices = surface._vertices;
+                            graphics.lineStyle(2.0, 0xFFFF00, 0.3);
+                            for (var iY = 0; iY < segmentY; ++iY) {
+                                for (var iX = 0; iX < segmentX; ++iX) {
+                                    var vertexIndex = (iX + iY * (segmentX + 1)) * 2;
+                                    var x = vertices[vertexIndex];
+                                    var y = vertices[vertexIndex + 1];
+                                    graphics.moveTo(x, y);
+                                    graphics.lineTo(vertices[vertexIndex + 2], vertices[vertexIndex + 3]);
+                                    graphics.moveTo(x, y);
+                                    graphics.lineTo(vertices[vertexIndex + (segmentX + 1) * 2], vertices[vertexIndex + (segmentX + 1) * 2 + 1]);
+                                    if (iX === segmentX - 1) {
+                                        graphics.moveTo(vertices[vertexIndex + 2], vertices[vertexIndex + 3]);
+                                        graphics.lineTo(vertices[vertexIndex + (segmentX + 2) * 2], vertices[vertexIndex + (segmentX + 2) * 2 + 1]);
+                                    }
+                                    if (iY === segmentY - 1) {
+                                        graphics.moveTo(vertices[vertexIndex + (segmentX + 1) * 2], vertices[vertexIndex + (segmentX + 1) * 2 + 1]);
+                                        graphics.lineTo(vertices[vertexIndex + (segmentX + 2) * 2], vertices[vertexIndex + (segmentX + 2) * 2 + 1]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    for (var _b = 0, _c = this._armature.getSlots(); _b < _c.length; _b++) {
+                        var slot = _c[_b];
+                        var boundingBoxData = slot.boundingBoxData;
+                        if (boundingBoxData !== null) {
+                            var child = this._debugDrawer.getChildByName(slot.name);
+                            if (child === null) {
+                                child = new egret.Shape();
+                                child.name = slot.name;
+                                this._debugDrawer.addChild(child);
+                            }
+                            child.graphics.clear();
+                            child.graphics.lineStyle(2.0, 0xFF00FF, 0.7);
+                            switch (boundingBoxData.type) {
+                                case 0 /* Rectangle */:
+                                    child.graphics.drawRect(-boundingBoxData.width * 0.5, -boundingBoxData.height * 0.5, boundingBoxData.width, boundingBoxData.height);
+                                    break;
+                                case 1 /* Ellipse */:
+                                    child.graphics.drawEllipse(-boundingBoxData.width * 0.5, -boundingBoxData.height * 0.5, boundingBoxData.width, boundingBoxData.height);
+                                    break;
+                                case 2 /* Polygon */:
+                                    var vertices = boundingBoxData.vertices;
+                                    for (var i = 0; i < vertices.length; i += 2) {
+                                        var x = vertices[i];
+                                        var y = vertices[i + 1];
+                                        if (i === 0) {
+                                            child.graphics.moveTo(x, y);
+                                        }
+                                        else {
+                                            child.graphics.lineTo(x, y);
+                                        }
+                                    }
+                                    child.graphics.lineTo(vertices[0], vertices[1]);
+                                    break;
+                                default:
+                                    break;
+                            }
+                            slot.updateTransformAndMatrix();
+                            slot.updateGlobalTransform();
+                            child.$setMatrix(slot.globalTransformMatrix, false);
+                        }
+                        else {
+                            var child = this._debugDrawer.getChildByName(slot.name);
+                            if (child !== null) {
+                                this._debugDrawer.removeChild(child);
+                            }
+                        }
+                    }
+                }
+                else if (this._debugDrawer !== null && this._debugDrawer.parent === this) {
+                    this.removeChild(this._debugDrawer);
+                }
+            }
+            if (!dragonBones.isV5 && this._batchEnabled && this._childDirty) {
+                this.$invalidateContentBounds();
+            }
         };
         /**
          * @inheritDoc
          */
         EgretArmatureDisplay.prototype.dispose = function (disposeProxy) {
             if (disposeProxy === void 0) { disposeProxy = true; }
-            this._disposeProxy = disposeProxy;
+            // tslint:disable-next-line:no-unused-expression
+            disposeProxy;
             if (this._armature !== null) {
                 this._armature.dispose();
                 this._armature = null;
@@ -10917,83 +15514,7 @@ var dragonBones;
         /**
          * @inheritDoc
          */
-        EgretArmatureDisplay.prototype.debugUpdate = function (isEnabled) {
-            if (isEnabled) {
-                if (this._debugDrawer === null) {
-                    this._debugDrawer = new egret.Sprite();
-                }
-                this.addChild(this._debugDrawer);
-                this._debugDrawer.graphics.clear();
-                for (var _i = 0, _a = this._armature.getBones(); _i < _a.length; _i++) {
-                    var bone = _a[_i];
-                    var boneLength = bone.boneData.length;
-                    var startX = bone.globalTransformMatrix.tx;
-                    var startY = bone.globalTransformMatrix.ty;
-                    var endX = startX + bone.globalTransformMatrix.a * boneLength;
-                    var endY = startY + bone.globalTransformMatrix.b * boneLength;
-                    this._debugDrawer.graphics.lineStyle(2.0, 0x00FFFF, 0.7);
-                    this._debugDrawer.graphics.moveTo(startX, startY);
-                    this._debugDrawer.graphics.lineTo(endX, endY);
-                    this._debugDrawer.graphics.lineStyle(0.0, 0, 0.0);
-                    this._debugDrawer.graphics.beginFill(0x00FFFF, 0.7);
-                    this._debugDrawer.graphics.drawCircle(startX, startY, 3.0);
-                    this._debugDrawer.graphics.endFill();
-                }
-                for (var _b = 0, _c = this._armature.getSlots(); _b < _c.length; _b++) {
-                    var slot = _c[_b];
-                    var boundingBoxData = slot.boundingBoxData;
-                    if (boundingBoxData !== null) {
-                        var child = this._debugDrawer.getChildByName(slot.name);
-                        if (child === null) {
-                            child = new egret.Shape();
-                            child.name = slot.name;
-                            this._debugDrawer.addChild(child);
-                        }
-                        child.graphics.clear();
-                        child.graphics.beginFill(boundingBoxData.color ? boundingBoxData.color : 0xFF00FF, 0.3);
-                        switch (boundingBoxData.type) {
-                            case 0 /* Rectangle */:
-                                child.graphics.drawRect(-boundingBoxData.width * 0.5, -boundingBoxData.height * 0.5, boundingBoxData.width, boundingBoxData.height);
-                                break;
-                            case 1 /* Ellipse */:
-                                child.graphics.drawEllipse(-boundingBoxData.width * 0.5, -boundingBoxData.height * 0.5, boundingBoxData.width, boundingBoxData.height);
-                                break;
-                            case 2 /* Polygon */:
-                                var polygon = boundingBoxData;
-                                var vertices = polygon.vertices;
-                                for (var j = 0; j < polygon.count; j += 2) {
-                                    if (j === 0) {
-                                        child.graphics.moveTo(vertices[polygon.offset + j], vertices[polygon.offset + j + 1]);
-                                    }
-                                    else {
-                                        child.graphics.lineTo(vertices[polygon.offset + j], vertices[polygon.offset + j + 1]);
-                                    }
-                                }
-                                break;
-                            default:
-                                break;
-                        }
-                        child.graphics.endFill();
-                        slot.updateTransformAndMatrix();
-                        slot.updateGlobalTransform();
-                        child.$setMatrix(slot.globalTransformMatrix, true);
-                    }
-                    else {
-                        var child = this._debugDrawer.getChildByName(slot.name);
-                        if (child !== null) {
-                            this._debugDrawer.removeChild(child);
-                        }
-                    }
-                }
-            }
-            else if (this._debugDrawer !== null && this._debugDrawer.parent === this) {
-                this.removeChild(this._debugDrawer);
-            }
-        };
-        /**
-         * @inheritDoc
-         */
-        EgretArmatureDisplay.prototype._dispatchEvent = function (type, eventObject) {
+        EgretArmatureDisplay.prototype.dispatchDBEvent = function (type, eventObject) {
             var event = egret.Event.create(EgretEvent, type);
             event.data = eventObject;
             _super.prototype.dispatchEvent.call(this, event);
@@ -11002,42 +15523,62 @@ var dragonBones;
         /**
          * @inheritDoc
          */
-        EgretArmatureDisplay.prototype.hasEvent = function (type) {
+        EgretArmatureDisplay.prototype.hasDBEventListener = function (type) {
             return this.hasEventListener(type);
         };
         /**
          * @inheritDoc
          */
-        EgretArmatureDisplay.prototype.addEvent = function (type, listener, target) {
+        EgretArmatureDisplay.prototype.addDBEventListener = function (type, listener, target) {
             this.addEventListener(type, listener, target);
         };
         /**
          * @inheritDoc
          */
-        EgretArmatureDisplay.prototype.removeEvent = function (type, listener, target) {
+        EgretArmatureDisplay.prototype.removeDBEventListener = function (type, listener, target) {
             this.removeEventListener(type, listener, target);
         };
         /**
-         * 关闭批次渲染。（批次渲染处于性能考虑，不会更新渲染对象的边界属性，这样无法正确获得渲染对象的绘制区域，如果需要使用这些属性，可以关闭批次渲染）
+         * - Disable the batch.
+         * Batch rendering for performance reasons, the boundary properties of the render object are not updated.
+         * This will not correctly obtain the wide-height properties of the rendered object and the transformation properties of its internal display objects,
+         * which can turn off batch rendering if you need to use these properties.
+         * @version DragonBones 5.1
+         * @language en_US
+         */
+        /**
+         * - 关闭批次渲染。
+         * 批次渲染出于性能考虑，不会更新渲染对象的边界属性。
+         * 这样将无法正确获得渲染对象的宽高属性以及其内部显示对象的变换属性，如果需要使用这些属性，可以关闭批次渲染。
          * @version DragonBones 5.1
          * @language zh_CN
          */
         EgretArmatureDisplay.prototype.disableBatch = function () {
+            if (!this._batchEnabled || !this._armature) {
+                return;
+            }
             for (var _i = 0, _a = this._armature.getSlots(); _i < _a.length; _i++) {
                 var slot = _a[_i];
                 // (slot as EgretSlot).transformUpdateEnabled = true;
-                var display = (slot.rawDisplay || slot.meshDisplay);
+                var display = (slot._geometryData ? slot.meshDisplay : slot.rawDisplay);
+                if (!slot.display && display === slot.meshDisplay) {
+                    display = slot.rawDisplay;
+                }
                 var node = display.$renderNode;
                 // Transform.
                 if (node.matrix) {
                     display.$setMatrix(slot.globalTransformMatrix, false);
                 }
+                // Color.
+                node.alpha = 1.0;
+                node.filter = null;
                 // ZOrder.
                 this.addChild(display);
             }
             this._batchEnabled = false;
             this.$renderNode.cleanBeforeRender = null;
             this.$renderNode = null;
+            this.armature.invalidUpdate(null, true);
         };
         Object.defineProperty(EgretArmatureDisplay.prototype, "armature", {
             /**
@@ -11060,175 +15601,155 @@ var dragonBones;
             configurable: true
         });
         /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.Armature#clock
-         * @see dragonBones.EgretFactory#clock
-         * @see dragonBones.Animation#timescale
-         * @see dragonBones.Animation#stop()
+         * @inheritDoc
          */
-        EgretArmatureDisplay.prototype.advanceTimeBySelf = function (on) {
-            if (on) {
-                this._armature.clock = dragonBones.EgretFactory.clock;
+        EgretArmatureDisplay.prototype.$measureContentBounds = function (bounds) {
+            if (this._batchEnabled && this._armature) {
+                if (this._childDirty) {
+                    this._childDirty = false;
+                    var isFirst = true;
+                    var helpRectangle = new egret.Rectangle();
+                    for (var _i = 0, _a = this._armature.getSlots(); _i < _a.length; _i++) {
+                        var slot = _a[_i];
+                        var display = slot.display;
+                        if (!display || !display.$renderNode || !display.$renderNode.image) {
+                            continue;
+                        }
+                        var matrix = display.$renderNode.matrix;
+                        if (display === slot.meshDisplay) {
+                            var vertices = display.$renderNode.vertices;
+                            if (vertices && vertices.length > 0) {
+                                helpRectangle.setTo(999999.0, 999999.0, -999999.0, -999999.0);
+                                for (var i = 0, l = vertices.length; i < l; i += 2) {
+                                    var x = vertices[i];
+                                    var y = vertices[i + 1];
+                                    if (helpRectangle.x > x)
+                                        helpRectangle.x = x;
+                                    if (helpRectangle.width < x)
+                                        helpRectangle.width = x;
+                                    if (helpRectangle.y > y)
+                                        helpRectangle.y = y;
+                                    if (helpRectangle.height < y)
+                                        helpRectangle.height = y;
+                                }
+                                helpRectangle.width -= helpRectangle.x;
+                                helpRectangle.height -= helpRectangle.y;
+                            }
+                            else {
+                                continue;
+                            }
+                        }
+                        else if (slot._displayFrame) {
+                            var textureData = slot._displayFrame.getTextureData();
+                            if (textureData) {
+                                var scale = textureData.parent.scale;
+                                helpRectangle.x = 0;
+                                helpRectangle.y = 0;
+                                helpRectangle.width = textureData.region.width * scale;
+                                helpRectangle.height = textureData.region.height * scale;
+                            }
+                            else {
+                                continue;
+                            }
+                        }
+                        matrix.$transformBounds(helpRectangle);
+                        var left = helpRectangle.x;
+                        var top_1 = helpRectangle.y;
+                        var right = helpRectangle.x + helpRectangle.width;
+                        var bottom = helpRectangle.y + helpRectangle.height;
+                        if (isFirst) {
+                            isFirst = false;
+                            bounds.x = left;
+                            bounds.y = top_1;
+                            bounds.width = right;
+                            bounds.height = bottom;
+                        }
+                        else {
+                            if (left < bounds.x) {
+                                bounds.x = left;
+                            }
+                            if (top_1 < bounds.y) {
+                                bounds.y = top_1;
+                            }
+                            if (right > bounds.width) {
+                                bounds.width = right;
+                            }
+                            if (bottom > bounds.height) {
+                                bounds.height = bottom;
+                            }
+                        }
+                    }
+                    bounds.width -= bounds.x;
+                    bounds.height -= bounds.y;
+                    if (dragonBones.isV5) {
+                        if (this._bounds === null) {
+                            this._bounds = new egret.Rectangle();
+                        }
+                        this._bounds.copyFrom(bounds);
+                    }
+                }
+                else if (dragonBones.isV5) {
+                    if (this._bounds === null) {
+                        this._bounds = new egret.Rectangle();
+                    }
+                    bounds.copyFrom(this._bounds);
+                }
+                return bounds; // V5
             }
-            else {
-                this._armature.clock = null;
-            }
+            return _super.prototype.$measureContentBounds.call(this, bounds); // V5
         };
         return EgretArmatureDisplay;
     }(egret.DisplayObjectContainer));
     dragonBones.EgretArmatureDisplay = EgretArmatureDisplay;
-    /**
-     * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.EgretEvent
-     */
-    var Event = (function (_super) {
-        __extends(Event, _super);
-        function Event() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        return Event;
-    }(EgretEvent));
-    dragonBones.Event = Event;
-    /**
-     * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.EgretEvent
-     */
-    var ArmatureEvent = (function (_super) {
-        __extends(ArmatureEvent, _super);
-        function ArmatureEvent() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        return ArmatureEvent;
-    }(EgretEvent));
-    dragonBones.ArmatureEvent = ArmatureEvent;
-    /**
-     * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.EgretEvent
-     */
-    var AnimationEvent = (function (_super) {
-        __extends(AnimationEvent, _super);
-        function AnimationEvent() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        return AnimationEvent;
-    }(EgretEvent));
-    dragonBones.AnimationEvent = AnimationEvent;
-    /**
-     * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.EgretEvent
-     */
-    var FrameEvent = (function (_super) {
-        __extends(FrameEvent, _super);
-        function FrameEvent() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        return FrameEvent;
-    }(EgretEvent));
-    dragonBones.FrameEvent = FrameEvent;
-    /**
-     * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.EgretEvent
-     */
-    var SoundEvent = (function (_super) {
-        __extends(SoundEvent, _super);
-        function SoundEvent() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        return SoundEvent;
-    }(EgretEvent));
-    dragonBones.SoundEvent = SoundEvent;
-    /**
-     * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.BaseFacory#parseTextureAtlasData()
-     */
-    var EgretTextureAtlas = (function (_super) {
-        __extends(EgretTextureAtlas, _super);
-        function EgretTextureAtlas(texture, rawData, scale) {
-            if (scale === void 0) { scale = 1; }
-            var _this = _super.call(this) || this;
-            console.warn("已废弃，请参考 @see");
-            _this._onClear();
-            dragonBones.ObjectDataParser.getInstance().parseTextureAtlasData(rawData, _this, scale);
-            _this.renderTexture = texture;
-            return _this;
-        }
-        /**
-         * @private
-         */
-        EgretTextureAtlas.toString = function () {
-            return "[class dragonBones.EgretTextureAtlas]";
-        };
-        return EgretTextureAtlas;
-    }(dragonBones.EgretTextureAtlasData));
-    dragonBones.EgretTextureAtlas = EgretTextureAtlas;
-    /**
-     * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.EgretTextureAtlasData
-     */
-    var EgretSheetAtlas = (function (_super) {
-        __extends(EgretSheetAtlas, _super);
-        function EgretSheetAtlas() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        return EgretSheetAtlas;
-    }(EgretTextureAtlas));
-    dragonBones.EgretSheetAtlas = EgretSheetAtlas;
-    /**
-     * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.EgretFactory#soundEventManager
-     */
-    var SoundEventManager = (function () {
-        function SoundEventManager() {
-        }
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.EgretFactory#soundEventManager
-         */
-        SoundEventManager.getInstance = function () {
-            console.warn("已废弃，请参考 @see");
-            return dragonBones.EgretFactory.factory.soundEventManager;
-        };
-        return SoundEventManager;
-    }());
-    dragonBones.SoundEventManager = SoundEventManager;
-    /**
-     * @deprecated
-     * 已废弃，请参考 @see
-     * @see dragonBones.Armature#cacheFrameRate
-     * @see dragonBones.Armature#enableAnimationCache()
-     */
-    var AnimationCacheManager = (function () {
-        function AnimationCacheManager() {
-            console.warn("已废弃，请参考 @see");
-        }
-        return AnimationCacheManager;
-    }());
-    dragonBones.AnimationCacheManager = AnimationCacheManager;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
     /**
-     * Egret 插槽。
+     * - The egret slot.
+     * @version DragonBones 3.0
+     * @language en_US
+     */
+    /**
+     * - Egret 插槽。
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var EgretSlot = (function (_super) {
+    var EgretSlot = /** @class */ (function (_super) {
         __extends(EgretSlot, _super);
         function EgretSlot() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
             /**
-             * 是否更新显示对象的变换属性。
-             * 为了更好的性能, 并不会更新 display 的变换属性 (x, y, rotation, scaleX, scaleX), 如果需要正确访问这些属性, 则需要设置为 true 。
+             * - Whether to update the transform properties of the display object.
+             * For better performance, the transform properties of display object (x, y, rotation, ScaleX, ScaleX) are not updated and need to be set to true if these properties need to be accessed correctly.
+             * @default false
+             * @version DragonBones 3.0
+             * @language zh_CN
+             */
+            /**
+             * - 是否更新显示对象的变换属性。
+             * 为了更好的性能, 默认并不会更新显示对象的变换属性 (x, y, rotation, scaleX, scaleX), 如果需要正确访问这些属性, 则需要设置为 true 。
              * @default false
              * @version DragonBones 3.0
              * @language zh_CN
@@ -11243,45 +15764,55 @@ var dragonBones;
             return "[class dragonBones.EgretSlot]";
         };
         /**
-         * @private
+         * @inheritDoc
          */
+        EgretSlot.prototype.init = function (slotData, armatureValue, rawDisplay, meshDisplay) {
+            _super.prototype.init.call(this, slotData, armatureValue, rawDisplay, meshDisplay);
+            if (dragonBones.isV5) {
+                this._updateTransform = this._updateTransformV5;
+            }
+            else {
+                this._updateTransform = this._updateTransformV4;
+            }
+        };
         EgretSlot.prototype._onClear = function () {
             _super.prototype._onClear.call(this);
             this._armatureDisplay = null; //
             this._renderDisplay = null; //
             this._colorFilter = null;
         };
-        /**
-         * @private
-         */
-        EgretSlot.prototype._initDisplay = function (value) {
+        EgretSlot.prototype._initDisplay = function (value, isRetain) {
+            // tslint:disable-next-line:no-unused-expression
             value;
+            // tslint:disable-next-line:no-unused-expression
+            isRetain;
         };
-        /**
-         * @private
-         */
-        EgretSlot.prototype._disposeDisplay = function (value) {
+        EgretSlot.prototype._disposeDisplay = function (value, isRelease) {
+            // tslint:disable-next-line:no-unused-expression
             value;
+            // tslint:disable-next-line:no-unused-expression
+            isRelease;
         };
-        /**
-         * @private
-         */
         EgretSlot.prototype._onUpdateDisplay = function () {
             this._armatureDisplay = this._armature.display;
             this._renderDisplay = (this._display !== null ? this._display : this._rawDisplay);
-            if (this._armatureDisplay._batchEnabled && this._renderDisplay !== this._rawDisplay && this._renderDisplay !== this._meshDisplay) {
-                this._armatureDisplay.disableBatch();
+            if (dragonBones.isV5 && this._armatureDisplay._batchEnabled) {
+                if (this._renderDisplay === this._rawDisplay && !(this._renderDisplay.$renderNode instanceof egret.sys.BitmapNode)) {
+                    this._renderDisplay.$renderNode = new egret.sys.BitmapNode(); // 默认是 sys.NormalBitmapNode 没有矩阵，需要替换成 egret.sys.BitmapNode。
+                }
             }
             if (this._armatureDisplay._batchEnabled) {
-                var node = this._renderDisplay.$renderNode;
-                if (!node.matrix) {
-                    node.matrix = new egret.Matrix();
+                if (this._renderDisplay !== this._rawDisplay && this._renderDisplay !== this._meshDisplay) {
+                    this._armatureDisplay.disableBatch();
+                }
+                else {
+                    var node = this._renderDisplay.$renderNode;
+                    if (!node.matrix) {
+                        node.matrix = new egret.Matrix();
+                    }
                 }
             }
         };
-        /**
-         * @private
-         */
         EgretSlot.prototype._addDisplay = function () {
             if (this._armatureDisplay._batchEnabled) {
                 this._armatureDisplay.$renderNode.addNode(this._renderDisplay.$renderNode);
@@ -11290,14 +15821,12 @@ var dragonBones;
                 this._armatureDisplay.addChild(this._renderDisplay);
             }
         };
-        /**
-         * @private
-         */
         EgretSlot.prototype._replaceDisplay = function (value) {
             var prevDisplay = value;
             if (this._armatureDisplay._batchEnabled) {
                 var nodes = this._armatureDisplay.$renderNode.drawData;
-                nodes[nodes.indexOf(value.$renderNode)] = this._renderDisplay.$renderNode;
+                var prevIndex = nodes.indexOf(prevDisplay.$renderNode);
+                nodes[prevIndex] = this._renderDisplay.$renderNode;
             }
             else {
                 this._armatureDisplay.addChild(this._renderDisplay);
@@ -11305,9 +15834,6 @@ var dragonBones;
                 this._armatureDisplay.removeChild(prevDisplay);
             }
         };
-        /**
-         * @private
-         */
         EgretSlot.prototype._removeDisplay = function () {
             if (this._armatureDisplay._batchEnabled) {
                 var nodes = this._armatureDisplay.$renderNode.drawData;
@@ -11317,13 +15843,16 @@ var dragonBones;
                 this._renderDisplay.parent.removeChild(this._renderDisplay);
             }
         };
-        /**
-         * @private
-         */
         EgretSlot.prototype._updateZOrder = function () {
             if (this._armatureDisplay._batchEnabled) {
                 var nodes = this._armatureDisplay.$renderNode.drawData;
+                var index = nodes.indexOf(this._renderDisplay.$renderNode);
+                if (index === this._zOrder) {
+                    return;
+                }
                 nodes[this._zOrder] = this._renderDisplay.$renderNode;
+                // nodes.splice(index, 1);
+                // nodes.splice(this._zOrder, 0, this._renderDisplay.$renderNode);
             }
             else {
                 var index = this._armatureDisplay.getChildIndex(this._renderDisplay);
@@ -11335,20 +15864,17 @@ var dragonBones;
         };
         /**
          * @internal
-         * @private
          */
         EgretSlot.prototype._updateVisible = function () {
+            var visible = this._parent.visible && this._visible;
             if (this._armatureDisplay._batchEnabled) {
                 var node = this._renderDisplay.$renderNode;
-                node.alpha = this._parent.visible ? 1.0 : 0.0;
+                node.alpha = visible ? 1.0 : 0.0;
             }
             else {
-                this._renderDisplay.visible = this._parent.visible;
+                this._renderDisplay.visible = visible;
             }
         };
-        /**
-         * @private
-         */
         EgretSlot.prototype._updateBlendMode = function () {
             switch (this._blendMode) {
                 case 0 /* Normal */:
@@ -11368,10 +15894,8 @@ var dragonBones;
                 node.blendMode = egret.sys.blendModeToNumber(this._renderDisplay.blendMode);
             }
         };
-        /**
-         * @private
-         */
         EgretSlot.prototype._updateColor = function () {
+            var alpha = this._colorTransform.alphaMultiplier * this._globalAlpha;
             if (this._colorTransform.redMultiplier !== 1.0 ||
                 this._colorTransform.greenMultiplier !== 1.0 ||
                 this._colorTransform.blueMultiplier !== 1.0 ||
@@ -11386,7 +15910,7 @@ var dragonBones;
                 colorMatrix[0] = this._colorTransform.redMultiplier;
                 colorMatrix[6] = this._colorTransform.greenMultiplier;
                 colorMatrix[12] = this._colorTransform.blueMultiplier;
-                colorMatrix[18] = this._colorTransform.alphaMultiplier;
+                colorMatrix[18] = alpha;
                 colorMatrix[4] = this._colorTransform.redOffset;
                 colorMatrix[9] = this._colorTransform.greenOffset;
                 colorMatrix[14] = this._colorTransform.blueOffset;
@@ -11405,27 +15929,23 @@ var dragonBones;
                     filters.push(this._colorFilter);
                 }
                 this._renderDisplay.filters = filters;
-                this._renderDisplay.$setAlpha(1.0);
+                this._renderDisplay.alpha = 1.0;
             }
             else {
                 if (this._armatureDisplay._batchEnabled) {
                     var node = this._renderDisplay.$renderNode;
                     node.filter = null;
-                    node.alpha = this._colorTransform.alphaMultiplier;
+                    node.alpha = alpha;
                 }
                 this._renderDisplay.filters = null;
-                this._renderDisplay.$setAlpha(this._colorTransform.alphaMultiplier);
+                this._renderDisplay.alpha = alpha;
             }
         };
-        /**
-         * @private
-         */
         EgretSlot.prototype._updateFrame = function () {
-            var meshData = this._display === this._meshDisplay ? this._meshData : null;
             var currentTextureData = this._textureData;
-            if (this._displayIndex >= 0 && this._display !== null && currentTextureData !== null) {
-                if (this._armature.replacedTexture !== null && this._rawDisplayDatas.indexOf(this._displayData) >= 0) {
-                    var currentTextureAtlasData = currentTextureData.parent;
+            if (this._displayFrame !== null && this._display !== null && currentTextureData !== null) {
+                var currentTextureAtlasData = currentTextureData.parent;
+                if (this._armature.replacedTexture !== null) {
                     if (this._armature._replaceTextureAtlasData === null) {
                         currentTextureAtlasData = dragonBones.BaseObject.borrowObject(dragonBones.EgretTextureAtlasData);
                         currentTextureAtlasData.copyFrom(currentTextureData.parent);
@@ -11438,174 +15958,294 @@ var dragonBones;
                     currentTextureData = currentTextureAtlasData.getTexture(currentTextureData.name);
                 }
                 if (currentTextureData.renderTexture !== null) {
-                    if (meshData !== null) {
-                        var intArray = meshData.parent.parent.intArray;
-                        var floatArray = meshData.parent.parent.floatArray;
-                        var vertexCount = intArray[meshData.offset + 0 /* MeshVertexCount */];
-                        var triangleCount = intArray[meshData.offset + 1 /* MeshTriangleCount */];
-                        var verticesOffset = intArray[meshData.offset + 2 /* MeshFloatOffset */];
-                        var uvOffset = verticesOffset + vertexCount * 2;
+                    if (this._geometryData !== null) {
+                        var data = this._geometryData.data;
+                        var intArray = data.intArray;
+                        var floatArray = data.floatArray;
+                        var vertexCount = intArray[this._geometryData.offset + 0 /* GeometryVertexCount */];
+                        var triangleCount = intArray[this._geometryData.offset + 1 /* GeometryTriangleCount */];
+                        var vertexOffset = intArray[this._geometryData.offset + 2 /* GeometryFloatOffset */];
+                        if (vertexOffset < 0) {
+                            vertexOffset += 65536; // Fixed out of bounds bug. 
+                        }
+                        var uvOffset = vertexOffset + vertexCount * 2;
+                        var scale = this._armature._armatureData.scale;
                         var meshDisplay = this._renderDisplay;
                         var meshNode = meshDisplay.$renderNode;
                         meshNode.uvs.length = vertexCount * 2;
                         meshNode.vertices.length = vertexCount * 2;
                         meshNode.indices.length = triangleCount * 3;
                         for (var i = 0, l = vertexCount * 2; i < l; ++i) {
-                            meshNode.vertices[i] = floatArray[verticesOffset + i];
+                            meshNode.vertices[i] = floatArray[vertexOffset + i] * scale;
                             meshNode.uvs[i] = floatArray[uvOffset + i];
                         }
                         for (var i = 0; i < triangleCount * 3; ++i) {
-                            meshNode.indices[i] = intArray[meshData.offset + 4 /* MeshVertexIndices */ + i];
+                            meshNode.indices[i] = intArray[this._geometryData.offset + 4 /* GeometryVertexIndices */ + i];
                         }
                         if (this._armatureDisplay._batchEnabled) {
                             var texture = currentTextureData.renderTexture;
                             var node = this._renderDisplay.$renderNode;
-                            egret.sys.RenderNode.prototype.cleanBeforeRender.call(this._renderDisplay.$renderNode);
-                            node.image = texture._bitmapData;
-                            node.drawMesh(texture._bitmapX, texture._bitmapY, texture._bitmapWidth, texture._bitmapHeight, texture._offsetX, texture._offsetY, texture.textureWidth, texture.textureHeight);
-                            node.imageWidth = texture._sourceWidth;
-                            node.imageHeight = texture._sourceHeight;
+                            egret.sys.RenderNode.prototype.cleanBeforeRender.call(node);
+                            node.image = texture.bitmapData;
+                            if (dragonBones.isV5) {
+                                node.drawMesh(texture.$bitmapX, texture.$bitmapY, texture.$bitmapWidth, texture.$bitmapHeight, texture.$offsetX, texture.$offsetY, texture.textureWidth, texture.textureHeight);
+                                node.imageWidth = texture.$sourceWidth;
+                                node.imageHeight = texture.$sourceHeight;
+                            }
+                            else {
+                                var textureV4 = texture;
+                                node.drawMesh(textureV4._bitmapX, textureV4._bitmapY, textureV4._bitmapWidth, textureV4._bitmapHeight, textureV4._offsetX, textureV4._offsetY, textureV4.textureWidth, textureV4.textureHeight);
+                                node.imageWidth = textureV4._sourceWidth;
+                                node.imageHeight = textureV4._sourceHeight;
+                            }
+                            this._blendModeDirty = true;
+                            this._colorDirty = true;
                         }
                         meshDisplay.texture = currentTextureData.renderTexture;
-                        meshDisplay.$setAnchorOffsetX(this._pivotX);
-                        meshDisplay.$setAnchorOffsetY(this._pivotY);
+                        meshDisplay.anchorOffsetX = this._pivotX;
+                        meshDisplay.anchorOffsetY = this._pivotY;
                         meshDisplay.$updateVertices();
-                        meshDisplay.$invalidateTransform();
+                        if (!dragonBones.isV5) {
+                            meshDisplay.$invalidateTransform();
+                        }
+                        var isSkinned = this._geometryData.weight !== null;
+                        var isSurface = this._parent._boneData.type !== 0 /* Bone */;
+                        if (isSkinned || isSurface) {
+                            this._identityTransform();
+                        }
                     }
                     else {
-                        var normalDisplay = this._renderDisplay;
-                        normalDisplay.texture = currentTextureData.renderTexture;
+                        var scale = currentTextureData.parent.scale * this._armature._armatureData.scale;
+                        var textureWidth = (currentTextureData.rotated ? currentTextureData.region.height : currentTextureData.region.width) * scale;
+                        var textureHeight = (currentTextureData.rotated ? currentTextureData.region.width : currentTextureData.region.height) * scale;
+                        var normalDisplay_1 = this._renderDisplay;
+                        var texture = currentTextureData.renderTexture;
+                        normalDisplay_1.texture = texture;
                         if (this._armatureDisplay._batchEnabled) {
-                            var texture = currentTextureData.renderTexture;
                             var node = this._renderDisplay.$renderNode;
-                            egret.sys.RenderNode.prototype.cleanBeforeRender.call(this._renderDisplay.$renderNode);
-                            node.image = texture._bitmapData;
-                            node.drawImage(texture._bitmapX, texture._bitmapY, texture._bitmapWidth, texture._bitmapHeight, texture._offsetX, texture._offsetY, texture.textureWidth, texture.textureHeight);
-                            node.imageWidth = texture._sourceWidth;
-                            node.imageHeight = texture._sourceHeight;
+                            egret.sys.RenderNode.prototype.cleanBeforeRender.call(node);
+                            node.image = texture.bitmapData;
+                            if (dragonBones.isV5) {
+                                node.drawImage(texture.$bitmapX, texture.$bitmapY, texture.$bitmapWidth, texture.$bitmapHeight, texture.$offsetX, texture.$offsetY, textureWidth, textureHeight);
+                                node.imageWidth = texture.$sourceWidth;
+                                node.imageHeight = texture.$sourceHeight;
+                            }
+                            else {
+                                var textureV4 = texture;
+                                node.drawImage(textureV4._bitmapX, textureV4._bitmapY, textureV4._bitmapWidth, textureV4._bitmapHeight, textureV4._offsetX, textureV4._offsetY, textureWidth, textureHeight);
+                                node.imageWidth = textureV4._sourceWidth;
+                                node.imageHeight = textureV4._sourceHeight;
+                            }
+                            this._blendModeDirty = true;
+                            this._colorDirty = true;
                         }
-                        normalDisplay.$setAnchorOffsetX(this._pivotX);
-                        normalDisplay.$setAnchorOffsetY(this._pivotY);
+                        else {
+                            normalDisplay_1.width = textureWidth;
+                            normalDisplay_1.height = textureHeight;
+                        }
+                        normalDisplay_1.anchorOffsetX = this._pivotX;
+                        normalDisplay_1.anchorOffsetY = this._pivotY;
                     }
+                    this._visibleDirty = true;
                     return;
                 }
             }
             if (this._armatureDisplay._batchEnabled) {
                 this._renderDisplay.$renderNode.image = null;
             }
-            if (meshData !== null) {
-                var meshDisplay = this._renderDisplay;
-                meshDisplay.$setBitmapData(null);
-                meshDisplay.x = 0.0;
-                meshDisplay.y = 0.0;
-            }
-            else {
-                var normalDisplay = this._renderDisplay;
-                normalDisplay.$setBitmapData(null);
-                normalDisplay.x = 0.0;
-                normalDisplay.y = 0.0;
-            }
+            var normalDisplay = this._renderDisplay;
+            normalDisplay.texture = null;
+            normalDisplay.x = 0.0;
+            normalDisplay.y = 0.0;
+            normalDisplay.visible = false;
         };
-        /**
-         * @private
-         */
         EgretSlot.prototype._updateMesh = function () {
-            var hasFFD = this._ffdVertices.length > 0;
-            var meshData = this._meshData;
-            var weight = meshData.weight;
+            var scale = this._armature._armatureData.scale;
+            var deformVertices = this._displayFrame.deformVertices;
+            var bones = this._geometryBones;
+            var geometryData = this._geometryData;
+            var weightData = geometryData.weight;
+            var hasDeform = deformVertices.length > 0 && geometryData.inheritDeform;
             var meshDisplay = this._renderDisplay;
             var meshNode = meshDisplay.$renderNode;
-            if (weight !== null) {
-                var intArray = meshData.parent.parent.intArray;
-                var floatArray = meshData.parent.parent.floatArray;
-                var vertexCount = intArray[meshData.offset + 0 /* MeshVertexCount */];
-                var weightFloatOffset = intArray[weight.offset + 1 /* WeigthFloatOffset */];
-                for (var i = 0, iD = 0, iB = weight.offset + 2 /* WeigthBoneIndices */ + weight.bones.length, iV = weightFloatOffset, iF = 0; i < vertexCount; ++i) {
+            if (weightData !== null) {
+                var data = geometryData.data;
+                var intArray = data.intArray;
+                var floatArray = data.floatArray;
+                var vertexCount = intArray[geometryData.offset + 0 /* GeometryVertexCount */];
+                var weightFloatOffset = intArray[weightData.offset + 1 /* WeigthFloatOffset */];
+                if (weightFloatOffset < 0) {
+                    weightFloatOffset += 65536; // Fixed out of bounds bug. 
+                }
+                for (var i = 0, iD = 0, iB = weightData.offset + 2 /* WeigthBoneIndices */ + bones.length, iV = weightFloatOffset, iF = 0; i < vertexCount; ++i) {
                     var boneCount = intArray[iB++];
                     var xG = 0.0, yG = 0.0;
                     for (var j = 0; j < boneCount; ++j) {
                         var boneIndex = intArray[iB++];
-                        var bone = this._meshBones[boneIndex];
+                        var bone = bones[boneIndex];
                         if (bone !== null) {
                             var matrix = bone.globalTransformMatrix;
-                            var weight_1 = floatArray[iV++];
-                            var xL = floatArray[iV++];
-                            var yL = floatArray[iV++];
-                            if (hasFFD) {
-                                xL += this._ffdVertices[iF++];
-                                yL += this._ffdVertices[iF++];
+                            var weight = floatArray[iV++];
+                            var xL = floatArray[iV++] * scale;
+                            var yL = floatArray[iV++] * scale;
+                            if (hasDeform) {
+                                xL += deformVertices[iF++];
+                                yL += deformVertices[iF++];
                             }
-                            xG += (matrix.a * xL + matrix.c * yL + matrix.tx) * weight_1;
-                            yG += (matrix.b * xL + matrix.d * yL + matrix.ty) * weight_1;
+                            xG += (matrix.a * xL + matrix.c * yL + matrix.tx) * weight;
+                            yG += (matrix.b * xL + matrix.d * yL + matrix.ty) * weight;
                         }
                     }
                     meshNode.vertices[iD++] = xG;
                     meshNode.vertices[iD++] = yG;
                 }
                 meshDisplay.$updateVertices();
-                meshDisplay.$invalidateTransform();
-            }
-            else if (hasFFD) {
-                var intArray = meshData.parent.parent.intArray;
-                var floatArray = meshData.parent.parent.floatArray;
-                var vertexCount = intArray[meshData.offset + 0 /* MeshVertexCount */];
-                var vertexOffset = intArray[meshData.offset + 2 /* MeshFloatOffset */];
-                for (var i = 0, l = vertexCount * 2; i < l; ++i) {
-                    meshNode.vertices[i] = floatArray[vertexOffset + i] + this._ffdVertices[i];
+                if (!dragonBones.isV5) {
+                    meshDisplay.$invalidateTransform();
                 }
-                meshDisplay.$updateVertices();
-                meshDisplay.$invalidateTransform();
-            }
-        };
-        /**
-         * @private
-         */
-        EgretSlot.prototype._updateTransform = function (isSkinnedMesh) {
-            if (isSkinnedMesh) {
-                var transformationMatrix = this._renderDisplay.matrix;
-                transformationMatrix.identity();
-                this._renderDisplay.$setMatrix(transformationMatrix, this.transformUpdateEnabled);
             }
             else {
-                var globalTransformMatrix = this.globalTransformMatrix;
-                if (this._armatureDisplay._batchEnabled) {
-                    var displayMatrix = this._renderDisplay.$renderNode.matrix;
-                    displayMatrix.a = globalTransformMatrix.a;
-                    displayMatrix.b = globalTransformMatrix.b;
-                    displayMatrix.c = globalTransformMatrix.c;
-                    displayMatrix.d = globalTransformMatrix.d;
-                    displayMatrix.tx = this.globalTransformMatrix.tx - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
-                    displayMatrix.ty = this.globalTransformMatrix.ty - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
+                var isSurface = this._parent._boneData.type !== 0 /* Bone */;
+                var data = geometryData.data;
+                var intArray = data.intArray;
+                var floatArray = data.floatArray;
+                var vertexCount = intArray[geometryData.offset + 0 /* GeometryVertexCount */];
+                var vertexOffset = intArray[geometryData.offset + 2 /* GeometryFloatOffset */];
+                if (vertexOffset < 0) {
+                    vertexOffset += 65536; // Fixed out of bounds bug. 
                 }
-                else if (this.transformUpdateEnabled) {
-                    this._renderDisplay.$setMatrix(globalTransformMatrix, true);
+                for (var i = 0, l = vertexCount * 2; i < l; i += 2) {
+                    var x = floatArray[vertexOffset + i] * scale;
+                    var y = floatArray[vertexOffset + i + 1] * scale;
+                    if (hasDeform) {
+                        x += deformVertices[i];
+                        y += deformVertices[i + 1];
+                    }
+                    if (isSurface) {
+                        var matrix = this._parent._getGlobalTransformMatrix(x, y);
+                        meshNode.vertices[i] = matrix.a * x + matrix.c * y + matrix.tx;
+                        meshNode.vertices[i + 1] = matrix.b * x + matrix.d * y + matrix.ty;
+                    }
+                    else {
+                        meshNode.vertices[i] = x;
+                        meshNode.vertices[i + 1] = y;
+                    }
                 }
-                else {
-                    var values = this._renderDisplay.$DisplayObject;
-                    var displayMatrix = values[6];
-                    displayMatrix.a = this.globalTransformMatrix.a;
-                    displayMatrix.b = this.globalTransformMatrix.b;
-                    displayMatrix.c = this.globalTransformMatrix.c;
-                    displayMatrix.d = this.globalTransformMatrix.d;
-                    displayMatrix.tx = this.globalTransformMatrix.tx;
-                    displayMatrix.ty = this.globalTransformMatrix.ty;
-                    this._renderDisplay.$removeFlags(8);
-                    this._renderDisplay.$invalidatePosition();
+                meshDisplay.$updateVertices();
+                if (!dragonBones.isV5) {
+                    meshDisplay.$invalidateTransform();
                 }
+            }
+            if (this._armatureDisplay._batchEnabled) {
+                this._armatureDisplay._childDirty = true;
+            }
+        };
+        EgretSlot.prototype._updateTransform = function () {
+            throw new Error();
+        };
+        EgretSlot.prototype._identityTransform = function () {
+            if (this._armatureDisplay._batchEnabled) {
+                this._armatureDisplay._childDirty = true;
+                var displayMatrix = this._renderDisplay.$renderNode.matrix;
+                displayMatrix.a = 1.0;
+                displayMatrix.b = 0.0;
+                displayMatrix.c = 0.0;
+                displayMatrix.d = 1.0;
+                displayMatrix.tx = 0.0;
+                displayMatrix.ty = 0.0;
+            }
+            else {
+                egret.$TempMatrix.identity();
+                this._renderDisplay.$setMatrix(egret.$TempMatrix, this.transformUpdateEnabled);
+            }
+        };
+        EgretSlot.prototype._updateTransformV4 = function () {
+            var globalTransformMatrix = this.globalTransformMatrix;
+            if (this._armatureDisplay._batchEnabled) {
+                this._armatureDisplay._childDirty = true;
+                var displayMatrix = this._renderDisplay.$renderNode.matrix;
+                displayMatrix.a = globalTransformMatrix.a;
+                displayMatrix.b = globalTransformMatrix.b;
+                displayMatrix.c = globalTransformMatrix.c;
+                displayMatrix.d = globalTransformMatrix.d;
+                displayMatrix.tx = this.globalTransformMatrix.tx - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
+                displayMatrix.ty = this.globalTransformMatrix.ty - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
+            }
+            else if (this.transformUpdateEnabled) {
+                this._renderDisplay.$setMatrix(globalTransformMatrix, true);
+            }
+            else {
+                var values = this._renderDisplay.$DisplayObject;
+                var displayMatrix = values[6];
+                displayMatrix.a = this.globalTransformMatrix.a;
+                displayMatrix.b = this.globalTransformMatrix.b;
+                displayMatrix.c = this.globalTransformMatrix.c;
+                displayMatrix.d = this.globalTransformMatrix.d;
+                displayMatrix.tx = this.globalTransformMatrix.tx;
+                displayMatrix.ty = this.globalTransformMatrix.ty;
+                this._renderDisplay.$removeFlags(8);
+                this._renderDisplay.$invalidatePosition();
+            }
+        };
+        EgretSlot.prototype._updateTransformV5 = function () {
+            var globalTransformMatrix = this.globalTransformMatrix;
+            if (this._armatureDisplay._batchEnabled) {
+                this._armatureDisplay._childDirty = true;
+                var displayMatrix = this._renderDisplay.$renderNode.matrix;
+                displayMatrix.a = globalTransformMatrix.a;
+                displayMatrix.b = globalTransformMatrix.b;
+                displayMatrix.c = globalTransformMatrix.c;
+                displayMatrix.d = globalTransformMatrix.d;
+                displayMatrix.tx = this.globalTransformMatrix.tx - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
+                displayMatrix.ty = this.globalTransformMatrix.ty - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
+            }
+            else {
+                this._renderDisplay.$setMatrix(globalTransformMatrix, this.transformUpdateEnabled);
             }
         };
         return EgretSlot;
     }(dragonBones.Slot));
     dragonBones.EgretSlot = EgretSlot;
 })(dragonBones || (dragonBones = {}));
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 var dragonBones;
 (function (dragonBones) {
     /**
-     * Egret 工厂。
+     * @internal
+     */
+    dragonBones.isV5 = Number(egret.Capabilities.engineVersion.substr(0, 3)) >= 5.1;
+    /**
+     * - The Egret factory.
+     * @version DragonBones 3.0
+     * @language en_US
+     */
+    /**
+     * - Egret 工厂。
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var EgretFactory = (function (_super) {
+    var EgretFactory = /** @class */ (function (_super) {
         __extends(EgretFactory, _super);
         /**
          * @inheritDoc
@@ -11614,9 +16254,10 @@ var dragonBones;
             if (dataParser === void 0) { dataParser = null; }
             var _this = _super.call(this, dataParser) || this;
             if (EgretFactory._dragonBonesInstance === null) {
+                //
                 var eventManager = new dragonBones.EgretArmatureDisplay();
                 EgretFactory._dragonBonesInstance = new dragonBones.DragonBones(eventManager);
-                EgretFactory._dragonBonesInstance.clock.time = egret.getTimer() * 0.001;
+                EgretFactory._time = egret.getTimer() * 0.001;
                 egret.startTick(EgretFactory._clockHandler, EgretFactory);
             }
             _this._dragonBones = EgretFactory._dragonBonesInstance;
@@ -11624,42 +16265,31 @@ var dragonBones;
         }
         EgretFactory._clockHandler = function (time) {
             time *= 0.001;
-            var clock = EgretFactory._dragonBonesInstance.clock;
-            var passedTime = time - clock.time;
-            EgretFactory._dragonBonesInstance.advanceTime(passedTime);
-            clock.time = time;
+            var passedTime = time - this._time;
+            this._dragonBonesInstance.advanceTime(passedTime);
+            this._time = time;
             return false;
         };
-        Object.defineProperty(EgretFactory, "clock", {
-            /**
-             * 一个可以直接使用的全局 WorldClock 实例。(由引擎驱动)
-             * @version DragonBones 5.0
-             * @language zh_CN
-             */
-            get: function () {
-                return EgretFactory._dragonBonesInstance.clock;
-            },
-            enumerable: true,
-            configurable: true
-        });
         Object.defineProperty(EgretFactory, "factory", {
             /**
-             * 一个可以直接使用的全局工厂实例。
+             * - A global factory instance that can be used directly.
+             * @version DragonBones 4.7
+             * @language en_US
+             */
+            /**
+             * - 一个可以直接使用的全局工厂实例。
              * @version DragonBones 4.7
              * @language zh_CN
              */
             get: function () {
-                if (EgretFactory._factory === null) {
-                    EgretFactory._factory = new EgretFactory();
+                if (this._factory === null) {
+                    this._factory = new EgretFactory();
                 }
-                return EgretFactory._factory;
+                return this._factory;
             },
             enumerable: true,
             configurable: true
         });
-        /**
-         * @private
-         */
         EgretFactory.prototype._isSupportMesh = function () {
             if (egret.Capabilities.renderMode === "webgl" || egret.Capabilities.runtimeType === egret.RuntimeType.NATIVE) {
                 return true;
@@ -11667,53 +16297,73 @@ var dragonBones;
             console.warn("Canvas can not support mesh, please change renderMode to webgl.");
             return false;
         };
-        /**
-         * @private
-         */
         EgretFactory.prototype._buildTextureAtlasData = function (textureAtlasData, textureAtlas) {
             if (textureAtlasData !== null) {
-                textureAtlasData.renderTexture = textureAtlas;
+                if (textureAtlas instanceof egret.Texture) {
+                    textureAtlasData.renderTexture = textureAtlas;
+                }
+                else if (textureAtlas) {
+                    var egretTexture = new egret.Texture();
+                    egretTexture.bitmapData = new egret.BitmapData(textureAtlas);
+                    textureAtlasData.disposeEnabled = true;
+                    textureAtlasData.renderTexture = egretTexture;
+                }
             }
             else {
                 textureAtlasData = dragonBones.BaseObject.borrowObject(dragonBones.EgretTextureAtlasData);
             }
             return textureAtlasData;
         };
-        /**
-         * @private
-         */
         EgretFactory.prototype._buildArmature = function (dataPackage) {
             var armature = dragonBones.BaseObject.borrowObject(dragonBones.Armature);
             var armatureDisplay = new dragonBones.EgretArmatureDisplay();
             armature.init(dataPackage.armature, armatureDisplay, armatureDisplay, this._dragonBones);
             return armature;
         };
-        /**
-         * @private
-         */
-        EgretFactory.prototype._buildSlot = function (dataPackage, slotData, displays, armature) {
-            dataPackage;
-            armature;
+        EgretFactory.prototype._buildSlot = function (_dataPackage, slotData, armature) {
             var slot = dragonBones.BaseObject.borrowObject(dragonBones.EgretSlot);
-            slot.init(slotData, displays, new egret.Bitmap(), new egret.Mesh());
+            slot.init(slotData, armature, new egret.Bitmap(), new egret.Mesh());
             return slot;
         };
         /**
-         * 创建一个指定名称的骨架。
-         * @param armatureName 骨架名称。
-         * @param dragonBonesName 龙骨数据名称，如果未设置，将检索所有的龙骨数据，如果多个数据中包含同名的骨架数据，可能无法创建出准确的骨架。
-         * @param skinName 皮肤名称，如果未设置，则使用默认皮肤。
-         * @param textureAtlasName 贴图集数据名称，如果未设置，则使用龙骨数据。
-         * @returns 骨架的显示容器。
-         * @see dragonBones.EgretArmatureDisplay
+         * - Create a armature from cached DragonBonesData instances and TextureAtlasData instances, then use the {@link #clock} to update it.
+         * Note that when the created armature proxy that is no longer in use, you need to explicitly dispose {@link #dragonBones.IArmatureProxy#dispose()}.
+         * The difference is that the armature created by {@link #buildArmature} is not WorldClock instance update.
+         * @param armatureName - The armature data name.
+         * @param dragonBonesName - The cached name of the DragonBonesData instance. (If not set, all DragonBonesData instances are retrieved, and when multiple DragonBonesData instances contain a the same name armature data, it may not be possible to accurately create a specific armature)
+         * @param skinName - The skin name, you can set a different ArmatureData name to share it's skin data. (If not set, use the default skin data)
+         * @returns The armature display container.
+         * @see dragonBones.IArmatureProxy
+         * @see dragonBones.BaseFactory#buildArmature
          * @version DragonBones 4.5
+         * @example
+         * <pre>
+         *     let armatureDisplay = factory.buildArmatureDisplay("armatureName", "dragonBonesName");
+         * </pre>
+         * @language en_US
+         */
+        /**
+         * - 通过缓存的 DragonBonesData 实例和 TextureAtlasData 实例创建一个骨架，并用 {@link #clock} 更新该骨架。
+         * 区别在于由 {@link #buildArmature} 创建的骨架没有 WorldClock 实例驱动。
+         * 注意，创建的骨架代理不再使用时，需要显式释放 {@link #dragonBones.IArmatureProxy#dispose()}。
+         * @param armatureName - 骨架数据名称。
+         * @param dragonBonesName - DragonBonesData 实例的缓存名称。 （如果未设置，将检索所有的 DragonBonesData 实例，当多个 DragonBonesData 实例中包含同名的骨架数据时，可能无法准确的创建出特定的骨架）
+         * @param skinName - 皮肤名称，可以设置一个其他骨架数据名称来共享其皮肤数据。（如果未设置，则使用默认的皮肤数据）
+         * @returns 骨架的显示容器。
+         * @see dragonBones.IArmatureProxy
+         * @see dragonBones.BaseFactory#buildArmature
+         * @version DragonBones 4.5
+         * @example
+         * <pre>
+         *     let armatureDisplay = factory.buildArmatureDisplay("armatureName", "dragonBonesName");
+         * </pre>
          * @language zh_CN
          */
         EgretFactory.prototype.buildArmatureDisplay = function (armatureName, dragonBonesName, skinName, textureAtlasName) {
-            if (dragonBonesName === void 0) { dragonBonesName = null; }
-            if (skinName === void 0) { skinName = null; }
-            if (textureAtlasName === void 0) { textureAtlasName = null; }
-            var armature = this.buildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
+            if (dragonBonesName === void 0) { dragonBonesName = ""; }
+            if (skinName === void 0) { skinName = ""; }
+            if (textureAtlasName === void 0) { textureAtlasName = ""; }
+            var armature = this.buildArmature(armatureName, dragonBonesName || "", skinName || "", textureAtlasName || "");
             if (armature !== null) {
                 this._dragonBones.clock.add(armature);
                 return armature.display;
@@ -11721,9 +16371,16 @@ var dragonBones;
             return null;
         };
         /**
-         * 获取带有指定贴图的显示对象。
-         * @param textureName 指定的贴图名称。
-         * @param textureAtlasName 指定的贴图集数据名称，如果未设置，将检索所有的贴图集数据。
+         * - Create the display object with the specified texture.
+         * @param textureName - The texture data name.
+         * @param textureAtlasName - The texture atlas data name. (Of not set, all texture atlas data will be searched)
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 创建带有指定贴图的显示对象。
+         * @param textureName - 贴图数据名称。
+         * @param textureAtlasName - 贴图集数据名称。 （如果未设置，将检索所有的贴图集数据）
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -11731,13 +16388,24 @@ var dragonBones;
             if (textureAtlasName === void 0) { textureAtlasName = null; }
             var textureData = this._getTextureData(textureAtlasName !== null ? textureAtlasName : "", textureName);
             if (textureData !== null && textureData.renderTexture !== null) {
-                return new egret.Bitmap(textureData.renderTexture);
+                var texture = textureData.renderTexture;
+                var bitmap = new egret.Bitmap(texture);
+                bitmap.width = texture.textureWidth * textureData.parent.scale;
+                bitmap.height = texture.textureHeight * textureData.parent.scale;
+                return bitmap;
             }
             return null;
         };
         Object.defineProperty(EgretFactory.prototype, "soundEventManager", {
             /**
-             * 获取全局声音事件管理器。
+             * - A global sound event manager.
+             * Sound events can be listened to uniformly from the manager.
+             * @version DragonBones 4.5
+             * @language en_US
+             */
+            /**
+             * - 全局声音事件管理器。
+             * 声音事件可以从该管理器统一侦听。
              * @version DragonBones 4.5
              * @language zh_CN
              */
@@ -11747,94 +16415,7 @@ var dragonBones;
             enumerable: true,
             configurable: true
         });
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.BaseFactory#addDragonBonesData()
-         */
-        EgretFactory.prototype.addSkeletonData = function (dragonBonesData, dragonBonesName) {
-            if (dragonBonesName === void 0) { dragonBonesName = null; }
-            console.warn("已废弃，请参考 @see");
-            this.addDragonBonesData(dragonBonesData, dragonBonesName);
-        };
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.BaseFactory#getDragonBonesData()
-         */
-        EgretFactory.prototype.getSkeletonData = function (dragonBonesName) {
-            console.warn("已废弃，请参考 @see");
-            return this.getDragonBonesData(dragonBonesName);
-        };
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.BaseFactory#removeDragonBonesData()
-         */
-        EgretFactory.prototype.removeSkeletonData = function (dragonBonesName) {
-            console.warn("已废弃，请参考 @see");
-            this.removeDragonBonesData(dragonBonesName);
-        };
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.BaseFactory#addTextureAtlasData()
-         */
-        EgretFactory.prototype.addTextureAtlas = function (textureAtlasData, dragonBonesName) {
-            if (dragonBonesName === void 0) { dragonBonesName = null; }
-            console.warn("已废弃，请参考 @see");
-            this.addTextureAtlasData(textureAtlasData, dragonBonesName);
-        };
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.BaseFactory#getTextureAtlasData()
-         */
-        EgretFactory.prototype.getTextureAtlas = function (dragonBonesName) {
-            console.warn("已废弃，请参考 @see");
-            return this.getTextureAtlasData(dragonBonesName);
-        };
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.BaseFactory#removeTextureAtlasData()
-         */
-        EgretFactory.prototype.removeTextureAtlas = function (dragonBonesName) {
-            console.warn("已废弃，请参考 @see");
-            this.removeTextureAtlasData(dragonBonesName);
-        };
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.BaseFactory#buildArmature()
-         */
-        EgretFactory.prototype.buildFastArmature = function (armatureName, dragonBonesName, skinName) {
-            if (dragonBonesName === void 0) { dragonBonesName = null; }
-            if (skinName === void 0) { skinName = null; }
-            console.warn("已废弃，请参考 @see");
-            return this.buildArmature(armatureName, dragonBonesName, skinName);
-        };
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.BaseFactory#clear()
-         */
-        EgretFactory.prototype.dispose = function () {
-            console.warn("已废弃，请参考 @see");
-            this.clear();
-        };
-        Object.defineProperty(EgretFactory.prototype, "soundEventManater", {
-            /**
-             * @deprecated
-             * 已废弃，请参考 @see
-             * @see dragonBones.EgretFactory#soundEventManager()
-             */
-            get: function () {
-                return this.soundEventManager;
-            },
-            enumerable: true,
-            configurable: true
-        });
+        EgretFactory._time = 0.0;
         EgretFactory._dragonBonesInstance = null;
         EgretFactory._factory = null;
         return EgretFactory;
@@ -11899,22 +16480,22 @@ var dragonBones;
         return false;
     }
     /**
-     * @language zh_CN
      * 是否包含指定名称的动画组。
      * @param groupName 动画组的名称。
      * @version DragonBones 4.7
+     * @language zh_CN
      */
     function hasMovieGroup(groupName) {
         return groupName in _groupConfigMap;
     }
     dragonBones.hasMovieGroup = hasMovieGroup;
     /**
-     * @language zh_CN
      * 添加动画组。
      * @param groupData 动画二进制数据。
      * @param textureAtlas 贴图集或贴图集列表。
      * @param groupName 为动画组指定一个名称，如果未设置，则使用数据中的名称。
      * @version DragonBones 4.7
+     * @language zh_CN
      */
     function addMovieGroup(groupData, textureAtlas, groupName) {
         if (groupName === void 0) { groupName = null; }
@@ -11968,10 +16549,10 @@ var dragonBones;
     }
     dragonBones.addMovieGroup = addMovieGroup;
     /**
-     * @language zh_CN
      * 移除动画组。
      * @param groupName 动画组的名称。
      * @version DragonBones 4.7
+     * @language zh_CN
      */
     function removeMovieGroup(groupName) {
         var groupConfig = _groupConfigMap[groupName];
@@ -11981,10 +16562,10 @@ var dragonBones;
     }
     dragonBones.removeMovieGroup = removeMovieGroup;
     /**
-     * @language zh_CN
      * 移除所有的动画组。
      * @param groupName 动画组的名称。
      * @version DragonBones 4.7
+     * @language zh_CN
      */
     function removeAllMovieGroup() {
         for (var i in _groupConfigMap) {
@@ -11993,19 +16574,18 @@ var dragonBones;
     }
     dragonBones.removeAllMovieGroup = removeAllMovieGroup;
     /**
-     * @language zh_CN
      * 创建一个动画。
      * @param movieName 动画的名称。
      * @param groupName 动画组的名称，如果未设置，将检索所有的动画组，当多个动画组中包含同名的动画时，可能无法创建出准确的动画。
      * @version DragonBones 4.7
+     * @language zh_CN
      */
     function buildMovie(movieName, groupName) {
         if (groupName === void 0) { groupName = null; }
         var createMovieHelper = { movieName: movieName, groupName: groupName };
         if (_fillCreateMovieHelper(createMovieHelper)) {
             var movie = new Movie(createMovieHelper);
-            dragonBones.EgretFactory.factory;
-            movie.clock = dragonBones.EgretFactory.clock;
+            movie.clock = dragonBones.EgretFactory.factory.clock;
             return movie;
         }
         else {
@@ -12015,10 +16595,10 @@ var dragonBones;
     }
     dragonBones.buildMovie = buildMovie;
     /**
-     * @language zh_CN
      * 获取指定动画组内包含的所有动画名称。
      * @param groupName 动画组的名称。
      * @version DragonBones 4.7
+     * @language zh_CN
      */
     function getMovieNames(groupName) {
         var groupConfig = _groupConfigMap[groupName];
@@ -12037,11 +16617,11 @@ var dragonBones;
     }
     dragonBones.getMovieNames = getMovieNames;
     /**
-     * @language zh_CN
      * 动画事件。
      * @version DragonBones 4.7
+     * @language zh_CN
      */
-    var MovieEvent = (function (_super) {
+    var MovieEvent = /** @class */ (function (_super) {
         __extends(MovieEvent, _super);
         /**
          * @private
@@ -12049,21 +16629,21 @@ var dragonBones;
         function MovieEvent(type) {
             var _this = _super.call(this, type) || this;
             /**
-             * @language zh_CN
              * 事件名称。 (帧标签的名称或声音的名称)
              * @version DragonBones 4.7
+             * @language zh_CN
              */
             _this.name = "";
             /**
-             * @language zh_CN
              * 发出事件的插槽名称。
              * @version DragonBones 4.7
+             * @language zh_CN
              */
             _this.slotName = "";
             /**
-             * @language zh_CN
              * 发出事件的动画剪辑名称。
              * @version DragonBones 4.7
+             * @language zh_CN
              */
             _this.clipName = "";
             return _this;
@@ -12120,33 +16700,33 @@ var dragonBones;
             configurable: true
         });
         /**
-         * @language zh_CN
          * 动画剪辑开始播放。
          * @version DragonBones 4.7
+         * @language zh_CN
          */
         MovieEvent.START = "start";
         /**
-         * @language zh_CN
          * 动画剪辑循环播放一次完成。
          * @version DragonBones 4.7
+         * @language zh_CN
          */
         MovieEvent.LOOP_COMPLETE = "loopComplete";
         /**
-         * @language zh_CN
          * 动画剪辑播放完成。
          * @version DragonBones 4.7
+         * @language zh_CN
          */
         MovieEvent.COMPLETE = "complete";
         /**
-         * @language zh_CN
          * 动画剪辑帧事件。
          * @version DragonBones 4.7
+         * @language zh_CN
          */
         MovieEvent.FRAME_EVENT = "frameEvent";
         /**
-         * @language zh_CN
          * 动画剪辑声音事件。
          * @version DragonBones 4.7
+         * @language zh_CN
          */
         MovieEvent.SOUND_EVENT = "soundEvent";
         return MovieEvent;
@@ -12155,7 +16735,7 @@ var dragonBones;
     /**
      * @private
      */
-    var MovieSlot = (function (_super) {
+    var MovieSlot = /** @class */ (function (_super) {
         __extends(MovieSlot, _super);
         function MovieSlot(slotConfig) {
             var _this = _super.call(this) || this;
@@ -12187,32 +16767,28 @@ var dragonBones;
         return MovieSlot;
     }(egret.HashObject));
     /**
-     * @language zh_CN
      * 通过读取缓存的二进制动画数据来更新动画，具有良好的运行性能，同时对内存的占用也非常低。
      * @see dragonBones.buildMovie
      * @version DragonBones 4.7
+     * @language zh_CN
      */
-    var Movie = (function (_super) {
+    var Movie = /** @class */ (function (_super) {
         __extends(Movie, _super);
-        /**
-         * @internal
-         * @private
-         */
         function Movie(createMovieHelper) {
             var _this = _super.call(this) || this;
             /**
-             * @language zh_CN
              * 动画的播放速度。 [(-N~0): 倒转播放, 0: 停止播放, (0~1): 慢速播放, 1: 正常播放, (1~N): 快速播放]
              * @default 1
              * @version DragonBones 4.7
+             * @language zh_CN
              */
             _this.timeScale = 1;
             /**
-             * @language zh_CN
              * 动画剪辑的播放速度。 [(-N~0): 倒转播放, 0: 停止播放, (0~1): 慢速播放, 1: 正常播放, (1~N): 快速播放]
              * （当再次播放其他动画剪辑时，此值将被重置为 1）
              * @default 1
              * @version DragonBones 4.7
+             * @language zh_CN
              */
             _this.clipTimeScale = 1;
             _this._batchEnabled = true;
@@ -12439,7 +17015,7 @@ var dragonBones;
                         var width = this._groupConfig.rectangleArray[regionIndex + 2];
                         var height = this._groupConfig.rectangleArray[regionIndex + 3];
                         slot.displayConfig.texture = new egret.Texture();
-                        slot.displayConfig.texture._bitmapData = textureAtlasTexture._bitmapData;
+                        slot.displayConfig.texture.bitmapData = textureAtlasTexture.bitmapData;
                         slot.displayConfig.texture.$initData(x, y, Math.min(width, textureAtlasTexture.textureWidth - x), Math.min(height, textureAtlasTexture.textureHeight - y), 0, 0, Math.min(width, textureAtlasTexture.textureWidth - x), Math.min(height, textureAtlasTexture.textureHeight - y), textureAtlasTexture.textureWidth, textureAtlasTexture.textureHeight);
                     }
                     if (this._batchEnabled) {
@@ -12447,10 +17023,18 @@ var dragonBones;
                         var texture = slot.displayConfig.texture;
                         var bitmapNode = slot.rawDisplay.$renderNode;
                         egret.sys.RenderNode.prototype.cleanBeforeRender.call(slot.rawDisplay.$renderNode);
-                        bitmapNode.image = texture._bitmapData;
-                        bitmapNode.drawImage(texture._bitmapX, texture._bitmapY, texture._bitmapWidth, texture._bitmapHeight, texture._offsetX, texture._offsetY, texture.textureWidth, texture.textureHeight);
-                        bitmapNode.imageWidth = texture._sourceWidth;
-                        bitmapNode.imageHeight = texture._sourceHeight;
+                        bitmapNode.image = texture.bitmapData;
+                        if (dragonBones.isV5) {
+                            bitmapNode.drawImage(texture.$bitmapX, texture.$bitmapY, texture.$bitmapWidth, texture.$bitmapHeight, texture.$offsetX, texture.$offsetY, texture.textureWidth, texture.textureHeight);
+                            bitmapNode.imageWidth = texture.$sourceWidth;
+                            bitmapNode.imageHeight = texture.$sourceHeight;
+                        }
+                        else {
+                            var textureV4 = texture;
+                            bitmapNode.drawImage(textureV4._bitmapX, textureV4._bitmapY, textureV4._bitmapWidth, textureV4._bitmapHeight, textureV4._offsetX, textureV4._offsetY, texture.textureWidth, texture.textureHeight);
+                            bitmapNode.imageWidth = textureV4._sourceWidth;
+                            bitmapNode.imageHeight = textureV4._sourceHeight;
+                        }
                     }
                     else {
                         // Classic display.
@@ -12508,6 +17092,18 @@ var dragonBones;
             else {
                 // Classic display.
                 _super.prototype.$render.call(this);
+            }
+        };
+        /**
+         * @inheritDoc
+         */
+        Movie.prototype.$updateRenderNode = function () {
+            if (this._batchEnabled) {
+                // RenderNode display.
+            }
+            else {
+                // Classic display.
+                _super.prototype.$updateRenderNode.call(this);
             }
         };
         /**
@@ -12729,7 +17325,9 @@ var dragonBones;
                             this._cacheRectangle.width = prevCacheRectangle.width;
                             this._cacheRectangle.height = prevCacheRectangle.height;
                         }
-                        this.$invalidateContentBounds();
+                        if (!dragonBones.isV5) {
+                            this.$invalidateContentBounds();
+                        }
                     }
                 }
                 if (this._isCompleted) {
@@ -13062,22 +17660,6 @@ var dragonBones;
             enumerable: true,
             configurable: true
         });
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.Movie#clock
-         * @see dragonBones.EgretFactory#clock
-         * @see dragonBones.Movie#timescale
-         * @see dragonBones.Movie#stop()
-         */
-        Movie.prototype.advanceTimeBySelf = function (on) {
-            if (on) {
-                this.clock = dragonBones.EgretFactory.clock;
-            }
-            else {
-                this.clock = null;
-            }
-        };
         Object.defineProperty(Movie.prototype, "display", {
             //========================================= // 兼容旧数据
             /**
@@ -13141,6 +17723,7 @@ var dragonBones;
             for (var _i = 0; _i < arguments.length; _i++) {
                 args[_i] = arguments[_i];
             }
+            // tslint:disable-next-line:no-unused-expression
             args;
         };
         Object.defineProperty(Movie.prototype, "lastAnimationName", {

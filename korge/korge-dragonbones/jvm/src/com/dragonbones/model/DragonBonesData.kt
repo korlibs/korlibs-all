@@ -37,14 +37,14 @@ class DragonBonesData : BaseObject() {
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var version: String
+    var version: String = ""
     /**
      * 数据名称。(该名称与龙骨项目名保持一致)
      *
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var name: String
+    var name: String = ""
     /**
      * @private
      */
@@ -103,7 +103,7 @@ class DragonBonesData : BaseObject() {
      */
     override fun _onClear() {
         for (k in this.armatures.keys) {
-            this.armatures[k].returnToPool()
+            this.armatures[k]?.returnToPool()
             this.armatures.remove(k)
         }
 
@@ -134,7 +134,7 @@ class DragonBonesData : BaseObject() {
     fun addArmature(value: ArmatureData) {
         if (this.armatures.containsKey(value.name)) {
             Console.warn("Replace armature: " + value.name)
-            this.armatures[value.name].returnToPool()
+            this.armatures[value.name]?.returnToPool()
         }
 
         value.parent = this

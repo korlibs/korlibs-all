@@ -94,6 +94,11 @@ class RectangleBoundingBoxData : BoundingBoxData() {
             intersectionPointB: Point? = null,
             normalRadians: Point? = null
         ): Int {
+			var xA = xA
+			var xB = xB
+			var yA = yA
+			var yB = yB
+
 			val inSideA = xA > xMin && xA < xMax && yA > yMin && yA < yMax
 			val inSideB = xB > xMin && xB < xMax && yB > yMin && yB < yMax
 

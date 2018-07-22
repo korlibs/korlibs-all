@@ -1,8 +1,9 @@
 ## How to build
-```
-$npm install
-$npm run build
-```
+* Clone or download [DragonBonesJS](https://github.com/DragonBones/DragonBonesJS/).
+* Install [Node.JS](https://nodejs.org/).
+* Open `DragonBonesJS/Egret/4.x/` in command.
+* $ `npm install`
+* $ `npm run build`
 
 ## Egret declaration
-[egret.d.ts](https://github.com/egret-labs/egret-core/blob/master/build/egret/egret.d.ts)
+[Get egret.d.ts](https://github.com/egret-labs/egret-core/blob/master/build/egret/egret.d.ts)

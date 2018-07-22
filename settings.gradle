@@ -71,7 +71,6 @@ registerProject1('korui', 'Korui: Kotlin cORoutines User Interfaces for Kotlin C
 
 // Final layer
 registerProject1('korge', 'Korge: Kotlin cORoutines Game Engine')
-registerProject2('korge-ext-spriter', 'korge', 'Korge: Extension for spriter')
 
 // Extra
 registerProject1('dynarek', 'Dynarek: Dynamic recompilation for Kotlin Common (JS and JVM)')
@@ -87,6 +86,10 @@ registerProject2('korau-atrac3plus', 'korau', 'Korau: atrac3plus extension')
 registerProject2('korge-ext-fla', 'korge', 'Korge: Extension for fla files')
 registerProject1('korfl', 'Korfl: Parse Adobe Animate SWF files in JVM and JS')
 registerProject2('korge-ext-swf', 'korge', 'Korge: Extension for SWF')
+
+// Skeletal animations
+registerProject2('korge-ext-spriter', 'korge', 'Korge: Extension for spriter')
+registerProject2('korge-dragonbones', 'korge', 'Korge: Extension for dragonbones')
 
 // KSDL
 //registerVersion('ksdl', 'korui/ksdl')

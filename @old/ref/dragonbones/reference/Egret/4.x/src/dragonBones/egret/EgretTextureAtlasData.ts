@@ -1,6 +1,34 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 namespace dragonBones {
     /**
-     * Egret 贴图集数据。
+     * - The egret texture atlas data.
+     * @version DragonBones 3.0
+     * @language en_US
+     */
+    /**
+     * - Egret 贴图集数据。
      * @version DragonBones 3.0
      * @language zh_CN
      */
@@ -8,28 +36,36 @@ namespace dragonBones {
         public static toString(): string {
             return "[class dragonBones.EgretTextureAtlasData]";
         }
+        /**
+         * @internal
+         */
+        public disposeEnabled: boolean;
 
         private _renderTexture: egret.Texture | null = null; // Initial value.
-        /**
-         * @private
-         */
+
         protected _onClear(): void {
             super._onClear();
 
-            if (this._renderTexture !== null) {
-                //this.texture.dispose();
+            if (this.disposeEnabled && this._renderTexture !== null) {
+                this._renderTexture.dispose();
             }
 
+            this.disposeEnabled = false;
             this._renderTexture = null;
         }
         /**
-         * @private
+         * @inheritDoc
          */
         public createTexture(): TextureData {
             return BaseObject.borrowObject(EgretTextureData);
         }
         /**
-         * Egret 贴图。
+         * - The Egret texture.
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - Egret 贴图。
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -49,34 +85,36 @@ namespace dragonBones {
                 const textureAtlasHeight = this.height > 0.0 ? this.height : bitmapData.height;
 
                 for (let k in this.textures) {
+                    const scale = egret.$TextureScaleFactor;
                     const textureData = this.textures[k] as EgretTextureData;
-                    const subTextureWidth = Math.min(textureData.region.width, textureAtlasWidth - textureData.region.x); // TODO need remove
-                    const subTextureHeight = Math.min(textureData.region.height, textureAtlasHeight - textureData.region.y); // TODO need remove
+                    const subTextureWidth = textureData.region.width;
+                    const subTextureHeight = textureData.region.height;
 
                     if (textureData.renderTexture === null) {
                         textureData.renderTexture = new egret.Texture();
-                        if (textureData.rotated) {
-                            textureData.renderTexture.$initData(
-                                textureData.region.x, textureData.region.y,
-                                subTextureHeight, subTextureWidth,
-                                0, 0,
-                                subTextureHeight, subTextureWidth,
-                                textureAtlasWidth, textureAtlasHeight,
-                                textureData.rotated
-                            );
-                        }
-                        else {
-                            textureData.renderTexture.$initData(
-                                textureData.region.x, textureData.region.y,
-                                subTextureWidth, subTextureHeight,
-                                0, 0,
-                                subTextureWidth, subTextureHeight,
-                                textureAtlasWidth, textureAtlasHeight
-                            );
-                        }
                     }
 
-                    textureData.renderTexture._bitmapData = bitmapData;
+                    textureData.renderTexture.bitmapData = bitmapData;
+
+                    if (textureData.rotated) {
+                        textureData.renderTexture.$initData(
+                            textureData.region.x * scale, textureData.region.y * scale,
+                            subTextureHeight * scale, subTextureWidth * scale,
+                            0, 0,
+                            subTextureHeight * scale, subTextureWidth * scale,
+                            textureAtlasWidth, textureAtlasHeight,
+                            textureData.rotated
+                        );
+                    }
+                    else {
+                        textureData.renderTexture.$initData(
+                            textureData.region.x * scale, textureData.region.y * scale,
+                            subTextureWidth * scale, subTextureHeight * scale,
+                            0, 0,
+                            subTextureWidth * scale, subTextureHeight * scale,
+                            textureAtlasWidth, textureAtlasHeight
+                        );
+                    }
                 }
             }
             else {
@@ -86,27 +124,9 @@ namespace dragonBones {
                 }
             }
         }
-
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.BaseFactory#removeTextureAtlasData()
-         */
-        public dispose(): void {
-            console.warn("已废弃，请参考 @see");
-            this.returnToPool();
-        }
-        /**
-         * @deprecated
-         * 已废弃，请参考 @see
-         * @see dragonBones.BaseFactory#removeTextureAtlasData()
-         */
-        public get texture() {
-            return this.renderTexture;
-        }
     }
     /**
-     * @private
+     * @internal
      */
     export class EgretTextureData extends TextureData {
         public static toString(): string {
@@ -119,7 +139,8 @@ namespace dragonBones {
             super._onClear();
 
             if (this.renderTexture !== null) {
-                //this.texture.dispose();
+                //this.renderTexture.dispose(false);
+                //this.renderTexture.dispose();
             }
 
             this.renderTexture = null;

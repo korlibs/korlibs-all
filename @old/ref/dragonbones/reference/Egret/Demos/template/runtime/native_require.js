@@ -2,6 +2,27 @@
 var game_file_list = [
     //以下为自动修改，请勿修改
     //----auto game_file_list start----
+	"libs/modules/egret/egret.js",
+	"libs/modules/egret/egret.native.js",
+	"libs/modules/dragonBones/dragonBones.js",
+	"libs/modules/res/res.js",
+	"bin-debug/BaseDemo.js",
+	"bin-debug/demo/DragonBonesEvent.js",
+	"bin-debug/Main.js",
+	"bin-debug/demo/AnimationBase.js",
+	"bin-debug/demo/AnimationLayer.js",
+	"bin-debug/demo/BoneOffset.js",
+	"bin-debug/demo/BoundingBox.js",
+	"bin-debug/demo/CoreElement.js",
+	"bin-debug/demo/ReplaceSlotDisplay.js",
+	"bin-debug/demo/HelloDragonBones.js",
+	"bin-debug/demo/InverseKinematics.js",
+	"bin-debug/demo/MyTest.js",
+	"bin-debug/demo/PathDemo.js",
+	"bin-debug/demo/PerformanceTest.js",
+	"bin-debug/demo/ReplaceAnimation.js",
+	"bin-debug/demo/ReplaceSkin.js",
+	"bin-debug/DragHelper.js",
 	//----auto game_file_list end----
 ];
 
@@ -31,11 +52,11 @@ egret_native.egretStart = function () {
         //----auto option start----
 		entryClassName: "Main",
 		frameRate: 60,
-		scaleMode: "fixedHeight",
-		contentWidth: 800,
-		contentHeight: 600,
+		scaleMode: "noBorder",
+		contentWidth: 1136,
+		contentHeight: 640,
 		showPaintRect: false,
-		showFPS: true,
+		showFPS: false,
 		fpsStyles: "x:0,y:0,size:12,textColor:0xffffff,bgAlpha:0.9",
 		showLog: false,
 		logFilter: "",

@@ -12,6 +12,8 @@ import com.dragonbones.util.*
 import java.util.*
 
 import com.dragonbones.util.Dynamic.*
+import com.dragonbones.util.Dynamic.`in`
+import com.dragonbones.util.Dynamic.getString
 
 /**
  * @private
