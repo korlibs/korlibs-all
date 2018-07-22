@@ -1,785 +1,960 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2018 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 package com.dragonbones.animation
 
-import com.dragonbones.armature.Armature
-import com.dragonbones.armature.Bone
-import com.dragonbones.armature.Slot
-import com.dragonbones.core.AnimationFadeOutMode
-import com.dragonbones.core.BaseObject
-import com.dragonbones.model.AnimationConfig
-import com.dragonbones.model.AnimationData
-import com.dragonbones.util.Array
-import com.dragonbones.util.Console
-
-import java.util.HashMap
-import java.util.Objects
-
 /**
- * 动画控制器，用来播放动画数据，管理动画状态。
- *
- * @version DragonBones 3.0
- * @language zh_CN
- * @see AnimationData
- *
- * @see AnimationState
- */
-class Animation : BaseObject() {
+     * - The animation player is used to play the animation data and manage the animation states.
+     * @see dragonBones.AnimationData
+     * @see dragonBones.AnimationState
+     * @version DragonBones 3.0
+     * @language en_US
+     */
     /**
-     * 播放速度。 [0: 停止播放, (0~1): 慢速播放, 1: 正常播放, (1~N): 快速播放]
-     *
-     * @default 1f
+     * - 动画播放器用来播放动画数据和管理动画状态。
+     * @see dragonBones.AnimationData
+     * @see dragonBones.AnimationState
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    var timeScale: Float = 0.toFloat()
+    class Animation : BaseObject {
+        public static toString(): string {
+            return "[class dragonBones.Animation]";
+        }
+        /**
+         * - The play speed of all animations. [0: Stop, (0~1): Slow, 1: Normal, (1~N): Fast]
+         * @default 1.0
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 所有动画的播放速度。 [0: 停止播放, (0~1): 慢速播放, 1: 正常播放, (1~N): 快速播放]
+         * @default 1.0
+         * @version DragonBones 3.0
+         * @language zh_CN
+         */
+        public timeScale: number;
+        /**
+         * Update bones and slots cachedFrameIndices.
+         */
+        private _animationDirty: boolean; // 
+        private _inheritTimeScale: number;
+        private readonly _animationNames: Array<string> = [];
+        private readonly _animationStates: Array<AnimationState> = [];
+        private readonly _animations: Map<AnimationData> = {};
+        private readonly _blendStates: Map<Map<BlendState>> = {};
+        private _armature: Armature;
+        private _animationConfig: AnimationConfig = null as any; // Initial value.
+        private _lastAnimationState: AnimationState | null;
 
-    private var _animationDirty: Boolean = false // Update bones and slots cachedFrameIndices.
-    /**
-     * @internal
-     * @private
-     */
-    var _timelineDirty: Boolean = false // Updata animationStates timelineStates.
-    /**
-     * 所有动画数据名称。
-     *
-     * @version DragonBones 4.5
-     * @language zh_CN
-     * @see .getAnimations
-     */
-    val animationNames = Array<String>()
-    /**
-     * 获取所有的动画状态。
-     *
-     * @version DragonBones 5.1
-     * @language zh_CN
-     * @see AnimationState
-     */
-    val states = Array<AnimationState>()
-    private val _animations = HashMap<String, AnimationData>()
-    private var _armature: Armature? = null
-    private var _animationConfig: AnimationConfig? = null // Initial value.
-    /**
-     * 上一个正在播放的动画状态。
-     *
-     * @version DragonBones 3.0
-     * @language zh_CN
-     * @see AnimationState
-     */
-    var lastAnimationState: AnimationState? = null
-        private set
+        protected _onClear(): void {
+            for (const animationState of this._animationStates) {
+                animationState.returnToPool();
+            }
 
-    /**
-     * 动画是否处于播放状态。
-     *
-     * @version DragonBones 3.0
-     * @language zh_CN
-     */
-    val isPlaying: Boolean
-        get() {
-            for (animationState in this.states) {
-                if (animationState.isPlaying) {
-                    return true
+            for (let k in this._animations) {
+                delete this._animations[k];
+            }
+
+            for (let k in this._blendStates) {
+                const blendStates = this._blendStates[k];
+                for (let kB in blendStates) {
+                    blendStates[kB].returnToPool();
                 }
+
+                delete this._blendStates[k];
             }
 
-            return false
-        }
-
-    /**
-     * 所有动画状态是否均已播放完毕。
-     *
-     * @version DragonBones 3.0
-     * @language zh_CN
-     * @see AnimationState
-     */
-    val isCompleted: Boolean
-        get() {
-            for (animationState in this.states) {
-                if (!animationState.isCompleted) {
-                    return false
-                }
+            if (this._animationConfig !== null) {
+                this._animationConfig.returnToPool();
             }
 
-            return this.states.size() > 0
+            this.timeScale = 1.0;
+
+            this._animationDirty = false;
+            this._inheritTimeScale = 1.0;
+            this._animationNames.length = 0;
+            this._animationStates.length = 0;
+            //this._animations.clear();
+            this._armature = null as any; //
+            this._animationConfig = null as any; //
+            this._lastAnimationState = null;
         }
 
-    /**
-     * 上一个正在播放的动画状态名称。
-     *
-     * @version DragonBones 3.0
-     * @language zh_CN
-     * @see .getLastAnimationState
-     */
-    val lastAnimationName: String
-        get() = if (this.lastAnimationState != null) this.lastAnimationState!!.name else ""
+        private _fadeOut(animationConfig: AnimationConfig): void {
+            switch (animationConfig.fadeOutMode) {
+                case AnimationFadeOutMode.SameLayer:
+                    for (const animationState of this._animationStates) {
+                        if (animationState._parent !== null) {
+                            continue;
+                        }
 
-    /**
-     * 所有动画数据。
-     *
-     * @version DragonBones 4.5
-     * @language zh_CN
-     * @see AnimationData
-     */
-    var animations: Map<String, AnimationData>
-        get() = this._animations
-        set(value) {
-            if (this._animations === value) {
-                return
-            }
-
-            this.animationNames.clear()
-            this._animations.clear()
-
-            for (k in value.keys) {
-                this._animations[k] = value[k]!!
-                this.animationNames.add(k)
-            }
-        }
-
-    /**
-     * 一个可以快速使用的动画配置实例。
-     *
-     * @version DragonBones 5.0
-     * @language zh_CN
-     * @see AnimationConfig
-     */
-    val animationConfig: AnimationConfig
-        get() {
-            this._animationConfig!!.clear()
-            return this._animationConfig!!
-        }
-
-    /**
-     * @see .getAnimationNames
-     * @see .getAnimations
-     */
-    val animationDataList: Array<AnimationData>
-        @Deprecated("已废弃，请参考 @see")
-        get() {
-            val list = Array<AnimationData>()
-            var i = 0
-            val l = this.animationNames.size()
-            while (i < l) {
-                list.push(this._animations[this.animationNames.get(i)]!!)
-                ++i
-            }
-
-            return list
-        }
-
-    /**
-     * @private
-     */
-    override fun _onClear() {
-        for (animationState in this.states) {
-            animationState.returnToPool()
-        }
-
-        for (k in this._animations.keys) {
-            this._animations.remove(k)
-        }
-
-        if (this._animationConfig != null) {
-            this._animationConfig!!.returnToPool()
-        }
-
-        this.timeScale = 1f
-
-        this._animationDirty = false
-        this._timelineDirty = false
-        this.animationNames.clear()
-        this.states.clear()
-        //this._animations.clear();
-        this._armature = null //
-        this._animationConfig = null //
-        this.lastAnimationState = null
-    }
-
-    private fun _fadeOut(animationConfig: AnimationConfig) {
-        when (animationConfig.fadeOutMode) {
-            AnimationFadeOutMode.SameLayer -> for (animationState in this.states) {
-                if (animationState.layer == animationConfig.layer) {
-                    animationState.fadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut)
-                }
-            }
-
-            AnimationFadeOutMode.SameGroup -> for (animationState in this.states) {
-                if (animationState.group == animationConfig.group) {
-                    animationState.fadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut)
-                }
-            }
-
-            AnimationFadeOutMode.SameLayerAndGroup -> for (animationState in this.states) {
-                if (animationState.layer == animationConfig.layer && animationState.group == animationConfig.group) {
-                    animationState.fadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut)
-                }
-            }
-
-            AnimationFadeOutMode.All -> for (animationState in this.states) {
-                animationState.fadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut)
-            }
-
-            AnimationFadeOutMode.None, AnimationFadeOutMode.Single -> {
-            }
-            else -> {
-            }
-        }
-    }
-
-    /**
-     * @internal
-     * @private
-     */
-    fun init(armature: Armature) {
-        if (this._armature != null) {
-            return
-        }
-
-        this._armature = armature
-        this._animationConfig = BaseObject.borrowObject(AnimationConfig::class.java)
-    }
-
-    /**
-     * @internal
-     * @private
-     */
-    fun advanceTime(passedTime: Float) {
-        var passedTime = passedTime
-        if (passedTime < 0f) { // Only animationState can reverse play.
-            passedTime = -passedTime
-        }
-
-        if (this._armature!!.inheritAnimation && this._armature!!.parent != null) { // Inherit parent animation timeScale.
-            passedTime *= this._armature!!.parent!!.armature!!.animation!!.timeScale
-        }
-
-        if (this.timeScale != 1f) {
-            passedTime *= this.timeScale
-        }
-
-        val animationStateCount = this.states.size()
-        if (animationStateCount == 1) {
-            val animationState = this.states.get(0)
-            if (animationState._fadeState > 0 && animationState._subFadeState > 0) {
-                this._armature!!._dragonBones!!.bufferObject(animationState)
-                this.states.clear()
-                this.lastAnimationState = null
-            } else {
-                val animationData = animationState.clip
-                val cacheFrameRate = animationData!!.cacheFrameRate
-                if (this._animationDirty && cacheFrameRate > 0f) { // Update cachedFrameIndices.
-                    this._animationDirty = false
-                    for (bone in this._armature!!.bones) {
-                        bone._cachedFrameIndices = animationData.getBoneCachedFrameIndices(bone.name)
+                        if (animationState.layer === animationConfig.layer) {
+                            animationState.fadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut);
+                        }
                     }
+                    break;
 
-                    for (slot in this._armature!!.slots) {
-                        slot._cachedFrameIndices = animationData.getSlotCachedFrameIndices(slot.name)
+                case AnimationFadeOutMode.SameGroup:
+                    for (const animationState of this._animationStates) {
+                        if (animationState._parent !== null) {
+                            continue;
+                        }
+
+                        if (animationState.group === animationConfig.group) {
+                            animationState.fadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut);
+                        }
                     }
-                }
+                    break;
 
-                if (this._timelineDirty) {
-                    animationState.updateTimelines()
-                }
+                case AnimationFadeOutMode.SameLayerAndGroup:
+                    for (const animationState of this._animationStates) {
+                        if (animationState._parent !== null) {
+                            continue;
+                        }
 
-                animationState.advanceTime(passedTime, cacheFrameRate)
+                        if (
+                            animationState.layer === animationConfig.layer &&
+                            animationState.group === animationConfig.group
+                        ) {
+                            animationState.fadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut);
+                        }
+                    }
+                    break;
+
+                case AnimationFadeOutMode.All:
+                    for (const animationState of this._animationStates) {
+                        if (animationState._parent !== null) {
+                            continue;
+                        }
+
+                        animationState.fadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut);
+                    }
+                    break;
+
+                case AnimationFadeOutMode.Single: // TODO
+                default:
+                    break;
             }
-        } else if (animationStateCount > 1) {
-            var i = 0
-            var r = 0
-            while (i < animationStateCount) {
-                val animationState = this.states.get(i)
+        }
+        /**
+         * @internal
+         */
+        public init(armature: Armature): void {
+            if (this._armature !== null) {
+                return;
+            }
+
+            this._armature = armature;
+            this._animationConfig = BaseObject.borrowObject(AnimationConfig);
+        }
+        /**
+         * @internal
+         */
+        public advanceTime(passedTime: number): void {
+            if (passedTime < 0.0) { // Only animationState can reverse play.
+                passedTime = -passedTime;
+            }
+
+            if (this._armature.inheritAnimation && this._armature._parent !== null) { // Inherit parent animation timeScale.
+                this._inheritTimeScale = this._armature._parent._armature.animation._inheritTimeScale * this.timeScale;
+            }
+            else {
+                this._inheritTimeScale = this.timeScale;
+            }
+
+            if (this._inheritTimeScale !== 1.0) {
+                passedTime *= this._inheritTimeScale;
+            }
+
+            for (let k in this._blendStates) {
+                const blendStates = this._blendStates[k];
+                for (let kB in blendStates) {
+                    blendStates[kB].reset();
+                }
+            }
+
+            const animationStateCount = this._animationStates.length;
+            if (animationStateCount === 1) {
+                const animationState = this._animationStates[0];
                 if (animationState._fadeState > 0 && animationState._subFadeState > 0) {
-                    r++
-                    this._armature!!._dragonBones!!.bufferObject(animationState)
-                    this._animationDirty = true
-                    if (this.lastAnimationState === animationState) { // Update last animation state.
-                        this.lastAnimationState = null
-                    }
-                } else {
-                    if (r > 0) {
-                        this.states.set(i - r, animationState)
-                    }
-
-                    if (this._timelineDirty) {
-                        animationState.updateTimelines()
-                    }
-
-                    animationState.advanceTime(passedTime, 0f)
+                    this._armature._dragonBones.bufferObject(animationState);
+                    this._animationStates.length = 0;
+                    this._lastAnimationState = null;
                 }
+                else {
+                    const animationData = animationState.animationData;
+                    const cacheFrameRate = animationData.cacheFrameRate;
 
-                if (i == animationStateCount - 1 && r > 0) { // Modify animation states size.
-                    this.states.length = this.states.size() - r
-                    if (this.lastAnimationState == null && this.states.size() > 0) {
-                        this.lastAnimationState = this.states.get(this.states.size() - 1)
+                    if (this._animationDirty && cacheFrameRate > 0.0) { // Update cachedFrameIndices.
+                        this._animationDirty = false;
+
+                        for (const bone of this._armature.getBones()) {
+                            bone._cachedFrameIndices = animationData.getBoneCachedFrameIndices(bone.name);
+                        }
+
+                        for (const slot of this._armature.getSlots()) {
+                            if (slot.displayFrameCount > 0) {
+                                const rawDisplayData = slot.getDisplayFrameAt(0).rawDisplayData;
+                                if (
+                                    rawDisplayData !== null &&
+                                    rawDisplayData.parent === this._armature.armatureData.defaultSkin
+                                ) {
+                                    slot._cachedFrameIndices = animationData.getSlotCachedFrameIndices(slot.name);
+                                    continue;
+                                }
+                            }
+
+                            slot._cachedFrameIndices = null;
+                        }
                     }
-                }
-                ++i
-            }
 
-            this._armature!!._cacheFrameIndex = -1
-        } else {
-            this._armature!!._cacheFrameIndex = -1
-        }
-
-        this._timelineDirty = false
-    }
-
-    /**
-     * 清除所有动画状态。
-     *
-     * @version DragonBones 4.5
-     * @language zh_CN
-     * @see AnimationState
-     */
-    fun reset() {
-        for (animationState in this.states) {
-            animationState.returnToPool()
-        }
-
-        this._animationDirty = false
-        this._timelineDirty = false
-        this._animationConfig!!.clear()
-        this.states.clear()
-        this.lastAnimationState = null
-    }
-
-    /**
-     * 暂停播放动画。
-     *
-     * @param animationName 动画状态的名称，如果未设置，则暂停所有动画状态。
-     * @version DragonBones 3.0
-     * @language zh_CN
-     * @see AnimationState
-     */
-    @JvmOverloads
-    fun stop(animationName: String? = null) {
-        if (animationName != null) {
-            val animationState = this.getState(animationName)
-            animationState?.stop()
-        } else {
-            for (animationState in this.states) {
-                animationState.stop()
-            }
-        }
-    }
-
-    /**
-     * 通过动画配置来播放动画。
-     *
-     * @param animationConfig 动画配置。
-     * @returns 对应的动画状态。
-     * @version DragonBones 5.0
-     * @beta
-     * @language zh_CN
-     * @see AnimationConfig
-     *
-     * @see AnimationState
-     */
-    fun playConfig(animationConfig: AnimationConfig?): AnimationState? {
-        val animationName = animationConfig!!.animation
-        if (!this._animations.containsKey(animationName)) {
-            Console.warn(
-                "Non-existent animation.\n" +
-                        "DragonBones name: " + this._armature!!.armatureData!!.parent!!.name +
-                        "Armature name: " + this._armature!!.name +
-                        "Animation name: " + animationName
-            )
-
-            return null
-        }
-
-        val animationData = this._animations[animationName]!!
-
-        if (animationConfig.fadeOutMode == AnimationFadeOutMode.Single) {
-            for (animationState in this.states) {
-                if (animationState.clip === animationData) {
-                    return animationState
+                    animationState.advanceTime(passedTime, cacheFrameRate);
                 }
             }
-        }
+            else if (animationStateCount > 1) {
+                for (let i = 0, r = 0; i < animationStateCount; ++i) {
+                    const animationState = this._animationStates[i];
+                    if (animationState._fadeState > 0 && animationState._subFadeState > 0) {
+                        r++;
+                        this._armature._dragonBones.bufferObject(animationState);
+                        this._animationDirty = true;
 
-        if (this.states.size() == 0) {
-            animationConfig.fadeInTime = 0f
-        } else if (animationConfig.fadeInTime < 0f) {
-            animationConfig.fadeInTime = animationData.fadeInTime
-        }
+                        if (this._lastAnimationState === animationState) { // Update last animation state.
+                            this._lastAnimationState = null;
+                        }
+                    }
+                    else {
+                        if (r > 0) {
+                            this._animationStates[i - r] = animationState;
+                        }
 
-        if (animationConfig.fadeOutTime < 0f) {
-            animationConfig.fadeOutTime = animationConfig.fadeInTime
-        }
+                        animationState.advanceTime(passedTime, 0.0);
+                    }
 
-        if (animationConfig.timeScale <= -100.0) {
-            animationConfig.timeScale = 1f / animationData.scale
-        }
+                    if (i === animationStateCount - 1 && r > 0) { // Modify animation states size.
+                        this._animationStates.length -= r;
 
-        if (animationData.frameCount > 1) {
-            if (animationConfig.position < 0f) {
-                animationConfig.position %= animationData.duration
-                animationConfig.position = animationData.duration - animationConfig.position
-            } else if (animationConfig.position == animationData.duration) {
-                animationConfig.position -= 0.000001f // Play a little time before end.
-            } else if (animationConfig.position > animationData.duration) {
-                animationConfig.position %= animationData.duration
-            }
-
-            if (animationConfig.duration > 0f && animationConfig.position + animationConfig.duration > animationData.duration) {
-                animationConfig.duration = animationData.duration - animationConfig.position
-            }
-
-            if (animationConfig.playTimes < 0) {
-                animationConfig.playTimes = animationData.playTimes
-            }
-        } else {
-            animationConfig.playTimes = 1
-            animationConfig.position = 0f
-            if (animationConfig.duration > 0f) {
-                animationConfig.duration = 0f
-            }
-        }
-
-        if (animationConfig.duration == 0f) {
-            animationConfig.duration = -1f
-        }
-
-        this._fadeOut(animationConfig)
-
-        val animationState = BaseObject.borrowObject(AnimationState::class.java)
-        animationState.init(this._armature!!, animationData!!, animationConfig)
-        this._animationDirty = true
-        this._armature!!._cacheFrameIndex = -1
-
-        if (this.states.size() > 0) {
-            var added = false
-            var i = 0
-            val l = this.states.size()
-            while (i < l) {
-                if (animationState.layer >= this.states.get(i).layer) {
-                } else {
-                    added = true
-                    this.states.splice(i + 1, 0, animationState)
-                    break
+                        if (this._lastAnimationState === null && this._animationStates.length > 0) {
+                            this._lastAnimationState = this._animationStates[this._animationStates.length - 1];
+                        }
+                    }
                 }
-                ++i
-            }
 
-            if (!added) {
-                this.states.add(animationState)
+                this._armature._cacheFrameIndex = -1;
             }
-        } else {
-            this.states.add(animationState)
-        }
-
-        // Child armature play same name animation.
-        for (slot in this._armature!!.slots) {
-            val childArmature = slot.childArmature
-            if (childArmature != null && childArmature.inheritAnimation &&
-                childArmature.animation!!.hasAnimation(animationName) &&
-                childArmature.animation!!.getState(animationName) == null
-            ) {
-                childArmature.animation!!.fadeIn(animationName) //
+            else {
+                this._armature._cacheFrameIndex = -1;
             }
         }
-
-        if (animationConfig.fadeInTime <= 0f) { // Blend animation state, update armature.
-            this._armature!!.advanceTime(0f)
-        }
-
-        this.lastAnimationState = animationState
-
-        return animationState
-    }
-
-    /**
-     * 播放动画。
-     *
-     * @param animationName 动画数据名称，如果未设置，则播放默认动画，或将暂停状态切换为播放状态，或重新播放上一个正在播放的动画。
-     * @param playTimes     播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-     * @returns 对应的动画状态。
-     * @version DragonBones 3.0
-     * @language zh_CN
-     * @see AnimationState
-     */
-    @JvmOverloads
-    fun play(animationName: String? = null, playTimes: Int = -1): AnimationState? {
-        this._animationConfig!!.clear()
-        this._animationConfig!!.resetToPose = true
-        this._animationConfig!!.playTimes = playTimes
-        this._animationConfig!!.fadeInTime = 0f
-        this._animationConfig!!.animation = animationName ?: ""
-
-        if (animationName != null && animationName.length > 0) {
-            this.playConfig(this._animationConfig)
-        } else if (this.lastAnimationState == null) {
-            val defaultAnimation = this._armature!!.armatureData!!.defaultAnimation
-            if (defaultAnimation != null) {
-                this._animationConfig!!.animation = defaultAnimation.name
-                this.playConfig(this._animationConfig)
+        /**
+         * - Clear all animations states.
+         * @see dragonBones.AnimationState
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 清除所有的动画状态。
+         * @see dragonBones.AnimationState
+         * @version DragonBones 4.5
+         * @language zh_CN
+         */
+        public reset(): void {
+            for (const animationState of this._animationStates) {
+                animationState.returnToPool();
             }
-        } else if (!this.lastAnimationState!!.isPlaying && !this.lastAnimationState!!.isCompleted) {
-            this.lastAnimationState!!.play()
-        } else {
-            this._animationConfig!!.animation = this.lastAnimationState!!.name
-            this.playConfig(this._animationConfig)
+
+            this._animationDirty = false;
+            this._animationConfig.clear();
+            this._animationStates.length = 0;
+            this._lastAnimationState = null;
         }
-
-        return this.lastAnimationState
-    }
-
-    /**
-     * 淡入播放动画。
-     *
-     * @param animationName 动画数据名称。
-     * @param playTimes     播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-     * @param fadeInTime    淡入时间。 [-1: 使用动画数据默认值, [0~N]: 淡入时间] (以秒为单位)
-     * @param layer         混合图层，图层高会优先获取混合权重。
-     * @param group         混合组，用于动画状态编组，方便控制淡出。
-     * @param fadeOutMode   淡出模式。
-     * @returns 对应的动画状态。
-     * @version DragonBones 4.5
-     * @language zh_CN
-     * @see AnimationFadeOutMode
-     *
-     * @see AnimationState
-     */
-    @JvmOverloads
-    fun fadeIn(
-        animationName: String,
-        fadeInTime: Float = -1f,
-        playTimes: Int = -1,
-        layer: Int = 0,
-        group: String? = null,
-        fadeOutMode: AnimationFadeOutMode = AnimationFadeOutMode.SameLayerAndGroup
-    ): AnimationState? {
-        this._animationConfig!!.clear()
-        this._animationConfig!!.fadeOutMode = fadeOutMode
-        this._animationConfig!!.playTimes = playTimes
-        this._animationConfig!!.layer = layer.toFloat()
-        this._animationConfig!!.fadeInTime = fadeInTime
-        this._animationConfig!!.animation = animationName
-        this._animationConfig!!.group = group ?: ""
-
-        return this.playConfig(this._animationConfig)
-    }
-
-    /**
-     * 从指定时间开始播放动画。
-     *
-     * @param animationName 动画数据的名称。
-     * @param time          开始时间。 (以秒为单位)
-     * @param playTimes     播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-     * @returns 对应的动画状态。
-     * @version DragonBones 4.5
-     * @language zh_CN
-     * @see AnimationState
-     */
-    @JvmOverloads
-    fun gotoAndPlayByTime(animationName: String, time: Float = 0f, playTimes: Int = -1): AnimationState? {
-        this._animationConfig!!.clear()
-        this._animationConfig!!.resetToPose = true
-        this._animationConfig!!.playTimes = playTimes
-        this._animationConfig!!.position = time
-        this._animationConfig!!.fadeInTime = 0f
-        this._animationConfig!!.animation = animationName
-
-        return this.playConfig(this._animationConfig)
-    }
-
-    /**
-     * 从指定帧开始播放动画。
-     *
-     * @param animationName 动画数据的名称。
-     * @param frame         帧。
-     * @param playTimes     播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-     * @returns 对应的动画状态。
-     * @version DragonBones 4.5
-     * @language zh_CN
-     * @see AnimationState
-     */
-    @JvmOverloads
-    fun gotoAndPlayByFrame(animationName: String, frame: Int = 0, playTimes: Int = -1): AnimationState? {
-        this._animationConfig!!.clear()
-        this._animationConfig!!.resetToPose = true
-        this._animationConfig!!.playTimes = playTimes
-        this._animationConfig!!.fadeInTime = 0f
-        this._animationConfig!!.animation = animationName
-
-        val animationData = this._animations[animationName]
-        if (animationData != null) {
-            this._animationConfig!!.position = animationData.duration * frame / animationData.frameCount
-        }
-
-        return this.playConfig(this._animationConfig)
-    }
-
-    /**
-     * 从指定进度开始播放动画。
-     *
-     * @param animationName 动画数据的名称。
-     * @param progress      进度。 [0~1]
-     * @param playTimes     播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-     * @returns 对应的动画状态。
-     * @version DragonBones 4.5
-     * @language zh_CN
-     * @see AnimationState
-     */
-    @JvmOverloads
-    fun gotoAndPlayByProgress(animationName: String, progress: Float = 0f, playTimes: Int = -1): AnimationState? {
-        this._animationConfig!!.clear()
-        this._animationConfig!!.resetToPose = true
-        this._animationConfig!!.playTimes = playTimes
-        this._animationConfig!!.fadeInTime = 0f
-        this._animationConfig!!.animation = animationName
-
-        val animationData = this._animations[animationName]
-        if (animationData != null) {
-            this._animationConfig!!.position = animationData.duration * if (progress > 0f) progress else 0f
-        }
-
-        return this.playConfig(this._animationConfig)
-    }
-
-    fun gotoAndStopByTime(animationName: String): AnimationState? {
-        return gotoAndStopByTime(animationName, 0f)
-    }
-
-    /**
-     * 将动画停止到指定的时间。
-     *
-     * @param animationName 动画数据的名称。
-     * @param time          时间。 (以秒为单位)
-     * @returns 对应的动画状态。
-     * @version DragonBones 4.5
-     * @language zh_CN
-     * @see AnimationState
-     */
-    fun gotoAndStopByTime(animationName: String, time: Float): AnimationState? {
-        val animationState = this.gotoAndPlayByTime(animationName, time, 1)
-        animationState?.stop()
-
-        return animationState
-    }
-
-    /**
-     * 将动画停止到指定的帧。
-     *
-     * @param animationName 动画数据的名称。
-     * @param frame         帧。
-     * @returns 对应的动画状态。
-     * @version DragonBones 4.5
-     * @language zh_CN
-     * @see AnimationState
-     */
-    @JvmOverloads
-    fun gotoAndStopByFrame(animationName: String, frame: Int = 0): AnimationState? {
-        val animationState = this.gotoAndPlayByFrame(animationName, frame, 1)
-        animationState?.stop()
-
-        return animationState
-    }
-
-    /**
-     * 将动画停止到指定的进度。
-     *
-     * @param animationName 动画数据的名称。
-     * @param progress      进度。 [0 ~ 1]
-     * @returns 对应的动画状态。
-     * @version DragonBones 4.5
-     * @language zh_CN
-     * @see AnimationState
-     */
-    @JvmOverloads
-    fun gotoAndStopByProgress(animationName: String, progress: Float = 0f): AnimationState? {
-        val animationState = this.gotoAndPlayByProgress(animationName, progress, 1)
-        animationState?.stop()
-
-        return animationState
-    }
-
-    /**
-     * 获取动画状态。
-     *
-     * @param animationName 动画状态的名称。
-     * @version DragonBones 3.0
-     * @language zh_CN
-     * @see AnimationState
-     */
-    fun getState(animationName: String): AnimationState? {
-        var i = this.states.size()
-        while (i-- != 0) {
-            val animationState = this.states.get(i)
-            if (animationState.name == animationName) {
-                return animationState
+        /**
+         * - Pause a specific animation state.
+         * @param animationName - The name of animation state. (If not set, it will pause all animations)
+         * @see dragonBones.AnimationState
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 暂停指定动画状态的播放。
+         * @param animationName - 动画状态名称。 （如果未设置，则暂停所有动画）
+         * @see dragonBones.AnimationState
+         * @version DragonBones 3.0
+         * @language zh_CN
+         */
+        public stop(animationName: string | null = null): void {
+            if (animationName !== null) {
+                const animationState = this.getState(animationName);
+                if (animationState !== null) {
+                    animationState.stop();
+                }
+            }
+            else {
+                for (const animationState of this._animationStates) {
+                    animationState.stop();
+                }
             }
         }
+        /**
+         * - Play animation with a specific animation config.
+         * The API is still in the experimental phase and may encounter bugs or stability or compatibility issues when used.
+         * @param animationConfig - The animation config.
+         * @returns The playing animation state.
+         * @see dragonBones.AnimationConfig
+         * @beta
+         * @version DragonBones 5.0
+         * @language en_US
+         */
+        /**
+         * - 通过指定的动画配置来播放动画。
+         * 该 API 仍在实验阶段，使用时可能遭遇 bug 或稳定性或兼容性问题。
+         * @param animationConfig - 动画配置。
+         * @returns 播放的动画状态。
+         * @see dragonBones.AnimationConfig
+         * @beta
+         * @version DragonBones 5.0
+         * @language zh_CN
+         */
+        public playConfig(animationConfig: AnimationConfig): AnimationState | null {
+            const animationName = animationConfig.animation;
+            if (!(animationName in this._animations)) {
+                console.warn(
+                    "Non-existent animation.\n",
+                    "DragonBones name: " + this._armature.armatureData.parent.name,
+                    "Armature name: " + this._armature.name,
+                    "Animation name: " + animationName
+                );
 
-        return null
-    }
+                return null;
+            }
 
-    /**
-     * 是否包含动画数据。
-     *
-     * @param animationName 动画数据的名称。
-     * @version DragonBones 3.0
-     * @language zh_CN
-     * @see AnimationData
-     */
-    fun hasAnimation(animationName: String): Boolean {
-        return this._animations.containsKey(animationName)
-    }
+            const animationData = this._animations[animationName];
 
-    fun gotoAndPlay(animationName: String): AnimationState? {
-        return gotoAndPlay(animationName, -1f, -1f, -1, 0, null, AnimationFadeOutMode.SameLayerAndGroup, true, true)
-    }
+            if (animationConfig.fadeOutMode === AnimationFadeOutMode.Single) {
+                for (const animationState of this._animationStates) {
+                    if (
+                        animationState._fadeState < 1 &&
+                        animationState.layer === animationConfig.layer &&
+                        animationState.animationData === animationData
+                    ) {
+                        return animationState;
+                    }
+                }
+            }
 
-    /**
-     * @see .play
-     * @see .fadeIn
-     * @see .gotoAndPlayByTime
-     * @see .gotoAndPlayByFrame
-     * @see .gotoAndPlayByProgress
-     */
-    @Deprecated("已废弃，请参考 @see")
-    fun gotoAndPlay(
-        animationName: String, fadeInTime: Float, duration: Float, playTimes: Int,
-        layer: Int, group: String?, fadeOutMode: AnimationFadeOutMode,
-        pauseFadeOut: Boolean, pauseFadeIn: Boolean
-    ): AnimationState? {
-        //pauseFadeOut;
-        //pauseFadeIn;
-        this._animationConfig!!.clear()
-        this._animationConfig!!.resetToPose = true
-        this._animationConfig!!.fadeOutMode = fadeOutMode
-        this._animationConfig!!.playTimes = playTimes
-        this._animationConfig!!.layer = layer.toFloat()
-        this._animationConfig!!.fadeInTime = fadeInTime
-        this._animationConfig!!.animation = animationName
-        this._animationConfig!!.group = group ?: ""
+            if (this._animationStates.length === 0) {
+                animationConfig.fadeInTime = 0.0;
+            }
+            else if (animationConfig.fadeInTime < 0.0) {
+                animationConfig.fadeInTime = animationData.fadeInTime;
+            }
 
-        val animationData = this._animations[animationName]
-        if (animationData != null && duration > 0f) {
-            this._animationConfig!!.timeScale = animationData.duration / duration
+            if (animationConfig.fadeOutTime < 0.0) {
+                animationConfig.fadeOutTime = animationConfig.fadeInTime;
+            }
+
+            if (animationConfig.timeScale <= -100.0) {
+                animationConfig.timeScale = 1.0 / animationData.scale;
+            }
+
+            if (animationData.frameCount > 0) {
+                if (animationConfig.position < 0.0) {
+                    animationConfig.position %= animationData.duration;
+                    animationConfig.position = animationData.duration - animationConfig.position;
+                }
+                else if (animationConfig.position === animationData.duration) {
+                    animationConfig.position -= 0.000001; // Play a little time before end.
+                }
+                else if (animationConfig.position > animationData.duration) {
+                    animationConfig.position %= animationData.duration;
+                }
+
+                if (animationConfig.duration > 0.0 && animationConfig.position + animationConfig.duration > animationData.duration) {
+                    animationConfig.duration = animationData.duration - animationConfig.position;
+                }
+
+                if (animationConfig.playTimes < 0) {
+                    animationConfig.playTimes = animationData.playTimes;
+                }
+            }
+            else {
+                animationConfig.playTimes = 1;
+                animationConfig.position = 0.0;
+
+                if (animationConfig.duration > 0.0) {
+                    animationConfig.duration = 0.0;
+                }
+            }
+
+            if (animationConfig.duration === 0.0) {
+                animationConfig.duration = -1.0;
+            }
+
+            this._fadeOut(animationConfig);
+            //
+            const animationState = BaseObject.borrowObject(AnimationState);
+            animationState.init(this._armature, animationData, animationConfig);
+            this._animationDirty = true;
+            this._armature._cacheFrameIndex = -1;
+
+            if (this._animationStates.length > 0) { // Sort animation state.
+                let added = false;
+
+                for (let i = 0, l = this._animationStates.length; i < l; ++i) {
+                    if (animationState.layer > this._animationStates[i].layer) {
+                        added = true;
+                        this._animationStates.splice(i, 0, animationState);
+                        break;
+                    }
+                    else if (i !== l - 1 && animationState.layer > this._animationStates[i + 1].layer) {
+                        added = true;
+                        this._animationStates.splice(i + 1, 0, animationState);
+                        break;
+                    }
+                }
+
+                if (!added) {
+                    this._animationStates.push(animationState);
+                }
+            }
+            else {
+                this._animationStates.push(animationState);
+            }
+
+            for (const slot of this._armature.getSlots()) { // Child armature play same name animation.
+                const childArmature = slot.childArmature;
+                if (
+                    childArmature !== null && childArmature.inheritAnimation &&
+                    childArmature.animation.hasAnimation(animationName) &&
+                    childArmature.animation.getState(animationName) === null
+                ) {
+                    childArmature.animation.fadeIn(animationName); //
+                }
+            }
+
+            for (let k in animationData.animationTimelines) { // Blend animation node.
+                const childAnimationState = this.fadeIn(k, 0.0, 1, animationState.layer, "", AnimationFadeOutMode.Single);
+                if (childAnimationState === null) {
+                    continue;
+                }
+
+                const timelines = animationData.animationTimelines[k];
+                childAnimationState.actionEnabled = false;
+                childAnimationState.resetToPose = false;
+                childAnimationState.stop();
+                animationState.addState(childAnimationState, timelines);
+                //
+                const index = this._animationStates.indexOf(animationState);
+                const childIndex = this._animationStates.indexOf(childAnimationState);
+                if (childIndex < index) {
+                    this._animationStates.splice(index, 1);
+                    this._animationStates.splice(childIndex, 0, animationState);
+                }
+            }
+
+            // if (!this._armature._lockUpdate && animationConfig.fadeInTime <= 0.0) { // Blend animation state, update armature.
+            //     this._armature.advanceTime(0.0);
+            // }
+
+            this._lastAnimationState = animationState;
+
+            return animationState;
         }
+        /**
+         * - Play a specific animation.
+         * @param animationName - The name of animation data. (If not set, The default animation will be played, or resume the animation playing from pause status, or replay the last playing animation)
+         * @param playTimes - Playing repeat times. [-1: Use default value of the animation data, 0: No end loop playing, [1~N]: Repeat N times] (default: -1)
+         * @returns The playing animation state.
+         * @example
+         * <pre>
+         *     armature.animation.play("walk");
+         * </pre>
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 播放指定动画。
+         * @param animationName - 动画数据名称。 （如果未设置，则播放默认动画，或将暂停状态切换为播放状态，或重新播放之前播放的动画）
+         * @param playTimes - 循环播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次] （默认: -1）
+         * @returns 播放的动画状态。
+         * @example
+         * <pre>
+         *     armature.animation.play("walk");
+         * </pre>
+         * @version DragonBones 3.0
+         * @language zh_CN
+         */
+        public play(animationName: string | null = null, playTimes: number = -1): AnimationState | null {
+            this._animationConfig.clear();
+            this._animationConfig.resetToPose = true;
+            this._animationConfig.playTimes = playTimes;
+            this._animationConfig.fadeInTime = 0.0;
+            this._animationConfig.animation = animationName !== null ? animationName : "";
 
-        return this.playConfig(this._animationConfig)
-    }
+            if (animationName !== null && animationName.length > 0) {
+                this.playConfig(this._animationConfig);
+            }
+            else if (this._lastAnimationState === null) {
+                const defaultAnimation = this._armature.armatureData.defaultAnimation;
+                if (defaultAnimation !== null) {
+                    this._animationConfig.animation = defaultAnimation.name;
+                    this.playConfig(this._animationConfig);
+                }
+            }
+            else if (!this._lastAnimationState.isPlaying && !this._lastAnimationState.isCompleted) {
+                this._lastAnimationState.play();
+            }
+            else {
+                this._animationConfig.animation = this._lastAnimationState.name;
+                this.playConfig(this._animationConfig);
+            }
 
-    /**
-     * @see .gotoAndStopByTime
-     * @see .gotoAndStopByFrame
-     * @see .gotoAndStopByProgress
-     */
-    @Deprecated("已废弃，请参考 @see")
-    @JvmOverloads
-    fun gotoAndStop(animationName: String, time: Float = 0f): AnimationState? {
-        return this.gotoAndStopByTime(animationName, time)
-    }
+            return this._lastAnimationState;
+        }
+        /**
+         * - Fade in a specific animation.
+         * @param animationName - The name of animation data.
+         * @param fadeInTime - The fade in time. [-1: Use the default value of animation data, [0~N]: The fade in time (In seconds)] (Default: -1)
+         * @param playTimes - playing repeat times. [-1: Use the default value of animation data, 0: No end loop playing, [1~N]: Repeat N times] (Default: -1)
+         * @param layer - The blending layer, the animation states in high level layer will get the blending weights with high priority, when the total blending weights are more than 1.0, there will be no more weights can be allocated to the other animation states. (Default: 0)
+         * @param group - The blending group name, it is typically used to specify the substitution of multiple animation states blending. (Default: null)
+         * @param fadeOutMode - The fade out mode, which is typically used to specify alternate mode of multiple animation states blending. (Default: AnimationFadeOutMode.SameLayerAndGroup)
+         * @returns The playing animation state.
+         * @example
+         * <pre>
+         *     armature.animation.fadeIn("walk", 0.3, 0, 0, "normalGroup").resetToPose = false;
+         *     armature.animation.fadeIn("attack", 0.3, 1, 0, "attackGroup").resetToPose = false;
+         * </pre>
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 淡入播放指定的动画。
+         * @param animationName - 动画数据名称。
+         * @param fadeInTime - 淡入时间。 [-1: 使用动画数据默认值, [0~N]: 淡入时间 (以秒为单位)] （默认: -1）
+         * @param playTimes - 播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次] （默认: -1）
+         * @param layer - 混合图层，图层高的动画状态会优先获取混合权重，当混合权重分配总和超过 1.0 时，剩余的动画状态将不能再获得权重分配。 （默认: 0）
+         * @param group - 混合组名称，该属性通常用来指定多个动画状态混合时的相互替换关系。 （默认: null）
+         * @param fadeOutMode - 淡出模式，该属性通常用来指定多个动画状态混合时的相互替换模式。 （默认: AnimationFadeOutMode.SameLayerAndGroup）
+         * @returns 播放的动画状态。
+         * @example
+         * <pre>
+         *     armature.animation.fadeIn("walk", 0.3, 0, 0, "normalGroup").resetToPose = false;
+         *     armature.animation.fadeIn("attack", 0.3, 1, 0, "attackGroup").resetToPose = false;
+         * </pre>
+         * @version DragonBones 4.5
+         * @language zh_CN
+         */
+        public fadeIn(
+            animationName: string, fadeInTime: number = -1.0, playTimes: number = -1,
+            layer: number = 0, group: string | null = null, fadeOutMode: AnimationFadeOutMode = AnimationFadeOutMode.SameLayerAndGroup
+        ): AnimationState | null {
+            this._animationConfig.clear();
+            this._animationConfig.fadeOutMode = fadeOutMode;
+            this._animationConfig.playTimes = playTimes;
+            this._animationConfig.layer = layer;
+            this._animationConfig.fadeInTime = fadeInTime;
+            this._animationConfig.animation = animationName;
+            this._animationConfig.group = group !== null ? group : "";
 
-    /**
-     * @see .getAnimationNames
-     * @see .getAnimations
-     */
-    @Deprecated("已废弃，请参考 @see")
-    fun getAnimationList(): Array<String> {
-        return this.animationNames
+            return this.playConfig(this._animationConfig);
+        }
+        /**
+         * - Play a specific animation from the specific time.
+         * @param animationName - The name of animation data.
+         * @param time - The start time point of playing. (In seconds)
+         * @param playTimes - Playing repeat times. [-1: Use the default value of animation data, 0: No end loop playing, [1~N]: Repeat N times] (Default: -1)
+         * @returns The played animation state.
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 从指定时间开始播放指定的动画。
+         * @param animationName - 动画数据名称。
+         * @param time - 播放开始的时间。 (以秒为单位)
+         * @param playTimes - 循环播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次] （默认: -1）
+         * @returns 播放的动画状态。
+         * @version DragonBones 4.5
+         * @language zh_CN
+         */
+        public gotoAndPlayByTime(animationName: string, time: number = 0.0, playTimes: number = -1): AnimationState | null {
+            this._animationConfig.clear();
+            this._animationConfig.resetToPose = true;
+            this._animationConfig.playTimes = playTimes;
+            this._animationConfig.position = time;
+            this._animationConfig.fadeInTime = 0.0;
+            this._animationConfig.animation = animationName;
+
+            return this.playConfig(this._animationConfig);
+        }
+        /**
+         * - Play a specific animation from the specific frame.
+         * @param animationName - The name of animation data.
+         * @param frame - The start frame of playing.
+         * @param playTimes - Playing repeat times. [-1: Use the default value of animation data, 0: No end loop playing, [1~N]: Repeat N times] (Default: -1)
+         * @returns The played animation state.
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 从指定帧开始播放指定的动画。
+         * @param animationName - 动画数据名称。
+         * @param frame - 播放开始的帧数。
+         * @param playTimes - 播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次] （默认: -1）
+         * @returns 播放的动画状态。
+         * @version DragonBones 4.5
+         * @language zh_CN
+         */
+        public gotoAndPlayByFrame(animationName: string, frame: number = 0, playTimes: number = -1): AnimationState | null {
+            this._animationConfig.clear();
+            this._animationConfig.resetToPose = true;
+            this._animationConfig.playTimes = playTimes;
+            this._animationConfig.fadeInTime = 0.0;
+            this._animationConfig.animation = animationName;
+
+            const animationData = animationName in this._animations ? this._animations[animationName] : null;
+            if (animationData !== null) {
+                this._animationConfig.position = animationData.frameCount > 0 ? animationData.duration * frame / animationData.frameCount : 0.0;
+            }
+
+            return this.playConfig(this._animationConfig);
+        }
+        /**
+         * - Play a specific animation from the specific progress.
+         * @param animationName - The name of animation data.
+         * @param progress - The start progress value of playing.
+         * @param playTimes - Playing repeat times. [-1: Use the default value of animation data, 0: No end loop playing, [1~N]: Repeat N times] (Default: -1)
+         * @returns The played animation state.
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 从指定进度开始播放指定的动画。
+         * @param animationName - 动画数据名称。
+         * @param progress - 开始播放的进度。
+         * @param playTimes - 播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次] （默认: -1）
+         * @returns 播放的动画状态。
+         * @version DragonBones 4.5
+         * @language zh_CN
+         */
+        public gotoAndPlayByProgress(animationName: string, progress: number = 0.0, playTimes: number = -1): AnimationState | null {
+            this._animationConfig.clear();
+            this._animationConfig.resetToPose = true;
+            this._animationConfig.playTimes = playTimes;
+            this._animationConfig.fadeInTime = 0.0;
+            this._animationConfig.animation = animationName;
+
+            const animationData = animationName in this._animations ? this._animations[animationName] : null;
+            if (animationData !== null) {
+                this._animationConfig.position = animationData.duration * (progress > 0.0 ? progress : 0.0);
+            }
+
+            return this.playConfig(this._animationConfig);
+        }
+        /**
+         * - Stop a specific animation at the specific time.
+         * @param animationName - The name of animation data.
+         * @param time - The stop time. (In seconds)
+         * @returns The played animation state.
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 在指定时间停止指定动画播放
+         * @param animationName - 动画数据名称。
+         * @param time - 停止的时间。 (以秒为单位)
+         * @returns 播放的动画状态。
+         * @version DragonBones 4.5
+         * @language zh_CN
+         */
+        public gotoAndStopByTime(animationName: string, time: number = 0.0): AnimationState | null {
+            const animationState = this.gotoAndPlayByTime(animationName, time, 1);
+            if (animationState !== null) {
+                animationState.stop();
+            }
+
+            return animationState;
+        }
+        /**
+         * - Stop a specific animation at the specific frame.
+         * @param animationName - The name of animation data.
+         * @param frame - The stop frame.
+         * @returns The played animation state.
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 在指定帧停止指定动画的播放
+         * @param animationName - 动画数据名称。
+         * @param frame - 停止的帧数。
+         * @returns 播放的动画状态。
+         * @version DragonBones 4.5
+         * @language zh_CN
+         */
+        public gotoAndStopByFrame(animationName: string, frame: number = 0): AnimationState | null {
+            const animationState = this.gotoAndPlayByFrame(animationName, frame, 1);
+            if (animationState !== null) {
+                animationState.stop();
+            }
+
+            return animationState;
+        }
+        /**
+         * - Stop a specific animation at the specific progress.
+         * @param animationName - The name of animation data.
+         * @param progress - The stop progress value.
+         * @returns The played animation state.
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 在指定的进度停止指定的动画播放。
+         * @param animationName - 动画数据名称。
+         * @param progress - 停止进度。
+         * @returns 播放的动画状态。
+         * @version DragonBones 4.5
+         * @language zh_CN
+         */
+        public gotoAndStopByProgress(animationName: string, progress: number = 0.0): AnimationState | null {
+            const animationState = this.gotoAndPlayByProgress(animationName, progress, 1);
+            if (animationState !== null) {
+                animationState.stop();
+            }
+
+            return animationState;
+        }
+        /**
+         * @internal
+         */
+        public getBlendState(type: string, name: string, target: BaseObject): BlendState {
+            if (!(type in this._blendStates)) {
+                this._blendStates[type] = {};
+            }
+
+            const blendStates = this._blendStates[type];
+            if (!(name in blendStates)) {
+                const blendState = blendStates[name] = BaseObject.borrowObject(BlendState);
+                blendState.target = target;
+            }
+
+            return blendStates[name];
+        }
+        /**
+         * - Get a specific animation state.
+         * @param animationName - The name of animation state.
+         * @param layer - The layer of find animation states. [-1: Find all layers, [0~N]: Specified layer] (default: -1)
+         * @example
+         * <pre>
+         *     armature.animation.play("walk");
+         *     let walkState = armature.animation.getState("walk");
+         *     walkState.timeScale = 0.5;
+         * </pre>
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 获取指定的动画状态。
+         * @param animationName - 动画状态名称。
+         * @param layer - 查找动画状态的层级。 [-1: 查找所有层级, [0~N]: 指定层级] （默认: -1）
+         * @example
+         * <pre>
+         *     armature.animation.play("walk");
+         *     let walkState = armature.animation.getState("walk");
+         *     walkState.timeScale = 0.5;
+         * </pre>
+         * @version DragonBones 3.0
+         * @language zh_CN
+         */
+        public getState(animationName: string, layer: number = -1): AnimationState | null {
+            let i = this._animationStates.length;
+            while (i--) {
+                const animationState = this._animationStates[i];
+                if (animationState.name === animationName && (layer < 0 || animationState.layer === layer)) {
+                    return animationState;
+                }
+            }
+
+            return null;
+        }
+        /**
+         * - Check whether a specific animation data is included.
+         * @param animationName - The name of animation data.
+         * @see dragonBones.AnimationData
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 检查是否包含指定的动画数据
+         * @param animationName - 动画数据名称。
+         * @see dragonBones.AnimationData
+         * @version DragonBones 3.0
+         * @language zh_CN
+         */
+        public hasAnimation(animationName: string): boolean {
+            return animationName in this._animations;
+        }
+        /**
+         * - Get all the animation states.
+         * @version DragonBones 5.1
+         * @language en_US
+         */
+        /**
+         * - 获取所有的动画状态
+         * @version DragonBones 5.1
+         * @language zh_CN
+         */
+        public getStates(): ReadonlyArray<AnimationState> {
+            return this._animationStates;
+        }
+        /**
+         * - Check whether there is an animation state is playing
+         * @see dragonBones.AnimationState
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 检查是否有动画状态正在播放
+         * @see dragonBones.AnimationState
+         * @version DragonBones 3.0
+         * @language zh_CN
+         */
+        public get isPlaying(): boolean {
+            for (const animationState of this._animationStates) {
+                if (animationState.isPlaying) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        /**
+         * - Check whether all the animation states' playing were finished.
+         * @see dragonBones.AnimationState
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 检查是否所有的动画状态均已播放完毕。
+         * @see dragonBones.AnimationState
+         * @version DragonBones 3.0
+         * @language zh_CN
+         */
+        public get isCompleted(): boolean {
+            for (const animationState of this._animationStates) {
+                if (!animationState.isCompleted) {
+                    return false;
+                }
+            }
+
+            return this._animationStates.length > 0;
+        }
+        /**
+         * - The name of the last playing animation state.
+         * @see #lastAnimationState
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 上一个播放的动画状态名称
+         * @see #lastAnimationState
+         * @version DragonBones 3.0
+         * @language zh_CN
+         */
+        public get lastAnimationName(): string {
+            return this._lastAnimationState !== null ? this._lastAnimationState.name : "";
+        }
+        /**
+         * - The name of all animation data
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 所有动画数据的名称
+         * @version DragonBones 4.5
+         * @language zh_CN
+         */
+        public get animationNames(): ReadonlyArray<string> {
+            return this._animationNames;
+        }
+        /**
+         * - All animation data.
+         * @version DragonBones 4.5
+         * @language en_US
+         */
+        /**
+         * - 所有的动画数据。
+         * @version DragonBones 4.5
+         * @language zh_CN
+         */
+        public get animations(): Map<AnimationData> {
+            return this._animations;
+        }
+        public set animations(value: Map<AnimationData>) {
+            if (this._animations === value) {
+                return;
+            }
+
+            this._animationNames.length = 0;
+
+            for (let k in this._animations) {
+                delete this._animations[k];
+            }
+
+            for (let k in value) {
+                this._animationNames.push(k);
+                this._animations[k] = value[k];
+            }
+        }
+        /**
+         * - An AnimationConfig instance that can be used quickly.
+         * @see dragonBones.AnimationConfig
+         * @version DragonBones 5.0
+         * @language en_US
+         */
+        /**
+         * - 一个可以快速使用的动画配置实例。
+         * @see dragonBones.AnimationConfig
+         * @version DragonBones 5.0
+         * @language zh_CN
+         */
+        public get animationConfig(): AnimationConfig {
+            this._animationConfig.clear();
+            return this._animationConfig;
+        }
+        /**
+         * - The last playing animation state
+         * @see dragonBones.AnimationState
+         * @version DragonBones 3.0
+         * @language en_US
+         */
+        /**
+         * - 上一个播放的动画状态
+         * @see dragonBones.AnimationState
+         * @version DragonBones 3.0
+         * @language zh_CN
+         */
+        public get lastAnimationState(): AnimationState? {
+            return this._lastAnimationState;
+        }
     }
-}
