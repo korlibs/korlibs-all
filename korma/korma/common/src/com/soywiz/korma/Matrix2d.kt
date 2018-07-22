@@ -346,7 +346,7 @@ data class Matrix2d(
 	override fun interpolateWith(other: Matrix2d, ratio: Double): Matrix2d =
 		Matrix2d().setToInterpolated(this, other, ratio)
 
-	inline fun <T> keep(callback: () -> T): T {
+	inline fun <T> keep(callback: Matrix2d.() -> T): T {
 		val a = this.a
 		val b = this.b
 		val c = this.c
