@@ -84,11 +84,6 @@ class NinePatch(
 }
 
 fun Views.ninePatch(
-	tex: Texture,
-	width: Double,
-	height: Double,
-	left: Double,
-	top: Double,
-	right: Double,
-	bottom: Double
+	tex: Texture, width: Double, height: Double,
+	left: Double, top: Double, right: Double, bottom: Double
 ) = NinePatch(this, tex, width, height, left, top, right, bottom)

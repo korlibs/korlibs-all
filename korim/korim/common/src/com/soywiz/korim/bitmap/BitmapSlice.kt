@@ -4,6 +4,13 @@ import com.soywiz.kmem.*
 import com.soywiz.korma.geom.*
 
 class BitmapSlice<out T : Bitmap>(val bmp: T, val bounds: RectangleInt) {
+	val left get() = bounds.left
+	val top get() = bounds.top
+	val right get() = bounds.right
+	val bottom get() = bounds.bottom
+	val width get() = bounds.width
+	val height get() = bounds.height
+
 	fun extract(): T = bmp.extract(bounds.x, bounds.y, bounds.width, bounds.height)
 
 	fun sliceWithBounds(left: Int, top: Int, right: Int, bottom: Int): BitmapSlice<T> =

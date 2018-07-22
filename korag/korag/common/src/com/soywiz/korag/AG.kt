@@ -220,6 +220,11 @@ abstract class AG : Extra by Extra.Mixin() {
 				) { bmp } else SyncBitmapSource.NULL, mipmaps)
 		}
 
+		fun upload(bmp: BitmapSlice<Bitmap>?, mipmaps: Boolean = false): Texture {
+			// @TODO: Optimize to avoid copying?
+			return upload(bmp?.extract(), mipmaps)
+		}
+
 		fun upload(source: BitmapSourceBase, mipmaps: Boolean = false): Texture = this.apply {
 			this.source = source
 			uploadedSource()
@@ -384,6 +389,7 @@ abstract class AG : Extra by Extra.Mixin() {
 
 	fun createTexture(): Texture = createTexture(premultiplied = true)
 	fun createTexture(bmp: Bitmap, mipmaps: Boolean = false): Texture = createTexture().upload(bmp, mipmaps)
+	fun createTexture(bmp: BitmapSlice<Bitmap>, mipmaps: Boolean = false): Texture = createTexture().upload(bmp, mipmaps)
 	fun createTexture(bmp: Bitmap, mipmaps: Boolean = false, premultiplied: Boolean = true): Texture =
 		createTexture(premultiplied).upload(bmp, mipmaps)
 

@@ -15,6 +15,15 @@ class NinePatchInfo(
 	val width: Int,
 	val height: Int
 ) {
+	constructor(
+		width: Int, height: Int,
+		left: Int, top: Int, right: Int, bottom: Int
+	) : this(
+		listOf(false to (0 until left), true to (left until right), false to (right until width)),
+		listOf(false to (0 until top), true to (top until bottom), false to (bottom until height)),
+		width, height
+	)
+
 	class AxisSegment(val scaled: Boolean, val range: IntRange) {
 		val fixed get() = !scaled
 		val length get() = range.length
@@ -91,12 +100,14 @@ class NinePatchInfo(
 }
 
 class NinePatchBitmap32(val bmp: Bitmap32) {
+	val width get() = bmp.width
+	val height get() = bmp.height
 	val content = bmp.sliceWithBounds(1, 1, bmp.width - 1, bmp.height - 1)
 
 	val info = NinePatchInfo(
-		(0 until bmp.width).computeRle { RGBA.getA(bmp[it, 0]) != 0 },
-		(0 until bmp.height).computeRle { RGBA.getA(bmp[0, it]) != 0 },
-		bmp.width, bmp.height
+		(1 until bmp.width - 1).computeRle { RGBA.getA(bmp[it, 0]) != 0 },
+		(1 until bmp.height - 1).computeRle { RGBA.getA(bmp[0, it]) != 0 },
+		content.width, content.height
 	)
 
 	val NinePatchInfo.Segment.bmp by Extra.PropertyThis<NinePatchInfo.Segment, Bitmap32> {
