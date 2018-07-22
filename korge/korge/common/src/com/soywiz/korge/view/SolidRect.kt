@@ -17,7 +17,7 @@ class SolidRect(views: Views, override var width: Double, override var height: D
 		if (!visible) return
 		//println("%08X".format(color))
 		ctx.batch.drawQuad(
-			views.whiteTexture,
+			ctx.getTex(views.whiteBitmap),
 			x = 0f,
 			y = 0f,
 			width = width.toFloat(),

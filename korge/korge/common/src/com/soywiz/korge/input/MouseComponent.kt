@@ -100,12 +100,12 @@ class MouseComponent(view: View) : Component(view) {
 		if (!view.mouseEnabled) return
 
 		views.mouseDebugHandlerOnce {
-			views.debugHandlers += {
+			views.debugHandlers += { ctx ->
 				val mouseHit = hitTest()
 				if (mouseHit != null) {
 					val bounds = mouseHit.getLocalBounds()
 					renderContext.batch.drawQuad(
-						views.whiteTexture,
+						ctx.getTex(views.whiteBitmap),
 						x = bounds.x.toFloat(),
 						y = bounds.y.toFloat(),
 						width = bounds.width.toFloat(),
@@ -126,7 +126,7 @@ class MouseComponent(view: View) : Component(view) {
 				if (mouseHitResultUsed != null) {
 					val bounds = mouseHitResultUsed.getLocalBounds()
 					renderContext.batch.drawQuad(
-						views.whiteTexture,
+						ctx.getTex(views.whiteBitmap),
 						x = bounds.x.toFloat(),
 						y = bounds.y.toFloat(),
 						width = bounds.width.toFloat(),

@@ -104,7 +104,7 @@ class Text(views: Views) : View(views), IText, IHtml {
 
 			if (RGBA.getA(bgcolor) != 0) {
 				ctx.batch.drawQuad(
-					views.whiteTexture,
+					ctx.getTex(views.whiteBitmap),
 					x = textBounds.x.toFloat(),
 					y = textBounds.y.toFloat(),
 					width = textBounds.width.toFloat(),

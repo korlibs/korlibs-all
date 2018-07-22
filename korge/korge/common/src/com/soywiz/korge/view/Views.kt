@@ -39,8 +39,6 @@ class Views(
 	val timeProvider: TimeProvider,
 	val stats: Stats
 ) : Updatable, Extra by Extra.Mixin(), EventDispatcher by EventDispatcher.Mixin(), CoroutineContextHolder {
-	val agBitmapTextureManager = AgBitmapTextureManager(ag)
-
 	var imageFormats = defaultImageFormats
 
 	fun dumpStats() {
@@ -62,6 +60,7 @@ class Views(
 	}
 
 	val renderContext = RenderContext(ag)
+	val agBitmapTextureManager = renderContext.agBitmapTextureManager
 
 	init {
 		logger.trace { "Views[3]" }
@@ -159,9 +158,10 @@ class Views(
 	val transparentBitmap get() = Bitmaps.transparentSlice
 	val whiteBitmap get() = Bitmaps.whiteSlice
 
-	val transparentTexture by lazy { texture(transparentBitmap) }
-	val whiteTexture by lazy { texture(whiteBitmap) }
-	val transformedDummyTexture by lazy { TransformedTexture(transparentTexture) }
+	//val transparentTexture by lazy { texture(transparentBitmap) }
+	//val whiteTexture by lazy { texture(whiteBitmap) }
+	val transformedDummyTexture by lazy { TransformedTexture(transparentBitmap) }
+
 	val dummyFont by lazy { BitmapFont(ag, 16, IntMap(), IntMap()) }
 	val defaultFont by lazy {
 		com.soywiz.korim.font.BitmapFontGenerator.generate("Arial", 16, BitmapFontGenerator.LATIN_ALL)
@@ -171,7 +171,7 @@ class Views(
 
 	val stage = Stage(this)
 	var debugViews = false
-	val debugHandlers = arrayListOf<Views.() -> Unit>()
+	val debugHandlers = arrayListOf<Views.(RenderContext) -> Unit>()
 
 	fun render(clearColor: Int = Colors.BLACK, clear: Boolean = true) {
 		if (clear) ag.clear(clearColor, stencil = 0, clearColor = true, clearStencil = true)
@@ -179,7 +179,7 @@ class Views(
 
 		if (debugViews) {
 			for (debugHandler in debugHandlers) {
-				this.debugHandler()
+				this.debugHandler(renderContext)
 			}
 		}
 

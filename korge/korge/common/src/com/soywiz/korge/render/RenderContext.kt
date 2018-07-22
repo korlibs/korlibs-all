@@ -11,6 +11,8 @@ private val logger = Logger("RenderContext")
 class RenderContext(
 	val ag: AG
 ) : Extra by Extra.Mixin() {
+	val agBitmapTextureManager = AgBitmapTextureManager(ag)
+
 	init { logger.trace { "RenderContext[0]" } }
 
 	var frame = 0
@@ -53,4 +55,7 @@ class RenderContext(
 	fun finish() {
 		ag.flip()
 	}
+
+	fun getTex(bmp: BmpSlice): Texture = agBitmapTextureManager.getTexture(bmp)
+	fun getTex(bmp: Bitmap): Texture.Base = agBitmapTextureManager.getTextureBase(bmp)
 }

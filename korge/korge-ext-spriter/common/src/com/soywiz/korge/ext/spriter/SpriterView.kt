@@ -129,7 +129,7 @@ class SpriterView(
 			//	batch.addQuad(tex, -px.toFloat(), -py.toFloat(), tex.height.toFloat(), tex.width.toFloat(), t2, rotated = true)
 			//} else {
 			batch.drawQuad(
-				tex,
+				ctx.getTex(tex),
 				-px.toFloat(),
 				-py.toFloat(),
 				tex.width.toFloat(),
@@ -142,5 +142,4 @@ class SpriterView(
 			//}
 		}
 	}
-
 }

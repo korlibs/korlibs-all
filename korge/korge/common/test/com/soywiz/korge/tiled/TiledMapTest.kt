@@ -34,7 +34,7 @@ class TiledMapTest : ViewsForTesting() {
 
 	@Test
 	fun testRenderInBounds() = viewsTest {
-		val tileset = TileSet(views, Bitmap32(32, 32).texture(views), 32, 32)
+		val tileset = TileSet(views, Bitmap32(32, 32).slice(), 32, 32)
 		val map = TileMap(IntArray2(200, 200), tileset, views)
 		views.stage += map
 		views.frameUpdateAndRender(false, 0)

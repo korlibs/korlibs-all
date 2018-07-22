@@ -4,12 +4,13 @@ import com.soywiz.kmem.*
 import com.soywiz.korge.component.docking.*
 import com.soywiz.korge.render.*
 import com.soywiz.korge.tests.*
+import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
 import com.soywiz.korma.geom.*
 import kotlin.test.*
 
 class ViewsTest : ViewsForTesting() {
-	val tex = Texture(views.ag.createTexture(), 10, 10)
+	val tex = Bitmap32(10, 10)
 
 	@Test
 	fun testBounds() = viewsTest {

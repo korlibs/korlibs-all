@@ -1,13 +1,14 @@
 package com.soywiz.korge.view
 
 import com.soywiz.korge.render.*
+import com.soywiz.korim.bitmap.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 import kotlin.math.*
 
 class NinePatch(
 	views: Views,
-	var tex: Texture,
+	var tex: BmpSlice,
 	override var width: Double,
 	override var height: Double,
 	var left: Double,
@@ -59,7 +60,7 @@ class NinePatch(
 		posCuts[2].setTo(1.0 - texRighttWidth * actualRatioX / width, 1.0 - texBottomHeight * actualRatioY / height)
 
 		ctx.batch.drawNinePatch(
-			tex,
+			ctx.getTex(tex),
 			sLeft.toFloat(), sTop.toFloat(),
 			width.toFloat(), height.toFloat(),
 			posCuts = posCuts,
@@ -84,6 +85,6 @@ class NinePatch(
 }
 
 fun Views.ninePatch(
-	tex: Texture, width: Double, height: Double,
+	tex: BmpSlice, width: Double, height: Double,
 	left: Double, top: Double, right: Double, bottom: Double
 ) = NinePatch(this, tex, width, height, left, top, right, bottom)

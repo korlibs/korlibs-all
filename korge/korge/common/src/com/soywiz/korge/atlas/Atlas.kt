@@ -2,6 +2,8 @@ package com.soywiz.korge.atlas
 
 import com.soywiz.korge.render.*
 import com.soywiz.korge.view.*
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.format.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.serialization.*
@@ -47,7 +49,7 @@ class Atlas(val info: AtlasInfo) {
 
 	internal suspend fun load(views: Views, folder: VfsFile): Atlas = this.apply {
 		ensure()
-		val atlasTex = folder[info.image].readTexture(views)
+		val atlasTex = folder[info.image].readBitmap(defaultImageFormats).slice()
 		for ((frameName, frame) in info.frames) {
 			textures[frameName] = TransformedTexture(
 				atlasTex.slice(frame.frame.rect),

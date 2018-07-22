@@ -7,6 +7,7 @@ import com.soywiz.korge.audio.*
 import com.soywiz.korge.html.*
 import com.soywiz.korge.render.*
 import com.soywiz.korge.view.*
+import com.soywiz.korim.bitmap.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.util.*
@@ -29,7 +30,7 @@ abstract class AnBaseShape(final override val library: AnLibrary, final override
 
 	abstract val dx: Float
 	abstract val dy: Float
-	abstract val tex: Texture
+	abstract val tex: BmpSlice
 	abstract val texScale: Double
 	abstract val texWidth: Float
 	abstract val texHeight: Float
@@ -66,7 +67,7 @@ abstract class AnBaseShape(final override val library: AnLibrary, final override
 			texCuts[2].setTo((npRight / texWidth), (npBottom / texWidth))
 
 			ctx.batch.drawNinePatch(
-				tex,
+				ctx.getTex(tex),
 				x = dx,
 				y = dy,
 				width = texWidth,
@@ -81,7 +82,7 @@ abstract class AnBaseShape(final override val library: AnLibrary, final override
 			)
 		} else {
 			ctx.batch.drawQuad(
-				tex,
+				ctx.getTex(tex),
 				x = dx,
 				y = dy,
 				width = texWidth,
@@ -125,7 +126,7 @@ abstract class AnBaseShape(final override val library: AnLibrary, final override
 class AnShape(library: AnLibrary, val shapeSymbol: AnSymbolShape) : AnBaseShape(library, shapeSymbol), AnElement {
 	override val dx = shapeSymbol.bounds.x.toFloat()
 	override val dy = shapeSymbol.bounds.y.toFloat()
-	override val tex = shapeSymbol.textureWithBitmap?.texture ?: views.transparentTexture
+	override val tex = shapeSymbol.textureWithBitmap?.texture ?: views.transparentBitmap
 	override val texScale = shapeSymbol.textureWithBitmap?.scale ?: 1.0
 	override val texWidth = (tex.width / texScale).toFloat()
 	override val texHeight = (tex.height / texScale).toFloat()
@@ -139,7 +140,7 @@ class AnMorphShape(library: AnLibrary, val morphSymbol: AnSymbolMorphShape) : An
 	var texWBS: TextureWithBitmapSlice? = null
 	override var dx: Float = 0f
 	override var dy: Float = 0f
-	override var tex: Texture = views.transparentTexture
+	override var tex: BmpSlice = views.transparentBitmap
 	override var texScale = 1.0
 	override var texWidth = 0f
 	override var texHeight = 0f
@@ -151,7 +152,7 @@ class AnMorphShape(library: AnLibrary, val morphSymbol: AnSymbolMorphShape) : An
 
 		dx = texWBS?.bounds?.x?.toFloat() ?: 0f
 		dy = texWBS?.bounds?.y?.toFloat() ?: 0f
-		tex = texWBS?.texture ?: views.transparentTexture
+		tex = texWBS?.texture ?: views.transparentBitmap
 		texScale = texWBS?.scale ?: 1.0
 		texWidth = (tex.width / texScale).toFloat()
 		texHeight = (tex.height / texScale).toFloat()
@@ -321,12 +322,12 @@ interface AnPlayable {
 class AnSimpleAnimation(
 	views: Views,
 	val frameTime: Int,
-	val animations: Map<String, List<Texture?>>,
+	val animations: Map<String, List<BmpSlice?>>,
 	val anchor: Anchor = Anchor.TOP_LEFT
 ) : Container(views), AnPlayable {
 	override fun createInstance(): View = AnSimpleAnimation(views, frameTime, animations, anchor)
 
-	val image = views.image(views.transparentTexture)
+	val image = views.image(views.transparentBitmap)
 	val defaultAnimation = animations.values.firstOrNull() ?: listOf()
 	var animation = defaultAnimation
 	val numberOfFrames get() = animation.size
@@ -351,8 +352,8 @@ class AnSimpleAnimation(
 
 	private fun myupdate() {
 		val frameNum = elapsedTime / frameTime
-		val texture = animation.getOrNull(frameNum % numberOfFrames) ?: views.transparentTexture
-		image.tex = texture
+		val bmpSlice = animation.getOrNull(frameNum % numberOfFrames) ?: views.transparentBitmap
+		image.bitmap = bmpSlice
 	}
 }
 

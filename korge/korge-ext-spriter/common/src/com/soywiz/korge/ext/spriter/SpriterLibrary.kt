@@ -4,6 +4,8 @@ import com.soywiz.korge.atlas.*
 import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.*
 import com.soywiz.korge.render.*
 import com.soywiz.korge.view.*
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.format.*
 import com.soywiz.korio.file.*
 import kotlin.collections.set
 
@@ -45,8 +47,8 @@ suspend fun VfsFile.readSpriterLibrary(views: Views): SpriterLibrary {
 		for (f in folder.files) {
 			if (f.name in textures) continue
 			val image = file.parent[f.name]
-			val tex = image.readTexture(views)
-			textures[f.name] = TransformedTexture(tex)
+			val bmpSlice = image.readBitmap(defaultImageFormats).slice()
+			textures[f.name] = TransformedTexture(bmpSlice)
 		}
 	}
 

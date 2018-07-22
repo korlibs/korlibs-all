@@ -74,7 +74,7 @@ object AnLibraryDeserializer {
 			//val size = readU_VL()
 			//val data = readBytes(size)
 			val bmp = externalReaders.atlasReader(index)
-			bmp to views.texture(bmp, mipmaps = mipmaps)
+			bmp to bmp.slice()
 		}
 
 		val sounds = (0 until readU_VL()).map { index ->
@@ -93,7 +93,7 @@ object AnLibraryDeserializer {
 
 	private fun FastByteArrayInputStream.readSymbol(
 		strings: Array<String?>,
-		atlases: List<Pair<Bitmap, Texture>>,
+		atlases: List<Pair<Bitmap, BitmapSlice<Bitmap>>>,
 		sounds: List<NativeSound>
 	): AnSymbol {
 		val symbolId = readU_VL()
@@ -139,7 +139,7 @@ object AnLibraryDeserializer {
 					name = symbolName,
 					bounds = bounds,
 					textureWithBitmap = TextureWithBitmapSlice(
-						texture = texture.slice(textureBounds.toDouble()),
+						texture = texture.slice(textureBounds),
 						bitmapSlice = bitmap.slice(textureBounds),
 						scale = scale,
 						bounds = bounds
@@ -162,7 +162,7 @@ object AnLibraryDeserializer {
 
 					texturesWithBitmap.add(
 						ratio1000, TextureWithBitmapSlice(
-							texture = texture.slice(textureBounds.toDouble()),
+							texture = texture.slice(textureBounds),
 							bitmapSlice = bitmap.slice(textureBounds),
 							scale = scale,
 							bounds = bounds

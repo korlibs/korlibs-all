@@ -4,13 +4,14 @@ import com.soywiz.korge.input.*
 import com.soywiz.korge.render.*
 import com.soywiz.korge.tests.*
 import com.soywiz.korge.view.*
+import com.soywiz.korim.bitmap.*
 import kotlin.test.*
 
 class MouseComponentTest : ViewsForTesting() {
 	@Test
 	fun name() = viewsTest {
 		val log = arrayListOf<String>()
-		val tex = Texture(ag.createTexture(), 16, 16)
+		val tex = Bitmap32(16, 16)
 		val image = views.image(tex)
 		views.stage += image
 

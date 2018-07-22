@@ -56,7 +56,7 @@ suspend fun <T> Map<T, BitmapWithScale>.toAtlas(
 			//Bitmap32.copyRect(bmp, dxr, dy, bmp, dxr + 2, dy, 1, dheight)
 		}
 
-		val texture = views.texture(bmp, mipmaps = mipmaps)
+		val texture = bmp.slice()
 
 		for ((ibmp, rect) in pack.items) {
 			val rect2 = Rectangle(rect.x + 2, rect.y + 2, rect.width - 4, rect.height - 4)

@@ -305,7 +305,7 @@ class AnLibrary(val views: Views, val width: Int, val height: Int, val fps: Doub
 		for (symbol in symbolsById) if (symbol.name != null) symbolsByName[symbol.name!!] = symbol
 	}
 
-	fun AnSymbol.findFirstTexture(): Texture? {
+	fun AnSymbol.findFirstTexture(): BmpSlice? {
 		when (this) {
 			is AnSymbolEmpty -> return null
 			is AnSymbolSound -> return null
@@ -324,7 +324,7 @@ class AnLibrary(val views: Views, val width: Int, val height: Int, val fps: Doub
 		}
 	}
 
-	fun AnElement.findFirstTexture(): Texture? = this.symbol.findFirstTexture()
+	fun AnElement.findFirstTexture(): BmpSlice? = this.symbol.findFirstTexture()
 
 	fun create(id: Int) = if (id < 0) TODO() else symbolsById.getOrElse(id) { AnSymbolEmpty }.create(this)
 	fun createShape(id: Int) = create(id) as AnShape

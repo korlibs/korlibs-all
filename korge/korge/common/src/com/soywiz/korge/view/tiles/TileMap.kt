@@ -21,7 +21,6 @@ open class TileMap(val map: IntArray2, val tileset: TileSet, views: Views) : Vie
 
 	override fun render(ctx: RenderContext, m: Matrix2d) {
 		if (!visible) return
-		val batch = ctx.batch
 
 
 		val pos = m.transform(0.0, 0.0)
@@ -31,8 +30,8 @@ open class TileMap(val map: IntArray2, val tileset: TileSet, views: Views) : Vie
 		val colorMul = globalColorMul
 		val colorAdd = globalColorAdd
 
-		batch.setStateFast(
-			views.agBitmapTextureManager.getTextureBase(tileset.base),
+		ctx.batch.setStateFast(
+			ctx.getTex(tileset.base),
 			blendFactors = computedBlendMode.factors, smoothing = smoothing
 		)
 
@@ -61,7 +60,7 @@ open class TileMap(val map: IntArray2, val tileset: TileSet, views: Views) : Vie
 				val p1 = p0 + dU
 				val p2 = p0 + dU + dV
 				val p3 = p0 + dV
-				render(batch, p0, p1, p2, p3, tex, colorMul, colorAdd)
+				render(ctx, p0, p1, p2, p3, tex, colorMul, colorAdd)
 				count++
 			}
 		}
@@ -71,7 +70,7 @@ open class TileMap(val map: IntArray2, val tileset: TileSet, views: Views) : Vie
 	}
 
 	open fun render(
-		batch: BatchBuilder2D,
+		ctx: RenderContext,
 		p0: Vector2,
 		p1: Vector2,
 		p2: Vector2,
@@ -80,12 +79,12 @@ open class TileMap(val map: IntArray2, val tileset: TileSet, views: Views) : Vie
 		colorMul: Int,
 		colorAdd: Int
 	) {
-		batch.drawQuadFast(
+		ctx.batch.drawQuadFast(
 			p0.x.toFloat(), p0.y.toFloat(),
 			p1.x.toFloat(), p1.y.toFloat(),
 			p2.x.toFloat(), p2.y.toFloat(),
 			p3.x.toFloat(), p3.y.toFloat(),
-			views.agBitmapTextureManager.getTexture(tex), colorMul, colorAdd
+			ctx.getTex(tex), colorMul, colorAdd
 		)
 	}
 

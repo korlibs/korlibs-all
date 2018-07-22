@@ -26,13 +26,13 @@ class TileSet(
 	companion object {
 		operator fun invoke(
 			views: Views,
-			base: BmpSlice,
+			base: BitmapSlice<Bitmap>,
 			tileWidth: Int,
 			tileHeight: Int,
 			columns: Int = -1,
 			totalTiles: Int = -1
 		): TileSet {
-			val out = arrayListOf<BmpSlice>()
+			val out = arrayListOf<BitmapSlice<Bitmap>>()
 			val rows = base.height / tileHeight
 			val actualColumns = if (columns < 0) base.width / tileWidth else columns
 			val actualTotalTiles = if (totalTiles < 0) rows * actualColumns else totalTiles
