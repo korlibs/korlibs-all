@@ -1,0 +1,54 @@
+package com.soywiz.korge.render
+
+import com.soywiz.kds.*
+import com.soywiz.korag.*
+import com.soywiz.korim.bitmap.*
+
+class AgBitmapTextureManager(val ag: AG) {
+	val referencedBitmapsSinceGC = LinkedHashSet<Bitmap>()
+	var referencedBitmaps = setOf<Bitmap>()
+
+	var Bitmap._textureBase: Texture.Base? by Extra.Property { null }
+	var Bitmap._slices by Extra.Property { LinkedHashSet<BitmapSlice<Bitmap>>() }
+	var BitmapSlice<Bitmap>._texture: Texture? by Extra.Property { null }
+
+	fun getTextureBase(bitmap: Bitmap): Texture.Base {
+		referencedBitmapsSinceGC += bitmap
+		if (bitmap._textureBase == null) {
+			bitmap._textureBase = Texture.Base(ag.createTexture(bitmap), bitmap.width, bitmap.height)
+		}
+		return bitmap._textureBase!!
+	}
+
+	fun getTexture(slice: BitmapSlice<Bitmap>): Texture {
+		referencedBitmapsSinceGC += slice.bmp
+		slice.bmp._slices.add(slice)
+
+		if (slice._texture == null) {
+			slice._texture = Texture(getTextureBase(slice.bmp)).slice(slice.bounds.toDouble())
+		}
+		return slice._texture!!
+	}
+
+	var fcount = 0
+	fun afterRender() {
+		fcount++
+		if (fcount >= 60) {
+			fcount = 0
+			gc()
+		}
+	}
+
+	fun gc() {
+		val toRemove = referencedBitmaps - referencedBitmapsSinceGC
+		for (bmp in toRemove) {
+			for (slice in bmp._slices) {
+				slice._texture = null
+			}
+
+			bmp._textureBase?.close()
+			bmp._textureBase = null
+		}
+		referencedBitmaps = referencedBitmapsSinceGC.toSet()
+	}
+}

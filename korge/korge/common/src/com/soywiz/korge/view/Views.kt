@@ -19,7 +19,6 @@ import com.soywiz.korim.format.*
 import com.soywiz.korinject.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.file.*
-import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
@@ -40,6 +39,7 @@ class Views(
 	val timeProvider: TimeProvider,
 	val stats: Stats
 ) : Updatable, Extra by Extra.Mixin(), EventDispatcher by EventDispatcher.Mixin(), CoroutineContextHolder {
+	val agBitmapTextureManager = AgBitmapTextureManager(ag)
 
 	var imageFormats = defaultImageFormats
 
@@ -156,8 +156,11 @@ class Views(
 		SolidRect(this, width.toDouble(), height.toDouble(), color)
 
 	val dummyView by lazy { View(this) }
-	val transparentTexture by lazy { texture(Bitmap32(0, 0)) }
-	val whiteTexture by lazy { texture(Bitmap32(1, 1, intArrayOf(Colors.WHITE))) }
+	val transparentBitmap get() = Bitmaps.transparentSlice
+	val whiteBitmap get() = Bitmaps.whiteSlice
+
+	val transparentTexture by lazy { texture(transparentBitmap) }
+	val whiteTexture by lazy { texture(whiteBitmap) }
 	val transformedDummyTexture by lazy { TransformedTexture(transparentTexture) }
 	val dummyFont by lazy { BitmapFont(ag, 16, IntMap(), IntMap()) }
 	val defaultFont by lazy {
@@ -182,6 +185,7 @@ class Views(
 
 		renderContext.flush()
 		renderContext.finish()
+		agBitmapTextureManager.afterRender()
 	}
 
 	fun dump(emit: (String) -> Unit = ::println) = dumpView(stage, emit)

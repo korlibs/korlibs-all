@@ -4,6 +4,7 @@ import com.soywiz.kmem.*
 import com.soywiz.korge.render.*
 import com.soywiz.korge.util.*
 import com.soywiz.korge.view.*
+import com.soywiz.korim.bitmap.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 
@@ -30,7 +31,10 @@ open class TileMap(val map: IntArray2, val tileset: TileSet, views: Views) : Vie
 		val colorMul = globalColorMul
 		val colorAdd = globalColorAdd
 
-		batch.setStateFast(tileset.base, blendFactors = computedBlendMode.factors, smoothing = smoothing)
+		batch.setStateFast(
+			views.agBitmapTextureManager.getTextureBase(tileset.base),
+			blendFactors = computedBlendMode.factors, smoothing = smoothing
+		)
 
 		// @TODO: Bounds in clipped view
 		val pp0 = globalToLocal(t0.setTo(views.virtualLeft, views.virtualTop), tt0)
@@ -63,7 +67,6 @@ open class TileMap(val map: IntArray2, val tileset: TileSet, views: Views) : Vie
 		}
 		renderTilesCounter.increment(count)
 
-
 		ctx.flush()
 	}
 
@@ -73,7 +76,7 @@ open class TileMap(val map: IntArray2, val tileset: TileSet, views: Views) : Vie
 		p1: Vector2,
 		p2: Vector2,
 		p3: Vector2,
-		tex: Texture,
+		tex: BmpSlice,
 		colorMul: Int,
 		colorAdd: Int
 	) {
@@ -82,7 +85,7 @@ open class TileMap(val map: IntArray2, val tileset: TileSet, views: Views) : Vie
 			p1.x.toFloat(), p1.y.toFloat(),
 			p2.x.toFloat(), p2.y.toFloat(),
 			p3.x.toFloat(), p3.y.toFloat(),
-			tex, colorMul, colorAdd
+			views.agBitmapTextureManager.getTexture(tex), colorMul, colorAdd
 		)
 	}
 

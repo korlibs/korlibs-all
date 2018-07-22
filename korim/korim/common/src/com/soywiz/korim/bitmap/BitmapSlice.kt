@@ -1,9 +1,12 @@
 package com.soywiz.korim.bitmap
 
+import com.soywiz.kds.*
 import com.soywiz.kmem.*
 import com.soywiz.korma.geom.*
 
-class BitmapSlice<out T : Bitmap>(val bmp: T, val bounds: RectangleInt) {
+typealias BmpSlice = BitmapSlice<Bitmap>
+
+class BitmapSlice<out T : Bitmap>(val bmp: T, val bounds: RectangleInt) : Extra by Extra.Mixin() {
 	val left get() = bounds.left
 	val top get() = bounds.top
 	val right get() = bounds.right
@@ -31,3 +34,12 @@ class BitmapSlice<out T : Bitmap>(val bmp: T, val bounds: RectangleInt) {
 	private fun Int.clampX() = this.clamp(bounds.left, bounds.right)
 	private fun Int.clampY() = this.clamp(bounds.top, bounds.bottom)
 }
+
+fun <T : Bitmap> T.slice(): BitmapSlice<T> = BitmapSlice(this, RectangleInt(0, 0, width, height))
+fun <T : Bitmap> T.slice(bounds: RectangleInt): BitmapSlice<T> = BitmapSlice<T>(this, bounds)
+fun <T : Bitmap> T.sliceWithBounds(left: Int, top: Int, right: Int, bottom: Int): BitmapSlice<T> =
+	BitmapSlice<T>(this, RectangleInt(left, top, right - left, bottom - top))
+
+fun <T : Bitmap> T.sliceWithSize(x: Int, y: Int, width: Int, height: Int): BitmapSlice<T> =
+	BitmapSlice<T>(this, RectangleInt(x, y, width, height))
+

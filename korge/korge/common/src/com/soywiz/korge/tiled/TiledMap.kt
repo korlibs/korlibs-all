@@ -2,7 +2,6 @@ package com.soywiz.korge.tiled
 
 import com.soywiz.klogger.*
 import com.soywiz.kmem.*
-import com.soywiz.korge.render.*
 import com.soywiz.korge.view.*
 import com.soywiz.korge.view.tiles.*
 import com.soywiz.korim.bitmap.*
@@ -355,7 +354,7 @@ suspend fun VfsFile.readTiledMap(
 	val data = readTiledMapData()
 
 	//val combinedTileset = kotlin.arrayOfNulls<Texture>(data.maxGid + 1)
-	val combinedTileset = arrayOfNulls<Texture>(data.maxGid + 1)
+	val combinedTileset = arrayOfNulls<BmpSlice>(data.maxGid + 1)
 
 	for (layer in data.imageLayers) {
 		layer.image = folder[layer.source].readBitmapOptimized(views.imageFormats)
@@ -388,8 +387,7 @@ suspend fun VfsFile.readTiledMap(
 				mipmaps = false
 			)
 		} else {
-			val tex = views.texture(bmp, mipmaps = true)
-			TileSet(views, Texture(tex.base), tileset.tilewidth, tileset.tileheight, tileset.columns, tileset.tilecount)
+			TileSet(views, bmp.slice(), tileset.tilewidth, tileset.tileheight, tileset.columns, tileset.tilecount)
 		}
 
 		val tiledTileset = TiledMap.TiledTileset(

@@ -10,36 +10,36 @@ import kotlin.math.*
 
 class TileSet(
 	val views: Views,
-	val textures: List<Texture?>,
+	val textures: List<BmpSlice?>,
 	val width: Int,
 	val height: Int,
-	val base: Texture.Base = textures.filterNotNull().firstOrNull()?.base ?: views.transparentTexture.base
+	val base: Bitmap = textures.filterNotNull().firstOrNull()?.bmp ?: views.transparentBitmap.bmp
 ) {
 	init {
-		if (textures.any { if (it != null) it.base != base else false }) {
+		if (textures.any { if (it != null) it.bmp != base else false }) {
 			throw RuntimeException("All tiles in the set must have the same base texture")
 		}
 	}
 
-	operator fun get(index: Int): Texture? = textures.getOrNull(index)
+	operator fun get(index: Int): BmpSlice? = textures.getOrNull(index)
 
 	companion object {
 		operator fun invoke(
 			views: Views,
-			base: Texture,
+			base: BmpSlice,
 			tileWidth: Int,
 			tileHeight: Int,
 			columns: Int = -1,
 			totalTiles: Int = -1
 		): TileSet {
-			val out = arrayListOf<Texture>()
+			val out = arrayListOf<BmpSlice>()
 			val rows = base.height / tileHeight
 			val actualColumns = if (columns < 0) base.width / tileWidth else columns
 			val actualTotalTiles = if (totalTiles < 0) rows * actualColumns else totalTiles
 
 			complete@ for (y in 0 until rows) {
 				for (x in 0 until actualColumns) {
-					out += base.slice(x * tileWidth, y * tileHeight, tileWidth, tileHeight)
+					out += base.sliceWithSize(x * tileWidth, y * tileHeight, tileWidth, tileHeight)
 					if (out.size >= actualTotalTiles) break@complete
 				}
 			}
@@ -82,11 +82,11 @@ class TileSet(
 			val expectedSide = sqrt(fullArea.toDouble()).toIntCeil().nextPowerOfTwo
 
 			val out = Bitmap32(expectedSide, expectedSide)
-			val texs = arrayListOf<Texture>()
+			val texs = arrayListOf<BmpSlice>()
 
 			val columns = (out.width / btilewidth)
 
-			lateinit var tex: Texture
+			lateinit var tex: Bitmap
 			//val tex = views.texture(out, mipmaps = mipmaps)
 			for (m in 0 until 2) {
 				for (n in 0 until bitmaps.size) {
@@ -97,32 +97,32 @@ class TileSet(
 					if (m == 0) {
 						out.putWithBorder(px, py, bitmaps[n], border)
 					} else {
-						texs += tex.slice(px, py, tilewidth, tileheight)
+						texs += tex.sliceWithSize(px, py, tilewidth, tileheight)
 					}
 				}
 				if (m == 0) {
-					tex = views.texture(out, mipmaps = mipmaps)
+					tex = out
 				}
 			}
 
-			return TileSet(views, texs, tilewidth, tileheight, tex.base)
+			return TileSet(views, texs, tilewidth, tileheight, tex)
 		}
 	}
 }
 
 fun Views.tileSet(
-	textures: List<Texture?>,
+	textures: List<BmpSlice?>,
 	width: Int,
 	height: Int,
-	base: Texture.Base = textures.filterNotNull().first().base
+	base: Bitmap = textures.filterNotNull().first().bmp
 ): TileSet {
 	return TileSet(this, textures, width, height, base)
 }
 
-fun Views.tileSet(textureMap: Map<Int, Texture?>): TileSet {
+fun Views.tileSet(textureMap: Map<Int, BmpSlice?>): TileSet {
 	val views = this
 	val maxKey = textureMap.keys.max() ?: 0
 	val textures = (0..maxKey).map { textureMap[it] }
-	val firstTexture = textures.first() ?: views.transparentTexture
-	return TileSet(this, textures, firstTexture.width, firstTexture.height, firstTexture.base)
+	val firstTexture = textures.first() ?: views.transparentBitmap
+	return TileSet(this, textures, firstTexture.width, firstTexture.height, firstTexture.bmp)
 }
