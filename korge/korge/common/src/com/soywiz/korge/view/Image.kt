@@ -13,7 +13,7 @@ inline fun Container.image(
 	texture: Bitmap, anchorX: Double = 0.0, anchorY: Double = 0.0, callback: @ViewsDslMarker Image.() -> Unit = {}
 ): Image = Image(texture, anchorX, anchorY).addTo(this).apply(callback)
 
-class Image(
+open class Image(
 	var bitmap: BmpSlice,
 	var anchorX: Double = 0.0,
 	var anchorY: Double = anchorX,
@@ -63,4 +63,8 @@ class Image(
 	}
 
 	override fun createInstance(): View = Image(bitmap, anchorX, anchorY, hitShape, smoothing)
+}
+
+inline fun <T : Image> T.anchor(ax: Number, ay: Number): T = this.apply {
+	anchorX = ax.toDouble(); anchorY = ay.toDouble()
 }

@@ -68,15 +68,14 @@ abstract class KorgeBaseFileEditorProvider : com.intellij.openapi.fileEditor.Fil
 				ignoreErrors { pluginResurcesVfs["/com/soywiz/korge/intellij/lips/lisa-$char.png"].readTexture(views) }
 						?: views.transparentTexture
 
-			suspend override fun sceneInit(sceneView: Container) {
-				val loading = views.text("Loading...", color = Colors.WHITE).apply {
+			suspend override fun Container.sceneInit() {
+				val loading = text("Loading...", color = Colors.WHITE).apply {
 					//format = Html.Format(align = Html.Alignment.CENTER)
 					//x = views.virtualWidth * 0.5
 					//y = views.virtualHeight * 0.5
 					x = 16.0
 					y = 16.0
 				}
-				sceneView += loading
 
 				//val uiFrameView = ui.koruiFrame {}
 				//sceneView += uiFrameView

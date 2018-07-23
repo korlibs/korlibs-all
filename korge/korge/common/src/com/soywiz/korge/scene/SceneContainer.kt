@@ -99,7 +99,7 @@ class SceneContainer(val views: Views) : Container() {
 		transitionView.transition = transition
 		transitionView.startNewTransition(instance._sceneViewContainer)
 
-		instance.sceneInit(instance.sceneView)
+		instance.sceneView.apply { instance.apply { sceneInit() } }
 
 		oldScene?.sceneBeforeLeaving()
 

@@ -23,7 +23,7 @@ class SwfTestDisabled {
 	}
 
 	class MyScene : Scene() {
-		override suspend fun sceneInit(sceneView: Container) {
+		override suspend fun Container.sceneInit() {
 			//sceneView += LocalVfs("c:/temp/test29/test29.swf").readSWFDeserializing(views).createMainTimeLine()
 			//sceneView += LocalVfs("c:/temp/tt6.swf").readSWFDeserializing(views).createMainTimeLine()
 			//sceneView += LocalVfs("c:/temp/tt5.swf").readSWFDeserializing(views).createMainTimeLine()
@@ -38,7 +38,7 @@ class SwfTestDisabled {
 			//sceneView += LocalVfs("c:/temp/test6.swf").readSWF(views).createMainTimeLine()
 			//sceneView += LocalVfs("c:/temp/tt30.swf").readSWF(views).createMainTimeLine()
 			//sceneView += LocalVfs("c:/temp/test3.swf").readSWF(views).createMainTimeLine()
-			sceneView += LocalVfs("c:/temp/main.swf").readSWF(views).createMainTimeLine().apply {
+			this += LocalVfs("c:/temp/main.swf").readSWF(views).createMainTimeLine().apply {
 				this["action"]?.colorTransform = ColorTransform.Add(-255, -255, -255, 0)
 			}
 		}

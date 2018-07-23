@@ -23,6 +23,10 @@ import kotlin.collections.removeAll
 import kotlin.collections.set
 import kotlin.reflect.*
 
+@DslMarker
+@Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
+annotation class ViewsDslMarker
+
 open class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by EventDispatcher.Mixin() {
 	interface Reference // Viewport
 
@@ -689,6 +693,11 @@ fun View?.descendantsWith(out: ArrayList<View> = arrayListOf(), check: (View) ->
 	return out
 }
 
-@DslMarker
-@Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
-annotation class ViewsDslMarker
+inline fun <T : View> T.position(x: Number, y: Number): T = this.apply {
+	this.x = x.toDouble(); this.y = y.toDouble()
+}
+
+inline fun <T : View> T.scale(sx: Number, sy: Number): T = this.apply {
+	this.scaleX = sx.toDouble(); this.scaleY = sy.toDouble()
+}
+

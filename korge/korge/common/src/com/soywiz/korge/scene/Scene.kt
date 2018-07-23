@@ -46,7 +46,7 @@ abstract class Scene : InjectorAsyncDependency, ViewsContainer, CoroutineContext
 		_sceneViewContainer += sceneView
 	}
 
-	abstract suspend fun sceneInit(sceneView: Container): Unit
+	abstract suspend fun Container.sceneInit(): Unit
 
 	open suspend fun sceneAfterInit() {
 	}
@@ -76,12 +76,12 @@ abstract class ScaledScene() : Scene() {
 }
 
 class EmptyScene : Scene() {
-	override suspend fun sceneInit(sceneView: Container) {
+	override suspend fun Container.sceneInit() {
 	}
 }
 
 abstract class LogScene : Scene() {
-	open val name: String = "LogScene"
+	open val sceneName: String get() = "LogScene"
 	open val log = arrayListOf<String>()
 
 	open fun log(msg: String) {
@@ -92,23 +92,22 @@ abstract class LogScene : Scene() {
 		super.init(injector)
 	}
 
-	override suspend fun sceneInit(sceneView: Container) {
-		log("$name.sceneInit")
-		super.sceneAfterInit()
+	override suspend fun Container.sceneInit() {
+		log("$sceneName.sceneInit")
 	}
 
 	override suspend fun sceneAfterInit() {
-		log("$name.sceneAfterInit")
+		log("$sceneName.sceneAfterInit")
 		super.sceneAfterInit()
 	}
 
 	override suspend fun sceneDestroy() {
-		log("$name.sceneDestroy")
+		log("$sceneName.sceneDestroy")
 		super.sceneDestroy()
 	}
 
 	override suspend fun sceneAfterDestroy() {
-		log("$name.sceneAfterDestroy")
+		log("$sceneName.sceneAfterDestroy")
 		super.sceneAfterDestroy()
 	}
 }

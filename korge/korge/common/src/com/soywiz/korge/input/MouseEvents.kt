@@ -13,15 +13,26 @@ import com.soywiz.korma.geom.*
 import com.soywiz.korui.event.*
 
 class MouseEvents(override val view: View) : MouseComponent, UpdateComponentWithViews {
-	val onClick = Signal<MouseEvents>()
-	val onOver = Signal<MouseEvents>()
-	val onOut = Signal<MouseEvents>()
-	val onDown = Signal<MouseEvents>()
-	val onDownFromOutside = Signal<MouseEvents>()
-	val onUp = Signal<MouseEvents>()
-	val onUpOutside = Signal<MouseEvents>()
-	val onUpAnywhere = Signal<MouseEvents>()
-	val onMove = Signal<MouseEvents>()
+	val click = Signal<MouseEvents>()
+	val over = Signal<MouseEvents>()
+	val out = Signal<MouseEvents>()
+	val down = Signal<MouseEvents>()
+	val downFromOutside = Signal<MouseEvents>()
+	val up = Signal<MouseEvents>()
+	val upOutside = Signal<MouseEvents>()
+	val upAnywhere = Signal<MouseEvents>()
+	val move = Signal<MouseEvents>()
+
+	val onClick = click
+	val onOver = over
+	val onOut = out
+	val onDown = down
+	val onDownFromOutside = downFromOutside
+	val onUp = up
+	val onUpOutside = upOutside
+	val onUpAnywhere = upAnywhere
+	val onMove = move
+
 
 	var hitTestType = View.HitTestType.BOUNDING
 

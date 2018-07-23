@@ -22,7 +22,7 @@ class SceneContainerTest : ViewsForTesting() {
 	inner class Scene1(
 		val info: SceneInfo
 	) : MyLogScene() {
-		override val name: String = "Scene1"
+		override val sceneName: String get() = "Scene1"
 
 		override suspend fun sceneAfterInit() {
 			super.sceneAfterInit()
@@ -32,10 +32,10 @@ class SceneContainerTest : ViewsForTesting() {
 	}
 
 	inner class Scene2 : MyLogScene() {
-		override val name: String = "Scene2"
+		override val sceneName: String get() = "Scene2"
 
-		override suspend fun sceneInit(sceneView: Container) {
-			super.sceneInit(sceneView)
+		override suspend fun Container.sceneInit() {
+			log("$sceneName.sceneInit")
 			sceneView += SolidRect(100, 100, Colors.RED).apply {
 				name = "box"
 			}
