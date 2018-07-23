@@ -49,19 +49,19 @@ object HtmlNativeImageFormatProvider : NativeImageFormatProvider() {
 	}
 
 	override suspend fun decode(vfs: Vfs, path: String): NativeImage {
-		//println("HtmlImageSpecialReader.readSpecial: $vfs, $path")
+		//println("HtmlNativeImageFormatProvider.decode($vfs, '$path')")
 		return when (vfs) {
 			is LocalVfs -> {
-				//println("LOCAL: HtmlImageSpecialReader: $vfs, $path")
+				//println("LOCAL: HtmlNativeImageFormatProvider: $vfs, $path")
 				HtmlNativeImage(BrowserImage.loadImage(path))
 			}
 			is UrlVfs -> {
 				val jsUrl = vfs.getFullUrl(path)
-				//println("URL: HtmlImageSpecialReader: $vfs, $path : $jsUrl")
+				//println("URL: HtmlNativeImageFormatProvider: $vfs, $path : $jsUrl")
 				HtmlNativeImage(BrowserImage.loadImage(jsUrl))
 			}
 			else -> {
-				//println("OTHER: HtmlImageSpecialReader: $vfs, $path")
+				//println("OTHER: HtmlNativeImageFormatProvider: $vfs, $path")
 				HtmlNativeImage(BrowserImage.decodeToCanvas(vfs[path].readAll()))
 			}
 		}

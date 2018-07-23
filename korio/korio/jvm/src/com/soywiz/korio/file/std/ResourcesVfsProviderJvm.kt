@@ -65,6 +65,8 @@ class ResourcesVfsProviderJvm {
 							createNonExistsStat(npath)
 						}
 					}
+
+					override fun toString(): String = "ResourcesVfsProviderJvm"
 				}.root
 			}
 

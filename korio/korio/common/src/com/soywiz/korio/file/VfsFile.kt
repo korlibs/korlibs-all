@@ -25,12 +25,11 @@ class VfsFile(
 		VfsFile(vfs, VfsUtil.combine(this.path, path))
 
 	// @TODO: Kotlin suspend operator not supported yet!
-	suspend fun set(path: String, content: String): Unit =
-		run { this[path].put(content.toByteArray(UTF8).openAsync()) }
+	suspend fun set(path: String, content: String) = run { this[path].put(content.toByteArray(UTF8).openAsync()) }
 
-	suspend fun set(path: String, content: ByteArray): Unit = run { this[path].put(content.openAsync()) }
-	suspend fun set(path: String, content: AsyncStream): Unit = run { this[path].writeStream(content) }
-	suspend fun set(path: String, content: VfsFile): Unit = run { this[path].writeFile(content) }
+	suspend fun set(path: String, content: ByteArray) = run { this[path].put(content.openAsync()) }
+	suspend fun set(path: String, content: AsyncStream) = run { this[path].writeStream(content) }
+	suspend fun set(path: String, content: VfsFile) = run { this[path].writeFile(content) }
 
 	suspend fun put(content: AsyncInputStream, attributes: List<Vfs.Attribute> = listOf()): Long =
 		vfs.put(path, content, attributes)
@@ -229,12 +228,14 @@ class VfsFile(
 		return VfsFile(object : Vfs.Proxy() {
 			override suspend fun access(path: String): VfsFile =
 				actualFile[actualFile.pathRedirector(path)]
+
+			override fun toString(): String = "VfsRedirected"
 		}, path)
 	}
 
 	fun jail(): VfsFile = JailVfs(this)
 
-	suspend fun getUnderlyingUnscapedFile(): FinalVfsFile = vfs.getUnderlyingUnscapedFile(this)
+	suspend fun getUnderlyingUnscapedFile(): FinalVfsFile = vfs.getUnderlyingUnscapedFile(path)
 
 	override fun toString(): String = "$vfs[$path]"
 }

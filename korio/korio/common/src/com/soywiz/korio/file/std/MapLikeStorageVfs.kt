@@ -260,4 +260,6 @@ class MapLikeStorageVfs(val storage: SimpleStorage) : Vfs() {
 			files.setEntryInfo(npath, files.getEntryInfo(npath)!!.copy(modifiedTime = time))
 		}
 	}
+
+	override fun toString(): String = "MapLikeStorageVfs"
 }

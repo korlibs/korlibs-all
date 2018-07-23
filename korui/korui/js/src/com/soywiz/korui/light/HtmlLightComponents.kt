@@ -844,6 +844,8 @@ internal class JsFilesVfs(val files: List<File>) : Vfs() {
 	override suspend fun list(path: String): SuspendingSequence<VfsFile> {
 		return this.files.map { this[it.name] }.toAsync()
 	}
+
+	override fun toString(): String = "JsFilesVfs"
 }
 
 object Nimbus_111_1420_Safari_GamepadMapping : GamepadMapping() {

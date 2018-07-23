@@ -35,12 +35,14 @@ suspend fun MountableVfs(callback: suspend Mountable.() -> Unit): VfsFile =
 				val rpath = VfsUtil.normalize(path)
 				for ((base, file) in mounts) {
 					//println("$base/$file")
-					if (rpath.startsWith(base)) {
-						return file[rpath.substring(base.length)]
-					}
+					if (rpath.startsWith(base)) return file[rpath.substring(base.length)]
 				}
 				throw FileNotFoundException(path)
 			}
+
+			override suspend fun getUnderlyingUnscapedFile(path: String) = access(path).getUnderlyingUnscapedFile()
+
+			override fun toString(): String = "MountableVfs"
 		}
 		callback.startCoroutine(mount, object : Continuation<Unit> {
 			override val context: CoroutineContext = c.context

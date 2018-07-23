@@ -41,4 +41,6 @@ open class MergedVfs(vfsList: List<VfsFile> = listOf()) : Vfs.Proxy() {
 			}
 		}
 	}
+
+	override fun toString(): String = "MergedVfs"
 }

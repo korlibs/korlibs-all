@@ -43,6 +43,8 @@ class IsoVfs(val iso: ISO.IsoFile) : Vfs() {
 			yield(vfs[c.fullname])
 		}
 	}
+
+	override fun toString(): String = "IsoVfs($iso)"
 }
 
 object ISO {

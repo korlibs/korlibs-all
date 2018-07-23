@@ -110,4 +110,6 @@ class UrlVfs(val url: String, val dummy: Unit, val client: HttpClient = createHt
 			createNonExistsStat(path, extraInfo = result)
 		}
 	}
+
+	override fun toString(): String = "UrlVfs"
 }

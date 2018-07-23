@@ -319,6 +319,8 @@ class NodeJsLocalVfs : LocalVfs() {
 		}
 		Unit
 	}
+
+	override fun toString(): String = "NodeJsLocalVfs"
 }
 
 class NodeFDStream(val fs: dynamic, val fd: NodeJsLocalVfs.FD) : AsyncStreamBase() {

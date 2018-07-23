@@ -126,15 +126,15 @@ abstract class Vfs {
 
 	open suspend fun touch(path: String, time: Long, atime: Long) = Unit
 
-	open suspend fun getUnderlyingUnscapedFile(file: VfsFile): FinalVfsFile =
-		FinalVfsFile(this, file.path)
+	open suspend fun getUnderlyingUnscapedFile(path: String): FinalVfsFile =
+		FinalVfsFile(this, path)
 
 	abstract class Proxy : Vfs() {
 		protected abstract suspend fun access(path: String): VfsFile
 		protected open suspend fun VfsFile.transform(): VfsFile = file(this.path)
 		//suspend protected fun transform2_f(f: VfsFile): VfsFile = transform(f)
 
-		override suspend fun getUnderlyingUnscapedFile(file: VfsFile): FinalVfsFile = file.transform().toUnscaped()
+		override suspend fun getUnderlyingUnscapedFile(path: String): FinalVfsFile = access(path).transform().toUnscaped()
 
 		protected open suspend fun init() {
 		}
@@ -208,6 +208,8 @@ abstract class Vfs {
 
 		override fun toString() = if (other != null) "$kind($file, $other)" else "$kind($file)"
 	}
+
+	override fun toString(): String = this::class.portableSimpleName
 }
 
 enum class VfsOpenMode(

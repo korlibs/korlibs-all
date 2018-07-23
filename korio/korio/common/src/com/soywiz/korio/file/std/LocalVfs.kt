@@ -8,6 +8,8 @@ abstract class LocalVfs : Vfs() {
 	companion object {
 		operator fun get(base: String) = LocalVfs(base)
 	}
+
+	override fun toString(): String = "LocalVfs"
 }
 
 val resourcesVfs: VfsFile by lazy { ResourcesVfs }

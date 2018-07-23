@@ -60,7 +60,7 @@ object HtmlImage {
 			val g = ddata[m++].toInt() and 0xFF
 			val b = ddata[m++].toInt() and 0xFF
 			val a = ddata[m++].toInt() and 0xFF
-			out[n] = RGBA.pack(r, g, b, a)
+			out[n] = RGBA.packFast(r, g, b, a)
 		}
 		//console.log(out);
 	}

@@ -114,6 +114,8 @@ class LogVfs(val parent: VfsFile) : Vfs.Proxy() {
 		log += "watch($path)"
 		return super.watch(path, handler)
 	}
+
+	override fun toString(): String = "LogVfs"
 }
 
 fun VfsFile.log() = LogVfs(this).root
