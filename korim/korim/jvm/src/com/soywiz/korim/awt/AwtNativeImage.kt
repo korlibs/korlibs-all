@@ -38,8 +38,7 @@ fun BufferedImage.clone(
 //	override fun mipmap(bmp: Bitmap, levels: Int): NativeImage = bmp.toBMP32().mipmap(levels).ensureNative()
 //}
 
-class AwtNativeImage(val awtImage: BufferedImage) :
-	NativeImage(awtImage.width, awtImage.height, awtImage, awtImage.type == BufferedImage.TYPE_INT_ARGB_PRE) {
+class AwtNativeImage(val awtImage: BufferedImage) : NativeImage(awtImage.width, awtImage.height, awtImage, awtImage.type == BufferedImage.TYPE_INT_ARGB_PRE) {
 	override val name: String = "AwtNativeImage"
 	override fun toNonNativeBmp(): Bitmap = awtImage.toBMP32()
 	override fun getContext2d(antialiasing: Boolean): Context2d = Context2d(AwtContext2dRender(awtImage, antialiasing))
@@ -49,18 +48,22 @@ class AwtNativeImage(val awtImage: BufferedImage) :
 	private val rbuffer: ByteBuffer by lazy {
 		ByteBuffer.allocateDirect(width * height * 4).apply {
 			clear()
+			val ib = asIntBuffer()
 			when (dataBuffer) {
 				// @TODO: Swap Bytes
 				is DataBufferByte -> put(dataBuffer.data)
-				is DataBufferInt -> asIntBuffer().put(dataBuffer.data)
+				is DataBufferInt -> ib.put(dataBuffer.data)
 				else -> TODO("dataBuffer: $dataBuffer")
 			}
+			for (n in 0 until area) ib.put(n, argb2rgba(ib.get(n)))
 			position(width * height * 4)
 			//println("BYTES: ${bytes.size}")
 			//println("BYTES: ${bytes.size}")
 			flip()
 		}
 	}
+
+	private fun argb2rgba(col: Int): Int = (col shl 8) or (col ushr 24)
 
 	val buffer: ByteBuffer get() = rbuffer.apply { rewind() }
 }

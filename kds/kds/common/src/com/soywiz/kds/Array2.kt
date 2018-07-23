@@ -7,12 +7,13 @@ data class Array2<T>(val width: Int, val height: Int, val data: Array<T>) : Iter
 		inline operator fun <reified T> invoke(width: Int, height: Int, gen: (n: Int) -> T) =
 			Array2(width, height, Array(width * height) { gen(it) })
 
-		//inline operator fun <reified T> invoke(width: Int, height: Int, gen: (x: Int, y: Int) -> T) = Array2(width, height, Array(width * height) { gen(it % width, it / width) })
+		inline fun <reified T> withGen(width: Int, height: Int, gen: (x: Int, y: Int) -> T) = Array2(width, height, Array(width * height) { gen(it % width, it / width) })
+
 		inline operator fun <reified T> invoke(rows: List<List<T>>): Array2<T> {
 			val width = rows[0].size
 			val height = rows.size
 			val anyCell = rows[0][0]
-			return Array2(width, height) { anyCell }.apply { set(rows) }
+			return (Array2(width, height) { anyCell }).apply { set(rows) }
 		}
 
 		inline operator fun <reified T> invoke(

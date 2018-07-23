@@ -8,6 +8,7 @@ import com.soywiz.korge.component.*
 import com.soywiz.korge.view.*
 import com.soywiz.korim.color.*
 import com.soywiz.korim.color.RGBA.Companion.blendRGBA
+import com.soywiz.korma.geom.*
 import com.soywiz.korma.interpolation.*
 import kotlinx.coroutines.experimental.*
 import kotlin.reflect.*
@@ -80,6 +81,27 @@ suspend fun View?.tween(
 		}
 	}
 }
+
+suspend fun View.show(time: TimeSpan, easing: Easing = Easing.LINEAR) =
+	tween(this::alpha[1.0], time = time, easing = easing) { this.visible = true }
+
+suspend fun View.hide(time: TimeSpan, easing: Easing = Easing.LINEAR) =
+	tween(this::alpha[0.0], time = time, easing = easing)
+
+suspend inline fun View.moveTo(x: Number, y: Number, time: TimeSpan, easing: Easing = Easing.LINEAR) =
+	tween(this::x[x.toDouble()], this::y[y.toDouble()], time = time, easing = easing)
+
+suspend inline fun View.moveBy(dx: Number, dy: Number, time: TimeSpan, easing: Easing = Easing.LINEAR) =
+	tween(this::x[this.x + dx.toDouble()], this::y[this.y + dy.toDouble()], time = time, easing = easing)
+
+suspend inline fun View.scaleTo(sx: Number, sy: Number, time: TimeSpan, easing: Easing = Easing.LINEAR) =
+	tween(this::scaleX[sx.toDouble()], this::scaleY[sy.toDouble()], time = time, easing = easing)
+
+suspend inline fun View.rotateTo(deg: Angle, time: TimeSpan, easing: Easing = Easing.LINEAR) =
+	tween(this::rotation[deg.radians], time = time, easing = easing)
+
+suspend inline fun View.rotateBy(ddeg: Angle, time: TimeSpan, easing: Easing = Easing.LINEAR) =
+	tween(this::rotation[this.rotation + ddeg.radians], time = time, easing = easing)
 
 @Suppress("UNCHECKED_CAST")
 data class V2<V>(

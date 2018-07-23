@@ -12,6 +12,7 @@ inline fun Container.container(callback: @ViewsDslMarker Container.() -> Unit = 
 
 open class Container : View() {
 	val children = arrayListOf<View>()
+	val containerRoot: Container get() = parent?.containerRoot ?: this
 
 	fun removeChildren() {
 		for (child in children) {

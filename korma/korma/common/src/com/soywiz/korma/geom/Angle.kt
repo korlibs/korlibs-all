@@ -74,3 +74,6 @@ data class Angle private constructor(val radians: Double) {
 		fun between(p0: Point2d, p1: Point2d): Angle = Angle.fromRadians(betweenRad(p0, p1))
 	}
 }
+
+inline val Number.degrees get() = Angle.fromDegrees(this)
+inline val Number.radians get() = Angle.fromRadians(this)

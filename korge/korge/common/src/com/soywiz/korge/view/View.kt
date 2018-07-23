@@ -17,7 +17,10 @@ import kotlin.collections.arrayListOf
 import kotlin.collections.contains
 import kotlin.collections.firstOrNull
 import kotlin.collections.iterator
+import kotlin.collections.joinToString
 import kotlin.collections.linkedMapOf
+import kotlin.collections.listOf
+import kotlin.collections.map
 import kotlin.collections.plusAssign
 import kotlin.collections.removeAll
 import kotlin.collections.set
@@ -693,11 +696,12 @@ fun View?.descendantsWith(out: ArrayList<View> = arrayListOf(), check: (View) ->
 	return out
 }
 
-inline fun <T : View> T.position(x: Number, y: Number): T = this.apply {
-	this.x = x.toDouble(); this.y = y.toDouble()
-}
+inline fun <T : View> T.position(x: Number, y: Number): T =
+	this.apply { this.x = x.toDouble() }.apply { this.y = y.toDouble() }
 
-inline fun <T : View> T.scale(sx: Number, sy: Number): T = this.apply {
-	this.scaleX = sx.toDouble(); this.scaleY = sy.toDouble()
-}
+inline fun <T : View> T.scale(sx: Number, sy: Number = sx): T =
+	this.apply { this.scaleX = sx.toDouble() }.apply { this.scaleY = sy.toDouble() }
+
+inline fun <T : View> T.alpha(alpha: Number): T =
+	this.apply { this.alpha = alpha.toDouble() }
 

@@ -60,4 +60,6 @@ suspend fun View.sleep(time: Int) = this.timers.waitMilliseconds(time)
 suspend fun View.sleep(time: TimeSpan) = this.timers.wait(time)
 suspend fun View.sleepFrame() = this.timers.waitFrame()
 
+suspend fun View.delay(time: TimeSpan) = this.timers.wait(time)
+
 fun View.timer(time: TimeSpan, callback: () -> Unit): Closeable = TimerComponent(this, time.milliseconds.toDouble(), callback).attach()
