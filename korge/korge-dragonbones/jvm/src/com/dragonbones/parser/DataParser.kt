@@ -25,15 +25,15 @@ package com.dragonbones.parser
 /**
  * @private
  */
-export abstract class DataParser {
-	protected static readonly DATA_VERSION_2_3: string = "2.3";
-	protected static readonly DATA_VERSION_3_0: string = "3.0";
-	protected static readonly DATA_VERSION_4_0: string = "4.0";
-	protected static readonly DATA_VERSION_4_5: string = "4.5";
-	protected static readonly DATA_VERSION_5_0: string = "5.0";
-	protected static readonly DATA_VERSION_5_5: string = "5.5";
-	protected static readonly DATA_VERSION_5_6: string = "5.6";
-	protected static readonly DATA_VERSION: string = DataParser.DATA_VERSION_5_6;
+abstract class DataParser {
+	protected static readonly DATA_VERSION_2_3: String = "2.3";
+	protected static readonly DATA_VERSION_3_0: String = "3.0";
+	protected static readonly DATA_VERSION_4_0: String = "4.0";
+	protected static readonly DATA_VERSION_4_5: String = "4.5";
+	protected static readonly DATA_VERSION_5_0: String = "5.0";
+	protected static readonly DATA_VERSION_5_5: String = "5.5";
+	protected static readonly DATA_VERSION_5_6: String = "5.6";
+	protected static readonly DATA_VERSION: String = DataParser.DATA_VERSION_5_6;
 
 	protected static readonly DATA_VERSIONS: Array<string> = [
 		DataParser.DATA_VERSION_4_0,
@@ -43,144 +43,144 @@ export abstract class DataParser {
 		DataParser.DATA_VERSION_5_6
 	];
 
-	protected static readonly TEXTURE_ATLAS: string = "textureAtlas";
-	protected static readonly SUB_TEXTURE: string = "SubTexture";
-	protected static readonly FORMAT: string = "format";
-	protected static readonly IMAGE_PATH: string = "imagePath";
-	protected static readonly WIDTH: string = "width";
-	protected static readonly HEIGHT: string = "height";
-	protected static readonly ROTATED: string = "rotated";
-	protected static readonly FRAME_X: string = "frameX";
-	protected static readonly FRAME_Y: string = "frameY";
-	protected static readonly FRAME_WIDTH: string = "frameWidth";
-	protected static readonly FRAME_HEIGHT: string = "frameHeight";
+	protected static readonly TEXTURE_ATLAS: String = "textureAtlas";
+	protected static readonly SUB_TEXTURE: String = "SubTexture";
+	protected static readonly FORMAT: String = "format";
+	protected static readonly IMAGE_PATH: String = "imagePath";
+	protected static readonly WIDTH: String = "width";
+	protected static readonly HEIGHT: String = "height";
+	protected static readonly ROTATED: String = "rotated";
+	protected static readonly FRAME_X: String = "frameX";
+	protected static readonly FRAME_Y: String = "frameY";
+	protected static readonly FRAME_WIDTH: String = "frameWidth";
+	protected static readonly FRAME_HEIGHT: String = "frameHeight";
 
-	protected static readonly DRADON_BONES: string = "dragonBones";
-	protected static readonly USER_DATA: string = "userData";
-	protected static readonly ARMATURE: string = "armature";
-	protected static readonly CANVAS: string = "canvas";
-	protected static readonly BONE: string = "bone";
-	protected static readonly SURFACE: string = "surface";
-	protected static readonly SLOT: string = "slot";
-	protected static readonly CONSTRAINT: string = "constraint";
-	protected static readonly SKIN: string = "skin";
-	protected static readonly DISPLAY: string = "display";
-	protected static readonly FRAME: string = "frame";
-	protected static readonly IK: string = "ik";
-	protected static readonly PATH_CONSTRAINT: string = "path";
+	protected static readonly DRADON_BONES: String = "dragonBones";
+	protected static readonly USER_DATA: String = "userData";
+	protected static readonly ARMATURE: String = "armature";
+	protected static readonly CANVAS: String = "canvas";
+	protected static readonly BONE: String = "bone";
+	protected static readonly SURFACE: String = "surface";
+	protected static readonly SLOT: String = "slot";
+	protected static readonly CONSTRAINT: String = "constraint";
+	protected static readonly SKIN: String = "skin";
+	protected static readonly DISPLAY: String = "display";
+	protected static readonly FRAME: String = "frame";
+	protected static readonly IK: String = "ik";
+	protected static readonly PATH_CONSTRAINT: String = "path";
 
-	protected static readonly ANIMATION: string = "animation";
-	protected static readonly TIMELINE: string = "timeline";
-	protected static readonly FFD: string = "ffd";
-	protected static readonly TRANSLATE_FRAME: string = "translateFrame";
-	protected static readonly ROTATE_FRAME: string = "rotateFrame";
-	protected static readonly SCALE_FRAME: string = "scaleFrame";
-	protected static readonly DISPLAY_FRAME: string = "displayFrame";
-	protected static readonly COLOR_FRAME: string = "colorFrame";
-	protected static readonly DEFAULT_ACTIONS: string = "defaultActions";
-	protected static readonly ACTIONS: string = "actions";
-	protected static readonly EVENTS: string = "events";
+	protected static readonly ANIMATION: String = "animation";
+	protected static readonly TIMELINE: String = "timeline";
+	protected static readonly FFD: String = "ffd";
+	protected static readonly TRANSLATE_FRAME: String = "translateFrame";
+	protected static readonly ROTATE_FRAME: String = "rotateFrame";
+	protected static readonly SCALE_FRAME: String = "scaleFrame";
+	protected static readonly DISPLAY_FRAME: String = "displayFrame";
+	protected static readonly COLOR_FRAME: String = "colorFrame";
+	protected static readonly DEFAULT_ACTIONS: String = "defaultActions";
+	protected static readonly ACTIONS: String = "actions";
+	protected static readonly EVENTS: String = "events";
 
-	protected static readonly INTS: string = "ints";
-	protected static readonly FLOATS: string = "floats";
-	protected static readonly STRINGS: string = "strings";
+	protected static readonly INTS: String = "ints";
+	protected static readonly FLOATS: String = "floats";
+	protected static readonly STRINGS: String = "strings";
 
-	protected static readonly TRANSFORM: string = "transform";
-	protected static readonly PIVOT: string = "pivot";
-	protected static readonly AABB: string = "aabb";
-	protected static readonly COLOR: string = "color";
+	protected static readonly TRANSFORM: String = "transform";
+	protected static readonly PIVOT: String = "pivot";
+	protected static readonly AABB: String = "aabb";
+	protected static readonly COLOR: String = "color";
 
-	protected static readonly VERSION: string = "version";
-	protected static readonly COMPATIBLE_VERSION: string = "compatibleVersion";
-	protected static readonly FRAME_RATE: string = "frameRate";
-	protected static readonly TYPE: string = "type";
-	protected static readonly SUB_TYPE: string = "subType";
-	protected static readonly NAME: string = "name";
-	protected static readonly PARENT: string = "parent";
-	protected static readonly TARGET: string = "target";
-	protected static readonly STAGE: string = "stage";
-	protected static readonly SHARE: string = "share";
-	protected static readonly PATH: string = "path";
-	protected static readonly LENGTH: string = "length";
-	protected static readonly DISPLAY_INDEX: string = "displayIndex";
-	protected static readonly Z_ORDER: string = "zOrder";
-	protected static readonly Z_INDEX: string = "zIndex";
-	protected static readonly BLEND_MODE: string = "blendMode";
-	protected static readonly INHERIT_TRANSLATION: string = "inheritTranslation";
-	protected static readonly INHERIT_ROTATION: string = "inheritRotation";
-	protected static readonly INHERIT_SCALE: string = "inheritScale";
-	protected static readonly INHERIT_REFLECTION: string = "inheritReflection";
-	protected static readonly INHERIT_ANIMATION: string = "inheritAnimation";
-	protected static readonly INHERIT_DEFORM: string = "inheritDeform";
-	protected static readonly SEGMENT_X: string = "segmentX";
-	protected static readonly SEGMENT_Y: string = "segmentY";
-	protected static readonly BEND_POSITIVE: string = "bendPositive";
-	protected static readonly CHAIN: string = "chain";
-	protected static readonly WEIGHT: string = "weight";
+	protected static readonly VERSION: String = "version";
+	protected static readonly COMPATIBLE_VERSION: String = "compatibleVersion";
+	protected static readonly FRAME_RATE: String = "frameRate";
+	protected static readonly TYPE: String = "type";
+	protected static readonly SUB_TYPE: String = "subType";
+	protected static readonly NAME: String = "name";
+	protected static readonly PARENT: String = "parent";
+	protected static readonly TARGET: String = "target";
+	protected static readonly STAGE: String = "stage";
+	protected static readonly SHARE: String = "share";
+	protected static readonly PATH: String = "path";
+	protected static readonly LENGTH: String = "length";
+	protected static readonly DISPLAY_INDEX: String = "displayIndex";
+	protected static readonly Z_ORDER: String = "zOrder";
+	protected static readonly Z_INDEX: String = "zIndex";
+	protected static readonly BLEND_MODE: String = "blendMode";
+	protected static readonly INHERIT_TRANSLATION: String = "inheritTranslation";
+	protected static readonly INHERIT_ROTATION: String = "inheritRotation";
+	protected static readonly INHERIT_SCALE: String = "inheritScale";
+	protected static readonly INHERIT_REFLECTION: String = "inheritReflection";
+	protected static readonly INHERIT_ANIMATION: String = "inheritAnimation";
+	protected static readonly INHERIT_DEFORM: String = "inheritDeform";
+	protected static readonly SEGMENT_X: String = "segmentX";
+	protected static readonly SEGMENT_Y: String = "segmentY";
+	protected static readonly BEND_POSITIVE: String = "bendPositive";
+	protected static readonly CHAIN: String = "chain";
+	protected static readonly WEIGHT: String = "weight";
 
-	protected static readonly BLEND_TYPE: string = "blendType";
-	protected static readonly FADE_IN_TIME: string = "fadeInTime";
-	protected static readonly PLAY_TIMES: string = "playTimes";
-	protected static readonly SCALE: string = "scale";
-	protected static readonly OFFSET: string = "offset";
-	protected static readonly POSITION: string = "position";
-	protected static readonly DURATION: string = "duration";
-	protected static readonly TWEEN_EASING: string = "tweenEasing";
-	protected static readonly TWEEN_ROTATE: string = "tweenRotate";
-	protected static readonly TWEEN_SCALE: string = "tweenScale";
-	protected static readonly CLOCK_WISE: string = "clockwise";
-	protected static readonly CURVE: string = "curve";
-	protected static readonly SOUND: string = "sound";
-	protected static readonly EVENT: string = "event";
-	protected static readonly ACTION: string = "action";
+	protected static readonly BLEND_TYPE: String = "blendType";
+	protected static readonly FADE_IN_TIME: String = "fadeInTime";
+	protected static readonly PLAY_TIMES: String = "playTimes";
+	protected static readonly SCALE: String = "scale";
+	protected static readonly OFFSET: String = "offset";
+	protected static readonly POSITION: String = "position";
+	protected static readonly DURATION: String = "duration";
+	protected static readonly TWEEN_EASING: String = "tweenEasing";
+	protected static readonly TWEEN_ROTATE: String = "tweenRotate";
+	protected static readonly TWEEN_SCALE: String = "tweenScale";
+	protected static readonly CLOCK_WISE: String = "clockwise";
+	protected static readonly CURVE: String = "curve";
+	protected static readonly SOUND: String = "sound";
+	protected static readonly EVENT: String = "event";
+	protected static readonly ACTION: String = "action";
 
-	protected static readonly X: string = "x";
-	protected static readonly Y: string = "y";
-	protected static readonly SKEW_X: string = "skX";
-	protected static readonly SKEW_Y: string = "skY";
-	protected static readonly SCALE_X: string = "scX";
-	protected static readonly SCALE_Y: string = "scY";
-	protected static readonly VALUE: string = "value";
-	protected static readonly ROTATE: string = "rotate";
-	protected static readonly SKEW: string = "skew";
-	protected static readonly ALPHA: string = "alpha";
+	protected static readonly X: String = "x";
+	protected static readonly Y: String = "y";
+	protected static readonly SKEW_X: String = "skX";
+	protected static readonly SKEW_Y: String = "skY";
+	protected static readonly SCALE_X: String = "scX";
+	protected static readonly SCALE_Y: String = "scY";
+	protected static readonly VALUE: String = "value";
+	protected static readonly ROTATE: String = "rotate";
+	protected static readonly SKEW: String = "skew";
+	protected static readonly ALPHA: String = "alpha";
 
-	protected static readonly ALPHA_OFFSET: string = "aO";
-	protected static readonly RED_OFFSET: string = "rO";
-	protected static readonly GREEN_OFFSET: string = "gO";
-	protected static readonly BLUE_OFFSET: string = "bO";
-	protected static readonly ALPHA_MULTIPLIER: string = "aM";
-	protected static readonly RED_MULTIPLIER: string = "rM";
-	protected static readonly GREEN_MULTIPLIER: string = "gM";
-	protected static readonly BLUE_MULTIPLIER: string = "bM";
+	protected static readonly ALPHA_OFFSET: String = "aO";
+	protected static readonly RED_OFFSET: String = "rO";
+	protected static readonly GREEN_OFFSET: String = "gO";
+	protected static readonly BLUE_OFFSET: String = "bO";
+	protected static readonly ALPHA_MULTIPLIER: String = "aM";
+	protected static readonly RED_MULTIPLIER: String = "rM";
+	protected static readonly GREEN_MULTIPLIER: String = "gM";
+	protected static readonly BLUE_MULTIPLIER: String = "bM";
 
-	protected static readonly UVS: string = "uvs";
-	protected static readonly VERTICES: string = "vertices";
-	protected static readonly TRIANGLES: string = "triangles";
-	protected static readonly WEIGHTS: string = "weights";
-	protected static readonly SLOT_POSE: string = "slotPose";
-	protected static readonly BONE_POSE: string = "bonePose";
+	protected static readonly UVS: String = "uvs";
+	protected static readonly VERTICES: String = "vertices";
+	protected static readonly TRIANGLES: String = "triangles";
+	protected static readonly WEIGHTS: String = "weights";
+	protected static readonly SLOT_POSE: String = "slotPose";
+	protected static readonly BONE_POSE: String = "bonePose";
 
-	protected static readonly BONES: string = "bones";
-	protected static readonly POSITION_MODE: string = "positionMode";
-	protected static readonly SPACING_MODE: string = "spacingMode";
-	protected static readonly ROTATE_MODE: string = "rotateMode";
-	protected static readonly SPACING: string = "spacing";
-	protected static readonly ROTATE_OFFSET: string = "rotateOffset";
-	protected static readonly ROTATE_MIX: string = "rotateMix";
-	protected static readonly TRANSLATE_MIX: string = "translateMix";
+	protected static readonly BONES: String = "bones";
+	protected static readonly POSITION_MODE: String = "positionMode";
+	protected static readonly SPACING_MODE: String = "spacingMode";
+	protected static readonly ROTATE_MODE: String = "rotateMode";
+	protected static readonly SPACING: String = "spacing";
+	protected static readonly ROTATE_OFFSET: String = "rotateOffset";
+	protected static readonly ROTATE_MIX: String = "rotateMix";
+	protected static readonly TRANSLATE_MIX: String = "translateMix";
 
-	protected static readonly TARGET_DISPLAY: string = "targetDisplay";
-	protected static readonly CLOSED: string = "closed";
-	protected static readonly CONSTANT_SPEED: string = "constantSpeed";
-	protected static readonly VERTEX_COUNT: string = "vertexCount";
-	protected static readonly LENGTHS: string = "lengths";
+	protected static readonly TARGET_DISPLAY: String = "targetDisplay";
+	protected static readonly CLOSED: String = "closed";
+	protected static readonly CONSTANT_SPEED: String = "constantSpeed";
+	protected static readonly VERTEX_COUNT: String = "vertexCount";
+	protected static readonly LENGTHS: String = "lengths";
 
-	protected static readonly GOTO_AND_PLAY: string = "gotoAndPlay";
+	protected static readonly GOTO_AND_PLAY: String = "gotoAndPlay";
 
-	protected static readonly DEFAULT_NAME: string = "default";
+	protected static readonly DEFAULT_NAME: String = "default";
 
-	protected static _getArmatureType(value: string): ArmatureType {
+	protected static _getArmatureType(value: String): ArmatureType {
 		switch (value.toLowerCase()) {
 			case "stage":
 				return ArmatureType.Stage;
@@ -196,7 +196,7 @@ export abstract class DataParser {
 		}
 	}
 
-	protected static _getBoneType(value: string): BoneType {
+	protected static _getBoneType(value: String): BoneType {
 		switch (value.toLowerCase()) {
 			case "bone":
 				return BoneType.Bone;
@@ -209,7 +209,7 @@ export abstract class DataParser {
 		}
 	}
 
-	protected static _getPositionMode(value: string): PositionMode {
+	protected static _getPositionMode(value: String): PositionMode {
 		switch (value.toLocaleLowerCase()) {
 			case "percent":
 				return PositionMode.Percent;
@@ -222,7 +222,7 @@ export abstract class DataParser {
 		}
 	}
 
-	protected static _getSpacingMode(value: string): SpacingMode {
+	protected static _getSpacingMode(value: String): SpacingMode {
 		switch (value.toLocaleLowerCase()) {
 			case "length":
 				return SpacingMode.Length;
@@ -238,7 +238,7 @@ export abstract class DataParser {
 		}
 	}
 
-	protected static _getRotateMode(value: string): RotateMode {
+	protected static _getRotateMode(value: String): RotateMode {
 		switch (value.toLocaleLowerCase()) {
 			case "tangent":
 				return RotateMode.Tangent;
@@ -254,7 +254,7 @@ export abstract class DataParser {
 		}
 	}
 
-	protected static _getDisplayType(value: string): DisplayType {
+	protected static _getDisplayType(value: String): DisplayType {
 		switch (value.toLowerCase()) {
 			case "image":
 				return DisplayType.Image;
@@ -276,7 +276,7 @@ export abstract class DataParser {
 		}
 	}
 
-	protected static _getBoundingBoxType(value: string): BoundingBoxType {
+	protected static _getBoundingBoxType(value: String): BoundingBoxType {
 		switch (value.toLowerCase()) {
 			case "rectangle":
 				return BoundingBoxType.Rectangle;
@@ -292,7 +292,7 @@ export abstract class DataParser {
 		}
 	}
 
-	protected static _getBlendMode(value: string): BlendMode {
+	protected static _getBlendMode(value: String): BlendMode {
 		switch (value.toLowerCase()) {
 			case "normal":
 				return BlendMode.Normal;
@@ -341,7 +341,7 @@ export abstract class DataParser {
 		}
 	}
 
-	protected static _getAnimationBlendType(value: string): AnimationBlendType {
+	protected static _getAnimationBlendType(value: String): AnimationBlendType {
 		switch (value.toLowerCase()) {
 			case "none":
 				return AnimationBlendType.None;
@@ -354,7 +354,7 @@ export abstract class DataParser {
 		}
 	}
 
-	protected static _getActionType(value: string): ActionType {
+	protected static _getActionType(value: String): ActionType {
 		switch (value.toLowerCase()) {
 			case "play":
 				return ActionType.Play;
@@ -370,6 +370,6 @@ export abstract class DataParser {
 		}
 	}
 
-	public abstract parseDragonBonesData(rawData: any, scale: number): DragonBonesData | null;
-	public abstract parseTextureAtlasData(rawData: any, textureAtlasData: TextureAtlasData, scale: number): boolean;
+	public abstract parseDragonBonesData(rawData: any, scale: Double): DragonBonesData | null;
+	public abstract parseTextureAtlasData(rawData: any, textureAtlasData: TextureAtlasData, scale: Double): Boolean;
 }

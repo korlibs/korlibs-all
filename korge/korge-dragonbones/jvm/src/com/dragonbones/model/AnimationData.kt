@@ -32,25 +32,25 @@ package com.dragonbones.model
  * @version DragonBones 3.0
  * @language zh_CN
  */
-export class AnimationData extends BaseObject {
-	public static toString(): string {
+class AnimationData  :  BaseObject {
+	public static toString(): String {
 		return "[class dragonBones.AnimationData]";
 	}
 	/**
 	 * - FrameIntArray.
 	 * @internal
 	 */
-	public frameIntOffset: number;
+	public frameIntOffset: Double;
 	/**
 	 * - FrameFloatArray.
 	 * @internal
 	 */
-	public frameFloatOffset: number;
+	public frameFloatOffset: Double;
 	/**
 	 * - FrameArray.
 	 * @internal
 	 */
-	public frameOffset: number;
+	public frameOffset: Double;
 	/**
 	 * @private
 	 */
@@ -65,7 +65,7 @@ export class AnimationData extends BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public frameCount: number;
+	public frameCount: Double;
 	/**
 	 * - The play times of the animation. [0: Loop play, [1~N]: Play N times]
 	 * @version DragonBones 3.0
@@ -76,7 +76,7 @@ export class AnimationData extends BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public playTimes: number;
+	public playTimes: Double;
 	/**
 	 * - The duration of the animation. (In seconds)
 	 * @version DragonBones 3.0
@@ -87,11 +87,11 @@ export class AnimationData extends BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public duration: number;
+	public duration: Double;
 	/**
 	 * @private
 	 */
-	public scale: number;
+	public scale: Double;
 	/**
 	 * - The fade in time of the animation. (In seconds)
 	 * @version DragonBones 3.0
@@ -102,11 +102,11 @@ export class AnimationData extends BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public fadeInTime: number;
+	public fadeInTime: Double;
 	/**
 	 * @private
 	 */
-	public cacheFrameRate: number;
+	public cacheFrameRate: Double;
 	/**
 	 * - The animation name.
 	 * @version DragonBones 3.0
@@ -117,7 +117,7 @@ export class AnimationData extends BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public name: string;
+	public name: String;
 	/**
 	 * @private
 	 */
@@ -159,7 +159,7 @@ export class AnimationData extends BaseObject {
 	 */
 	public parent: ArmatureData;
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		for (let k in this.boneTimelines) {
 			for (const timeline of this.boneTimelines[k]) {
 				timeline.returnToPool();
@@ -233,7 +233,7 @@ export class AnimationData extends BaseObject {
 	/**
 	 * @internal
 	 */
-	public cacheFrames(frameRate: number): void {
+	public cacheFrames(frameRate: Double): Unit {
 		if (this.cacheFrameRate > 0.0) { // TODO clear cache.
 			return;
 		}
@@ -247,7 +247,7 @@ export class AnimationData extends BaseObject {
 		}
 
 		for (const bone of this.parent.sortedBones) {
-			const indices = new Array<number>(cacheFrameCount);
+			const indices = new  DoubleArray(cacheFrameCount);
 			for (let i = 0, l = indices.length; i < l; ++i) {
 				indices[i] = -1;
 			}
@@ -256,7 +256,7 @@ export class AnimationData extends BaseObject {
 		}
 
 		for (const slot of this.parent.sortedSlots) {
-			const indices = new Array<number>(cacheFrameCount);
+			const indices = new  DoubleArray(cacheFrameCount);
 			for (let i = 0, l = indices.length; i < l; ++i) {
 				indices[i] = -1;
 			}
@@ -267,7 +267,7 @@ export class AnimationData extends BaseObject {
 	/**
 	 * @private
 	 */
-	public addBoneTimeline(timelineName: string, timeline: TimelineData): void {
+	public addBoneTimeline(timelineName: String, timeline: TimelineData): Unit {
 		const timelines = timelineName in this.boneTimelines ? this.boneTimelines[timelineName] : (this.boneTimelines[timelineName] = []);
 		if (timelines.indexOf(timeline) < 0) {
 			timelines.push(timeline);
@@ -276,7 +276,7 @@ export class AnimationData extends BaseObject {
 	/**
 	 * @private
 	 */
-	public addSlotTimeline(timelineName: string, timeline: TimelineData): void {
+	public addSlotTimeline(timelineName: String, timeline: TimelineData): Unit {
 		const timelines = timelineName in this.slotTimelines ? this.slotTimelines[timelineName] : (this.slotTimelines[timelineName] = []);
 		if (timelines.indexOf(timeline) < 0) {
 			timelines.push(timeline);
@@ -285,7 +285,7 @@ export class AnimationData extends BaseObject {
 	/**
 	 * @private
 	 */
-	public addConstraintTimeline(timelineName: string, timeline: TimelineData): void {
+	public addConstraintTimeline(timelineName: String, timeline: TimelineData): Unit {
 		const timelines = timelineName in this.constraintTimelines ? this.constraintTimelines[timelineName] : (this.constraintTimelines[timelineName] = []);
 		if (timelines.indexOf(timeline) < 0) {
 			timelines.push(timeline);
@@ -294,7 +294,7 @@ export class AnimationData extends BaseObject {
 	/**
 	 * @private
 	 */
-	public addAnimationTimeline(timelineName: string, timeline: TimelineData): void {
+	public addAnimationTimeline(timelineName: String, timeline: TimelineData): Unit {
 		const timelines = timelineName in this.animationTimelines ? this.animationTimelines[timelineName] : (this.animationTimelines[timelineName] = []);
 		if (timelines.indexOf(timeline) < 0) {
 			timelines.push(timeline);
@@ -303,53 +303,53 @@ export class AnimationData extends BaseObject {
 	/**
 	 * @private
 	 */
-	public getBoneTimelines(timelineName: string): Array<TimelineData> | null {
+	public getBoneTimelines(timelineName: String): Array<TimelineData> | null {
 		return timelineName in this.boneTimelines ? this.boneTimelines[timelineName] : null;
 	}
 	/**
 	 * @private
 	 */
-	public getSlotTimelines(timelineName: string): Array<TimelineData> | null {
+	public getSlotTimelines(timelineName: String): Array<TimelineData> | null {
 		return timelineName in this.slotTimelines ? this.slotTimelines[timelineName] : null;
 	}
 	/**
 	 * @private
 	 */
-	public getConstraintTimelines(timelineName: string): Array<TimelineData> | null {
+	public getConstraintTimelines(timelineName: String): Array<TimelineData> | null {
 		return timelineName in this.constraintTimelines ? this.constraintTimelines[timelineName] : null;
 	}
 	/**
 	 * @private
 	 */
-	public getAnimationTimelines(timelineName: string): Array<TimelineData> | null {
+	public getAnimationTimelines(timelineName: String): Array<TimelineData> | null {
 		return timelineName in this.animationTimelines ? this.animationTimelines[timelineName] : null;
 	}
 	/**
 	 * @private
 	 */
-	public getBoneCachedFrameIndices(boneName: string): Array<number> | null {
+	public getBoneCachedFrameIndices(boneName: String):  DoubleArray | null {
 		return boneName in this.boneCachedFrameIndices ? this.boneCachedFrameIndices[boneName] : null;
 	}
 	/**
 	 * @private
 	 */
-	public getSlotCachedFrameIndices(slotName: string): Array<number> | null {
+	public getSlotCachedFrameIndices(slotName: String):  DoubleArray | null {
 		return slotName in this.slotCachedFrameIndices ? this.slotCachedFrameIndices[slotName] : null;
 	}
 }
 /**
  * @private
  */
-export class TimelineData extends BaseObject {
-	public static toString(): string {
+class TimelineData  :  BaseObject {
+	public static toString(): String {
 		return "[class dragonBones.TimelineData]";
 	}
 
 	public type: TimelineType;
-	public offset: number; // TimelineArray.
-	public frameIndicesOffset: number; // FrameIndices.
+	public offset: Double; // TimelineArray.
+	public frameIndicesOffset: Double; // FrameIndices.
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		this.type = TimelineType.BoneAll;
 		this.offset = 0;
 		this.frameIndicesOffset = -1;
@@ -358,15 +358,15 @@ export class TimelineData extends BaseObject {
 /**
  * @internal
  */
-export class AnimationTimelineData extends TimelineData {
-	public static toString(): string {
+class AnimationTimelineData  :  TimelineData {
+	public static toString(): String {
 		return "[class dragonBones.AnimationTimelineData]";
 	}
 
-	public x: number;
-	public y: number;
+	public x: Double;
+	public y: Double;
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		super._onClear();
 
 		this.x = 0.0;

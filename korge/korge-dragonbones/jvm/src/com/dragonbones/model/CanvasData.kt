@@ -25,19 +25,19 @@ package com.dragonbones.model
 /**
  * @private
  */
-export class CanvasData extends BaseObject {
-	public static toString(): string {
+class CanvasData  :  BaseObject {
+	public static toString(): String {
 		return "[class dragonBones.CanvasData]";
 	}
 
-	public hasBackground: boolean;
-	public color: number;
-	public x: number;
-	public y: number;
-	public width: number;
-	public height: number;
+	public hasBackground: Boolean;
+	public color: Double;
+	public x: Double;
+	public y: Double;
+	public width: Double;
+	public height: Double;
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		this.hasBackground = false;
 		this.color = 0x000000;
 		this.x = 0;

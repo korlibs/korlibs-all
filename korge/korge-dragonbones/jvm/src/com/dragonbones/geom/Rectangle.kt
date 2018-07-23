@@ -1,3 +1,5 @@
+package com.dragonbones.geom
+
 /**
  * The MIT License (MIT)
  *
@@ -20,7 +22,6 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.dragonbones.geom
 
 /**
  * - A Rectangle object is an area defined by its position, as indicated by its top-left corner point (x, y) and by its
@@ -40,7 +41,7 @@ package com.dragonbones.geom
  * @version DragonBones 3.0
  * @language zh_CN
  */
-export class Rectangle {
+class Rectangle {
 	/**
 	 * - The x coordinate of the top-left corner of the rectangle.
 	 * @default 0.0
@@ -53,7 +54,7 @@ export class Rectangle {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public x: number;
+	var x: Double
 	/**
 	 * - The y coordinate of the top-left corner of the rectangle.
 	 * @default 0.0
@@ -66,7 +67,7 @@ export class Rectangle {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public y: number;
+	var y: Double
 	/**
 	 * - The width of the rectangle, in pixels.
 	 * @default 0.0
@@ -79,7 +80,7 @@ export class Rectangle {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public width: number;
+	var width: Double
 	/**
 	 * - 矩形的高度（以像素为单位）。
 	 * @default 0.0
@@ -92,33 +93,38 @@ export class Rectangle {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public height: number;
+	var height: Double
+
 	/**
 	 * @private
 	 */
-	public constructor(
-		x: number = 0.0, y: number = 0.0,
-		width: number = 0.0, height: number = 0.0
+	constructor(
+		x: Double = 0.0, y: Double = 0.0,
+		width: Double = 0.0, height: Double = 0.0
 	) {
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
+		this.x = x
+		this.y = y
+		this.width = width
+		this.height = height
 	}
+
 	/**
 	 * @private
 	 */
-	public copyFrom(value: Rectangle): void {
-		this.x = value.x;
-		this.y = value.y;
-		this.width = value.width;
-		this.height = value.height;
+	fun copyFrom(value: Rectangle) {
+		this.x = value.x
+		this.y = value.y
+		this.width = value.width
+		this.height = value.height
 	}
+
 	/**
 	 * @private
 	 */
-	public clear(): void {
-		this.x = this.y = 0.0;
-		this.width = this.height = 0.0;
+	fun clear(): Unit {
+		this.x = 0.0
+		this.y = 0.0
+		this.width = 0.0
+		this.height = 0.0
 	}
 }

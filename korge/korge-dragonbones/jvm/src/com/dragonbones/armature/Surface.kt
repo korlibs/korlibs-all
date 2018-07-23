@@ -25,31 +25,31 @@ package com.dragonbones.armature
 /**
  * @internal
  */
-export class Surface extends Bone {
-	public static toString(): string {
+class Surface  :  Bone {
+	public static toString(): String {
 		return "[class dragonBones.Surface]";
 	}
 
-	private _dX: number;
-	private _dY: number;
-	private _k: number;
-	private _kX: number;
-	private _kY: number;
+	private _dX: Double;
+	private _dY: Double;
+	private _k: Double;
+	private _kX: Double;
+	private _kY: Double;
 
-	public readonly _vertices: Array<number> = [];
-	public readonly _deformVertices: Array<number> = [];
+	public readonly _vertices:  DoubleArray = [];
+	public readonly _deformVertices:  DoubleArray = [];
 	/**
 	 * - x1, y1, x2, y2, x3, y3, x4, y4, d1X, d1Y, d2X, d2Y
 	 */
-	private readonly _hullCache: Array<number> = [];
+	private readonly _hullCache:  DoubleArray = [];
 	/**
 	 * - Inside [flag, a, b, c, d, tx, ty], Outside [flag, a, b, c, d, tx, ty]
 	 */
-	private readonly _matrixCahce: Array<number> = [];
+	private readonly _matrixCahce:  DoubleArray = [];
 
 	public _bone: Bone | null;
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		super._onClear();
 
 		this._dX = 0.0;
@@ -65,10 +65,10 @@ export class Surface extends Bone {
 	}
 
 	private _getAffineTransform(
-		x: number, y: number, lX: number, lY: number,
-		aX: number, aY: number, bX: number, bY: number, cX: number, cY: number,
-		transform: Transform, matrix: Matrix, isDown: boolean
-	): void {
+		x: Double, y: Double, lX: Double, lY: Double,
+		aX: Double, aY: Double, bX: Double, bY: Double, cX: Double, cY: Double,
+		transform: Transform, matrix: Matrix, isDown: Boolean
+	): Unit {
 		const dabX = bX - aX;
 		const dabY = bY - aY;
 		const dacX = cX - aX;
@@ -88,7 +88,7 @@ export class Surface extends Bone {
 		transform.y = matrix.ty = aY - (matrix.b * x + matrix.d * y);
 	}
 
-	private _updateVertices(): void {
+	private _updateVertices(): Unit {
 		const data = this._armature.armatureData.parent;
 		const geometry = (this._boneData as SurfaceData).geometry;
 		const intArray = data.intArray;
@@ -131,7 +131,7 @@ export class Surface extends Bone {
 		}
 	}
 
-	protected _updateGlobalTransformMatrix(isCache: boolean): void {
+	protected _updateGlobalTransformMatrix(isCache: Boolean): Unit {
 		// tslint:disable-next-line:no-unused-expression
 		isCache;
 
@@ -163,7 +163,7 @@ export class Surface extends Bone {
 		this._globalDirty = false;
 	}
 
-	public _getGlobalTransformMatrix(x: number, y: number): Matrix {
+	public _getGlobalTransformMatrix(x: Double, y: Double): Matrix {
 		const lA = 200.0;
 		const lB = 1000.0;
 		if (x < -lB || lB < x || y < -lB || lB < y) {
@@ -440,7 +440,7 @@ export class Surface extends Bone {
 	 * @internal
 	 * @private
 	 */
-	public init(surfaceData: SurfaceData, armatureValue: Armature): void {
+	public init(surfaceData: SurfaceData, armatureValue: Armature): Unit {
 		if (this._boneData !== null) {
 			return;
 		}
@@ -479,7 +479,7 @@ export class Surface extends Bone {
 	/**
 	 * @internal
 	 */
-	public update(cacheFrameIndex: number): void {
+	public update(cacheFrameIndex: Double): Unit {
 		if (cacheFrameIndex >= 0 && this._cachedFrameIndices !== null) {
 			const cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex];
 			if (cachedFrameIndex >= 0 && this._cachedFrameIndex === cachedFrameIndex) { // Same cache.

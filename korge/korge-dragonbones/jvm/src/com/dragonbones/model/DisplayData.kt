@@ -25,14 +25,14 @@ package com.dragonbones.model
 /**
  * @private
  */
-export class GeometryData {
-	public isShared: boolean;
-	public inheritDeform: boolean;
-	public offset: number;
+class GeometryData {
+	public isShared: Boolean;
+	public inheritDeform: Boolean;
+	public offset: Double;
 	public data: DragonBonesData;
 	public weight: WeightData | null = null; // Initial value.
 
-	public clear(): void {
+	public clear(): Unit {
 		if (!this.isShared && this.weight !== null) {
 			this.weight.returnToPool();
 		}
@@ -44,18 +44,18 @@ export class GeometryData {
 		this.weight = null;
 	}
 
-	public shareFrom(value: GeometryData): void {
+	public shareFrom(value: GeometryData): Unit {
 		this.isShared = true;
 		this.offset = value.offset;
 		this.weight = value.weight;
 	}
 
-	public get vertexCount(): number {
+	public get vertexCount(): Double {
 		const intArray = this.data.intArray;
 		return intArray[this.offset + dragonBones.BinaryOffset.GeometryVertexCount];
 	}
 
-	public get triangleCount(): number {
+	public get triangleCount(): Double {
 		const intArray = this.data.intArray;
 		return intArray[this.offset + dragonBones.BinaryOffset.GeometryTriangleCount];
 	}
@@ -63,14 +63,14 @@ export class GeometryData {
 /**
  * @private
  */
-export abstract class DisplayData extends BaseObject {
+abstract class DisplayData  :  BaseObject {
 	public type: DisplayType;
-	public name: string;
-	public path: string;
+	public name: String;
+	public path: String;
 	public readonly transform: Transform = new Transform();
 	public parent: SkinData;
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		this.name = "";
 		this.path = "";
 		this.transform.identity();
@@ -80,15 +80,15 @@ export abstract class DisplayData extends BaseObject {
 /**
  * @private
  */
-export class ImageDisplayData extends DisplayData {
-	public static toString(): string {
+class ImageDisplayData  :  DisplayData {
+	public static toString(): String {
 		return "[class dragonBones.ImageDisplayData]";
 	}
 
 	public readonly pivot: Point = new Point();
 	public texture: TextureData | null;
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		super._onClear();
 
 		this.type = DisplayType.Image;
@@ -99,16 +99,16 @@ export class ImageDisplayData extends DisplayData {
 /**
  * @private
  */
-export class ArmatureDisplayData extends DisplayData {
-	public static toString(): string {
+class ArmatureDisplayData  :  DisplayData {
+	public static toString(): String {
 		return "[class dragonBones.ArmatureDisplayData]";
 	}
 
-	public inheritAnimation: boolean;
+	public inheritAnimation: Boolean;
 	public readonly actions: Array<ActionData> = [];
 	public armature: ArmatureData | null;
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		super._onClear();
 
 		for (const action of this.actions) {
@@ -123,22 +123,22 @@ export class ArmatureDisplayData extends DisplayData {
 	/**
 	 * @private
 	 */
-	public addAction(value: ActionData): void {
+	public addAction(value: ActionData): Unit {
 		this.actions.push(value);
 	}
 }
 /**
  * @private
  */
-export class MeshDisplayData extends DisplayData {
-	public static toString(): string {
+class MeshDisplayData  :  DisplayData {
+	public static toString(): String {
 		return "[class dragonBones.MeshDisplayData]";
 	}
 
 	public readonly geometry: GeometryData = new GeometryData();
 	public texture: TextureData | null;
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		super._onClear();
 
 		this.type = DisplayType.Mesh;
@@ -149,14 +149,14 @@ export class MeshDisplayData extends DisplayData {
 /**
  * @private
  */
-export class BoundingBoxDisplayData extends DisplayData {
-	public static toString(): string {
+class BoundingBoxDisplayData  :  DisplayData {
+	public static toString(): String {
 		return "[class dragonBones.BoundingBoxDisplayData]";
 	}
 
 	public boundingBox: BoundingBoxData | null = null; // Initial value.
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		super._onClear();
 
 		if (this.boundingBox !== null) {
@@ -170,16 +170,16 @@ export class BoundingBoxDisplayData extends DisplayData {
 /**
  * @private
  */
-export class PathDisplayData extends DisplayData {
-	public static toString(): string {
+class PathDisplayData  :  DisplayData {
+	public static toString(): String {
 		return "[class dragonBones.PathDisplayData]";
 	}
-	public closed: boolean;
-	public constantSpeed: boolean;
+	public closed: Boolean;
+	public constantSpeed: Boolean;
 	public readonly geometry: GeometryData = new GeometryData();
-	public readonly curveLengths: Array<number> = [];
+	public readonly curveLengths:  DoubleArray = [];
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		super._onClear();
 
 		this.type = DisplayType.Path;
@@ -192,22 +192,22 @@ export class PathDisplayData extends DisplayData {
 /**
  * @private
  */
-export class WeightData extends BaseObject {
-	public static toString(): string {
+class WeightData  :  BaseObject {
+	public static toString(): String {
 		return "[class dragonBones.WeightData]";
 	}
 
-	public count: number;
-	public offset: number;
+	public count: Double;
+	public offset: Double;
 	public readonly bones: Array<BoneData> = [];
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		this.count = 0;
 		this.offset = 0;
 		this.bones.length = 0;
 	}
 
-	public addBone(value: BoneData): void {
+	public addBone(value: BoneData): Unit {
 		this.bones.push(value);
 	}
 }

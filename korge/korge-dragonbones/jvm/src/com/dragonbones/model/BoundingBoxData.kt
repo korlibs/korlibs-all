@@ -38,7 +38,7 @@ package com.dragonbones.model
  * @version DragonBones 5.0
  * @language zh_CN
  */
-export abstract class BoundingBoxData extends BaseObject {
+abstract class BoundingBoxData  :  BaseObject {
 	/**
 	 * - The bounding box type.
 	 * @version DragonBones 5.0
@@ -53,17 +53,17 @@ export abstract class BoundingBoxData extends BaseObject {
 	/**
 	 * @private
 	 */
-	public color: number;
+	public color: Double;
 	/**
 	 * @private
 	 */
-	public width: number;
+	public width: Double;
 	/**
 	 * @private
 	 */
-	public height: number;
+	public height: Double;
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		this.color = 0x000000;
 		this.width = 0.0;
 		this.height = 0.0;
@@ -78,7 +78,7 @@ export abstract class BoundingBoxData extends BaseObject {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public abstract containsPoint(pX: number, pY: number): boolean;
+	public abstract containsPoint(pX: Double, pY: Double): Boolean;
 	/**
 	 * - Check whether the bounding box intersects a specific segment. (Local coordinate system)
 	 * @version DragonBones 5.0
@@ -90,11 +90,11 @@ export abstract class BoundingBoxData extends BaseObject {
 	 * @language zh_CN
 	 */
 	public abstract intersectsSegment(
-		xA: number, yA: number, xB: number, yB: number,
-		intersectionPointA: { x: number, y: number } | null,
-		intersectionPointB: { x: number, y: number } | null,
-		normalRadians: { x: number, y: number } | null
-	): number;
+		xA: Double, yA: Double, xB: Double, yB: Double,
+		intersectionPointA: { x: Double, y: Double } | null,
+		intersectionPointB: { x: Double, y: Double } | null,
+		normalRadians: { x: Double, y: Double } | null
+	): Double;
 }
 /**
  * - Cohen–Sutherland algorithm https://en.wikipedia.org/wiki/Cohen%E2%80%93Sutherland_algorithm
@@ -123,14 +123,14 @@ const enum OutCode {
  * @version DragonBones 5.1
  * @language zh_CN
  */
-export class RectangleBoundingBoxData extends BoundingBoxData {
-	public static toString(): string {
+class RectangleBoundingBoxData  :  BoundingBoxData {
+	public static toString(): String {
 		return "[class dragonBones.RectangleBoundingBoxData]";
 	}
 	/**
 	 * - Compute the bit code for a point (x, y) using the clip rectangle
 	 */
-	private static _computeOutCode(x: number, y: number, xMin: number, yMin: number, xMax: number, yMax: number): number {
+	private static _computeOutCode(x: Double, y: Double, xMin: Double, yMin: Double, xMax: Double, yMax: Double): Double {
 		let code = OutCode.InSide;  // initialised as being inside of [[clip window]]
 
 		if (x < xMin) {             // to the left of clip window
@@ -153,12 +153,12 @@ export class RectangleBoundingBoxData extends BoundingBoxData {
 	 * @private
 	 */
 	public static rectangleIntersectsSegment(
-		xA: number, yA: number, xB: number, yB: number,
-		xMin: number, yMin: number, xMax: number, yMax: number,
-		intersectionPointA: { x: number, y: number } | null = null,
-		intersectionPointB: { x: number, y: number } | null = null,
-		normalRadians: { x: number, y: number } | null = null
-	): number {
+		xA: Double, yA: Double, xB: Double, yB: Double,
+		xMin: Double, yMin: Double, xMax: Double, yMax: Double,
+		intersectionPointA: { x: Double, y: Double } | null = null,
+		intersectionPointB: { x: Double, y: Double } | null = null,
+		normalRadians: { x: Double, y: Double } | null = null
+	): Double {
 		const inSideA = xA > xMin && xA < xMax && yA > yMin && yA < yMax;
 		const inSideB = xB > xMin && xB < xMax && yB > yMin && yB < yMax;
 
@@ -296,7 +296,7 @@ export class RectangleBoundingBoxData extends BoundingBoxData {
 		return intersectionCount;
 	}
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		super._onClear();
 
 		this.type = BoundingBoxType.Rectangle;
@@ -304,7 +304,7 @@ export class RectangleBoundingBoxData extends BoundingBoxData {
 	/**
 	 * @inheritDoc
 	 */
-	public containsPoint(pX: number, pY: number): boolean {
+	public containsPoint(pX: Double, pY: Double): Boolean {
 		const widthH = this.width * 0.5;
 		if (pX >= -widthH && pX <= widthH) {
 			const heightH = this.height * 0.5;
@@ -319,11 +319,11 @@ export class RectangleBoundingBoxData extends BoundingBoxData {
 	 * @inheritDoc
 	 */
 	public intersectsSegment(
-		xA: number, yA: number, xB: number, yB: number,
-		intersectionPointA: { x: number, y: number } | null = null,
-		intersectionPointB: { x: number, y: number } | null = null,
-		normalRadians: { x: number, y: number } | null = null
-	): number {
+		xA: Double, yA: Double, xB: Double, yB: Double,
+		intersectionPointA: { x: Double, y: Double } | null = null,
+		intersectionPointB: { x: Double, y: Double } | null = null,
+		normalRadians: { x: Double, y: Double } | null = null
+	): Double {
 		const widthH = this.width * 0.5;
 		const heightH = this.height * 0.5;
 		const intersectionCount = RectangleBoundingBoxData.rectangleIntersectsSegment(
@@ -345,20 +345,20 @@ export class RectangleBoundingBoxData extends BoundingBoxData {
  * @version DragonBones 5.1
  * @language zh_CN
  */
-export class EllipseBoundingBoxData extends BoundingBoxData {
-	public static toString(): string {
+class EllipseBoundingBoxData  :  BoundingBoxData {
+	public static toString(): String {
 		return "[class dragonBones.EllipseData]";
 	}
 	/**
 	 * @private
 	 */
 	public static ellipseIntersectsSegment(
-		xA: number, yA: number, xB: number, yB: number,
-		xC: number, yC: number, widthH: number, heightH: number,
-		intersectionPointA: { x: number, y: number } | null = null,
-		intersectionPointB: { x: number, y: number } | null = null,
-		normalRadians: { x: number, y: number } | null = null
-	): number {
+		xA: Double, yA: Double, xB: Double, yB: Double,
+		xC: Double, yC: Double, widthH: Double, heightH: Double,
+		intersectionPointA: { x: Double, y: Double } | null = null,
+		intersectionPointB: { x: Double, y: Double } | null = null,
+		normalRadians: { x: Double, y: Double } | null = null
+	): Double {
 		const d = widthH / heightH;
 		const dd = d * d;
 
@@ -456,7 +456,7 @@ export class EllipseBoundingBoxData extends BoundingBoxData {
 		return intersectionCount;
 	}
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		super._onClear();
 
 		this.type = BoundingBoxType.Ellipse;
@@ -464,7 +464,7 @@ export class EllipseBoundingBoxData extends BoundingBoxData {
 	/**
 	 * @inheritDoc
 	 */
-	public containsPoint(pX: number, pY: number): boolean {
+	public containsPoint(pX: Double, pY: Double): Boolean {
 		const widthH = this.width * 0.5;
 		if (pX >= -widthH && pX <= widthH) {
 			const heightH = this.height * 0.5;
@@ -480,11 +480,11 @@ export class EllipseBoundingBoxData extends BoundingBoxData {
 	 * @inheritDoc
 	 */
 	public intersectsSegment(
-		xA: number, yA: number, xB: number, yB: number,
-		intersectionPointA: { x: number, y: number } | null = null,
-		intersectionPointB: { x: number, y: number } | null = null,
-		normalRadians: { x: number, y: number } | null = null
-	): number {
+		xA: Double, yA: Double, xB: Double, yB: Double,
+		intersectionPointA: { x: Double, y: Double } | null = null,
+		intersectionPointB: { x: Double, y: Double } | null = null,
+		normalRadians: { x: Double, y: Double } | null = null
+	): Double {
 		const intersectionCount = EllipseBoundingBoxData.ellipseIntersectsSegment(
 			xA, yA, xB, yB,
 			0.0, 0.0, this.width * 0.5, this.height * 0.5,
@@ -504,20 +504,20 @@ export class EllipseBoundingBoxData extends BoundingBoxData {
  * @version DragonBones 5.1
  * @language zh_CN
  */
-export class PolygonBoundingBoxData extends BoundingBoxData {
-	public static toString(): string {
+class PolygonBoundingBoxData  :  BoundingBoxData {
+	public static toString(): String {
 		return "[class dragonBones.PolygonBoundingBoxData]";
 	}
 	/**
 	 * @private
 	 */
 	public static polygonIntersectsSegment(
-		xA: number, yA: number, xB: number, yB: number,
-		vertices: Array<number>,
-		intersectionPointA: { x: number, y: number } | null = null,
-		intersectionPointB: { x: number, y: number } | null = null,
-		normalRadians: { x: number, y: number } | null = null
-	): number {
+		xA: Double, yA: Double, xB: Double, yB: Double,
+		vertices:  DoubleArray,
+		intersectionPointA: { x: Double, y: Double } | null = null,
+		intersectionPointB: { x: Double, y: Double } | null = null,
+		normalRadians: { x: Double, y: Double } | null = null
+	): Double {
 		if (xA === xB) {
 			xA = xB + 0.000001;
 		}
@@ -658,11 +658,11 @@ export class PolygonBoundingBoxData extends BoundingBoxData {
 	/**
 	 * @private
 	 */
-	public x: number;
+	public x: Double;
 	/**
 	 * @private
 	 */
-	public y: number;
+	public y: Double;
 	/**
 	 * - The polygon vertices.
 	 * @version DragonBones 5.1
@@ -673,9 +673,9 @@ export class PolygonBoundingBoxData extends BoundingBoxData {
 	 * @version DragonBones 5.1
 	 * @language zh_CN
 	 */
-	public readonly vertices: Array<number> = [];
+	public readonly vertices:  DoubleArray = [];
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		super._onClear();
 
 		this.type = BoundingBoxType.Polygon;
@@ -686,7 +686,7 @@ export class PolygonBoundingBoxData extends BoundingBoxData {
 	/**
 	 * @inheritDoc
 	 */
-	public containsPoint(pX: number, pY: number): boolean {
+	public containsPoint(pX: Double, pY: Double): Boolean {
 		let isInSide = false;
 		if (pX >= this.x && pX <= this.width && pY >= this.y && pY <= this.height) {
 			for (let i = 0, l = this.vertices.length, iP = l - 2; i < l; i += 2) {
@@ -710,11 +710,11 @@ export class PolygonBoundingBoxData extends BoundingBoxData {
 	 * @inheritDoc
 	 */
 	public intersectsSegment(
-		xA: number, yA: number, xB: number, yB: number,
-		intersectionPointA: { x: number, y: number } | null = null,
-		intersectionPointB: { x: number, y: number } | null = null,
-		normalRadians: { x: number, y: number } | null = null
-	): number {
+		xA: Double, yA: Double, xB: Double, yB: Double,
+		intersectionPointA: { x: Double, y: Double } | null = null,
+		intersectionPointB: { x: Double, y: Double } | null = null,
+		normalRadians: { x: Double, y: Double } | null = null
+	): Double {
 		let intersectionCount = 0;
 		if (RectangleBoundingBoxData.rectangleIntersectsSegment(xA, yA, xB, yB, this.x, this.y, this.x + this.width, this.y + this.height, null, null, null) !== 0) {
 			intersectionCount = PolygonBoundingBoxData.polygonIntersectsSegment(

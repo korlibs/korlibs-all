@@ -34,7 +34,7 @@ package com.dragonbones.armature
  * @version DragonBones 4.5
  * @language zh_CN
  */
-export abstract class TransformObject extends BaseObject {
+abstract class TransformObject  :  BaseObject {
 	protected static readonly _helpMatrix: Matrix = new Matrix();
 	protected static readonly _helpTransform: Transform = new Transform();
 	protected static readonly _helpPoint: Point = new Point();
@@ -83,22 +83,22 @@ export abstract class TransformObject extends BaseObject {
 	 * @private
 	 */
 	public userData: any;
-	protected _globalDirty: boolean;
+	protected _globalDirty: Boolean;
 	/**
 	 * @internal
 	 */
-	public _alpha: number;
+	public _alpha: Double;
 	/**
 	 * @internal
 	 */
-	public _globalAlpha: number;
+	public _globalAlpha: Double;
 	/**
 	 * @internal
 	 */
 	public _armature: Armature;
 	/**
 	 */
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		this.globalTransformMatrix.identity();
 		this.global.identity();
 		this.offset.identity();
@@ -133,7 +133,7 @@ export abstract class TransformObject extends BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public updateGlobalTransform(): void {
+	public updateGlobalTransform(): Unit {
 		if (this._globalDirty) {
 			this._globalDirty = false;
 			this.global.fromMatrix(this.globalTransformMatrix);

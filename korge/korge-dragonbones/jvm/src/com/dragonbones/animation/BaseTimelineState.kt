@@ -26,39 +26,39 @@
 
 package com.dragonbones.animation
 
-export abstract class TimelineState extends BaseObject {
-	public dirty: boolean;
+abstract class TimelineState  :  BaseObject {
+	public dirty: Boolean;
 	/**
 	 * -1: start, 0: play, 1: complete;
 	 */
-	public playState: number;
-	public currentPlayTimes: number;
-	public currentTime: number;
+	public playState: Double;
+	public currentPlayTimes: Double;
+	public currentTime: Double;
 	public target: BaseObject;
 
-	protected _isTween: boolean;
-	protected _valueOffset: number;
-	protected _frameValueOffset: number;
-	protected _frameOffset: number;
-	protected _frameRate: number;
-	protected _frameCount: number;
-	protected _frameIndex: number;
-	protected _frameRateR: number;
-	protected _position: number;
-	protected _duration: number;
-	protected _timeScale: number;
-	protected _timeOffset: number;
+	protected _isTween: Boolean;
+	protected _valueOffset: Double;
+	protected _frameValueOffset: Double;
+	protected _frameOffset: Double;
+	protected _frameRate: Double;
+	protected _frameCount: Double;
+	protected _frameIndex: Double;
+	protected _frameRateR: Double;
+	protected _position: Double;
+	protected _duration: Double;
+	protected _timeScale: Double;
+	protected _timeOffset: Double;
 	protected _animationData: AnimationData;
 	protected _timelineData: TimelineData | null;
 	protected _armature: Armature;
 	protected _animationState: AnimationState;
 	protected _actionTimeline: TimelineState;
-	protected _timelineArray: Array<number> | Uint16Array;
-	protected _frameArray: Array<number> | Int16Array;
-	protected _valueArray: Array<number> | Int16Array | Float32Array;
-	protected _frameIndices: Array<number>;
+	protected _timelineArray:  DoubleArray | Uint16Array;
+	protected _frameArray:  DoubleArray | Int16Array;
+	protected _valueArray:  DoubleArray | Int16Array | Float32Array;
+	protected _frameIndices:  DoubleArray;
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		this.dirty = false;
 		this.playState = -1;
 		this.currentPlayTimes = -1;
@@ -88,10 +88,10 @@ export abstract class TimelineState extends BaseObject {
 		this._frameIndices = null as any; //
 	}
 
-	protected abstract _onArriveAtFrame(): void;
-	protected abstract _onUpdateFrame(): void;
+	protected abstract _onArriveAtFrame(): Unit;
+	protected abstract _onUpdateFrame(): Unit;
 
-	protected _setCurrentTime(passedTime: number): boolean {
+	protected _setCurrentTime(passedTime: Double): Boolean {
 		const prevState = this.playState;
 		const prevPlayTimes = this.currentPlayTimes;
 		const prevTime = this.currentTime;
@@ -162,7 +162,7 @@ export abstract class TimelineState extends BaseObject {
 		return true;
 	}
 
-	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
+	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): Unit {
 		this._armature = armature;
 		this._animationState = animationState;
 		this._timelineData = timelineData;
@@ -192,11 +192,11 @@ export abstract class TimelineState extends BaseObject {
 		}
 	}
 
-	public fadeOut(): void {
+	public fadeOut(): Unit {
 		this.dirty = false;
 	}
 
-	public update(passedTime: number): void {
+	public update(passedTime: Double): Unit {
 		if (this._setCurrentTime(passedTime)) {
 			if (this._frameCount > 1) {
 				const timelineFrameIndex = Math.floor(this.currentTime * this._frameRate); // uint
@@ -225,14 +225,14 @@ export abstract class TimelineState extends BaseObject {
 		}
 	}
 
-	public blend(_isDirty: boolean): void {
+	public blend(_isDirty: Boolean): Unit {
 	}
 }
 /**
  * @internal
  */
-export abstract class TweenTimelineState extends TimelineState {
-	private static _getEasingValue(tweenType: TweenType, progress: number, easing: number): number {
+abstract class TweenTimelineState  :  TimelineState {
+	private static _getEasingValue(tweenType: TweenType, progress: Double, easing: Double): Double {
 		let value = progress;
 
 		switch (tweenType) {
@@ -252,7 +252,7 @@ export abstract class TweenTimelineState extends TimelineState {
 		return (value - progress) * easing + progress;
 	}
 
-	private static _getEasingCurveValue(progress: number, samples: Array<number> | Int16Array, count: number, offset: number): number {
+	private static _getEasingCurveValue(progress: Double, samples:  DoubleArray | Int16Array, count: Double, offset: Double): Double {
 		if (progress <= 0.0) {
 			return 0.0;
 		}
@@ -279,14 +279,14 @@ export abstract class TweenTimelineState extends TimelineState {
 	}
 
 	protected _tweenType: TweenType;
-	protected _curveCount: number;
-	protected _framePosition: number;
-	protected _frameDurationR: number;
-	protected _tweenEasing: number;
-	protected _tweenProgress: number;
-	protected _valueScale: number;
+	protected _curveCount: Double;
+	protected _framePosition: Double;
+	protected _frameDurationR: Double;
+	protected _tweenEasing: Double;
+	protected _tweenProgress: Double;
+	protected _valueScale: Double;
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		super._onClear();
 
 		this._tweenType = TweenType.None;
@@ -298,7 +298,7 @@ export abstract class TweenTimelineState extends TimelineState {
 		this._valueScale = 1.0;
 	}
 
-	protected _onArriveAtFrame(): void {
+	protected _onArriveAtFrame(): Unit {
 		if (
 			this._frameCount > 1 &&
 			(
@@ -345,7 +345,7 @@ export abstract class TweenTimelineState extends TimelineState {
 		}
 	}
 
-	protected _onUpdateFrame(): void {
+	protected _onUpdateFrame(): Unit {
 		if (this._isTween) {
 			this.dirty = true;
 			this._tweenProgress = (this.currentTime - this._framePosition) * this._frameDurationR;
@@ -362,12 +362,12 @@ export abstract class TweenTimelineState extends TimelineState {
 /**
  * @internal
  */
-export abstract class SingleValueTimelineState extends TweenTimelineState {
-	protected _current: number;
-	protected _difference: number;
-	protected _result: number;
+abstract class SingleValueTimelineState  :  TweenTimelineState {
+	protected _current: Double;
+	protected _difference: Double;
+	protected _result: Double;
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		super._onClear();
 
 		this._current = 0.0;
@@ -375,7 +375,7 @@ export abstract class SingleValueTimelineState extends TweenTimelineState {
 		this._result = 0.0;
 	}
 
-	protected _onArriveAtFrame(): void {
+	protected _onArriveAtFrame(): Unit {
 		super._onArriveAtFrame();
 
 		if (this._timelineData !== null) {
@@ -407,7 +407,7 @@ export abstract class SingleValueTimelineState extends TweenTimelineState {
 		}
 	}
 
-	protected _onUpdateFrame(): void {
+	protected _onUpdateFrame(): Unit {
 		super._onUpdateFrame();
 
 		if (this._isTween) {
@@ -418,15 +418,15 @@ export abstract class SingleValueTimelineState extends TweenTimelineState {
 /**
  * @internal
  */
-export abstract class DoubleValueTimelineState extends TweenTimelineState {
-	protected _currentA: number;
-	protected _currentB: number;
-	protected _differenceA: number;
-	protected _differenceB: number;
-	protected _resultA: number;
-	protected _resultB: number;
+abstract class DoubleValueTimelineState  :  TweenTimelineState {
+	protected _currentA: Double;
+	protected _currentB: Double;
+	protected _differenceA: Double;
+	protected _differenceB: Double;
+	protected _resultA: Double;
+	protected _resultB: Double;
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		super._onClear();
 
 		this._currentA = 0.0;
@@ -437,7 +437,7 @@ export abstract class DoubleValueTimelineState extends TweenTimelineState {
 		this._resultB = 0.0;
 	}
 
-	protected _onArriveAtFrame(): void {
+	protected _onArriveAtFrame(): Unit {
 		super._onArriveAtFrame();
 
 		if (this._timelineData !== null) {
@@ -475,7 +475,7 @@ export abstract class DoubleValueTimelineState extends TweenTimelineState {
 		}
 	}
 
-	protected _onUpdateFrame(): void {
+	protected _onUpdateFrame(): Unit {
 		super._onUpdateFrame();
 
 		if (this._isTween) {
@@ -487,18 +487,18 @@ export abstract class DoubleValueTimelineState extends TweenTimelineState {
 /**
  * @internal
  */
-export abstract class MutilpleValueTimelineState extends TweenTimelineState {
-	protected _valueCount: number;
-	protected readonly _rd: Array<number> = [];
+abstract class MutilpleValueTimelineState  :  TweenTimelineState {
+	protected _valueCount: Double;
+	protected readonly _rd:  DoubleArray = [];
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		super._onClear();
 
 		this._valueCount = 0;
 		this._rd.length = 0;
 	}
 
-	protected _onArriveAtFrame(): void {
+	protected _onArriveAtFrame(): Unit {
 		super._onArriveAtFrame();
 
 		const valueCount = this._valueCount;
@@ -544,7 +544,7 @@ export abstract class MutilpleValueTimelineState extends TweenTimelineState {
 		}
 	}
 
-	protected _onUpdateFrame(): void {
+	protected _onUpdateFrame(): Unit {
 		super._onUpdateFrame();
 
 		if (this._isTween) {

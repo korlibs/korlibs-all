@@ -32,8 +32,8 @@ package com.dragonbones.model
  * @version DragonBones 3.0
  * @language zh_CN
  */
-export class SkinData extends BaseObject {
-	public static toString(): string {
+class SkinData  :  BaseObject {
+	public static toString(): String {
 		return "[class dragonBones.SkinData]";
 	}
 	/**
@@ -46,7 +46,7 @@ export class SkinData extends BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public name: string;
+	public name: String;
 	/**
 	 * @private
 	 */
@@ -56,7 +56,7 @@ export class SkinData extends BaseObject {
 	 */
 	public parent: ArmatureData;
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		for (let k in this.displays) {
 			const slotDisplays = this.displays[k];
 			for (const display of slotDisplays) {
@@ -75,7 +75,7 @@ export class SkinData extends BaseObject {
 	/**
 	 * @internal
 	 */
-	public addDisplay(slotName: string, value: DisplayData | null): void {
+	public addDisplay(slotName: String, value: DisplayData | null): Unit {
 		if (!(slotName in this.displays)) {
 			this.displays[slotName] = [];
 		}
@@ -90,7 +90,7 @@ export class SkinData extends BaseObject {
 	/**
 	 * @private
 	 */
-	public getDisplay(slotName: string, displayName: string): DisplayData | null {
+	public getDisplay(slotName: String, displayName: String): DisplayData | null {
 		const slotDisplays = this.getDisplays(slotName);
 		if (slotDisplays !== null) {
 			for (const display of slotDisplays) {
@@ -105,7 +105,7 @@ export class SkinData extends BaseObject {
 	/**
 	 * @private
 	 */
-	public getDisplays(slotName: string): Array<DisplayData | null> | null {
+	public getDisplays(slotName: String): Array<DisplayData | null> | null {
 		if (!(slotName in this.displays)) {
 			return null;
 		}

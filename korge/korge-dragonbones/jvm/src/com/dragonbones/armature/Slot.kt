@@ -25,8 +25,8 @@ package com.dragonbones.armature
 /**
  * @private
  */
-export class DisplayFrame extends BaseObject {
-	public static toString(): string {
+class DisplayFrame  :  BaseObject {
+	public static toString(): String {
 		return "[class dragonBones.DisplayFrame]";
 	}
 
@@ -34,9 +34,9 @@ export class DisplayFrame extends BaseObject {
 	public displayData: DisplayData | null;
 	public textureData: TextureData | null;
 	public display: any | Armature | null;
-	public readonly deformVertices: Array<number> = [];
+	public readonly deformVertices:  DoubleArray = [];
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		this.rawDisplayData = null;
 		this.displayData = null;
 		this.textureData = null;
@@ -44,7 +44,7 @@ export class DisplayFrame extends BaseObject {
 		this.deformVertices.length = 0;
 	}
 
-	public updateDeformVertices(): void {
+	public updateDeformVertices(): Unit {
 		if (this.rawDisplayData === null || this.deformVertices.length !== 0) {
 			return;
 		}
@@ -162,7 +162,7 @@ export class DisplayFrame extends BaseObject {
  * @version DragonBones 3.0
  * @language zh_CN
  */
-export abstract class Slot extends TransformObject {
+abstract class Slot  :  TransformObject {
 	/**
 	 * - Displays the animated state or mixed group name controlled by the object, set to null to be controlled by all animation states.
 	 * @default null
@@ -181,44 +181,44 @@ export abstract class Slot extends TransformObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public displayController: string | null;
-	protected _displayDataDirty: boolean;
-	protected _displayDirty: boolean;
-	protected _geometryDirty: boolean;
-	protected _textureDirty: boolean;
-	protected _visibleDirty: boolean;
-	protected _blendModeDirty: boolean;
-	protected _zOrderDirty: boolean;
+	public displayController: String | null;
+	protected _displayDataDirty: Boolean;
+	protected _displayDirty: Boolean;
+	protected _geometryDirty: Boolean;
+	protected _textureDirty: Boolean;
+	protected _visibleDirty: Boolean;
+	protected _blendModeDirty: Boolean;
+	protected _zOrderDirty: Boolean;
 	/**
 	 * @internal
 	 */
-	public _colorDirty: boolean;
+	public _colorDirty: Boolean;
 	/**
 	 * @internal
 	 */
-	public _verticesDirty: boolean;
-	protected _transformDirty: boolean;
-	protected _visible: boolean;
+	public _verticesDirty: Boolean;
+	protected _transformDirty: Boolean;
+	protected _visible: Boolean;
 	protected _blendMode: BlendMode;
-	protected _displayIndex: number;
-	protected _animationDisplayIndex: number;
-	protected _cachedFrameIndex: number;
+	protected _displayIndex: Double;
+	protected _animationDisplayIndex: Double;
+	protected _cachedFrameIndex: Double;
 	/**
 	 * @internal
 	 */
-	public _zOrder: number;
+	public _zOrder: Double;
 	/**
 	 * @internal
 	 */
-	public _zIndex: number;
+	public _zIndex: Double;
 	/**
 	 * @internal
 	 */
-	public _pivotX: number;
+	public _pivotX: Double;
 	/**
 	 * @internal
 	 */
-	public _pivotY: number;
+	public _pivotY: Double;
 	protected readonly _localMatrix: Matrix = new Matrix();
 	/**
 	 * @internal
@@ -257,9 +257,9 @@ export abstract class Slot extends TransformObject {
 	/**
 	 * @internal
 	 */
-	public _cachedFrameIndices: Array<number> | null;
+	public _cachedFrameIndices:  DoubleArray | null;
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		super._onClear();
 
 		const disposeDisplayList: Array<any> = [];
@@ -330,25 +330,25 @@ export abstract class Slot extends TransformObject {
 		this._cachedFrameIndices = null;
 	}
 
-	protected abstract _initDisplay(value: any, isRetain: boolean): void;
-	protected abstract _disposeDisplay(value: any, isRelease: boolean): void;
-	protected abstract _onUpdateDisplay(): void;
-	protected abstract _addDisplay(): void;
-	protected abstract _replaceDisplay(value: any): void;
-	protected abstract _removeDisplay(): void;
-	protected abstract _updateZOrder(): void;
+	protected abstract _initDisplay(value: any, isRetain: Boolean): Unit;
+	protected abstract _disposeDisplay(value: any, isRelease: Boolean): Unit;
+	protected abstract _onUpdateDisplay(): Unit;
+	protected abstract _addDisplay(): Unit;
+	protected abstract _replaceDisplay(value: any): Unit;
+	protected abstract _removeDisplay(): Unit;
+	protected abstract _updateZOrder(): Unit;
 	/**
 	 * @internal
 	 */
-	public abstract _updateVisible(): void;
-	protected abstract _updateBlendMode(): void;
-	protected abstract _updateColor(): void;
-	protected abstract _updateFrame(): void;
-	protected abstract _updateMesh(): void;
-	protected abstract _updateTransform(): void;
-	protected abstract _identityTransform(): void;
+	public abstract _updateVisible(): Unit;
+	protected abstract _updateBlendMode(): Unit;
+	protected abstract _updateColor(): Unit;
+	protected abstract _updateFrame(): Unit;
+	protected abstract _updateMesh(): Unit;
+	protected abstract _updateTransform(): Unit;
+	protected abstract _identityTransform(): Unit;
 
-	protected _hasDisplay(display: any): boolean {
+	protected _hasDisplay(display: any): Boolean {
 		for (const displayFrame of this._displayFrames) {
 			if (displayFrame.display === display) {
 				return true;
@@ -360,7 +360,7 @@ export abstract class Slot extends TransformObject {
 	/**
 	 * @internal
 	 */
-	public _isBonesUpdate(): boolean {
+	public _isBonesUpdate(): Boolean {
 		for (const bone of this._geometryBones) {
 			if (bone !== null && bone._childrenTransformDirty) {
 				return true;
@@ -381,7 +381,7 @@ export abstract class Slot extends TransformObject {
 		}
 	}
 
-	protected _updateDisplayData(): void {
+	protected _updateDisplayData(): Unit {
 		const prevDisplayFrame = this._displayFrame;
 		const prevGeometryData = this._geometryData;
 		const prevTextureData = this._textureData;
@@ -501,7 +501,7 @@ export abstract class Slot extends TransformObject {
 		}
 	}
 
-	protected _updateDisplay(): void {
+	protected _updateDisplay(): Unit {
 		const prevDisplay = this._display !== null ? this._display : this._rawDisplay;
 		const prevChildArmature = this._childArmature;
 
@@ -581,7 +581,7 @@ export abstract class Slot extends TransformObject {
 		}
 	}
 
-	protected _updateGlobalTransformMatrix(isCache: boolean): void {
+	protected _updateGlobalTransformMatrix(isCache: Boolean): Unit {
 		const parentMatrix = this._parent._boneData.type === BoneType.Bone ? this._parent.globalTransformMatrix : (this._parent as Surface)._getGlobalTransformMatrix(this.global.x, this.global.y);
 		this.globalTransformMatrix.copyFrom(this._localMatrix);
 		this.globalTransformMatrix.concat(parentMatrix);
@@ -596,7 +596,7 @@ export abstract class Slot extends TransformObject {
 	/**
 	 * @internal
 	 */
-	public _setDisplayIndex(value: number, isAnimation: boolean = false): void {
+	public _setDisplayIndex(value: Double, isAnimation: Boolean = false): Unit {
 		if (isAnimation) {
 			if (this._animationDisplayIndex === value) {
 				return;
@@ -616,7 +616,7 @@ export abstract class Slot extends TransformObject {
 	/**
 	 * @internal
 	 */
-	public _setZOrder(value: number): boolean {
+	public _setZOrder(value: Double): Boolean {
 		if (this._zOrder === value) {
 			// return false;
 		}
@@ -629,7 +629,7 @@ export abstract class Slot extends TransformObject {
 	/**
 	 * @internal
 	 */
-	public _setColor(value: ColorTransform): boolean {
+	public _setColor(value: ColorTransform): Boolean {
 		this._colorTransform.copyFrom(value);
 
 		return this._colorDirty = true;
@@ -637,7 +637,7 @@ export abstract class Slot extends TransformObject {
 	/**
 	 * @internal
 	 */
-	public init(slotData: SlotData, armatureValue: Armature, rawDisplay: any, meshDisplay: any): void {
+	public init(slotData: SlotData, armatureValue: Armature, rawDisplay: any, meshDisplay: any): Unit {
 		if (this._slotData !== null) {
 			return;
 		}
@@ -676,7 +676,7 @@ export abstract class Slot extends TransformObject {
 	/**
 	 * @internal
 	 */
-	public update(cacheFrameIndex: number): void {
+	public update(cacheFrameIndex: Double): Unit {
 		if (this._displayDataDirty) {
 			this._updateDisplayData();
 			this._displayDataDirty = false;
@@ -793,7 +793,7 @@ export abstract class Slot extends TransformObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public invalidUpdate(): void {
+	public invalidUpdate(): Unit {
 		this._displayDataDirty = true;
 		this._displayDirty = true;
 		//
@@ -802,7 +802,7 @@ export abstract class Slot extends TransformObject {
 	/**
 	 * @private
 	 */
-	public updateTransformAndMatrix(): void {
+	public updateTransformAndMatrix(): Unit {
 		if (this._transformDirty) {
 			this._updateGlobalTransformMatrix(false);
 			this._transformDirty = false;
@@ -811,7 +811,7 @@ export abstract class Slot extends TransformObject {
 	/**
 	 * @private
 	 */
-	public replaceRawDisplayData(displayData: DisplayData | null, index: number = -1): void {
+	public replaceRawDisplayData(displayData: DisplayData | null, index: Double = -1): Unit {
 		if (index < 0) {
 			index = this._displayIndex < 0 ? 0 : this._displayIndex;
 		}
@@ -841,7 +841,7 @@ export abstract class Slot extends TransformObject {
 	/**
 	 * @private
 	 */
-	public replaceDisplayData(displayData: DisplayData | null, index: number = -1): void {
+	public replaceDisplayData(displayData: DisplayData | null, index: Double = -1): Unit {
 		if (index < 0) {
 			index = this._displayIndex < 0 ? 0 : this._displayIndex;
 		}
@@ -861,7 +861,7 @@ export abstract class Slot extends TransformObject {
 	/**
 	 * @private
 	 */
-	public replaceTextureData(textureData: TextureData | null, index: number = -1): void {
+	public replaceTextureData(textureData: TextureData | null, index: Double = -1): Unit {
 		if (index < 0) {
 			index = this._displayIndex < 0 ? 0 : this._displayIndex;
 		}
@@ -881,7 +881,7 @@ export abstract class Slot extends TransformObject {
 	/**
 	 * @private
 	 */
-	public replaceDisplay(value: any | Armature | null, index: number = -1): void {
+	public replaceDisplay(value: any | Armature | null, index: Double = -1): Unit {
 		if (index < 0) {
 			index = this._displayIndex < 0 ? 0 : this._displayIndex;
 		}
@@ -939,7 +939,7 @@ export abstract class Slot extends TransformObject {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public containsPoint(x: number, y: number): boolean {
+	public containsPoint(x: Double, y: Double): Boolean {
 		if (this._boundingBoxData === null) {
 			return false;
 		}
@@ -983,11 +983,11 @@ export abstract class Slot extends TransformObject {
 	 * @language zh_CN
 	 */
 	public intersectsSegment(
-		xA: number, yA: number, xB: number, yB: number,
-		intersectionPointA: { x: number, y: number } | null = null,
-		intersectionPointB: { x: number, y: number } | null = null,
-		normalRadians: { x: number, y: number } | null = null
-	): number {
+		xA: Double, yA: Double, xB: Double, yB: Double,
+		intersectionPointA: { x: Double, y: Double } | null = null,
+		intersectionPointB: { x: Double, y: Double } | null = null,
+		normalRadians: { x: Double, y: Double } | null = null
+	): Double {
 		if (this._boundingBoxData === null) {
 			return 0;
 		}
@@ -1040,7 +1040,7 @@ export abstract class Slot extends TransformObject {
 	/**
 	 * @private
 	 */
-	public getDisplayFrameAt(index: number): DisplayFrame {
+	public getDisplayFrameAt(index: Double): DisplayFrame {
 		return this._displayFrames[index];
 	}
 	/**
@@ -1055,10 +1055,10 @@ export abstract class Slot extends TransformObject {
 	 * @version DragonBones 5.6
 	 * @language zh_CN
 	 */
-	public get visible(): boolean {
+	public get visible(): Boolean {
 		return this._visible;
 	}
-	public set visible(value: boolean) {
+	public set visible(value: Boolean) {
 		if (this._visible === value) {
 			return;
 		}
@@ -1069,10 +1069,10 @@ export abstract class Slot extends TransformObject {
 	/**
 	 * @private
 	 */
-	public get displayFrameCount(): number {
+	public get displayFrameCount(): Double {
 		return this._displayFrames.length;
 	}
-	public set displayFrameCount(value: number) {
+	public set displayFrameCount(value: Double) {
 		const prevCount = this._displayFrames.length;
 		if (prevCount < value) {
 			this._displayFrames.length = value;
@@ -1112,10 +1112,10 @@ export abstract class Slot extends TransformObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public get displayIndex(): number {
+	public get displayIndex(): Double {
 		return this._displayIndex;
 	}
-	public set displayIndex(value: number) {
+	public set displayIndex(value: Double) {
 		this._setDisplayIndex(value);
 		this.update(-1);
 	}
@@ -1131,7 +1131,7 @@ export abstract class Slot extends TransformObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public get name(): string {
+	public get name(): String {
 		return this._slotData.name;
 	}
 	/**

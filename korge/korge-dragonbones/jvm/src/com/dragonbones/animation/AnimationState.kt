@@ -95,7 +95,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public playTimes: number;
+	public playTimes: Double;
 	/**
 	 * - The blend layer.
 	 * High layer animation state will get the blend weight first.
@@ -112,7 +112,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public layer: number;
+	public layer: Double;
 	/**
 	 * - The play speed.
 	 * The value is an overlay relationship with {@link dragonBones.Animation#timeScale}.
@@ -129,23 +129,23 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public timeScale: number;
+	public timeScale: Double;
 	/**
 	 * @private
 	 */
-	public parameterX: number;
+	public parameterX: Double;
 	/**
 	 * @private
 	 */
-	public parameterY: number;
+	public parameterY: Double;
 	/**
 	 * @private
 	 */
-	public positionX: number;
+	public positionX: Double;
 	/**
 	 * @private
 	 */
-	public positionY: number;
+	public positionY: Double;
 	/**
 	 * - The auto fade out time when the animation state play completed.
 	 * [-1: Do not fade out automatically, [0~N]: The fade out time] (In seconds)
@@ -160,11 +160,11 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public autoFadeOutTime: number;
+	public autoFadeOutTime: Double;
 	/**
 	 * @private
 	 */
-	public fadeTotalTime: number;
+	public fadeTotalTime: Double;
 	/**
 	 * - The name of the animation state. (Can be different from the name of the animation data)
 	 * @readonly
@@ -177,7 +177,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public name: string;
+	public name: String;
 	/**
 	 * - The blend group name of the animation state.
 	 * This property is typically used to specify the substitution of multiple animation states blend.
@@ -192,42 +192,42 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public group: string;
-	private _timelineDirty: number;
+	public group: String;
+	private _timelineDirty: Double;
 	/**
 	 * - xx: Play Enabled, Fade Play Enabled
 	 * @internal
 	 */
-	public _playheadState: number;
+	public _playheadState: Double;
 	/**
 	 * -1: Fade in, 0: Fade complete, 1: Fade out;
 	 * @internal
 	 */
-	public _fadeState: number;
+	public _fadeState: Double;
 	/**
 	 * -1: Fade start, 0: Fading, 1: Fade complete;
 	 * @internal
 	 */
-	public _subFadeState: number;
+	public _subFadeState: Double;
 	/**
 	 * @internal
 	 */
-	public _position: number;
+	public _position: Double;
 	/**
 	 * @internal
 	 */
-	public _duration: number;
-	private _weight: number;
-	private _fadeTime: number;
-	private _time: number;
+	public _duration: Double;
+	private _weight: Double;
+	private _fadeTime: Double;
+	private _time: Double;
 	/**
 	 * @internal
 	 */
-	public _fadeProgress: number;
+	public _fadeProgress: Double;
 	/**
 	 * @internal
 	 */
-	public _weightResult: number;
+	public _weightResult: Double;
 	private readonly _boneMask: Array<string> = [];
 	private readonly _boneTimelines: Array<TimelineState> = [];
 	private readonly _boneBlendTimelines: Array<TimelineState> = [];
@@ -250,7 +250,7 @@ class AnimationState : BaseObject() {
 	 */
 	public _parent: AnimationState | null;
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		for (const timeline of this._boneTimelines) {
 			timeline.returnToPool();
 		}
@@ -336,7 +336,7 @@ class AnimationState : BaseObject() {
 		this._parent = null;
 	}
 
-	private _updateTimelines(): void {
+	private _updateTimelines(): Unit {
 		{ // Update constraint timelines.
 			for (const constraint of this._armature._constraints) {
 				const timelineDatas = this._animationData.getConstraintTimelines(constraint.name);
@@ -368,7 +368,7 @@ class AnimationState : BaseObject() {
 		}
 	}
 
-	private _updateBoneAndSlotTimelines(): void {
+	private _updateBoneAndSlotTimelines(): Unit {
 		{ // Update bone and surface timelines.
 			const boneTimelines: Map<Array<TimelineState>> = {};
 			// Create bone timelines map.
@@ -497,7 +497,7 @@ class AnimationState : BaseObject() {
 
 		{ // Update slot timelines.
 			const slotTimelines: Map<Array<TimelineState>> = {};
-			const ffdFlags: Array<number> = [];
+			const ffdFlags:  DoubleArray = [];
 			// Create slot timelines map.
 			for (const timeline of this._slotTimelines) {
 				const timelineName = (timeline.target as Slot).name;
@@ -643,7 +643,7 @@ class AnimationState : BaseObject() {
 		}
 	}
 
-	private fun _advanceFadeTime(passedTime: number): void {
+	private fun _advanceFadeTime(passedTime: Double): Unit {
 		const isFadeOut = this._fadeState > 0;
 
 		if (this._subFadeState < 0) { // Fade start event.
@@ -701,7 +701,7 @@ class AnimationState : BaseObject() {
 	/**
 	 * @internal
 	 */
-	public init(armature: Armature, animationData: AnimationData, animationConfig: AnimationConfig): void {
+	public init(armature: Armature, animationData: AnimationData, animationConfig: AnimationConfig): Unit {
 		if (this._armature !== null) {
 			return;
 		}
@@ -784,7 +784,7 @@ class AnimationState : BaseObject() {
 	/**
 	 * @internal
 	 */
-	public advanceTime(passedTime: number, cacheFrameRate: number): void {
+	public advanceTime(passedTime: Double, cacheFrameRate: Double): Unit {
 		// Update fade time.
 		if (this._fadeState !== 0 || this._subFadeState !== 0) {
 			this._advanceFadeTime(passedTime);
@@ -1057,7 +1057,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public play(): void {
+	public play(): Unit {
 		this._playheadState = 3; // 11
 	}
 	/**
@@ -1070,7 +1070,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public stop(): void {
+	public stop(): Unit {
 		this._playheadState &= 1; // 0x
 	}
 	/**
@@ -1087,7 +1087,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public fadeOut(fadeOutTime: number, pausePlayhead: boolean = true): void {
+	public fadeOut(fadeOutTime: Double, pausePlayhead: Boolean = true): Unit {
 		if (fadeOutTime < 0.0) {
 			fadeOutTime = 0.0;
 		}
@@ -1153,7 +1153,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public containsBoneMask(boneName: string): boolean {
+	public containsBoneMask(boneName: String): Boolean {
 		return this._boneMask.length === 0 || this._boneMask.indexOf(boneName) >= 0;
 	}
 	/**
@@ -1170,7 +1170,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public addBoneMask(boneName: string, recursive: boolean = true): void {
+	public addBoneMask(boneName: String, recursive: Boolean = true): Unit {
 		const currentBone = this._armature.getBone(boneName);
 		if (currentBone === null) {
 			return;
@@ -1204,7 +1204,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public removeBoneMask(boneName: string, recursive: boolean = true): void {
+	public removeBoneMask(boneName: String, recursive: Boolean = true): Unit {
 		const index = this._boneMask.indexOf(boneName);
 		if (index >= 0) { // Remove mixing.
 			this._boneMask.splice(index, 1);
@@ -1248,7 +1248,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public removeAllBoneMask(): void {
+	public removeAllBoneMask(): Unit {
 		this._boneMask.length = 0;
 		this._timelineDirty = 1;
 	}
@@ -1306,7 +1306,7 @@ class AnimationState : BaseObject() {
 	/**
 	 * @internal
 	 */
-	public activeTimeline(): void {
+	public activeTimeline(): Unit {
 		for (const timeline of this._slotTimelines) {
 			timeline.dirty = true;
 			timeline.currentTime = -1.0;
@@ -1322,7 +1322,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 5.1
 	 * @language zh_CN
 	 */
-	public get isFadeIn(): boolean {
+	public get isFadeIn(): Boolean {
 		return this._fadeState < 0;
 	}
 	/**
@@ -1335,7 +1335,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 5.1
 	 * @language zh_CN
 	 */
-	public get isFadeOut(): boolean {
+	public get isFadeOut(): Boolean {
 		return this._fadeState > 0;
 	}
 	/**
@@ -1348,7 +1348,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 5.1
 	 * @language zh_CN
 	 */
-	public get isFadeComplete(): boolean {
+	public get isFadeComplete(): Boolean {
 		return this._fadeState === 0;
 	}
 	/**
@@ -1361,7 +1361,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public get isPlaying(): boolean {
+	public get isPlaying(): Boolean {
 		return (this._playheadState & 2) !== 0 && this._actionTimeline.playState <= 0;
 	}
 	/**
@@ -1374,7 +1374,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public get isCompleted(): boolean {
+	public get isCompleted(): Boolean {
 		return this._actionTimeline.playState > 0;
 	}
 	/**
@@ -1387,7 +1387,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public get currentPlayTimes(): number {
+	public get currentPlayTimes(): Double {
 		return this._actionTimeline.currentPlayTimes;
 	}
 	/**
@@ -1400,7 +1400,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public get totalTime(): number {
+	public get totalTime(): Double {
 		return this._duration;
 	}
 	/**
@@ -1413,10 +1413,10 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public get currentTime(): number {
+	public get currentTime(): Double {
 		return this._actionTimeline.currentTime;
 	}
-	public set currentTime(value: number) {
+	public set currentTime(value: Double) {
 		const currentPlayTimes = this._actionTimeline.currentPlayTimes - (this._actionTimeline.playState > 0 ? 1 : 0);
 		if (value < 0 || this._duration < value) {
 			value = (value % this._duration) + currentPlayTimes * this._duration;
@@ -1469,10 +1469,10 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language en_US
 	 */
-	public get weight(): number {
+	public get weight(): Double {
 		return this._weight;
 	}
-	public set weight(value: number) {
+	public set weight(value: Double) {
 		if (this._weight === value) {
 			return;
 		}
@@ -1504,32 +1504,32 @@ class AnimationState : BaseObject() {
 /**
  * @internal
  */
-export class BlendState extends BaseObject {
-	public static readonly BONE_TRANSFORM: string = "boneTransform";
-	public static readonly BONE_ALPHA: string = "boneAlpha";
-	public static readonly SURFACE: string = "surface";
-	public static readonly SLOT_DEFORM: string = "slotDeform";
-	public static readonly SLOT_ALPHA: string = "slotAlpha";
-	public static readonly SLOT_Z_INDEX: string = "slotZIndex";
+class BlendState  :  BaseObject {
+	public static readonly BONE_TRANSFORM: String = "boneTransform";
+	public static readonly BONE_ALPHA: String = "boneAlpha";
+	public static readonly SURFACE: String = "surface";
+	public static readonly SLOT_DEFORM: String = "slotDeform";
+	public static readonly SLOT_ALPHA: String = "slotAlpha";
+	public static readonly SLOT_Z_INDEX: String = "slotZIndex";
 
-	public static toString(): string {
+	public static toString(): String {
 		return "[class dragonBones.BlendState]";
 	}
 
-	public dirty: number;
-	public layer: number;
-	public leftWeight: number;
-	public layerWeight: number;
-	public blendWeight: number;
+	public dirty: Double;
+	public layer: Double;
+	public leftWeight: Double;
+	public layerWeight: Double;
+	public blendWeight: Double;
 	public target: BaseObject;
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		this.reset();
 
 		this.target = null as any;
 	}
 
-	public update(animationState: AnimationState): boolean {
+	public update(animationState: AnimationState): Boolean {
 		const animationLayer = animationState.layer;
 		let animationWeight = animationState._weightResult;
 
@@ -1570,7 +1570,7 @@ export class BlendState extends BaseObject {
 		return true;
 	}
 
-	public reset(): void {
+	public reset(): Unit {
 		this.dirty = 0;
 		this.layer = 0;
 		this.leftWeight = 0.0;

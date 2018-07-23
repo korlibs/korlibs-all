@@ -36,14 +36,14 @@ package com.dragonbones.model
  * @version DragonBones 3.0
  * @language zh_CN
  */
-export class DragonBonesData extends BaseObject {
-	public static toString(): string {
+class DragonBonesData  :  BaseObject {
+	public static toString(): String {
 		return "[class dragonBones.DragonBonesData]";
 	}
 	/**
 	 * @private
 	 */
-	public autoSearch: boolean;
+	public autoSearch: Boolean;
 	/**
 	 * - The animation frame rate.
 	 * @version DragonBones 3.0
@@ -54,7 +54,7 @@ export class DragonBonesData extends BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public frameRate: number;
+	public frameRate: Double;
 	/**
 	 * - The data version.
 	 * @version DragonBones 3.0
@@ -65,7 +65,7 @@ export class DragonBonesData extends BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public version: string;
+	public version: String;
 	/**
 	 * - The DragonBones data name.
 	 * The name is consistent with the DragonBones project name.
@@ -78,7 +78,7 @@ export class DragonBonesData extends BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public name: string;
+	public name: String;
 	/**
 	 * @private
 	 */
@@ -86,11 +86,11 @@ export class DragonBonesData extends BaseObject {
 	/**
 	 * @internal
 	 */
-	public readonly frameIndices: Array<number> = [];
+	public readonly frameIndices:  DoubleArray = [];
 	/**
 	 * @internal
 	 */
-	public readonly cachedFrames: Array<number> = [];
+	public readonly cachedFrames:  DoubleArray = [];
 	/**
 	 * - All armature data names.
 	 * @version DragonBones 3.0
@@ -143,7 +143,7 @@ export class DragonBonesData extends BaseObject {
 	 */
 	public userData: UserData | null = null; // Initial value.
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		for (let k in this.armatures) {
 			this.armatures[k].returnToPool();
 			delete this.armatures[k];
@@ -175,7 +175,7 @@ export class DragonBonesData extends BaseObject {
 	/**
 	 * @internal
 	 */
-	public addArmature(value: ArmatureData): void {
+	public addArmature(value: ArmatureData): Unit {
 		if (value.name in this.armatures) {
 			console.warn("Same armature: " + value.name);
 			return;
@@ -197,7 +197,7 @@ export class DragonBonesData extends BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public getArmature(armatureName: string): ArmatureData | null {
+	public getArmature(armatureName: String): ArmatureData | null {
 		return armatureName in this.armatures ? this.armatures[armatureName] : null;
 	}
 }

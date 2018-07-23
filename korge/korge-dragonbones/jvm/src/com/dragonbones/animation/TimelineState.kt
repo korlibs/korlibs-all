@@ -25,12 +25,12 @@ package com.dragonbones.animation
 /**
  * @internal
  */
-export class ActionTimelineState extends TimelineState {
-	public static toString(): string {
+class ActionTimelineState  :  TimelineState {
+	public static toString(): String {
 		return "[class dragonBones.ActionTimelineState]";
 	}
 
-	private _onCrossFrame(frameIndex: number): void {
+	private _onCrossFrame(frameIndex: Double): Unit {
 		const eventDispatcher = this._armature.eventDispatcher;
 		if (this._animationState.actionEnabled) {
 			const frameOffset = this._animationData.frameOffset + this._timelineArray[(this._timelineData as TimelineData).offset + BinaryOffset.TimelineFrameOffset + frameIndex];
@@ -64,10 +64,10 @@ export class ActionTimelineState extends TimelineState {
 		}
 	}
 
-	protected _onArriveAtFrame(): void { }
-	protected _onUpdateFrame(): void { }
+	protected _onArriveAtFrame(): Unit { }
+	protected _onUpdateFrame(): Unit { }
 
-	public update(passedTime: number): void {
+	public update(passedTime: Double): Unit {
 		const prevState = this.playState;
 		let prevPlayTimes = this.currentPlayTimes;
 		let prevTime = this.currentTime;
@@ -259,7 +259,7 @@ export class ActionTimelineState extends TimelineState {
 		}
 	}
 
-	public setCurrentTime(value: number): void {
+	public setCurrentTime(value: Double): Unit {
 		this._setCurrentTime(value);
 		this._frameIndex = -1;
 	}
@@ -267,12 +267,12 @@ export class ActionTimelineState extends TimelineState {
 /**
  * @internal
  */
-export class ZOrderTimelineState extends TimelineState {
-	public static toString(): string {
+class ZOrderTimelineState  :  TimelineState {
+	public static toString(): String {
 		return "[class dragonBones.ZOrderTimelineState]";
 	}
 
-	protected _onArriveAtFrame(): void {
+	protected _onArriveAtFrame(): Unit {
 		if (this.playState >= 0) {
 			const count = this._frameArray[this._frameOffset + 1];
 			if (count > 0) {
@@ -284,17 +284,17 @@ export class ZOrderTimelineState extends TimelineState {
 		}
 	}
 
-	protected _onUpdateFrame(): void { }
+	protected _onUpdateFrame(): Unit { }
 }
 /**
  * @internal
  */
-export class BoneAllTimelineState extends MutilpleValueTimelineState {
-	public static toString(): string {
+class BoneAllTimelineState  :  MutilpleValueTimelineState {
+	public static toString(): String {
 		return "[class dragonBones.BoneAllTimelineState]";
 	}
 
-	protected _onArriveAtFrame(): void {
+	protected _onArriveAtFrame(): Unit {
 		super._onArriveAtFrame();
 
 		if (this._isTween && this._frameIndex === this._frameCount - 1) {
@@ -308,7 +308,7 @@ export class BoneAllTimelineState extends MutilpleValueTimelineState {
 		}
 	}
 
-	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
+	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): Unit {
 		super.init(armature, animationState, timelineData);
 
 		this._valueOffset = this._animationData.frameFloatOffset;
@@ -316,13 +316,13 @@ export class BoneAllTimelineState extends MutilpleValueTimelineState {
 		this._valueArray = this._animationData.parent.parent.frameFloatArray;
 	}
 
-	public fadeOut(): void {
+	public fadeOut(): Unit {
 		this.dirty = false;
 		this._rd[2] = Transform.normalizeRadian(this._rd[2]);
 		this._rd[3] = Transform.normalizeRadian(this._rd[3]);
 	}
 
-	public blend(isDirty: boolean): void {
+	public blend(isDirty: Boolean): Unit {
 		const valueScale = this._armature.armatureData.scale;
 		const rd = this._rd;
 		//
@@ -357,12 +357,12 @@ export class BoneAllTimelineState extends MutilpleValueTimelineState {
 /**
  * @internal
  */
-export class BoneTranslateTimelineState extends DoubleValueTimelineState {
-	public static toString(): string {
+class BoneTranslateTimelineState  :  DoubleValueTimelineState {
+	public static toString(): String {
 		return "[class dragonBones.BoneTranslateTimelineState]";
 	}
 
-	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
+	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): Unit {
 		super.init(armature, animationState, timelineData);
 
 		this._valueOffset = this._animationData.frameFloatOffset;
@@ -370,7 +370,7 @@ export class BoneTranslateTimelineState extends DoubleValueTimelineState {
 		this._valueArray = this._animationData.parent.parent.frameFloatArray;
 	}
 
-	public blend(isDirty: boolean): void {
+	public blend(isDirty: Boolean): Unit {
 		const blendState = this.target as BlendState;
 		const bone = blendState.target as Bone;
 		const blendWeight = blendState.blendWeight;
@@ -398,12 +398,12 @@ export class BoneTranslateTimelineState extends DoubleValueTimelineState {
 /**
  * @internal
  */
-export class BoneRotateTimelineState extends DoubleValueTimelineState {
-	public static toString(): string {
+class BoneRotateTimelineState  :  DoubleValueTimelineState {
+	public static toString(): String {
 		return "[class dragonBones.BoneRotateTimelineState]";
 	}
 
-	protected _onArriveAtFrame(): void {
+	protected _onArriveAtFrame(): Unit {
 		super._onArriveAtFrame();
 
 		if (this._isTween && this._frameIndex === this._frameCount - 1) {
@@ -412,20 +412,20 @@ export class BoneRotateTimelineState extends DoubleValueTimelineState {
 		}
 	}
 
-	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
+	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): Unit {
 		super.init(armature, animationState, timelineData);
 
 		this._valueOffset = this._animationData.frameFloatOffset;
 		this._valueArray = this._animationData.parent.parent.frameFloatArray;
 	}
 
-	public fadeOut(): void {
+	public fadeOut(): Unit {
 		this.dirty = false;
 		this._resultA = Transform.normalizeRadian(this._resultA);
 		this._resultB = Transform.normalizeRadian(this._resultB);
 	}
 
-	public blend(isDirty: boolean): void {
+	public blend(isDirty: Boolean): Unit {
 		const blendState = this.target as BlendState;
 		const bone = blendState.target as Bone;
 		const blendWeight = blendState.blendWeight;
@@ -453,12 +453,12 @@ export class BoneRotateTimelineState extends DoubleValueTimelineState {
 /**
  * @internal
  */
-export class BoneScaleTimelineState extends DoubleValueTimelineState {
-	public static toString(): string {
+class BoneScaleTimelineState  :  DoubleValueTimelineState {
+	public static toString(): String {
 		return "[class dragonBones.BoneScaleTimelineState]";
 	}
 
-	protected _onArriveAtFrame(): void {
+	protected _onArriveAtFrame(): Unit {
 		super._onArriveAtFrame();
 
 		if (this._timelineData === null) { // Pose.
@@ -467,14 +467,14 @@ export class BoneScaleTimelineState extends DoubleValueTimelineState {
 		}
 	}
 
-	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
+	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): Unit {
 		super.init(armature, animationState, timelineData);
 
 		this._valueOffset = this._animationData.frameFloatOffset;
 		this._valueArray = this._animationData.parent.parent.frameFloatArray;
 	}
 
-	public blend(isDirty: boolean): void {
+	public blend(isDirty: Boolean): Unit {
 		const blendState = this.target as BlendState;
 		const bone = blendState.target as Bone;
 		const blendWeight = blendState.blendWeight;
@@ -502,16 +502,16 @@ export class BoneScaleTimelineState extends DoubleValueTimelineState {
 /**
  * @internal
  */
-export class SurfaceTimelineState extends MutilpleValueTimelineState {
-	public static toString(): string {
+class SurfaceTimelineState  :  MutilpleValueTimelineState {
+	public static toString(): String {
 		return "[class dragonBones.SurfaceTimelineState]";
 	}
 
-	private _deformCount: number;
-	private _deformOffset: number;
-	private _sameValueOffset: number;
+	private _deformCount: Double;
+	private _deformOffset: Double;
+	private _sameValueOffset: Double;
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		super._onClear();
 
 		this._deformCount = 0;
@@ -519,7 +519,7 @@ export class SurfaceTimelineState extends MutilpleValueTimelineState {
 		this._sameValueOffset = 0;
 	}
 
-	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
+	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): Unit {
 		super.init(armature, animationState, timelineData);
 
 		if (this._timelineData !== null) {
@@ -540,7 +540,7 @@ export class SurfaceTimelineState extends MutilpleValueTimelineState {
 		}
 	}
 
-	public blend(isDirty: boolean): void {
+	public blend(isDirty: Boolean): Unit {
 		const blendState = this.target as BlendState;
 		const surface = blendState.target as Surface;
 		const blendWeight = blendState.blendWeight;
@@ -589,12 +589,12 @@ export class SurfaceTimelineState extends MutilpleValueTimelineState {
 /**
  * @internal
  */
-export class AlphaTimelineState extends SingleValueTimelineState {
-	public static toString(): string {
+class AlphaTimelineState  :  SingleValueTimelineState {
+	public static toString(): String {
 		return "[class dragonBones.AlphaTimelineState]";
 	}
 
-	protected _onArriveAtFrame(): void {
+	protected _onArriveAtFrame(): Unit {
 		super._onArriveAtFrame();
 
 		if (this._timelineData === null) { // Pose.
@@ -602,7 +602,7 @@ export class AlphaTimelineState extends SingleValueTimelineState {
 		}
 	}
 
-	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
+	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): Unit {
 		super.init(armature, animationState, timelineData);
 
 		this._valueOffset = this._animationData.frameIntOffset;
@@ -610,7 +610,7 @@ export class AlphaTimelineState extends SingleValueTimelineState {
 		this._valueArray = this._animationData.parent.parent.frameIntArray;
 	}
 
-	public blend(isDirty: boolean): void {
+	public blend(isDirty: Boolean): Unit {
 		const blendState = this.target as BlendState;
 		const alphaTarget = blendState.target as TransformObject;
 		const blendWeight = blendState.blendWeight;
@@ -634,12 +634,12 @@ export class AlphaTimelineState extends SingleValueTimelineState {
 /**
  * @internal
  */
-export class SlotDisplayTimelineState extends TimelineState {
-	public static toString(): string {
+class SlotDisplayTimelineState  :  TimelineState {
+	public static toString(): String {
 		return "[class dragonBones.SlotDisplayTimelineState]";
 	}
 
-	protected _onArriveAtFrame(): void {
+	protected _onArriveAtFrame(): Unit {
 		if (this.playState >= 0) {
 			const slot = this.target as Slot;
 			const displayIndex = this._timelineData !== null ? this._frameArray[this._frameOffset + 1] : slot._slotData.displayIndex;
@@ -650,22 +650,22 @@ export class SlotDisplayTimelineState extends TimelineState {
 		}
 	}
 
-	protected _onUpdateFrame(): void {
+	protected _onUpdateFrame(): Unit {
 	}
 }
 /**
  * @internal
  */
-export class SlotColorTimelineState extends TweenTimelineState {
-	public static toString(): string {
+class SlotColorTimelineState  :  TweenTimelineState {
+	public static toString(): String {
 		return "[class dragonBones.SlotColorTimelineState]";
 	}
 
-	private readonly _current: Array<number> = [0, 0, 0, 0, 0, 0, 0, 0];
-	private readonly _difference: Array<number> = [0, 0, 0, 0, 0, 0, 0, 0];
-	private readonly _result: Array<number> = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+	private readonly _current:  DoubleArray = [0, 0, 0, 0, 0, 0, 0, 0];
+	private readonly _difference:  DoubleArray = [0, 0, 0, 0, 0, 0, 0, 0];
+	private readonly _result:  DoubleArray = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
 
-	protected _onArriveAtFrame(): void {
+	protected _onArriveAtFrame(): Unit {
 		super._onArriveAtFrame();
 
 		if (this._timelineData !== null) {
@@ -734,7 +734,7 @@ export class SlotColorTimelineState extends TweenTimelineState {
 		}
 	}
 
-	protected _onUpdateFrame(): void {
+	protected _onUpdateFrame(): Unit {
 		super._onUpdateFrame();
 
 		if (this._isTween) {
@@ -749,11 +749,11 @@ export class SlotColorTimelineState extends TweenTimelineState {
 		}
 	}
 
-	public fadeOut(): void {
+	public fadeOut(): Unit {
 		this._isTween = false;
 	}
 
-	public update(passedTime: number): void {
+	public update(passedTime: Double): Unit {
 		super.update(passedTime);
 		// Fade animation.
 		if (this._isTween || this.dirty) {
@@ -813,12 +813,12 @@ export class SlotColorTimelineState extends TweenTimelineState {
 /**
  * @internal
  */
-export class SlotZIndexTimelineState extends SingleValueTimelineState {
-	public static toString(): string {
+class SlotZIndexTimelineState  :  SingleValueTimelineState {
+	public static toString(): String {
 		return "[class dragonBones.SlotZIndexTimelineState]";
 	}
 
-	protected _onArriveAtFrame(): void {
+	protected _onArriveAtFrame(): Unit {
 		super._onArriveAtFrame();
 
 		if (this._timelineData === null) { // Pose.
@@ -828,14 +828,14 @@ export class SlotZIndexTimelineState extends SingleValueTimelineState {
 		}
 	}
 
-	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
+	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): Unit {
 		super.init(armature, animationState, timelineData);
 
 		this._valueOffset = this._animationData.frameIntOffset;
 		this._valueArray = this._animationData.parent.parent.frameIntArray;
 	}
 
-	public blend(isDirty: boolean): void {
+	public blend(isDirty: Boolean): Unit {
 		const blendState = this.target as BlendState;
 		const slot = blendState.target as Slot;
 		const blendWeight = blendState.blendWeight;
@@ -856,19 +856,19 @@ export class SlotZIndexTimelineState extends SingleValueTimelineState {
 /**
  * @internal
  */
-export class DeformTimelineState extends MutilpleValueTimelineState {
-	public static toString(): string {
+class DeformTimelineState  :  MutilpleValueTimelineState {
+	public static toString(): String {
 		return "[class dragonBones.DeformTimelineState]";
 	}
 
-	public geometryOffset: number;
+	public geometryOffset: Double;
 	public displayFrame: DisplayFrame;
 
-	private _deformCount: number;
-	private _deformOffset: number;
-	private _sameValueOffset: number;
+	private _deformCount: Double;
+	private _deformOffset: Double;
+	private _sameValueOffset: Double;
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		super._onClear();
 
 		this.geometryOffset = 0;
@@ -879,7 +879,7 @@ export class DeformTimelineState extends MutilpleValueTimelineState {
 		this._sameValueOffset = 0;
 	}
 
-	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
+	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): Unit {
 		super.init(armature, animationState, timelineData);
 
 		if (this._timelineData !== null) {
@@ -927,7 +927,7 @@ export class DeformTimelineState extends MutilpleValueTimelineState {
 		}
 	}
 
-	public blend(isDirty: boolean): void {
+	public blend(isDirty: Boolean): Unit {
 		const blendState = this.target as BlendState;
 		const slot = blendState.target as Slot;
 		const blendWeight = blendState.blendWeight;
@@ -979,12 +979,12 @@ export class DeformTimelineState extends MutilpleValueTimelineState {
 /**
  * @internal
  */
-export class IKConstraintTimelineState extends DoubleValueTimelineState {
-	public static toString(): string {
+class IKConstraintTimelineState  :  DoubleValueTimelineState {
+	public static toString(): String {
 		return "[class dragonBones.IKConstraintTimelineState]";
 	}
 
-	protected _onUpdateFrame(): void {
+	protected _onUpdateFrame(): Unit {
 		super._onUpdateFrame();
 
 		const ikConstraint = this.target as IKConstraint;
@@ -1003,7 +1003,7 @@ export class IKConstraintTimelineState extends DoubleValueTimelineState {
 		this.dirty = false;
 	}
 
-	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
+	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): Unit {
 		super.init(armature, animationState, timelineData);
 
 		this._valueOffset = this._animationData.frameIntOffset;
@@ -1014,12 +1014,12 @@ export class IKConstraintTimelineState extends DoubleValueTimelineState {
 /**
  * @internal
  */
-export class AnimationProgressTimelineState extends SingleValueTimelineState {
-	public static toString(): string {
+class AnimationProgressTimelineState  :  SingleValueTimelineState {
+	public static toString(): String {
 		return "[class dragonBones.AnimationProgressTimelineState]";
 	}
 
-	protected _onUpdateFrame(): void {
+	protected _onUpdateFrame(): Unit {
 		super._onUpdateFrame();
 
 		const animationState = this.target as AnimationState;
@@ -1030,7 +1030,7 @@ export class AnimationProgressTimelineState extends SingleValueTimelineState {
 		this.dirty = false;
 	}
 
-	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
+	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): Unit {
 		super.init(armature, animationState, timelineData);
 
 		this._valueOffset = this._animationData.frameIntOffset;
@@ -1041,12 +1041,12 @@ export class AnimationProgressTimelineState extends SingleValueTimelineState {
 /**
  * @internal
  */
-export class AnimationWeightTimelineState extends SingleValueTimelineState {
-	public static toString(): string {
+class AnimationWeightTimelineState  :  SingleValueTimelineState {
+	public static toString(): String {
 		return "[class dragonBones.AnimationWeightTimelineState]";
 	}
 
-	protected _onUpdateFrame(): void {
+	protected _onUpdateFrame(): Unit {
 		super._onUpdateFrame();
 
 		const animationState = this.target as AnimationState;
@@ -1057,7 +1057,7 @@ export class AnimationWeightTimelineState extends SingleValueTimelineState {
 		this.dirty = false;
 	}
 
-	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
+	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): Unit {
 		super.init(armature, animationState, timelineData);
 
 		this._valueOffset = this._animationData.frameIntOffset;
@@ -1068,12 +1068,12 @@ export class AnimationWeightTimelineState extends SingleValueTimelineState {
 /**
  * @internal
  */
-export class AnimationParametersTimelineState extends DoubleValueTimelineState {
-	public static toString(): string {
+class AnimationParametersTimelineState  :  DoubleValueTimelineState {
+	public static toString(): String {
 		return "[class dragonBones.AnimationParametersTimelineState]";
 	}
 
-	protected _onUpdateFrame(): void {
+	protected _onUpdateFrame(): Unit {
 		super._onUpdateFrame();
 
 		const animationState = this.target as AnimationState;
@@ -1085,7 +1085,7 @@ export class AnimationParametersTimelineState extends DoubleValueTimelineState {
 		this.dirty = false;
 	}
 
-	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): void {
+	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): Unit {
 		super.init(armature, animationState, timelineData);
 
 		this._valueOffset = this._animationData.frameIntOffset;

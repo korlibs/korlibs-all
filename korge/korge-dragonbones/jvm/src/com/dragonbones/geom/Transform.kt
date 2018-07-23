@@ -1,3 +1,4 @@
+package com.dragonbones.geom
 /**
  * The MIT License (MIT)
  *
@@ -20,7 +21,6 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.dragonbones.geom
 
 /**
  * - 2D Transform.
@@ -32,39 +32,42 @@ package com.dragonbones.geom
  * @version DragonBones 3.0
  * @language zh_CN
  */
-export class Transform {
-	/**
-	 * @private
-	 */
-	public static readonly PI: number = Math.PI;
-	/**
-	 * @private
-	 */
-	public static readonly PI_D: number = Math.PI * 2.0;
-	/**
-	 * @private
-	 */
-	public static readonly PI_H: number = Math.PI / 2.0;
-	/**
-	 * @private
-	 */
-	public static readonly PI_Q: number = Math.PI / 4.0;
-	/**
-	 * @private
-	 */
-	public static readonly RAD_DEG: number = 180.0 / Math.PI;
-	/**
-	 * @private
-	 */
-	public static readonly DEG_RAD: number = Math.PI / 180.0;
-	/**
-	 * @private
-	 */
-	public static normalizeRadian(value: number): number {
-		value = (value + Math.PI) % (Math.PI * 2.0);
-		value += value > 0.0 ? -Math.PI : Math.PI;
+class Transform {
+	companion object {
+		/**
+		 * @private
+		 */
+		val PI: Double = Math.PI
+		/**
+		 * @private
+		 */
+		val PI_D: Double = Math.PI * 2.0
+		/**
+		 * @private
+		 */
+		val PI_H: Double = Math.PI / 2.0
+		/**
+		 * @private
+		 */
+		val PI_Q: Double = Math.PI / 4.0
+		/**
+		 * @private
+		 */
+		val RAD_DEG: Double = 180.0 / Math.PI
+		/**
+		 * @private
+		 */
+		val DEG_RAD: Double = Math.PI / 180.0
+	}
 
-		return value;
+	/**
+	 * @private
+	 */
+	fun normalizeRadian(value: Double): Double {
+		var value = (value + Math.PI) % (Math.PI * 2.0)
+		value += if (value > 0.0) -Math.PI else Math.PI
+
+		return value
 	}
 	/**
 	 * - Horizontal translate.
@@ -76,7 +79,7 @@ export class Transform {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public x: number;
+	public var x: Double
 	/**
 	 * - Vertical translate.
 	 * @version DragonBones 3.0
@@ -87,7 +90,7 @@ export class Transform {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public y: number;
+	public var y: Double
 	/**
 	 * - Skew. (In radians)
 	 * @version DragonBones 3.0
@@ -98,7 +101,7 @@ export class Transform {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public skew: number;
+	public var skew: Double
 	/**
 	 * - rotation. (In radians)
 	 * @version DragonBones 3.0
@@ -109,7 +112,7 @@ export class Transform {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public rotation: number;
+	public var rotation: Double
 	/**
 	 * - Horizontal Scaling.
 	 * @version DragonBones 3.0
@@ -120,7 +123,7 @@ export class Transform {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public scaleX: number;
+	public var scaleX: Double
 	/**
 	 * - Vertical scaling.
 	 * @version DragonBones 3.0
@@ -131,135 +134,139 @@ export class Transform {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public scaleY: number;
+	public var scaleY: Double
 	/**
 	 * @private
 	 */
-	public constructor(x: number = 0.0, y: number = 0.0, skew: number = 0.0, rotation: number = 0.0, scaleX: number = 1.0, scaleY: number = 1.0) {
-		this.x = x;
-		this.y = y;
-		this.skew = skew;
-		this.rotation = rotation;
-		this.scaleX = scaleX;
-		this.scaleY = scaleY;
+	constructor(x: Double = 0.0, y: Double = 0.0, skew: Double = 0.0, rotation: Double = 0.0, scaleX: Double = 1.0, scaleY: Double = 1.0) {
+		this.x = x
+		this.y = y
+		this.skew = skew
+		this.rotation = rotation
+		this.scaleX = scaleX
+		this.scaleY = scaleY
 	}
 
-	public toString(): string {
-		return "[object dragonBones.Transform] x:" + this.x + " y:" + this.y + " skewX:" + this.skew * 180.0 / Math.PI + " skewY:" + this.rotation * 180.0 / Math.PI + " scaleX:" + this.scaleX + " scaleY:" + this.scaleY;
-	}
-	/**
-	 * @private
-	 */
-	public copyFrom(value: Transform): Transform {
-		this.x = value.x;
-		this.y = value.y;
-		this.skew = value.skew;
-		this.rotation = value.rotation;
-		this.scaleX = value.scaleX;
-		this.scaleY = value.scaleY;
-
-		return this;
+	public override fun toString(): String {
+		return "[object dragonBones.Transform] x:" + this.x + " y:" + this.y + " skewX:" + this.skew * 180.0 / Math.PI + " skewY:" + this.rotation * 180.0 / Math.PI + " scaleX:" + this.scaleX + " scaleY:" + this.scaleY
 	}
 	/**
 	 * @private
 	 */
-	public identity(): Transform {
-		this.x = this.y = 0.0;
-		this.skew = this.rotation = 0.0;
-		this.scaleX = this.scaleY = 1.0;
+	public fun copyFrom(value: Transform): Transform {
+		this.x = value.x
+		this.y = value.y
+		this.skew = value.skew
+		this.rotation = value.rotation
+		this.scaleX = value.scaleX
+		this.scaleY = value.scaleY
 
-		return this;
+		return this
 	}
 	/**
 	 * @private
 	 */
-	public add(value: Transform): Transform {
-		this.x += value.x;
-		this.y += value.y;
-		this.skew += value.skew;
-		this.rotation += value.rotation;
-		this.scaleX *= value.scaleX;
-		this.scaleY *= value.scaleY;
+	public fun identity(): Transform {
+		this.x = 0.0
+		this.y = 0.0
+		this.skew = 0.0
+		this.rotation = 0.0
+		this.scaleX = 0.0
+		this.scaleY = 1.0
 
-		return this;
+		return this
 	}
 	/**
 	 * @private
 	 */
-	public minus(value: Transform): Transform {
-		this.x -= value.x;
-		this.y -= value.y;
-		this.skew -= value.skew;
-		this.rotation -= value.rotation;
-		this.scaleX /= value.scaleX;
-		this.scaleY /= value.scaleY;
+	public fun add(value: Transform): Transform {
+		this.x += value.x
+		this.y += value.y
+		this.skew += value.skew
+		this.rotation += value.rotation
+		this.scaleX *= value.scaleX
+		this.scaleY *= value.scaleY
 
-		return this;
+		return this
 	}
 	/**
 	 * @private
 	 */
-	public fromMatrix(matrix: Matrix): Transform {
-		const backupScaleX = this.scaleX, backupScaleY = this.scaleY;
-		const PI_Q = Transform.PI_Q;
+	public fun minus(value: Transform): Transform {
+		this.x -= value.x
+		this.y -= value.y
+		this.skew -= value.skew
+		this.rotation -= value.rotation
+		this.scaleX /= value.scaleX
+		this.scaleY /= value.scaleY
 
-		this.x = matrix.tx;
-		this.y = matrix.ty;
-		this.rotation = Math.atan(matrix.b / matrix.a);
-		let skewX = Math.atan(-matrix.c / matrix.d);
+		return this
+	}
+	/**
+	 * @private
+	 */
+	public fun fromMatrix(matrix: Matrix): Transform {
+		val backupScaleX = this.scaleX
+		val backupScaleY = this.scaleY
+		val PI_Q = Transform.PI_Q
 
-		this.scaleX = (this.rotation > -PI_Q && this.rotation < PI_Q) ? matrix.a / Math.cos(this.rotation) : matrix.b / Math.sin(this.rotation);
-		this.scaleY = (skewX > -PI_Q && skewX < PI_Q) ? matrix.d / Math.cos(skewX) : -matrix.c / Math.sin(skewX);
+		this.x = matrix.tx
+		this.y = matrix.ty
+		this.rotation = Math.atan(matrix.b / matrix.a)
+		var skewX = Math.atan(-matrix.c / matrix.d)
+
+		this.scaleX = (this.rotation > -PI_Q && this.rotation < PI_Q) ? matrix.a / Math.cos(this.rotation) : matrix.b / Math.sin(this.rotation)
+		this.scaleY = (skewX > -PI_Q && skewX < PI_Q) ? matrix.d / Math.cos(skewX) : -matrix.c / Math.sin(skewX)
 
 		if (backupScaleX >= 0.0 && this.scaleX < 0.0) {
-			this.scaleX = -this.scaleX;
-			this.rotation = this.rotation - Math.PI;
+			this.scaleX = -this.scaleX
+			this.rotation = this.rotation - Math.PI
 		}
 
 		if (backupScaleY >= 0.0 && this.scaleY < 0.0) {
-			this.scaleY = -this.scaleY;
-			skewX = skewX - Math.PI;
+			this.scaleY = -this.scaleY
+			skewX = skewX - Math.PI
 		}
 
-		this.skew = skewX - this.rotation;
+		this.skew = skewX - this.rotation
 
-		return this;
+		return this
 	}
 	/**
 	 * @private
 	 */
-	public toMatrix(matrix: Matrix): Transform {
-		if (this.rotation === 0.0) {
-			matrix.a = 1.0;
-			matrix.b = 0.0;
+	public fun toMatrix(matrix: Matrix): Transform {
+		if (this.rotation == 0.0) {
+			matrix.a = 1.0
+			matrix.b = 0.0
 		}
 		else {
-			matrix.a = Math.cos(this.rotation);
-			matrix.b = Math.sin(this.rotation);
+			matrix.a = Math.cos(this.rotation)
+			matrix.b = Math.sin(this.rotation)
 		}
 
-		if (this.skew === 0.0) {
-			matrix.c = -matrix.b;
-			matrix.d = matrix.a;
+		if (this.skew == 0.0) {
+			matrix.c = -matrix.b
+			matrix.d = matrix.a
 		}
 		else {
-			matrix.c = -Math.sin(this.skew + this.rotation);
-			matrix.d = Math.cos(this.skew + this.rotation);
+			matrix.c = -Math.sin(this.skew + this.rotation)
+			matrix.d = Math.cos(this.skew + this.rotation)
 		}
 
-		if (this.scaleX !== 1.0) {
-			matrix.a *= this.scaleX;
-			matrix.b *= this.scaleX;
+		if (this.scaleX != 1.0) {
+			matrix.a *= this.scaleX
+			matrix.b *= this.scaleX
 		}
 
-		if (this.scaleY !== 1.0) {
-			matrix.c *= this.scaleY;
-			matrix.d *= this.scaleY;
+		if (this.scaleY != 1.0) {
+			matrix.c *= this.scaleY
+			matrix.d *= this.scaleY
 		}
 
-		matrix.tx = this.x;
-		matrix.ty = this.y;
+		matrix.tx = this.x
+		matrix.ty = this.y
 
-		return this;
+		return this
 	}
 }

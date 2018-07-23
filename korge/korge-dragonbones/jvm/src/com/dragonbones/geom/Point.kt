@@ -1,3 +1,4 @@
+package com.dragonbones.geom
 /**
  * The MIT License (MIT)
  *
@@ -20,7 +21,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.dragonbones.geom
+
 /**
  * - The Point object represents a location in a two-dimensional coordinate system.
  * @version DragonBones 3.0
@@ -31,7 +32,7 @@ package com.dragonbones.geom
  * @version DragonBones 3.0
  * @language zh_CN
  */
-export class Point {
+class Point {
 	/**
 	 * - The horizontal coordinate.
 	 * @default 0.0
@@ -44,7 +45,7 @@ export class Point {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public x: number;
+	var x: Double
 	/**
 	 * - The vertical coordinate.
 	 * @default 0.0
@@ -57,7 +58,7 @@ export class Point {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public y: number;
+	var y: Double
 	/**
 	 * - Creates a new point. If you pass no parameters to this method, a point is created at (0,0).
 	 * @param x - The horizontal coordinate.
@@ -72,21 +73,24 @@ export class Point {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public constructor(x: number = 0.0, y: number = 0.0) {
-		this.x = x;
-		this.y = y;
+	constructor(x: Double = 0.0, y: Double = 0.0) {
+		this.x = x
+		this.y = y
 	}
+
 	/**
 	 * @private
 	 */
-	public copyFrom(value: Point): void {
-		this.x = value.x;
-		this.y = value.y;
+	fun copyFrom(value: Point): Unit {
+		this.x = value.x
+		this.y = value.y
 	}
+
 	/**
 	 * @private
 	 */
-	public clear(): void {
-		this.x = this.y = 0.0;
+	fun clear(): Unit {
+		this.x = 0.0
+		this.y = 0.0
 	}
 }

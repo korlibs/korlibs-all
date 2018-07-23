@@ -25,15 +25,15 @@ package com.dragonbones.model
 /**
  * @private
  */
-export abstract class ConstraintData extends BaseObject {
-	public order: number;
-	public name: string;
-	public type: ConstraintType;
-	public target: BoneData;
-	public root: BoneData;
-	public bone: BoneData | null;
+abstract class ConstraintData  :  BaseObject {
+	var order: Double;
+	var name: String;
+	var type: ConstraintType
+	var target: BoneData
+	var root: BoneData
+	var bone: BoneData?
 
-	protected _onClear(): void {
+	fun _onClear(): Unit {
 		this.order = 0;
 		this.name = "";
 		this.type = ConstraintType.IK;
@@ -45,16 +45,16 @@ export abstract class ConstraintData extends BaseObject {
 /**
  * @internal
  */
-export class IKConstraintData extends ConstraintData {
-	public static toString(): string {
+class IKConstraintData  :  ConstraintData {
+	override fun toString(): String {
 		return "[class dragonBones.IKConstraintData]";
 	}
 
-	public scaleEnabled: boolean;
-	public bendPositive: boolean;
-	public weight: number;
+	varscaleEnabled: Boolean;
+	varbendPositive: Boolean;
+	varweight: Double;
 
-	protected _onClear(): void {
+	fun _onClear(): Unit {
 		super._onClear();
 
 		this.scaleEnabled = false;
@@ -65,8 +65,8 @@ export class IKConstraintData extends ConstraintData {
 /**
  * @internal
  */
-export class PathConstraintData extends ConstraintData {
-	public static toString(): string {
+class PathConstraintData  :  ConstraintData {
+	public static toString(): String {
 		return "[class dragonBones.PathConstraintData]";
 	}
 
@@ -78,13 +78,13 @@ export class PathConstraintData extends ConstraintData {
 	public spacingMode : SpacingMode;
 	public rotateMode : RotateMode;
 
-	public position : number;
-	public spacing : number;
-	public rotateOffset : number;
-	public rotateMix : number;
-	public translateMix : number;
+	public position : Double;
+	public spacing : Double;
+	public rotateOffset : Double;
+	public rotateMix : Double;
+	public translateMix : Double;
 
-	protected _onClear() : void {
+	protected _onClear() : Unit {
 		super._onClear();
 
 		this.pathSlot = null as any;
@@ -102,7 +102,7 @@ export class PathConstraintData extends ConstraintData {
 		this.translateMix = 0.0;
 	}
 
-	public AddBone(value : BoneData) : void {
+	public AddBone(value : BoneData) : Unit {
 		this.bones.push(value);
 	}
 }

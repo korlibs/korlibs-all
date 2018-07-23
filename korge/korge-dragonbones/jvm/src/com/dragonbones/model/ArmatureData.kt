@@ -32,8 +32,8 @@ package com.dragonbones.model
  * @version DragonBones 3.0
  * @language zh_CN
  */
-export class ArmatureData extends BaseObject {
-	public static toString(): string {
+class ArmatureData  :  BaseObject {
+	public static toString(): String {
 		return "[class dragonBones.ArmatureData]";
 	}
 	/**
@@ -50,15 +50,15 @@ export class ArmatureData extends BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public frameRate: number;
+	public frameRate: Double;
 	/**
 	 * @private
 	 */
-	public cacheFrameRate: number;
+	public cacheFrameRate: Double;
 	/**
 	 * @private
 	 */
-	public scale: number;
+	public scale: Double;
 	/**
 	 * - The armature name.
 	 * @version DragonBones 3.0
@@ -69,7 +69,7 @@ export class ArmatureData extends BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public name: string;
+	public name: String;
 	/**
 	 * @private
 	 */
@@ -156,7 +156,7 @@ export class ArmatureData extends BaseObject {
 	 */
 	public parent: DragonBonesData;
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		for (const action of this.defaultActions) {
 			action.returnToPool();
 		}
@@ -223,7 +223,7 @@ export class ArmatureData extends BaseObject {
 	/**
 	 * @internal
 	 */
-	public sortBones(): void {
+	public sortBones(): Unit {
 		const total = this.sortedBones.length;
 		if (total <= 0) {
 			return;
@@ -267,7 +267,7 @@ export class ArmatureData extends BaseObject {
 	/**
 	 * @internal
 	 */
-	public cacheFrames(frameRate: number): void {
+	public cacheFrames(frameRate: Double): Unit {
 		if (this.cacheFrameRate > 0) { // TODO clear cache.
 			return;
 		}
@@ -280,7 +280,7 @@ export class ArmatureData extends BaseObject {
 	/**
 	 * @internal
 	 */
-	public setCacheFrame(globalTransformMatrix: Matrix, transform: Transform): number {
+	public setCacheFrame(globalTransformMatrix: Matrix, transform: Transform): Double {
 		const dataArray = this.parent.cachedFrames;
 		let arrayOffset = dataArray.length;
 
@@ -301,7 +301,7 @@ export class ArmatureData extends BaseObject {
 	/**
 	 * @internal
 	 */
-	public getCacheFrame(globalTransformMatrix: Matrix, transform: Transform, arrayOffset: number): void {
+	public getCacheFrame(globalTransformMatrix: Matrix, transform: Transform, arrayOffset: Double): Unit {
 		const dataArray = this.parent.cachedFrames;
 		globalTransformMatrix.a = dataArray[arrayOffset];
 		globalTransformMatrix.b = dataArray[arrayOffset + 1];
@@ -319,7 +319,7 @@ export class ArmatureData extends BaseObject {
 	/**
 	 * @internal
 	 */
-	public addBone(value: BoneData): void {
+	public addBone(value: BoneData): Unit {
 		if (value.name in this.bones) {
 			console.warn("Same bone: " + value.name);
 			return;
@@ -331,7 +331,7 @@ export class ArmatureData extends BaseObject {
 	/**
 	 * @internal
 	 */
-	public addSlot(value: SlotData): void {
+	public addSlot(value: SlotData): Unit {
 		if (value.name in this.slots) {
 			console.warn("Same slot: " + value.name);
 			return;
@@ -343,7 +343,7 @@ export class ArmatureData extends BaseObject {
 	/**
 	 * @internal
 	 */
-	public addConstraint(value: ConstraintData): void {
+	public addConstraint(value: ConstraintData): Unit {
 		if (value.name in this.constraints) {
 			console.warn("Same constraint: " + value.name);
 			return;
@@ -354,7 +354,7 @@ export class ArmatureData extends BaseObject {
 	/**
 	 * @internal
 	 */
-	public addSkin(value: SkinData): void {
+	public addSkin(value: SkinData): Unit {
 		if (value.name in this.skins) {
 			console.warn("Same skin: " + value.name);
 			return;
@@ -373,7 +373,7 @@ export class ArmatureData extends BaseObject {
 	/**
 	 * @internal
 	 */
-	public addAnimation(value: AnimationData): void {
+	public addAnimation(value: AnimationData): Unit {
 		if (value.name in this.animations) {
 			console.warn("Same animation: " + value.name);
 			return;
@@ -389,7 +389,7 @@ export class ArmatureData extends BaseObject {
 	/**
 	 * @internal
 	 */
-	public addAction(value: ActionData, isDefault: boolean): void {
+	public addAction(value: ActionData, isDefault: Boolean): Unit {
 		if (isDefault) {
 			this.defaultActions.push(value);
 		}
@@ -409,7 +409,7 @@ export class ArmatureData extends BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public getBone(boneName: string): BoneData | null {
+	public getBone(boneName: String): BoneData | null {
 		return boneName in this.bones ? this.bones[boneName] : null;
 	}
 	/**
@@ -424,13 +424,13 @@ export class ArmatureData extends BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public getSlot(slotName: string): SlotData | null {
+	public getSlot(slotName: String): SlotData | null {
 		return slotName in this.slots ? this.slots[slotName] : null;
 	}
 	/**
 	 * @private
 	 */
-	public getConstraint(constraintName: string): ConstraintData | null {
+	public getConstraint(constraintName: String): ConstraintData | null {
 		return constraintName in this.constraints ? this.constraints[constraintName] : null;
 	}
 	/**
@@ -445,13 +445,13 @@ export class ArmatureData extends BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public getSkin(skinName: string): SkinData | null {
+	public getSkin(skinName: String): SkinData | null {
 		return skinName in this.skins ? this.skins[skinName] : null;
 	}
 	/**
 	 * @private
 	 */
-	public getMesh(skinName: string, slotName: string, meshName: string): MeshDisplayData | null {
+	public getMesh(skinName: String, slotName: String, meshName: String): MeshDisplayData | null {
 		const skin = this.getSkin(skinName);
 		if (skin === null) {
 			return null;
@@ -471,7 +471,7 @@ export class ArmatureData extends BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public getAnimation(animationName: string): AnimationData | null {
+	public getAnimation(animationName: String): AnimationData | null {
 		return animationName in this.animations ? this.animations[animationName] : null;
 	}
 }
@@ -485,26 +485,26 @@ export class ArmatureData extends BaseObject {
  * @version DragonBones 3.0
  * @language zh_CN
  */
-export class BoneData extends BaseObject {
-	public static toString(): string {
+class BoneData  :  BaseObject {
+	public static toString(): String {
 		return "[class dragonBones.BoneData]";
 	}
 	/**
 	 * @private
 	 */
-	public inheritTranslation: boolean;
+	public inheritTranslation: Boolean;
 	/**
 	 * @private
 	 */
-	public inheritRotation: boolean;
+	public inheritRotation: Boolean;
 	/**
 	 * @private
 	 */
-	public inheritScale: boolean;
+	public inheritScale: Boolean;
 	/**
 	 * @private
 	 */
-	public inheritReflection: boolean;
+	public inheritReflection: Boolean;
 	/**
 	 * @private
 	 */
@@ -519,11 +519,11 @@ export class BoneData extends BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public length: number;
+	public length: Double;
 	/**
 	 * @private
 	 */
-	public alpha: number;
+	public alpha: Double;
 	/**
 	 * - The bone name.
 	 * @version DragonBones 3.0
@@ -534,7 +534,7 @@ export class BoneData extends BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public name: string;
+	public name: String;
 	/**
 	 * @private
 	 */
@@ -555,7 +555,7 @@ export class BoneData extends BaseObject {
 	 */
 	public parent: BoneData | null;
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		if (this.userData !== null) {
 			this.userData.returnToPool();
 		}
@@ -576,16 +576,16 @@ export class BoneData extends BaseObject {
 /**
  * @internal
  */
-export class SurfaceData extends BoneData {
-	public static toString(): string {
+class SurfaceData  :  BoneData {
+	public static toString(): String {
 		return "[class dragonBones.SurfaceData]";
 	}
 
-	public segmentX: number;
-	public segmentY: number;
+	public segmentX: Double;
+	public segmentY: Double;
 	public readonly geometry: GeometryData = new GeometryData();
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		super._onClear();
 
 		this.type = BoneType.Surface;
@@ -604,7 +604,7 @@ export class SurfaceData extends BoneData {
  * @version DragonBones 3.0
  * @language zh_CN
  */
-export class SlotData extends BaseObject {
+class SlotData  :  BaseObject {
 	/**
 	 * @internal
 	 */
@@ -616,7 +616,7 @@ export class SlotData extends BaseObject {
 		return new ColorTransform();
 	}
 
-	public static toString(): string {
+	public static toString(): String {
 		return "[class dragonBones.SlotData]";
 	}
 	/**
@@ -626,19 +626,19 @@ export class SlotData extends BaseObject {
 	/**
 	 * @private
 	 */
-	public displayIndex: number;
+	public displayIndex: Double;
 	/**
 	 * @private
 	 */
-	public zOrder: number;
+	public zOrder: Double;
 	/**
 	 * @private
 	 */
-	public zIndex: number;
+	public zIndex: Double;
 	/**
 	 * @private
 	 */
-	public alpha: number;
+	public alpha: Double;
 	/**
 	 * - The slot name.
 	 * @version DragonBones 3.0
@@ -649,7 +649,7 @@ export class SlotData extends BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public name: string;
+	public name: String;
 	/**
 	 * @private
 	 */
@@ -670,7 +670,7 @@ export class SlotData extends BaseObject {
 	 */
 	public parent: BoneData;
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		if (this.userData !== null) {
 			this.userData.returnToPool();
 		}

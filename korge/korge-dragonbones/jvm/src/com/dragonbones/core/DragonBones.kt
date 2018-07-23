@@ -279,17 +279,17 @@ export const enum RotateMode {
  * @private
  */
 export interface Map<T> {
-	[key: string]: T;
+	[key: String]: T;
 }
 /**
  * @private
  */
-export class DragonBones {
-	public static readonly VERSION: string = "5.7.000";
+class DragonBones {
+	public static readonly VERSION: String = "5.7.000";
 
-	public static yDown: boolean = true;
-	public static debug: boolean = false;
-	public static debugDraw: boolean = false;
+	public static yDown: Boolean = true;
+	public static debug: Boolean = false;
+	public static debugDraw: Boolean = false;
 
 	private readonly _clock: WorldClock = new WorldClock();
 	private readonly _events: Array<EventObject> = [];
@@ -302,7 +302,7 @@ export class DragonBones {
 		console.info(`DragonBones: ${DragonBones.VERSION}\nWebsite: http://dragonbones.com/\nSource and Demo: https://github.com/DragonBones/`);
 	}
 
-	public advanceTime(passedTime: number): void {
+	public advanceTime(passedTime: Double): Unit {
 		if (this._objects.length > 0) {
 			for (const object of this._objects) {
 				object.returnToPool();
@@ -332,13 +332,13 @@ export class DragonBones {
 		}
 	}
 
-	public bufferEvent(value: EventObject): void {
+	public bufferEvent(value: EventObject): Unit {
 		if (this._events.indexOf(value) < 0) {
 			this._events.push(value);
 		}
 	}
 
-	public bufferObject(object: BaseObject): void {
+	public bufferObject(object: BaseObject): Unit {
 		if (this._objects.indexOf(object) < 0) {
 			this._objects.push(object);
 		}
@@ -367,7 +367,7 @@ if (!Date.now) {
         return new Date().getTime();
     };
 }
-// Weixin can not support typescript extends.
+// Weixin can not support typescript  : .
 var __extends: any = function (t: any, e: any) {
     function r(this: any) {
         this.constructor = t;

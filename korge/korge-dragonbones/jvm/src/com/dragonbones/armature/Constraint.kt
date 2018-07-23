@@ -24,7 +24,7 @@ package com.dragonbones.armature
 /**
  * @internal
  */
-export abstract class Constraint extends BaseObject {
+abstract class Constraint  :  BaseObject {
 	protected static readonly _helpMatrix: Matrix = new Matrix();
 	protected static readonly _helpTransform: Transform = new Transform();
 	protected static readonly _helpPoint: Point = new Point();
@@ -46,42 +46,42 @@ export abstract class Constraint extends BaseObject {
 	public _root: Bone;
 	protected _bone: Bone | null;
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		this._armature = null as any; //
 		this._target = null as any; //
 		this._root = null as any; //
 		this._bone = null;
 	}
 
-	public abstract init(constraintData: ConstraintData, armature: Armature): void;
-	public abstract update(): void;
-	public abstract invalidUpdate(): void;
+	public abstract init(constraintData: ConstraintData, armature: Armature): Unit;
+	public abstract update(): Unit;
+	public abstract invalidUpdate(): Unit;
 
-	public get name(): string {
+	public get name(): String {
 		return this._constraintData.name;
 	}
 }
 /**
  * @internal
  */
-export class IKConstraint extends Constraint {
-	public static toString(): string {
+class IKConstraint  :  Constraint {
+	public static toString(): String {
 		return "[class dragonBones.IKConstraint]";
 	}
 
-	private _scaleEnabled: boolean; // TODO
+	private _scaleEnabled: Boolean; // TODO
 	/**
 	 * - For timeline state.
 	 * @internal
 	 */
-	public _bendPositive: boolean;
+	public _bendPositive: Boolean;
 	/**
 	 * - For timeline state.
 	 * @internal
 	 */
-	public _weight: number;
+	public _weight: Double;
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		super._onClear();
 
 		this._scaleEnabled = false;
@@ -90,7 +90,7 @@ export class IKConstraint extends Constraint {
 		this._constraintData = null as any;
 	}
 
-	private _computeA(): void {
+	private _computeA(): Unit {
 		const ikGlobal = this._target.global;
 		const global = this._root.global;
 		const globalTransformMatrix = this._root.globalTransformMatrix;
@@ -104,7 +104,7 @@ export class IKConstraint extends Constraint {
 		global.toMatrix(globalTransformMatrix);
 	}
 
-	private _computeB(): void {
+	private _computeB(): Unit {
 		const boneLength = (this._bone as Bone)._boneData.length;
 		const parent = this._root as Bone;
 		const ikGlobal = this._target.global;
@@ -182,7 +182,7 @@ export class IKConstraint extends Constraint {
 		global.toMatrix(globalTransformMatrix);
 	}
 
-	public init(constraintData: ConstraintData, armature: Armature): void {
+	public init(constraintData: ConstraintData, armature: Armature): Unit {
 		if (this._constraintData !== null) {
 			return;
 		}
@@ -203,7 +203,7 @@ export class IKConstraint extends Constraint {
 		this._root._hasConstraint = true;
 	}
 
-	public update(): void {
+	public update(): Unit {
 		this._root.updateByConstraint();
 
 		if (this._bone !== null) {
@@ -215,7 +215,7 @@ export class IKConstraint extends Constraint {
 		}
 	}
 
-	public invalidUpdate(): void {
+	public invalidUpdate(): Unit {
 		this._root.invalidUpdate();
 
 		if (this._bone !== null) {
@@ -227,32 +227,32 @@ export class IKConstraint extends Constraint {
 /**
  * @internal
  */
-export class PathConstraint extends Constraint {
+class PathConstraint  :  Constraint {
 
-	public dirty: boolean;
-	public pathOffset: number;
-	public position: number;
-	public spacing: number;
-	public rotateOffset: number;
-	public rotateMix: number;
-	public translateMix: number;
+	public dirty: Boolean;
+	public pathOffset: Double;
+	public position: Double;
+	public spacing: Double;
+	public rotateOffset: Double;
+	public rotateMix: Double;
+	public translateMix: Double;
 
 	private _pathSlot: Slot;
 	private _bones: Array<Bone> = [];
 
-	private _spaces: Array<number> = [];
-	private _positions: Array<number> = [];
-	private _curves: Array<number> = [];
-	private _boneLengths: Array<number> = [];
+	private _spaces:  DoubleArray = [];
+	private _positions:  DoubleArray = [];
+	private _curves:  DoubleArray = [];
+	private _boneLengths:  DoubleArray = [];
 
-	private _pathGlobalVertices: Array<number> = [];
-	private _segments: Array<number> = [10];
+	private _pathGlobalVertices:  DoubleArray = [];
+	private _segments:  DoubleArray = [10];
 
-	public static toString(): string {
+	public static toString(): String {
 		return "[class dragonBones.PathConstraint]";
 	}
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		super._onClear();
 
 		this.dirty = false;
@@ -275,7 +275,7 @@ export class PathConstraint extends Constraint {
 		this._pathGlobalVertices.length = 0;
 	}
 
-	protected _updatePathVertices(verticesData: GeometryData): void {
+	protected _updatePathVertices(verticesData: GeometryData): Unit {
 		//计算曲线的节点数据
 		const armature = this._armature;
 		const dragonBonesData = armature.armatureData.parent;
@@ -346,7 +346,7 @@ export class PathConstraint extends Constraint {
 		}
 	}
 
-	protected _computeVertices(start: number, count: number, offset: number, out: Array<number>): void {
+	protected _computeVertices(start: Double, count: Double, offset: Double, out:  DoubleArray): Unit {
 		//TODO优化
 		for (let i = offset, iW = start; i < count; i += 2) {
 			out[i] = this._pathGlobalVertices[iW++];
@@ -354,7 +354,7 @@ export class PathConstraint extends Constraint {
 		}
 	}
 
-	protected _computeBezierCurve(pathDisplayDta: PathDisplayData, spaceCount: number, tangents: boolean, percentPosition: boolean, percentSpacing: boolean): void {
+	protected _computeBezierCurve(pathDisplayDta: PathDisplayData, spaceCount: Double, tangents: Boolean, percentPosition: Boolean, percentSpacing: Boolean): Unit {
 		//计算当前的骨骼在曲线上的位置
 		const armature = this._armature;
 		const intArray = armature.armatureData.parent.intArray;
@@ -363,7 +363,7 @@ export class PathConstraint extends Constraint {
 		const positions = this._positions;
 		const spaces = this._spaces;
 		const isClosed = pathDisplayDta.closed;
-		const curveVertices = Array<number>();
+		const curveVertices =  DoubleArray();
 		let verticesLength = vertexCount * 2;
 		let curveCount = verticesLength / 6;
 		let preCurve = -1;
@@ -461,7 +461,7 @@ export class PathConstraint extends Constraint {
 			this._computeVertices(2, verticesLength, 0, curveVertices);
 		}
 		//
-		let curves: Array<number> = new Array<number>(curveCount);
+		let curves:  DoubleArray = new  DoubleArray(curveCount);
 		pathLength = 0;
 		let x1 = curveVertices[0], y1 = curveVertices[1], cx1 = 0, cy1 = 0, cx2 = 0, cy2 = 0, x2 = 0, y2 = 0;
 		let tmpx, tmpy, dddfx, dddfy, ddfx, ddfy, dfx, dfy;
@@ -508,7 +508,7 @@ export class PathConstraint extends Constraint {
 		}
 
 		let segments = this._segments;
-		let curveLength: number = 0;
+		let curveLength: Double = 0;
 		for (let i = 0, o = 0, curve = 0, segment = 0; i < spaceCount; i++ , o += 3) {
 			const space = spaces[i];
 			position += space;
@@ -596,7 +596,7 @@ export class PathConstraint extends Constraint {
 	}
 
 	//Calculates a point on the curve, for a given t value between 0 and 1.
-	private addCurvePosition(t: number, x1: number, y1: number, cx1: number, cy1: number, cx2: number, cy2: number, x2: number, y2: number, out: Array<number>, offset: number, tangents: boolean) {
+	private addCurvePosition(t: Double, x1: Double, y1: Double, cx1: Double, cy1: Double, cx2: Double, cy2: Double, x2: Double, y2: Double, out:  DoubleArray, offset: Double, tangents: Boolean) {
 		if (t === 0) {
 			out[offset] = x1;
 			out[offset + 1] = y1;
@@ -633,7 +633,7 @@ export class PathConstraint extends Constraint {
 		}
 	}
 
-	public init(constraintData: ConstraintData, armature: Armature): void {
+	public init(constraintData: ConstraintData, armature: Armature): Unit {
 		this._constraintData = constraintData;
 		this._armature = armature;
 
@@ -667,7 +667,7 @@ export class PathConstraint extends Constraint {
 		this._root._hasConstraint = true;
 	}
 
-	public update(): void {
+	public update(): Unit {
 		const pathSlot = this._pathSlot;
 
 		if (
@@ -746,7 +746,7 @@ export class PathConstraint extends Constraint {
 		const positions = this._positions;
 		let rotateOffset = this.rotateOffset;
 		let boneX = positions[0], boneY = positions[1];
-		let tip: boolean;
+		let tip: Boolean;
 		if (rotateOffset === 0) {
 			tip = rotateMode === RotateMode.Chain;
 		}
@@ -828,7 +828,7 @@ export class PathConstraint extends Constraint {
 		this.dirty = false;
 	}
 
-	public invalidUpdate(): void {
+	public invalidUpdate(): Unit {
 
 	}
 }

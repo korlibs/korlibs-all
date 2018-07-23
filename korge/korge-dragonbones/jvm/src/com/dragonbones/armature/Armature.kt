@@ -39,11 +39,11 @@ package com.dragonbones.armature
  * @version DragonBones 3.0
  * @language zh_CN
  */
-export class Armature extends BaseObject implements IAnimatable {
-	public static toString(): string {
+class Armature  :  BaseObject implements IAnimatable {
+	public static toString(): String {
 		return "[class dragonBones.Armature]";
 	}
-	private static _onSortSlots(a: Slot, b: Slot): number {
+	private static _onSortSlots(a: Slot, b: Slot): Double {
 		return a._zIndex * 1000 + a._zOrder > b._zIndex * 1000 + b._zOrder ? 1 : -1;
 	}
 	/**
@@ -60,7 +60,7 @@ export class Armature extends BaseObject implements IAnimatable {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public inheritAnimation: boolean;
+	public inheritAnimation: Boolean;
 	/**
 	 * @private
 	 */
@@ -68,28 +68,28 @@ export class Armature extends BaseObject implements IAnimatable {
 	/**
 	 * @internal
 	 */
-	public _lockUpdate: boolean;
-	private _slotsDirty: boolean;
-	private _zOrderDirty: boolean;
+	public _lockUpdate: Boolean;
+	private _slotsDirty: Boolean;
+	private _zOrderDirty: Boolean;
 	/**
 	 * @internal
 	 */
-	public _zIndexDirty: boolean;
+	public _zIndexDirty: Boolean;
 	/**
 	 * @internal
 	 */
-	public _alphaDirty: boolean;
-	private _flipX: boolean;
-	private _flipY: boolean;
+	public _alphaDirty: Boolean;
+	private _flipX: Boolean;
+	private _flipY: Boolean;
 	/**
 	 * @internal
 	 */
-	public _cacheFrameIndex: number;
-	private _alpha: number;
+	public _cacheFrameIndex: Double;
+	private _alpha: Double;
 	/**
 	 * @internal
 	 */
-	public _globalAlpha: number;
+	public _globalAlpha: Double;
 	private readonly _bones: Array<Bone> = [];
 	private readonly _slots: Array<Slot> = [];
 	/**
@@ -119,7 +119,7 @@ export class Armature extends BaseObject implements IAnimatable {
 	 */
 	public _parent: Slot | null;
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		if (this._clock !== null) { // Remove clock first.
 			this._clock.remove(this);
 		}
@@ -182,13 +182,13 @@ export class Armature extends BaseObject implements IAnimatable {
 	/**
 	 * @internal
 	 */
-	public _sortZOrder(slotIndices: Array<number> | Int16Array | null, offset: number): void {
+	public _sortZOrder(slotIndices:  DoubleArray | Int16Array | null, offset: Double): Unit {
 		const slotDatas = this._armatureData.sortedSlots;
 		const isOriginal = slotIndices === null;
 
 		if (this._zOrderDirty || !isOriginal) {
 			for (let i = 0, l = slotDatas.length; i < l; ++i) {
-				const slotIndex = isOriginal ? i : (slotIndices as Array<number>)[offset + i];
+				const slotIndex = isOriginal ? i : (slotIndices as  DoubleArray)[offset + i];
 				if (slotIndex < 0 || slotIndex >= l) {
 					continue;
 				}
@@ -208,7 +208,7 @@ export class Armature extends BaseObject implements IAnimatable {
 	/**
 	 * @internal
 	 */
-	public _addBone(value: Bone): void {
+	public _addBone(value: Bone): Unit {
 		if (this._bones.indexOf(value) < 0) {
 			this._bones.push(value);
 		}
@@ -216,7 +216,7 @@ export class Armature extends BaseObject implements IAnimatable {
 	/**
 	 * @internal
 	 */
-	public _addSlot(value: Slot): void {
+	public _addSlot(value: Slot): Unit {
 		if (this._slots.indexOf(value) < 0) {
 			this._slots.push(value);
 		}
@@ -224,7 +224,7 @@ export class Armature extends BaseObject implements IAnimatable {
 	/**
 	 * @internal
 	 */
-	public _addConstraint(value: Constraint): void {
+	public _addConstraint(value: Constraint): Unit {
 		if (this._constraints.indexOf(value) < 0) {
 			this._constraints.push(value);
 		}
@@ -232,7 +232,7 @@ export class Armature extends BaseObject implements IAnimatable {
 	/**
 	 * @internal
 	 */
-	public _bufferAction(action: EventObject, append: boolean): void {
+	public _bufferAction(action: EventObject, append: Boolean): Unit {
 		if (this._actions.indexOf(action) < 0) {
 			if (append) {
 				this._actions.push(action);
@@ -262,7 +262,7 @@ export class Armature extends BaseObject implements IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public dispose(): void {
+	public dispose(): Unit {
 		if (this._armatureData !== null) {
 			this._lockUpdate = true;
 			this._dragonBones.bufferObject(this);
@@ -274,7 +274,7 @@ export class Armature extends BaseObject implements IAnimatable {
 	public init(
 		armatureData: ArmatureData,
 		proxy: IArmatureProxy, display: any, dragonBones: DragonBones
-	): void {
+	): Unit {
 		if (this._armatureData !== null) {
 			return;
 		}
@@ -292,7 +292,7 @@ export class Armature extends BaseObject implements IAnimatable {
 	/**
 	 * @inheritDoc
 	 */
-	public advanceTime(passedTime: number): void {
+	public advanceTime(passedTime: Double): Unit {
 		if (this._lockUpdate) {
 			return;
 		}
@@ -403,7 +403,7 @@ export class Armature extends BaseObject implements IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public invalidUpdate(boneName: string | null = null, updateSlot: boolean = false): void {
+	public invalidUpdate(boneName: String | null = null, updateSlot: Boolean = false): Unit {
 		if (boneName !== null && boneName.length > 0) {
 			const bone = this.getBone(boneName);
 			if (bone !== null) {
@@ -448,7 +448,7 @@ export class Armature extends BaseObject implements IAnimatable {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public containsPoint(x: number, y: number): Slot | null {
+	public containsPoint(x: Double, y: Double): Slot | null {
 		for (const slot of this._slots) {
 			if (slot.containsPoint(x, y)) {
 				return slot;
@@ -488,10 +488,10 @@ export class Armature extends BaseObject implements IAnimatable {
 	 * @language zh_CN
 	 */
 	public intersectsSegment(
-		xA: number, yA: number, xB: number, yB: number,
-		intersectionPointA: { x: number, y: number } | null = null,
-		intersectionPointB: { x: number, y: number } | null = null,
-		normalRadians: { x: number, y: number } | null = null
+		xA: Double, yA: Double, xB: Double, yB: Double,
+		intersectionPointA: { x: Double, y: Double } | null = null,
+		intersectionPointB: { x: Double, y: Double } | null = null,
+		normalRadians: { x: Double, y: Double } | null = null
 	): Slot | null {
 		const isV = xA === xB;
 		let dMin = 0.0;
@@ -586,7 +586,7 @@ export class Armature extends BaseObject implements IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public getBone(name: string): Bone | null {
+	public getBone(name: String): Bone | null {
 		for (const bone of this._bones) {
 			if (bone.name === name) {
 				return bone;
@@ -628,7 +628,7 @@ export class Armature extends BaseObject implements IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public getSlot(name: string): Slot | null {
+	public getSlot(name: String): Slot | null {
 		for (const slot of this._slots) {
 			if (slot.name === name) {
 				return slot;
@@ -702,10 +702,10 @@ export class Armature extends BaseObject implements IAnimatable {
 	 * @version DragonBones 5.5
 	 * @language zh_CN
 	 */
-	public get flipX(): boolean {
+	public get flipX(): Boolean {
 		return this._flipX;
 	}
-	public set flipX(value: boolean) {
+	public set flipX(value: Boolean) {
 		if (this._flipX === value) {
 			return;
 		}
@@ -723,10 +723,10 @@ export class Armature extends BaseObject implements IAnimatable {
 	 * @version DragonBones 5.5
 	 * @language zh_CN
 	 */
-	public get flipY(): boolean {
+	public get flipY(): Boolean {
 		return this._flipY;
 	}
-	public set flipY(value: boolean) {
+	public set flipY(value: Boolean) {
 		if (this._flipY === value) {
 			return;
 		}
@@ -762,10 +762,10 @@ export class Armature extends BaseObject implements IAnimatable {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public get cacheFrameRate(): number {
+	public get cacheFrameRate(): Double {
 		return this._armatureData.cacheFrameRate;
 	}
-	public set cacheFrameRate(value: number) {
+	public set cacheFrameRate(value: Double) {
 		if (this._armatureData.cacheFrameRate !== value) {
 			this._armatureData.cacheFrames(value);
 
@@ -788,7 +788,7 @@ export class Armature extends BaseObject implements IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public get name(): string {
+	public get name(): String {
 		return this._armatureData.name;
 	}
 	/**

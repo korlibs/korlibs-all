@@ -34,13 +34,13 @@ package com.dragonbones.core
  * @version DragonBones 4.5
  * @language zh_CN
  */
-export abstract class BaseObject {
-	private static _hashCode: number = 0;
-	private static _defaultMaxCount: number = 3000;
+abstract class BaseObject {
+	private static _hashCode: Double = 0;
+	private static _defaultMaxCount: Double = 3000;
 	private static readonly _maxCountMap: Map<number> = {};
 	private static readonly _poolsMap: Map<Array<BaseObject>> = {};
 
-	private static _returnObject(object: BaseObject): void {
+	private static _returnObject(object: BaseObject): Unit {
 		const classType = String(object.constructor);
 		const maxCount = classType in BaseObject._maxCountMap ? BaseObject._maxCountMap[classType] : BaseObject._defaultMaxCount;
 		const pool = BaseObject._poolsMap[classType] = BaseObject._poolsMap[classType] || [];
@@ -57,7 +57,7 @@ export abstract class BaseObject {
 		}
 	}
 
-	public static toString(): string {
+	public static toString(): String {
 		throw new Error();
 	}
 	/**
@@ -74,7 +74,7 @@ export abstract class BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public static setMaxCount(objectConstructor: (typeof BaseObject) | null, maxCount: number): void {
+	public static setMaxCount(objectConstructor: (typeof BaseObject) | null, maxCount: Double): Unit {
 		if (maxCount < 0 || maxCount !== maxCount) { // isNaN
 			maxCount = 0;
 		}
@@ -115,7 +115,7 @@ export abstract class BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public static clearPool(objectConstructor: (typeof BaseObject) | null = null): void {
+	public static clearPool(objectConstructor: (typeof BaseObject) | null = null): Unit {
 		if (objectConstructor !== null) {
 			const classType = String(objectConstructor);
 			const pool = classType in BaseObject._poolsMap ? BaseObject._poolsMap[classType] : null;
@@ -142,7 +142,7 @@ export abstract class BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public static borrowObject<T extends BaseObject>(objectConstructor: { new(): T; }): T {
+	public static borrowObject<T  :  BaseObject>(objectConstructor: { new(): T; }): T {
 		const classType = String(objectConstructor);
 		const pool = classType in BaseObject._poolsMap ? BaseObject._poolsMap[classType] : null;
 		if (pool !== null && pool.length > 0) {
@@ -165,10 +165,10 @@ export abstract class BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public readonly hashCode: number = BaseObject._hashCode++;
-	private _isInPool: boolean = false;
+	public readonly hashCode: Double = BaseObject._hashCode++;
+	private _isInPool: Boolean = false;
 
-	protected abstract _onClear(): void;
+	protected abstract _onClear(): Unit;
 	/**
 	 * - Clear the object and return it back to object pool。
 	 * @version DragonBones 4.5
@@ -179,7 +179,7 @@ export abstract class BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public returnToPool(): void {
+	public returnToPool(): Unit {
 		this._onClear();
 		BaseObject._returnObject(this);
 	}

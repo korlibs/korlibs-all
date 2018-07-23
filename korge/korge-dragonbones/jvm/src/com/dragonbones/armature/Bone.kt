@@ -40,8 +40,8 @@ package com.dragonbones.armature
  * @version DragonBones 3.0
  * @language zh_CN
  */
-export class Bone extends TransformObject {
-	public static toString(): string {
+class Bone  :  TransformObject {
+	public static toString(): String {
 		return "[class dragonBones.Bone]";
 	}
 	/**
@@ -64,18 +64,18 @@ export class Bone extends TransformObject {
 	/**
 	 * @internal
 	 */
-	public _transformDirty: boolean;
+	public _transformDirty: Boolean;
 	/**
 	 * @internal
 	 */
-	public _childrenTransformDirty: boolean;
-	protected _localDirty: boolean;
+	public _childrenTransformDirty: Boolean;
+	protected _localDirty: Boolean;
 	/**
 	 * @internal
 	 */
-	public _hasConstraint: boolean;
-	protected _visible: boolean;
-	protected _cachedFrameIndex: number;
+	public _hasConstraint: Boolean;
+	protected _visible: Boolean;
+	protected _cachedFrameIndex: Double;
 	/**
 	 * @internal
 	 */
@@ -87,9 +87,9 @@ export class Bone extends TransformObject {
 	/**
 	 * @internal
 	 */
-	public _cachedFrameIndices: Array<number> | null;
+	public _cachedFrameIndices:  DoubleArray | null;
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		super._onClear();
 
 		this.offsetMode = OffsetMode.Additive;
@@ -106,7 +106,7 @@ export class Bone extends TransformObject {
 		this._cachedFrameIndices = null;
 	}
 
-	protected _updateGlobalTransformMatrix(isCache: boolean): void {
+	protected _updateGlobalTransformMatrix(isCache: Boolean): Unit {
 		// For typescript.
 		const boneData = this._boneData;
 		const global = this.global;
@@ -342,7 +342,7 @@ export class Bone extends TransformObject {
 	/**
 	 * @internal
 	 */
-	public init(boneData: BoneData, armatureValue: Armature): void {
+	public init(boneData: BoneData, armatureValue: Armature): Unit {
 		if (this._boneData !== null) {
 			return;
 		}
@@ -362,7 +362,7 @@ export class Bone extends TransformObject {
 	/**
 	 * @internal
 	 */
-	public update(cacheFrameIndex: number): void {
+	public update(cacheFrameIndex: Double): Unit {
 		if (cacheFrameIndex >= 0 && this._cachedFrameIndices !== null) {
 			const cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex];
 			if (cachedFrameIndex >= 0 && this._cachedFrameIndex === cachedFrameIndex) { // Same cache.
@@ -442,7 +442,7 @@ export class Bone extends TransformObject {
 	/**
 	 * @internal
 	 */
-	public updateByConstraint(): void {
+	public updateByConstraint(): Unit {
 		if (this._localDirty) {
 			this._localDirty = false;
 
@@ -478,7 +478,7 @@ export class Bone extends TransformObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public invalidUpdate(): void {
+	public invalidUpdate(): Unit {
 		this._transformDirty = true;
 	}
 	/**
@@ -493,7 +493,7 @@ export class Bone extends TransformObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public contains(value: Bone): boolean {
+	public contains(value: Bone): Boolean {
 		if (value === this) {
 			return false;
 		}
@@ -532,10 +532,10 @@ export class Bone extends TransformObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public get visible(): boolean {
+	public get visible(): Boolean {
 		return this._visible;
 	}
-	public set visible(value: boolean) {
+	public set visible(value: Boolean) {
 		if (this._visible === value) {
 			return;
 		}
@@ -558,7 +558,7 @@ export class Bone extends TransformObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public get name(): string {
+	public get name(): String {
 		return this._boneData.name;
 	}
 	/**

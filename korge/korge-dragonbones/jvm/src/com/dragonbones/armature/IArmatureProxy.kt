@@ -34,19 +34,19 @@ package com.dragonbones.armature
  * @version DragonBones 5.0
  * @language zh_CN
  */
-export interface IArmatureProxy extends IEventDispatcher {
+export interface IArmatureProxy  :  IEventDispatcher {
 	/**
 	 * @internal
 	 */
-	dbInit(armature: Armature): void;
+	dbInit(armature: Armature): Unit;
 	/**
 	 * @internal
 	 */
-	dbClear(): void;
+	dbClear(): Unit;
 	/**
 	 * @internal
 	 */
-	dbUpdate(): void;
+	dbUpdate(): Unit;
 	/**
 	 * - Dispose the instance and the Armature instance. (The Armature instance will return to the object pool)
 	 * @example
@@ -67,7 +67,7 @@ export interface IArmatureProxy extends IEventDispatcher {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	dispose(disposeProxy: boolean): void;
+	dispose(disposeProxy: Boolean): Unit;
 	/**
 	 * - The armature.
 	 * @version DragonBones 4.5

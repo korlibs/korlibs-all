@@ -33,8 +33,8 @@ export const enum FrameValueType {
 /**
  * @private
  */
-export class ObjectDataParser extends DataParser {
-	protected static _getBoolean(rawData: any, key: string, defaultValue: boolean): boolean {
+class ObjectDataParser  :  DataParser {
+	protected static _getBoolean(rawData: any, key: String, defaultValue: Boolean): Boolean {
 		if (key in rawData) {
 			const value = rawData[key];
 			const type = typeof value;
@@ -64,7 +64,7 @@ export class ObjectDataParser extends DataParser {
 		return defaultValue;
 	}
 
-	protected static _getNumber(rawData: any, key: string, defaultValue: number): number {
+	protected static _getNumber(rawData: any, key: String, defaultValue: Double): Double {
 		if (key in rawData) {
 			const value = rawData[key];
 			if (value === null || value === "NaN") {
@@ -77,7 +77,7 @@ export class ObjectDataParser extends DataParser {
 		return defaultValue;
 	}
 
-	protected static _getString(rawData: any, key: string, defaultValue: string): string {
+	protected static _getString(rawData: any, key: String, defaultValue: String): String {
 		if (key in rawData) {
 			const value = rawData[key];
 			const type = typeof value;
@@ -92,7 +92,7 @@ export class ObjectDataParser extends DataParser {
 		return defaultValue;
 	}
 
-	protected _rawTextureAtlasIndex: number = 0;
+	protected _rawTextureAtlasIndex: Double = 0;
 	protected readonly _rawBones: Array<BoneData> = [];
 	protected _data: DragonBonesData = null as any; //
 	protected _armature: ArmatureData = null as any; //
@@ -106,24 +106,24 @@ export class ObjectDataParser extends DataParser {
 	protected _rawTextureAtlases: Array<any> | null = null;
 
 	private _frameValueType: FrameValueType = FrameValueType.Step;
-	private _defaultColorOffset: number = -1;
-	private _prevClockwise: number = 0;
-	private _prevRotation: number = 0.0;
-	private _frameDefaultValue: number = 0.0;
-	private _frameValueScale: number = 1.0;
+	private _defaultColorOffset: Double = -1;
+	private _prevClockwise: Double = 0;
+	private _prevRotation: Double = 0.0;
+	private _frameDefaultValue: Double = 0.0;
+	private _frameValueScale: Double = 1.0;
 	private readonly _helpMatrixA: Matrix = new Matrix();
 	private readonly _helpMatrixB: Matrix = new Matrix();
 	private readonly _helpTransform: Transform = new Transform();
 	private readonly _helpColorTransform: ColorTransform = new ColorTransform();
 	private readonly _helpPoint: Point = new Point();
-	private readonly _helpArray: Array<number> = [];
-	private readonly _intArray: Array<number> = [];
-	private readonly _floatArray: Array<number> = [];
-	private readonly _frameIntArray: Array<number> = [];
-	private readonly _frameFloatArray: Array<number> = [];
-	private readonly _frameArray: Array<number> = [];
-	private readonly _timelineArray: Array<number> = [];
-	private readonly _colorArray: Array<number> = [];
+	private readonly _helpArray:  DoubleArray = [];
+	private readonly _intArray:  DoubleArray = [];
+	private readonly _floatArray:  DoubleArray = [];
+	private readonly _frameIntArray:  DoubleArray = [];
+	private readonly _frameFloatArray:  DoubleArray = [];
+	private readonly _frameArray:  DoubleArray = [];
+	private readonly _timelineArray:  DoubleArray = [];
+	private readonly _colorArray:  DoubleArray = [];
 	private readonly _cacheRawMeshes: Array<any> = [];
 	private readonly _cacheMeshes: Array<MeshDisplayData> = [];
 	private readonly _actionFrames: Array<ActionFrame> = [];
@@ -132,7 +132,7 @@ export class ObjectDataParser extends DataParser {
 	private readonly _cacheBones: Map<Array<BoneData>> = {};
 	private readonly _slotChildActions: Map<Array<ActionData>> = {};
 
-	private _getCurvePoint(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, x4: number, y4: number, t: number, result: Point): void {
+	private _getCurvePoint(x1: Double, y1: Double, x2: Double, y2: Double, x3: Double, y3: Double, x4: Double, y4: Double, t: Double, result: Point): Unit {
 		const l_t = 1.0 - t;
 		const powA = l_t * l_t;
 		const powB = t * t;
@@ -145,7 +145,7 @@ export class ObjectDataParser extends DataParser {
 		result.y = kA * y1 + kB * y2 + kC * y3 + kD * y4;
 	}
 
-	private _samplingEasingCurve(curve: Array<number>, samples: Array<number>): boolean {
+	private _samplingEasingCurve(curve:  DoubleArray, samples:  DoubleArray): Boolean {
 		const curveCount = curve.length;
 
 		if (curveCount % 3 === 1) {
@@ -221,7 +221,7 @@ export class ObjectDataParser extends DataParser {
 		}
 	}
 
-	private _parseActionDataInFrame(rawData: any, frameStart: number, bone: BoneData | null, slot: SlotData | null): void {
+	private _parseActionDataInFrame(rawData: any, frameStart: Double, bone: BoneData | null, slot: SlotData | null): Unit {
 		if (DataParser.EVENT in rawData) {
 			this._mergeActionFrame(rawData[DataParser.EVENT], frameStart, ActionType.Frame, bone, slot);
 		}
@@ -243,7 +243,7 @@ export class ObjectDataParser extends DataParser {
 		}
 	}
 
-	private _mergeActionFrame(rawData: any, frameStart: number, type: ActionType, bone: BoneData | null, slot: SlotData | null): void {
+	private _mergeActionFrame(rawData: any, frameStart: Double, type: ActionType, bone: BoneData | null, slot: SlotData | null): Unit {
 		const actionOffset = this._armature.actions.length;
 		const actions = this._parseActionData(rawData, type, bone, slot);
 		let frameIndex = 0;
@@ -283,7 +283,7 @@ export class ObjectDataParser extends DataParser {
 		}
 	}
 
-	protected _parseArmature(rawData: any, scale: number): ArmatureData {
+	protected _parseArmature(rawData: any, scale: Double): ArmatureData {
 		const armature = BaseObject.borrowObject(ArmatureData);
 		armature.name = ObjectDataParser._getString(rawData, DataParser.NAME, "");
 		armature.frameRate = ObjectDataParser._getNumber(rawData, DataParser.FRAME_RATE, this._data.frameRate);
@@ -591,7 +591,7 @@ export class ObjectDataParser extends DataParser {
 		return constraint;
 	}
 
-	protected _parseSlot(rawData: any, zOrder: number): SlotData {
+	protected _parseSlot(rawData: any, zOrder: Double): SlotData {
 		const slot = BaseObject.borrowObject(SlotData);
 		slot.displayIndex = ObjectDataParser._getNumber(rawData, DataParser.DISPLAY_INDEX, 0);
 		slot.zOrder = zOrder;
@@ -739,7 +739,7 @@ export class ObjectDataParser extends DataParser {
 			}
 
 			case DisplayType.Path: {
-				const rawCurveLengths = rawData[DataParser.LENGTHS] as Array<number>;
+				const rawCurveLengths = rawData[DataParser.LENGTHS] as  DoubleArray;
 				const pathDisplay = display = BaseObject.borrowObject(PathDisplayData);
 				pathDisplay.closed = ObjectDataParser._getBoolean(rawData, DataParser.CLOSED, false);
 				pathDisplay.constantSpeed = ObjectDataParser._getBoolean(rawData, DataParser.CONSTANT_SPEED, false);
@@ -767,7 +767,7 @@ export class ObjectDataParser extends DataParser {
 		this._parseGeometry(rawData, display.geometry);
 	}
 
-	protected _parsePivot(rawData: any, display: ImageDisplayData): void {
+	protected _parsePivot(rawData: any, display: ImageDisplayData): Unit {
 		if (DataParser.PIVOT in rawData) {
 			const rawPivot = rawData[DataParser.PIVOT];
 			display.pivot.x = ObjectDataParser._getNumber(rawPivot, DataParser.X, 0.0);
@@ -779,12 +779,12 @@ export class ObjectDataParser extends DataParser {
 		}
 	}
 
-	protected _parseMesh(rawData: any, mesh: MeshDisplayData): void {
+	protected _parseMesh(rawData: any, mesh: MeshDisplayData): Unit {
 		this._parseGeometry(rawData, mesh.geometry);
 
 		if (DataParser.WEIGHTS in rawData) { // Cache pose data.
-			const rawSlotPose = rawData[DataParser.SLOT_POSE] as Array<number>;
-			const rawBonePoses = rawData[DataParser.BONE_POSE] as Array<number>;
+			const rawSlotPose = rawData[DataParser.SLOT_POSE] as  DoubleArray;
+			const rawBonePoses = rawData[DataParser.BONE_POSE] as  DoubleArray;
 			const meshName = this._skin.name + "_" + this._slot.name + "_" + mesh.name;
 			this._weightSlotPose[meshName] = rawSlotPose;
 			this._weightBonePoses[meshName] = rawBonePoses;
@@ -832,7 +832,7 @@ export class ObjectDataParser extends DataParser {
 
 		if (DataParser.VERTICES in rawData) {
 			const scale = this._armature.scale;
-			const rawVertices = rawData[DataParser.VERTICES] as Array<number>;
+			const rawVertices = rawData[DataParser.VERTICES] as  DoubleArray;
 			const vertices = polygonBoundingBox.vertices;
 			vertices.length = rawVertices.length;
 
@@ -1209,9 +1209,9 @@ export class ObjectDataParser extends DataParser {
 	}
 
 	protected _parseTimeline(
-		rawData: any, rawFrames: Array<any> | null, framesKey: string,
-		timelineType: TimelineType, frameValueType: FrameValueType, frameValueCount: number,
-		frameParser: (rawData: any, frameStart: number, frameCount: number) => number, timeline: TimelineData | null = null
+		rawData: any, rawFrames: Array<any> | null, framesKey: String,
+		timelineType: TimelineType, frameValueType: FrameValueType, frameValueCount: Double,
+		frameParser: (rawData: any, frameStart: Double, frameCount: Double) => number, timeline: TimelineData | null = null
 	): TimelineData | null {
 		if (rawData !== null && framesKey.length > 0 && framesKey in rawData) {
 			rawFrames = rawData[framesKey];
@@ -1310,7 +1310,7 @@ export class ObjectDataParser extends DataParser {
 		return timeline;
 	}
 
-	protected _parseBoneTimeline(rawData: any): void {
+	protected _parseBoneTimeline(rawData: any): Unit {
 		const bone = this._armature.getBone(ObjectDataParser._getString(rawData, DataParser.NAME, ""));
 		if (bone === null) {
 			return;
@@ -1377,7 +1377,7 @@ export class ObjectDataParser extends DataParser {
 		this._slot = null as any; //
 	}
 
-	protected _parseSlotTimeline(rawData: any): void {
+	protected _parseSlotTimeline(rawData: any): Unit {
 		const slot = this._armature.getSlot(ObjectDataParser._getString(rawData, DataParser.NAME, ""));
 		if (slot === null) {
 			return;
@@ -1428,7 +1428,7 @@ export class ObjectDataParser extends DataParser {
 		this._slot = null as any; //
 	}
 
-	protected _parseFrame(rawData: any, frameStart: number, frameCount: number): number {
+	protected _parseFrame(rawData: any, frameStart: Double, frameCount: Double): Double {
 		// tslint:disable-next-line:no-unused-expression
 		rawData;
 		// tslint:disable-next-line:no-unused-expression
@@ -1441,7 +1441,7 @@ export class ObjectDataParser extends DataParser {
 		return frameOffset;
 	}
 
-	protected _parseTweenFrame(rawData: any, frameStart: number, frameCount: number): number {
+	protected _parseTweenFrame(rawData: any, frameStart: Double, frameCount: Double): Double {
 		const frameOffset = this._parseFrame(rawData, frameStart, frameCount);
 
 		if (frameCount > 0) {
@@ -1497,7 +1497,7 @@ export class ObjectDataParser extends DataParser {
 		return frameOffset;
 	}
 
-	protected _parseSingleValueFrame(rawData: any, frameStart: number, frameCount: number): number {
+	protected _parseSingleValueFrame(rawData: any, frameStart: Double, frameCount: Double): Double {
 		let frameOffset = 0;
 		switch (this._frameValueType) {
 			case 0: {
@@ -1527,7 +1527,7 @@ export class ObjectDataParser extends DataParser {
 		return frameOffset;
 	}
 
-	protected _parseDoubleValueFrame(rawData: any, frameStart: number, frameCount: number): number {
+	protected _parseDoubleValueFrame(rawData: any, frameStart: Double, frameCount: Double): Double {
 		let frameOffset = 0;
 		switch (this._frameValueType) {
 			case 0: {
@@ -1560,7 +1560,7 @@ export class ObjectDataParser extends DataParser {
 		return frameOffset;
 	}
 
-	protected _parseActionFrame(frame: ActionFrame, frameStart: number, frameCount: number): number {
+	protected _parseActionFrame(frame: ActionFrame, frameStart: Double, frameCount: Double): Double {
 		// tslint:disable-next-line:no-unused-expression
 		frameCount;
 
@@ -1577,15 +1577,15 @@ export class ObjectDataParser extends DataParser {
 		return frameOffset;
 	}
 
-	protected _parseZOrderFrame(rawData: any, frameStart: number, frameCount: number): number {
+	protected _parseZOrderFrame(rawData: any, frameStart: Double, frameCount: Double): Double {
 		const frameOffset = this._parseFrame(rawData, frameStart, frameCount);
 
 		if (DataParser.Z_ORDER in rawData) {
-			const rawZOrder = rawData[DataParser.Z_ORDER] as Array<number>;
+			const rawZOrder = rawData[DataParser.Z_ORDER] as  DoubleArray;
 			if (rawZOrder.length > 0) {
 				const slotCount = this._armature.sortedSlots.length;
-				const unchanged = new Array<number>(slotCount - rawZOrder.length / 2);
-				const zOrders = new Array<number>(slotCount);
+				const unchanged = new  DoubleArray(slotCount - rawZOrder.length / 2);
+				const zOrders = new  DoubleArray(slotCount);
 
 				for (let i = 0; i < unchanged.length; ++i) {
 					unchanged[i] = 0;
@@ -1636,7 +1636,7 @@ export class ObjectDataParser extends DataParser {
 		return frameOffset;
 	}
 
-	protected _parseBoneAllFrame(rawData: any, frameStart: number, frameCount: number): number {
+	protected _parseBoneAllFrame(rawData: any, frameStart: Double, frameCount: Double): Double {
 		this._helpTransform.identity();
 		if (DataParser.TRANSFORM in rawData) {
 			this._parseTransform(rawData[DataParser.TRANSFORM], this._helpTransform, 1.0);
@@ -1674,7 +1674,7 @@ export class ObjectDataParser extends DataParser {
 		return frameOffset;
 	}
 
-	protected _parseBoneTranslateFrame(rawData: any, frameStart: number, frameCount: number): number {
+	protected _parseBoneTranslateFrame(rawData: any, frameStart: Double, frameCount: Double): Double {
 		const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
 		let frameFloatOffset = this._frameFloatArray.length;
 		this._frameFloatArray.length += 2;
@@ -1684,7 +1684,7 @@ export class ObjectDataParser extends DataParser {
 		return frameOffset;
 	}
 
-	protected _parseBoneRotateFrame(rawData: any, frameStart: number, frameCount: number): number {
+	protected _parseBoneRotateFrame(rawData: any, frameStart: Double, frameCount: Double): Double {
 		// Modify rotation.
 		let rotation = ObjectDataParser._getNumber(rawData, DataParser.ROTATE, 0.0) * Transform.DEG_RAD;
 
@@ -1713,7 +1713,7 @@ export class ObjectDataParser extends DataParser {
 		return frameOffset;
 	}
 
-	protected _parseBoneScaleFrame(rawData: any, frameStart: number, frameCount: number): number {
+	protected _parseBoneScaleFrame(rawData: any, frameStart: Double, frameCount: Double): Double {
 		const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
 		let frameFloatOffset = this._frameFloatArray.length;
 		this._frameFloatArray.length += 2;
@@ -1723,7 +1723,7 @@ export class ObjectDataParser extends DataParser {
 		return frameOffset;
 	}
 
-	protected _parseSlotDisplayFrame(rawData: any, frameStart: number, frameCount: number): number {
+	protected _parseSlotDisplayFrame(rawData: any, frameStart: Double, frameCount: Double): Double {
 		const frameOffset = this._parseFrame(rawData, frameStart, frameCount);
 		this._frameArray.length += 1;
 
@@ -1739,7 +1739,7 @@ export class ObjectDataParser extends DataParser {
 		return frameOffset;
 	}
 
-	protected _parseSlotColorFrame(rawData: any, frameStart: number, frameCount: number): number {
+	protected _parseSlotColorFrame(rawData: any, frameStart: Double, frameCount: Double): Double {
 		const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
 		let colorOffset = -1;
 
@@ -1788,10 +1788,10 @@ export class ObjectDataParser extends DataParser {
 		return frameOffset;
 	}
 
-	protected _parseSlotDeformFrame(rawData: any, frameStart: number, frameCount: number): number {
+	protected _parseSlotDeformFrame(rawData: any, frameStart: Double, frameCount: Double): Double {
 		const frameFloatOffset = this._frameFloatArray.length;
 		const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
-		const rawVertices = DataParser.VERTICES in rawData ? rawData[DataParser.VERTICES] as Array<number> : null;
+		const rawVertices = DataParser.VERTICES in rawData ? rawData[DataParser.VERTICES] as  DoubleArray : null;
 		const offset = ObjectDataParser._getNumber(rawData, DataParser.OFFSET, 0); // uint
 		const vertexCount = this._intArray[this._mesh.geometry.offset + BinaryOffset.GeometryVertexCount];
 		const meshName = this._mesh.parent.name + "_" + this._slot.name + "_" + this._mesh.name;
@@ -1874,7 +1874,7 @@ export class ObjectDataParser extends DataParser {
 		return frameOffset;
 	}
 
-	protected _parseIKConstraintFrame(rawData: any, frameStart: number, frameCount: number): number {
+	protected _parseIKConstraintFrame(rawData: any, frameStart: Double, frameCount: Double): Double {
 		const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
 		let frameIntOffset = this._frameIntArray.length;
 		this._frameIntArray.length += 2;
@@ -1937,7 +1937,7 @@ export class ObjectDataParser extends DataParser {
 						userData = BaseObject.borrowObject(UserData);
 					}
 
-					const rawInts = rawAction[DataParser.INTS] as Array<number>;
+					const rawInts = rawAction[DataParser.INTS] as  DoubleArray;
 					for (const rawValue of rawInts) {
 						userData.addInt(rawValue);
 					}
@@ -1948,7 +1948,7 @@ export class ObjectDataParser extends DataParser {
 						userData = BaseObject.borrowObject(UserData);
 					}
 
-					const rawFloats = rawAction[DataParser.FLOATS] as Array<number>;
+					const rawFloats = rawAction[DataParser.FLOATS] as  DoubleArray;
 					for (const rawValue of rawFloats) {
 						userData.addFloat(rawValue);
 					}
@@ -1973,12 +1973,12 @@ export class ObjectDataParser extends DataParser {
 		return actions;
 	}
 
-	protected _parseDeformFrame(rawData: any, frameStart: number, frameCount: number): number {
+	protected _parseDeformFrame(rawData: any, frameStart: Double, frameCount: Double): Double {
 		const frameFloatOffset = this._frameFloatArray.length;
 		const frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount);
 		const rawVertices = DataParser.VERTICES in rawData ?
-			rawData[DataParser.VERTICES] as Array<number> :
-			(DataParser.VALUE in rawData ? rawData[DataParser.VALUE] as Array<number> : null);
+			rawData[DataParser.VERTICES] as  DoubleArray :
+			(DataParser.VALUE in rawData ? rawData[DataParser.VALUE] as  DoubleArray : null);
 		const offset = ObjectDataParser._getNumber(rawData, DataParser.OFFSET, 0); // uint
 		const vertexCount = this._intArray[this._geometry.offset + BinaryOffset.GeometryVertexCount];
 		const weight = this._geometry.weight;
@@ -2035,7 +2035,7 @@ export class ObjectDataParser extends DataParser {
 		return frameOffset;
 	}
 
-	protected _parseTransform(rawData: any, transform: Transform, scale: number): void {
+	protected _parseTransform(rawData: any, transform: Transform, scale: Double): Unit {
 		transform.x = ObjectDataParser._getNumber(rawData, DataParser.X, 0.0) * scale;
 		transform.y = ObjectDataParser._getNumber(rawData, DataParser.Y, 0.0) * scale;
 
@@ -2052,7 +2052,7 @@ export class ObjectDataParser extends DataParser {
 		transform.scaleY = ObjectDataParser._getNumber(rawData, DataParser.SCALE_Y, 1.0);
 	}
 
-	protected _parseColorTransform(rawData: any, color: ColorTransform): void {
+	protected _parseColorTransform(rawData: any, color: ColorTransform): Unit {
 		color.alphaMultiplier = ObjectDataParser._getNumber(rawData, DataParser.ALPHA_MULTIPLIER, 100) * 0.01;
 		color.redMultiplier = ObjectDataParser._getNumber(rawData, DataParser.RED_MULTIPLIER, 100) * 0.01;
 		color.greenMultiplier = ObjectDataParser._getNumber(rawData, DataParser.GREEN_MULTIPLIER, 100) * 0.01;
@@ -2063,8 +2063,8 @@ export class ObjectDataParser extends DataParser {
 		color.blueOffset = ObjectDataParser._getNumber(rawData, DataParser.BLUE_OFFSET, 0);
 	}
 
-	protected _parseGeometry(rawData: any, geometry: GeometryData): void {
-		const rawVertices = rawData[DataParser.VERTICES] as Array<number>;
+	protected _parseGeometry(rawData: any, geometry: GeometryData): Unit {
+		const rawVertices = rawData[DataParser.VERTICES] as  DoubleArray;
 		const vertexCount = Math.floor(rawVertices.length / 2); // uint
 		let triangleCount = 0;
 		const geometryOffset = this._intArray.length;
@@ -2084,7 +2084,7 @@ export class ObjectDataParser extends DataParser {
 		}
 
 		if (DataParser.TRIANGLES in rawData) {
-			const rawTriangles = rawData[DataParser.TRIANGLES] as Array<number>;
+			const rawTriangles = rawData[DataParser.TRIANGLES] as  DoubleArray;
 			triangleCount = Math.floor(rawTriangles.length / 3); // uint
 			//
 			this._intArray.length += triangleCount * 3;
@@ -2096,7 +2096,7 @@ export class ObjectDataParser extends DataParser {
 		this._intArray[geometryOffset + BinaryOffset.GeometryTriangleCount] = triangleCount;
 
 		if (DataParser.UVS in rawData) {
-			const rawUVs = rawData[DataParser.UVS] as Array<number>;
+			const rawUVs = rawData[DataParser.UVS] as  DoubleArray;
 			const uvOffset = verticesOffset + vertexCount * 2;
 			this._floatArray.length += vertexCount * 2;
 			for (let i = 0, l = vertexCount * 2; i < l; ++i) {
@@ -2105,7 +2105,7 @@ export class ObjectDataParser extends DataParser {
 		}
 
 		if (DataParser.WEIGHTS in rawData) {
-			const rawWeights = rawData[DataParser.WEIGHTS] as Array<number>;
+			const rawWeights = rawData[DataParser.WEIGHTS] as  DoubleArray;
 			const weightCount = Math.floor(rawWeights.length - vertexCount) / 2; // uint
 			const weightOffset = this._intArray.length;
 			const floatOffset = this._floatArray.length;
@@ -2119,9 +2119,9 @@ export class ObjectDataParser extends DataParser {
 			this._intArray[weightOffset + BinaryOffset.WeigthFloatOffset] = floatOffset;
 
 			if (DataParser.BONE_POSE in rawData) {
-				const rawSlotPose = rawData[DataParser.SLOT_POSE] as Array<number>;
-				const rawBonePoses = rawData[DataParser.BONE_POSE] as Array<number>;
-				const weightBoneIndices = new Array<number>();
+				const rawSlotPose = rawData[DataParser.SLOT_POSE] as  DoubleArray;
+				const rawBonePoses = rawData[DataParser.BONE_POSE] as  DoubleArray;
+				const weightBoneIndices = new  DoubleArray();
 
 				weightBoneCount = Math.floor(rawBonePoses.length / 7); // uint
 				weightBoneIndices.length = weightBoneCount;
@@ -2165,7 +2165,7 @@ export class ObjectDataParser extends DataParser {
 				}
 			}
 			else {
-				const rawBones = rawData[DataParser.BONES] as Array<number>;
+				const rawBones = rawData[DataParser.BONES] as  DoubleArray;
 				weightBoneCount = rawBones.length;
 
 				for (let i = 0; i < weightBoneCount; i++) {
@@ -2201,7 +2201,7 @@ export class ObjectDataParser extends DataParser {
 		}
 	}
 
-	protected _parseArray(rawData: any): void {
+	protected _parseArray(rawData: any): Unit {
 		// tslint:disable-next-line:no-unused-expression
 		rawData;
 		this._intArray.length = 0;
@@ -2213,7 +2213,7 @@ export class ObjectDataParser extends DataParser {
 		this._colorArray.length = 0;
 	}
 
-	protected _modifyArray(): void {
+	protected _modifyArray(): Unit {
 		// Align.
 		if ((this._intArray.length % Int16Array.BYTES_PER_ELEMENT) !== 0) {
 			this._intArray.push(0);
@@ -2292,7 +2292,7 @@ export class ObjectDataParser extends DataParser {
 		this._defaultColorOffset = -1;
 	}
 
-	public parseDragonBonesData(rawData: any, scale: number = 1): DragonBonesData | null {
+	public parseDragonBonesData(rawData: any, scale: Double = 1): DragonBonesData | null {
 		console.assert(rawData !== null && rawData !== undefined, "Data error.");
 
 		const version = ObjectDataParser._getString(rawData, DataParser.VERSION, "");
@@ -2352,7 +2352,7 @@ export class ObjectDataParser extends DataParser {
 		return null;
 	}
 
-	public parseTextureAtlasData(rawData: any, textureAtlasData: TextureAtlasData, scale: number = 1.0): boolean {
+	public parseTextureAtlasData(rawData: any, textureAtlasData: TextureAtlasData, scale: Double = 1.0): Boolean {
 		console.assert(rawData !== undefined);
 
 		if (rawData === null) {
@@ -2430,7 +2430,7 @@ export class ObjectDataParser extends DataParser {
 /**
  * @private
  */
-export class ActionFrame {
-	public frameStart: number = 0;
-	public readonly actions: Array<number> = [];
+class ActionFrame {
+	public frameStart: Double = 0;
+	public readonly actions:  DoubleArray = [];
 }

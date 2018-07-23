@@ -25,18 +25,18 @@ package com.dragonbones.parser
 /**
  * @private
  */
-export class BinaryDataParser extends ObjectDataParser {
-	private _binaryOffset: number;
+class BinaryDataParser  :  ObjectDataParser {
+	private _binaryOffset: Double;
 	private _binary: ArrayBuffer;
 	private _intArrayBuffer: Int16Array;
 	private _frameArrayBuffer: Int16Array;
 	private _timelineArrayBuffer: Uint16Array;
 
-	private _inRange(a: number, min: number, max: number): boolean {
+	private _inRange(a: Double, min: Double, max: Double): Boolean {
 		return min <= a && a <= max;
 	}
 
-	private _decodeUTF8(data: Uint8Array): string {
+	private _decodeUTF8(data: Uint8Array): String {
 		const EOF_byte = -1;
 		const EOF_code_point = -1;
 		const FATAL_POINT = 0xFFFD;
@@ -139,7 +139,7 @@ export class BinaryDataParser extends ObjectDataParser {
 		return result;
 	}
 
-	private _parseBinaryTimeline(type: TimelineType, offset: number, timelineData: TimelineData | null = null): TimelineData {
+	private _parseBinaryTimeline(type: TimelineType, offset: Double, timelineData: TimelineData | null = null): TimelineData {
 		const timeline = timelineData !== null ? timelineData : BaseObject.borrowObject(TimelineData);
 		timeline.type = type;
 		timeline.offset = offset;
@@ -198,7 +198,7 @@ export class BinaryDataParser extends ObjectDataParser {
 		}
 
 		// Offsets.
-		const offsets = rawData[DataParser.OFFSET] as Array<number>;
+		const offsets = rawData[DataParser.OFFSET] as  DoubleArray;
 		animation.frameIntOffset = offsets[0];
 		animation.frameFloatOffset = offsets[1];
 		animation.frameOffset = offsets[2];
@@ -216,7 +216,7 @@ export class BinaryDataParser extends ObjectDataParser {
 		if (DataParser.BONE in rawData) {
 			const rawTimeliness = rawData[DataParser.BONE];
 			for (let k in rawTimeliness) {
-				const rawTimelines = rawTimeliness[k] as Array<number>;
+				const rawTimelines = rawTimeliness[k] as  DoubleArray;
 				const bone = this._armature.getBone(k);
 				if (bone === null) {
 					continue;
@@ -234,7 +234,7 @@ export class BinaryDataParser extends ObjectDataParser {
 		if (DataParser.SLOT in rawData) {
 			const rawTimeliness = rawData[DataParser.SLOT];
 			for (let k in rawTimeliness) {
-				const rawTimelines = rawTimeliness[k] as Array<number>;
+				const rawTimelines = rawTimeliness[k] as  DoubleArray;
 				const slot = this._armature.getSlot(k);
 				if (slot === null) {
 					continue;
@@ -252,7 +252,7 @@ export class BinaryDataParser extends ObjectDataParser {
 		if (DataParser.CONSTRAINT in rawData) {
 			const rawTimeliness = rawData[DataParser.CONSTRAINT];
 			for (let k in rawTimeliness) {
-				const rawTimelines = rawTimeliness[k] as Array<number>;
+				const rawTimelines = rawTimeliness[k] as  DoubleArray;
 				const constraint = this._armature.getConstraint(k);
 				if (constraint === null) {
 					continue;
@@ -329,7 +329,7 @@ export class BinaryDataParser extends ObjectDataParser {
 		return animation;
 	}
 
-	protected _parseGeometry(rawData: any, geometry: GeometryData): void {
+	protected _parseGeometry(rawData: any, geometry: GeometryData): Unit {
 		geometry.offset = rawData[DataParser.OFFSET];
 		geometry.data = this._data;
 
@@ -358,8 +358,8 @@ export class BinaryDataParser extends ObjectDataParser {
 		}
 	}
 
-	protected _parseArray(rawData: any): void {
-		const offsets = rawData[DataParser.OFFSET] as Array<number>;
+	protected _parseArray(rawData: any): Unit {
+		const offsets = rawData[DataParser.OFFSET] as  DoubleArray;
 		const l1 = offsets[1];
 		const l2 = offsets[3];
 		const l3 = offsets[5];
@@ -385,7 +385,7 @@ export class BinaryDataParser extends ObjectDataParser {
 		this._data.colorArray = colorArray;
 	}
 
-	public parseDragonBonesData(rawData: any, scale: number = 1): DragonBonesData | null {
+	public parseDragonBonesData(rawData: any, scale: Double = 1): DragonBonesData | null {
 		console.assert(rawData !== null && rawData !== undefined && rawData instanceof ArrayBuffer, "Data error.");
 
 		const tag = new Uint8Array(rawData, 0, 8);

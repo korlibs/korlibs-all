@@ -36,7 +36,7 @@ package com.dragonbones.animation
  * @version DragonBones 3.0
  * @language zh_CN
  */
-export class WorldClock implements IAnimatable {
+class WorldClock implements IAnimatable {
 	/**
 	 * - Current time. (In seconds)
 	 * @version DragonBones 3.0
@@ -47,7 +47,7 @@ export class WorldClock implements IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public time: number = 0.0;
+	public time: Double = 0.0;
 	/**
 	 * - The play speed, used to control animation speed-shift play.
 	 * [0: Stop play, (0~1): Slow play, 1: Normal play, (1~N): Fast play]
@@ -62,9 +62,9 @@ export class WorldClock implements IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public timeScale: number = 1.0;
+	public timeScale: Double = 1.0;
 
-	private _systemTime: number = 0.0;
+	private _systemTime: Double = 0.0;
 	private readonly _animatebles: Array<IAnimatable | null> = [];
 	private _clock: WorldClock | null = null;
 	/**
@@ -79,7 +79,7 @@ export class WorldClock implements IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public constructor(time: number = 0.0) {
+	public constructor(time: Double = 0.0) {
 		this.time = time;
 		this._systemTime = new Date().getTime() * 0.001;
 	}
@@ -95,7 +95,7 @@ export class WorldClock implements IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public advanceTime(passedTime: number): void {
+	public advanceTime(passedTime: Double): Unit {
 		if (passedTime !== passedTime) {
 			passedTime = 0.0;
 		}
@@ -166,7 +166,7 @@ export class WorldClock implements IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public contains(value: IAnimatable): boolean {
+	public contains(value: IAnimatable): Boolean {
 		if (value === this) {
 			return false;
 		}
@@ -190,7 +190,7 @@ export class WorldClock implements IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public add(value: IAnimatable): void {
+	public add(value: IAnimatable): Unit {
 		if (this._animatebles.indexOf(value) < 0) {
 			this._animatebles.push(value);
 			value.clock = this;
@@ -208,7 +208,7 @@ export class WorldClock implements IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public remove(value: IAnimatable): void {
+	public remove(value: IAnimatable): Unit {
 		const index = this._animatebles.indexOf(value);
 		if (index >= 0) {
 			this._animatebles[index] = null;
@@ -225,7 +225,7 @@ export class WorldClock implements IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public clear(): void {
+	public clear(): Unit {
 		for (const animatable of this._animatebles) {
 			if (animatable !== null) {
 				animatable.clock = null;

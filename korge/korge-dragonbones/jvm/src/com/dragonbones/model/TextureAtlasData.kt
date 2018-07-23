@@ -32,23 +32,23 @@ package com.dragonbones.model
  * @version DragonBones 3.0
  * @language zh_CN
  */
-export abstract class TextureAtlasData extends BaseObject {
+abstract class TextureAtlasData  :  BaseObject {
 	/**
 	 * @private
 	 */
-	public autoSearch: boolean;
+	public autoSearch: Boolean;
 	/**
 	 * @private
 	 */
-	public width: number;
+	public width: Double;
 	/**
 	 * @private
 	 */
-	public height: number;
+	public height: Double;
 	/**
 	 * @private
 	 */
-	public scale: number;
+	public scale: Double;
 	/**
 	 * - The texture atlas name.
 	 * @version DragonBones 3.0
@@ -59,7 +59,7 @@ export abstract class TextureAtlasData extends BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public name: string;
+	public name: String;
 	/**
 	 * - The image path of the texture atlas.
 	 * @version DragonBones 3.0
@@ -70,13 +70,13 @@ export abstract class TextureAtlasData extends BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public imagePath: string;
+	public imagePath: String;
 	/**
 	 * @private
 	 */
 	public readonly textures: Map<TextureData> = {};
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		for (let k in this.textures) {
 			this.textures[k].returnToPool();
 			delete this.textures[k];
@@ -93,7 +93,7 @@ export abstract class TextureAtlasData extends BaseObject {
 	/**
 	 * @private
 	 */
-	public copyFrom(value: TextureAtlasData): void {
+	public copyFrom(value: TextureAtlasData): Unit {
 		this.autoSearch = value.autoSearch;
 		this.scale = value.scale;
 		this.width = value.width;
@@ -121,7 +121,7 @@ export abstract class TextureAtlasData extends BaseObject {
 	/**
 	 * @internal
 	 */
-	public addTexture(value: TextureData): void {
+	public addTexture(value: TextureData): Unit {
 		if (value.name in this.textures) {
 			console.warn("Same texture: " + value.name);
 			return;
@@ -133,25 +133,25 @@ export abstract class TextureAtlasData extends BaseObject {
 	/**
 	 * @private
 	 */
-	public getTexture(textureName: string): TextureData | null {
+	public getTexture(textureName: String): TextureData | null {
 		return textureName in this.textures ? this.textures[textureName] : null;
 	}
 }
 /**
  * @private
  */
-export abstract class TextureData extends BaseObject {
+abstract class TextureData  :  BaseObject {
 	public static createRectangle(): Rectangle {
 		return new Rectangle();
 	}
 
-	public rotated: boolean;
-	public name: string;
+	public rotated: Boolean;
+	public name: String;
 	public readonly region: Rectangle = new Rectangle();
 	public parent: TextureAtlasData;
 	public frame: Rectangle | null = null; // Initial value.
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		this.rotated = false;
 		this.name = "";
 		this.region.clear();
@@ -159,7 +159,7 @@ export abstract class TextureData extends BaseObject {
 		this.frame = null;
 	}
 
-	public copyFrom(value: TextureData): void {
+	public copyFrom(value: TextureData): Unit {
 		this.rotated = value.rotated;
 		this.name = value.name;
 		this.region.copyFrom(value.region);

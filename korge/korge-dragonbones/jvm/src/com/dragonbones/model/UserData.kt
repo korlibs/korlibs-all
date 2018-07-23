@@ -32,8 +32,8 @@ package com.dragonbones.model
  * @version DragonBones 5.0
  * @language zh_CN
  */
-export class UserData extends BaseObject {
-	public static toString(): string {
+class UserData  :  BaseObject {
+	public static toString(): String {
 		return "[class dragonBones.UserData]";
 	}
 	/**
@@ -46,7 +46,7 @@ export class UserData extends BaseObject {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public readonly ints: Array<number> = [];
+	public readonly ints:  DoubleArray = [];
 	/**
 	 * - The custom float numbers.
 	 * @version DragonBones 5.0
@@ -57,7 +57,7 @@ export class UserData extends BaseObject {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public readonly floats: Array<number> = [];
+	public readonly floats:  DoubleArray = [];
 	/**
 	 * - The custom strings.
 	 * @version DragonBones 5.0
@@ -70,7 +70,7 @@ export class UserData extends BaseObject {
 	 */
 	public readonly strings: Array<string> = [];
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		this.ints.length = 0;
 		this.floats.length = 0;
 		this.strings.length = 0;
@@ -78,19 +78,19 @@ export class UserData extends BaseObject {
 	/**
 	 * @internal
 	 */
-	public addInt(value: number): void {
+	public addInt(value: Double): Unit {
 		this.ints.push(value);
 	}
 	/**
 	 * @internal
 	 */
-	public addFloat(value: number): void {
+	public addFloat(value: Double): Unit {
 		this.floats.push(value);
 	}
 	/**
 	 * @internal
 	 */
-	public addString(value: string): void {
+	public addString(value: String): Unit {
 		this.strings.push(value);
 	}
 	/**
@@ -103,7 +103,7 @@ export class UserData extends BaseObject {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public getInt(index: number = 0): number {
+	public getInt(index: Double = 0): Double {
 		return index >= 0 && index < this.ints.length ? this.ints[index] : 0;
 	}
 	/**
@@ -116,7 +116,7 @@ export class UserData extends BaseObject {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public getFloat(index: number = 0): number {
+	public getFloat(index: Double = 0): Double {
 		return index >= 0 && index < this.floats.length ? this.floats[index] : 0.0;
 	}
 	/**
@@ -129,25 +129,25 @@ export class UserData extends BaseObject {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public getString(index: number = 0): string {
+	public getString(index: Double = 0): String {
 		return index >= 0 && index < this.strings.length ? this.strings[index] : "";
 	}
 }
 /**
  * @private
  */
-export class ActionData extends BaseObject {
-	public static toString(): string {
+class ActionData  :  BaseObject {
+	public static toString(): String {
 		return "[class dragonBones.ActionData]";
 	}
 
 	public type: ActionType;
-	public name: string; // Frame event name | Sound event name | Animation name
+	public name: String; // Frame event name | Sound event name | Animation name
 	public bone: BoneData | null;
 	public slot: SlotData | null;
 	public data: UserData | null = null; //
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		if (this.data !== null) {
 			this.data.returnToPool();
 		}

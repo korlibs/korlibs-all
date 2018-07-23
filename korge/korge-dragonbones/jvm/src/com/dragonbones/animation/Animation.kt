@@ -38,7 +38,7 @@ package com.dragonbones.animation
  * @language zh_CN
  */
 class Animation : BaseObject {
-	public static toString(): string {
+	public static toString(): String {
 		return "[class dragonBones.Animation]";
 	}
 	/**
@@ -53,12 +53,12 @@ class Animation : BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public timeScale: number;
+	public timeScale: Double;
 	/**
 	 * Update bones and slots cachedFrameIndices.
 	 */
-	private _animationDirty: boolean; //
-	private _inheritTimeScale: number;
+	private _animationDirty: Boolean; //
+	private _inheritTimeScale: Double;
 	private readonly _animationNames: Array<string> = [];
 	private readonly _animationStates: Array<AnimationState> = [];
 	private readonly _animations: Map<AnimationData> = {};
@@ -67,7 +67,7 @@ class Animation : BaseObject {
 	private _animationConfig: AnimationConfig = null as any; // Initial value.
 	private _lastAnimationState: AnimationState | null;
 
-	protected _onClear(): void {
+	protected _onClear(): Unit {
 		for (const animationState of this._animationStates) {
 			animationState.returnToPool();
 		}
@@ -101,7 +101,7 @@ class Animation : BaseObject {
 		this._lastAnimationState = null;
 	}
 
-	private _fadeOut(animationConfig: AnimationConfig): void {
+	private _fadeOut(animationConfig: AnimationConfig): Unit {
 		switch (animationConfig.fadeOutMode) {
 			case AnimationFadeOutMode.SameLayer:
 				for (const animationState of this._animationStates) {
@@ -160,7 +160,7 @@ class Animation : BaseObject {
 	/**
 	 * @internal
 	 */
-	public init(armature: Armature): void {
+	public init(armature: Armature): Unit {
 		if (this._armature !== null) {
 			return;
 		}
@@ -171,7 +171,7 @@ class Animation : BaseObject {
 	/**
 	 * @internal
 	 */
-	public advanceTime(passedTime: number): void {
+	public advanceTime(passedTime: Double): Unit {
 		if (passedTime < 0.0) { // Only animationState can reverse play.
 			passedTime = -passedTime;
 		}
@@ -279,7 +279,7 @@ class Animation : BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public reset(): void {
+	public reset(): Unit {
 		for (const animationState of this._animationStates) {
 			animationState.returnToPool();
 		}
@@ -303,7 +303,7 @@ class Animation : BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public stop(animationName: string | null = null): void {
+	public stop(animationName: String | null = null): Unit {
 		if (animationName !== null) {
 			const animationState = this.getState(animationName);
 			if (animationState !== null) {
@@ -505,7 +505,7 @@ class Animation : BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public play(animationName: string | null = null, playTimes: number = -1): AnimationState | null {
+	public play(animationName: String | null = null, playTimes: Double = -1): AnimationState | null {
 		this._animationConfig.clear();
 		this._animationConfig.resetToPose = true;
 		this._animationConfig.playTimes = playTimes;
@@ -567,8 +567,8 @@ class Animation : BaseObject {
 	 * @language zh_CN
 	 */
 	public fadeIn(
-		animationName: string, fadeInTime: number = -1.0, playTimes: number = -1,
-		layer: number = 0, group: string | null = null, fadeOutMode: AnimationFadeOutMode = AnimationFadeOutMode.SameLayerAndGroup
+		animationName: String, fadeInTime: Double = -1.0, playTimes: Double = -1,
+		layer: Double = 0, group: String | null = null, fadeOutMode: AnimationFadeOutMode = AnimationFadeOutMode.SameLayerAndGroup
 	): AnimationState | null {
 		this._animationConfig.clear();
 		this._animationConfig.fadeOutMode = fadeOutMode;
@@ -598,7 +598,7 @@ class Animation : BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public gotoAndPlayByTime(animationName: string, time: number = 0.0, playTimes: number = -1): AnimationState | null {
+	public gotoAndPlayByTime(animationName: String, time: Double = 0.0, playTimes: Double = -1): AnimationState | null {
 		this._animationConfig.clear();
 		this._animationConfig.resetToPose = true;
 		this._animationConfig.playTimes = playTimes;
@@ -626,7 +626,7 @@ class Animation : BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public gotoAndPlayByFrame(animationName: string, frame: number = 0, playTimes: number = -1): AnimationState | null {
+	public gotoAndPlayByFrame(animationName: String, frame: Double = 0, playTimes: Double = -1): AnimationState | null {
 		this._animationConfig.clear();
 		this._animationConfig.resetToPose = true;
 		this._animationConfig.playTimes = playTimes;
@@ -658,7 +658,7 @@ class Animation : BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public gotoAndPlayByProgress(animationName: string, progress: number = 0.0, playTimes: number = -1): AnimationState | null {
+	public gotoAndPlayByProgress(animationName: String, progress: Double = 0.0, playTimes: Double = -1): AnimationState | null {
 		this._animationConfig.clear();
 		this._animationConfig.resetToPose = true;
 		this._animationConfig.playTimes = playTimes;
@@ -688,7 +688,7 @@ class Animation : BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public gotoAndStopByTime(animationName: string, time: number = 0.0): AnimationState | null {
+	public gotoAndStopByTime(animationName: String, time: Double = 0.0): AnimationState | null {
 		const animationState = this.gotoAndPlayByTime(animationName, time, 1);
 		if (animationState !== null) {
 			animationState.stop();
@@ -712,7 +712,7 @@ class Animation : BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public gotoAndStopByFrame(animationName: string, frame: number = 0): AnimationState | null {
+	public gotoAndStopByFrame(animationName: String, frame: Double = 0): AnimationState | null {
 		const animationState = this.gotoAndPlayByFrame(animationName, frame, 1);
 		if (animationState !== null) {
 			animationState.stop();
@@ -736,7 +736,7 @@ class Animation : BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public gotoAndStopByProgress(animationName: string, progress: number = 0.0): AnimationState | null {
+	public gotoAndStopByProgress(animationName: String, progress: Double = 0.0): AnimationState | null {
 		const animationState = this.gotoAndPlayByProgress(animationName, progress, 1);
 		if (animationState !== null) {
 			animationState.stop();
@@ -747,7 +747,7 @@ class Animation : BaseObject {
 	/**
 	 * @internal
 	 */
-	public getBlendState(type: string, name: string, target: BaseObject): BlendState {
+	public getBlendState(type: String, name: String, target: BaseObject): BlendState {
 		if (!(type in this._blendStates)) {
 			this._blendStates[type] = {};
 		}
@@ -786,7 +786,7 @@ class Animation : BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public getState(animationName: string, layer: number = -1): AnimationState | null {
+	public getState(animationName: String, layer: Double = -1): AnimationState | null {
 		let i = this._animationStates.length;
 		while (i--) {
 			const animationState = this._animationStates[i];
@@ -811,7 +811,7 @@ class Animation : BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public hasAnimation(animationName: string): boolean {
+	public hasAnimation(animationName: String): Boolean {
 		return animationName in this._animations;
 	}
 	/**
@@ -839,7 +839,7 @@ class Animation : BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public get isPlaying(): boolean {
+	public get isPlaying(): Boolean {
 		for (const animationState of this._animationStates) {
 			if (animationState.isPlaying) {
 				return true;
@@ -860,7 +860,7 @@ class Animation : BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public get isCompleted(): boolean {
+	public get isCompleted(): Boolean {
 		for (const animationState of this._animationStates) {
 			if (!animationState.isCompleted) {
 				return false;
@@ -881,7 +881,7 @@ class Animation : BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public get lastAnimationName(): string {
+	public get lastAnimationName(): String {
 		return this._lastAnimationState !== null ? this._lastAnimationState.name : "";
 	}
 	/**
