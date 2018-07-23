@@ -65,8 +65,8 @@ class WorldClock implements IAnimatable {
 	public timeScale: Double = 1.0;
 
 	private _systemTime: Double = 0.0;
-	private readonly _animatebles: Array<IAnimatable | null> = [];
-	private _clock: WorldClock | null = null;
+	private readonly _animatebles: Array<IAnimatable?> = [];
+	private _clock: WorldClock? = null;
 	/**
 	 * - Creating a Worldclock instance. Typically, you do not need to create Worldclock instance.
 	 * When multiple Worldclock instances are running at different speeds, can achieving some specific animation effects, such as bullet time.
@@ -171,7 +171,7 @@ class WorldClock implements IAnimatable {
 			return false;
 		}
 
-		let ancestor: IAnimatable | null = value;
+		let ancestor: IAnimatable? = value;
 		while (ancestor !== this && ancestor !== null) {
 			ancestor = ancestor.clock;
 		}
@@ -235,10 +235,10 @@ class WorldClock implements IAnimatable {
 	/**
 	 * @inheritDoc
 	 */
-	public get clock(): WorldClock | null {
+	public get clock(): WorldClock? {
 		return this._clock;
 	}
-	public set clock(value: WorldClock | null) {
+	public set clock(value: WorldClock?) {
 		if (this._clock === value) {
 			return;
 		}

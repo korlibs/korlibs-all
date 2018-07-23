@@ -78,7 +78,7 @@ abstract class TransformObject  :  BaseObject {
 	/**
 	 * @private
 	 */
-	public origin: Transform | null;
+	public origin: Transform?;
 	/**
 	 * @private
 	 */

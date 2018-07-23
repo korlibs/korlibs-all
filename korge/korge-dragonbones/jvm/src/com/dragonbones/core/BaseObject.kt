@@ -74,7 +74,7 @@ abstract class BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public static setMaxCount(objectConstructor: (typeof BaseObject) | null, maxCount: Double): Unit {
+	public static setMaxCount(objectConstructor: (typeof BaseObject)?, maxCount: Double): Unit {
 		if (maxCount < 0 || maxCount !== maxCount) { // isNaN
 			maxCount = 0;
 		}
@@ -115,7 +115,7 @@ abstract class BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public static clearPool(objectConstructor: (typeof BaseObject) | null = null): Unit {
+	public static clearPool(objectConstructor: (typeof BaseObject)? = null): Unit {
 		if (objectConstructor !== null) {
 			const classType = String(objectConstructor);
 			const pool = classType in BaseObject._poolsMap ? BaseObject._poolsMap[classType] : null;

@@ -143,9 +143,9 @@ class ActionData  :  BaseObject {
 
 	public type: ActionType;
 	public name: String; // Frame event name | Sound event name | Animation name
-	public bone: BoneData | null;
-	public slot: SlotData | null;
-	public data: UserData | null = null; //
+	public bone: BoneData?;
+	public slot: SlotData?;
+	public data: UserData? = null; //
 
 	protected _onClear(): Unit {
 		if (this.data !== null) {

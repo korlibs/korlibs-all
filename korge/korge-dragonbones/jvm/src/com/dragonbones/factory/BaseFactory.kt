@@ -65,7 +65,7 @@ abstract class BaseFactory {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public constructor(dataParser: DataParser | null = null) {
+	public constructor(dataParser: DataParser? = null) {
 		if (BaseFactory._objectParser === null) {
 			BaseFactory._objectParser = new ObjectDataParser()
 		}
@@ -81,7 +81,7 @@ abstract class BaseFactory {
 		return true
 	}
 
-	protected _getTextureData(textureAtlasName: String, textureName: String): TextureData | null {
+	protected _getTextureData(textureAtlasName: String, textureName: String): TextureData? {
 		if (textureAtlasName in this._textureAtlasDataMap) {
 			for (const textureAtlasData of this._textureAtlasDataMap[textureAtlasName]) {
 				const textureData = textureAtlasData.getTexture(textureName)
@@ -111,8 +111,8 @@ abstract class BaseFactory {
 		dataPackage: BuildArmaturePackage,
 		dragonBonesName: String, armatureName: String, skinName: String, textureAtlasName: String
 	): Boolean {
-		let dragonBonesData: DragonBonesData | null = null
-		let armatureData: ArmatureData | null = null
+		let dragonBonesData: DragonBonesData? = null
+		let armatureData: ArmatureData? = null
 
 		if (dragonBonesName.length > 0) {
 			if (dragonBonesName in this._dragonBonesDataMap) {
@@ -181,7 +181,7 @@ abstract class BaseFactory {
 			return
 		}
 
-		const skinSlots: Map<Array<DisplayData | null>> = {}
+		const skinSlots: Map<Array<DisplayData?>> = {}
 		for (let k in defaultSkin.displays) {
 			const displays = defaultSkin.getDisplays(k) as any
 			skinSlots[k] = displays
@@ -251,7 +251,7 @@ abstract class BaseFactory {
 		}
 	}
 
-	protected _buildChildArmature(dataPackage: BuildArmaturePackage | null, _slot: Slot, displayData: ArmatureDisplayData): Armature | null {
+	protected _buildChildArmature(dataPackage: BuildArmaturePackage?, _slot: Slot, displayData: ArmatureDisplayData): Armature? {
 		return this.buildArmature(displayData.path, dataPackage !== null ? dataPackage.dataName : "", "", dataPackage !== null ? dataPackage.textureAtlasName : "")
 	}
 
@@ -319,7 +319,7 @@ abstract class BaseFactory {
 		return display
 	}
 
-	protected abstract _buildTextureAtlasData(textureAtlasData: TextureAtlasData | null, textureAtlas: any): TextureAtlasData
+	protected abstract _buildTextureAtlasData(textureAtlasData: TextureAtlasData?, textureAtlas: any): TextureAtlasData
 	protected abstract _buildArmature(dataPackage: BuildArmaturePackage): Armature
 	protected abstract _buildSlot(dataPackage: BuildArmaturePackage, slotData: SlotData, armature: Armature): Slot
 	/**
@@ -348,7 +348,7 @@ abstract class BaseFactory {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public parseDragonBonesData(rawData: any, name: String | null = null, scale: Double = 1.0): DragonBonesData | null {
+	public parseDragonBonesData(rawData: any, name: String? = null, scale: Double = 1.0): DragonBonesData? {
 		const dataParser = rawData instanceof ArrayBuffer ? BaseFactory._binaryParser : this._dataParser
 		const dragonBonesData = dataParser.parseDragonBonesData(rawData, scale)
 
@@ -397,7 +397,7 @@ abstract class BaseFactory {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public parseTextureAtlasData(rawData: any, textureAtlas: any, name: String | null = null, scale: Double = 1.0): TextureAtlasData {
+	public parseTextureAtlasData(rawData: any, textureAtlas: any, name: String? = null, scale: Double = 1.0): TextureAtlasData {
 		const textureAtlasData = this._buildTextureAtlasData(null, null)
 		this._dataParser.parseTextureAtlasData(rawData, textureAtlasData, scale)
 		this._buildTextureAtlasData(textureAtlasData, textureAtlas || null)
@@ -451,7 +451,7 @@ abstract class BaseFactory {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public getDragonBonesData(name: String): DragonBonesData | null {
+	public getDragonBonesData(name: String): DragonBonesData? {
 		return (name in this._dragonBonesDataMap) ? this._dragonBonesDataMap[name] : null
 	}
 	/**
@@ -476,7 +476,7 @@ abstract class BaseFactory {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public addDragonBonesData(data: DragonBonesData, name: String | null = null): Unit {
+	public addDragonBonesData(data: DragonBonesData, name: String? = null): Unit {
 		name = name !== null ? name : data.name
 		if (name in this._dragonBonesDataMap) {
 			if (this._dragonBonesDataMap[name] === data) {
@@ -540,7 +540,7 @@ abstract class BaseFactory {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public getTextureAtlasData(name: String): Array<TextureAtlasData> | null {
+	public getTextureAtlasData(name: String): Array<TextureAtlasData>? {
 		return (name in this._textureAtlasDataMap) ? this._textureAtlasDataMap[name] : null
 	}
 	/**
@@ -565,7 +565,7 @@ abstract class BaseFactory {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public addTextureAtlasData(data: TextureAtlasData, name: String | null = null): Unit {
+	public addTextureAtlasData(data: TextureAtlasData, name: String? = null): Unit {
 		name = name !== null ? name : data.name
 		const textureAtlasList = (name in this._textureAtlasDataMap) ? this._textureAtlasDataMap[name] : (this._textureAtlasDataMap[name] = [])
 		if (textureAtlasList.indexOf(data) < 0) {
@@ -622,7 +622,7 @@ abstract class BaseFactory {
 	 * @version DragonBones 5.1
 	 * @language zh_CN
 	 */
-	public getArmatureData(name: String, dragonBonesName: String = ""): ArmatureData | null {
+	public getArmatureData(name: String, dragonBonesName: String = ""): ArmatureData? {
 		const dataPackage: BuildArmaturePackage = new BuildArmaturePackage()
 		if (!this._fillBuildArmaturePackage(dataPackage, dragonBonesName, name, "", "")) {
 			return null
@@ -696,7 +696,7 @@ abstract class BaseFactory {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public buildArmature(armatureName: String, dragonBonesName: String = "", skinName: String = "", textureAtlasName: String = ""): Armature | null {
+	public buildArmature(armatureName: String, dragonBonesName: String = "", skinName: String = "", textureAtlasName: String = ""): Armature? {
 		const dataPackage: BuildArmaturePackage = new BuildArmaturePackage()
 		if (!this._fillBuildArmaturePackage(dataPackage, dragonBonesName || "", armatureName, skinName || "", textureAtlasName || "")) {
 			console.warn("No armature data: " + armatureName + ", " + (dragonBonesName !== null ? dragonBonesName : ""))
@@ -715,7 +715,7 @@ abstract class BaseFactory {
 	/**
 	 * @private
 	 */
-	public replaceDisplay(slot: Slot, displayData: DisplayData | null, displayIndex: Double = -1): Unit {
+	public replaceDisplay(slot: Slot, displayData: DisplayData?, displayIndex: Double = -1): Unit {
 		if (displayIndex < 0) {
 			displayIndex = slot.displayIndex
 		}
@@ -796,7 +796,7 @@ abstract class BaseFactory {
 	 * @private
 	 */
 	public replaceSlotDisplayList(
-		dragonBonesName: String | null, armatureName: String, slotName: String,
+		dragonBonesName: String?, armatureName: String, slotName: String,
 		slot: Slot
 	): Boolean {
 		const armatureData = this.getArmatureData(armatureName, dragonBonesName || "")
@@ -855,7 +855,7 @@ abstract class BaseFactory {
 	 * @version DragonBones 5.6
 	 * @language zh_CN
 	 */
-	public replaceSkin(armature: Armature, skin: SkinData, isOverride: Boolean = false, exclude: Array<string> | null = null): Boolean {
+	public replaceSkin(armature: Armature, skin: SkinData, isOverride: Boolean = false, exclude: Array<string>? = null): Boolean {
 		let success = false
 		const defaultSkin = skin.parent.defaultSkin
 
@@ -1020,5 +1020,5 @@ class BuildArmaturePackage {
 	public textureAtlasName: String = ""
 	public data: DragonBonesData
 	public armature: ArmatureData
-	public skin: SkinData | null = null
+	public skin: SkinData? = null
 }

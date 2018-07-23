@@ -103,7 +103,7 @@ class ObjectDataParser  :  DataParser {
 	protected _mesh: MeshDisplayData = null as any; //
 	protected _animation: AnimationData = null as any; //
 	protected _timeline: TimelineData = null as any; //
-	protected _rawTextureAtlases: Array<any> | null = null;
+	protected _rawTextureAtlases: Array<any>? = null;
 
 	private _frameValueType: FrameValueType = FrameValueType.Step;
 	private _defaultColorOffset: Double = -1;
@@ -221,7 +221,7 @@ class ObjectDataParser  :  DataParser {
 		}
 	}
 
-	private _parseActionDataInFrame(rawData: any, frameStart: Double, bone: BoneData | null, slot: SlotData | null): Unit {
+	private _parseActionDataInFrame(rawData: any, frameStart: Double, bone: BoneData?, slot: SlotData?): Unit {
 		if (DataParser.EVENT in rawData) {
 			this._mergeActionFrame(rawData[DataParser.EVENT], frameStart, ActionType.Frame, bone, slot);
 		}
@@ -243,11 +243,11 @@ class ObjectDataParser  :  DataParser {
 		}
 	}
 
-	private _mergeActionFrame(rawData: any, frameStart: Double, type: ActionType, bone: BoneData | null, slot: SlotData | null): Unit {
+	private _mergeActionFrame(rawData: any, frameStart: Double, type: ActionType, bone: BoneData?, slot: SlotData?): Unit {
 		const actionOffset = this._armature.actions.length;
 		const actions = this._parseActionData(rawData, type, bone, slot);
 		let frameIndex = 0;
-		let frame: ActionFrame | null = null;
+		let frame: ActionFrame? = null;
 
 		for (const action of actions) {
 			this._armature.addAction(action, false);
@@ -411,7 +411,7 @@ class ObjectDataParser  :  DataParser {
 				skinName = DataParser.DEFAULT_NAME;
 			}
 
-			const shareMesh = armature.getMesh(skinName, "", shareName) as MeshDisplayData | null; // TODO slot;
+			const shareMesh = armature.getMesh(skinName, "", shareName) as MeshDisplayData?; // TODO slot;
 			if (shareMesh === null) {
 				continue; // Error.
 			}
@@ -509,7 +509,7 @@ class ObjectDataParser  :  DataParser {
 		return surface;
 	}
 
-	protected _parseIKConstraint(rawData: any): ConstraintData | null {
+	protected _parseIKConstraint(rawData: any): ConstraintData? {
 		const bone = this._armature.getBone(ObjectDataParser._getString(rawData, DataParser.BONE, ""));
 		if (bone === null) {
 			return null;
@@ -541,7 +541,7 @@ class ObjectDataParser  :  DataParser {
 		return constraint;
 	}
 
-	protected _parsePathConstraint(rawData: any): ConstraintData | null {
+	protected _parsePathConstraint(rawData: any): ConstraintData? {
 		const target = this._armature.getSlot(ObjectDataParser._getString(rawData, DataParser.TARGET, ""));
 		if (target === null) {
 			return null;
@@ -663,11 +663,11 @@ class ObjectDataParser  :  DataParser {
 		return skin;
 	}
 
-	protected _parseDisplay(rawData: any): DisplayData | null {
+	protected _parseDisplay(rawData: any): DisplayData? {
 		const name = ObjectDataParser._getString(rawData, DataParser.NAME, "");
 		const path = ObjectDataParser._getString(rawData, DataParser.PATH, "");
 		let type = DisplayType.Image;
-		let display: DisplayData | null = null;
+		let display: DisplayData? = null;
 
 		if (DataParser.TYPE in rawData && typeof rawData[DataParser.TYPE] === "string") {
 			type = DataParser._getDisplayType(rawData[DataParser.TYPE]);
@@ -791,8 +791,8 @@ class ObjectDataParser  :  DataParser {
 		}
 	}
 
-	protected _parseBoundingBox(rawData: any): BoundingBoxData | null {
-		let boundingBox: BoundingBoxData | null = null;
+	protected _parseBoundingBox(rawData: any): BoundingBoxData? {
+		let boundingBox: BoundingBoxData? = null;
 		let type = BoundingBoxType.Rectangle;
 
 		if (DataParser.SUB_TYPE in rawData && typeof rawData[DataParser.SUB_TYPE] === "string") {
@@ -997,7 +997,7 @@ class ObjectDataParser  :  DataParser {
 			for (const rawTimeline of rawTimelines) {
 				const timelineType = ObjectDataParser._getNumber(rawTimeline, DataParser.TYPE, TimelineType.Action) as TimelineType;
 				const timelineName = ObjectDataParser._getString(rawTimeline, DataParser.NAME, "");
-				let timeline: TimelineData | null = null;
+				let timeline: TimelineData? = null;
 
 				switch (timelineType) {
 					case TimelineType.Action:
@@ -1209,10 +1209,10 @@ class ObjectDataParser  :  DataParser {
 	}
 
 	protected _parseTimeline(
-		rawData: any, rawFrames: Array<any> | null, framesKey: String,
+		rawData: any, rawFrames: Array<any>?, framesKey: String,
 		timelineType: TimelineType, frameValueType: FrameValueType, frameValueCount: Double,
-		frameParser: (rawData: any, frameStart: Double, frameCount: Double) => number, timeline: TimelineData | null = null
-	): TimelineData | null {
+		frameParser: (rawData: any, frameStart: Double, frameCount: Double) => number, timeline: TimelineData? = null
+	): TimelineData? {
 		if (rawData !== null && framesKey.length > 0 && framesKey in rawData) {
 			rawFrames = rawData[framesKey];
 		}
@@ -1383,8 +1383,8 @@ class ObjectDataParser  :  DataParser {
 			return;
 		}
 
-		let displayTimeline: TimelineData | null = null;
-		let colorTimeline: TimelineData | null = null;
+		let displayTimeline: TimelineData? = null;
+		let colorTimeline: TimelineData? = null;
 		this._slot = slot;
 
 		if (DataParser.DISPLAY_FRAME in rawData) {
@@ -1884,7 +1884,7 @@ class ObjectDataParser  :  DataParser {
 		return frameOffset;
 	}
 
-	protected _parseActionData(rawData: any, type: ActionType, bone: BoneData | null, slot: SlotData | null): Array<ActionData> {
+	protected _parseActionData(rawData: any, type: ActionType, bone: BoneData?, slot: SlotData?): Array<ActionData> {
 		const actions = new Array<ActionData>();
 
 		if (typeof rawData === "string") {
@@ -1930,7 +1930,7 @@ class ObjectDataParser  :  DataParser {
 					action.slot = slot;
 				}
 
-				let userData: UserData | null = null;
+				let userData: UserData? = null;
 
 				if (DataParser.INTS in rawAction) {
 					if (userData === null) {
@@ -2292,7 +2292,7 @@ class ObjectDataParser  :  DataParser {
 		this._defaultColorOffset = -1;
 	}
 
-	public parseDragonBonesData(rawData: any, scale: Double = 1): DragonBonesData | null {
+	public parseDragonBonesData(rawData: any, scale: Double = 1): DragonBonesData? {
 		console.assert(rawData !== null && rawData !== undefined, "Data error.");
 
 		const version = ObjectDataParser._getString(rawData, DataParser.VERSION, "");
@@ -2408,7 +2408,7 @@ class ObjectDataParser  :  DataParser {
 		return true;
 	}
 
-	private static _objectDataParserInstance: ObjectDataParser | null = null;
+	private static _objectDataParserInstance: ObjectDataParser? = null;
 	/**
 	 * - Deprecated, please refer to {@link dragonBones.BaseFactory#parseDragonBonesData()}.
 	 * @deprecated

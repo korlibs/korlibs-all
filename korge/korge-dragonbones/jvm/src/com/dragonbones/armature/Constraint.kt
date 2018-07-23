@@ -44,7 +44,7 @@ abstract class Constraint  :  BaseObject {
 	 * @internal
 	 */
 	public _root: Bone;
-	protected _bone: Bone | null;
+	protected _bone: Bone?;
 
 	protected _onClear(): Unit {
 		this._armature = null as any; //

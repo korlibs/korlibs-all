@@ -242,13 +242,13 @@ class AnimationState : BaseObject() {
 	 * @internal
 	 */
 	public _actionTimeline: ActionTimelineState = null as any; // Initial value.
-	private _zOrderTimeline: ZOrderTimelineState | null = null; // Initial value.
-	private _activeChildA: AnimationState | null;
-	private _activeChildB: AnimationState | null;
+	private _zOrderTimeline: ZOrderTimelineState? = null; // Initial value.
+	private _activeChildA: AnimationState?;
+	private _activeChildB: AnimationState?;
 	/**
 	 * @internal
 	 */
-	public _parent: AnimationState | null;
+	public _parent: AnimationState?;
 
 	protected _onClear(): Unit {
 		for (const timeline of this._boneTimelines) {
@@ -855,7 +855,7 @@ class AnimationState : BaseObject() {
 
 		if (isUpdateTimeline) {
 			let isBlend = false;
-			let prevTarget: BlendState | null = null as any; //
+			let prevTarget: BlendState? = null as any; //
 
 			if (isUpdateBoneTimeline) {
 				for (let i = 0, l = this._boneTimelines.length; i < l; ++i) {
@@ -939,8 +939,8 @@ class AnimationState : BaseObject() {
 			if (this._animationTimelines.length > 0) {
 				let dL = 100.0;
 				let dR = 100.0;
-				let leftState: AnimationState | null = null;
-				let rightState: AnimationState | null = null;
+				let leftState: AnimationState? = null;
+				let rightState: AnimationState? = null;
 
 				for (let i = 0, l = this._animationTimelines.length; i < l; ++i) {
 					const timeline = this._animationTimelines[i];
@@ -1255,7 +1255,7 @@ class AnimationState : BaseObject() {
 	/**
 	 * @private
 	 */
-	public addState(animationState: AnimationState, timelineDatas: TimelineData[] | null = null) {
+	public addState(animationState: AnimationState, timelineDatas: TimelineData[]? = null) {
 		if (timelineDatas !== null) {
 			for (const timelineData of timelineDatas) {
 				switch (timelineData.type) {

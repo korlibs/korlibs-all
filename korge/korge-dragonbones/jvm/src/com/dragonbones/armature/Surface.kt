@@ -47,7 +47,7 @@ class Surface  :  Bone {
 	 */
 	private readonly _matrixCahce:  DoubleArray = [];
 
-	public _bone: Bone | null;
+	public _bone: Bone?;
 
 	protected _onClear(): Unit {
 		super._onClear();

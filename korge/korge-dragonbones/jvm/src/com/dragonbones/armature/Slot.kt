@@ -30,10 +30,10 @@ class DisplayFrame  :  BaseObject {
 		return "[class dragonBones.DisplayFrame]";
 	}
 
-	public rawDisplayData: DisplayData | null;
-	public displayData: DisplayData | null;
-	public textureData: TextureData | null;
-	public display: any | Armature | null;
+	public rawDisplayData: DisplayData?;
+	public displayData: DisplayData?;
+	public textureData: TextureData?;
+	public display: any | Armature?;
 	public readonly deformVertices:  DoubleArray = [];
 
 	protected _onClear(): Unit {
@@ -74,7 +74,7 @@ class DisplayFrame  :  BaseObject {
 		}
 	}
 
-	public getGeometryData(): GeometryData | null {
+	public getGeometryData(): GeometryData? {
 		if (this.displayData !== null) {
 			if (this.displayData.type === DisplayType.Mesh) {
 				return (this.displayData as MeshDisplayData).geometry;
@@ -98,7 +98,7 @@ class DisplayFrame  :  BaseObject {
 		return null;
 	}
 
-	public getBoundingBox(): BoundingBoxData | null {
+	public getBoundingBox(): BoundingBoxData? {
 		if (this.displayData !== null && this.displayData.type === DisplayType.BoundingBox) {
 			return (this.displayData as BoundingBoxDisplayData).boundingBox;
 		}
@@ -110,7 +110,7 @@ class DisplayFrame  :  BaseObject {
 		return null;
 	}
 
-	public getTextureData(): TextureData | null {
+	public getTextureData(): TextureData? {
 		if (this.displayData !== null) {
 			if (this.displayData.type === DisplayType.Image) {
 				return (this.displayData as ImageDisplayData).texture;
@@ -181,7 +181,7 @@ abstract class Slot  :  TransformObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public displayController: String | null;
+	public displayController: String?;
 	protected _displayDataDirty: Boolean;
 	protected _displayDirty: Boolean;
 	protected _geometryDirty: Boolean;
@@ -231,7 +231,7 @@ abstract class Slot  :  TransformObject {
 	/**
 	 * @internal
 	 */
-	public readonly _geometryBones: Array<Bone | null> = [];
+	public readonly _geometryBones: Array<Bone?> = [];
 	/**
 	 * @internal
 	 */
@@ -239,17 +239,17 @@ abstract class Slot  :  TransformObject {
 	/**
 	 * @internal
 	 */
-	public _displayFrame: DisplayFrame | null;
+	public _displayFrame: DisplayFrame?;
 	/**
 	 * @internal
 	 */
-	public _geometryData: GeometryData | null;
-	protected _boundingBoxData: BoundingBoxData | null;
-	protected _textureData: TextureData | null;
+	public _geometryData: GeometryData?;
+	protected _boundingBoxData: BoundingBoxData?;
+	protected _textureData: TextureData?;
 	protected _rawDisplay: any = null; // Initial value.
 	protected _meshDisplay: any = null; // Initial value.
-	protected _display: any | null = null;
-	protected _childArmature: Armature | null;
+	protected _display: any? = null;
+	protected _childArmature: Armature?;
 	/**
 	 * @private
 	 */
@@ -257,7 +257,7 @@ abstract class Slot  :  TransformObject {
 	/**
 	 * @internal
 	 */
-	public _cachedFrameIndices:  DoubleArray | null;
+	public _cachedFrameIndices:  DoubleArray?;
 
 	protected _onClear(): Unit {
 		super._onClear();
@@ -385,8 +385,8 @@ abstract class Slot  :  TransformObject {
 		const prevDisplayFrame = this._displayFrame;
 		const prevGeometryData = this._geometryData;
 		const prevTextureData = this._textureData;
-		let rawDisplayData: DisplayData | null = null;
-		let displayData: DisplayData | null = null;
+		let rawDisplayData: DisplayData? = null;
+		let displayData: DisplayData? = null;
 
 		this._displayFrame = null;
 		this._geometryData = null;
@@ -558,7 +558,7 @@ abstract class Slot  :  TransformObject {
 
 					// Child armature action.
 					if (this._displayFrame !== null) {
-						let actions: Array<ActionData> | null = null;
+						let actions: Array<ActionData>? = null;
 						let displayData = this._displayFrame.displayData !== null ? this._displayFrame.displayData : this._displayFrame.rawDisplayData;
 						if (displayData !== null && displayData.type === DisplayType.Armature) {
 							actions = (displayData as ArmatureDisplayData).actions;
@@ -811,7 +811,7 @@ abstract class Slot  :  TransformObject {
 	/**
 	 * @private
 	 */
-	public replaceRawDisplayData(displayData: DisplayData | null, index: Double = -1): Unit {
+	public replaceRawDisplayData(displayData: DisplayData?, index: Double = -1): Unit {
 		if (index < 0) {
 			index = this._displayIndex < 0 ? 0 : this._displayIndex;
 		}
@@ -841,7 +841,7 @@ abstract class Slot  :  TransformObject {
 	/**
 	 * @private
 	 */
-	public replaceDisplayData(displayData: DisplayData | null, index: Double = -1): Unit {
+	public replaceDisplayData(displayData: DisplayData?, index: Double = -1): Unit {
 		if (index < 0) {
 			index = this._displayIndex < 0 ? 0 : this._displayIndex;
 		}
@@ -861,7 +861,7 @@ abstract class Slot  :  TransformObject {
 	/**
 	 * @private
 	 */
-	public replaceTextureData(textureData: TextureData | null, index: Double = -1): Unit {
+	public replaceTextureData(textureData: TextureData?, index: Double = -1): Unit {
 		if (index < 0) {
 			index = this._displayIndex < 0 ? 0 : this._displayIndex;
 		}
@@ -881,7 +881,7 @@ abstract class Slot  :  TransformObject {
 	/**
 	 * @private
 	 */
-	public replaceDisplay(value: any | Armature | null, index: Double = -1): Unit {
+	public replaceDisplay(value: any | Armature?, index: Double = -1): Unit {
 		if (index < 0) {
 			index = this._displayIndex < 0 ? 0 : this._displayIndex;
 		}
@@ -984,9 +984,9 @@ abstract class Slot  :  TransformObject {
 	 */
 	public intersectsSegment(
 		xA: Double, yA: Double, xB: Double, yB: Double,
-		intersectionPointA: { x: Double, y: Double } | null = null,
-		intersectionPointB: { x: Double, y: Double } | null = null,
-		normalRadians: { x: Double, y: Double } | null = null
+		intersectionPointA: { x: Double, y: Double }? = null,
+		intersectionPointB: { x: Double, y: Double }? = null,
+		normalRadians: { x: Double, y: Double }? = null
 	): Double {
 		if (this._boundingBoxData === null) {
 			return 0;
@@ -1184,7 +1184,7 @@ abstract class Slot  :  TransformObject {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public get boundingBoxData(): BoundingBoxData | null {
+	public get boundingBoxData(): BoundingBoxData? {
 		return this._boundingBoxData;
 	}
 	/**
@@ -1263,10 +1263,10 @@ abstract class Slot  :  TransformObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public get childArmature(): Armature | null {
+	public get childArmature(): Armature? {
 		return this._childArmature;
 	}
-	public set childArmature(value: Armature | null) {
+	public set childArmature(value: Armature?) {
 		if (this._childArmature === value) {
 			return;
 		}

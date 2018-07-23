@@ -83,11 +83,11 @@ class Bone  :  TransformObject {
 	/**
 	 * @private
 	 */
-	protected _parent: Bone | null;
+	protected _parent: Bone?;
 	/**
 	 * @internal
 	 */
-	public _cachedFrameIndices:  DoubleArray | null;
+	public _cachedFrameIndices:  DoubleArray?;
 
 	protected _onClear(): Unit {
 		super._onClear();
@@ -498,7 +498,7 @@ class Bone  :  TransformObject {
 			return false;
 		}
 
-		let ancestor: Bone | null = value;
+		let ancestor: Bone? = value;
 		while (ancestor !== this && ancestor !== null) {
 			ancestor = ancestor.parent;
 		}
@@ -571,7 +571,7 @@ class Bone  :  TransformObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public get parent(): Bone | null {
+	public get parent(): Bone? {
 		return this._parent;
 	}
 }

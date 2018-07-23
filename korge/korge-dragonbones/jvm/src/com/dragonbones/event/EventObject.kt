@@ -220,7 +220,7 @@ class EventObject  :  BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public bone: Bone | null;
+	public bone: Bone?;
 	/**
 	 * - The slot that dispatch the event.
 	 * @see dragonBones.Slot
@@ -233,7 +233,7 @@ class EventObject  :  BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public slot: Slot | null;
+	public slot: Slot?;
 	/**
 	 * - The animation state that dispatch the event.
 	 * @see dragonBones.AnimationState
@@ -250,7 +250,7 @@ class EventObject  :  BaseObject {
 	/**
 	 * @private
 	 */
-	public actionData: ActionData | null;
+	public actionData: ActionData?;
 	/**
 	 * @private
 	 */
@@ -266,7 +266,7 @@ class EventObject  :  BaseObject {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public data: UserData | null;
+	public data: UserData?;
 
 	protected _onClear(): Unit {
 		this.time = 0.0;

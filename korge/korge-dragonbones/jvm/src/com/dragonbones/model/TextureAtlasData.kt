@@ -133,7 +133,7 @@ abstract class TextureAtlasData  :  BaseObject {
 	/**
 	 * @private
 	 */
-	public getTexture(textureName: String): TextureData | null {
+	public getTexture(textureName: String): TextureData? {
 		return textureName in this.textures ? this.textures[textureName] : null;
 	}
 }
@@ -149,7 +149,7 @@ abstract class TextureData  :  BaseObject {
 	public name: String;
 	public readonly region: Rectangle = new Rectangle();
 	public parent: TextureAtlasData;
-	public frame: Rectangle | null = null; // Initial value.
+	public frame: Rectangle? = null; // Initial value.
 
 	protected _onClear(): Unit {
 		this.rotated = false;

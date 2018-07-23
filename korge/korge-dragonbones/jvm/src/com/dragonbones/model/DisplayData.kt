@@ -30,7 +30,7 @@ class GeometryData {
 	public inheritDeform: Boolean;
 	public offset: Double;
 	public data: DragonBonesData;
-	public weight: WeightData | null = null; // Initial value.
+	public weight: WeightData? = null; // Initial value.
 
 	public clear(): Unit {
 		if (!this.isShared && this.weight !== null) {
@@ -86,7 +86,7 @@ class ImageDisplayData  :  DisplayData {
 	}
 
 	public readonly pivot: Point = new Point();
-	public texture: TextureData | null;
+	public texture: TextureData?;
 
 	protected _onClear(): Unit {
 		super._onClear();
@@ -106,7 +106,7 @@ class ArmatureDisplayData  :  DisplayData {
 
 	public inheritAnimation: Boolean;
 	public readonly actions: Array<ActionData> = [];
-	public armature: ArmatureData | null;
+	public armature: ArmatureData?;
 
 	protected _onClear(): Unit {
 		super._onClear();
@@ -136,7 +136,7 @@ class MeshDisplayData  :  DisplayData {
 	}
 
 	public readonly geometry: GeometryData = new GeometryData();
-	public texture: TextureData | null;
+	public texture: TextureData?;
 
 	protected _onClear(): Unit {
 		super._onClear();
@@ -154,7 +154,7 @@ class BoundingBoxDisplayData  :  DisplayData {
 		return "[class dragonBones.BoundingBoxDisplayData]";
 	}
 
-	public boundingBox: BoundingBoxData | null = null; // Initial value.
+	public boundingBox: BoundingBoxData? = null; // Initial value.
 
 	protected _onClear(): Unit {
 		super._onClear();

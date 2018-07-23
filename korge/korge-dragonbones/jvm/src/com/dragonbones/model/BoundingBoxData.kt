@@ -91,9 +91,9 @@ abstract class BoundingBoxData  :  BaseObject {
 	 */
 	public abstract intersectsSegment(
 		xA: Double, yA: Double, xB: Double, yB: Double,
-		intersectionPointA: { x: Double, y: Double } | null,
-		intersectionPointB: { x: Double, y: Double } | null,
-		normalRadians: { x: Double, y: Double } | null
+		intersectionPointA: { x: Double, y: Double }?,
+		intersectionPointB: { x: Double, y: Double }?,
+		normalRadians: { x: Double, y: Double }?
 	): Double;
 }
 /**
@@ -155,9 +155,9 @@ class RectangleBoundingBoxData  :  BoundingBoxData {
 	public static rectangleIntersectsSegment(
 		xA: Double, yA: Double, xB: Double, yB: Double,
 		xMin: Double, yMin: Double, xMax: Double, yMax: Double,
-		intersectionPointA: { x: Double, y: Double } | null = null,
-		intersectionPointB: { x: Double, y: Double } | null = null,
-		normalRadians: { x: Double, y: Double } | null = null
+		intersectionPointA: { x: Double, y: Double }? = null,
+		intersectionPointB: { x: Double, y: Double }? = null,
+		normalRadians: { x: Double, y: Double }? = null
 	): Double {
 		const inSideA = xA > xMin && xA < xMax && yA > yMin && yA < yMax;
 		const inSideB = xB > xMin && xB < xMax && yB > yMin && yB < yMax;
@@ -320,9 +320,9 @@ class RectangleBoundingBoxData  :  BoundingBoxData {
 	 */
 	public intersectsSegment(
 		xA: Double, yA: Double, xB: Double, yB: Double,
-		intersectionPointA: { x: Double, y: Double } | null = null,
-		intersectionPointB: { x: Double, y: Double } | null = null,
-		normalRadians: { x: Double, y: Double } | null = null
+		intersectionPointA: { x: Double, y: Double }? = null,
+		intersectionPointB: { x: Double, y: Double }? = null,
+		normalRadians: { x: Double, y: Double }? = null
 	): Double {
 		const widthH = this.width * 0.5;
 		const heightH = this.height * 0.5;
@@ -355,9 +355,9 @@ class EllipseBoundingBoxData  :  BoundingBoxData {
 	public static ellipseIntersectsSegment(
 		xA: Double, yA: Double, xB: Double, yB: Double,
 		xC: Double, yC: Double, widthH: Double, heightH: Double,
-		intersectionPointA: { x: Double, y: Double } | null = null,
-		intersectionPointB: { x: Double, y: Double } | null = null,
-		normalRadians: { x: Double, y: Double } | null = null
+		intersectionPointA: { x: Double, y: Double }? = null,
+		intersectionPointB: { x: Double, y: Double }? = null,
+		normalRadians: { x: Double, y: Double }? = null
 	): Double {
 		const d = widthH / heightH;
 		const dd = d * d;
@@ -481,9 +481,9 @@ class EllipseBoundingBoxData  :  BoundingBoxData {
 	 */
 	public intersectsSegment(
 		xA: Double, yA: Double, xB: Double, yB: Double,
-		intersectionPointA: { x: Double, y: Double } | null = null,
-		intersectionPointB: { x: Double, y: Double } | null = null,
-		normalRadians: { x: Double, y: Double } | null = null
+		intersectionPointA: { x: Double, y: Double }? = null,
+		intersectionPointB: { x: Double, y: Double }? = null,
+		normalRadians: { x: Double, y: Double }? = null
 	): Double {
 		const intersectionCount = EllipseBoundingBoxData.ellipseIntersectsSegment(
 			xA, yA, xB, yB,
@@ -514,9 +514,9 @@ class PolygonBoundingBoxData  :  BoundingBoxData {
 	public static polygonIntersectsSegment(
 		xA: Double, yA: Double, xB: Double, yB: Double,
 		vertices:  DoubleArray,
-		intersectionPointA: { x: Double, y: Double } | null = null,
-		intersectionPointB: { x: Double, y: Double } | null = null,
-		normalRadians: { x: Double, y: Double } | null = null
+		intersectionPointA: { x: Double, y: Double }? = null,
+		intersectionPointB: { x: Double, y: Double }? = null,
+		normalRadians: { x: Double, y: Double }? = null
 	): Double {
 		if (xA === xB) {
 			xA = xB + 0.000001;
@@ -711,9 +711,9 @@ class PolygonBoundingBoxData  :  BoundingBoxData {
 	 */
 	public intersectsSegment(
 		xA: Double, yA: Double, xB: Double, yB: Double,
-		intersectionPointA: { x: Double, y: Double } | null = null,
-		intersectionPointB: { x: Double, y: Double } | null = null,
-		normalRadians: { x: Double, y: Double } | null = null
+		intersectionPointA: { x: Double, y: Double }? = null,
+		intersectionPointB: { x: Double, y: Double }? = null,
+		normalRadians: { x: Double, y: Double }? = null
 	): Double {
 		let intersectionCount = 0;
 		if (RectangleBoundingBoxData.rectangleIntersectsSegment(xA, yA, xB, yB, this.x, this.y, this.x + this.width, this.y + this.height, null, null, null) !== 0) {

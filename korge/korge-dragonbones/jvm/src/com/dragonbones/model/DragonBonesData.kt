@@ -82,7 +82,7 @@ class DragonBonesData  :  BaseObject {
 	/**
 	 * @private
 	 */
-	public stage: ArmatureData | null;
+	public stage: ArmatureData?;
 	/**
 	 * @internal
 	 */
@@ -141,7 +141,7 @@ class DragonBonesData  :  BaseObject {
 	/**
 	 * @private
 	 */
-	public userData: UserData | null = null; // Initial value.
+	public userData: UserData? = null; // Initial value.
 
 	protected _onClear(): Unit {
 		for (let k in this.armatures) {
@@ -197,7 +197,7 @@ class DragonBonesData  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public getArmature(armatureName: String): ArmatureData | null {
+	public getArmature(armatureName: String): ArmatureData? {
 		return armatureName in this.armatures ? this.armatures[armatureName] : null;
 	}
 }

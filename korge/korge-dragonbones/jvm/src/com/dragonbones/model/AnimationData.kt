@@ -149,11 +149,11 @@ class AnimationData  :  BaseObject {
 	/**
 	 * @private
 	 */
-	public actionTimeline: TimelineData | null = null; // Initial value.
+	public actionTimeline: TimelineData? = null; // Initial value.
 	/**
 	 * @private
 	 */
-	public zOrderTimeline: TimelineData | null = null; // Initial value.
+	public zOrderTimeline: TimelineData? = null; // Initial value.
 	/**
 	 * @private
 	 */
@@ -303,37 +303,37 @@ class AnimationData  :  BaseObject {
 	/**
 	 * @private
 	 */
-	public getBoneTimelines(timelineName: String): Array<TimelineData> | null {
+	public getBoneTimelines(timelineName: String): Array<TimelineData>? {
 		return timelineName in this.boneTimelines ? this.boneTimelines[timelineName] : null;
 	}
 	/**
 	 * @private
 	 */
-	public getSlotTimelines(timelineName: String): Array<TimelineData> | null {
+	public getSlotTimelines(timelineName: String): Array<TimelineData>? {
 		return timelineName in this.slotTimelines ? this.slotTimelines[timelineName] : null;
 	}
 	/**
 	 * @private
 	 */
-	public getConstraintTimelines(timelineName: String): Array<TimelineData> | null {
+	public getConstraintTimelines(timelineName: String): Array<TimelineData>? {
 		return timelineName in this.constraintTimelines ? this.constraintTimelines[timelineName] : null;
 	}
 	/**
 	 * @private
 	 */
-	public getAnimationTimelines(timelineName: String): Array<TimelineData> | null {
+	public getAnimationTimelines(timelineName: String): Array<TimelineData>? {
 		return timelineName in this.animationTimelines ? this.animationTimelines[timelineName] : null;
 	}
 	/**
 	 * @private
 	 */
-	public getBoneCachedFrameIndices(boneName: String):  DoubleArray | null {
+	public getBoneCachedFrameIndices(boneName: String):  DoubleArray? {
 		return boneName in this.boneCachedFrameIndices ? this.boneCachedFrameIndices[boneName] : null;
 	}
 	/**
 	 * @private
 	 */
-	public getSlotCachedFrameIndices(slotName: String):  DoubleArray | null {
+	public getSlotCachedFrameIndices(slotName: String):  DoubleArray? {
 		return slotName in this.slotCachedFrameIndices ? this.slotCachedFrameIndices[slotName] : null;
 	}
 }

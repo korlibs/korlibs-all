@@ -139,7 +139,7 @@ class BinaryDataParser  :  ObjectDataParser {
 		return result;
 	}
 
-	private _parseBinaryTimeline(type: TimelineType, offset: Double, timelineData: TimelineData | null = null): TimelineData {
+	private _parseBinaryTimeline(type: TimelineType, offset: Double, timelineData: TimelineData? = null): TimelineData {
 		const timeline = timelineData !== null ? timelineData : BaseObject.borrowObject(TimelineData);
 		timeline.type = type;
 		timeline.offset = offset;
@@ -274,7 +274,7 @@ class BinaryDataParser  :  ObjectDataParser {
 				if (timelineOffset >= 0) {
 					const timelineType = ObjectDataParser._getNumber(rawTimeline, DataParser.TYPE, TimelineType.Action);
 					const timelineName = ObjectDataParser._getString(rawTimeline, DataParser.NAME, "");
-					let timeline: TimelineData | null = null;
+					let timeline: TimelineData? = null;
 
 					if (timelineType === TimelineType.AnimationProgress && animation.blendType !== AnimationBlendType.None) {
 						timeline = BaseObject.borrowObject(AnimationTimelineData);
@@ -385,7 +385,7 @@ class BinaryDataParser  :  ObjectDataParser {
 		this._data.colorArray = colorArray;
 	}
 
-	public parseDragonBonesData(rawData: any, scale: Double = 1): DragonBonesData | null {
+	public parseDragonBonesData(rawData: any, scale: Double = 1): DragonBonesData? {
 		console.assert(rawData !== null && rawData !== undefined && rawData instanceof ArrayBuffer, "Data error.");
 
 		const tag = new Uint8Array(rawData, 0, 8);
@@ -410,7 +410,7 @@ class BinaryDataParser  :  ObjectDataParser {
 		return super.parseDragonBonesData(header, scale);
 	}
 
-	private static _binaryDataParserInstance: BinaryDataParser | null = null;
+	private static _binaryDataParserInstance: BinaryDataParser? = null;
 	/**
 	 * - Deprecated, please refer to {@link dragonBones.BaseFactory#parseDragonBonesData()}.
 	 * @deprecated

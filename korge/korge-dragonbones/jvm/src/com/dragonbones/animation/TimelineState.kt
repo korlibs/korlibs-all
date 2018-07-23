@@ -97,8 +97,8 @@ class ActionTimelineState  :  TimelineState {
 			}
 
 			const isReverse = this._animationState.timeScale < 0.0;
-			let loopCompleteEvent: EventObject | null = null;
-			let completeEvent: EventObject | null = null;
+			let loopCompleteEvent: EventObject? = null;
+			let completeEvent: EventObject? = null;
 
 			if (eventActive && this.currentPlayTimes !== prevPlayTimes) {
 				if (eventDispatcher.hasDBEventListener(EventObject.LOOP_COMPLETE)) {
@@ -308,7 +308,7 @@ class BoneAllTimelineState  :  MutilpleValueTimelineState {
 		}
 	}
 
-	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): Unit {
+	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData?): Unit {
 		super.init(armature, animationState, timelineData);
 
 		this._valueOffset = this._animationData.frameFloatOffset;
@@ -362,7 +362,7 @@ class BoneTranslateTimelineState  :  DoubleValueTimelineState {
 		return "[class dragonBones.BoneTranslateTimelineState]";
 	}
 
-	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): Unit {
+	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData?): Unit {
 		super.init(armature, animationState, timelineData);
 
 		this._valueOffset = this._animationData.frameFloatOffset;
@@ -412,7 +412,7 @@ class BoneRotateTimelineState  :  DoubleValueTimelineState {
 		}
 	}
 
-	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): Unit {
+	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData?): Unit {
 		super.init(armature, animationState, timelineData);
 
 		this._valueOffset = this._animationData.frameFloatOffset;
@@ -467,7 +467,7 @@ class BoneScaleTimelineState  :  DoubleValueTimelineState {
 		}
 	}
 
-	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): Unit {
+	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData?): Unit {
 		super.init(armature, animationState, timelineData);
 
 		this._valueOffset = this._animationData.frameFloatOffset;
@@ -519,7 +519,7 @@ class SurfaceTimelineState  :  MutilpleValueTimelineState {
 		this._sameValueOffset = 0;
 	}
 
-	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): Unit {
+	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData?): Unit {
 		super.init(armature, animationState, timelineData);
 
 		if (this._timelineData !== null) {
@@ -602,7 +602,7 @@ class AlphaTimelineState  :  SingleValueTimelineState {
 		}
 	}
 
-	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): Unit {
+	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData?): Unit {
 		super.init(armature, animationState, timelineData);
 
 		this._valueOffset = this._animationData.frameIntOffset;
@@ -828,7 +828,7 @@ class SlotZIndexTimelineState  :  SingleValueTimelineState {
 		}
 	}
 
-	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): Unit {
+	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData?): Unit {
 		super.init(armature, animationState, timelineData);
 
 		this._valueOffset = this._animationData.frameIntOffset;
@@ -879,7 +879,7 @@ class DeformTimelineState  :  MutilpleValueTimelineState {
 		this._sameValueOffset = 0;
 	}
 
-	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): Unit {
+	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData?): Unit {
 		super.init(armature, animationState, timelineData);
 
 		if (this._timelineData !== null) {
@@ -1003,7 +1003,7 @@ class IKConstraintTimelineState  :  DoubleValueTimelineState {
 		this.dirty = false;
 	}
 
-	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): Unit {
+	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData?): Unit {
 		super.init(armature, animationState, timelineData);
 
 		this._valueOffset = this._animationData.frameIntOffset;
@@ -1030,7 +1030,7 @@ class AnimationProgressTimelineState  :  SingleValueTimelineState {
 		this.dirty = false;
 	}
 
-	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): Unit {
+	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData?): Unit {
 		super.init(armature, animationState, timelineData);
 
 		this._valueOffset = this._animationData.frameIntOffset;
@@ -1057,7 +1057,7 @@ class AnimationWeightTimelineState  :  SingleValueTimelineState {
 		this.dirty = false;
 	}
 
-	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): Unit {
+	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData?): Unit {
 		super.init(armature, animationState, timelineData);
 
 		this._valueOffset = this._animationData.frameIntOffset;
@@ -1085,7 +1085,7 @@ class AnimationParametersTimelineState  :  DoubleValueTimelineState {
 		this.dirty = false;
 	}
 
-	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): Unit {
+	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData?): Unit {
 		super.init(armature, animationState, timelineData);
 
 		this._valueOffset = this._animationData.frameIntOffset;

@@ -107,17 +107,17 @@ class Armature  :  BaseObject implements IAnimatable {
 	/**
 	 * @internal
 	 */
-	public _replaceTextureAtlasData: TextureAtlasData | null = null; // Initial value.
+	public _replaceTextureAtlasData: TextureAtlasData? = null; // Initial value.
 	private _replacedTexture: any;
 	/**
 	 * @internal
 	 */
 	public _dragonBones: DragonBones;
-	private _clock: WorldClock | null = null; // Initial value.
+	private _clock: WorldClock? = null; // Initial value.
 	/**
 	 * @internal
 	 */
-	public _parent: Slot | null;
+	public _parent: Slot?;
 
 	protected _onClear(): Unit {
 		if (this._clock !== null) { // Remove clock first.
@@ -182,7 +182,7 @@ class Armature  :  BaseObject implements IAnimatable {
 	/**
 	 * @internal
 	 */
-	public _sortZOrder(slotIndices:  DoubleArray | Int16Array | null, offset: Double): Unit {
+	public _sortZOrder(slotIndices:  DoubleArray | Int16Array?, offset: Double): Unit {
 		const slotDatas = this._armatureData.sortedSlots;
 		const isOriginal = slotIndices === null;
 
@@ -403,7 +403,7 @@ class Armature  :  BaseObject implements IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public invalidUpdate(boneName: String | null = null, updateSlot: Boolean = false): Unit {
+	public invalidUpdate(boneName: String? = null, updateSlot: Boolean = false): Unit {
 		if (boneName !== null && boneName.length > 0) {
 			const bone = this.getBone(boneName);
 			if (bone !== null) {
@@ -448,7 +448,7 @@ class Armature  :  BaseObject implements IAnimatable {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public containsPoint(x: Double, y: Double): Slot | null {
+	public containsPoint(x: Double, y: Double): Slot? {
 		for (const slot of this._slots) {
 			if (slot.containsPoint(x, y)) {
 				return slot;
@@ -489,10 +489,10 @@ class Armature  :  BaseObject implements IAnimatable {
 	 */
 	public intersectsSegment(
 		xA: Double, yA: Double, xB: Double, yB: Double,
-		intersectionPointA: { x: Double, y: Double } | null = null,
-		intersectionPointB: { x: Double, y: Double } | null = null,
-		normalRadians: { x: Double, y: Double } | null = null
-	): Slot | null {
+		intersectionPointA: { x: Double, y: Double }? = null,
+		intersectionPointB: { x: Double, y: Double }? = null,
+		normalRadians: { x: Double, y: Double }? = null
+	): Slot? {
 		const isV = xA === xB;
 		let dMin = 0.0;
 		let dMax = 0.0;
@@ -502,8 +502,8 @@ class Armature  :  BaseObject implements IAnimatable {
 		let intYB = 0.0;
 		let intAN = 0.0;
 		let intBN = 0.0;
-		let intSlotA: Slot | null = null;
-		let intSlotB: Slot | null = null;
+		let intSlotA: Slot? = null;
+		let intSlotB: Slot? = null;
 
 		for (const slot of this._slots) {
 			const intersectionCount = slot.intersectsSegment(xA, yA, xB, yB, intersectionPointA, intersectionPointB, normalRadians);
@@ -586,7 +586,7 @@ class Armature  :  BaseObject implements IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public getBone(name: String): Bone | null {
+	public getBone(name: String): Bone? {
 		for (const bone of this._bones) {
 			if (bone.name === name) {
 				return bone;
@@ -609,7 +609,7 @@ class Armature  :  BaseObject implements IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public getBoneByDisplay(display: any): Bone | null {
+	public getBoneByDisplay(display: any): Bone? {
 		const slot = this.getSlotByDisplay(display);
 
 		return slot !== null ? slot.parent : null;
@@ -628,7 +628,7 @@ class Armature  :  BaseObject implements IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public getSlot(name: String): Slot | null {
+	public getSlot(name: String): Slot? {
 		for (const slot of this._slots) {
 			if (slot.name === name) {
 				return slot;
@@ -651,7 +651,7 @@ class Armature  :  BaseObject implements IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public getSlotByDisplay(display: any): Slot | null {
+	public getSlotByDisplay(display: any): Slot? {
 		if (display !== null) {
 			for (const slot of this._slots) {
 				if (slot.display === display) {
@@ -883,10 +883,10 @@ class Armature  :  BaseObject implements IAnimatable {
 	/**
 	 * @inheritDoc
 	 */
-	public get clock(): WorldClock | null {
+	public get clock(): WorldClock? {
 		return this._clock;
 	}
-	public set clock(value: WorldClock | null) {
+	public set clock(value: WorldClock?) {
 		if (this._clock === value) {
 			return;
 		}
@@ -921,7 +921,7 @@ class Armature  :  BaseObject implements IAnimatable {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public get parent(): Slot | null {
+	public get parent(): Slot? {
 		return this._parent;
 	}
 	/**

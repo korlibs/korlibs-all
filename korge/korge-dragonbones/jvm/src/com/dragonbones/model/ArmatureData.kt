@@ -131,7 +131,7 @@ class ArmatureData  :  BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public defaultSkin: SkinData | null;
+	public defaultSkin: SkinData?;
 	/**
 	 * - The default animation data.
 	 * @version DragonBones 4.5
@@ -142,15 +142,15 @@ class ArmatureData  :  BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public defaultAnimation: AnimationData | null;
+	public defaultAnimation: AnimationData?;
 	/**
 	 * @private
 	 */
-	public canvas: CanvasData | null = null; // Initial value.
+	public canvas: CanvasData? = null; // Initial value.
 	/**
 	 * @private
 	 */
-	public userData: UserData | null = null; // Initial value.
+	public userData: UserData? = null; // Initial value.
 	/**
 	 * @private
 	 */
@@ -409,7 +409,7 @@ class ArmatureData  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public getBone(boneName: String): BoneData | null {
+	public getBone(boneName: String): BoneData? {
 		return boneName in this.bones ? this.bones[boneName] : null;
 	}
 	/**
@@ -424,13 +424,13 @@ class ArmatureData  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public getSlot(slotName: String): SlotData | null {
+	public getSlot(slotName: String): SlotData? {
 		return slotName in this.slots ? this.slots[slotName] : null;
 	}
 	/**
 	 * @private
 	 */
-	public getConstraint(constraintName: String): ConstraintData | null {
+	public getConstraint(constraintName: String): ConstraintData? {
 		return constraintName in this.constraints ? this.constraints[constraintName] : null;
 	}
 	/**
@@ -445,19 +445,19 @@ class ArmatureData  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public getSkin(skinName: String): SkinData | null {
+	public getSkin(skinName: String): SkinData? {
 		return skinName in this.skins ? this.skins[skinName] : null;
 	}
 	/**
 	 * @private
 	 */
-	public getMesh(skinName: String, slotName: String, meshName: String): MeshDisplayData | null {
+	public getMesh(skinName: String, slotName: String, meshName: String): MeshDisplayData? {
 		const skin = this.getSkin(skinName);
 		if (skin === null) {
 			return null;
 		}
 
-		return skin.getDisplay(slotName, meshName) as MeshDisplayData | null;
+		return skin.getDisplay(slotName, meshName) as MeshDisplayData?;
 	}
 	/**
 	 * - Get a specific animation data.
@@ -471,7 +471,7 @@ class ArmatureData  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public getAnimation(animationName: String): AnimationData | null {
+	public getAnimation(animationName: String): AnimationData? {
 		return animationName in this.animations ? this.animations[animationName] : null;
 	}
 }
@@ -542,7 +542,7 @@ class BoneData  :  BaseObject {
 	/**
 	 * @private
 	 */
-	public userData: UserData | null = null; // Initial value.
+	public userData: UserData? = null; // Initial value.
 	/**
 	 * - The parent bone data.
 	 * @version DragonBones 3.0
@@ -553,7 +553,7 @@ class BoneData  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public parent: BoneData | null;
+	public parent: BoneData?;
 
 	protected _onClear(): Unit {
 		if (this.userData !== null) {
@@ -657,7 +657,7 @@ class SlotData  :  BaseObject {
 	/**
 	 * @private
 	 */
-	public userData: UserData | null = null; // Initial value.
+	public userData: UserData? = null; // Initial value.
 	/**
 	 * - The parent bone data.
 	 * @version DragonBones 3.0

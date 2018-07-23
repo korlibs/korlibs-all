@@ -49,7 +49,7 @@ abstract class TimelineState  :  BaseObject {
 	protected _timeScale: Double;
 	protected _timeOffset: Double;
 	protected _animationData: AnimationData;
-	protected _timelineData: TimelineData | null;
+	protected _timelineData: TimelineData?;
 	protected _armature: Armature;
 	protected _animationState: AnimationState;
 	protected _actionTimeline: TimelineState;
@@ -162,7 +162,7 @@ abstract class TimelineState  :  BaseObject {
 		return true;
 	}
 
-	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData | null): Unit {
+	public init(armature: Armature, animationState: AnimationState, timelineData: TimelineData?): Unit {
 		this._armature = armature;
 		this._animationState = animationState;
 		this._timelineData = timelineData;

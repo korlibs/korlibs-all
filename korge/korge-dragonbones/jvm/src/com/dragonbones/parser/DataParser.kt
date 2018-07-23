@@ -370,6 +370,6 @@ abstract class DataParser {
 		}
 	}
 
-	public abstract parseDragonBonesData(rawData: any, scale: Double): DragonBonesData | null;
+	public abstract parseDragonBonesData(rawData: any, scale: Double): DragonBonesData?;
 	public abstract parseTextureAtlasData(rawData: any, textureAtlasData: TextureAtlasData, scale: Double): Boolean;
 }

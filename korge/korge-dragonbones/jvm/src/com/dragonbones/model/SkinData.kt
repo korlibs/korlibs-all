@@ -50,7 +50,7 @@ class SkinData  :  BaseObject {
 	/**
 	 * @private
 	 */
-	public readonly displays: Map<Array<DisplayData | null>> = {};
+	public readonly displays: Map<Array<DisplayData?>> = {};
 	/**
 	 * @private
 	 */
@@ -75,7 +75,7 @@ class SkinData  :  BaseObject {
 	/**
 	 * @internal
 	 */
-	public addDisplay(slotName: String, value: DisplayData | null): Unit {
+	public addDisplay(slotName: String, value: DisplayData?): Unit {
 		if (!(slotName in this.displays)) {
 			this.displays[slotName] = [];
 		}
@@ -90,7 +90,7 @@ class SkinData  :  BaseObject {
 	/**
 	 * @private
 	 */
-	public getDisplay(slotName: String, displayName: String): DisplayData | null {
+	public getDisplay(slotName: String, displayName: String): DisplayData? {
 		const slotDisplays = this.getDisplays(slotName);
 		if (slotDisplays !== null) {
 			for (const display of slotDisplays) {
@@ -105,7 +105,7 @@ class SkinData  :  BaseObject {
 	/**
 	 * @private
 	 */
-	public getDisplays(slotName: String): Array<DisplayData | null> | null {
+	public getDisplays(slotName: String): Array<DisplayData?>? {
 		if (!(slotName in this.displays)) {
 			return null;
 		}
