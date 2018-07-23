@@ -2,7 +2,6 @@ package com.soywiz.korio.util
 
 import com.soywiz.korio.lang.*
 
-// @TODO: Move to korio or korma
 fun Double.toString(dplaces: Int, skipTrailingZeros: Boolean = false): String {
 	val res = this.toString()
 	val parts = res.split('.', limit = 2)

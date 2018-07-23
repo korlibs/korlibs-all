@@ -34,7 +34,7 @@ object MyModule : Module() {
 
 class MyScene : Scene() {
 	override suspend fun sceneInit(sceneView: Container) {
-		sceneView.addChild(views.solidRect(128, 128, Colors.RED).apply {
+		sceneView.addChild(SolidRect(128, 128, Colors.RED).apply {
 			alpha = 0.5
 			mouse {
 				onOver { alpha = 1.0 }

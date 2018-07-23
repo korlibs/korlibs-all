@@ -16,4 +16,3 @@ class TiledMapView(val tiledMap: TiledMap) : Container() {
 }
 
 fun TiledMap.createView() = TiledMapView(this)
-fun Views.tiledMap(tiledMap: TiledMap) = TiledMapView(tiledMap)

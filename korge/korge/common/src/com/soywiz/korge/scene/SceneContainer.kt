@@ -94,7 +94,7 @@ class SceneContainer(val views: Views) : Container() {
 			views.injector.child().mapInstance(SceneContainer::class, this@SceneContainer)
 		for (inject in injects) sceneInjector.mapInstance(inject::class as KClass<Any>, inject)
 		val instance = sceneInjector.get(clazz)
-		currentScene = instance!!
+		currentScene = instance
 
 		transitionView.transition = transition
 		transitionView.startNewTransition(instance._sceneViewContainer)
@@ -121,5 +121,3 @@ class SceneContainer(val views: Views) : Container() {
 		return instance
 	}
 }
-
-fun Views.sceneContainer() = SceneContainer(this)

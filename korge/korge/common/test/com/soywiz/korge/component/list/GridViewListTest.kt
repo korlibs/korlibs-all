@@ -9,9 +9,9 @@ import kotlin.test.*
 class GridViewListTest : ViewsForTesting() {
 	@Test
 	fun createGrid() {
-		val rowTemplate = views.container().apply {
-			this += views.solidRect(10, 10, Colors.RED).apply { setXY(0, 0); name = "cell0" }
-			this += views.solidRect(10, 10, Colors.RED).apply { setXY(20, 0); name = "cell1" }
+		val rowTemplate = Container().apply {
+			this += SolidRect(10, 10, Colors.RED).apply { setXY(0, 0); name = "cell0" }
+			this += SolidRect(10, 10, Colors.RED).apply { setXY(20, 0); name = "cell1" }
 		}
 		val row0 = rowTemplate.clone().apply { setXY(0, 0); name = "row0" }
 		val row1 = rowTemplate.clone().apply { setXY(0, 20); name = "row1" }

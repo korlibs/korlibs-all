@@ -7,6 +7,11 @@ import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 
 class SolidRect(override var width: Double, override var height: Double, color: RGBAInt) : View() {
+	companion object {
+		inline operator fun invoke(width: Number, height: Number, color: RGBAInt) =
+			SolidRect(width.toDouble(), height.toDouble(), color)
+	}
+
 	init {
 		this.colorMul = color
 	}
@@ -35,12 +40,8 @@ class SolidRect(override var width: Double, override var height: Double, color: 
 		out.setTo(sLeft, sTop, width, height)
 	}
 
-	override fun hitTestInternal(x: Double, y: Double): View? {
-		return if (checkGlobalBounds(x, y, 0.0, 0.0, width, height)) this else null
-	}
+	override fun hitTestInternal(x: Double, y: Double): View? =
+		if (checkGlobalBounds(x, y, 0.0, 0.0, width, height)) this else null
 
 	override fun createInstance(): View = SolidRect(width, height, colorMul)
 }
-
-inline fun Views.solidRect(width: Number, height: Number, color: RGBAInt): SolidRect =
-	SolidRect(width.toDouble(), height.toDouble(), color)

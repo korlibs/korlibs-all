@@ -12,7 +12,7 @@ class ViewsJvmTest : ViewsForTesting() {
 
 	@Test
 	fun name() = viewsTest {
-		views.stage += views.container().apply {
+		views.stage += Container().apply {
 			this += views.image(tex)
 		}
 		assertEquals(
@@ -54,8 +54,8 @@ class ViewsJvmTest : ViewsForTesting() {
 	@Ignore
 	fun textGetBounds() = viewsTest {
 		val font = DebugBitmapFont.getDEBUG_BMP_FONT().toKorge()
-		val text = views.text("Hello World", font = font, textSize = 8.0)
-		val text2 = views.text("Hello World", font = font, textSize = 16.0)
+		val text = Text("Hello World", font = font, textSize = 8.0)
+		val text2 = Text("Hello World", font = font, textSize = 16.0)
 		assertEquals(Rectangle(0, 0, 77, 8), text.globalBounds)
 		assertEquals(Rectangle(0, 0, 154, 16), text2.globalBounds)
 	}

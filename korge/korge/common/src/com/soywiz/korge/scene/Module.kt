@@ -26,7 +26,6 @@ open class Module {
 	open val scaleMode: ScaleMode = ScaleMode.SHOW_ALL
 	open val clipBorders: Boolean = true
 
-
 	open suspend fun init(injector: AsyncInjector) {
 	}
 }

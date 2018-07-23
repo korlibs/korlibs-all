@@ -82,8 +82,3 @@ class NinePatch(
 		return if (checkGlobalBounds(x, y, sLeft, sTop, sRight, sBottom)) this else null
 	}
 }
-
-fun Views.ninePatch(
-	tex: BmpSlice, width: Double, height: Double,
-	left: Double, top: Double, right: Double, bottom: Double
-) = NinePatch(tex, width, height, left, top, right, bottom)

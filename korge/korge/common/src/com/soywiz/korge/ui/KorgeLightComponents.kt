@@ -19,10 +19,10 @@ class KorgeLightComponents(val uiFactory: UIFactory) : LightComponents() {
 	override fun create(type: LightType): LightComponentInfo {
 		val handle = when (type) {
 			LightType.BUTTON -> uiFactory.button()
-			LightType.CONTAINER -> views.fixedSizeContainer()
-			LightType.FRAME -> views.fixedSizeContainer()
+			LightType.CONTAINER -> FixedSizeContainer()
+			LightType.FRAME -> FixedSizeContainer()
 			LightType.LABEL -> uiFactory.label("")
-			else -> views.fixedSizeContainer()
+			else -> FixedSizeContainer()
 		}
 		return LightComponentInfo(handle)
 	}

@@ -47,5 +47,3 @@ class Camera : Container() {
 		easing = easing
 	)
 }
-
-fun Views.camera() = Camera()

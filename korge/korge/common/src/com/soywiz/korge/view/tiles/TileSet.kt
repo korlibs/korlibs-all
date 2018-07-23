@@ -23,6 +23,13 @@ class TileSet(
 	operator fun get(index: Int): BmpSlice? = textures.getOrNull(index)
 
 	companion object {
+		operator fun invoke(textureMap: Map<Int, BmpSlice?>): TileSet {
+			val maxKey = textureMap.keys.max() ?: 0
+			val textures = (0..maxKey).map { textureMap[it] }
+			val firstTexture = textures.first() ?: Bitmaps.transparent
+			return TileSet(textures, firstTexture.width, firstTexture.height, firstTexture.bmp)
+		}
+
 		operator fun invoke(
 			base: BitmapSlice<Bitmap>,
 			tileWidth: Int,
@@ -107,16 +114,3 @@ class TileSet(
 	}
 }
 
-fun Views.tileSet(
-	textures: List<BmpSlice?>, width: Int, height: Int,
-	base: Bitmap = textures.filterNotNull().first().bmp
-): TileSet {
-	return TileSet(textures, width, height, base)
-}
-
-fun Views.tileSet(textureMap: Map<Int, BmpSlice?>): TileSet {
-	val maxKey = textureMap.keys.max() ?: 0
-	val textures = (0..maxKey).map { textureMap[it] }
-	val firstTexture = textures.first() ?: Bitmaps.transparent
-	return TileSet(textures, firstTexture.width, firstTexture.height, firstTexture.bmp)
-}

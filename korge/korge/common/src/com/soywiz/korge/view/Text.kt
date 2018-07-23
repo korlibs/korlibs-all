@@ -174,12 +174,6 @@ class Text : View(), IText, IHtml {
 	}
 }
 
-fun Views.text(text: String, textSize: Double = 16.0, color: Int = Colors.WHITE, font: BitmapFont = Fonts.defaultFont) =
-	Text().apply {
-		this.format = Html.Format(color = color, face = Html.FontFace.Bitmap(font), size = textSize.toInt())
-		if (text != "") this.text = text
-	}
-
 fun Container.text(text: String, textSize: Double = 16.0, font: BitmapFont = Fonts.defaultFont): Text =
 	text(text, textSize, font) {
 	}

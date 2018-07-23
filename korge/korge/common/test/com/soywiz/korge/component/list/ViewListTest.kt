@@ -9,8 +9,8 @@ import kotlin.test.*
 class ViewListTest : ViewsForTesting() {
 	@Test
 	fun createList() {
-		val item0 = views.solidRect(10, 10, Colors.RED).apply { setXY(0, 0) }
-		val item1 = views.solidRect(10, 10, Colors.RED).apply { setXY(20, 0) }
+		val item0 = SolidRect(10, 10, Colors.RED).apply { setXY(0, 0) }
+		val item1 = SolidRect(10, 10, Colors.RED).apply { setXY(20, 0) }
 		views.stage.addChild(item0)
 		views.stage.addChild(item1)
 		val itemList = ViewList(item0, item1, 3)

@@ -24,7 +24,7 @@ abstract class Scene : InjectorAsyncDependency, ViewsContainer, CoroutineContext
 	protected val cancellables = CancellableGroup()
 	override val coroutineContext: CoroutineContext get() = views.coroutineContext
 
-	protected open fun createSceneView(): Container = views.container()
+	protected open fun createSceneView(): Container = Container()
 
 	override suspend fun init(injector: AsyncInjector): Unit {
 		//this.injector = injector
@@ -41,7 +41,7 @@ abstract class Scene : InjectorAsyncDependency, ViewsContainer, CoroutineContext
 		//println("Scene.init:ResourcesRoot[1]:" + injector.get<ResourcesRoot>())
 		//println("Scene.init:ResourcesRoot[2]:" + injector.get(ResourcesRoot::class))
 		//this.bus = injector.get()
-		_sceneViewContainer = views.container()
+		_sceneViewContainer = Container()
 		sceneView = createSceneView()
 		_sceneViewContainer += sceneView
 	}
@@ -67,7 +67,7 @@ abstract class ScaledScene() : Scene() {
 	open val sceneScale: Double = 2.0
 	open val sceneFiltering: Boolean = false
 
-	override fun createSceneView(): Container = views.scaleView(
+	override fun createSceneView(): Container = ScaleView(
 		sceneSize.width.toInt(),
 		sceneSize.height.toInt(),
 		scale = sceneScale,

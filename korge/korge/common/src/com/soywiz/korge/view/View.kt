@@ -23,9 +23,9 @@ import kotlin.collections.removeAll
 import kotlin.collections.set
 import kotlin.reflect.*
 
-class CustomView() : View()
-
 open class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by EventDispatcher.Mixin() {
+	interface Reference // Viewport
+
 	companion object {
 		fun commonAncestor(left: View?, right: View?): View? {
 			var l: View? = left

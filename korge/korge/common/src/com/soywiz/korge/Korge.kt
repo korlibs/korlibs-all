@@ -109,7 +109,7 @@ object Korge {
 			config.container.repaint()
 		}
 
-		val sc = views.sceneContainer()
+		val sc = SceneContainer(views)
 		views.stage += sc
 
 		register(views)

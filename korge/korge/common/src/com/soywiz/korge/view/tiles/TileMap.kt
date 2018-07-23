@@ -97,8 +97,6 @@ open class TileMap(val map: IntArray2, val tileset: TileSet) : View() {
 	}
 }
 
-fun Views.tileMap(map: IntArray2, tileset: TileSet) = TileMap(map, tileset)
-
 fun Container.tileMap(map: IntArray2, tileset: TileSet): TileMap = tileMap(map, tileset) { }
 
 inline fun Container.tileMap(map: IntArray2, tileset: TileSet, callback: TileMap.() -> Unit): TileMap {

@@ -39,6 +39,3 @@ class ScaleView(width: Int, height: Int, scale: Double = 2.0, var filtering: Boo
 		})
 	}
 }
-
-fun Views.scaleView(width: Int, height: Int, scale: Double = 2.0, filtering: Boolean = false): ScaleView =
-	ScaleView(width, height, scale, filtering)

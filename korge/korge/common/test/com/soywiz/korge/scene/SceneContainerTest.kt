@@ -36,7 +36,7 @@ class SceneContainerTest : ViewsForTesting() {
 
 		override suspend fun sceneInit(sceneView: Container) {
 			super.sceneInit(sceneView)
-			sceneView += views.solidRect(100, 100, Colors.RED).apply {
+			sceneView += SolidRect(100, 100, Colors.RED).apply {
 				name = "box"
 			}
 		}

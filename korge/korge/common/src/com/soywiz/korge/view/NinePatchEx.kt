@@ -15,6 +15,13 @@ class NinePatchEx(
 
 	private val bounds = RectangleInt()
 
+	companion object {
+		operator fun invoke(
+			ninePatch: NinePatchBitmap32,
+			width: Double = ninePatch.width.toDouble(), height: Double = ninePatch.height.toDouble()
+		): NinePatchEx = NinePatchEx(NinePatchTex(ninePatch), width, height)
+	}
+
 	override fun render(ctx: RenderContext, m: Matrix2d) {
 		if (!visible) return
 
@@ -27,7 +34,7 @@ class NinePatchEx(
 			prescale(1.0 / xscale, 1.0 / yscale)
 			ninePatch.info.computeScale(bounds) { segment, x, y, width, height ->
 				ctx.batch.drawQuad(
-					ninePatch.getSliceTex(segment),
+					ctx.getTex(ninePatch.getSliceTex(segment)),
 					x.toFloat(), y.toFloat(),
 					width.toFloat(), height.toFloat(),
 					m = m,
@@ -45,28 +52,15 @@ class NinePatchEx(
 	}
 }
 
-class NinePatchTex(val tex: Texture, val info: NinePatchInfo) {
+class NinePatchTex(val tex: BitmapSlice<Bitmap>, val info: NinePatchInfo) {
 	val width get() = info.width
 	val height get() = info.height
-	constructor(views: Views, ninePatch: NinePatchBitmap32) : this(views.texture(ninePatch.content), ninePatch.info)
 
-	val NinePatchInfo.Segment.tex by Extra.PropertyThis<NinePatchInfo.Segment, Texture> {
-		this@NinePatchTex.tex.slice(this.rect.toDouble())
+	constructor(ninePatch: NinePatchBitmap32) : this(ninePatch.content, ninePatch.info)
+
+	val NinePatchInfo.Segment.tex by Extra.PropertyThis<NinePatchInfo.Segment, BmpSlice> {
+		this@NinePatchTex.tex.slice(this.rect)
 	}
 
-	fun getSliceTex(s: NinePatchInfo.Segment) = s.tex
+	fun getSliceTex(s: NinePatchInfo.Segment): BmpSlice = s.tex
 }
-
-fun Views.ninePatchEx(
-	tex: Texture, ninePatch: NinePatchInfo, width: Double = tex.width.toDouble(), height: Double = tex.height.toDouble()
-) = NinePatchEx(NinePatchTex(tex, ninePatch), width, height)
-
-fun Views.ninePatchEx(
-	ninePatch: NinePatchBitmap32,
-	width: Double = ninePatch.width.toDouble(), height: Double = ninePatch.height.toDouble()
-): NinePatchEx = NinePatchEx(NinePatchTex(this, ninePatch), width, height)
-
-fun Views.ninePatchEx(
-	ninePatch: NinePatchTex,
-	width: Double = ninePatch.width.toDouble(), height: Double = ninePatch.height.toDouble()
-): NinePatchEx = NinePatchEx(ninePatch, width, height)

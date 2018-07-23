@@ -6,6 +6,7 @@ import com.soywiz.klogger.*
 import com.soywiz.korag.*
 import com.soywiz.korag.log.*
 import com.soywiz.korge.*
+import com.soywiz.korge.async.*
 import com.soywiz.korge.audio.*
 import com.soywiz.korge.component.*
 import com.soywiz.korge.input.*
@@ -83,11 +84,6 @@ class Views(
 	val nativeMouseX: Double get() = input.mouse.x
 	val nativeMouseY: Double get() = input.mouse.y
 
-	//var actualVirtualWidth = ag.backWidth
-	//var actualVirtualHeight = ag.backHeight
-
-	//var scaleMode: ScaleMode = ScaleMode.COVER
-	//var scaleMode: ScaleMode = ScaleMode.NO_SCALE
 	var scaleMode: ScaleMode = ScaleMode.SHOW_ALL
 	var scaleAnchor = Anchor.MIDDLE_CENTER
 	var clipBorders = true
@@ -146,19 +142,25 @@ class Views(
 			if (e is MouseEvent) {
 				forEachComponent<MouseComponent> { it.onMouseEvent(views, e) }
 			}
-			if (e is ResizedEvent) {
+			else if (e is ResizedEvent) {
 				forEachComponent<ResizeComponent> { it.resized(views, e.width, e.height) }
 			}
-			if (e is KeyEvent) {
+			else if (e is KeyEvent) {
 				forEachComponent<KeyComponent> { it.onKeyEvent(views, e) }
+			}
+			else if (e is GamePadConnectionEvent) {
+				forEachComponent<GamepadComponent> { it.onGamepadEvent(views, e) }
+			}
+			else if (e is GamePadButtonEvent) {
+				forEachComponent<GamepadComponent> { it.onGamepadEvent(views, e) }
+			}
+			else if (e is GamePadStickEvent) {
+				forEachComponent<GamepadComponent> { it.onGamepadEvent(views, e) }
 			}
 		} catch (e: PreventDefaultException) {
 			//println("PreventDefaultException.Reason: ${e.reason}")
 		}
 	}
-
-	fun container() = Container()
-	fun fixedSizeContainer(width: Double = 100.0, height: Double = 100.0) = FixedSizeContainer(width, height)
 
 	fun render(clearColor: Int = Colors.BLACK, clear: Boolean = true) {
 		if (clear) ag.clear(clearColor, stencil = 0, clearColor = true, clearStencil = true)
@@ -287,7 +289,7 @@ class Views(
 	}
 }
 
-class Stage(val views: Views) : Container() {
+class Stage(val views: Views) : Container(), View.Reference {
 	override fun getLocalBoundsInternal(out: Rectangle) {
 		out.setTo(views.actualVirtualLeft, views.actualVirtualTop, views.actualVirtualWidth, views.actualVirtualHeight)
 	}
@@ -317,7 +319,7 @@ class Stage(val views: Views) : Container() {
 }
 
 class ViewsLog(
-	val coroutineContext: CoroutineDispatcher,
+	val coroutineContext: CoroutineDispatcher = KorgeDispatcher,
 	val injector: AsyncInjector = AsyncInjector(),
 	val ag: LogAG = LogAG(),
 	val input: Input = Input(),
@@ -327,46 +329,26 @@ class ViewsLog(
 	val views = Views(coroutineContext, ag, injector, input, timeProvider, stats)
 }
 
-/*
-object ViewFactory {
-    inline fun Container.container(): Container {
-        val container = views.container()
-        this += container
-        return container
-    }
-}
-
-inline fun viewFactory(callback: ViewFactory.() -> Unit) {
-    ViewFactory.callback()
-}
-*/
-
-inline fun Container.container(): Container = container { }
-
-inline fun Container.container(callback: Container.() -> Unit): Container {
+inline fun Container.container(callback: Container.() -> Unit = {}): Container {
 	val child = Container()
 	this += child
 	callback(child)
 	return child
 }
 
-fun Views.texture(bmp: Bitmap, mipmaps: Boolean = false): Texture {
-	return Texture(Texture.Base(ag.createTexture(bmp, mipmaps), bmp.width, bmp.height))
-}
+fun Views.texture(bmp: Bitmap, mipmaps: Boolean = false): Texture =
+	Texture(Texture.Base(ag.createTexture(bmp, mipmaps), bmp.width, bmp.height))
 
-fun Views.texture(bmp: BitmapSlice<Bitmap>, mipmaps: Boolean = false): Texture {
-	return Texture(Texture.Base(ag.createTexture(bmp, mipmaps), bmp.width, bmp.height))
-}
+fun Views.texture(bmp: BitmapSlice<Bitmap>, mipmaps: Boolean = false): Texture =
+	Texture(Texture.Base(ag.createTexture(bmp, mipmaps), bmp.width, bmp.height))
 
 fun Bitmap.texture(views: Views, mipmaps: Boolean = false) = views.texture(this, mipmaps)
 
-fun Views.texture(width: Int, height: Int, mipmaps: Boolean = false): Texture {
-	return texture(Bitmap32(width, height), mipmaps)
-}
+fun Views.texture(width: Int, height: Int, mipmaps: Boolean = false) =
+	texture(Bitmap32(width, height), mipmaps)
 
-suspend fun Views.texture(bmp: ByteArray, mipmaps: Boolean = false): Texture {
-	return texture(nativeImageFormatProvider.decode(bmp), mipmaps)
-}
+suspend fun Views.texture(bmp: ByteArray, mipmaps: Boolean = false): Texture =
+	texture(nativeImageFormatProvider.decode(bmp), mipmaps)
 
 interface ViewsContainer {
 	val views: Views
