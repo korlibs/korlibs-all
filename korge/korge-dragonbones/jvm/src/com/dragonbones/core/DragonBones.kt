@@ -1,5 +1,8 @@
 package com.dragonbones.core
 
+import com.dragonbones.animation.*
+import com.dragonbones.event.*
+
 /**
  * The MIT License (MIT)
  *
@@ -286,40 +289,42 @@ interface Map<T> {
  * @private
  */
 class DragonBones {
-	public static readonly VERSION: String = "5.7.000";
+	companion object {
+		public val VERSION: String = "5.7.000";
 
-	public static yDown: Boolean = true;
-	public static debug: Boolean = false;
-	public static debugDraw: Boolean = false;
+		public var yDown: Boolean = true;
+		public var debug: Boolean = false;
+		public var debugDraw: Boolean = false;
+	}
 
-	private readonly _clock: WorldClock = new WorldClock();
-	private readonly _events: Array<EventObject> = [];
-	private readonly _objects: Array<BaseObject> = [];
-	private _eventManager: IEventDispatcher = null as any;
+	private val _clock: WorldClock = new WorldClock();
+	private val _events: Array<EventObject> = [];
+	private val _objects: Array<BaseObject> = [];
+	private var _eventManager: IEventDispatcher = null as any;
 
 	public constructor(eventManager: IEventDispatcher) {
 		this._eventManager = eventManager;
 
-		console.info(`DragonBones: ${DragonBones.VERSION}\nWebsite: http://dragonbones.com/\nSource and Demo: https://github.com/DragonBones/`);
+		println("DragonBones: ${DragonBones.VERSION}\nWebsite: http://dragonbones.com/\nSource and Demo: https://github.com/DragonBones/");
 	}
 
-	public advanceTime(passedTime: Double): Unit {
-		if (this._objects.length > 0) {
+	public fun advanceTime(passedTime: Double): Unit {
+		if (this._objects.size > 0) {
 			for (const object of this._objects) {
 				object.returnToPool();
 			}
 
-			this._objects.length = 0;
+			this._objects.size = 0;
 		}
 
 		this._clock.advanceTime(passedTime);
 
-		if (this._events.length > 0) {
-			for (let i = 0; i < this._events.length; ++i) {
-				const eventObject = this._events[i];
-				const armature = eventObject.armature;
+		if (this._events.size > 0) {
+			for (i in 0 until this._events.size) {
+				val eventObject = this._events[i];
+				val armature = eventObject.armature;
 
-				if (armature._armatureData !== null) { // May be armature disposed before advanceTime.
+				if (armature._armatureData != null) { // May be armature disposed before advanceTime.
 					armature.eventDispatcher.dispatchDBEvent(eventObject.type, eventObject);
 					if (eventObject.type === EventObject.SOUND_EVENT) {
 						this._eventManager.dispatchDBEvent(eventObject.type, eventObject);
@@ -329,31 +334,34 @@ class DragonBones {
 				this.bufferObject(eventObject);
 			}
 
-			this._events.length = 0;
+			this._events.size = 0;
 		}
 	}
 
-	public bufferEvent(value: EventObject): Unit {
+	public fun bufferEvent(value: EventObject): Unit {
 		if (this._events.indexOf(value) < 0) {
 			this._events.push(value);
 		}
 	}
 
-	public bufferObject(object: BaseObject): Unit {
-		if (this._objects.indexOf(object) < 0) {
-			this._objects.push(object);
+	public fun bufferObject(obj: BaseObject): Unit {
+		if (this._objects.indexOf(obj) < 0) {
+			this._objects.push(obj);
 		}
 	}
 
-	public get clock(): WorldClock {
+	public val clock: WorldClock
+		get() {
 		return this._clock;
 	}
 
-	public get eventManager(): IEventDispatcher {
+	public val eventManager: IEventDispatcher
+		get() {
 		return this._eventManager;
 	}
 }
 
+/*
 //
 if (!console.warn) {
     console.warn = function () { };
@@ -400,3 +408,4 @@ else if (typeof exports === "object") {
 else if (typeof global !== "undefined") {
     global.dragonBones = dragonBones;
 }
+*/

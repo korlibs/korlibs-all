@@ -62,7 +62,7 @@ class Animation : BaseObject {
 	 */
 	private var _animationDirty: Boolean //
 	private var _inheritTimeScale: Double
-	private val _animationNames: Array<string> = []
+	private val _animationNames: Array<String> = []
 	private val _animationStates: Array<AnimationState> = []
 	private val _animations: Map<AnimationData> = {}
 	private val _blendStates: Map<Map<BlendState>> = {}
@@ -71,11 +71,11 @@ class Animation : BaseObject {
 	private var _lastAnimationState: AnimationState?
 
 	protected fun _onClear(): Unit {
-		for (const animationState of this._animationStates) {
+		for (animationState in this._animationStates) {
 			animationState.returnToPool()
 		}
 
-		for (let k in this._animations) {
+		for (k in this._animations.keys) {
 			delete this._animations[k]
 		}
 
@@ -366,7 +366,7 @@ class Animation : BaseObject {
 			}
 		}
 
-		if (this._animationStates.length === 0) {
+		if (this._animationStates.size === 0) {
 			animationConfig.fadeInTime = 0.0
 		}
 		else if (animationConfig.fadeInTime < 0.0) {
@@ -386,7 +386,7 @@ class Animation : BaseObject {
 				animationConfig.position %= animationData.duration
 				animationConfig.position = animationData.duration - animationConfig.position
 			}
-			else if (animationConfig.position === animationData.duration) {
+			else if (animationConfig.position == animationData.duration) {
 				animationConfig.position -= 0.000001 // Play a little time before end.
 			}
 			else if (animationConfig.position > animationData.duration) {
@@ -579,7 +579,7 @@ class Animation : BaseObject {
 		this._animationConfig.layer = layer
 		this._animationConfig.fadeInTime = fadeInTime
 		this._animationConfig.animation = animationName
-		this._animationConfig.group = group !== null ? group : ""
+		this._animationConfig.group = group ?: ""
 
 		return this.playConfig(this._animationConfig)
 	}
@@ -601,7 +601,7 @@ class Animation : BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public fun gotoAndPlayByTime(animationName: String, time: Double = 0.0, playTimes: Double = -1): AnimationState? {
+	public fun gotoAndPlayByTime(animationName: String, time: Double = 0.0, playTimes: Int = -1): AnimationState? {
 		this._animationConfig.clear()
 		this._animationConfig.resetToPose = true
 		this._animationConfig.playTimes = playTimes
@@ -629,14 +629,14 @@ class Animation : BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public fun gotoAndPlayByFrame(animationName: String, frame: Double = 0, playTimes: Double = -1): AnimationState? {
+	public fun gotoAndPlayByFrame(animationName: String, frame: Int = 0, playTimes: Int = -1): AnimationState? {
 		this._animationConfig.clear()
 		this._animationConfig.resetToPose = true
 		this._animationConfig.playTimes = playTimes
 		this._animationConfig.fadeInTime = 0.0
 		this._animationConfig.animation = animationName
 
-		const animationData = animationName in this._animations ? this._animations[animationName] : null
+		val animationData = if (animationName in this._animations) this._animations[animationName] else null
 		if (animationData !== null) {
 			this._animationConfig.position = animationData.frameCount > 0 ? animationData.duration * frame / animationData.frameCount : 0.0
 		}
@@ -661,16 +661,16 @@ class Animation : BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public fun gotoAndPlayByProgress(animationName: String, progress: Double = 0.0, playTimes: Double = -1): AnimationState? {
+	public fun gotoAndPlayByProgress(animationName: String, progress: Double = 0.0, playTimes: Int = -1): AnimationState? {
 		this._animationConfig.clear()
 		this._animationConfig.resetToPose = true
 		this._animationConfig.playTimes = playTimes
 		this._animationConfig.fadeInTime = 0.0
 		this._animationConfig.animation = animationName
 
-		val animationData = animationName in this._animations ? this._animations[animationName] : null
+		val animationData = if (animationName in this._animations) this._animations[animationName] else null
 		if (animationData !== null) {
-			this._animationConfig.position = animationData.duration * (progress > 0.0 ? progress : 0.0)
+			this._animationConfig.position = animationData.duration * (if (progress > 0.0) progress else 0.0)
 		}
 
 		return this.playConfig(this._animationConfig)
@@ -740,7 +740,7 @@ class Animation : BaseObject {
 	 * @language zh_CN
 	 */
 	public fun gotoAndStopByProgress(animationName: String, progress: Double = 0.0): AnimationState? {
-		const animationState = this.gotoAndPlayByProgress(animationName, progress, 1)
+		val animationState = this.gotoAndPlayByProgress(animationName, progress, 1)
 		if (animationState !== null) {
 			animationState.stop()
 		}
@@ -757,7 +757,7 @@ class Animation : BaseObject {
 
 		val blendStates = this._blendStates[type]
 		if (!(name in blendStates)) {
-			const blendState = blendStates[name] = BaseObject.borrowObject(BlendState)
+			val blendState = blendStates[name] = BaseObject.borrowObject(BlendState)
 			blendState.target = target
 		}
 

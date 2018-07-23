@@ -230,7 +230,7 @@ class AnimationState : BaseObject() {
 	 * @internal
 	 */
 	public var _weightResult: Double;
-	private val _boneMask: Array<string> = [];
+	private val _boneMask: Array<String> = [];
 	private val _boneTimelines: Array<TimelineState> = [];
 	private val _boneBlendTimelines: Array<TimelineState> = [];
 	private val _slotTimelines: Array<TimelineState> = [];

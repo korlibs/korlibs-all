@@ -22,6 +22,9 @@
  */
 package com.dragonbones.model
 
+import com.dragonbones.core.*
+import com.dragonbones.geom.*
+
 /**
  * - The armature data.
  * @version DragonBones 3.0
@@ -32,14 +35,14 @@ package com.dragonbones.model
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class ArmatureData  :  BaseObject {
-	public static toString(): String {
-		return "[class dragonBones.ArmatureData]";
+class ArmatureData  : BaseObject() {
+	public override fun toString(): String {
+		return "[class dragonBones.ArmatureData]"
 	}
 	/**
 	 * @private
 	 */
-	public type: ArmatureType;
+	public var type: ArmatureType
 	/**
 	 * - The animation frame rate.
 	 * @version DragonBones 3.0
@@ -50,15 +53,15 @@ class ArmatureData  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public frameRate: Double;
+	public var frameRate: Double
 	/**
 	 * @private
 	 */
-	public cacheFrameRate: Double;
+	public var cacheFrameRate: Double
 	/**
 	 * @private
 	 */
-	public scale: Double;
+	public var scale: Double
 	/**
 	 * - The armature name.
 	 * @version DragonBones 3.0
@@ -69,11 +72,11 @@ class ArmatureData  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public name: String;
+	public var name: String
 	/**
 	 * @private
 	 */
-	public readonly aabb: Rectangle = new Rectangle();
+	public val aabb: Rectangle = new Rectangle()
 	/**
 	 * - The names of all the animation data.
 	 * @version DragonBones 3.0
@@ -84,43 +87,43 @@ class ArmatureData  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public readonly animationNames: Array<string> = [];
+	public val animationNames: Array<String> = []
 	/**
 	 * @private
 	 */
-	public readonly sortedBones: Array<BoneData> = [];
+	public val sortedBones: Array<BoneData> = []
 	/**
 	 * @private
 	 */
-	public readonly sortedSlots: Array<SlotData> = [];
+	public val sortedSlots: Array<SlotData> = []
 	/**
 	 * @private
 	 */
-	public readonly defaultActions: Array<ActionData> = [];
+	public val defaultActions: Array<ActionData> = []
 	/**
 	 * @private
 	 */
-	public readonly actions: Array<ActionData> = [];
+	public val actions: Array<ActionData> = []
 	/**
 	 * @private
 	 */
-	public readonly bones: Map<BoneData> = {};
+	public val bones: Map<BoneData> = {}
 	/**
 	 * @private
 	 */
-	public readonly slots: Map<SlotData> = {};
+	public val slots: Map<SlotData> = {}
 	/**
 	 * @private
 	 */
-	public readonly constraints: Map<ConstraintData> = {};
+	public val constraints: Map<ConstraintData> = {}
 	/**
 	 * @private
 	 */
-	public readonly skins: Map<SkinData> = {};
+	public val skins: Map<SkinData> = {}
 	/**
 	 * @private
 	 */
-	public readonly animations: Map<AnimationData> = {};
+	public val animations: Map<AnimationData> = {}
 	/**
 	 * - The default skin data.
 	 * @version DragonBones 4.5
@@ -131,7 +134,7 @@ class ArmatureData  :  BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public defaultSkin: SkinData?;
+	public var defaultSkin: SkinData?
 	/**
 	 * - The default animation data.
 	 * @version DragonBones 4.5
@@ -142,259 +145,259 @@ class ArmatureData  :  BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public defaultAnimation: AnimationData?;
+	public var defaultAnimation: AnimationData?
 	/**
 	 * @private
 	 */
-	public canvas: CanvasData? = null; // Initial value.
+	public var canvas: CanvasData? = null // Initial value.
 	/**
 	 * @private
 	 */
-	public userData: UserData? = null; // Initial value.
+	public var userData: UserData? = null // Initial value.
 	/**
 	 * @private
 	 */
-	public parent: DragonBonesData;
+	public var parent: DragonBonesData
 
-	protected _onClear(): Unit {
-		for (const action of this.defaultActions) {
-			action.returnToPool();
+	protected fun _onClear(): Unit {
+		for (action in this.defaultActions) {
+			action.returnToPool()
 		}
 
-		for (const action of this.actions) {
-			action.returnToPool();
+		for (action in this.actions) {
+			action.returnToPool()
 		}
 
-		for (let k in this.bones) {
-			this.bones[k].returnToPool();
-			delete this.bones[k];
+		for (k in this.bones.keys) {
+			this.bones[k].returnToPool()
+			delete this.bones[k]
 		}
 
-		for (let k in this.slots) {
-			this.slots[k].returnToPool();
-			delete this.slots[k];
+		for (k in this.slots.keys) {
+			this.slots[k].returnToPool()
+			delete this.slots[k]
 		}
 
-		for (let k in this.constraints) {
-			this.constraints[k].returnToPool();
-			delete this.constraints[k];
+		for (k in this.constraints.keys) {
+			this.constraints[k].returnToPool()
+			delete this.constraints[k]
 		}
 
-		for (let k in this.skins) {
-			this.skins[k].returnToPool();
-			delete this.skins[k];
+		for (k in this.skins.keys) {
+			this.skins[k].returnToPool()
+			delete this.skins[k]
 		}
 
 		for (let k in this.animations) {
-			this.animations[k].returnToPool();
-			delete this.animations[k];
+			this.animations[k].returnToPool()
+			delete this.animations[k]
 		}
 
 		if (this.canvas !== null) {
-			this.canvas.returnToPool();
+			this.canvas.returnToPool()
 		}
 
 		if (this.userData !== null) {
-			this.userData.returnToPool();
+			this.userData.returnToPool()
 		}
 
-		this.type = ArmatureType.Armature;
-		this.frameRate = 0;
-		this.cacheFrameRate = 0;
-		this.scale = 1.0;
-		this.name = "";
-		this.aabb.clear();
-		this.animationNames.length = 0;
-		this.sortedBones.length = 0;
-		this.sortedSlots.length = 0;
-		this.defaultActions.length = 0;
-		this.actions.length = 0;
+		this.type = ArmatureType.Armature
+		this.frameRate = 0
+		this.cacheFrameRate = 0
+		this.scale = 1.0
+		this.name = ""
+		this.aabb.clear()
+		this.animationNames.length = 0
+		this.sortedBones.length = 0
+		this.sortedSlots.length = 0
+		this.defaultActions.length = 0
+		this.actions.length = 0
 		// this.bones.clear();
 		// this.slots.clear();
 		// this.constraints.clear();
 		// this.skins.clear();
 		// this.animations.clear();
-		this.defaultSkin = null;
-		this.defaultAnimation = null;
-		this.canvas = null;
-		this.userData = null;
-		this.parent = null as any; //
+		this.defaultSkin = null
+		this.defaultAnimation = null
+		this.canvas = null
+		this.userData = null
+		this.parent = null as any //
 	}
 	/**
 	 * @internal
 	 */
-	public sortBones(): Unit {
-		const total = this.sortedBones.length;
+	public fun sortBones(): Unit {
+		val total = this.sortedBones.size
 		if (total <= 0) {
-			return;
+			return
 		}
 
-		const sortHelper = this.sortedBones.concat();
-		let index = 0;
-		let count = 0;
-		this.sortedBones.length = 0;
+		val sortHelper = this.sortedBones.concat()
+		var index = 0
+		var count = 0
+		this.sortedBones.size = 0
 		while (count < total) {
-			const bone = sortHelper[index++];
+			val bone = sortHelper[index++]
 			if (index >= total) {
-				index = 0;
+				index = 0
 			}
 
 			if (this.sortedBones.indexOf(bone) >= 0) {
-				continue;
+				continue
 			}
 
-			let flag = false;
-			for (let k in this.constraints) { // Wait constraint.
-				const constraint = this.constraints[k];
+			var flag = false
+			for (k in this.constraints) { // Wait constraint.
+				val constraint = this.constraints[k]
 				if (constraint.root === bone && this.sortedBones.indexOf(constraint.target) < 0) {
-					flag = true;
-					break;
+					flag = true
+					break
 				}
 			}
 
 			if (flag) {
-				continue;
+				continue
 			}
 
 			if (bone.parent !== null && this.sortedBones.indexOf(bone.parent) < 0) { // Wait parent.
-				continue;
+				continue
 			}
 
-			this.sortedBones.push(bone);
-			count++;
+			this.sortedBones.push(bone)
+			count++
 		}
 	}
 	/**
 	 * @internal
 	 */
-	public cacheFrames(frameRate: Double): Unit {
+	public fun cacheFrames(frameRate: Double): Unit {
 		if (this.cacheFrameRate > 0) { // TODO clear cache.
-			return;
+			return
 		}
 
-		this.cacheFrameRate = frameRate;
-		for (let k in this.animations) {
-			this.animations[k].cacheFrames(this.cacheFrameRate);
+		this.cacheFrameRate = frameRate
+		for (k in this.animations.keys) {
+			this.animations[k].cacheFrames(this.cacheFrameRate)
 		}
 	}
 	/**
 	 * @internal
 	 */
-	public setCacheFrame(globalTransformMatrix: Matrix, transform: Transform): Double {
-		const dataArray = this.parent.cachedFrames;
-		let arrayOffset = dataArray.length;
+	public fun setCacheFrame(globalTransformMatrix: Matrix, transform: Transform): Double {
+		val dataArray = this.parent.cachedFrames
+		var arrayOffset = dataArray.length
 
-		dataArray.length += 10;
-		dataArray[arrayOffset] = globalTransformMatrix.a;
-		dataArray[arrayOffset + 1] = globalTransformMatrix.b;
-		dataArray[arrayOffset + 2] = globalTransformMatrix.c;
-		dataArray[arrayOffset + 3] = globalTransformMatrix.d;
-		dataArray[arrayOffset + 4] = globalTransformMatrix.tx;
-		dataArray[arrayOffset + 5] = globalTransformMatrix.ty;
-		dataArray[arrayOffset + 6] = transform.rotation;
-		dataArray[arrayOffset + 7] = transform.skew;
-		dataArray[arrayOffset + 8] = transform.scaleX;
-		dataArray[arrayOffset + 9] = transform.scaleY;
+		dataArray.length += 10
+		dataArray[arrayOffset] = globalTransformMatrix.a
+		dataArray[arrayOffset + 1] = globalTransformMatrix.b
+		dataArray[arrayOffset + 2] = globalTransformMatrix.c
+		dataArray[arrayOffset + 3] = globalTransformMatrix.d
+		dataArray[arrayOffset + 4] = globalTransformMatrix.tx
+		dataArray[arrayOffset + 5] = globalTransformMatrix.ty
+		dataArray[arrayOffset + 6] = transform.rotation
+		dataArray[arrayOffset + 7] = transform.skew
+		dataArray[arrayOffset + 8] = transform.scaleX
+		dataArray[arrayOffset + 9] = transform.scaleY
 
-		return arrayOffset;
+		return arrayOffset
 	}
 	/**
 	 * @internal
 	 */
-	public getCacheFrame(globalTransformMatrix: Matrix, transform: Transform, arrayOffset: Double): Unit {
-		const dataArray = this.parent.cachedFrames;
-		globalTransformMatrix.a = dataArray[arrayOffset];
-		globalTransformMatrix.b = dataArray[arrayOffset + 1];
-		globalTransformMatrix.c = dataArray[arrayOffset + 2];
-		globalTransformMatrix.d = dataArray[arrayOffset + 3];
-		globalTransformMatrix.tx = dataArray[arrayOffset + 4];
-		globalTransformMatrix.ty = dataArray[arrayOffset + 5];
-		transform.rotation = dataArray[arrayOffset + 6];
-		transform.skew = dataArray[arrayOffset + 7];
-		transform.scaleX = dataArray[arrayOffset + 8];
-		transform.scaleY = dataArray[arrayOffset + 9];
-		transform.x = globalTransformMatrix.tx;
-		transform.y = globalTransformMatrix.ty;
+	public fun getCacheFrame(globalTransformMatrix: Matrix, transform: Transform, arrayOffset: Double): Unit {
+		val dataArray = this.parent.cachedFrames
+		globalTransformMatrix.a = dataArray[arrayOffset]
+		globalTransformMatrix.b = dataArray[arrayOffset + 1]
+		globalTransformMatrix.c = dataArray[arrayOffset + 2]
+		globalTransformMatrix.d = dataArray[arrayOffset + 3]
+		globalTransformMatrix.tx = dataArray[arrayOffset + 4]
+		globalTransformMatrix.ty = dataArray[arrayOffset + 5]
+		transform.rotation = dataArray[arrayOffset + 6]
+		transform.skew = dataArray[arrayOffset + 7]
+		transform.scaleX = dataArray[arrayOffset + 8]
+		transform.scaleY = dataArray[arrayOffset + 9]
+		transform.x = globalTransformMatrix.tx
+		transform.y = globalTransformMatrix.ty
 	}
 	/**
 	 * @internal
 	 */
-	public addBone(value: BoneData): Unit {
+	public fun addBone(value: BoneData): Unit {
 		if (value.name in this.bones) {
-			console.warn("Same bone: " + value.name);
-			return;
+			console.warn("Same bone: " + value.name)
+			return
 		}
 
-		this.bones[value.name] = value;
-		this.sortedBones.push(value);
+		this.bones[value.name] = value
+		this.sortedBones.push(value)
 	}
 	/**
 	 * @internal
 	 */
-	public addSlot(value: SlotData): Unit {
+	public fun addSlot(value: SlotData): Unit {
 		if (value.name in this.slots) {
-			console.warn("Same slot: " + value.name);
-			return;
+			console.warn("Same slot: " + value.name)
+			return
 		}
 
-		this.slots[value.name] = value;
-		this.sortedSlots.push(value);
+		this.slots[value.name] = value
+		this.sortedSlots.push(value)
 	}
 	/**
 	 * @internal
 	 */
-	public addConstraint(value: ConstraintData): Unit {
+	public fun addConstraint(value: ConstraintData): Unit {
 		if (value.name in this.constraints) {
-			console.warn("Same constraint: " + value.name);
-			return;
+			console.warn("Same constraint: " + value.name)
+			return
 		}
 
-		this.constraints[value.name] = value;
+		this.constraints[value.name] = value
 	}
 	/**
 	 * @internal
 	 */
-	public addSkin(value: SkinData): Unit {
+	public fun addSkin(value: SkinData): Unit {
 		if (value.name in this.skins) {
-			console.warn("Same skin: " + value.name);
-			return;
+			console.warn("Same skin: " + value.name)
+			return
 		}
 
-		value.parent = this;
-		this.skins[value.name] = value;
+		value.parent = this
+		this.skins[value.name] = value
 		if (this.defaultSkin === null) {
-			this.defaultSkin = value;
+			this.defaultSkin = value
 		}
 
 		if (value.name === "default") {
-			this.defaultSkin = value;
+			this.defaultSkin = value
 		}
 	}
 	/**
 	 * @internal
 	 */
-	public addAnimation(value: AnimationData): Unit {
+	public fun addAnimation(value: AnimationData): Unit {
 		if (value.name in this.animations) {
-			console.warn("Same animation: " + value.name);
-			return;
+			console.warn("Same animation: " + value.name)
+			return
 		}
 
-		value.parent = this;
-		this.animations[value.name] = value;
-		this.animationNames.push(value.name);
+		value.parent = this
+		this.animations[value.name] = value
+		this.animationNames.push(value.name)
 		if (this.defaultAnimation === null) {
-			this.defaultAnimation = value;
+			this.defaultAnimation = value
 		}
 	}
 	/**
 	 * @internal
 	 */
-	public addAction(value: ActionData, isDefault: Boolean): Unit {
+	public fun addAction(value: ActionData, isDefault: Boolean): Unit {
 		if (isDefault) {
-			this.defaultActions.push(value);
+			this.defaultActions.push(value)
 		}
 		else {
-			this.actions.push(value);
+			this.actions.push(value)
 		}
 	}
 	/**
@@ -409,8 +412,8 @@ class ArmatureData  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public getBone(boneName: String): BoneData? {
-		return boneName in this.bones ? this.bones[boneName] : null;
+	public fun getBone(boneName: String): BoneData? {
+		return boneName in this.bones ? this.bones[boneName] : null
 	}
 	/**
 	 * - Get a specific slot data.
@@ -424,14 +427,14 @@ class ArmatureData  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public getSlot(slotName: String): SlotData? {
-		return slotName in this.slots ? this.slots[slotName] : null;
+	public fun getSlot(slotName: String): SlotData? {
+		return slotName in this.slots ? this.slots[slotName] : null
 	}
 	/**
 	 * @private
 	 */
-	public getConstraint(constraintName: String): ConstraintData? {
-		return constraintName in this.constraints ? this.constraints[constraintName] : null;
+	public fun getConstraint(constraintName: String): ConstraintData? {
+		return constraintName in this.constraints ? this.constraints[constraintName] : null
 	}
 	/**
 	 * - Get a specific skin data.
@@ -445,19 +448,19 @@ class ArmatureData  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public getSkin(skinName: String): SkinData? {
-		return skinName in this.skins ? this.skins[skinName] : null;
+	public fun getSkin(skinName: String): SkinData? {
+		return if (skinName in this.skins) this.skins[skinName] else null
 	}
 	/**
 	 * @private
 	 */
-	public getMesh(skinName: String, slotName: String, meshName: String): MeshDisplayData? {
-		const skin = this.getSkin(skinName);
+	public fun getMesh(skinName: String, slotName: String, meshName: String): MeshDisplayData? {
+		val skin = this.getSkin(skinName)
 		if (skin === null) {
-			return null;
+			return null
 		}
 
-		return skin.getDisplay(slotName, meshName) as MeshDisplayData?;
+		return skin.getDisplay(slotName, meshName) as MeshDisplayData?
 	}
 	/**
 	 * - Get a specific animation data.
@@ -471,8 +474,8 @@ class ArmatureData  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public getAnimation(animationName: String): AnimationData? {
-		return animationName in this.animations ? this.animations[animationName] : null;
+	public fun getAnimation(animationName: String): AnimationData? {
+		return animationName in this.animations ? this.animations[animationName] : null
 	}
 }
 /**
@@ -485,30 +488,30 @@ class ArmatureData  :  BaseObject {
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class BoneData  :  BaseObject {
-	public static toString(): String {
-		return "[class dragonBones.BoneData]";
+class BoneData  :  BaseObject() {
+	public override fun toString(): String {
+		return "[class dragonBones.BoneData]"
 	}
 	/**
 	 * @private
 	 */
-	public inheritTranslation: Boolean;
+	public var inheritTranslation: Boolean
 	/**
 	 * @private
 	 */
-	public inheritRotation: Boolean;
+	public var inheritRotation: Boolean
 	/**
 	 * @private
 	 */
-	public inheritScale: Boolean;
+	public var inheritScale: Boolean
 	/**
 	 * @private
 	 */
-	public inheritReflection: Boolean;
+	public var inheritReflection: Boolean
 	/**
 	 * @private
 	 */
-	public type: BoneType;
+	public var type: BoneType
 	/**
 	 * - The bone length.
 	 * @version DragonBones 3.0
@@ -519,11 +522,11 @@ class BoneData  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public length: Double;
+	public var length: Double
 	/**
 	 * @private
 	 */
-	public alpha: Double;
+	public var alpha: Double
 	/**
 	 * - The bone name.
 	 * @version DragonBones 3.0
@@ -534,15 +537,15 @@ class BoneData  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public name: String;
+	public var name: String
 	/**
 	 * @private
 	 */
-	public readonly transform: Transform = new Transform();
+	public val transform: Transform = new Transform()
 	/**
 	 * @private
 	 */
-	public userData: UserData? = null; // Initial value.
+	public var userData: UserData? = null // Initial value.
 	/**
 	 * - The parent bone data.
 	 * @version DragonBones 3.0
@@ -553,45 +556,45 @@ class BoneData  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public parent: BoneData?;
+	public var parent: BoneData?
 
-	protected _onClear(): Unit {
+	protected fun _onClear(): Unit {
 		if (this.userData !== null) {
-			this.userData.returnToPool();
+			this.userData.returnToPool()
 		}
 
-		this.inheritTranslation = false;
-		this.inheritRotation = false;
-		this.inheritScale = false;
-		this.inheritReflection = false;
-		this.type = BoneType.Bone;
-		this.length = 0.0;
-		this.alpha = 1.0;
-		this.name = "";
-		this.transform.identity();
-		this.userData = null;
-		this.parent = null;
+		this.inheritTranslation = false
+		this.inheritRotation = false
+		this.inheritScale = false
+		this.inheritReflection = false
+		this.type = BoneType.Bone
+		this.length = 0.0
+		this.alpha = 1.0
+		this.name = ""
+		this.transform.identity()
+		this.userData = null
+		this.parent = null
 	}
 }
 /**
  * @internal
  */
 class SurfaceData  :  BoneData {
-	public static toString(): String {
-		return "[class dragonBones.SurfaceData]";
+	public override fun toString(): String {
+		return "[class dragonBones.SurfaceData]"
 	}
 
-	public segmentX: Double;
-	public segmentY: Double;
-	public readonly geometry: GeometryData = new GeometryData();
+	public var segmentX: Double
+	public var segmentY: Double
+	public var readonly geometry: GeometryData = new GeometryData()
 
-	protected _onClear(): Unit {
-		super._onClear();
+	protected fun _onClear(): Unit {
+		super._onClear()
 
-		this.type = BoneType.Surface;
-		this.segmentX = 0;
-		this.segmentY = 0;
-		this.geometry.clear();
+		this.type = BoneType.Surface
+		this.segmentX = 0
+		this.segmentY = 0
+		this.geometry.clear()
 	}
 }
 /**
@@ -604,41 +607,45 @@ class SurfaceData  :  BoneData {
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class SlotData  :  BaseObject {
-	/**
-	 * @internal
-	 */
-	public static readonly DEFAULT_COLOR: ColorTransform = new ColorTransform();
-	/**
-	 * @internal
-	 */
-	public static createColor(): ColorTransform {
-		return new ColorTransform();
+class SlotData  :  BaseObject() {
+	companion object {
+		/**
+		 * @internal
+		 */
+		public val DEFAULT_COLOR: ColorTransform = ColorTransform()
+
+		/**
+		 * @internal
+		 */
+		public fun createColor(): ColorTransform {
+			return ColorTransform()
+		}
+
 	}
 
-	public static toString(): String {
-		return "[class dragonBones.SlotData]";
+	public override fun toString(): String {
+		return "[class dragonBones.SlotData]"
 	}
 	/**
 	 * @private
 	 */
-	public blendMode: BlendMode;
+	public var blendMode: BlendMode
 	/**
 	 * @private
 	 */
-	public displayIndex: Double;
+	public var displayIndex: Double
 	/**
 	 * @private
 	 */
-	public zOrder: Double;
+	public var zOrder: Double
 	/**
 	 * @private
 	 */
-	public zIndex: Double;
+	public var zIndex: Double
 	/**
 	 * @private
 	 */
-	public alpha: Double;
+	public var alpha: Double
 	/**
 	 * - The slot name.
 	 * @version DragonBones 3.0
@@ -649,15 +656,15 @@ class SlotData  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public name: String;
+	public var name: String
 	/**
 	 * @private
 	 */
-	public color: ColorTransform = null as any; // Initial value.
+	public var color: ColorTransform = null as any // Initial value.
 	/**
 	 * @private
 	 */
-	public userData: UserData? = null; // Initial value.
+	public var userData: UserData? = null // Initial value.
 	/**
 	 * - The parent bone data.
 	 * @version DragonBones 3.0
@@ -668,21 +675,21 @@ class SlotData  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public parent: BoneData;
+	public var parent: BoneData
 
-	protected _onClear(): Unit {
+	protected fun _onClear(): Unit {
 		if (this.userData !== null) {
-			this.userData.returnToPool();
+			this.userData.returnToPool()
 		}
 
-		this.blendMode = BlendMode.Normal;
-		this.displayIndex = 0;
-		this.zOrder = 0;
-		this.zIndex = 0;
-		this.alpha = 1.0;
-		this.name = "";
-		this.color = null as any; //
-		this.userData = null;
-		this.parent = null as any; //
+		this.blendMode = BlendMode.Normal
+		this.displayIndex = 0
+		this.zOrder = 0
+		this.zIndex = 0
+		this.alpha = 1.0
+		this.name = ""
+		this.color = null as any //
+		this.userData = null
+		this.parent = null as any //
 	}
 }

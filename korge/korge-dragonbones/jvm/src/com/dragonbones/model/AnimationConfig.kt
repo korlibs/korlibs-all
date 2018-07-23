@@ -276,7 +276,7 @@ class AnimationConfig  : BaseObject() {
 	/**
 	 * @private
 	 */
-	public val boneMask: Array<string> = []
+	public val boneMask: Array<String> = []
 
 	protected fun _onClear(): Unit {
 		this.pauseFadeOut = true

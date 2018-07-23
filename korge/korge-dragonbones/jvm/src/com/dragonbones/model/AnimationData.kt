@@ -171,7 +171,7 @@ class AnimationData  :  BaseObject() {
 		}
 
 		for (k in this.slotTimelines.keys) {
-			for (const timeline of this.slotTimelines[k]) {
+			for (timeline in this.slotTimelines[k]) {
 				timeline.returnToPool()
 			}
 
@@ -179,7 +179,7 @@ class AnimationData  :  BaseObject() {
 		}
 
 		for (k in this.constraintTimelines.keys) {
-			for (const timeline of this.constraintTimelines[k]) {
+			for (timeline in this.constraintTimelines[k]) {
 				timeline.returnToPool()
 			}
 

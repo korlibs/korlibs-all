@@ -1,3 +1,5 @@
+package com.dragonbones.event
+
 /**
  * The MIT License (MIT)
  *
@@ -20,15 +22,12 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.dragonbones.event
 
 /**
  * @private
  */
-type EventStringType =
-	string | "start" | "loopComplete" | "complete" |
-	"fadeIn" | "fadeInComplete" | "fadeOut" | "fadeOutComplete" |
-	"frameEvent" | "soundEvent";
+typealias EventStringType = String
+
 /**
  * - The event dispatcher interface.
  * Dragonbones event dispatch usually relies on docking engine to implement, which defines the event method to be implemented when docking the engine.
@@ -54,7 +53,7 @@ interface IEventDispatcher {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	hasDBEventListener(type: EventStringType): Boolean;
+	fun hasDBEventListener(type: EventStringType): Boolean;
 	/**
 	 * - Dispatches an event into the event flow.
 	 * @param type - Event type.
@@ -71,7 +70,7 @@ interface IEventDispatcher {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	dispatchDBEvent(type: EventStringType, eventObject: EventObject): Unit;
+	fun dispatchDBEvent(type: EventStringType, eventObject: EventObject): Unit;
 	/**
 	 * - Add an event listener object so that the listener receives notification of an event.
 	 * @param type - Event type.
@@ -88,7 +87,7 @@ interface IEventDispatcher {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	addDBEventListener(type: EventStringType, listener: Function, thisObject: any): Unit;
+	fun addDBEventListener(type: EventStringType, listener: () -> Unit, thisObject: Any): Unit;
 	/**
 	 * - Removes a listener from the object.
 	 * @param type - Event type.
@@ -105,5 +104,5 @@ interface IEventDispatcher {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	removeDBEventListener(type: EventStringType, listener: Function, thisObject: any): Unit;
+	fun removeDBEventListener(type: EventStringType, listener: () -> Unit, thisObject: Any): Unit;
 }

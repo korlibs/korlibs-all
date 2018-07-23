@@ -855,7 +855,7 @@ abstract class BaseFactory {
 	 * @version DragonBones 5.6
 	 * @language zh_CN
 	 */
-	public replaceSkin(armature: Armature, skin: SkinData, isOverride: Boolean = false, exclude: Array<string>? = null): Boolean {
+	public replaceSkin(armature: Armature, skin: SkinData, isOverride: Boolean = false, exclude: Array<String>? = null): Boolean {
 		let success = false
 		const defaultSkin = skin.parent.defaultSkin
 

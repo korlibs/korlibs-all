@@ -22,6 +22,10 @@
  */
 package com.dragonbones.event
 
+import com.dragonbones.armature.*
+import com.dragonbones.core.*
+import com.dragonbones.model.*
+
 /**
  * - The properties of the object carry basic information about an event,
  * which are passed as parameter or parameter's parameter to event listeners when an event occurs.
@@ -33,134 +37,137 @@ package com.dragonbones.event
  * @version DragonBones 4.5
  * @language zh_CN
  */
-class EventObject  :  BaseObject {
-	/**
-	 * - Animation start play.
-	 * @version DragonBones 4.5
-	 * @language en_US
-	 */
-	/**
-	 * - 动画开始播放。
-	 * @version DragonBones 4.5
-	 * @language zh_CN
-	 */
-	public static readonly START: String = "start";
-	/**
-	 * - Animation loop play complete once.
-	 * @version DragonBones 4.5
-	 * @language en_US
-	 */
-	/**
-	 * - 动画循环播放完成一次。
-	 * @version DragonBones 4.5
-	 * @language zh_CN
-	 */
-	public static readonly LOOP_COMPLETE: String = "loopComplete";
-	/**
-	 * - Animation play complete.
-	 * @version DragonBones 4.5
-	 * @language en_US
-	 */
-	/**
-	 * - 动画播放完成。
-	 * @version DragonBones 4.5
-	 * @language zh_CN
-	 */
-	public static readonly COMPLETE: String = "complete";
-	/**
-	 * - Animation fade in start.
-	 * @version DragonBones 4.5
-	 * @language en_US
-	 */
-	/**
-	 * - 动画淡入开始。
-	 * @version DragonBones 4.5
-	 * @language zh_CN
-	 */
-	public static readonly FADE_IN: String = "fadeIn";
-	/**
-	 * - Animation fade in complete.
-	 * @version DragonBones 4.5
-	 * @language en_US
-	 */
-	/**
-	 * - 动画淡入完成。
-	 * @version DragonBones 4.5
-	 * @language zh_CN
-	 */
-	public static readonly FADE_IN_COMPLETE: String = "fadeInComplete";
-	/**
-	 * - Animation fade out start.
-	 * @version DragonBones 4.5
-	 * @language en_US
-	 */
-	/**
-	 * - 动画淡出开始。
-	 * @version DragonBones 4.5
-	 * @language zh_CN
-	 */
-	public static readonly FADE_OUT: String = "fadeOut";
-	/**
-	 * - Animation fade out complete.
-	 * @version DragonBones 4.5
-	 * @language en_US
-	 */
-	/**
-	 * - 动画淡出完成。
-	 * @version DragonBones 4.5
-	 * @language zh_CN
-	 */
-	public static readonly FADE_OUT_COMPLETE: String = "fadeOutComplete";
-	/**
-	 * - Animation frame event.
-	 * @version DragonBones 4.5
-	 * @language en_US
-	 */
-	/**
-	 * - 动画帧事件。
-	 * @version DragonBones 4.5
-	 * @language zh_CN
-	 */
-	public static readonly FRAME_EVENT: String = "frameEvent";
-	/**
-	 * - Animation frame sound event.
-	 * @version DragonBones 4.5
-	 * @language en_US
-	 */
-	/**
-	 * - 动画帧声音事件。
-	 * @version DragonBones 4.5
-	 * @language zh_CN
-	 */
-	public static readonly SOUND_EVENT: String = "soundEvent";
-	/**
-	 * @internal
-	 * @private
-	 */
-	public static actionDataToInstance(data: ActionData, instance: EventObject, armature: Armature): Unit {
-		if (data.type === ActionType.Play) {
-			instance.type = EventObject.FRAME_EVENT;
-		}
-		else {
-			instance.type = data.type === ActionType.Frame ? EventObject.FRAME_EVENT : EventObject.SOUND_EVENT;
-		}
+class EventObject  : BaseObject() {
+	companion object {
+		/**
+		 * - Animation start play.
+		 * @version DragonBones 4.5
+		 * @language en_US
+		 */
+		/**
+		 * - 动画开始播放。
+		 * @version DragonBones 4.5
+		 * @language zh_CN
+		 */
+		public val START: String = "start"
+		/**
+		 * - Animation loop play complete once.
+		 * @version DragonBones 4.5
+		 * @language en_US
+		 */
+		/**
+		 * - 动画循环播放完成一次。
+		 * @version DragonBones 4.5
+		 * @language zh_CN
+		 */
+		public val LOOP_COMPLETE: String = "loopComplete"
+		/**
+		 * - Animation play complete.
+		 * @version DragonBones 4.5
+		 * @language en_US
+		 */
+		/**
+		 * - 动画播放完成。
+		 * @version DragonBones 4.5
+		 * @language zh_CN
+		 */
+		public val COMPLETE: String = "complete"
+		/**
+		 * - Animation fade in start.
+		 * @version DragonBones 4.5
+		 * @language en_US
+		 */
+		/**
+		 * - 动画淡入开始。
+		 * @version DragonBones 4.5
+		 * @language zh_CN
+		 */
+		public val FADE_IN: String = "fadeIn"
+		/**
+		 * - Animation fade in complete.
+		 * @version DragonBones 4.5
+		 * @language en_US
+		 */
+		/**
+		 * - 动画淡入完成。
+		 * @version DragonBones 4.5
+		 * @language zh_CN
+		 */
+		public val FADE_IN_COMPLETE: String = "fadeInComplete"
+		/**
+		 * - Animation fade out start.
+		 * @version DragonBones 4.5
+		 * @language en_US
+		 */
+		/**
+		 * - 动画淡出开始。
+		 * @version DragonBones 4.5
+		 * @language zh_CN
+		 */
+		public val FADE_OUT: String = "fadeOut"
+		/**
+		 * - Animation fade out complete.
+		 * @version DragonBones 4.5
+		 * @language en_US
+		 */
+		/**
+		 * - 动画淡出完成。
+		 * @version DragonBones 4.5
+		 * @language zh_CN
+		 */
+		public val FADE_OUT_COMPLETE: String = "fadeOutComplete"
+		/**
+		 * - Animation frame event.
+		 * @version DragonBones 4.5
+		 * @language en_US
+		 */
+		/**
+		 * - 动画帧事件。
+		 * @version DragonBones 4.5
+		 * @language zh_CN
+		 */
+		public val FRAME_EVENT: String = "frameEvent"
+		/**
+		 * - Animation frame sound event.
+		 * @version DragonBones 4.5
+		 * @language en_US
+		 */
+		/**
+		 * - 动画帧声音事件。
+		 * @version DragonBones 4.5
+		 * @language zh_CN
+		 */
+		public val SOUND_EVENT: String = "soundEvent"
 
-		instance.name = data.name;
-		instance.armature = armature;
-		instance.actionData = data;
-		instance.data = data.data;
+		/**
+		 * @internal
+		 * @private
+		 */
+		public fun actionDataToInstance(data : ActionData, instance: EventObject, armature: Armature): Unit
+		{
+			if (data.type === ActionType.Play) {
+				instance.type = EventObject.FRAME_EVENT
+			} else {
+				instance.type = data.type === ActionType.Frame ? EventObject.FRAME_EVENT : EventObject.SOUND_EVENT
+			}
 
-		if (data.bone !== null) {
-			instance.bone = armature.getBone(data.bone.name);
-		}
+			instance.name = data.name
+			instance.armature = armature
+			instance.actionData = data
+			instance.data = data.data
 
-		if (data.slot !== null) {
-			instance.slot = armature.getSlot(data.slot.name);
+			if (data.bone !== null) {
+				instance.bone = armature.getBone(data.bone.name)
+			}
+
+			if (data.slot !== null) {
+				instance.slot = armature.getSlot(data.slot.name)
+			}
 		}
 	}
 
-	public static toString(): String {
-		return "[class dragonBones.EventObject]";
+	public override fun toString(): String {
+		return "[class dragonBones.EventObject]"
 	}
 	/**
 	 * - If is a frame event, the value is used to describe the time that the event was in the animation timeline. (In seconds)
@@ -172,7 +179,7 @@ class EventObject  :  BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public time: Double;
+	public var time: Double
 	/**
 	 * - The event type。
 	 * @version DragonBones 4.5
@@ -183,7 +190,7 @@ class EventObject  :  BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public type: EventStringType;
+	public var type: EventStringType
 	/**
 	 * - The event name. (The frame event name or the frame sound name)
 	 * @version DragonBones 4.5
@@ -194,7 +201,7 @@ class EventObject  :  BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public name: String;
+	public var name: String
 	/**
 	 * - The armature that dispatch the event.
 	 * @see dragonBones.Armature
@@ -207,7 +214,7 @@ class EventObject  :  BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public armature: Armature;
+	public var armature: Armature
 	/**
 	 * - The bone that dispatch the event.
 	 * @see dragonBones.Bone
@@ -220,7 +227,7 @@ class EventObject  :  BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public bone: Bone?;
+	public var bone: Bone?
 	/**
 	 * - The slot that dispatch the event.
 	 * @see dragonBones.Slot
@@ -233,7 +240,7 @@ class EventObject  :  BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public slot: Slot?;
+	public var slot: Slot?
 	/**
 	 * - The animation state that dispatch the event.
 	 * @see dragonBones.AnimationState
@@ -246,11 +253,11 @@ class EventObject  :  BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public animationState: AnimationState;
+	public var animationState: AnimationState
 	/**
 	 * @private
 	 */
-	public actionData: ActionData?;
+	public var actionData: ActionData?
 	/**
 	 * @private
 	 */
@@ -266,17 +273,17 @@ class EventObject  :  BaseObject {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public data: UserData?;
+	public var data: UserData?
 
-	protected _onClear(): Unit {
-		this.time = 0.0;
-		this.type = "";
-		this.name = "";
-		this.armature = null as any;
-		this.bone = null;
-		this.slot = null;
-		this.animationState = null as any;
-		this.actionData = null;
-		this.data = null;
+	protected fun _onClear(): Unit {
+		this.time = 0.0
+		this.type = ""
+		this.name = ""
+		this.armature = null as any
+		this.bone = null
+		this.slot = null
+		this.animationState = null as any
+		this.actionData = null
+		this.data = null
 	}
 }

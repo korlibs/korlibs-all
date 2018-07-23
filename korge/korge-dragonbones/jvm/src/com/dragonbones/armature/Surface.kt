@@ -22,34 +22,37 @@
  */
 package com.dragonbones.armature
 
+import com.dragonbones.core.*
+import com.dragonbones.model.*
+
 /**
  * @internal
  */
 class Surface  :  Bone {
-	public static toString(): String {
+	public override fun toString(): String {
 		return "[class dragonBones.Surface]";
 	}
 
-	private _dX: Double;
-	private _dY: Double;
-	private _k: Double;
-	private _kX: Double;
-	private _kY: Double;
+	private var _dX: Double;
+	private var _dY: Double;
+	private var _k: Double;
+	private var _kX: Double;
+	private var _kY: Double;
 
-	public readonly _vertices:  DoubleArray = [];
-	public readonly _deformVertices:  DoubleArray = [];
+	public val _vertices:  DoubleArray = [];
+	public val _deformVertices:  DoubleArray = [];
 	/**
 	 * - x1, y1, x2, y2, x3, y3, x4, y4, d1X, d1Y, d2X, d2Y
 	 */
-	private readonly _hullCache:  DoubleArray = [];
+	private val _hullCache:  DoubleArray = [];
 	/**
 	 * - Inside [flag, a, b, c, d, tx, ty], Outside [flag, a, b, c, d, tx, ty]
 	 */
-	private readonly _matrixCahce:  DoubleArray = [];
+	private val _matrixCahce:  DoubleArray = [];
 
-	public _bone: Bone?;
+	public var _bone: Bone?;
 
-	protected _onClear(): Unit {
+	protected fun _onClear(): Unit {
 		super._onClear();
 
 		this._dX = 0.0;
@@ -64,15 +67,15 @@ class Surface  :  Bone {
 		this._bone = null;
 	}
 
-	private _getAffineTransform(
+	private fun _getAffineTransform(
 		x: Double, y: Double, lX: Double, lY: Double,
 		aX: Double, aY: Double, bX: Double, bY: Double, cX: Double, cY: Double,
 		transform: Transform, matrix: Matrix, isDown: Boolean
 	): Unit {
-		const dabX = bX - aX;
-		const dabY = bY - aY;
-		const dacX = cX - aX;
-		const dacY = cY - aY;
+		val dabX = bX - aX;
+		val dabY = bY - aY;
+		val dacX = cX - aX;
+		val dacY = cY - aY;
 
 		transform.rotation = Math.atan2(dabY, dabX);
 		transform.skew = Math.atan2(dacY, dacX) - Math.PI * 0.5 - transform.rotation;
@@ -88,15 +91,15 @@ class Surface  :  Bone {
 		transform.y = matrix.ty = aY - (matrix.b * x + matrix.d * y);
 	}
 
-	private _updateVertices(): Unit {
-		const data = this._armature.armatureData.parent;
-		const geometry = (this._boneData as SurfaceData).geometry;
-		const intArray = data.intArray;
-		const floatArray = data.floatArray;
-		const vertexCount = intArray[geometry.offset + BinaryOffset.GeometryVertexCount];
-		const verticesOffset = intArray[geometry.offset + BinaryOffset.GeometryFloatOffset];
-		const vertices = this._vertices;
-		const animationVertices = this._deformVertices;
+	private fun _updateVertices(): Unit {
+		val data = this._armature.armatureData.parent;
+		val geometry = (this._boneData as SurfaceData).geometry;
+		val intArray = data.intArray;
+		val floatArray = data.floatArray;
+		val vertexCount = intArray[geometry.offset + BinaryOffset.GeometryVertexCount];
+		val verticesOffset = intArray[geometry.offset + BinaryOffset.GeometryFloatOffset];
+		val vertices = this._vertices;
+		val animationVertices = this._deformVertices;
 
 		if (this._parent !== null) {
 			if (this._parent._boneData.type === BoneType.Surface) {
@@ -131,60 +134,60 @@ class Surface  :  Bone {
 		}
 	}
 
-	protected _updateGlobalTransformMatrix(isCache: Boolean): Unit {
+	protected fun _updateGlobalTransformMatrix(isCache: Boolean): Unit {
 		// tslint:disable-next-line:no-unused-expression
 		isCache;
 
-		const segmentXD = (this._boneData as SurfaceData).segmentX * 2;
-		const lastIndex = this._vertices.length - 2;
-		const lA = 200.0;
+		val segmentXD = (this._boneData as SurfaceData).segmentX * 2;
+		val lastIndex = this._vertices.length - 2;
+		val lA = 200.0;
 		//
-		const raX = this._vertices[0];
-		const raY = this._vertices[1];
-		const rbX = this._vertices[segmentXD];
-		const rbY = this._vertices[segmentXD + 1];
-		const rcX = this._vertices[lastIndex];
-		const rcY = this._vertices[lastIndex + 1];
-		const rdX = this._vertices[lastIndex - segmentXD];
-		const rdY = this._vertices[lastIndex - segmentXD + 1];
+		val raX = this._vertices[0];
+		val raY = this._vertices[1];
+		val rbX = this._vertices[segmentXD];
+		val rbY = this._vertices[segmentXD + 1];
+		val rcX = this._vertices[lastIndex];
+		val rcY = this._vertices[lastIndex + 1];
+		val rdX = this._vertices[lastIndex - segmentXD];
+		val rdY = this._vertices[lastIndex - segmentXD + 1];
 		//
-		const dacX = raX + (rcX - raX) * 0.5;
-		const dacY = raY + (rcY - raY) * 0.5;
-		const dbdX = rbX + (rdX - rbX) * 0.5;
-		const dbdY = rbY + (rdY - rbY) * 0.5;
-		const aX = dacX + (dbdX - dacX) * 0.5;
-		const aY = dacY + (dbdY - dacY) * 0.5;
-		const bX = rbX + (rcX - rbX) * 0.5;
-		const bY = rbY + (rcY - rbY) * 0.5;
-		const cX = rdX + (rcX - rdX) * 0.5;
-		const cY = rdY + (rcY - rdY) * 0.5;
+		val dacX = raX + (rcX - raX) * 0.5;
+		val dacY = raY + (rcY - raY) * 0.5;
+		val dbdX = rbX + (rdX - rbX) * 0.5;
+		val dbdY = rbY + (rdY - rbY) * 0.5;
+		val aX = dacX + (dbdX - dacX) * 0.5;
+		val aY = dacY + (dbdY - dacY) * 0.5;
+		val bX = rbX + (rcX - rbX) * 0.5;
+		val bY = rbY + (rcY - rbY) * 0.5;
+		val cX = rdX + (rcX - rdX) * 0.5;
+		val cY = rdY + (rcY - rdY) * 0.5;
 		// TODO interpolation
 		this._getAffineTransform(0.0, 0.0, lA, lA, aX, aY, bX, bY, cX, cY, this.global, this.globalTransformMatrix, false);
 		this._globalDirty = false;
 	}
 
-	public _getGlobalTransformMatrix(x: Double, y: Double): Matrix {
-		const lA = 200.0;
-		const lB = 1000.0;
+	public fun _getGlobalTransformMatrix(x: Double, y: Double): Matrix {
+		val lA = 200.0;
+		val lB = 1000.0;
 		if (x < -lB || lB < x || y < -lB || lB < y) {
 			return this.globalTransformMatrix;
 		}
 
-		let isDown = false;
-		const surfaceData = this._boneData as SurfaceData;
-		const segmentX = surfaceData.segmentX;
-		const segmentY = surfaceData.segmentY;
-		const segmentXD = surfaceData.segmentX * 2;
-		const dX = this._dX;
-		const dY = this._dY;
-		const indexX = Math.floor((x + lA) / dX); // -1 ~ segmentX - 1
-		const indexY = Math.floor((y + lA) / dY); // -1 ~ segmentY - 1
-		let matrixIndex = 0;
-		let pX = indexX * dX - lA;
-		let pY = indexY * dY - lA;
+		var isDown = false;
+		val surfaceData = this._boneData as SurfaceData;
+		val segmentX = surfaceData.segmentX;
+		val segmentY = surfaceData.segmentY;
+		val segmentXD = surfaceData.segmentX * 2;
+		val dX = this._dX;
+		val dY = this._dY;
+		val indexX = Math.floor((x + lA) / dX); // -1 ~ segmentX - 1
+		val indexY = Math.floor((y + lA) / dY); // -1 ~ segmentY - 1
+		var matrixIndex = 0;
+		var pX = indexX * dX - lA;
+		var pY = indexY * dY - lA;
 		//
-		const matrices = this._matrixCahce;
-		const helpMatrix = Surface._helpMatrix;
+		val matrices = this._matrixCahce;
+		val helpMatrix = Surface._helpMatrix;
 
 		if (x < -lA) {
 			if (y < -lA || y >= lA) { // Out.
@@ -198,12 +201,12 @@ class Surface  :  Bone {
 				helpMatrix.copyFromArray(matrices, matrixIndex + 1);
 			}
 			else {
-				const vertexIndex = indexY * (segmentXD + 2);
-				const ddX = this._hullCache[4];
-				const ddY = this._hullCache[5];
-				const sX = this._hullCache[2] - (segmentY - indexY) * ddX;
-				const sY = this._hullCache[3] - (segmentY - indexY) * ddY;
-				const vertices = this._vertices;
+				val vertexIndex = indexY * (segmentXD + 2);
+				val ddX = this._hullCache[4];
+				val ddY = this._hullCache[5];
+				val sX = this._hullCache[2] - (segmentY - indexY) * ddX;
+				val sY = this._hullCache[3] - (segmentY - indexY) * ddY;
+				val vertices = this._vertices;
 
 				if (isDown) {
 					this._getAffineTransform(
@@ -249,12 +252,12 @@ class Surface  :  Bone {
 				helpMatrix.copyFromArray(matrices, matrixIndex + 1);
 			}
 			else {
-				const vertexIndex = (indexY + 1) * (segmentXD + 2) - 2;
-				const ddX = this._hullCache[4];
-				const ddY = this._hullCache[5];
-				const sX = this._hullCache[0] + indexY * ddX;
-				const sY = this._hullCache[1] + indexY * ddY;
-				const vertices = this._vertices;
+				val vertexIndex = (indexY + 1) * (segmentXD + 2) - 2;
+				val ddX = this._hullCache[4];
+				val ddY = this._hullCache[5];
+				val sX = this._hullCache[0] + indexY * ddX;
+				val sY = this._hullCache[1] + indexY * ddY;
+				val vertices = this._vertices;
 
 				if (isDown) {
 					this._getAffineTransform(
@@ -300,12 +303,12 @@ class Surface  :  Bone {
 				helpMatrix.copyFromArray(matrices, matrixIndex + 1);
 			}
 			else {
-				const vertexIndex = indexX * 2;
-				const ddX = this._hullCache[10];
-				const ddY = this._hullCache[11];
-				const sX = this._hullCache[8] + indexX * ddX;
-				const sY = this._hullCache[9] + indexX * ddY;
-				const vertices = this._vertices;
+				val vertexIndex = indexX * 2;
+				val ddX = this._hullCache[10];
+				val ddY = this._hullCache[11];
+				val sX = this._hullCache[8] + indexX * ddX;
+				val sY = this._hullCache[9] + indexX * ddY;
+				val vertices = this._vertices;
 
 				if (isDown) {
 					this._getAffineTransform(
@@ -351,12 +354,12 @@ class Surface  :  Bone {
 				helpMatrix.copyFromArray(matrices, matrixIndex + 1);
 			}
 			else {
-				const vertexIndex = segmentY * (segmentXD + 2) + indexX * 2;
-				const ddX = this._hullCache[10];
-				const ddY = this._hullCache[11];
-				const sX = this._hullCache[6] - (segmentX - indexX) * ddX;
-				const sY = this._hullCache[7] - (segmentX - indexX) * ddY;
-				const vertices = this._vertices;
+				val vertexIndex = segmentY * (segmentXD + 2) + indexX * 2;
+				val ddX = this._hullCache[10];
+				val ddY = this._hullCache[11];
+				val sX = this._hullCache[6] - (segmentX - indexX) * ddX;
+				val sY = this._hullCache[7] - (segmentX - indexX) * ddY;
+				val vertices = this._vertices;
 
 				if (isDown) {
 					this._getAffineTransform(
@@ -398,8 +401,8 @@ class Surface  :  Bone {
 				helpMatrix.copyFromArray(matrices, matrixIndex + 1);
 			}
 			else {
-				const vertexIndex = indexX * 2 + indexY * (segmentXD + 2);
-				const vertices = this._vertices;
+				val vertexIndex = indexX * 2 + indexY * (segmentXD + 2);
+				val vertices = this._vertices;
 
 				if (isDown) {
 					this._getAffineTransform(
@@ -440,18 +443,18 @@ class Surface  :  Bone {
 	 * @internal
 	 * @private
 	 */
-	public init(surfaceData: SurfaceData, armatureValue: Armature): Unit {
+	public fun init(surfaceData: SurfaceData, armatureValue: Armature): Unit {
 		if (this._boneData !== null) {
 			return;
 		}
 
 		super.init(surfaceData, armatureValue);
 
-		const segmentX = surfaceData.segmentX;
-		const segmentY = surfaceData.segmentY;
-		const vertexCount = this._armature.armatureData.parent.intArray[surfaceData.geometry.offset + BinaryOffset.GeometryVertexCount];
-		const lB = 1000.0;
-		const lA = 200.0;
+		val segmentX = surfaceData.segmentX;
+		val segmentY = surfaceData.segmentY;
+		val vertexCount = this._armature.armatureData.parent.intArray[surfaceData.geometry.offset + BinaryOffset.GeometryVertexCount];
+		val lB = 1000.0;
+		val lA = 200.0;
 		//
 		this._dX = lA * 2.0 / segmentX;
 		this._dY = lA * 2.0 / segmentY;
@@ -479,9 +482,9 @@ class Surface  :  Bone {
 	/**
 	 * @internal
 	 */
-	public update(cacheFrameIndex: Double): Unit {
+	public fun update(cacheFrameIndex: Double): Unit {
 		if (cacheFrameIndex >= 0 && this._cachedFrameIndices !== null) {
-			const cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex];
+			val cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex];
 			if (cachedFrameIndex >= 0 && this._cachedFrameIndex === cachedFrameIndex) { // Same cache.
 				this._transformDirty = false;
 			}
@@ -491,7 +494,7 @@ class Surface  :  Bone {
 			}
 			else {
 				if (this._hasConstraint) { // Update constraints.
-					for (const constraint of this._armature._constraints) {
+					for (constraint in this._armature._constraints) {
 						if (constraint._root === this) {
 							constraint.update();
 						}

@@ -21,6 +21,13 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package com.dragonbones.armature
+
+import com.dragonbones.animation.*
+import com.dragonbones.core.*
+import com.dragonbones.event.*
+import com.dragonbones.geom.*
+import com.dragonbones.model.*
+
 /**
  * - Armature is the core of the skeleton animation system.
  * @see dragonBones.ArmatureData
@@ -39,12 +46,14 @@ package com.dragonbones.armature
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class Armature  :  BaseObject implements IAnimatable {
-	public static toString(): String {
-		return "[class dragonBones.Armature]";
+class Armature  : BaseObject(), IAnimatable {
+	public override fun toString(): String {
+		return "[class dragonBones.Armature]"
 	}
-	private static _onSortSlots(a: Slot, b: Slot): Double {
-		return a._zIndex * 1000 + a._zOrder > b._zIndex * 1000 + b._zOrder ? 1 : -1;
+	companion object {
+		private fun _onSortSlots(a: Slot, b: Slot): Double {
+			return a._zIndex * 1000 + a._zOrder > b._zIndex * 1000 + b._zOrder ? 1 : -1
+		}
 	}
 	/**
 	 * - Whether to inherit the animation control of the parent armature.
@@ -60,185 +69,185 @@ class Armature  :  BaseObject implements IAnimatable {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public inheritAnimation: Boolean;
+	public var inheritAnimation: Boolean
 	/**
 	 * @private
 	 */
-	public userData: any;
+	public var userData: any
 	/**
 	 * @internal
 	 */
-	public _lockUpdate: Boolean;
-	private _slotsDirty: Boolean;
-	private _zOrderDirty: Boolean;
+	public var _lockUpdate: Boolean
+	private var _slotsDirty: Boolean
+	private var _zOrderDirty: Boolean
 	/**
 	 * @internal
 	 */
-	public _zIndexDirty: Boolean;
+	public var _zIndexDirty: Boolean
 	/**
 	 * @internal
 	 */
-	public _alphaDirty: Boolean;
-	private _flipX: Boolean;
-	private _flipY: Boolean;
+	public var _alphaDirty: Boolean
+	private var _flipX: Boolean
+	private var _flipY: Boolean
 	/**
 	 * @internal
 	 */
-	public _cacheFrameIndex: Double;
-	private _alpha: Double;
+	public var _cacheFrameIndex: Double
+	private var _alpha: Double
 	/**
 	 * @internal
 	 */
-	public _globalAlpha: Double;
-	private readonly _bones: Array<Bone> = [];
-	private readonly _slots: Array<Slot> = [];
+	public var _globalAlpha: Double
+	private val _bones: Array<Bone> = []
+	private val _slots: Array<Slot> = []
 	/**
 	 * @internal
 	 */
-	public readonly _constraints: Array<Constraint> = [];
-	private readonly _actions: Array<EventObject> = [];
+	public val _constraints: Array<Constraint> = []
+	private val _actions: Array<EventObject> = []
 	/**
 	 * @internal
 	 */
-	public _armatureData: ArmatureData;
-	private _animation: Animation = null as any; // Initial value.
-	private _proxy: IArmatureProxy = null as any; // Initial value.
-	private _display: any;
+	public var _armatureData: ArmatureData
+	private var _animation: Animation = null as any // Initial value.
+	private var _proxy: IArmatureProxy = null as any // Initial value.
+	private var _display: any
 	/**
 	 * @internal
 	 */
-	public _replaceTextureAtlasData: TextureAtlasData? = null; // Initial value.
-	private _replacedTexture: any;
+	public var _replaceTextureAtlasData: TextureAtlasData? = null // Initial value.
+	private var _replacedTexture: any
 	/**
 	 * @internal
 	 */
-	public _dragonBones: DragonBones;
-	private _clock: WorldClock? = null; // Initial value.
+	public var _dragonBones: DragonBones
+	private var _clock: WorldClock? = null // Initial value.
 	/**
 	 * @internal
 	 */
-	public _parent: Slot?;
+	public var _parent: Slot?
 
-	protected _onClear(): Unit {
+	protected fun _onClear(): Unit {
 		if (this._clock !== null) { // Remove clock first.
-			this._clock.remove(this);
+			this._clock.remove(this)
 		}
 
 		for (const bone of this._bones) {
-			bone.returnToPool();
+			bone.returnToPool()
 		}
 
 		for (const slot of this._slots) {
-			slot.returnToPool();
+			slot.returnToPool()
 		}
 
 		for (const constraint of this._constraints) {
-			constraint.returnToPool();
+			constraint.returnToPool()
 		}
 
 		for (const action of this._actions) {
-			action.returnToPool();
+			action.returnToPool()
 		}
 
 		if (this._animation !== null) {
-			this._animation.returnToPool();
+			this._animation.returnToPool()
 		}
 
 		if (this._proxy !== null) {
-			this._proxy.dbClear();
+			this._proxy.dbClear()
 		}
 
 		if (this._replaceTextureAtlasData !== null) {
-			this._replaceTextureAtlasData.returnToPool();
+			this._replaceTextureAtlasData.returnToPool()
 		}
 
-		this.inheritAnimation = true;
-		this.userData = null;
+		this.inheritAnimation = true
+		this.userData = null
 
-		this._lockUpdate = false;
-		this._slotsDirty = true;
-		this._zOrderDirty = false;
-		this._zIndexDirty = false;
-		this._alphaDirty = true;
-		this._flipX = false;
-		this._flipY = false;
-		this._cacheFrameIndex = -1;
-		this._alpha = 1.0;
-		this._globalAlpha = 1.0;
-		this._bones.length = 0;
-		this._slots.length = 0;
-		this._constraints.length = 0;
-		this._actions.length = 0;
-		this._armatureData = null as any; //
-		this._animation = null as any; //
-		this._proxy = null as any; //
-		this._display = null;
-		this._replaceTextureAtlasData = null;
-		this._replacedTexture = null;
-		this._dragonBones = null as any; //
-		this._clock = null;
-		this._parent = null;
+		this._lockUpdate = false
+		this._slotsDirty = true
+		this._zOrderDirty = false
+		this._zIndexDirty = false
+		this._alphaDirty = true
+		this._flipX = false
+		this._flipY = false
+		this._cacheFrameIndex = -1
+		this._alpha = 1.0
+		this._globalAlpha = 1.0
+		this._bones.length = 0
+		this._slots.length = 0
+		this._constraints.length = 0
+		this._actions.length = 0
+		this._armatureData = null as any //
+		this._animation = null as any //
+		this._proxy = null as any //
+		this._display = null
+		this._replaceTextureAtlasData = null
+		this._replacedTexture = null
+		this._dragonBones = null as any //
+		this._clock = null
+		this._parent = null
 	}
 	/**
 	 * @internal
 	 */
-	public _sortZOrder(slotIndices:  DoubleArray | Int16Array?, offset: Double): Unit {
-		const slotDatas = this._armatureData.sortedSlots;
-		const isOriginal = slotIndices === null;
+	public fun _sortZOrder(slotIndices:  DoubleArray | Int16Array?, offset: Double): Unit {
+		val slotDatas = this._armatureData.sortedSlots
+		val isOriginal = slotIndices === null
 
 		if (this._zOrderDirty || !isOriginal) {
 			for (let i = 0, l = slotDatas.length; i < l; ++i) {
-				const slotIndex = isOriginal ? i : (slotIndices as  DoubleArray)[offset + i];
+				val slotIndex = isOriginal ? i : (slotIndices as  DoubleArray)[offset + i]
 				if (slotIndex < 0 || slotIndex >= l) {
-					continue;
+					continue
 				}
 
-				const slotData = slotDatas[slotIndex];
-				const slot = this.getSlot(slotData.name);
+				val slotData = slotDatas[slotIndex]
+				val slot = this.getSlot(slotData.name)
 
 				if (slot !== null) {
-					slot._setZOrder(i);
+					slot._setZOrder(i)
 				}
 			}
 
-			this._slotsDirty = true;
-			this._zOrderDirty = !isOriginal;
+			this._slotsDirty = true
+			this._zOrderDirty = !isOriginal
 		}
 	}
 	/**
 	 * @internal
 	 */
-	public _addBone(value: Bone): Unit {
+	public fun _addBone(value: Bone): Unit {
 		if (this._bones.indexOf(value) < 0) {
-			this._bones.push(value);
+			this._bones.push(value)
 		}
 	}
 	/**
 	 * @internal
 	 */
-	public _addSlot(value: Slot): Unit {
+	public fun _addSlot(value: Slot): Unit {
 		if (this._slots.indexOf(value) < 0) {
-			this._slots.push(value);
+			this._slots.push(value)
 		}
 	}
 	/**
 	 * @internal
 	 */
-	public _addConstraint(value: Constraint): Unit {
+	public fun _addConstraint(value: Constraint): Unit {
 		if (this._constraints.indexOf(value) < 0) {
-			this._constraints.push(value);
+			this._constraints.push(value)
 		}
 	}
 	/**
 	 * @internal
 	 */
-	public _bufferAction(action: EventObject, append: Boolean): Unit {
+	public fun _bufferAction(action: EventObject, append: Boolean): Unit {
 		if (this._actions.indexOf(action) < 0) {
 			if (append) {
-				this._actions.push(action);
+				this._actions.push(action)
 			}
 			else {
-				this._actions.unshift(action);
+				this._actions.unshift(action)
 			}
 		}
 	}
@@ -262,128 +271,128 @@ class Armature  :  BaseObject implements IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public dispose(): Unit {
+	public fun dispose(): Unit {
 		if (this._armatureData !== null) {
-			this._lockUpdate = true;
-			this._dragonBones.bufferObject(this);
+			this._lockUpdate = true
+			this._dragonBones.bufferObject(this)
 		}
 	}
 	/**
 	 * @internal
 	 */
-	public init(
+	public fun init(
 		armatureData: ArmatureData,
 		proxy: IArmatureProxy, display: any, dragonBones: DragonBones
 	): Unit {
 		if (this._armatureData !== null) {
-			return;
+			return
 		}
 
-		this._armatureData = armatureData;
-		this._animation = BaseObject.borrowObject(Animation);
-		this._proxy = proxy;
-		this._display = display;
-		this._dragonBones = dragonBones;
+		this._armatureData = armatureData
+		this._animation = BaseObject.borrowObject(Animation)
+		this._proxy = proxy
+		this._display = display
+		this._dragonBones = dragonBones
 
-		this._proxy.dbInit(this);
-		this._animation.init(this);
-		this._animation.animations = this._armatureData.animations;
+		this._proxy.dbInit(this)
+		this._animation.init(this)
+		this._animation.animations = this._armatureData.animations
 	}
 	/**
 	 * @inheritDoc
 	 */
-	public advanceTime(passedTime: Double): Unit {
+	public fun advanceTime(passedTime: Double): Unit {
 		if (this._lockUpdate) {
-			return;
+			return
 		}
 
-		this._lockUpdate = true;
+		this._lockUpdate = true
 
 		if (this._armatureData === null) {
-			console.warn("The armature has been disposed.");
-			return;
+			console.warn("The armature has been disposed.")
+			return
 		}
 		else if (this._armatureData.parent === null) {
-			console.warn("The armature data has been disposed.\nPlease make sure dispose armature before call factory.clear().");
-			return;
+			console.warn("The armature data has been disposed.\nPlease make sure dispose armature before call factory.clear().")
+			return
 		}
 
-		const prevCacheFrameIndex = this._cacheFrameIndex;
+		const prevCacheFrameIndex = this._cacheFrameIndex
 		// Update animation.
-		this._animation.advanceTime(passedTime);
+		this._animation.advanceTime(passedTime)
 		// Sort slots.
 		if (this._slotsDirty || this._zIndexDirty) {
-			this._slots.sort(Armature._onSortSlots);
+			this._slots.sort(Armature._onSortSlots)
 
 			if (this._zIndexDirty) {
 				for (let i = 0, l = this._slots.length; i < l; ++i) {
-					this._slots[i]._setZOrder(i); //
+					this._slots[i]._setZOrder(i) //
 				}
 			}
 
-			this._slotsDirty = false;
-			this._zIndexDirty = false;
+			this._slotsDirty = false
+			this._zIndexDirty = false
 		}
 		// Update alpha.
 		if (this._alphaDirty) {
-			this._alphaDirty = false;
-			this._globalAlpha = this._alpha * (this._parent !== null ? this._parent._globalAlpha : 1.0);
+			this._alphaDirty = false
+			this._globalAlpha = this._alpha * (this._parent !== null ? this._parent._globalAlpha : 1.0)
 
 			for (const bone of this._bones) {
-				bone._updateAlpha();
+				bone._updateAlpha()
 			}
 
 			for (const slot of this._slots) {
-				slot._updateAlpha();
+				slot._updateAlpha()
 			}
 		}
 		// Update bones and slots.
 		if (this._cacheFrameIndex < 0 || this._cacheFrameIndex !== prevCacheFrameIndex) {
-			let i = 0, l = 0;
+			let i = 0, l = 0
 			for (i = 0, l = this._bones.length; i < l; ++i) {
-				this._bones[i].update(this._cacheFrameIndex);
+				this._bones[i].update(this._cacheFrameIndex)
 			}
 
 			for (i = 0, l = this._slots.length; i < l; ++i) {
-				this._slots[i].update(this._cacheFrameIndex);
+				this._slots[i].update(this._cacheFrameIndex)
 			}
 		}
 		// Do actions.
 		if (this._actions.length > 0) {
-			for (const action of this._actions) {
-				const actionData = action.actionData;
+			for (action in  this._actions) {
+				const actionData = action.actionData
 				if (actionData !== null) {
 					if (actionData.type === ActionType.Play) {
 						if (action.slot !== null) {
-							const childArmature = action.slot.childArmature;
+							const childArmature = action.slot.childArmature
 							if (childArmature !== null) {
-								childArmature.animation.fadeIn(actionData.name);
+								childArmature.animation.fadeIn(actionData.name)
 							}
 						}
 						else if (action.bone !== null) {
 							for (const slot of this.getSlots()) {
 								if (slot.parent === action.bone) {
-									const childArmature = slot.childArmature;
+									const childArmature = slot.childArmature
 									if (childArmature !== null) {
-										childArmature.animation.fadeIn(actionData.name);
+										childArmature.animation.fadeIn(actionData.name)
 									}
 								}
 							}
 						}
 						else {
-							this._animation.fadeIn(actionData.name);
+							this._animation.fadeIn(actionData.name)
 						}
 					}
 				}
 
-				action.returnToPool();
+				action.returnToPool()
 			}
 
-			this._actions.length = 0;
+			this._actions.length = 0
 		}
 
-		this._lockUpdate = false;
-		this._proxy.dbUpdate();
+		this._lockUpdate = false
+		this._proxy.dbUpdate()
 	}
 	/**
 	 * - Forces a specific bone or its owning slot to update the transform or display property in the next frame.
@@ -403,29 +412,29 @@ class Armature  :  BaseObject implements IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public invalidUpdate(boneName: String? = null, updateSlot: Boolean = false): Unit {
+	public fun invalidUpdate(boneName: String? = null, updateSlot: Boolean = false): Unit {
 		if (boneName !== null && boneName.length > 0) {
-			const bone = this.getBone(boneName);
+			val bone = this.getBone(boneName)
 			if (bone !== null) {
-				bone.invalidUpdate();
+				bone.invalidUpdate()
 
 				if (updateSlot) {
 					for (const slot of this._slots) {
 						if (slot.parent === bone) {
-							slot.invalidUpdate();
+							slot.invalidUpdate()
 						}
 					}
 				}
 			}
 		}
 		else {
-			for (const bone of this._bones) {
-				bone.invalidUpdate();
+			for (bone in  this._bones) {
+				bone.invalidUpdate()
 			}
 
 			if (updateSlot) {
-				for (const slot of this._slots) {
-					slot.invalidUpdate();
+				for (slot in this._slots) {
+					slot.invalidUpdate()
 				}
 			}
 		}
@@ -448,14 +457,14 @@ class Armature  :  BaseObject implements IAnimatable {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public containsPoint(x: Double, y: Double): Slot? {
-		for (const slot of this._slots) {
+	public fun containsPoint(x: Double, y: Double): Slot? {
+		for (slot in this._slots) {
 			if (slot.containsPoint(x, y)) {
-				return slot;
+				return slot
 			}
 		}
 
-		return null;
+		return null
 	}
 	/**
 	 * - Check whether a specific segment intersects a custom bounding box for a slot in the armature.
@@ -487,90 +496,90 @@ class Armature  :  BaseObject implements IAnimatable {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public intersectsSegment(
+	public fun intersectsSegment(
 		xA: Double, yA: Double, xB: Double, yB: Double,
-		intersectionPointA: { x: Double, y: Double }? = null,
-		intersectionPointB: { x: Double, y: Double }? = null,
-		normalRadians: { x: Double, y: Double }? = null
+		intersectionPointA: Point? = null,
+		intersectionPointB: Point? = null,
+		normalRadians: Point? = null
 	): Slot? {
-		const isV = xA === xB;
-		let dMin = 0.0;
-		let dMax = 0.0;
-		let intXA = 0.0;
-		let intYA = 0.0;
-		let intXB = 0.0;
-		let intYB = 0.0;
-		let intAN = 0.0;
-		let intBN = 0.0;
-		let intSlotA: Slot? = null;
-		let intSlotB: Slot? = null;
+		val isV = xA === xB
+		var dMin = 0.0
+		var dMax = 0.0
+		var intXA = 0.0
+		var intYA = 0.0
+		var intXB = 0.0
+		var intYB = 0.0
+		var intAN = 0.0
+		var intBN = 0.0
+		var intSlotA: Slot? = null
+		var intSlotB: Slot? = null
 
-		for (const slot of this._slots) {
-			const intersectionCount = slot.intersectsSegment(xA, yA, xB, yB, intersectionPointA, intersectionPointB, normalRadians);
+		for (slot in this._slots) {
+			val intersectionCount = slot.intersectsSegment(xA, yA, xB, yB, intersectionPointA, intersectionPointB, normalRadians)
 			if (intersectionCount > 0) {
 				if (intersectionPointA !== null || intersectionPointB !== null) {
 					if (intersectionPointA !== null) {
-						let d = isV ? intersectionPointA.y - yA : intersectionPointA.x - xA;
+						var d = if (isV) intersectionPointA.y - yA else intersectionPointA.x - xA
 						if (d < 0.0) {
-							d = -d;
+							d = -d
 						}
 
 						if (intSlotA === null || d < dMin) {
-							dMin = d;
-							intXA = intersectionPointA.x;
-							intYA = intersectionPointA.y;
-							intSlotA = slot;
+							dMin = d
+							intXA = intersectionPointA.x
+							intYA = intersectionPointA.y
+							intSlotA = slot
 
-							if (normalRadians) {
-								intAN = normalRadians.x;
+							if (normalRadians != 0.0) {
+								intAN = normalRadians.x
 							}
 						}
 					}
 
 					if (intersectionPointB !== null) {
-						let d = intersectionPointB.x - xA;
+						var d = intersectionPointB.x - xA
 						if (d < 0.0) {
-							d = -d;
+							d = -d
 						}
 
 						if (intSlotB === null || d > dMax) {
-							dMax = d;
-							intXB = intersectionPointB.x;
-							intYB = intersectionPointB.y;
-							intSlotB = slot;
+							dMax = d
+							intXB = intersectionPointB.x
+							intYB = intersectionPointB.y
+							intSlotB = slot
 
 							if (normalRadians !== null) {
-								intBN = normalRadians.y;
+								intBN = normalRadians.y
 							}
 						}
 					}
 				}
 				else {
-					intSlotA = slot;
-					break;
+					intSlotA = slot
+					break
 				}
 			}
 		}
 
 		if (intSlotA !== null && intersectionPointA !== null) {
-			intersectionPointA.x = intXA;
-			intersectionPointA.y = intYA;
+			intersectionPointA.x = intXA
+			intersectionPointA.y = intYA
 
 			if (normalRadians !== null) {
-				normalRadians.x = intAN;
+				normalRadians.x = intAN
 			}
 		}
 
 		if (intSlotB !== null && intersectionPointB !== null) {
-			intersectionPointB.x = intXB;
-			intersectionPointB.y = intYB;
+			intersectionPointB.x = intXB
+			intersectionPointB.y = intYB
 
 			if (normalRadians !== null) {
-				normalRadians.y = intBN;
+				normalRadians.y = intBN
 			}
 		}
 
-		return intSlotA;
+		return intSlotA
 	}
 	/**
 	 * - Get a specific bone.
@@ -586,14 +595,14 @@ class Armature  :  BaseObject implements IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public getBone(name: String): Bone? {
-		for (const bone of this._bones) {
+	public fun getBone(name: String): Bone? {
+		for (bone in this._bones) {
 			if (bone.name === name) {
-				return bone;
+				return bone
 			}
 		}
 
-		return null;
+		return null
 	}
 	/**
 	 * - Get a specific bone by the display.
@@ -609,10 +618,9 @@ class Armature  :  BaseObject implements IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public getBoneByDisplay(display: any): Bone? {
-		const slot = this.getSlotByDisplay(display);
-
-		return slot !== null ? slot.parent : null;
+	public fun getBoneByDisplay(display: Any): Bone? {
+		val slot = this.getSlotByDisplay(display)
+		return slot !== null ? slot.parent : null
 	}
 	/**
 	 * - Get a specific slot.
@@ -628,14 +636,14 @@ class Armature  :  BaseObject implements IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public getSlot(name: String): Slot? {
-		for (const slot of this._slots) {
+	public fun getSlot(name: String): Slot? {
+		for (slot in this._slots) {
 			if (slot.name === name) {
-				return slot;
+				return slot
 			}
 		}
 
-		return null;
+		return null
 	}
 	/**
 	 * - Get a specific slot by the display.
@@ -651,16 +659,16 @@ class Armature  :  BaseObject implements IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public getSlotByDisplay(display: any): Slot? {
+	public fun getSlotByDisplay(display: any): Slot? {
 		if (display !== null) {
 			for (const slot of this._slots) {
 				if (slot.display === display) {
-					return slot;
+					return slot
 				}
 			}
 		}
 
-		return null;
+		return null
 	}
 	/**
 	 * - Get all bones.
@@ -674,8 +682,8 @@ class Armature  :  BaseObject implements IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public getBones(): Array<Bone> {
-		return this._bones;
+	public fun getBones(): Array<Bone> {
+		return this._bones
 	}
 	/**
 	 * - Get all slots.
@@ -689,8 +697,8 @@ class Armature  :  BaseObject implements IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public getSlots(): Array<Slot> {
-		return this._slots;
+	public fun getSlots(): Array<Slot> {
+		return this._slots
 	}
 	/**
 	 * - Whether to flip the armature horizontally.
@@ -702,16 +710,16 @@ class Armature  :  BaseObject implements IAnimatable {
 	 * @version DragonBones 5.5
 	 * @language zh_CN
 	 */
-	public get flipX(): Boolean {
-		return this._flipX;
+	public var flipX: Boolean get() {
+		return this._flipX
 	}
-	public set flipX(value: Boolean) {
+	set(value: Boolean) {
 		if (this._flipX === value) {
-			return;
+			return
 		}
 
-		this._flipX = value;
-		this.invalidUpdate();
+		this._flipX = value
+		this.invalidUpdate()
 	}
 	/**
 	 * - Whether to flip the armature vertically.
@@ -723,16 +731,16 @@ class Armature  :  BaseObject implements IAnimatable {
 	 * @version DragonBones 5.5
 	 * @language zh_CN
 	 */
-	public get flipY(): Boolean {
-		return this._flipY;
+	public var flipY: Boolean get() {
+		return this._flipY
 	}
-	public set flipY(value: Boolean) {
+	set(value: Boolean) {
 		if (this._flipY === value) {
-			return;
+			return
 		}
 
-		this._flipY = value;
-		this.invalidUpdate();
+		this._flipY = value
+		this.invalidUpdate()
 	}
 	/**
 	 * - The animation cache frame rate, which turns on the animation cache when the set value is greater than 0.
@@ -762,18 +770,18 @@ class Armature  :  BaseObject implements IAnimatable {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public get cacheFrameRate(): Double {
-		return this._armatureData.cacheFrameRate;
+	public var cacheFrameRate: Double get() {
+		return this._armatureData.cacheFrameRate
 	}
-	public set cacheFrameRate(value: Double) {
+	set(value: Double) {
 		if (this._armatureData.cacheFrameRate !== value) {
-			this._armatureData.cacheFrames(value);
+			this._armatureData.cacheFrames(value)
 
 			// Set child armature frameRate.
 			for (const slot of this._slots) {
-				const childArmature = slot.childArmature;
+				const childArmature = slot.childArmature
 				if (childArmature !== null) {
-					childArmature.cacheFrameRate = value;
+					childArmature.cacheFrameRate = value
 				}
 			}
 		}
@@ -788,8 +796,8 @@ class Armature  :  BaseObject implements IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public get name(): String {
-		return this._armatureData.name;
+	public val name: String get() {
+		return this._armatureData.name
 	}
 	/**
 	 * - The armature data.
@@ -803,8 +811,8 @@ class Armature  :  BaseObject implements IAnimatable {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public get armatureData(): ArmatureData {
-		return this._armatureData;
+	public val armatureData: ArmatureData get() {
+		return this._armatureData
 	}
 	/**
 	 * - The animation player.
@@ -818,14 +826,14 @@ class Armature  :  BaseObject implements IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public get animation(): Animation {
-		return this._animation;
+	public val animation: Animation get() {
+		return this._animation
 	}
 	/**
 	 * @pivate
 	 */
-	public get proxy(): IArmatureProxy {
-		return this._proxy;
+	public val proxy: IArmatureProxy get() {
+		return this._proxy
 	}
 	/**
 	 * - The EventDispatcher instance of the armature.
@@ -837,8 +845,8 @@ class Armature  :  BaseObject implements IAnimatable {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public get eventDispatcher(): IEventDispatcher {
-		return this._proxy;
+	public val eventDispatcher: IEventDispatcher get() {
+		return this._proxy
 	}
 	/**
 	 * - The display container.
@@ -854,58 +862,58 @@ class Armature  :  BaseObject implements IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public get display(): any {
-		return this._display;
+	public val display: Any get() {
+		return this._display
 	}
 	/**
 	 * @private
 	 */
-	public get replacedTexture(): any {
-		return this._replacedTexture;
+	public var replacedTexture: Any get() {
+		return this._replacedTexture
 	}
-	public set replacedTexture(value: any) {
+	set (value: any) {
 		if (this._replacedTexture === value) {
-			return;
+			return
 		}
 
 		if (this._replaceTextureAtlasData !== null) {
-			this._replaceTextureAtlasData.returnToPool();
-			this._replaceTextureAtlasData = null;
+			this._replaceTextureAtlasData.returnToPool()
+			this._replaceTextureAtlasData = null
 		}
 
-		this._replacedTexture = value;
+		this._replacedTexture = value
 
 		for (const slot of this._slots) {
-			slot.invalidUpdate();
-			slot.update(-1);
+			slot.invalidUpdate()
+			slot.update(-1)
 		}
 	}
 	/**
 	 * @inheritDoc
 	 */
-	public get clock(): WorldClock? {
-		return this._clock;
+	public var clock: WorldClock? get() {
+		return this._clock
 	}
-	public set clock(value: WorldClock?) {
+	set(value: WorldClock?) {
 		if (this._clock === value) {
-			return;
+			return
 		}
 
 		if (this._clock !== null) {
-			this._clock.remove(this);
+			this._clock.remove(this)
 		}
 
-		this._clock = value;
+		this._clock = value
 
 		if (this._clock) {
-			this._clock.add(this);
+			this._clock.add(this)
 		}
 
 		// Update childArmature clock.
-		for (const slot of this._slots) {
-			const childArmature = slot.childArmature;
+		for (slot in this._slots) {
+			val childArmature = slot.childArmature
 			if (childArmature !== null) {
-				childArmature.clock = this._clock;
+				childArmature.clock = this._clock
 			}
 		}
 	}
@@ -921,8 +929,8 @@ class Armature  :  BaseObject implements IAnimatable {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public get parent(): Slot? {
-		return this._parent;
+	public val parent: Slot? get() {
+		return this._parent
 	}
 	/**
 	 * - Deprecated, please refer to {@link #display}.
@@ -934,7 +942,7 @@ class Armature  :  BaseObject implements IAnimatable {
 	 * @deprecated
 	 * @language zh_CN
 	 */
-	public getDisplay(): any {
-		return this._display;
+	public fun getDisplay(): Any {
+		return this._display
 	}
 }

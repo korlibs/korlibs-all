@@ -35,7 +35,7 @@ abstract class DataParser {
 	protected static readonly DATA_VERSION_5_6: String = "5.6";
 	protected static readonly DATA_VERSION: String = DataParser.DATA_VERSION_5_6;
 
-	protected static readonly DATA_VERSIONS: Array<string> = [
+	protected static readonly DATA_VERSIONS: Array<String> = [
 		DataParser.DATA_VERSION_4_0,
 		DataParser.DATA_VERSION_4_5,
 		DataParser.DATA_VERSION_5_0,

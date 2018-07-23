@@ -1,3 +1,5 @@
+package com.dragonbones.animation
+
 /**
  * The MIT License (MIT)
  *
@@ -20,7 +22,6 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.dragonbones.animation
 
 /**
  * - Worldclock provides clock support for animations, advance time for each IAnimatable object added to the instance.
@@ -36,7 +37,7 @@ package com.dragonbones.animation
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class WorldClock implements IAnimatable {
+class WorldClock : IAnimatable {
 	/**
 	 * - Current time. (In seconds)
 	 * @version DragonBones 3.0

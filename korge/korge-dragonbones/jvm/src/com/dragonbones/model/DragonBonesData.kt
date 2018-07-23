@@ -101,7 +101,7 @@ class DragonBonesData  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public readonly armatureNames: Array<string> = [];
+	public readonly armatureNames: Array<String> = [];
 	/**
 	 * @private
 	 */

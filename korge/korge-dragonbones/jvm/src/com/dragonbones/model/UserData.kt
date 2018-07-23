@@ -1,3 +1,5 @@
+package com.dragonbones.model
+
 /**
  * The MIT License (MIT)
  *
@@ -9,10 +11,10 @@
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
  * the Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
@@ -20,7 +22,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.dragonbones.model
+
+import com.dragonbones.core.*
 
 /**
  * - The user custom data.
@@ -32,8 +35,8 @@ package com.dragonbones.model
  * @version DragonBones 5.0
  * @language zh_CN
  */
-class UserData  :  BaseObject {
-	public static toString(): String {
+class UserData  :  BaseObject() {
+	public override fun toString(): String {
 		return "[class dragonBones.UserData]";
 	}
 	/**
@@ -46,7 +49,7 @@ class UserData  :  BaseObject {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public readonly ints:  DoubleArray = [];
+	public val ints:  DoubleArray = [];
 	/**
 	 * - The custom float numbers.
 	 * @version DragonBones 5.0
@@ -57,7 +60,7 @@ class UserData  :  BaseObject {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public readonly floats:  DoubleArray = [];
+	public val floats:  DoubleArray = [];
 	/**
 	 * - The custom strings.
 	 * @version DragonBones 5.0
@@ -68,9 +71,9 @@ class UserData  :  BaseObject {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public readonly strings: Array<string> = [];
+	public val strings: Array<String> = [];
 
-	protected _onClear(): Unit {
+	protected fun _onClear(): Unit {
 		this.ints.length = 0;
 		this.floats.length = 0;
 		this.strings.length = 0;
@@ -78,19 +81,19 @@ class UserData  :  BaseObject {
 	/**
 	 * @internal
 	 */
-	public addInt(value: Double): Unit {
+	public fun addInt(value: Int): Unit {
 		this.ints.push(value);
 	}
 	/**
 	 * @internal
 	 */
-	public addFloat(value: Double): Unit {
+	public fun addFloat(value: Double): Unit {
 		this.floats.push(value);
 	}
 	/**
 	 * @internal
 	 */
-	public addString(value: String): Unit {
+	public fun addString(value: String): Unit {
 		this.strings.push(value);
 	}
 	/**
@@ -103,7 +106,7 @@ class UserData  :  BaseObject {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public getInt(index: Double = 0): Double {
+	public fun getInt(index: Int = 0): Int {
 		return index >= 0 && index < this.ints.length ? this.ints[index] : 0;
 	}
 	/**
@@ -116,7 +119,7 @@ class UserData  :  BaseObject {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public getFloat(index: Double = 0): Double {
+	public fun getFloat(index: Int = 0): Double {
 		return index >= 0 && index < this.floats.length ? this.floats[index] : 0.0;
 	}
 	/**
@@ -129,25 +132,25 @@ class UserData  :  BaseObject {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public getString(index: Double = 0): String {
+	public fun getString(index: Int = 0): String {
 		return index >= 0 && index < this.strings.length ? this.strings[index] : "";
 	}
 }
 /**
  * @private
  */
-class ActionData  :  BaseObject {
-	public static toString(): String {
+class ActionData  : BaseObject() {
+	public override fun toString(): String {
 		return "[class dragonBones.ActionData]";
 	}
 
-	public type: ActionType;
-	public name: String; // Frame event name | Sound event name | Animation name
-	public bone: BoneData?;
-	public slot: SlotData?;
-	public data: UserData? = null; //
+	public var type: ActionType;
+	public var name: String; // Frame event name | Sound event name | Animation name
+	public var bone: BoneData?;
+	public var slot: SlotData?;
+	public var data: UserData? = null; //
 
-	protected _onClear(): Unit {
+	protected fun _onClear(): Unit {
 		if (this.data !== null) {
 			this.data.returnToPool();
 		}
