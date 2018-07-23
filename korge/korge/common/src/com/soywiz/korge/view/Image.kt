@@ -9,6 +9,10 @@ inline fun Container.image(
 	texture: BmpSlice, anchorX: Double = 0.0, anchorY: Double = 0.0, callback: @ViewsDslMarker Image.() -> Unit = {}
 ): Image = Image(texture, anchorX, anchorY).addTo(this).apply(callback)
 
+inline fun Container.image(
+	texture: Bitmap, anchorX: Double = 0.0, anchorY: Double = 0.0, callback: @ViewsDslMarker Image.() -> Unit = {}
+): Image = Image(texture, anchorX, anchorY).addTo(this).apply(callback)
+
 class Image(
 	var bitmap: BmpSlice,
 	var anchorX: Double = 0.0,

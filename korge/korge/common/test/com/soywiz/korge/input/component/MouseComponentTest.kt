@@ -1,7 +1,6 @@
 package com.soywiz.korge.input.component
 
 import com.soywiz.korge.input.*
-import com.soywiz.korge.render.*
 import com.soywiz.korge.tests.*
 import com.soywiz.korge.view.*
 import com.soywiz.korim.bitmap.*
@@ -12,7 +11,7 @@ class MouseComponentTest : ViewsForTesting() {
 	fun name() = viewsTest {
 		val log = arrayListOf<String>()
 		val tex = Bitmap32(16, 16)
-		val image = views.image(tex)
+		val image = Image(tex)
 		views.stage += image
 
 		image.onOver { log += "onOver" }

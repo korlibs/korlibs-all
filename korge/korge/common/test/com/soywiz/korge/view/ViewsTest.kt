@@ -14,7 +14,7 @@ class ViewsTest : ViewsForTesting() {
 
 	@Test
 	fun testBounds() = viewsTest {
-		val image = views.image(tex)
+		val image = Image(tex)
 		image.x = 100.0
 		image.y = 100.0
 		views.stage += image

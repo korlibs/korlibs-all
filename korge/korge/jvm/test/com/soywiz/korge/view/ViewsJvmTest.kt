@@ -13,7 +13,7 @@ class ViewsJvmTest : ViewsForTesting() {
 	@Test
 	fun name() = viewsTest {
 		views.stage += Container().apply {
-			this += views.image(tex)
+			this += Image(tex)
 		}
 		assertEquals(
 			"""
