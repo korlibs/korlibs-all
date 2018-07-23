@@ -4,9 +4,9 @@ import com.soywiz.kds.*
 import com.soywiz.korge.component.*
 import com.soywiz.korge.render.*
 import com.soywiz.korim.color.*
-import com.soywiz.korio.async.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.lang.*
+import com.soywiz.korio.util.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 import com.soywiz.korui.event.*
@@ -21,13 +21,11 @@ import kotlin.collections.linkedMapOf
 import kotlin.collections.plusAssign
 import kotlin.collections.removeAll
 import kotlin.collections.set
-import kotlin.coroutines.experimental.*
 import kotlin.reflect.*
 
-class CustomView(views: Views, override val autoFlush: Boolean = true) : View(views)
+class CustomView() : View()
 
-open class View(val views: Views) : Renderable, Updatable, Extra by Extra.Mixin(),
-	EventDispatcher by EventDispatcher.Mixin(), CoroutineContextHolder {
+open class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by EventDispatcher.Mixin() {
 	companion object {
 		fun commonAncestor(left: View?, right: View?): View? {
 			var l: View? = left
@@ -48,14 +46,12 @@ open class View(val views: Views) : Renderable, Updatable, Extra by Extra.Mixin(
 		}
 	}
 
-	override val coroutineContext: CoroutineContext get() = views.coroutineContext
 	open var ratio: Double = 0.0
 	open val autoFlush: Boolean = false
 	var index: Int = 0; internal set
 	var speed: Double = 1.0
 	var parent: Container? = null; internal set
 	var name: String? = null
-	val id = views.lastId++
 	var blendMode: BlendMode = BlendMode.INHERIT
 		set(value) {
 			if (field != value) {
@@ -63,6 +59,8 @@ open class View(val views: Views) : Renderable, Updatable, Extra by Extra.Mixin(
 				invalidate()
 			}
 		}
+
+	val globalSpeed: Double get() = if (parent != null) parent!!.globalSpeed * speed else speed
 
 	var _computedBlendMode: BlendMode = BlendMode.INHERIT
 
@@ -189,10 +187,10 @@ open class View(val views: Views) : Renderable, Updatable, Extra by Extra.Mixin(
 
 	fun addProp(key: String, value: String) {
 		_props[key] = value
-		val componentGen = views.propsTriggers[key]
-		if (componentGen != null) {
-			componentGen(this, key, value)
-		}
+		//val componentGen = views.propsTriggers[key]
+		//if (componentGen != null) {
+		//	componentGen(this, key, value)
+		//}
 	}
 
 	fun addProps(values: Map<String, String>) {
@@ -223,6 +221,7 @@ open class View(val views: Views) : Renderable, Updatable, Extra by Extra.Mixin(
 	}
 
 	val root: View get() = parent?.root ?: this
+	val stage: Stage? get() = root as? Stage?
 
 	var mouseEnabled: Boolean = true
 	//var mouseChildren: Boolean = false
@@ -283,6 +282,7 @@ open class View(val views: Views) : Renderable, Updatable, Extra by Extra.Mixin(
 		//println("Remove component $c from $this")
 		components?.remove(c)
 	}
+
 	//fun removeComponents(c: KClass<out Component>) = run { components?.removeAll { it.javaClass.isSubtypeOf(c) } }
 	fun removeComponents(c: KClass<out Component>) = run {
 		//println("Remove components of type $c from $this")
@@ -296,13 +296,17 @@ open class View(val views: Views) : Renderable, Updatable, Extra by Extra.Mixin(
 	fun addComponent(c: Component): Component {
 		if (components == null) components = arrayListOf()
 		components?.plusAssign(c)
-		c.update(0)
 		return c
 	}
 
-	fun addUpdatable(updatable: (dtMs: Int) -> Unit): Cancellable = addComponent(object : Component(this) {
-		override fun update(dtMs: Int) = run { updatable(dtMs) }
-	})
+	fun addUpdatable(updatable: (dtMs: Int) -> Unit): Cancellable {
+		val component = object : UpdateComponent {
+			override val view: View get() = this@View
+			override fun update(ms: Double) = run { updatable(ms.toInt()) }
+		}.attach()
+		component.update(0.0)
+		return Cancellable { component.detach() }
+	}
 
 	fun <T : Component> getOrCreateComponent(clazz: KClass<T>, gen: (View) -> T): T {
 		if (components == null) components = arrayListOf()
@@ -357,8 +361,8 @@ open class View(val views: Views) : Renderable, Updatable, Extra by Extra.Mixin(
 	val globalColorAdd: Int get() = globalColorTransform.colorAdd
 	val globalAlpha: Double get() = globalColorTransform.mA
 
-	val localMouseX: Double get() = globalMatrixInv.transformX(views.input.mouse)
-	val localMouseY: Double get() = globalMatrixInv.transformY(views.input.mouse)
+	fun localMouseX(views: Views): Double = globalMatrixInv.transformX(views.input.mouse)
+	fun localMouseY(views: Views): Double = globalMatrixInv.transformY(views.input.mouse)
 
 	val globalMatrixInv: Matrix2d
 		get() {
@@ -389,15 +393,17 @@ open class View(val views: Views) : Renderable, Updatable, Extra by Extra.Mixin(
 
 	@Suppress("RemoveCurlyBracesFromTemplate")
 	override fun toString(): String {
-		var out = "${this::class.portableSimpleName}($id)"
-		if (x != 0.0 || y != 0.0) out += ":pos=($x,$y)"
-		if (scaleX != 1.0 || scaleY != 1.0) out += ":scale=($scaleX,$scaleY)"
-		if (skewX != 0.0 || skewY != 0.0) out += ":skew=($skewX,$skewY)"
-		if (rotation != 0.0) out += ":rotation=(${rotationDegrees}º)"
+		var out = this::class.portableSimpleName
+		if (x != 0.0 || y != 0.0) out += ":pos=(${x.str},${y.str})"
+		if (scaleX != 1.0 || scaleY != 1.0) out += ":scale=(${scaleX.str},${scaleY.str})"
+		if (skewX != 0.0 || skewY != 0.0) out += ":skew=(${skewX.str},${skewY.str})"
+		if (rotation != 0.0) out += ":rotation=(${rotationDegrees.str}º)"
 		if (name != null) out += ":name=($name)"
 		if (blendMode != BlendMode.INHERIT) out += ":blendMode=($blendMode)"
 		return out
 	}
+
+	private val Double.str get() = this.toString(2, skipTrailingZeros = true)
 
 	fun globalToLocal(p: Point2d, out: MPoint2d = MPoint2d()): MPoint2d = globalToLocalXY(p.x, p.y, out)
 	fun globalToLocalXY(x: Double, y: Double, out: MPoint2d = MPoint2d()): MPoint2d =
@@ -410,7 +416,6 @@ open class View(val views: Views) : Renderable, Updatable, Extra by Extra.Mixin(
 	fun localToGlobalXY(x: Double, y: Double, out: MPoint2d = MPoint2d()): MPoint2d = globalMatrix.transform(x, y, out)
 	fun localToGlobalX(x: Double, y: Double): Double = globalMatrix.transformX(x, y)
 	fun localToGlobalY(x: Double, y: Double): Double = globalMatrix.transformY(x, y)
-
 
 	enum class HitTestType {
 		BOUNDING, SHAPE
@@ -469,19 +474,6 @@ open class View(val views: Views) : Renderable, Updatable, Extra by Extra.Mixin(
 		validLocalMatrix = false
 		validGlobal = false
 		invalidate()
-	}
-
-	final override fun update(dtMs: Int) {
-		val actualDtMs = (dtMs * speed).toInt()
-		val comps = componentsIt
-		//println("UPDATE: componentsIt=$componentsIt --- components=$components")
-		if (comps != null) {
-			for (c in comps) c?.update(actualDtMs)
-		}
-		updateInternal(actualDtMs)
-	}
-
-	protected open fun updateInternal(dtMs: Int) {
 	}
 
 	fun removeFromParent() {
@@ -582,8 +574,8 @@ open class View(val views: Views) : Renderable, Updatable, Extra by Extra.Mixin(
 	}
 }
 
-class DummyView(views: Views) : View(views) {
-	override fun createInstance(): View = DummyView(views)
+class DummyView : View() {
+	override fun createInstance(): View = DummyView()
 }
 
 fun View.hasAncestor(ancestor: View): Boolean {

@@ -1,10 +1,10 @@
 package com.soywiz.korge.particle
 
 import com.soywiz.korag.*
-import com.soywiz.korge.ext.particle.*
-import com.soywiz.korge.render.*
 import com.soywiz.korge.view.*
+import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
+import com.soywiz.korim.format.*
 import com.soywiz.korio.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.serialization.xml.*
@@ -17,7 +17,7 @@ import kotlin.math.*
 class ParticleEmitter(val views: Views) {
 	enum class Type { GRAVITY, RADIAL }
 
-	var texture: Texture? = null
+	var texture: BmpSlice? = null
 	var sourcePosition = Point2d()
 	var sourcePositionVariance = Point2d()
 	var speed = 0.0
@@ -87,7 +87,7 @@ class ParticleEmitter(val views: Views) {
 				RGBAf(item.double("red"), item.double("green"), item.double("blue"), item.double("alpha"))
 
 			when (item.name.toLowerCase()) {
-				"texture" -> texture = file.parent[item.str("name")].readTexture(views)
+				"texture" -> texture = file.parent[item.str("name")].readBitmapSlice(defaultImageFormats)
 				"sourceposition" -> sourcePosition = point()
 				"sourcepositionvariance" -> sourcePositionVariance = point()
 				"speed" -> speed = scalar()
@@ -172,7 +172,11 @@ class ParticleEmitter(val views: Views) {
 		val alive: Boolean get() = this.currentTime < this.totalTime
 	}
 
-	class Simulator(private val emitter: ParticleEmitter, var emitterPos: Point2d = Point2d(), val seed: Long = BaseRand.random().toBits()) {
+	class Simulator(
+		private val emitter: ParticleEmitter,
+		var emitterPos: Point2d = Point2d(),
+		val seed: Long = BaseRand.random().toBits()
+	) {
 		val random = Rand(seed)
 		var totalElapsedTime = 0
 		var timeUntilStop = Int.MAX_VALUE

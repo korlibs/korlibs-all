@@ -13,8 +13,8 @@ class Button(factory: UIFactory, skin: UISkin = factory.skin, initialText: Strin
 	var over = false
 	var down = false
 	private val bgView =
-		views.ninePatch(skin.buttonOut, width, height, 0.25, 0.25, 0.25, 0.25).apply { this@Button += this }
-	private val textView = views.text(initialText).apply { this@Button += this }
+		NinePatch(skin.buttonOut, width, height, 0.25, 0.25, 0.25, 0.25).apply { this@Button += this }
+	private val textView = Text(initialText).apply { this@Button += this }
 
 	override var text: String by redirectField(textView::text)
 	override var html: String by redirectField(textView::html)

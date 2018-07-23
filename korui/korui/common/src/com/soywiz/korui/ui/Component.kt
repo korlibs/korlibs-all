@@ -60,6 +60,7 @@ open class Component(override val app: Application, val type: LightType) : Style
 		}
 	}
 
+	@Suppress("UNCHECKED_CAST")
 	fun <T> getProperty(key: LightProperty<T>): T = if (key in properties) properties[key] as T else key.default
 
 	fun setBoundsInternal(bounds: RectangleInt) = setBoundsInternal(bounds.x, bounds.y, bounds.width, bounds.height)
@@ -324,7 +325,7 @@ class ComboBox<T>(app: Application, items: List<T>, private val toString: (T) ->
 
 	var selectedItem: T?
 		set(value) = run { selectedIndex = rawItems.indexOf(value) }
-		get() = rawItems?.getOrNull(selectedIndex)
+		get() = rawItems.getOrNull(selectedIndex)
 
 	init {
 		this.items = items

@@ -2,7 +2,6 @@ package com.soywiz.korge.view
 
 import com.soywiz.korge.*
 import com.soywiz.korge.bitmapfont.*
-import com.soywiz.korge.render.*
 import com.soywiz.korge.tests.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korma.geom.*
@@ -18,11 +17,11 @@ class ViewsJvmTest : ViewsForTesting() {
 		}
 		assertEquals(
 			"""
-				|Stage(0)
-				| Container(1)
-				|  Image(2)
+				|Stage
+				| Container
+				|  Image
 			""".trimMargin(),
-			views.stage.dumpToString()
+			views.stage.dumpToString(views)
 		)
 		views.render()
 		assertEquals(
@@ -54,7 +53,7 @@ class ViewsJvmTest : ViewsForTesting() {
 	@Test
 	@Ignore
 	fun textGetBounds() = viewsTest {
-		val font = DebugBitmapFont.getDEBUG_BMP_FONT().toKorge(views, mipmaps = false)
+		val font = DebugBitmapFont.getDEBUG_BMP_FONT().toKorge()
 		val text = views.text("Hello World", font = font, textSize = 8.0)
 		val text2 = views.text("Hello World", font = font, textSize = 16.0)
 		assertEquals(Rectangle(0, 0, 77, 8), text.globalBounds)

@@ -9,11 +9,10 @@ import com.soywiz.korio.async.*
 import kotlin.math.*
 
 class TileSet(
-	val views: Views,
 	val textures: List<BmpSlice?>,
 	val width: Int,
 	val height: Int,
-	val base: Bitmap = textures.filterNotNull().firstOrNull()?.bmp ?: views.transparentBitmap.bmp
+	val base: Bitmap = textures.filterNotNull().firstOrNull()?.bmp ?: Bitmaps.transparentBitmap
 ) {
 	init {
 		if (textures.any { if (it != null) it.bmp != base else false }) {
@@ -25,7 +24,6 @@ class TileSet(
 
 	companion object {
 		operator fun invoke(
-			views: Views,
 			base: BitmapSlice<Bitmap>,
 			tileWidth: Int,
 			tileHeight: Int,
@@ -44,7 +42,7 @@ class TileSet(
 				}
 			}
 
-			return TileSet(views, out, tileWidth, tileHeight)
+			return TileSet(out, tileWidth, tileHeight)
 		}
 
 		fun extractBitmaps(
@@ -62,7 +60,6 @@ class TileSet(
 		}
 
 		fun fromBitmaps(
-			views: Views,
 			tilewidth: Int,
 			tileheight: Int,
 			bitmaps: List<Bitmap32>,
@@ -70,7 +67,7 @@ class TileSet(
 			mipmaps: Boolean = false
 		): TileSet {
 			check(bitmaps.all { it.width == tilewidth && it.height == tileheight })
-			if (bitmaps.isEmpty()) return TileSet(views, listOf(), tilewidth, tileheight)
+			if (bitmaps.isEmpty()) return TileSet(listOf(), tilewidth, tileheight)
 
 			//sqrt(bitmaps.size.toDouble()).toIntCeil() * tilewidth
 
@@ -105,24 +102,21 @@ class TileSet(
 				}
 			}
 
-			return TileSet(views, texs, tilewidth, tileheight, tex)
+			return TileSet(texs, tilewidth, tileheight, tex)
 		}
 	}
 }
 
 fun Views.tileSet(
-	textures: List<BmpSlice?>,
-	width: Int,
-	height: Int,
+	textures: List<BmpSlice?>, width: Int, height: Int,
 	base: Bitmap = textures.filterNotNull().first().bmp
 ): TileSet {
-	return TileSet(this, textures, width, height, base)
+	return TileSet(textures, width, height, base)
 }
 
 fun Views.tileSet(textureMap: Map<Int, BmpSlice?>): TileSet {
-	val views = this
 	val maxKey = textureMap.keys.max() ?: 0
 	val textures = (0..maxKey).map { textureMap[it] }
-	val firstTexture = textures.first() ?: views.transparentBitmap
-	return TileSet(this, textures, firstTexture.width, firstTexture.height, firstTexture.bmp)
+	val firstTexture = textures.first() ?: Bitmaps.transparent
+	return TileSet(textures, firstTexture.width, firstTexture.height, firstTexture.bmp)
 }

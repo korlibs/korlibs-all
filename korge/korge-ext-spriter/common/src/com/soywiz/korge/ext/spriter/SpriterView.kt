@@ -5,18 +5,18 @@ import com.soywiz.korge.ext.spriter.com.brashmonkey.spriter.*
 import com.soywiz.korge.render.*
 import com.soywiz.korge.tween.*
 import com.soywiz.korge.view.*
+import com.soywiz.korim.bitmap.*
 import com.soywiz.korio.async.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 import kotlin.math.*
 
 class SpriterView(
-	views: Views,
 	private val library: SpriterLibrary,
 	private val entity: Entity,
 	private var initialAnimationName1: String,
 	private var initialAnimationName2: String
-) : View(views) {
+) : View() {
 	private val player = PlayerTweener(entity).apply {
 		firstPlayer.setAnimation(initialAnimationName1)
 		secondPlayer.setAnimation(initialAnimationName2)
@@ -46,7 +46,7 @@ class SpriterView(
 	val animationFinished = Signal<Unit>()
 
 	init {
-		updateInternal(0)
+		addUpdatable { updateInternal(it) }
 	}
 
 	var animationWeight: Double; get () = player.weight.toDouble(); set(value) = run { player.weight = value.toFloat() }
@@ -86,8 +86,7 @@ class SpriterView(
 		animationFinished.waitOne()
 	}
 
-	override fun updateInternal(dtMs: Int) {
-		super.updateInternal(dtMs)
+	private fun updateInternal(dtMs: Int) {
 		player.speed = dtMs
 		player.firstPlayer.speed = dtMs
 		player.secondPlayer.speed = dtMs
@@ -105,7 +104,7 @@ class SpriterView(
 		val colorAdd = globalColorAdd
 		for (obj in player.objectIterator()) {
 			val file = library.data.getFile(obj.ref)
-			val ttex = library.atlas[file.name] ?: views.transformedDummyTexture
+			val ttex = library.atlas[file.name] ?: transformedDummyTexture
 			val trimLeft = ttex.trimLeft.toDouble()
 			val trimTop = ttex.trimTop.toDouble()
 			val tex = ttex.texture
@@ -141,5 +140,9 @@ class SpriterView(
 			)
 			//}
 		}
+	}
+
+	companion object {
+		val transformedDummyTexture by lazy { TransformedTexture(Bitmaps.transparent) }
 	}
 }

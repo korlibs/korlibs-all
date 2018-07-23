@@ -7,11 +7,10 @@ import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 
 class NinePatchEx(
-	views: Views,
 	val ninePatch: NinePatchTex,
 	override var width: Double,
 	override var height: Double
-) : View(views) {
+) : View() {
 	var smoothing = true
 
 	private val bounds = RectangleInt()
@@ -60,14 +59,14 @@ class NinePatchTex(val tex: Texture, val info: NinePatchInfo) {
 
 fun Views.ninePatchEx(
 	tex: Texture, ninePatch: NinePatchInfo, width: Double = tex.width.toDouble(), height: Double = tex.height.toDouble()
-) = NinePatchEx(this, NinePatchTex(tex, ninePatch), width, height)
+) = NinePatchEx(NinePatchTex(tex, ninePatch), width, height)
 
 fun Views.ninePatchEx(
 	ninePatch: NinePatchBitmap32,
 	width: Double = ninePatch.width.toDouble(), height: Double = ninePatch.height.toDouble()
-): NinePatchEx = NinePatchEx(this, NinePatchTex(this, ninePatch), width, height)
+): NinePatchEx = NinePatchEx(NinePatchTex(this, ninePatch), width, height)
 
 fun Views.ninePatchEx(
 	ninePatch: NinePatchTex,
 	width: Double = ninePatch.width.toDouble(), height: Double = ninePatch.height.toDouble()
-): NinePatchEx = NinePatchEx(this, ninePatch, width, height)
+): NinePatchEx = NinePatchEx(ninePatch, width, height)

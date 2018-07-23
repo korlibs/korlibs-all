@@ -3,9 +3,9 @@ package com.soywiz.korim.bitmap
 import com.soywiz.korim.color.*
 
 object Bitmaps {
-	val transparent = Bitmap32(0, 0)
-	val white = Bitmap32(1, 1, IntArray(1) { Colors.WHITE })
+	val transparentBitmap = Bitmap32(0, 0)
+	val whiteBitmap = Bitmap32(1, 1, IntArray(1) { Colors.WHITE })
 
-	val transparentSlice = transparent.slice()
-	val whiteSlice = white.slice()
+	val transparent = transparentBitmap.slice()
+	val white = whiteBitmap.slice()
 }

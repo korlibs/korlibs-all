@@ -2,6 +2,8 @@ package com.soywiz.korge.atlas
 
 import com.soywiz.korge.render.*
 import com.soywiz.korge.view.*
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.format.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.serialization.json.*
@@ -29,13 +31,13 @@ suspend fun VfsFile.readAtlas2(views: Views): Atlas2 {
 		val height = json["height"].toInt()
 		val file = json["file"].toString()
 
-		val imageFile = this@readAtlas2.parent[file].readTexture(views, mipmaps = false)
+		val imageFile = this@readAtlas2.parent[file].readBitmap(defaultImageFormats)
 
-		Atlas2(entries, entries.associate { it.name to imageFile.slice(it.x, it.y, it.w, it.h) })
+		Atlas2(entries, entries.associate { it.name to imageFile.sliceWithSize(it.x, it.y, it.w, it.h) })
 	}
 }
 
-class Atlas2(val entries: List<Entry>, val textures: Map<String, Texture>) {
+class Atlas2(val entries: List<Entry>, val textures: Map<String, BmpSlice>) {
 	data class Entry(
 		val x: Int,
 		val y: Int,
@@ -47,5 +49,5 @@ class Atlas2(val entries: List<Entry>, val textures: Map<String, Texture>) {
 		val rotated: Boolean
 	)
 
-	operator fun get(name: String): Texture = textures[name] ?: error("Can't find '$name' in atlas")
+	operator fun get(name: String): BmpSlice = textures[name] ?: error("Can't find '$name' in atlas")
 }

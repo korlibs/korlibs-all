@@ -1,17 +1,56 @@
 package com.soywiz.korge.component
 
 import com.soywiz.korge.view.*
-import com.soywiz.korio.async.*
-import com.soywiz.korio.lang.*
 import com.soywiz.korui.event.*
-import kotlin.coroutines.experimental.*
-import kotlin.reflect.*
+import com.soywiz.korui.input.*
 
-open class Component(val view: View) : CoroutineContextHolder, EventDispatcher by view, Cancellable {
-	override val coroutineContext: CoroutineContext get() = view.views.coroutineContext
+interface Component {
+	val view: View
+}
+
+fun <T : Component> T.attach() = this.apply { this.view.addComponent(this) }
+fun <T : Component> T.detach() = this.apply { this.view.removeComponent(this) }
+
+fun Component.removeFromView() = view.removeComponent(this)
+
+interface TouchComponent : Component {
+	fun onTouchEvent(views: Views, e: TouchEvent)
+}
+
+interface MouseComponent : Component {
+	fun onMouseEvent(views: Views, event: MouseEvent)
+}
+
+interface KeyComponent : Component {
+	fun onKeyEvent(views: Views, event: KeyEvent)
+}
+
+interface GamepadComponent : Component {
+	fun onGamepadEvent(views: Views, event: GamePadButtonEvent)
+	fun onGamepadEvent(views: Views, event: GamePadStickEvent)
+	fun onGamepadEvent(views: Views, event: GamePadConnectionEvent)
+}
+
+interface EventComponent : Component {
+	fun onEvent(event: Event)
+}
+
+interface UpdateComponentWithViews : Component {
+	fun update(views: Views, ms: Double)
+}
+
+interface UpdateComponent : Component {
+	fun update(ms: Double)
+}
+
+interface ResizeComponent : Component {
+	fun resized(views: Views, width: Int, height: Int)
+}
+
+/*
+open class Component(val view: View) : EventDispatcher by view, Cancellable {
 	val detatchCloseables = arrayListOf<Closeable>()
 
-	val views: Views get() = view.views
 	fun attach() = view.addComponent(this)
 	fun dettach() = view.removeComponent(this)
 	fun afterDetatch() {
@@ -35,3 +74,4 @@ open class Component(val view: View) : CoroutineContextHolder, EventDispatcher b
 		dettach()
 	}
 }
+*/

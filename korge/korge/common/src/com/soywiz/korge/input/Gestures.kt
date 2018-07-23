@@ -5,7 +5,7 @@ import com.soywiz.korge.view.*
 import com.soywiz.korio.async.*
 import com.soywiz.korma.geom.*
 
-class Gestures(view: View) : Component(view) {
+class Gestures(override val view: View) : Component {
 	class Direction(val point: IPointInt) {
 		constructor(x: Int, y: Int) : this(IPointInt(x, y))
 

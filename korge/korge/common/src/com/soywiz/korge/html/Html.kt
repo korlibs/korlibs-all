@@ -3,6 +3,7 @@ package com.soywiz.korge.html
 import com.soywiz.kds.Computed
 import com.soywiz.kds.Extra
 import com.soywiz.korge.bitmapfont.BitmapFont
+import com.soywiz.korge.view.*
 import com.soywiz.korim.color.Colors
 import com.soywiz.korio.serialization.xml.Xml
 import com.soywiz.korio.serialization.xml.isComment
@@ -39,7 +40,7 @@ object Html {
 
 	interface FontFace {
 		data class Named(val name: String) : FontFace
-		data class Bitmap(val font: BitmapFont) : FontFace
+		data class Bitmap(val font: BitmapFont) : FontFace, Html.MetricsProvider by font
 	}
 
 	data class Format(

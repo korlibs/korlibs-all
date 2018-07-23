@@ -6,9 +6,9 @@ import com.soywiz.korge.tween.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 
-class Camera(views: Views) : Container(views) {
-	override var width: Double = views.virtualWidth.toDouble()
-	override var height: Double = views.virtualHeight.toDouble()
+class Camera : Container() {
+	override var width: Double = stage?.views?.virtualWidth?.toDouble() ?: 100.0
+	override var height: Double = stage?.views?.virtualHeight?.toDouble() ?: 100.0
 
 	override fun getLocalBoundsInternal(out: Rectangle) {
 		out.setTo(0, 0, width, height)
@@ -28,7 +28,7 @@ class Camera(views: Views) : Container(views) {
 	}
 
 	fun getLocalMatrixFittingView(view: View?): Matrix2d =
-		getLocalMatrixFittingGlobalRect((view ?: views.stage).globalBounds)
+		getLocalMatrixFittingGlobalRect((view ?: stage)?.globalBounds ?: Rectangle(0, 0, 100, 100))
 
 	fun setTo(view: View?) = run { this.localMatrix = getLocalMatrixFittingView(view) }
 	fun setTo(rect: Rectangle) = run { this.localMatrix = getLocalMatrixFittingGlobalRect(rect) }
@@ -48,4 +48,4 @@ class Camera(views: Views) : Container(views) {
 	)
 }
 
-fun Views.camera() = Camera(this)
+fun Views.camera() = Camera()

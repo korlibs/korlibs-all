@@ -5,9 +5,8 @@ import com.soywiz.korge.view.*
 import com.soywiz.korim.color.*
 import com.soywiz.korio.util.*
 
-class Label(factory: UIFactory, skin: UISkin = factory.skin, initialText: String = "Label") : Widget(factory, skin),
-	IText, IHtml {
-	val textView = views.text(initialText).apply { this@Label += this }
+class Label(factory: UIFactory, skin: UISkin = factory.skin, initialText: String = "Label") : Widget(factory, skin), IText, IHtml {
+	val textView = Text(initialText).apply { this@Label += this }
 
 	override var text: String by redirectField(textView::text)
 	override var html: String by redirectField(textView::html)

@@ -39,6 +39,7 @@ interface EventDispatcher {
 		override fun <T : Event> dispatch(clazz: KClass<T>, event: T) {
 			tempHandlers.alloc { temp ->
 				//try {
+					@Suppress("UNCHECKED_CAST")
 					val rtemp = temp as ArrayList<(T) -> Unit>
 					rtemp += getHandlersFor(clazz)
 					for (handler in rtemp) {

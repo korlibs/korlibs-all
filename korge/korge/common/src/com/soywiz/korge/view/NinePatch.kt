@@ -7,7 +7,6 @@ import com.soywiz.korma.geom.*
 import kotlin.math.*
 
 class NinePatch(
-	views: Views,
 	var tex: BmpSlice,
 	override var width: Double,
 	override var height: Double,
@@ -15,7 +14,7 @@ class NinePatch(
 	var top: Double,
 	var right: Double,
 	var bottom: Double
-) : View(views) {
+) : View() {
 	var smoothing = true
 
 	private val sLeft = 0.0
@@ -87,4 +86,4 @@ class NinePatch(
 fun Views.ninePatch(
 	tex: BmpSlice, width: Double, height: Double,
 	left: Double, top: Double, right: Double, bottom: Double
-) = NinePatch(this, tex, width, height, left, top, right, bottom)
+) = NinePatch(tex, width, height, left, top, right, bottom)

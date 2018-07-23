@@ -22,13 +22,13 @@ class UISkin(val views: Views, val texture: BitmapSlice<Bitmap>) {
 		override suspend fun create(): UISkin {
 			val texture = try {
 				val rpath = vpath.path
-				val tex = resourcesRoot[rpath].readBitmap(defaultImageFormats).slice()
+				val tex = resourcesRoot[rpath].readBitmapSlice()
 				println("UISkin.Factory: $rpath")
 				tex
 			} catch (e: Throwable) {
 				e.printStackTrace()
 				println("UISkin.Factory: #WHITE#")
-				views.whiteBitmap
+				Bitmaps.white
 			}
 			return UISkin(views, texture)
 		}

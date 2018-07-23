@@ -1,6 +1,7 @@
 package com.soywiz.korge.view.tiles
 
 import com.soywiz.kmem.*
+import com.soywiz.korge.component.*
 import com.soywiz.korge.render.*
 import com.soywiz.korge.util.*
 import com.soywiz.korge.view.*
@@ -8,7 +9,7 @@ import com.soywiz.korim.bitmap.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 
-open class TileMap(val map: IntArray2, val tileset: TileSet, views: Views) : View(views) {
+open class TileMap(val map: IntArray2, val tileset: TileSet) : View() {
 	val tileWidth = tileset.width.toDouble()
 	val tileHeight = tileset.height.toDouble()
 	var smoothing = true
@@ -17,11 +18,10 @@ open class TileMap(val map: IntArray2, val tileset: TileSet, views: Views) : Vie
 	private val tt0 = MPoint2d(0, 0)
 	private val tt1 = MPoint2d(0, 0)
 
-	val renderTilesCounter = views.stats.counter("renderedTiles")
-
 	override fun render(ctx: RenderContext, m: Matrix2d) {
 		if (!visible) return
 
+		val renderTilesCounter = ctx.stats.counter("renderedTiles")
 
 		val pos = m.transform(0.0, 0.0)
 		val dU = m.transform(tileWidth, 0.0) - pos
@@ -36,9 +36,9 @@ open class TileMap(val map: IntArray2, val tileset: TileSet, views: Views) : Vie
 		)
 
 		// @TODO: Bounds in clipped view
-		val pp0 = globalToLocal(t0.setTo(views.virtualLeft, views.virtualTop), tt0)
+		val pp0 = globalToLocal(t0.setTo(ctx.virtualLeft, ctx.virtualTop), tt0)
 		//val pp1 = globalToLocal(t0.setTo(views.actualVirtualWidth, views.actualVirtualHeight), tt1)
-		val pp1 = globalToLocal(t0.setTo(views.virtualRight, views.virtualBottom), tt1)
+		val pp1 = globalToLocal(t0.setTo(ctx.virtualRight, ctx.virtualBottom), tt1)
 
 		val mx0 = ((pp0.x / tileWidth) - 1).toInt().clamp(0, map.width)
 		val mx1 = ((pp1.x / tileWidth) + 1).toInt().clamp(0, map.width)
@@ -64,7 +64,7 @@ open class TileMap(val map: IntArray2, val tileset: TileSet, views: Views) : Vie
 				count++
 			}
 		}
-		renderTilesCounter.increment(count)
+		renderTilesCounter?.increment(count)
 
 		ctx.flush()
 	}
@@ -97,12 +97,12 @@ open class TileMap(val map: IntArray2, val tileset: TileSet, views: Views) : Vie
 	}
 }
 
-fun Views.tileMap(map: IntArray2, tileset: TileSet) = TileMap(map, tileset, this)
+fun Views.tileMap(map: IntArray2, tileset: TileSet) = TileMap(map, tileset)
 
 fun Container.tileMap(map: IntArray2, tileset: TileSet): TileMap = tileMap(map, tileset) { }
 
 inline fun Container.tileMap(map: IntArray2, tileset: TileSet, callback: TileMap.() -> Unit): TileMap {
-	val child = views.tileMap(map, tileset)
+	val child = TileMap(map, tileset)
 	this += child
 	callback(child)
 	return child

@@ -1,6 +1,5 @@
-package com.soywiz.korge.ext.particle
+package com.soywiz.korge.particle
 
-import com.soywiz.korge.particle.*
 import com.soywiz.korge.render.*
 import com.soywiz.korge.time.*
 import com.soywiz.korge.view.*
@@ -8,7 +7,7 @@ import com.soywiz.korio.util.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 
-class ParticleEmitterView(val emitter: ParticleEmitter, emitterPos: Point2d = Point2d()) : View(emitter.views) {
+class ParticleEmitterView(val emitter: ParticleEmitter, emitterPos: Point2d = Point2d()) : View() {
 	val simulator = ParticleEmitter.Simulator(emitter, emitterPos)
 
 	var timeUntilStop by simulator::timeUntilStop.redirect()
@@ -17,8 +16,10 @@ class ParticleEmitterView(val emitter: ParticleEmitter, emitterPos: Point2d = Po
 	val aliveCount by simulator::aliveCount.redirect()
 	val anyAlive by simulator::anyAlive.redirect()
 
-	override fun updateInternal(dtMs: Int) {
-		simulator.simulate(dtMs.toDouble() / 1000.0)
+	init {
+		addUpdatable { dtMs ->
+			simulator.simulate(dtMs.toDouble() / 1000.0)
+		}
 	}
 
 	suspend fun waitComplete() {
@@ -41,7 +42,7 @@ class ParticleEmitterView(val emitter: ParticleEmitter, emitterPos: Point2d = Po
 			for (p in simulator.particles) {
 				val scale = p.scale
 				context.multiplyColor = p.colorInt
-				context.imageScale(texture, p.x - cx * scale, p.y - cy * scale, scale)
+				context.imageScale(ctx.getTex(texture), p.x - cx * scale, p.y - cy * scale, scale)
 			}
 		}
 	}

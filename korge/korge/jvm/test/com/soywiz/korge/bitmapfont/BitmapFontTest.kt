@@ -2,7 +2,9 @@ package com.soywiz.korge.bitmapfont
 
 import com.soywiz.korag.log.*
 import com.soywiz.korge.*
+import com.soywiz.korge.async.*
 import com.soywiz.korge.render.*
+import com.soywiz.korge.view.*
 import com.soywiz.korim.format.*
 import com.soywiz.korio.async.*
 import kotlin.test.*
@@ -14,7 +16,7 @@ class BitmapFontTest {
 
 	@Test
 	fun simple() = suspendTest {
-		val font = TestAssertVfs["font/font.fnt"].readBitmapFont(ag, imageFormats)
+		val font = TestAssertVfs["font/font.fnt"].readBitmapFont()
 		assertEquals(81, font.glyphs.size)
 		val glyph = font[64]
 		assertEquals(69, glyph.texture.width)
@@ -23,7 +25,7 @@ class BitmapFontTest {
 		assertEquals(4, glyph.yoffset)
 		assertEquals(73, glyph.xadvance)
 
-		font.drawText(ctx.batch, 72.0 / 4.0, "ABF,", 0, 0)
+		font.drawText(ctx, 72.0 / 4.0, "ABF,", 0, 0)
 		ctx.flush()
 
 		assertEquals(
@@ -59,7 +61,7 @@ class BitmapFontTest {
 
 	@Test
 	fun font2() = suspendTest {
-		val font = TestAssertVfs["font2/font1.fnt"].readBitmapFont(ag, imageFormats)
+		val font = TestAssertVfs["font2/font1.fnt"].readBitmapFont()
 		assertEquals(95, font.glyphs.size)
 		val glyph = font[64]
 		assertEquals(52, glyph.texture.width)

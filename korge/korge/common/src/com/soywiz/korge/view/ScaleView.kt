@@ -3,8 +3,8 @@ package com.soywiz.korge.view
 import com.soywiz.korge.render.*
 import com.soywiz.korma.*
 
-class ScaleView(views: Views, width: Int, height: Int, scale: Double = 2.0, var filtering: Boolean = false) :
-	FixedSizeContainer(views) {
+class ScaleView(width: Int, height: Int, scale: Double = 2.0, var filtering: Boolean = false) :
+	FixedSizeContainer() {
 	init {
 		this.width = width.toDouble()
 		this.height = height.toDouble()
@@ -41,4 +41,4 @@ class ScaleView(views: Views, width: Int, height: Int, scale: Double = 2.0, var 
 }
 
 fun Views.scaleView(width: Int, height: Int, scale: Double = 2.0, filtering: Boolean = false): ScaleView =
-	ScaleView(this, width, height, scale, filtering)
+	ScaleView(width, height, scale, filtering)

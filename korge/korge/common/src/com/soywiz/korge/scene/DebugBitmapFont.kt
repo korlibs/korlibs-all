@@ -3,6 +3,8 @@ package com.soywiz.korge.scene
 import com.soywiz.korge.bitmapfont.*
 import com.soywiz.korge.scene.DebugBitmapFont.bmpFontOnce
 import com.soywiz.korge.view.*
+import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.format.*
 import com.soywiz.korio.crypto.*
 import com.soywiz.korio.util.*
 
@@ -57,14 +59,14 @@ object DebugBitmapFont {
 }
 
 suspend fun Scene.getDebugBmpFontOnce() = bmpFontOnce {
-	val tex = this.views.texture(DebugBitmapFont.DEBUG_FONT_BYTES, mipmaps = false)
+	val tex = nativeImageFormatProvider.decode(DebugBitmapFont.DEBUG_FONT_BYTES).slice()
 	val fntAdvance = 7
 	val fntWidth = 8
 	val fntHeight = 8
-	BitmapFont(views.ag, fntHeight, (0 until 256).associate {
+	BitmapFont(fntHeight, (0 until 256).associate {
 		val x = it % 16
 		val y = it / 16
-		it to BitmapFont.Glyph(it, tex.slice(x * fntWidth, y * fntHeight, fntWidth, fntHeight), 0, 0, fntAdvance)
+		it to BitmapFont.Glyph(it, tex.sliceWithSize(x * fntWidth, y * fntHeight, fntWidth, fntHeight), 0, 0, fntAdvance)
 	}, mapOf())
 }
 

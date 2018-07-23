@@ -49,7 +49,7 @@ class Atlas(val info: AtlasInfo) {
 
 	internal suspend fun load(views: Views, folder: VfsFile): Atlas = this.apply {
 		ensure()
-		val atlasTex = folder[info.image].readBitmap(defaultImageFormats).slice()
+		val atlasTex = folder[info.image].readBitmapSlice()
 		for ((frameName, frame) in info.frames) {
 			textures[frameName] = TransformedTexture(
 				atlasTex.slice(frame.frame.rect),

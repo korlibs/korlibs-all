@@ -5,10 +5,10 @@ import com.soywiz.korge.tween.*
 import com.soywiz.korge.view.*
 import com.soywiz.korma.*
 
-class TransitionView(views: Views) : Container(views) {
+class TransitionView() : Container() {
 	var transition: Transition = AlphaTransition
-	val dummy1 = views.container()
-	val dummy2 = views.container()
+	val dummy1 = Container()
+	val dummy2 = Container()
 
 	init {
 		addChild(dummy1)

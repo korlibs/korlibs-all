@@ -380,14 +380,13 @@ suspend fun VfsFile.readTiledMap(
 				TileSet.extractBitmaps(bmp, tileset.tilewidth, tileset.tileheight, tileset.columns, tileset.tilecount)
 
 			TileSet.fromBitmaps(
-				views,
 				tileset.tilewidth, tileset.tileheight,
 				slices,
 				border = createBorder,
 				mipmaps = false
 			)
 		} else {
-			TileSet(views, bmp.slice(), tileset.tilewidth, tileset.tileheight, tileset.columns, tileset.tilecount)
+			TileSet(bmp.slice(), tileset.tilewidth, tileset.tileheight, tileset.columns, tileset.tilecount)
 		}
 
 		val tiledTileset = TiledMap.TiledTileset(
@@ -405,7 +404,7 @@ suspend fun VfsFile.readTiledMap(
 		}
 	}
 
-	return TiledMap(data, tiledTilesets, TileSet(views, combinedTileset.toList(), data.tilewidth, data.tileheight))
+	return TiledMap(data, tiledTilesets, TileSet(combinedTileset.toList(), data.tilewidth, data.tileheight))
 }
 
 private enum class RKind {

@@ -8,44 +8,42 @@ import com.soywiz.korge.component.*
 import com.soywiz.korge.view.*
 import com.soywiz.korim.color.*
 import com.soywiz.korim.color.RGBA.Companion.blendRGBA
-import com.soywiz.korio.KorioNative.currentThreadId
 import com.soywiz.korma.interpolation.*
 import kotlinx.coroutines.experimental.*
 import kotlin.reflect.*
 
 class TweenComponent(
+	override val view: View,
 	private val vs: List<V2<*>>,
-	view: View,
 	val time: Int? = null,
 	val easing: Easing = Easing.LINEAR,
 	val callback: (Double) -> Unit,
 	val c: CancellableContinuation<Unit>
-) : Component(view) {
+) : UpdateComponent {
 	var elapsed = 0
 	val ctime = time ?: vs.map { it.endTime }.max() ?: 1000
 	var cancelled = false
-
-	override fun toString(): String = "TweenComponent($view)"
+	var done = false
 
 	init {
 		c.invokeOnCancellation {
 			cancelled = true
 			//println("TWEEN CANCELLED[$this, $vs]: $elapsed")
 		}
+		update(0.0)
 	}
-
-	var done = false
 
 	fun completeOnce() {
 		if (!done) {
 			done = true
-			dettach()
+			detach()
 			c.resume(Unit)
 			//println("TWEEN COMPLETED[$this, $vs]: $elapsed. thread=$currentThreadId")
 		}
 	}
 
-	override fun update(dtMs: Int) {
+	override fun update(ms: Double) {
+		val dtMs = ms.toInt()
 		//println("TWEEN UPDATE[$this, $vs]: $elapsed + $dtMs")
 		if (cancelled) return completeOnce()
 		elapsed += dtMs
@@ -62,6 +60,8 @@ class TweenComponent(
 
 		if (ratio >= 1.0) return completeOnce()
 	}
+
+	override fun toString(): String = "TweenComponent($view)"
 }
 
 suspend fun View?.tween(
@@ -70,11 +70,13 @@ suspend fun View?.tween(
 	easing: Easing = Easing.LINEAR,
 	callback: (Double) -> Unit = { }
 ): Unit {
-	withTimeout(300 + time.milliseconds * 2) {
-		suspendCancellableCoroutine<Unit> { c ->
-			val view = this@tween
-			//println("STARTED TWEEN at thread $currentThreadId")
-			view?.addComponent(TweenComponent(vs.toList(), view, time.milliseconds, easing, callback, c))
+	if (this != null) {
+		withTimeout(300 + time.milliseconds * 2) {
+			suspendCancellableCoroutine<Unit> { c ->
+				val view = this@tween
+				//println("STARTED TWEEN at thread $currentThreadId")
+				TweenComponent(view, vs.toList(), time.milliseconds, easing, callback, c).attach()
+			}
 		}
 	}
 }
@@ -95,7 +97,8 @@ data class V2<V>(
 
 	fun set(ratio: Double) = key.set(interpolator(initial, end, ratio))
 
-	override fun toString(): String = "V2(key=${key.name}, range=[$initial-$end], startTime=$startTime, duration=$duration)"
+	override fun toString(): String =
+		"V2(key=${key.name}, range=[$initial-$end], startTime=$startTime, duration=$duration)"
 }
 
 operator fun <V> KMutableProperty0<V>.get(end: V) = V2(this, this.get(), end, ::interpolateAny)

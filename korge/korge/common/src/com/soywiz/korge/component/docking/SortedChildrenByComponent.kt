@@ -3,10 +3,9 @@ package com.soywiz.korge.component.docking
 import com.soywiz.korge.component.*
 import com.soywiz.korge.view.*
 
-class SortedChildrenByComponent(val container: Container, var comparator: Comparator<View>) : Component(container) {
-	override fun update(dtMs: Int) {
-		super.update(dtMs)
-		container.sortChildrenBy(comparator)
+class SortedChildrenByComponent(override val view: Container, var comparator: Comparator<View>) : UpdateComponent {
+	override fun update(ms: Double) {
+		view.sortChildrenBy(comparator)
 	}
 }
 
@@ -18,7 +17,7 @@ fun Container.sortChildrenBy(comparator: Comparator<View>) {
 	}
 }
 
-fun <T, T2: Comparable<T2>> ((T) -> T2).toComparator() = Comparator { a: T, b: T -> this(a).compareTo(this(b)) }
+fun <T, T2 : Comparable<T2>> ((T) -> T2).toComparator() = Comparator { a: T, b: T -> this(a).compareTo(this(b)) }
 fun <T2 : Comparable<T2>> Container.sortChildrenBy(selector: (View) -> T2) = sortChildrenBy(selector.toComparator())
 fun Container.sortChildrenByY() = sortChildrenBy(View::y)
 

@@ -21,7 +21,6 @@ class SpriterLibrary(val views: Views, val data: Data, val atlas: Map<String, Tr
 	): SpriterView {
 		val entity = data.getEntity(entityName)
 		return SpriterView(
-			views,
 			this,
 			entity!!,
 			animationName1 ?: entity.getAnimation(0).name,
@@ -47,7 +46,7 @@ suspend fun VfsFile.readSpriterLibrary(views: Views): SpriterLibrary {
 		for (f in folder.files) {
 			if (f.name in textures) continue
 			val image = file.parent[f.name]
-			val bmpSlice = image.readBitmap(defaultImageFormats).slice()
+			val bmpSlice = image.readBitmapSlice()
 			textures[f.name] = TransformedTexture(bmpSlice)
 		}
 	}

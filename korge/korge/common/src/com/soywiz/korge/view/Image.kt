@@ -9,10 +9,9 @@ class Image(
 	var bitmap: BmpSlice,
 	var anchorX: Double = 0.0,
 	var anchorY: Double = anchorX,
-	views: Views,
 	var hitShape: VectorPath? = null,
 	var smoothing: Boolean = true
-) : View(views) {
+) : View() {
 	private val sLeft get() = -bitmap.width * anchorX
 	private val sTop get() = -bitmap.height * anchorY
 
@@ -38,14 +37,20 @@ class Image(
 	override fun hitTestInternal(x: Double, y: Double): View? {
 		val sRight = sLeft + bitmap.width
 		val sBottom = sTop + bitmap.height
-		return if (checkGlobalBounds(x, y, sLeft, sTop, sRight, sBottom) && (hitShape?.containsPoint(globalToLocalX(x, y), globalToLocalY(x, y)) != false)) this else null
+		return if (checkGlobalBounds(x, y, sLeft, sTop, sRight, sBottom) && (hitShape?.containsPoint(
+				globalToLocalX(
+					x,
+					y
+				), globalToLocalY(x, y)
+			) != false)
+		) this else null
 	}
 
-	override fun createInstance(): View = Image(bitmap, anchorX, anchorY, views, hitShape, smoothing)
+	override fun createInstance(): View = Image(bitmap, anchorX, anchorY, hitShape, smoothing)
 }
 
-fun Views.image(bmp: BmpSlice, anchorX: Double = 0.0, anchorY: Double = anchorX) = Image(bmp, anchorX, anchorY, this)
-fun Views.image(bmp: Bitmap, anchorX: Double = 0.0, anchorY: Double = anchorX) = Image(bmp.slice(), anchorX, anchorY, this)
+fun Views.image(bmp: BmpSlice, anchorX: Double = 0.0, anchorY: Double = anchorX) = Image(bmp, anchorX, anchorY)
+fun Views.image(bmp: Bitmap, anchorX: Double = 0.0, anchorY: Double = anchorX) = Image(bmp.slice(), anchorX, anchorY)
 
 fun Container.image(texture: BmpSlice, anchorX: Double = 0.0, anchorY: Double = 0.0): Image =
 	image(texture, anchorX, anchorY) { }
@@ -56,7 +61,7 @@ inline fun Container.image(
 	anchorY: Double = 0.0,
 	callback: Image.() -> Unit
 ): Image {
-	val child = views.image(texture, anchorX, anchorY)
+	val child = Image(texture, anchorX, anchorY)
 	this += child
 	callback(child)
 	return child

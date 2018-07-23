@@ -85,7 +85,7 @@ suspend fun AsyncInputStream.readBitmap(
 suspend fun VfsFile.readBitmapInfo(formats: ImageFormat): ImageInfo? =
 	formats.decodeHeader(this.readAsSyncStream())
 
-suspend fun VfsFile.readBitmapOptimized(formats: ImageFormat): Bitmap {
+suspend fun VfsFile.readBitmapOptimized(formats: ImageFormat = defaultImageFormats): Bitmap {
 	try {
 		return nativeImageFormatProvider.decode(this)
 	} catch (t: Throwable) {
@@ -109,6 +109,8 @@ suspend fun VfsFile.readBitmap(
 		formats.decodeInWorker(bytes, props.copy(filename = file.basename))
 	}
 }
+
+suspend fun VfsFile.readBitmapSlice(formats: ImageFormat = defaultImageFormats): BitmapSlice<Bitmap> = readBitmapOptimized().slice()
 
 var nativeImageLoadingEnabled = true
 

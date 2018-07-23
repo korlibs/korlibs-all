@@ -3,6 +3,7 @@ package com.soywiz.korge.view
 import com.soywiz.korge.bitmapfont.*
 import com.soywiz.korge.html.*
 import com.soywiz.korge.render.*
+import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
@@ -15,7 +16,14 @@ interface IHtml {
 	var html: String
 }
 
-class Text(views: Views) : View(views), IText, IHtml {
+class Text : View(), IText, IHtml {
+	companion object {
+	    operator fun invoke(text: String, textSize: Double = 16.0, color: Int = Colors.WHITE, font: BitmapFont = Fonts.defaultFont): Text = Text().apply {
+			this.format = Html.Format(color = color, face = Html.FontFace.Bitmap(font), size = textSize.toInt())
+			if (text != "") this.text = text
+		}
+	}
+
 	//var verticalAlign: Html.VerticalAlignment = Html.VerticalAlignment.TOP
 	val textBounds = Rectangle(0, 0, 1024, 1024)
 	private val tempRect = Rectangle()
@@ -30,11 +38,13 @@ class Text(views: Views) : View(views), IText, IHtml {
 			recalculateBoundsWhenRequired()
 		}
 	var bgcolor = Colors.TRANSPARENT_BLACK
+	val fonts = Fonts.fonts
 
 	fun setTextBounds(rect: Rectangle) {
 		this.textBounds.copyFrom(rect)
 		autoSize = false
 	}
+
 
 	fun unsetTextBounds() {
 		autoSize = true
@@ -70,7 +80,7 @@ class Text(views: Views) : View(views), IText, IHtml {
 		}
 
 	fun relayout() {
-		document?.doPositioning(views.fontRepository, textBounds)
+		document?.doPositioning(fonts, textBounds)
 	}
 
 	override fun render(ctx: RenderContext, m: Matrix2d) {
@@ -79,10 +89,10 @@ class Text(views: Views) : View(views), IText, IHtml {
 		val colorAdd = globalColorAdd
 		if (document != null) {
 			for (span in document!!.allSpans) {
-				val font = views.fontRepository.getBitmapFont(span.format)
+				val font = fonts.getBitmapFont(span.format)
 				val format = span.format
 				font.drawText(
-					ctx.batch, format.computedSize.toDouble(), text,
+					ctx, format.computedSize.toDouble(), text,
 					span.bounds.x.toInt(), span.bounds.y.toInt(),
 					m,
 					colMul = RGBA.multiply(colorMul, format.computedColor),
@@ -92,9 +102,9 @@ class Text(views: Views) : View(views), IText, IHtml {
 				)
 			}
 		} else {
-			val font = views.fontRepository.getBitmapFont(format)
+			val font = fonts.getBitmapFont(format)
 			val anchor = format.computedAlign.anchor
-			views.fontRepository.getBounds(text, format, out = tempRect)
+			fonts.getBounds(text, format, out = tempRect)
 			//println("tempRect=$tempRect, textBounds=$textBounds")
 			//tempRect.setToAnchoredRectangle(tempRect, format.align.anchor, textBounds)
 			//val x = (textBounds.width) * anchor.sx - tempRect.width
@@ -104,7 +114,7 @@ class Text(views: Views) : View(views), IText, IHtml {
 
 			if (RGBA.getA(bgcolor) != 0) {
 				ctx.batch.drawQuad(
-					ctx.getTex(views.whiteBitmap),
+					ctx.getTex(Bitmaps.white),
 					x = textBounds.x.toFloat(),
 					y = textBounds.y.toFloat(),
 					width = textBounds.width.toFloat(),
@@ -119,7 +129,7 @@ class Text(views: Views) : View(views), IText, IHtml {
 
 			//println(" -> ($x, $y)")
 			font.drawText(
-				ctx.batch, format.computedSize.toDouble(), text, px.toInt(), py.toInt(),
+				ctx, format.computedSize.toDouble(), text, px.toInt(), py.toInt(),
 				m,
 				colMul = RGBA.multiply(colorMul, format.computedColor),
 				colAdd = colorAdd,
@@ -130,7 +140,7 @@ class Text(views: Views) : View(views), IText, IHtml {
 	}
 
 	private fun recalculateBounds() {
-		views.fontRepository.getBounds(text, format, out = textBounds)
+		fonts.getBounds(text, format, out = textBounds)
 	}
 
 	private fun recalculateBoundsWhenRequired() {
@@ -142,7 +152,7 @@ class Text(views: Views) : View(views), IText, IHtml {
 			out.copyFrom(document!!.bounds)
 		} else {
 			if (autoSize) {
-				views.fontRepository.getBounds(text, format, out)
+				fonts.getBounds(text, format, out)
 				out.setToAnchoredRectangle(out, format.computedAlign.anchor, textBounds)
 			} else {
 				out.copyFrom(textBounds)
@@ -151,7 +161,7 @@ class Text(views: Views) : View(views), IText, IHtml {
 		}
 	}
 
-	override fun createInstance(): View = Text(views)
+	override fun createInstance(): View = Text()
 	override fun copyPropsFrom(source: View) {
 		super.copyPropsFrom(source)
 		source as Text
@@ -164,23 +174,23 @@ class Text(views: Views) : View(views), IText, IHtml {
 	}
 }
 
-fun Views.text(text: String, textSize: Double = 16.0, color: Int = Colors.WHITE, font: BitmapFont = this.defaultFont) =
-	Text(this).apply {
+fun Views.text(text: String, textSize: Double = 16.0, color: Int = Colors.WHITE, font: BitmapFont = Fonts.defaultFont) =
+	Text().apply {
 		this.format = Html.Format(color = color, face = Html.FontFace.Bitmap(font), size = textSize.toInt())
 		if (text != "") this.text = text
 	}
 
-fun Container.text(text: String, textSize: Double = 16.0, font: BitmapFont = this.views.defaultFont): Text =
+fun Container.text(text: String, textSize: Double = 16.0, font: BitmapFont = Fonts.defaultFont): Text =
 	text(text, textSize, font) {
 	}
 
 inline fun Container.text(
 	text: String,
 	textSize: Double = 16.0,
-	font: BitmapFont = this.views.defaultFont,
+	font: BitmapFont = Fonts.defaultFont,
 	callback: Text.() -> Unit
 ): Text {
-	val child = views.text(text, textSize = textSize, font = font)
+	val child = Text(text, textSize = textSize, font = font)
 	this += child
 	callback(child)
 	return child

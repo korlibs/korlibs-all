@@ -111,7 +111,7 @@ suspend fun CanvasApplicationEx(
 	icon: Bitmap? = null,
 	light: LightComponents? = null,
 	quality: LightQuality = LightQuality.PERFORMANCE,
-	callback: suspend (AgCanvas, Frame) -> Unit = { c, f -> }
+	callback: suspend (AgCanvas, Frame) -> Unit = { _, _ -> }
 ): Unit {
 	val llight = light ?: defaultLight(coroutineContext)
 	llight.quality = quality

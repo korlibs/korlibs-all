@@ -1,16 +1,15 @@
 package com.soywiz.korge.scene
 
 import com.soywiz.klock.*
-import com.soywiz.korge.time.*
+import com.soywiz.korge.async.*
 import com.soywiz.korge.tween.*
 import com.soywiz.korge.view.*
 import com.soywiz.korinject.*
 import com.soywiz.korio.async.*
-import kotlinx.coroutines.experimental.*
 import kotlin.reflect.*
 
-class SceneContainer(views: Views) : Container(views) {
-	val transitionView = TransitionView(views)
+class SceneContainer(val views: Views) : Container() {
+	val transitionView = TransitionView()
 	var currentScene: Scene? = null
 
 	init {
@@ -76,7 +75,7 @@ class SceneContainer(views: Views) : Container(views) {
 		return _changeTo(clazz, *injects, time = time, transition = transition)
 	}
 
-	suspend private fun _changeTo(
+	private suspend fun _changeTo(
 		entry: VisitEntry,
 		time: TimeSpan = 0.seconds,
 		transition: Transition = AlphaTransition
@@ -84,7 +83,7 @@ class SceneContainer(views: Views) : Container(views) {
 		return _changeTo(entry.clazz, *entry.injects.toTypedArray(), time = time, transition = transition) as Scene
 	}
 
-	suspend private fun <T : Scene> _changeTo(
+	private suspend fun <T : Scene> _changeTo(
 		clazz: KClass<T>,
 		vararg injects: Any,
 		time: TimeSpan = 0.seconds,
@@ -112,10 +111,10 @@ class SceneContainer(views: Views) : Container(views) {
 
 		oldScene?.sceneDestroy()
 
-		launchImmediately(coroutineContext) {
+		launchImmediately(KorgeDispatcher) {
 			instance.sceneAfterDestroy()
 		}
-		launchImmediately(coroutineContext) {
+		launchImmediately(KorgeDispatcher) {
 			instance.sceneAfterInit()
 		}
 

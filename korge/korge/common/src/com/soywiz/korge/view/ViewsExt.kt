@@ -1,13 +1,13 @@
 package com.soywiz.korge.view
 
-fun View?.dump(emit: (String) -> Unit = ::println) {
-	if (this != null) this.views.dumpView(this, emit)
+fun View?.dump(views: Views, emit: (String) -> Unit = ::println) {
+	if (this != null) views.dumpView(this, emit)
 }
 
-fun View?.dumpToString(): String {
+fun View?.dumpToString(views: Views): String {
 	if (this == null) return ""
 	val out = arrayListOf<String>()
-	dump { out += it }
+	dump(views) { out += it }
 	return out.joinToString("\n")
 }
 

@@ -1,11 +1,12 @@
 package com.soywiz.korge.view
 
 import com.soywiz.korge.render.*
+import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 
-class SolidRect(views: Views, override var width: Double, override var height: Double, color: Int) : View(views) {
+class SolidRect(override var width: Double, override var height: Double, color: RGBAInt) : View() {
 	init {
 		this.colorMul = color
 	}
@@ -17,7 +18,7 @@ class SolidRect(views: Views, override var width: Double, override var height: D
 		if (!visible) return
 		//println("%08X".format(color))
 		ctx.batch.drawQuad(
-			ctx.getTex(views.whiteBitmap),
+			ctx.getTex(Bitmaps.white),
 			x = 0f,
 			y = 0f,
 			width = width.toFloat(),
@@ -38,5 +39,8 @@ class SolidRect(views: Views, override var width: Double, override var height: D
 		return if (checkGlobalBounds(x, y, 0.0, 0.0, width, height)) this else null
 	}
 
-	override fun createInstance(): View = SolidRect(views, width, height, colorMul)
+	override fun createInstance(): View = SolidRect(width, height, colorMul)
 }
+
+inline fun Views.solidRect(width: Number, height: Number, color: RGBAInt): SolidRect =
+	SolidRect(width.toDouble(), height.toDouble(), color)

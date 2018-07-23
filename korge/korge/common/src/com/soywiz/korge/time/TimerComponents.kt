@@ -8,14 +8,14 @@ import kotlin.collections.arrayListOf
 import kotlin.collections.minusAssign
 import kotlin.collections.plusAssign
 
-class TimerComponents(view: View) : Component(view) {
+class TimerComponents(override val view: View) : UpdateComponent {
 	private val timers = arrayListOf<(Int) -> Unit>()
 	private val timersIt = arrayListOf<(Int) -> Unit>()
 
-	override fun update(dtMs: Int) {
+	override fun update(ms: Double) {
 		timersIt.clear()
 		timersIt.addAll(timers)
-		for (timer in timersIt) timer(dtMs)
+		for (timer in timersIt) timer(ms.toInt())
 	}
 
 	suspend fun wait(time: TimeSpan) = waitMilliseconds(time.ms)

@@ -69,18 +69,16 @@ class Texture(
 	override fun close() = base.close()
 }
 
-suspend fun VfsFile.readTexture(views: Views, mipmaps: Boolean = true): Texture = readTexture(views.ag, views.imageFormats, mipmaps)
-
-suspend fun VfsFile.readTexture(ag: AG, imageFormats: ImageFormats, mipmaps: Boolean = true): Texture {
-	//println("VfsFile.readTexture[1]")
-	val tex = ag.createTexture()
-	//println("VfsFile.readTexture[2]")
-	val bmp = this.readBitmapOptimized(imageFormats)
-	//val bmp = this.readBitmapNoNative()
-	//println("VfsFile.readTexture[3]")
-	val canHasMipmaps = bmp.width.isPowerOfTwo && bmp.height.isPowerOfTwo
-	//println("VfsFile.readTexture[4]")
-	tex.upload(bmp, mipmaps = canHasMipmaps && mipmaps)
-	//println("VfsFile.readTexture[5]")
-	return Texture(tex, bmp.width, bmp.height)
-}
+//suspend fun VfsFile.readTexture(ag: AG, imageFormats: ImageFormats, mipmaps: Boolean = true): Texture {
+//	//println("VfsFile.readTexture[1]")
+//	val tex = ag.createTexture()
+//	//println("VfsFile.readTexture[2]")
+//	val bmp = this.readBitmapOptimized(imageFormats)
+//	//val bmp = this.readBitmapNoNative()
+//	//println("VfsFile.readTexture[3]")
+//	val canHasMipmaps = bmp.width.isPowerOfTwo && bmp.height.isPowerOfTwo
+//	//println("VfsFile.readTexture[4]")
+//	tex.upload(bmp, mipmaps = canHasMipmaps && mipmaps)
+//	//println("VfsFile.readTexture[5]")
+//	return Texture(tex, bmp.width, bmp.height)
+//}

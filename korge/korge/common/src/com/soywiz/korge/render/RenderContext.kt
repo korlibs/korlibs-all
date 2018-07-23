@@ -1,31 +1,21 @@
 package com.soywiz.korge.render
 
 import com.soywiz.kds.*
-import com.soywiz.klogger.*
 import com.soywiz.korag.*
+import com.soywiz.korge.stat.*
+import com.soywiz.korge.view.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korio.lang.*
 
-private val logger = Logger("RenderContext")
-
 class RenderContext(
-	val ag: AG
-) : Extra by Extra.Mixin() {
+	val ag: AG,
+	val bp: BoundsProvider = BoundsProvider.Dummy,
+	val stats: Stats = Stats()
+) : Extra by Extra.Mixin(), BoundsProvider by bp {
 	val agBitmapTextureManager = AgBitmapTextureManager(ag)
-
-	init { logger.trace { "RenderContext[0]" } }
-
 	var frame = 0
-
-	init { logger.trace { "RenderContext[1]" } }
-
 	val batch = BatchBuilder2D(ag)
-
-	init { logger.trace { "RenderContext[2]" } }
-
 	val ctx2d = RenderContext2D(batch)
-
-	init { logger.trace { "RenderContext[3]" } }
 
 	var masksEnabled = true
 

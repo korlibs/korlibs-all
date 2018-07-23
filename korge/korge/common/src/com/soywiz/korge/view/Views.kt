@@ -7,14 +7,12 @@ import com.soywiz.korag.*
 import com.soywiz.korag.log.*
 import com.soywiz.korge.*
 import com.soywiz.korge.audio.*
-import com.soywiz.korge.bitmapfont.*
-import com.soywiz.korge.bitmapfont.BitmapFont
+import com.soywiz.korge.component.*
 import com.soywiz.korge.input.*
 import com.soywiz.korge.render.*
 import com.soywiz.korge.stat.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
-import com.soywiz.korim.font.*
 import com.soywiz.korim.format.*
 import com.soywiz.korinject.*
 import com.soywiz.korio.async.*
@@ -30,6 +28,20 @@ import kotlin.reflect.*
 
 private val logger = Logger("Views")
 
+interface BoundsProvider {
+	val virtualLeft: Double
+	val virtualTop: Double
+	val virtualRight: Double
+	val virtualBottom: Double
+
+	object Dummy : BoundsProvider {
+		override val virtualLeft: Double = 0.0
+		override val virtualTop: Double = 0.0
+		override val virtualRight: Double = 0.0
+		override val virtualBottom: Double = 0.0
+	}
+}
+
 @Singleton
 class Views(
 	override val coroutineContext: CoroutineContext,
@@ -38,67 +50,14 @@ class Views(
 	val input: Input,
 	val timeProvider: TimeProvider,
 	val stats: Stats
-) : Updatable, Extra by Extra.Mixin(), EventDispatcher by EventDispatcher.Mixin(), CoroutineContextHolder {
+) : Updatable, Extra by Extra.Mixin(), EventDispatcher by EventDispatcher.Mixin(), CoroutineContextHolder,
+	BoundsProvider {
 	var imageFormats = defaultImageFormats
-
-	fun dumpStats() {
-		stats.dump()
-	}
-
-	init {
-		logger.trace { "Views[0]" }
-	}
-
-	init {
-		logger.trace { "Views[1]" }
-	}
-
-	var lastId = 0
-
-	init {
-		logger.trace { "Views[2]" }
-	}
-
-	val renderContext = RenderContext(ag)
+	val renderContext = RenderContext(ag, this, stats)
 	val agBitmapTextureManager = renderContext.agBitmapTextureManager
-
-	init {
-		logger.trace { "Views[3]" }
-	}
-
 	var clearEachFrame = true
 	val views = this
-
-	init {
-		logger.trace { "Views[4]" }
-	}
-
-	init {
-		injector.mapInstance(CoroutineContext::class, coroutineContext)
-		injector.mapInstance(AG::class, ag)
-		injector.mapInstance(Views::class, this)
-		injector.mapInstance(SoundSystem::class, soundSystem)
-	}
-
-	init {
-		logger.trace { "Views[5]" }
-	}
-
-
 	val propsTriggers = hashMapOf<String, (View, String, String) -> Unit>()
-
-	fun registerPropertyTrigger(propName: String, gen: (View, String, String) -> Unit) {
-		propsTriggers[propName] = gen
-	}
-
-	fun registerPropertyTriggerSuspend(propName: String, gen: suspend (View, String, String) -> Unit) {
-		propsTriggers[propName] = { view, key, value ->
-			launchImmediately(coroutineContext) {
-				gen(view, key, value)
-			}
-		}
-	}
-
 	var clampElapsedTimeTo = 100
 
 	val nativeWidth get() = ag.backWidth
@@ -107,22 +66,16 @@ class Views(
 	var virtualWidth = 640; internal set
 	var virtualHeight = 480; internal set
 
-	fun setVirtualSize(width: Int, height: Int) {
-		this.virtualWidth = width
-		this.virtualHeight = height
-		resized()
-	}
-
 	var actualVirtualLeft = 0; private set
 	var actualVirtualTop = 0; private set
 
 	var actualVirtualWidth = 640; private set
 	var actualVirtualHeight = 480; private set
 
-	val virtualLeft get() = -actualVirtualLeft * views.stage.scaleX
-	val virtualTop get() = -actualVirtualTop * views.stage.scaleY
-	val virtualRight get() = virtualLeft + virtualWidth * views.stage.scaleX
-	val virtualBottom get() = virtualTop + virtualHeight * views.stage.scaleY
+	override val virtualLeft get() = -actualVirtualLeft * views.stage.scaleX
+	override val virtualTop get() = -actualVirtualTop * views.stage.scaleY
+	override val virtualRight get() = virtualLeft + virtualWidth * views.stage.scaleX
+	override val virtualBottom get() = virtualTop + virtualHeight * views.stage.scaleY
 
 	val actualVirtualRight get() = actualVirtualWidth
 	val actualVirtualBottom get() = actualVirtualHeight
@@ -139,39 +92,73 @@ class Views(
 	var scaleAnchor = Anchor.MIDDLE_CENTER
 	var clipBorders = true
 
+	private val resizedEvent = ResizedEvent(0, 0)
+
+	val stage = Stage(this)
+	val root = stage
+	var debugViews = false
+	val debugHandlers = arrayListOf<Views.(RenderContext) -> Unit>()
+
+	var lastTime = timeProvider.currentTimeMillis()
+
+	private val tempComponents: ArrayList<Component> = arrayListOf()
+
+	private val virtualSize = SizeInt()
+	private val actualSize = SizeInt()
+	private val targetSize = SizeInt()
+
+	var targetFps: Double = -1.0
+
+	init {
+		injector.mapInstance(CoroutineContext::class, coroutineContext)
+		injector.mapInstance(AG::class, ag)
+		injector.mapInstance(Views::class, this)
+		injector.mapInstance(SoundSystem::class, soundSystem)
+	}
+
+	fun dumpStats() {
+		stats.dump()
+	}
+
+	fun registerPropertyTrigger(propName: String, gen: (View, String, String) -> Unit) {
+		propsTriggers[propName] = gen
+	}
+
+	fun registerPropertyTriggerSuspend(propName: String, gen: suspend (View, String, String) -> Unit) {
+		propsTriggers[propName] = { view, key, value ->
+			launchImmediately(coroutineContext) {
+				gen(view, key, value)
+			}
+		}
+	}
+
+	fun setVirtualSize(width: Int, height: Int) {
+		this.virtualWidth = width
+		this.virtualHeight = height
+		resized()
+	}
+
 	override fun <T : Event> dispatch(clazz: KClass<T>, event: T) {
+		val e = event
 		try {
 			this.stage.dispatch(clazz, event)
+			forEachComponent<EventComponent> { it.onEvent(event) }
+			if (e is MouseEvent) {
+				forEachComponent<MouseComponent> { it.onMouseEvent(views, e) }
+			}
+			if (e is ResizedEvent) {
+				forEachComponent<ResizeComponent> { it.resized(views, e.width, e.height) }
+			}
+			if (e is KeyEvent) {
+				forEachComponent<KeyComponent> { it.onKeyEvent(views, e) }
+			}
 		} catch (e: PreventDefaultException) {
 			//println("PreventDefaultException.Reason: ${e.reason}")
 		}
 	}
 
-	private val resizedEvent = ResizedEvent(0, 0)
-
-	fun container() = Container(this)
-	fun fixedSizeContainer(width: Double = 100.0, height: Double = 100.0) = FixedSizeContainer(this, width, height)
-	inline fun solidRect(width: Number, height: Number, color: Int): SolidRect =
-		SolidRect(this, width.toDouble(), height.toDouble(), color)
-
-	val dummyView by lazy { View(this) }
-	val transparentBitmap get() = Bitmaps.transparentSlice
-	val whiteBitmap get() = Bitmaps.whiteSlice
-
-	//val transparentTexture by lazy { texture(transparentBitmap) }
-	//val whiteTexture by lazy { texture(whiteBitmap) }
-	val transformedDummyTexture by lazy { TransformedTexture(transparentBitmap) }
-
-	val dummyFont by lazy { BitmapFont(ag, 16, IntMap(), IntMap()) }
-	val defaultFont by lazy {
-		com.soywiz.korim.font.BitmapFontGenerator.generate("Arial", 16, BitmapFontGenerator.LATIN_ALL)
-			.convert(ag, mipmaps = true)
-	}
-	val fontRepository = FontRepository(this)
-
-	val stage = Stage(this)
-	var debugViews = false
-	val debugHandlers = arrayListOf<Views.(RenderContext) -> Unit>()
+	fun container() = Container()
+	fun fixedSizeContainer(width: Double = 100.0, height: Double = 100.0) = FixedSizeContainer(width, height)
 
 	fun render(clearColor: Int = Colors.BLACK, clear: Boolean = true) {
 		if (clear) ag.clear(clearColor, stencil = 0, clearColor = true, clearStencil = true)
@@ -199,8 +186,6 @@ class Views(
 		}
 	}
 
-	var lastTime = timeProvider.currentTimeMillis()
-
 	fun frameUpdateAndRender(clear: Boolean, clearColor: Int, fixedSizeStep: Int? = null) {
 		views.stats.startFrame()
 		Korge.logger.trace { "ag.onRender" }
@@ -224,13 +209,33 @@ class Views(
 		//println(this)
 		//println("Update: $dtMs")
 		input.startFrame(dtMs)
-		stage.update(dtMs)
+		val dtMsD = dtMs.toDouble()
+		forEachComponent<UpdateComponent> {
+			it.update(dtMsD * it.view.globalSpeed)
+		}
+		forEachComponent<UpdateComponentWithViews> {
+			it.update(this, dtMsD * it.view.globalSpeed)
+		}
 		input.endFrame(dtMs)
 	}
 
-	private val virtualSize = SizeInt()
-	private val actualSize = SizeInt()
-	private val targetSize = SizeInt()
+	private inline fun <reified T : Component> forEachComponent(callback: (T) -> Unit) {
+		for (c in getComponents(stage, tempComponents)) {
+			if (c is T) callback(c)
+		}
+	}
+
+	private fun getComponents(view: View, out: ArrayList<Component> = arrayListOf()): List<Component> {
+		out.clear()
+		appendComponents(view, out)
+		return out
+	}
+
+	private fun appendComponents(view: View, out: ArrayList<Component>) {
+		if (view is Container) for (child in view.children) appendComponents(child, out)
+		val components = view.unsafeListRawComponents
+		if (components != null) out.addAll(components)
+	}
 
 	fun mouseUpdated() {
 		//println("localMouse: (${stage.localMouseX}, ${stage.localMouseY}), inputMouse: (${input.mouse.x}, ${input.mouse.y})")
@@ -277,14 +282,12 @@ class Views(
 		stage.invalidate()
 	}
 
-	var targetFps: Double = -1.0
-
 	fun dispose() {
 		soundSystem.close()
 	}
 }
 
-class Stage(views: Views) : Container(views) {
+class Stage(val views: Views) : Container() {
 	override fun getLocalBoundsInternal(out: Rectangle) {
 		out.setTo(views.actualVirtualLeft, views.actualVirtualTop, views.actualVirtualWidth, views.actualVirtualHeight)
 	}
@@ -341,7 +344,7 @@ inline fun viewFactory(callback: ViewFactory.() -> Unit) {
 inline fun Container.container(): Container = container { }
 
 inline fun Container.container(callback: Container.() -> Unit): Container {
-	val child = views.container()
+	val child = Container()
 	this += child
 	callback(child)
 	return child

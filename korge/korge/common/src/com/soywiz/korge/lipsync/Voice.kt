@@ -85,12 +85,12 @@ class LipSyncHandler(val views: Views) {
 	}
 }
 
-class LipSyncComponent(view: View) : Component(view) {
-	init {
-		addEventListener<LipSyncEvent> { it ->
+class LipSyncComponent(override val view: View) : EventComponent {
+	override fun onEvent(event: Event) {
+		if (event is LipSyncEvent) {
 			val name = view.getPropString("lipsync")
-			if (it.name == name) {
-				view.play("${it.lip}")
+			if (event.name == name) {
+				view.play("${event.lip}")
 			}
 		}
 	}

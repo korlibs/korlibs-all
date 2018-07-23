@@ -3,8 +3,8 @@ package com.soywiz.korim.vector
 import com.soywiz.kmem.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
-import com.soywiz.korio.lang.*
 import com.soywiz.korio.serialization.xml.*
+import com.soywiz.korio.util.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 
@@ -61,21 +61,6 @@ private fun Matrix2d.toSvg() = this.run {
 		Matrix2d.Type.SCALE_TRANSLATE -> "translate(${tx.niceStr}, ${ty.niceStr}) scale(${a.niceStr}, ${d.niceStr})"
 		else -> "matrix(${a.niceStr}, ${b.niceStr}, ${c.niceStr}, ${d.niceStr}, ${tx.niceStr}, ${ty.niceStr})"
 	}
-}
-
-// @TODO: Move to korio or korma
-fun Double.toString(dplaces: Int, skipTrailingZeros: Boolean = false): String {
-	val res = this.toString()
-	val parts = res.split('.', limit = 2)
-	val integral = parts.getOrElse(0) { "0" }
-	val decimal = parts.getOrElse(1) { "1" }
-	if (dplaces == 0) return integral
-	var out = integral + "." + (decimal + "0".repeat(dplaces)).substr(0, dplaces)
-	if (skipTrailingZeros) {
-		while (out.endsWith('0')) out = out.substring(0, out.length - 1)
-		if (out.endsWith('.')) out = out.substring(0, out.length - 1)
-	}
-	return out
 }
 
 fun VectorPath.toSvgPathString(separator: String = " ", decimalPlaces: Int = 1): String {

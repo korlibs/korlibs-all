@@ -25,7 +25,7 @@ fun AnElement.createDuplicated() = symbol.create(library)
 fun AnElement.createDuplicatedView() = symbol.create(library) as View
 
 abstract class AnBaseShape(final override val library: AnLibrary, final override val symbol: AnSymbolBaseShape) :
-	View(library.views), AnElement {
+	View(), AnElement {
 	var ninePatch: Rectangle? = null
 
 	abstract val dx: Float
@@ -116,8 +116,6 @@ abstract class AnBaseShape(final override val library: AnLibrary, final override
 		out.setTo(dx, dy, texWidth, texHeight)
 	}
 
-	override fun updateInternal(dtMs: Int) = Unit
-
 	override fun toString(): String = super.toString() + ":symbol=" + symbol
 
 	override fun createInstance(): View = symbol.create(library) as View
@@ -126,7 +124,7 @@ abstract class AnBaseShape(final override val library: AnLibrary, final override
 class AnShape(library: AnLibrary, val shapeSymbol: AnSymbolShape) : AnBaseShape(library, shapeSymbol), AnElement {
 	override val dx = shapeSymbol.bounds.x.toFloat()
 	override val dy = shapeSymbol.bounds.y.toFloat()
-	override val tex = shapeSymbol.textureWithBitmap?.texture ?: views.transparentBitmap
+	override val tex = shapeSymbol.textureWithBitmap?.texture ?: Bitmaps.transparent
 	override val texScale = shapeSymbol.textureWithBitmap?.scale ?: 1.0
 	override val texWidth = (tex.width / texScale).toFloat()
 	override val texHeight = (tex.height / texScale).toFloat()
@@ -140,7 +138,7 @@ class AnMorphShape(library: AnLibrary, val morphSymbol: AnSymbolMorphShape) : An
 	var texWBS: TextureWithBitmapSlice? = null
 	override var dx: Float = 0f
 	override var dy: Float = 0f
-	override var tex: BmpSlice = views.transparentBitmap
+	override var tex: BmpSlice = Bitmaps.transparent
 	override var texScale = 1.0
 	override var texWidth = 0f
 	override var texHeight = 0f
@@ -152,7 +150,7 @@ class AnMorphShape(library: AnLibrary, val morphSymbol: AnSymbolMorphShape) : An
 
 		dx = texWBS?.bounds?.x?.toFloat() ?: 0f
 		dy = texWBS?.bounds?.y?.toFloat() ?: 0f
-		tex = texWBS?.texture ?: views.transparentBitmap
+		tex = texWBS?.texture ?: Bitmaps.transparent
 		texScale = texWBS?.scale ?: 1.0
 		texWidth = (tex.width / texScale).toFloat()
 		texHeight = (tex.height / texScale).toFloat()
@@ -183,14 +181,14 @@ class AnMorphShape(library: AnLibrary, val morphSymbol: AnSymbolMorphShape) : An
 	}
 }
 
-class AnEmptyView(override val library: AnLibrary, override val symbol: AnSymbolEmpty = AnSymbolEmpty) :
-	View(library.views), AnElement {
+class AnEmptyView(override val library: AnLibrary, override val symbol: AnSymbolEmpty = AnSymbolEmpty) : View(),
+	AnElement {
 	override fun createInstance(): View = symbol.create(library) as View
 }
 
-class AnTextField(override val library: AnLibrary, override val symbol: AnTextFieldSymbol) : Container(library.views),
+class AnTextField(override val library: AnLibrary, override val symbol: AnTextFieldSymbol) : Container(),
 	AnElement, IText, IHtml {
-	private val textField = views.text("", 16.0).apply {
+	private val textField = Text("", 16.0).apply {
 		textBounds.copyFrom(symbol.bounds)
 		html = symbol.initialHtml
 		relayout()
@@ -320,14 +318,13 @@ interface AnPlayable {
 }
 
 class AnSimpleAnimation(
-	views: Views,
 	val frameTime: Int,
 	val animations: Map<String, List<BmpSlice?>>,
 	val anchor: Anchor = Anchor.TOP_LEFT
-) : Container(views), AnPlayable {
-	override fun createInstance(): View = AnSimpleAnimation(views, frameTime, animations, anchor)
+) : Container(), AnPlayable {
+	override fun createInstance(): View = AnSimpleAnimation(frameTime, animations, anchor)
 
-	val image = views.image(views.transparentBitmap)
+	val image = Image(Bitmaps.transparent)
 	val defaultAnimation = animations.values.firstOrNull() ?: listOf()
 	var animation = defaultAnimation
 	val numberOfFrames get() = animation.size
@@ -344,20 +341,21 @@ class AnSimpleAnimation(
 		animation = animations[name] ?: defaultAnimation
 	}
 
-	override fun updateInternal(dtMs: Int) {
-		super.updateInternal(dtMs)
-		elapsedTime = (elapsedTime + dtMs) % (numberOfFrames * frameTime)
-		myupdate()
+	init {
+		addUpdatable { dtMs ->
+			elapsedTime = (elapsedTime + dtMs) % (numberOfFrames * frameTime)
+			myupdate()
+		}
 	}
 
 	private fun myupdate() {
 		val frameNum = elapsedTime / frameTime
-		val bmpSlice = animation.getOrNull(frameNum % numberOfFrames) ?: views.transparentBitmap
+		val bmpSlice = animation.getOrNull(frameNum % numberOfFrames) ?: Bitmaps.transparent
 		image.bitmap = bmpSlice
 	}
 }
 
-class AnMovieClip(override val library: AnLibrary, override val symbol: AnSymbolMovieClip) : Container(library.views),
+class AnMovieClip(override val library: AnLibrary, override val symbol: AnSymbolMovieClip) : Container(),
 	AnElement, AnPlayable {
 	override fun clone(): View = createInstance().apply {
 		this@apply.copyPropsFrom(this)
@@ -368,7 +366,7 @@ class AnMovieClip(override val library: AnLibrary, override val symbol: AnSymbol
 	private val tempTimedResult = Timed.Result<AnSymbolTimelineFrame>()
 	val totalDepths = symbol.limits.totalDepths
 	val totalUids = symbol.limits.totalUids
-	val dummyDepths = Array(totalDepths) { DummyView(views) }
+	val dummyDepths = Array(totalDepths) { DummyView() }
 	val maskPushDepths = IntArray(totalDepths + 10) { -1 }
 	val maskPopDepths = BooleanArray(totalDepths + 10) { false }
 	val viewUids = Array(totalUids) {
@@ -390,7 +388,7 @@ class AnMovieClip(override val library: AnLibrary, override val symbol: AnSymbol
 
 	init {
 		for (d in dummyDepths) this += d
-		updateInternal(0)
+		addUpdatable { updateInternal(it) }
 	}
 
 	private fun replaceDepth(depth: Int, view: View): Boolean {
@@ -643,14 +641,12 @@ class AnMovieClip(override val library: AnLibrary, override val symbol: AnSymbol
 		update()
 	}
 
-	override fun updateInternal(dtMs: Int) {
+	private fun updateInternal(dtMs: Int) {
 		if (timelineRunner.running && (firstUpdate || !singleFrame)) {
 			firstUpdate = false
 			timelineRunner.update(dtMs * 1000)
 			update()
 		}
-
-		super.updateInternal(dtMs)
 	}
 
 	override fun toString(): String = super.toString() + ":symbol=" + symbol

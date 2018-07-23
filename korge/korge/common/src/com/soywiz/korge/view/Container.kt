@@ -7,7 +7,7 @@ import com.soywiz.korma.geom.*
 import com.soywiz.korui.event.*
 import kotlin.reflect.*
 
-open class Container(views: Views) : View(views) {
+open class Container() : View() {
 	val children = arrayListOf<View>()
 
 	fun removeChildren() {
@@ -77,14 +77,6 @@ open class Container(views: Views) : View(views) {
 		bb.getBounds(out)
 	}
 
-	override fun updateInternal(dtMs: Int) {
-		super.updateInternal(dtMs)
-		safeForEachChildren { child ->
-			child.update(dtMs)
-		}
-		//for (child in children.toList()) child.update(dtMs)
-	}
-
 	override fun <T : Event> dispatch(clazz: KClass<T>, event: T) {
 		safeForEachChildrenReversed { child ->
 			child.dispatch(clazz, event)
@@ -108,7 +100,7 @@ open class Container(views: Views) : View(views) {
 		}
 	}
 
-	override fun createInstance(): View = Container(views)
+	override fun createInstance(): View = Container()
 
 	override fun clone(): View {
 		val out = super.clone()
@@ -117,8 +109,7 @@ open class Container(views: Views) : View(views) {
 	}
 }
 
-open class FixedSizeContainer(views: Views, override var width: Double = 100.0, override var height: Double = 100.0) :
-	Container(views) {
+open class FixedSizeContainer(override var width: Double = 100.0, override var height: Double = 100.0) : Container() {
 	override fun getLocalBoundsInternal(out: Rectangle) {
 		out.setTo(0, 0, width, height)
 	}
