@@ -1,13 +1,15 @@
 package com.soywiz.korge.view.tiles
 
 import com.soywiz.kmem.*
-import com.soywiz.korge.component.*
 import com.soywiz.korge.render.*
 import com.soywiz.korge.util.*
 import com.soywiz.korge.view.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
+
+inline fun Container.tileMap(map: IntArray2, tileset: TileSet, callback: @ViewsDslMarker TileMap.() -> Unit = {}) =
+	TileMap(map, tileset).addTo(this).apply(callback)
 
 open class TileMap(val map: IntArray2, val tileset: TileSet) : View() {
 	val tileWidth = tileset.width.toDouble()
@@ -71,13 +73,8 @@ open class TileMap(val map: IntArray2, val tileset: TileSet) : View() {
 
 	open fun render(
 		ctx: RenderContext,
-		p0: Vector2,
-		p1: Vector2,
-		p2: Vector2,
-		p3: Vector2,
-		tex: BmpSlice,
-		colorMul: Int,
-		colorAdd: Int
+		p0: Vector2, p1: Vector2, p2: Vector2, p3: Vector2,
+		tex: BmpSlice, colorMul: Int, colorAdd: Int
 	) {
 		ctx.batch.drawQuadFast(
 			p0.x.toFloat(), p0.y.toFloat(),
@@ -92,16 +89,6 @@ open class TileMap(val map: IntArray2, val tileset: TileSet) : View() {
 		out.setTo(0, 0, tileWidth * map.width, tileHeight * map.height)
 	}
 
-	override fun hitTestInternal(x: Double, y: Double): View? {
-		return if (checkGlobalBounds(x, y, 0.0, 0.0, tileWidth * map.width, tileHeight * map.height)) this else null
-	}
-}
-
-fun Container.tileMap(map: IntArray2, tileset: TileSet): TileMap = tileMap(map, tileset) { }
-
-inline fun Container.tileMap(map: IntArray2, tileset: TileSet, callback: TileMap.() -> Unit): TileMap {
-	val child = TileMap(map, tileset)
-	this += child
-	callback(child)
-	return child
+	override fun hitTestInternal(x: Double, y: Double): View? =
+		if (checkGlobalBounds(x, y, 0.0, 0.0, tileWidth * map.width, tileHeight * map.height)) this else null
 }

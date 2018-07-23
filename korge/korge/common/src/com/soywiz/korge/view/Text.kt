@@ -8,17 +8,19 @@ import com.soywiz.korim.color.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 
-interface IText {
-	var text: String
-}
-
-interface IHtml {
-	var html: String
-}
+inline fun Container.text(
+	text: String, textSize: Double = 16.0, font: BitmapFont = Fonts.defaultFont,
+	callback: @ViewsDslMarker Text.() -> Unit = {}
+) = Text(text, textSize = textSize, font = font).addTo(this).apply(callback)
 
 class Text : View(), IText, IHtml {
 	companion object {
-	    operator fun invoke(text: String, textSize: Double = 16.0, color: Int = Colors.WHITE, font: BitmapFont = Fonts.defaultFont): Text = Text().apply {
+		operator fun invoke(
+			text: String,
+			textSize: Double = 16.0,
+			color: Int = Colors.WHITE,
+			font: BitmapFont = Fonts.defaultFont
+		): Text = Text().apply {
 			this.format = Html.Format(color = color, face = Html.FontFace.Bitmap(font), size = textSize.toInt())
 			if (text != "") this.text = text
 		}
@@ -174,30 +176,13 @@ class Text : View(), IText, IHtml {
 	}
 }
 
-fun Container.text(text: String, textSize: Double = 16.0, font: BitmapFont = Fonts.defaultFont): Text =
-	text(text, textSize, font) {
-	}
-
-inline fun Container.text(
-	text: String,
-	textSize: Double = 16.0,
-	font: BitmapFont = Fonts.defaultFont,
-	callback: Text.() -> Unit
-): Text {
-	val child = Text(text, textSize = textSize, font = font)
-	this += child
-	callback(child)
-	return child
+interface IText {
+	var text: String
 }
 
-fun View?.setText(text: String) {
-	this.foreachDescendant {
-		if (it is IText) it.text = text
-	}
+interface IHtml {
+	var html: String
 }
 
-fun View?.setHtml(html: String) {
-	this.foreachDescendant {
-		if (it is IHtml) it.html = html
-	}
-}
+fun View?.setText(text: String) = run { this.foreachDescendant { if (it is IText) it.text = text } }
+fun View?.setHtml(html: String) = run { this.foreachDescendant { if (it is IHtml) it.html = html } }

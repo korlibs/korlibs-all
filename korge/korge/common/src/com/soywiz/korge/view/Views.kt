@@ -329,13 +329,6 @@ class ViewsLog(
 	val views = Views(coroutineContext, ag, injector, input, timeProvider, stats)
 }
 
-inline fun Container.container(callback: Container.() -> Unit = {}): Container {
-	val child = Container()
-	this += child
-	callback(child)
-	return child
-}
-
 fun Views.texture(bmp: Bitmap, mipmaps: Boolean = false): Texture =
 	Texture(Texture.Base(ag.createTexture(bmp, mipmaps), bmp.width, bmp.height))
 

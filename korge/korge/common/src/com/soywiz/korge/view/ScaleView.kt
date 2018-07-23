@@ -3,6 +3,11 @@ package com.soywiz.korge.view
 import com.soywiz.korge.render.*
 import com.soywiz.korma.*
 
+inline fun Container.scaleView(
+	width: Int, height: Int, scale: Double = 2.0, filtering: Boolean = false,
+	callback: @ViewsDslMarker Container.() -> Unit = {}
+) = ScaleView(width, height, scale, filtering).addTo(this).apply(callback)
+
 class ScaleView(width: Int, height: Int, scale: Double = 2.0, var filtering: Boolean = false) :
 	FixedSizeContainer() {
 	init {

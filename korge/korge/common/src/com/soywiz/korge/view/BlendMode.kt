@@ -10,18 +10,14 @@ enum class BlendMode(val factors: AG.Blending) {
 	NONE(AG.Blending(AG.BlendFactor.ONE, AG.BlendFactor.ZERO)), // REPLACE
 	NORMAL(
 		AG.Blending(
-			AG.BlendFactor.SOURCE_ALPHA,
-			AG.BlendFactor.ONE_MINUS_SOURCE_ALPHA,
-			AG.BlendFactor.ONE,
-			AG.BlendFactor.ONE_MINUS_SOURCE_ALPHA
+			AG.BlendFactor.SOURCE_ALPHA, AG.BlendFactor.ONE_MINUS_SOURCE_ALPHA,
+			AG.BlendFactor.ONE, AG.BlendFactor.ONE_MINUS_SOURCE_ALPHA
 		)
 	),
 	ADD(
 		AG.Blending(
-			AG.BlendFactor.SOURCE_ALPHA,
-			AG.BlendFactor.DESTINATION_ALPHA,
-			AG.BlendFactor.ONE,
-			AG.BlendFactor.ONE
+			AG.BlendFactor.SOURCE_ALPHA, AG.BlendFactor.DESTINATION_ALPHA,
+			AG.BlendFactor.ONE, AG.BlendFactor.ONE
 		)
 	),
 
@@ -34,10 +30,8 @@ enum class BlendMode(val factors: AG.Blending) {
 	BELOW(AG.Blending(AG.BlendFactor.ONE_MINUS_DESTINATION_ALPHA, AG.BlendFactor.DESTINATION_ALPHA)),
 	SUBTRACT(
 		AG.Blending(
-			AG.BlendFactor.SOURCE_ALPHA,
-			AG.BlendFactor.DESTINATION_ALPHA,
-			AG.BlendFactor.ONE,
-			AG.BlendFactor.ONE,
+			AG.BlendFactor.SOURCE_ALPHA, AG.BlendFactor.DESTINATION_ALPHA,
+			AG.BlendFactor.ONE, AG.BlendFactor.ONE,
 			AG.BlendEquation.REVERSE_SUBTRACT
 		)
 	),
@@ -45,50 +39,38 @@ enum class BlendMode(val factors: AG.Blending) {
 	// Unimplemented
 	LIGHTEN(
 		AG.Blending(
-			AG.BlendFactor.SOURCE_ALPHA,
-			AG.BlendFactor.DESTINATION_ALPHA,
-			AG.BlendFactor.ONE,
-			AG.BlendFactor.ONE
+			AG.BlendFactor.SOURCE_ALPHA, AG.BlendFactor.DESTINATION_ALPHA,
+			AG.BlendFactor.ONE, AG.BlendFactor.ONE
 		)
 	),
 	DARKEN(
 		AG.Blending(
-			AG.BlendFactor.SOURCE_ALPHA,
-			AG.BlendFactor.DESTINATION_ALPHA,
-			AG.BlendFactor.ONE,
-			AG.BlendFactor.ONE
+			AG.BlendFactor.SOURCE_ALPHA, AG.BlendFactor.DESTINATION_ALPHA,
+			AG.BlendFactor.ONE, AG.BlendFactor.ONE
 		)
 	),
 	DIFFERENCE(
 		AG.Blending(
-			AG.BlendFactor.SOURCE_ALPHA,
-			AG.BlendFactor.DESTINATION_ALPHA,
-			AG.BlendFactor.ONE,
-			AG.BlendFactor.ONE
+			AG.BlendFactor.SOURCE_ALPHA, AG.BlendFactor.DESTINATION_ALPHA,
+			AG.BlendFactor.ONE, AG.BlendFactor.ONE
 		)
 	),
 	INVERT(
 		AG.Blending(
-			AG.BlendFactor.SOURCE_ALPHA,
-			AG.BlendFactor.DESTINATION_ALPHA,
-			AG.BlendFactor.ONE,
-			AG.BlendFactor.ONE
+			AG.BlendFactor.SOURCE_ALPHA, AG.BlendFactor.DESTINATION_ALPHA,
+			AG.BlendFactor.ONE, AG.BlendFactor.ONE
 		)
 	),
 	ALPHA(
 		AG.Blending(
-			AG.BlendFactor.SOURCE_ALPHA,
-			AG.BlendFactor.DESTINATION_ALPHA,
-			AG.BlendFactor.ONE,
-			AG.BlendFactor.ONE
+			AG.BlendFactor.SOURCE_ALPHA, AG.BlendFactor.DESTINATION_ALPHA,
+			AG.BlendFactor.ONE, AG.BlendFactor.ONE
 		)
 	),
 	HARDLIGHT(
 		AG.Blending(
-			AG.BlendFactor.SOURCE_ALPHA,
-			AG.BlendFactor.DESTINATION_ALPHA,
-			AG.BlendFactor.ONE,
-			AG.BlendFactor.ONE
+			AG.BlendFactor.SOURCE_ALPHA, AG.BlendFactor.DESTINATION_ALPHA,
+			AG.BlendFactor.ONE, AG.BlendFactor.ONE
 		)
 	),
 	;

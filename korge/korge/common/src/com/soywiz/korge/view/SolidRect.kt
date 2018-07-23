@@ -6,6 +6,10 @@ import com.soywiz.korim.color.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 
+inline fun Container.solidRect(
+	width: Number, height: Number, color: RGBAInt, callback: @ViewsDslMarker SolidRect.() -> Unit = {}
+) = SolidRect(width.toDouble(), height.toDouble(), color).addTo(this).apply(callback)
+
 class SolidRect(override var width: Double, override var height: Double, color: RGBAInt) : View() {
 	companion object {
 		inline operator fun invoke(width: Number, height: Number, color: RGBAInt) =

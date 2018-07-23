@@ -6,6 +6,11 @@ import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 import kotlin.math.*
 
+inline fun Container.ninePatch(
+	tex: BmpSlice, width: Double, height: Double, left: Double, top: Double, right: Double, bottom: Double,
+	callback: @ViewsDslMarker NinePatch.() -> Unit
+) = NinePatch(tex, width, height, left, top, right, bottom).addTo(this).apply(callback)
+
 class NinePatch(
 	var tex: BmpSlice,
 	override var width: Double,

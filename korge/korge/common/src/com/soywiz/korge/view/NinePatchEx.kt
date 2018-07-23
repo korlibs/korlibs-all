@@ -6,8 +6,17 @@ import com.soywiz.korim.bitmap.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 
+inline fun Container.ninePatch(
+	tex: NinePatchEx.Tex, width: Double, height: Double, callback: @ViewsDslMarker NinePatchEx.() -> Unit
+) = NinePatchEx(tex, width, height).addTo(this).apply(callback)
+
+inline fun Container.ninePatch(
+	ninePatch: NinePatchBitmap32, width: Double = ninePatch.dwidth, height: Double = ninePatch.dheight,
+	callback: @ViewsDslMarker NinePatchEx.() -> Unit
+) = NinePatchEx(ninePatch, width, height).addTo(this).apply(callback)
+
 class NinePatchEx(
-	val ninePatch: NinePatchTex,
+	val ninePatch: Tex,
 	override var width: Double,
 	override var height: Double
 ) : View() {
@@ -19,7 +28,7 @@ class NinePatchEx(
 		operator fun invoke(
 			ninePatch: NinePatchBitmap32,
 			width: Double = ninePatch.width.toDouble(), height: Double = ninePatch.height.toDouble()
-		): NinePatchEx = NinePatchEx(NinePatchTex(ninePatch), width, height)
+		): NinePatchEx = NinePatchEx(Tex(ninePatch), width, height)
 	}
 
 	override fun render(ctx: RenderContext, m: Matrix2d) {
@@ -50,17 +59,17 @@ class NinePatchEx(
 	override fun getLocalBoundsInternal(out: Rectangle) {
 		out.setTo(0.0, 0.0, width, height)
 	}
-}
 
-class NinePatchTex(val tex: BitmapSlice<Bitmap>, val info: NinePatchInfo) {
-	val width get() = info.width
-	val height get() = info.height
+	class Tex(val tex: BitmapSlice<Bitmap>, val info: NinePatchInfo) {
+		val width get() = info.width
+		val height get() = info.height
 
-	constructor(ninePatch: NinePatchBitmap32) : this(ninePatch.content, ninePatch.info)
+		constructor(ninePatch: NinePatchBitmap32) : this(ninePatch.content, ninePatch.info)
 
-	val NinePatchInfo.Segment.tex by Extra.PropertyThis<NinePatchInfo.Segment, BmpSlice> {
-		this@NinePatchTex.tex.slice(this.rect)
+		val NinePatchInfo.Segment.tex by Extra.PropertyThis<NinePatchInfo.Segment, BmpSlice> {
+			this@Tex.tex.slice(this.rect)
+		}
+
+		fun getSliceTex(s: NinePatchInfo.Segment): BmpSlice = s.tex
 	}
-
-	fun getSliceTex(s: NinePatchInfo.Segment): BmpSlice = s.tex
 }

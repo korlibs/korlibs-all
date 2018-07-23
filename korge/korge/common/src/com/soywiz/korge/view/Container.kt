@@ -7,7 +7,10 @@ import com.soywiz.korma.geom.*
 import com.soywiz.korui.event.*
 import kotlin.reflect.*
 
-open class Container() : View() {
+inline fun Container.container(callback: @ViewsDslMarker Container.() -> Unit = {}) =
+	Container().addTo(this).apply(callback)
+
+open class Container : View() {
 	val children = arrayListOf<View>()
 
 	fun removeChildren() {
@@ -108,6 +111,8 @@ open class Container() : View() {
 		return out
 	}
 }
+
+fun <T : View> T.addTo(parent: Container) = this.apply { parent += this }
 
 open class FixedSizeContainer(override var width: Double = 100.0, override var height: Double = 100.0) : Container() {
 	override fun getLocalBoundsInternal(out: Rectangle) {

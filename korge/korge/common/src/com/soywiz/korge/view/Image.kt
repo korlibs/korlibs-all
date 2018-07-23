@@ -5,6 +5,10 @@ import com.soywiz.korim.bitmap.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 
+inline fun Container.image(
+	texture: BmpSlice, anchorX: Double = 0.0, anchorY: Double = 0.0, callback: @ViewsDslMarker Image.() -> Unit = {}
+): Image = Image(texture, anchorX, anchorY).addTo(this).apply(callback)
+
 class Image(
 	var bitmap: BmpSlice,
 	var anchorX: Double = 0.0,
@@ -12,6 +16,14 @@ class Image(
 	var hitShape: VectorPath? = null,
 	var smoothing: Boolean = true
 ) : View() {
+	constructor(
+		bitmap: Bitmap,
+		anchorX: Double = 0.0,
+		anchorY: Double = anchorX,
+		hitShape: VectorPath? = null,
+		smoothing: Boolean = true
+	) : this(bitmap.slice(), anchorX, anchorY, hitShape, smoothing)
+
 	private val sLeft get() = -bitmap.width * anchorX
 	private val sTop get() = -bitmap.height * anchorY
 
@@ -48,22 +60,3 @@ class Image(
 
 	override fun createInstance(): View = Image(bitmap, anchorX, anchorY, hitShape, smoothing)
 }
-
-fun Views.image(bmp: BmpSlice, anchorX: Double = 0.0, anchorY: Double = anchorX) = Image(bmp, anchorX, anchorY)
-fun Views.image(bmp: Bitmap, anchorX: Double = 0.0, anchorY: Double = anchorX) = Image(bmp.slice(), anchorX, anchorY)
-
-fun Container.image(texture: BmpSlice, anchorX: Double = 0.0, anchorY: Double = 0.0): Image =
-	image(texture, anchorX, anchorY) { }
-
-inline fun Container.image(
-	texture: BmpSlice,
-	anchorX: Double = 0.0,
-	anchorY: Double = 0.0,
-	callback: Image.() -> Unit
-): Image {
-	val child = Image(texture, anchorX, anchorY)
-	this += child
-	callback(child)
-	return child
-}
-

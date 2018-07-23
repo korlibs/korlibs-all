@@ -1,10 +1,11 @@
 package com.soywiz.korge.view
 
 import com.soywiz.klock.*
-import com.soywiz.korge.time.*
 import com.soywiz.korge.tween.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
+
+inline fun Container.camera(callback: @ViewsDslMarker Camera.() -> Unit) = Camera().addTo(this).apply(callback)
 
 class Camera : Container() {
 	override var width: Double = stage?.views?.virtualWidth?.toDouble() ?: 100.0

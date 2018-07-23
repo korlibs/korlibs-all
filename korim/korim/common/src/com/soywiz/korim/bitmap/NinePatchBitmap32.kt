@@ -102,6 +102,8 @@ class NinePatchInfo(
 class NinePatchBitmap32(val bmp: Bitmap32) {
 	val width get() = bmp.width
 	val height get() = bmp.height
+	val dwidth get() = width.toDouble()
+	val dheight get() = height.toDouble()
 	val content = bmp.sliceWithBounds(1, 1, bmp.width - 1, bmp.height - 1)
 
 	val info = NinePatchInfo(
