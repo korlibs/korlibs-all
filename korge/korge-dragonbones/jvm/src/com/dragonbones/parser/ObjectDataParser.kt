@@ -25,7 +25,7 @@ package com.dragonbones.parser
 /**
  * @private
  */
-export const enum FrameValueType {
+enum class FrameValueType {
 	Step,
 	Int,
 	Float,

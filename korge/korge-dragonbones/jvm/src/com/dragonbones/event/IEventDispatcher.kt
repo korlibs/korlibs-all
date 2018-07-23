@@ -25,7 +25,7 @@ package com.dragonbones.event
 /**
  * @private
  */
-export type EventStringType =
+type EventStringType =
 	string | "start" | "loopComplete" | "complete" |
 	"fadeIn" | "fadeInComplete" | "fadeOut" | "fadeOutComplete" |
 	"frameEvent" | "soundEvent";
@@ -41,7 +41,7 @@ export type EventStringType =
  * @version DragonBones 4.5
  * @language zh_CN
  */
-export interface IEventDispatcher {
+interface IEventDispatcher {
 	/**
 	 * - Checks whether the object has any listeners registered for a specific type of event。
 	 * @param type - Event type.

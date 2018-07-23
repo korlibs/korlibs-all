@@ -1,3 +1,5 @@
+package com.dragonbones.animation
+
 /**
  * The MIT License (MIT)
  *
@@ -21,7 +23,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.dragonbones.animation
+import com.dragonbones.core.*
 
 /**
  * - The animation state is generated when the animation data is played.
@@ -38,7 +40,7 @@ package com.dragonbones.animation
  * @language zh_CN
  */
 class AnimationState : BaseObject() {
-	public fun toString(): String {
+	public override fun toString(): String {
 		return "[class dragonBones.AnimationState]";
 	}
 	/**
@@ -80,11 +82,11 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 5.1
 	 * @language zh_CN
 	 */
-	public resetToPose: Boolean;
+	public var resetToPose: Boolean;
 	/**
 	 * @private
 	 */
-	public blendType: AnimationBlendType;
+	public var blendType: AnimationBlendType;
 	/**
 	 * - The play times. [0: Loop play, [1~N]: Play N times]
 	 * @version DragonBones 3.0
@@ -95,7 +97,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public playTimes: Double;
+	public var playTimes: Double;
 	/**
 	 * - The blend layer.
 	 * High layer animation state will get the blend weight first.
@@ -112,7 +114,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public layer: Double;
+	public var layer: Double;
 	/**
 	 * - The play speed.
 	 * The value is an overlay relationship with {@link dragonBones.Animation#timeScale}.
@@ -129,23 +131,23 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public timeScale: Double;
+	public var timeScale: Double;
 	/**
 	 * @private
 	 */
-	public parameterX: Double;
+	public var parameterX: Double;
 	/**
 	 * @private
 	 */
-	public parameterY: Double;
+	public var parameterY: Double;
 	/**
 	 * @private
 	 */
-	public positionX: Double;
+	public var positionX: Double;
 	/**
 	 * @private
 	 */
-	public positionY: Double;
+	public var positionY: Double;
 	/**
 	 * - The auto fade out time when the animation state play completed.
 	 * [-1: Do not fade out automatically, [0~N]: The fade out time] (In seconds)
@@ -160,11 +162,11 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public autoFadeOutTime: Double;
+	public var autoFadeOutTime: Double;
 	/**
 	 * @private
 	 */
-	public fadeTotalTime: Double;
+	public var fadeTotalTime: Double;
 	/**
 	 * - The name of the animation state. (Can be different from the name of the animation data)
 	 * @readonly
@@ -177,7 +179,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public name: String;
+	public var name: String;
 	/**
 	 * - The blend group name of the animation state.
 	 * This property is typically used to specify the substitution of multiple animation states blend.
@@ -192,87 +194,87 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public group: String;
-	private _timelineDirty: Double;
+	public var group: String;
+	private var _timelineDirty: Double;
 	/**
 	 * - xx: Play Enabled, Fade Play Enabled
 	 * @internal
 	 */
-	public _playheadState: Double;
+	public var _playheadState: Double;
 	/**
 	 * -1: Fade in, 0: Fade complete, 1: Fade out;
 	 * @internal
 	 */
-	public _fadeState: Double;
+	public var _fadeState: Double;
 	/**
 	 * -1: Fade start, 0: Fading, 1: Fade complete;
 	 * @internal
 	 */
-	public _subFadeState: Double;
+	public var _subFadeState: Double;
 	/**
 	 * @internal
 	 */
-	public _position: Double;
+	public var _position: Double;
 	/**
 	 * @internal
 	 */
-	public _duration: Double;
-	private _weight: Double;
-	private _fadeTime: Double;
-	private _time: Double;
+	public var _duration: Double;
+	private var _weight: Double;
+	private var _fadeTime: Double;
+	private var _time: Double;
 	/**
 	 * @internal
 	 */
-	public _fadeProgress: Double;
+	public var _fadeProgress: Double;
 	/**
 	 * @internal
 	 */
-	public _weightResult: Double;
-	private readonly _boneMask: Array<string> = [];
-	private readonly _boneTimelines: Array<TimelineState> = [];
-	private readonly _boneBlendTimelines: Array<TimelineState> = [];
-	private readonly _slotTimelines: Array<TimelineState> = [];
-	private readonly _slotBlendTimelines: Array<TimelineState> = [];
-	private readonly _constraintTimelines: Array<TimelineState> = [];
-	private readonly _animationTimelines: Array<TimelineState> = [];
-	private readonly _poseTimelines: Array<TimelineState> = [];
-	private _animationData: AnimationData;
-	private _armature: Armature;
+	public var _weightResult: Double;
+	private val _boneMask: Array<string> = [];
+	private val _boneTimelines: Array<TimelineState> = [];
+	private val _boneBlendTimelines: Array<TimelineState> = [];
+	private val _slotTimelines: Array<TimelineState> = [];
+	private val _slotBlendTimelines: Array<TimelineState> = [];
+	private val _constraintTimelines: Array<TimelineState> = [];
+	private val _animationTimelines: Array<TimelineState> = [];
+	private val _poseTimelines: Array<TimelineState> = [];
+	private var _animationData: AnimationData;
+	private var _armature: Armature;
 	/**
 	 * @internal
 	 */
-	public _actionTimeline: ActionTimelineState = null as any; // Initial value.
-	private _zOrderTimeline: ZOrderTimelineState? = null; // Initial value.
-	private _activeChildA: AnimationState?;
-	private _activeChildB: AnimationState?;
+	public var _actionTimeline: ActionTimelineState = null as any; // Initial value.
+	private var _zOrderTimeline: ZOrderTimelineState? = null; // Initial value.
+	private var _activeChildA: AnimationState?;
+	private var _activeChildB: AnimationState?;
 	/**
 	 * @internal
 	 */
-	public _parent: AnimationState?;
+	public var _parent: AnimationState?;
 
-	protected _onClear(): Unit {
-		for (const timeline of this._boneTimelines) {
+	protected fun _onClear(): Unit {
+		for (timeline in this._boneTimelines) {
 			timeline.returnToPool();
 		}
 
-		for (const timeline of this._boneBlendTimelines) {
+		for (timeline in this._boneBlendTimelines) {
 			timeline.returnToPool();
 		}
 
-		for (const timeline of this._slotTimelines) {
+		for (timeline in this._slotTimelines) {
 			timeline.returnToPool();
 		}
 
-		for (const timeline of this._slotBlendTimelines) {
+		for (timeline in this._slotBlendTimelines) {
 			timeline.returnToPool();
 		}
 
-		for (const timeline of this._constraintTimelines) {
+		for (timeline in this._constraintTimelines) {
 			timeline.returnToPool();
 		}
 
-		for (const timeline of this._animationTimelines) {
-			const animationState = timeline.target as AnimationState;
+		for (timeline in this._animationTimelines) {
+			val animationState = timeline.target as AnimationState;
 			if (animationState._parent === this) {
 				animationState._fadeState = 1;
 				animationState._subFadeState = 1;
@@ -282,7 +284,7 @@ class AnimationState : BaseObject() {
 			timeline.returnToPool();
 		}
 
-		if (this._actionTimeline !== null) {
+		if (this._actionTimeline != null) {
 			this._actionTimeline.returnToPool();
 		}
 
@@ -336,44 +338,42 @@ class AnimationState : BaseObject() {
 		this._parent = null;
 	}
 
-	private _updateTimelines(): Unit {
-		{ // Update constraint timelines.
-			for (const constraint of this._armature._constraints) {
-				const timelineDatas = this._animationData.getConstraintTimelines(constraint.name);
+	private fun _updateTimelines(): Unit {
+		 // Update constraint timelines.
+		for (constraint in this._armature._constraints) {
+			val timelineDatas = this._animationData.getConstraintTimelines(constraint.name);
 
-				if (timelineDatas !== null) {
-					for (const timelineData of timelineDatas) {
-						switch (timelineData.type) {
-							case TimelineType.IKConstraint: {
-								const timeline = BaseObject.borrowObject(IKConstraintTimelineState);
-								timeline.target = constraint;
-								timeline.init(this._armature, this, timelineData);
-								this._constraintTimelines.push(timeline);
-								break;
-							}
-
-							default:
-								break;
+			if (timelineDatas !== null) {
+				for (timelineData in timelineDatas) {
+					when (timelineData.type) {
+						TimelineType.IKConstraint -> {
+							const timeline = BaseObject.borrowObject(IKConstraintTimelineState);
+							timeline.target = constraint;
+							timeline.init(this._armature, this, timelineData);
+							this._constraintTimelines.push(timeline);
 						}
+
+						else -> Unit
 					}
 				}
-				else if (this.resetToPose) { // Pose timeline.
-					const timeline = BaseObject.borrowObject(IKConstraintTimelineState);
-					timeline.target = constraint;
-					timeline.init(this._armature, this, null);
-					this._constraintTimelines.push(timeline);
-					this._poseTimelines.push(timeline);
-				}
+			}
+			else if (this.resetToPose) { // Pose timeline.
+				val timeline = BaseObject.borrowObject(IKConstraintTimelineState);
+				timeline.target = constraint;
+				timeline.init(this._armature, this, null);
+				this._constraintTimelines.push(timeline);
+				this._poseTimelines.push(timeline);
 			}
 		}
+
 	}
 
-	private _updateBoneAndSlotTimelines(): Unit {
+	private fun _updateBoneAndSlotTimelines(): Unit {
 		{ // Update bone and surface timelines.
-			const boneTimelines: Map<Array<TimelineState>> = {};
+			val boneTimelines: Map<Array<TimelineState>> = {};
 			// Create bone timelines map.
-			for (const timeline of this._boneTimelines) {
-				const timelineName = ((timeline.target as BlendState).target as Bone).name;
+			for (timeline in this._boneTimelines) {
+				val timelineName = ((timeline.target as BlendState).target as Bone).name;
 				if (!(timelineName in boneTimelines)) {
 					boneTimelines[timelineName] = [];
 				}
@@ -381,7 +381,7 @@ class AnimationState : BaseObject() {
 				boneTimelines[timelineName].push(timeline);
 			}
 
-			for (const timeline of this._boneBlendTimelines) {
+			for (timeline in this._boneBlendTimelines) {
 				const timelineName = ((timeline.target as BlendState).target as Bone).name;
 				if (!(timelineName in boneTimelines)) {
 					boneTimelines[timelineName] = [];
@@ -390,8 +390,8 @@ class AnimationState : BaseObject() {
 				boneTimelines[timelineName].push(timeline);
 			}
 			//
-			for (const bone of this._armature.getBones()) {
-				const timelineName = bone.name;
+			for (bone in this._armature.getBones()) {
+				val timelineName = bone.name;
 				if (!this.containsBoneMask(timelineName)) {
 					continue;
 				}
@@ -400,62 +400,55 @@ class AnimationState : BaseObject() {
 					delete boneTimelines[timelineName];
 				}
 				else { // Create new bone timeline.
-					const timelineDatas = this._animationData.getBoneTimelines(timelineName);
-					const blendState = this._armature.animation.getBlendState(BlendState.BONE_TRANSFORM, bone.name, bone);
+					val timelineDatas = this._animationData.getBoneTimelines(timelineName);
+					val blendState = this._armature.animation.getBlendState(BlendState.BONE_TRANSFORM, bone.name, bone);
 
 					if (timelineDatas !== null) {
-						for (const timelineData of timelineDatas) {
-							switch (timelineData.type) {
-								case TimelineType.BoneAll: {
+						for (timelineData in timelineDatas) {
+							when (timelineData.type) {
+								TimelineType.BoneAll -> {
 									const timeline = BaseObject.borrowObject(BoneAllTimelineState);
 									timeline.target = blendState;
 									timeline.init(this._armature, this, timelineData);
 									this._boneTimelines.push(timeline);
-									break;
 								}
 
-								case TimelineType.BoneTranslate: {
+								TimelineType.BoneTranslate -> {
 									const timeline = BaseObject.borrowObject(BoneTranslateTimelineState);
 									timeline.target = blendState;
 									timeline.init(this._armature, this, timelineData);
 									this._boneTimelines.push(timeline);
-									break;
 								}
 
-								case TimelineType.BoneRotate: {
+								TimelineType.BoneRotate -> {
 									const timeline = BaseObject.borrowObject(BoneRotateTimelineState);
 									timeline.target = blendState;
 									timeline.init(this._armature, this, timelineData);
 									this._boneTimelines.push(timeline);
-									break;
 								}
 
-								case TimelineType.BoneScale: {
+								TimelineType.BoneScale -> {
 									const timeline = BaseObject.borrowObject(BoneScaleTimelineState);
 									timeline.target = blendState;
 									timeline.init(this._armature, this, timelineData);
 									this._boneTimelines.push(timeline);
-									break;
 								}
 
-								case TimelineType.BoneAlpha: {
+								TimelineType.BoneAlpha -> {
 									const timeline = BaseObject.borrowObject(AlphaTimelineState);
 									timeline.target = this._armature.animation.getBlendState(BlendState.BONE_ALPHA, bone.name, bone);
 									timeline.init(this._armature, this, timelineData);
 									this._boneBlendTimelines.push(timeline);
-									break;
 								}
 
-								case TimelineType.Surface: {
+								TimelineType.Surface -> {
 									const timeline = BaseObject.borrowObject(SurfaceTimelineState);
 									timeline.target = this._armature.animation.getBlendState(BlendState.SURFACE, bone.name, bone);
 									timeline.init(this._armature, this, timelineData);
 									this._boneBlendTimelines.push(timeline);
-									break;
 								}
 
-								default:
-									break;
+								else -> Unit
 							}
 						}
 					}

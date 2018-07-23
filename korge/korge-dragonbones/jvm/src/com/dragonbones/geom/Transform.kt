@@ -215,8 +215,8 @@ class Transform {
 		this.rotation = Math.atan(matrix.b / matrix.a)
 		var skewX = Math.atan(-matrix.c / matrix.d)
 
-		this.scaleX = (this.rotation > -PI_Q && this.rotation < PI_Q) ? matrix.a / Math.cos(this.rotation) : matrix.b / Math.sin(this.rotation)
-		this.scaleY = (skewX > -PI_Q && skewX < PI_Q) ? matrix.d / Math.cos(skewX) : -matrix.c / Math.sin(skewX)
+		this.scaleX = if (this.rotation > -PI_Q && this.rotation < PI_Q) matrix.a / Math.cos(this.rotation) else matrix.b / Math.sin(this.rotation)
+		this.scaleY = if (skewX > -PI_Q && skewX < PI_Q) matrix.d / Math.cos(skewX) else -matrix.c / Math.sin(skewX)
 
 		if (backupScaleX >= 0.0 && this.scaleX < 0.0) {
 			this.scaleX = -this.scaleX

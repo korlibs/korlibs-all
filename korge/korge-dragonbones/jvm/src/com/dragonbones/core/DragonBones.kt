@@ -1,3 +1,5 @@
+package com.dragonbones.core
+
 /**
  * The MIT License (MIT)
  *
@@ -20,64 +22,63 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.dragonbones.core
 
 /**
  * @private
  */
-export const enum BinaryOffset {
-	WeigthBoneCount = 0,
-	WeigthFloatOffset = 1,
-	WeigthBoneIndices = 2,
+enum class BinaryOffset(val id: Int) {
+	WeigthBoneCount(0),
+	WeigthFloatOffset(1),
+	WeigthBoneIndices(2),
 
-	GeometryVertexCount = 0,
-	GeometryTriangleCount = 1,
-	GeometryFloatOffset = 2,
-	GeometryWeightOffset = 3,
-	GeometryVertexIndices = 4,
+	GeometryVertexCount(0),
+	GeometryTriangleCount(1),
+	GeometryFloatOffset(2),
+	GeometryWeightOffset(3),
+	GeometryVertexIndices(4),
 
-	TimelineScale = 0,
-	TimelineOffset = 1,
-	TimelineKeyFrameCount = 2,
-	TimelineFrameValueCount = 3,
-	TimelineFrameValueOffset = 4,
-	TimelineFrameOffset = 5,
+	TimelineScale(0),
+	TimelineOffset(1),
+	TimelineKeyFrameCount(2),
+	TimelineFrameValueCount(3),
+	TimelineFrameValueOffset(4),
+	TimelineFrameOffset(5),
 
-	FramePosition = 0,
-	FrameTweenType = 1,
-	FrameTweenEasingOrCurveSampleCount = 2,
-	FrameCurveSamples = 3,
+	FramePosition(0),
+	FrameTweenType(1),
+	FrameTweenEasingOrCurveSampleCount(2),
+	FrameCurveSamples(3),
 
-	DeformVertexOffset = 0,
-	DeformCount = 1,
-	DeformValueCount = 2,
-	DeformValueOffset = 3,
-	DeformFloatOffset = 4
+	DeformVertexOffset(0),
+	DeformCount(1),
+	DeformValueCount(2),
+	DeformValueOffset(3),
+	DeformFloatOffset(4)
 }
 /**
  * @private
  */
-export const enum ArmatureType {
-	Armature = 0,
-	MovieClip = 1,
-	Stage = 2
+enum class ArmatureType(val id: Int) {
+	Armature(0),
+	MovieClip(1),
+	Stage(2)
 }
 /**
  * @private
  */
-export const enum BoneType {
-	Bone = 0,
-	Surface = 1
+enum class BoneType(val id: Int) {
+	Bone(0),
+	Surface(1)
 }
 /**
  * @private
  */
-export const enum DisplayType {
-	Image = 0,
-	Armature = 1,
-	Mesh = 2,
-	BoundingBox = 3,
-	Path = 4
+enum class DisplayType(val id: Int) {
+	Image(0),
+	Armature(1),
+	Mesh(2),
+	BoundingBox(3),
+	Path(4)
 }
 /**
  * - Bounding box type.
@@ -89,75 +90,75 @@ export const enum DisplayType {
  * @version DragonBones 5.0
  * @language zh_CN
  */
-export const enum BoundingBoxType {
-	Rectangle = 0,
-	Ellipse = 1,
-	Polygon = 2
+enum class BoundingBoxType(val id: Int) {
+	Rectangle(0),
+	Ellipse(1),
+	Polygon(2)
 }
 /**
  * @private
  */
-export const enum ActionType {
-	Play = 0,
-	Frame = 10,
-	Sound = 11
+enum class ActionType(val id: Int) {
+	Play(0),
+	Frame(10),
+	Sound(11)
 }
 /**
  * @private
  */
-export const enum BlendMode {
-	Normal = 0,
-	Add = 1,
-	Alpha = 2,
-	Darken = 3,
-	Difference = 4,
-	Erase = 5,
-	HardLight = 6,
-	Invert = 7,
-	Layer = 8,
-	Lighten = 9,
-	Multiply = 10,
-	Overlay = 11,
-	Screen = 12,
-	Subtract = 13
+enum class BlendMode(val id: Int) {
+	Normal(0),
+	Add(1),
+	Alpha(2),
+	Darken(3),
+	Difference(4),
+	Erase(5),
+	HardLight(6),
+	Invert(7),
+	Layer(8),
+	Lighten(9),
+	Multiply(10),
+	Overlay(11),
+	Screen(12),
+	Subtract(13)
 }
 /**
  * @private
  */
-export const enum TweenType {
-	None = 0,
-	Line = 1,
-	Curve = 2,
-	QuadIn = 3,
-	QuadOut = 4,
-	QuadInOut = 5
+enum class TweenType(val id: Int) {
+	None(0),
+	Line(1),
+	Curve(2),
+	QuadIn(3),
+	QuadOut(4),
+	QuadInOut(5)
 }
 /**
  * @private
  */
-export const enum TimelineType {
-	Action = 0,
-	ZOrder = 1,
+enum class TimelineType(val id: Int) {
+	Action(0),
+	ZOrder(1),
 
-	BoneAll = 10,
-	BoneTranslate = 11,
-	BoneRotate = 12,
-	BoneScale = 13,
+	BoneAll(10),
+	BoneTranslate(11),
+	BoneRotate(12),
+	BoneScale(13),
 
-	Surface = 50,
-	BoneAlpha = 60,
+	Surface(50),
+	BoneAlpha(60),
 
-	SlotDisplay = 20,
-	SlotColor = 21,
-	SlotDeform = 22,
-	SlotZIndex = 23,
-	SlotAlpha = 24,
+	SlotDisplay(20),
+	SlotColor(21),
+	SlotDeform(22),
+	SlotZIndex(23),
+	SlotAlpha(24),
 
-	IKConstraint = 30,
+	IKConstraint(30),
 
-	AnimationProgress = 40,
-	AnimationWeight = 41,
-	AnimationParameter = 42,
+	AnimationProgress(40),
+	AnimationWeight(41),
+	AnimationParameter(42),
 }
 /**
  * - Offset mode.
@@ -169,7 +170,7 @@ export const enum TimelineType {
  * @version DragonBones 5.5
  * @language zh_CN
  */
-export const enum OffsetMode {
+enum class OffsetMode {
 	None,
 	Additive,
 	Override,
@@ -184,7 +185,7 @@ export const enum OffsetMode {
  * @version DragonBones 4.5
  * @language zh_CN
  */
-export const enum AnimationFadeOutMode {
+enum class AnimationFadeOutMode(val id: Int) {
 	/**
 	 * - Fade out the animation states of the same layer.
 	 * @language en_US
@@ -193,7 +194,7 @@ export const enum AnimationFadeOutMode {
 	 * - 淡出同层的动画状态。
 	 * @language zh_CN
 	 */
-	SameLayer = 1,
+	SameLayer(1),
 	/**
 	 * - Fade out the animation states of the same group.
 	 * @language en_US
@@ -202,7 +203,7 @@ export const enum AnimationFadeOutMode {
 	 * - 淡出同组的动画状态。
 	 * @language zh_CN
 	 */
-	SameGroup = 2,
+	SameGroup(2),
 	/**
 	 * - Fade out the animation states of the same layer and group.
 	 * @language en_US
@@ -211,7 +212,7 @@ export const enum AnimationFadeOutMode {
 	 * - 淡出同层并且同组的动画状态。
 	 * @language zh_CN
 	 */
-	SameLayerAndGroup = 3,
+	SameLayerAndGroup(3),
 	/**
 	 * - Fade out of all animation states.
 	 * @language en_US
@@ -220,7 +221,7 @@ export const enum AnimationFadeOutMode {
 	 * - 淡出所有的动画状态。
 	 * @language zh_CN
 	 */
-	All = 4,
+	All(4),
 	/**
 	 * - Does not replace the animation state with the same name.
 	 * @language en_US
@@ -229,40 +230,40 @@ export const enum AnimationFadeOutMode {
 	 * - 不替换同名的动画状态。
 	 * @language zh_CN
 	 */
-	Single = 5,
+	Single(5),
 }
 /**
  * @private
  */
-export const enum AnimationBlendType {
+enum class AnimationBlendType {
 	None,
 	E1D,
 }
 /**
  * @private
  */
-export const enum AnimationBlendMode {
+enum class AnimationBlendMode {
 	Additive,
 	Override,
 }
 /**
  * @private
  */
-export const enum ConstraintType {
+enum class ConstraintType {
 	IK,
 	Path
 }
 /**
  * @private
  */
-export const enum PositionMode {
+enum class PositionMode {
 	Fixed,
 	Percent
 }
 /**
  * @private
  */
-export const enum SpacingMode {
+enum class SpacingMode {
 	Length,
 	Fixed,
 	Percent
@@ -270,7 +271,7 @@ export const enum SpacingMode {
 /**
  * @private
  */
-export const enum RotateMode {
+enum class RotateMode {
 	Tangent,
 	Chain,
 	ChainScale
@@ -278,7 +279,7 @@ export const enum RotateMode {
 /**
  * @private
  */
-export interface Map<T> {
+interface Map<T> {
 	[key: String]: T;
 }
 /**

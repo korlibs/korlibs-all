@@ -34,7 +34,7 @@ package com.dragonbones.armature
  * @version DragonBones 5.0
  * @language zh_CN
  */
-export interface IArmatureProxy  :  IEventDispatcher {
+interface IArmatureProxy  :  IEventDispatcher {
 	/**
 	 * @internal
 	 */

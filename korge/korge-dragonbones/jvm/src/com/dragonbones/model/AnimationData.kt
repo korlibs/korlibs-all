@@ -1,3 +1,5 @@
+package com.dragonbones.model
+
 /**
  * The MIT License (MIT)
  *
@@ -20,7 +22,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.dragonbones.model
+import com.dragonbones.core.*
 
 /**
  * - The animation data.
@@ -32,29 +34,29 @@ package com.dragonbones.model
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class AnimationData  :  BaseObject {
-	public static toString(): String {
-		return "[class dragonBones.AnimationData]";
+class AnimationData  :  BaseObject() {
+	public override fun toString(): String {
+		return "[class dragonBones.AnimationData]"
 	}
 	/**
 	 * - FrameIntArray.
 	 * @internal
 	 */
-	public frameIntOffset: Double;
+	public var frameIntOffset: Int
 	/**
 	 * - FrameFloatArray.
 	 * @internal
 	 */
-	public frameFloatOffset: Double;
+	public var frameFloatOffset: Int
 	/**
 	 * - FrameArray.
 	 * @internal
 	 */
-	public frameOffset: Double;
+	public var frameOffset: Int
 	/**
 	 * @private
 	 */
-	public blendType: AnimationBlendType;
+	public var blendType: AnimationBlendType
 	/**
 	 * - The frame count of the animation.
 	 * @version DragonBones 3.0
@@ -65,7 +67,7 @@ class AnimationData  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public frameCount: Double;
+	public var frameCount: Int
 	/**
 	 * - The play times of the animation. [0: Loop play, [1~N]: Play N times]
 	 * @version DragonBones 3.0
@@ -76,7 +78,7 @@ class AnimationData  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public playTimes: Double;
+	public var playTimes: Int
 	/**
 	 * - The duration of the animation. (In seconds)
 	 * @version DragonBones 3.0
@@ -87,11 +89,11 @@ class AnimationData  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public duration: Double;
+	public var duration: Double
 	/**
 	 * @private
 	 */
-	public scale: Double;
+	public var scale: Double
 	/**
 	 * - The fade in time of the animation. (In seconds)
 	 * @version DragonBones 3.0
@@ -102,11 +104,11 @@ class AnimationData  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public fadeInTime: Double;
+	public var fadeInTime: Double
 	/**
 	 * @private
 	 */
-	public cacheFrameRate: Double;
+	public var cacheFrameRate: Double
 	/**
 	 * - The animation name.
 	 * @version DragonBones 3.0
@@ -117,259 +119,259 @@ class AnimationData  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public name: String;
+	public var name: String
 	/**
 	 * @private
 	 */
-	public readonly cachedFrames: Array<boolean> = [];
+	public val cachedFrames: Array<boolean> = []
 	/**
 	 * @private
 	 */
-	public readonly boneTimelines: Map<Array<TimelineData>> = {};
+	public val boneTimelines: Map<Array<TimelineData>> = {}
 	/**
 	 * @private
 	 */
-	public readonly slotTimelines: Map<Array<TimelineData>> = {};
+	public val slotTimelines: Map<Array<TimelineData>> = {}
 	/**
 	 * @private
 	 */
-	public readonly constraintTimelines: Map<Array<TimelineData>> = {};
+	public val constraintTimelines: Map<Array<TimelineData>> = {}
 	/**
 	 * @private
 	 */
-	public readonly animationTimelines: Map<Array<TimelineData>> = {};
+	public val animationTimelines: Map<Array<TimelineData>> = {}
 	/**
 	 * @private
 	 */
-	public readonly boneCachedFrameIndices: Map<Array<number>> = {};
+	public val boneCachedFrameIndices: Map<Array<number>> = {}
 	/**
 	 * @private
 	 */
-	public readonly slotCachedFrameIndices: Map<Array<number>> = {};
+	public val slotCachedFrameIndices: Map<Array<number>> = {}
 	/**
 	 * @private
 	 */
-	public actionTimeline: TimelineData? = null; // Initial value.
+	public var actionTimeline: TimelineData? = null // Initial value.
 	/**
 	 * @private
 	 */
-	public zOrderTimeline: TimelineData? = null; // Initial value.
+	public var zOrderTimeline: TimelineData? = null // Initial value.
 	/**
 	 * @private
 	 */
-	public parent: ArmatureData;
+	public var parent: ArmatureData
 
-	protected _onClear(): Unit {
-		for (let k in this.boneTimelines) {
-			for (const timeline of this.boneTimelines[k]) {
-				timeline.returnToPool();
+	protected fun _onClear(): Unit {
+		for (k in this.boneTimelines.keys) {
+			for (timeline int this.boneTimelines[k]) {
+				timeline.returnToPool()
 			}
 
-			delete this.boneTimelines[k];
+			delete this.boneTimelines[k]
 		}
 
-		for (let k in this.slotTimelines) {
+		for (k in this.slotTimelines.keys) {
 			for (const timeline of this.slotTimelines[k]) {
-				timeline.returnToPool();
+				timeline.returnToPool()
 			}
 
-			delete this.slotTimelines[k];
+			delete this.slotTimelines[k]
 		}
 
-		for (let k in this.constraintTimelines) {
+		for (k in this.constraintTimelines.keys) {
 			for (const timeline of this.constraintTimelines[k]) {
-				timeline.returnToPool();
+				timeline.returnToPool()
 			}
 
-			delete this.constraintTimelines[k];
+			delete this.constraintTimelines[k]
 		}
 
-		for (let k in this.animationTimelines) {
-			for (const timeline of this.animationTimelines[k]) {
-				timeline.returnToPool();
+		for (k in this.animationTimelines.keys) {
+			for (timeline in this.animationTimelines[k]) {
+				timeline.returnToPool()
 			}
 
-			delete this.animationTimelines[k];
+			delete this.animationTimelines[k]
 		}
 
-		for (let k in this.boneCachedFrameIndices) {
-			delete this.boneCachedFrameIndices[k];
+		for (k in this.boneCachedFrameIndices.keys) {
+			delete this.boneCachedFrameIndices[k]
 		}
 
-		for (let k in this.slotCachedFrameIndices) {
-			delete this.slotCachedFrameIndices[k];
+		for (k in this.slotCachedFrameIndices) {
+			delete this.slotCachedFrameIndices[k]
 		}
 
 		if (this.actionTimeline !== null) {
-			this.actionTimeline.returnToPool();
+			this.actionTimeline.returnToPool()
 		}
 
 		if (this.zOrderTimeline !== null) {
-			this.zOrderTimeline.returnToPool();
+			this.zOrderTimeline.returnToPool()
 		}
 
-		this.frameIntOffset = 0;
-		this.frameFloatOffset = 0;
-		this.frameOffset = 0;
-		this.blendType = AnimationBlendType.None;
-		this.frameCount = 0;
-		this.playTimes = 0;
-		this.duration = 0.0;
-		this.scale = 1.0;
-		this.fadeInTime = 0.0;
-		this.cacheFrameRate = 0.0;
-		this.name = "";
-		this.cachedFrames.length = 0;
+		this.frameIntOffset = 0
+		this.frameFloatOffset = 0
+		this.frameOffset = 0
+		this.blendType = AnimationBlendType.None
+		this.frameCount = 0
+		this.playTimes = 0
+		this.duration = 0.0
+		this.scale = 1.0
+		this.fadeInTime = 0.0
+		this.cacheFrameRate = 0.0
+		this.name = ""
+		this.cachedFrames.length = 0
 		// this.boneTimelines.clear();
 		// this.slotTimelines.clear();
 		// this.constraintTimelines.clear();
 		// this.animationTimelines.clear();
 		// this.boneCachedFrameIndices.clear();
 		// this.slotCachedFrameIndices.clear();
-		this.actionTimeline = null;
-		this.zOrderTimeline = null;
-		this.parent = null as any; //
+		this.actionTimeline = null
+		this.zOrderTimeline = null
+		this.parent = null as any //
 	}
 	/**
 	 * @internal
 	 */
-	public cacheFrames(frameRate: Double): Unit {
+	public fun cacheFrames(frameRate: Double): Unit {
 		if (this.cacheFrameRate > 0.0) { // TODO clear cache.
-			return;
+			return
 		}
 
-		this.cacheFrameRate = Math.max(Math.ceil(frameRate * this.scale), 1.0);
-		const cacheFrameCount = Math.ceil(this.cacheFrameRate * this.duration) + 1; // Cache one more frame.
+		this.cacheFrameRate = Math.max(Math.ceil(frameRate * this.scale), 1.0)
+		val cacheFrameCount = Math.ceil(this.cacheFrameRate * this.duration) + 1 // Cache one more frame.
 
-		this.cachedFrames.length = cacheFrameCount;
-		for (let i = 0, l = this.cacheFrames.length; i < l; ++i) {
-			this.cachedFrames[i] = false;
+		this.cachedFrames.length = cacheFrameCount
+		for (i in 0 until this.cacheFrames.length) {
+			this.cachedFrames[i] = false
 		}
 
-		for (const bone of this.parent.sortedBones) {
-			const indices = new  DoubleArray(cacheFrameCount);
-			for (let i = 0, l = indices.length; i < l; ++i) {
-				indices[i] = -1;
+		for (bone in this.parent.sortedBones) {
+			val indices = DoubleArray(cacheFrameCount)
+			for (i in 0 until indices.length) {
+				indices[i] = -1
 			}
 
-			this.boneCachedFrameIndices[bone.name] = indices;
+			this.boneCachedFrameIndices[bone.name] = indices
 		}
 
-		for (const slot of this.parent.sortedSlots) {
-			const indices = new  DoubleArray(cacheFrameCount);
-			for (let i = 0, l = indices.length; i < l; ++i) {
-				indices[i] = -1;
+		for (slot in this.parent.sortedSlots) {
+			val indices =  DoubleArray(cacheFrameCount)
+			for (i in 0 until indices.length) {
+				indices[i] = -1
 			}
 
-			this.slotCachedFrameIndices[slot.name] = indices;
+			this.slotCachedFrameIndices[slot.name] = indices
 		}
 	}
 	/**
 	 * @private
 	 */
-	public addBoneTimeline(timelineName: String, timeline: TimelineData): Unit {
-		const timelines = timelineName in this.boneTimelines ? this.boneTimelines[timelineName] : (this.boneTimelines[timelineName] = []);
+	public fun addBoneTimeline(timelineName: String, timeline: TimelineData): Unit {
+		const timelines = timelineName in this.boneTimelines ? this.boneTimelines[timelineName] : (this.boneTimelines[timelineName] = [])
 		if (timelines.indexOf(timeline) < 0) {
-			timelines.push(timeline);
+			timelines.push(timeline)
 		}
 	}
 	/**
 	 * @private
 	 */
-	public addSlotTimeline(timelineName: String, timeline: TimelineData): Unit {
-		const timelines = timelineName in this.slotTimelines ? this.slotTimelines[timelineName] : (this.slotTimelines[timelineName] = []);
+	public fun addSlotTimeline(timelineName: String, timeline: TimelineData): Unit {
+		const timelines = timelineName in this.slotTimelines ? this.slotTimelines[timelineName] : (this.slotTimelines[timelineName] = [])
 		if (timelines.indexOf(timeline) < 0) {
-			timelines.push(timeline);
+			timelines.push(timeline)
 		}
 	}
 	/**
 	 * @private
 	 */
-	public addConstraintTimeline(timelineName: String, timeline: TimelineData): Unit {
-		const timelines = timelineName in this.constraintTimelines ? this.constraintTimelines[timelineName] : (this.constraintTimelines[timelineName] = []);
+	public fun addConstraintTimeline(timelineName: String, timeline: TimelineData): Unit {
+		const timelines = timelineName in this.constraintTimelines ? this.constraintTimelines[timelineName] : (this.constraintTimelines[timelineName] = [])
 		if (timelines.indexOf(timeline) < 0) {
-			timelines.push(timeline);
+			timelines.push(timeline)
 		}
 	}
 	/**
 	 * @private
 	 */
-	public addAnimationTimeline(timelineName: String, timeline: TimelineData): Unit {
-		const timelines = timelineName in this.animationTimelines ? this.animationTimelines[timelineName] : (this.animationTimelines[timelineName] = []);
+	public fun addAnimationTimeline(timelineName: String, timeline: TimelineData): Unit {
+		const timelines = timelineName in this.animationTimelines ? this.animationTimelines[timelineName] : (this.animationTimelines[timelineName] = [])
 		if (timelines.indexOf(timeline) < 0) {
-			timelines.push(timeline);
+			timelines.push(timeline)
 		}
 	}
 	/**
 	 * @private
 	 */
-	public getBoneTimelines(timelineName: String): Array<TimelineData>? {
-		return timelineName in this.boneTimelines ? this.boneTimelines[timelineName] : null;
+	public fun getBoneTimelines(timelineName: String): Array<TimelineData>? {
+		return timelineName in this.boneTimelines ? this.boneTimelines[timelineName] : null
 	}
 	/**
 	 * @private
 	 */
-	public getSlotTimelines(timelineName: String): Array<TimelineData>? {
-		return timelineName in this.slotTimelines ? this.slotTimelines[timelineName] : null;
+	public fun getSlotTimelines(timelineName: String): Array<TimelineData>? {
+		return timelineName in this.slotTimelines ? this.slotTimelines[timelineName] : null
 	}
 	/**
 	 * @private
 	 */
-	public getConstraintTimelines(timelineName: String): Array<TimelineData>? {
-		return timelineName in this.constraintTimelines ? this.constraintTimelines[timelineName] : null;
+	public fun getConstraintTimelines(timelineName: String): Array<TimelineData>? {
+		return timelineName in this.constraintTimelines ? this.constraintTimelines[timelineName] : null
 	}
 	/**
 	 * @private
 	 */
-	public getAnimationTimelines(timelineName: String): Array<TimelineData>? {
-		return timelineName in this.animationTimelines ? this.animationTimelines[timelineName] : null;
+	public fun getAnimationTimelines(timelineName: String): Array<TimelineData>? {
+		return timelineName in this.animationTimelines ? this.animationTimelines[timelineName] : null
 	}
 	/**
 	 * @private
 	 */
-	public getBoneCachedFrameIndices(boneName: String):  DoubleArray? {
-		return boneName in this.boneCachedFrameIndices ? this.boneCachedFrameIndices[boneName] : null;
+	public fun getBoneCachedFrameIndices(boneName: String):  DoubleArray? {
+		return boneName in this.boneCachedFrameIndices ? this.boneCachedFrameIndices[boneName] : null
 	}
 	/**
 	 * @private
 	 */
-	public getSlotCachedFrameIndices(slotName: String):  DoubleArray? {
-		return slotName in this.slotCachedFrameIndices ? this.slotCachedFrameIndices[slotName] : null;
+	public fun getSlotCachedFrameIndices(slotName: String):  DoubleArray? {
+		return slotName in this.slotCachedFrameIndices ? this.slotCachedFrameIndices[slotName] : null
 	}
 }
 /**
  * @private
  */
-class TimelineData  :  BaseObject {
-	public static toString(): String {
-		return "[class dragonBones.TimelineData]";
+class TimelineData  : BaseObject() {
+	public override fun toString(): String {
+		return "[class dragonBones.TimelineData]"
 	}
 
-	public type: TimelineType;
-	public offset: Double; // TimelineArray.
-	public frameIndicesOffset: Double; // FrameIndices.
+	public var type: TimelineType
+	public var offset: Double // TimelineArray.
+	public var frameIndicesOffset: Double // FrameIndices.
 
-	protected _onClear(): Unit {
-		this.type = TimelineType.BoneAll;
-		this.offset = 0;
-		this.frameIndicesOffset = -1;
+	protected fun _onClear(): Unit {
+		this.type = TimelineType.BoneAll
+		this.offset = 0
+		this.frameIndicesOffset = -1
 	}
 }
 /**
  * @internal
  */
-class AnimationTimelineData  :  TimelineData {
-	public static toString(): String {
-		return "[class dragonBones.AnimationTimelineData]";
+class AnimationTimelineData  :  TimelineData() {
+	public override fun toString(): String {
+		return "[class dragonBones.AnimationTimelineData]"
 	}
 
-	public x: Double;
-	public y: Double;
+	public var x: Double
+	public var y: Double
 
-	protected _onClear(): Unit {
-		super._onClear();
+	protected fun _onClear(): Unit {
+		super._onClear()
 
-		this.x = 0.0;
-		this.y = 0.0;
+		this.x = 0.0
+		this.y = 0.0
 	}
 }

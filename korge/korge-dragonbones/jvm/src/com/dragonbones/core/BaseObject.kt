@@ -35,126 +35,132 @@ package com.dragonbones.core
  * @language zh_CN
  */
 abstract class BaseObject {
-	private static _hashCode: Double = 0;
-	private static _defaultMaxCount: Double = 3000;
-	private static readonly _maxCountMap: Map<number> = {};
-	private static readonly _poolsMap: Map<Array<BaseObject>> = {};
-
-	private static _returnObject(object: BaseObject): Unit {
-		const classType = String(object.constructor);
-		const maxCount = classType in BaseObject._maxCountMap ? BaseObject._maxCountMap[classType] : BaseObject._defaultMaxCount;
-		const pool = BaseObject._poolsMap[classType] = BaseObject._poolsMap[classType] || [];
+	private fun _returnObject(object: BaseObject): Unit {
+		val classType = String(object.constructor)
+		val maxCount = classType in BaseObject._maxCountMap ? BaseObject._maxCountMap[classType] : BaseObject._defaultMaxCount
+		val pool = BaseObject._poolsMap[classType] = BaseObject._poolsMap[classType] || []
 		if (pool.length < maxCount) {
 			if (!object._isInPool) {
-				object._isInPool = true;
-				pool.push(object);
+				object._isInPool = true
+				pool.push(object)
 			}
 			else {
-				console.warn("The object is already in the pool.");
+				console.warn("The object is already in the pool.")
 			}
 		}
 		else {
 		}
 	}
 
-	public static toString(): String {
-		throw new Error();
+	public override fun toString(): String {
+		throw new Error()
 	}
-	/**
-	 * - Set the maximum cache count of the specify object pool.
-	 * @param objectConstructor - The specify class. (Set all object pools max cache count if not set)
-	 * @param maxCount - Max count.
-	 * @version DragonBones 4.5
-	 * @language en_US
-	 */
-	/**
-	 * - 设置特定对象池的最大缓存数量。
-	 * @param objectConstructor - 特定的类。 (不设置则设置所有对象池的最大缓存数量)
-	 * @param maxCount - 最大缓存数量。
-	 * @version DragonBones 4.5
-	 * @language zh_CN
-	 */
-	public static setMaxCount(objectConstructor: (typeof BaseObject)?, maxCount: Double): Unit {
-		if (maxCount < 0 || maxCount !== maxCount) { // isNaN
-			maxCount = 0;
-		}
 
-		if (objectConstructor !== null) {
-			const classType = String(objectConstructor);
-			const pool = classType in BaseObject._poolsMap ? BaseObject._poolsMap[classType] : null;
-			if (pool !== null && pool.length > maxCount) {
-				pool.length = maxCount;
+	companion object {
+		private var _hashCode: Int = 0
+		private var _defaultMaxCount: Int = 3000
+		private val _maxCountMap: Map<Int> = {}
+		private val _poolsMap: Map<Array<BaseObject>> = {}
+
+		/**
+		 * - Set the maximum cache count of the specify object pool.
+		 * @param objectConstructor - The specify class. (Set all object pools max cache count if not set)
+		 * @param maxCount - Max count.
+		 * @version DragonBones 4.5
+		 * @language en_US
+		 */
+		/**
+		 * - 设置特定对象池的最大缓存数量。
+		 * @param objectConstructor - 特定的类。 (不设置则设置所有对象池的最大缓存数量)
+		 * @param maxCount - 最大缓存数量。
+		 * @version DragonBones 4.5
+		 * @language zh_CN
+		 */
+		public fun setMaxCount(objectConstructor: (() -> BaseObject)?, maxCount: Int): Unit {
+			var maxCount = maxCount
+			if (maxCount < 0 || maxCount != maxCount) { // isNaN
+				maxCount = 0
 			}
 
-			BaseObject._maxCountMap[classType] = maxCount;
-		}
-		else {
-			BaseObject._defaultMaxCount = maxCount;
-
-			for (let classType in BaseObject._poolsMap) {
-				const pool = BaseObject._poolsMap[classType];
-				if (pool.length > maxCount) {
-					pool.length = maxCount;
+			if (objectConstructor != null) {
+				val classType = String(objectConstructor)
+				val pool = classType in BaseObject._poolsMap ? BaseObject._poolsMap[classType] : null
+				if (pool !== null && pool.length > maxCount) {
+					pool.length = maxCount
 				}
 
-				if (classType in BaseObject._maxCountMap) {
-					BaseObject._maxCountMap[classType] = maxCount;
+				BaseObject._maxCountMap[classType] = maxCount
+			}
+			else {
+				BaseObject._defaultMaxCount = maxCount
+
+				for (classType in BaseObject._poolsMap) {
+					const pool = BaseObject._poolsMap[classType]
+					if (pool.length > maxCount) {
+						pool.length = maxCount
+					}
+
+					if (classType in BaseObject._maxCountMap) {
+						BaseObject._maxCountMap[classType] = maxCount
+					}
 				}
 			}
 		}
-	}
-	/**
-	 * - Clear the cached instances of a specify object pool.
-	 * @param objectConstructor - Specify class. (Clear all cached instances if not set)
-	 * @version DragonBones 4.5
-	 * @language en_US
-	 */
-	/**
-	 * - 清除特定对象池的缓存实例。
-	 * @param objectConstructor - 特定的类。 (不设置则清除所有缓存的实例)
-	 * @version DragonBones 4.5
-	 * @language zh_CN
-	 */
-	public static clearPool(objectConstructor: (typeof BaseObject)? = null): Unit {
-		if (objectConstructor !== null) {
-			const classType = String(objectConstructor);
-			const pool = classType in BaseObject._poolsMap ? BaseObject._poolsMap[classType] : null;
+		/**
+		 * - Clear the cached instances of a specify object pool.
+		 * @param objectConstructor - Specify class. (Clear all cached instances if not set)
+		 * @version DragonBones 4.5
+		 * @language en_US
+		 */
+		/**
+		 * - 清除特定对象池的缓存实例。
+		 * @param objectConstructor - 特定的类。 (不设置则清除所有缓存的实例)
+		 * @version DragonBones 4.5
+		 * @language zh_CN
+		 */
+		public fun clearPool(objectConstructor: (() -> BaseObject)? = null): Unit {
+			if (objectConstructor !== null) {
+				val classType = String(objectConstructor)
+				val pool = if (classType in BaseObject._poolsMap) BaseObject._poolsMap[classType] else null
+				if (pool != null && pool.size > 0) {
+					pool.length = 0
+				}
+			}
+			else {
+				for (k in BaseObject._poolsMap) {
+					const pool = BaseObject._poolsMap[k]
+					pool.length = 0
+				}
+			}
+		}
+		/**
+		 * - Get an instance of the specify class from object pool.
+		 * @param objectConstructor - The specify class.
+		 * @version DragonBones 4.5
+		 * @language en_US
+		 */
+		/**
+		 * - 从对象池中获取特定类的实例。
+		 * @param objectConstructor - 特定的类。
+		 * @version DragonBones 4.5
+		 * @language zh_CN
+		 */
+		public fun borrowObject<T  :  BaseObject>(objectConstructor: { new(): T; }): T {
+			val classType = String(objectConstructor)
+			val pool = classType in BaseObject._poolsMap ? BaseObject._poolsMap[classType] : null
 			if (pool !== null && pool.length > 0) {
-				pool.length = 0;
+				const object = pool.pop() as T
+				object._isInPool = false
+				return object
 			}
-		}
-		else {
-			for (let k in BaseObject._poolsMap) {
-				const pool = BaseObject._poolsMap[k];
-				pool.length = 0;
-			}
-		}
-	}
-	/**
-	 * - Get an instance of the specify class from object pool.
-	 * @param objectConstructor - The specify class.
-	 * @version DragonBones 4.5
-	 * @language en_US
-	 */
-	/**
-	 * - 从对象池中获取特定类的实例。
-	 * @param objectConstructor - 特定的类。
-	 * @version DragonBones 4.5
-	 * @language zh_CN
-	 */
-	public static borrowObject<T  :  BaseObject>(objectConstructor: { new(): T; }): T {
-		const classType = String(objectConstructor);
-		const pool = classType in BaseObject._poolsMap ? BaseObject._poolsMap[classType] : null;
-		if (pool !== null && pool.length > 0) {
-			const object = pool.pop() as T;
-			object._isInPool = false;
-			return object;
+
+			const object = new objectConstructor()
+			object._onClear()
+			return object
 		}
 
-		const object = new objectConstructor();
-		object._onClear();
-		return object;
 	}
+
 	/**
 	 * - A unique identification number assigned to the object.
 	 * @version DragonBones 4.5
@@ -165,10 +171,10 @@ abstract class BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public readonly hashCode: Double = BaseObject._hashCode++;
-	private _isInPool: Boolean = false;
+	public val hashCode: Double = BaseObject._hashCode++
+	private var _isInPool: Boolean = false
 
-	protected abstract _onClear(): Unit;
+	protected abstract fun _onClear(): Unit
 	/**
 	 * - Clear the object and return it back to object pool。
 	 * @version DragonBones 4.5
@@ -179,8 +185,8 @@ abstract class BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public returnToPool(): Unit {
-		this._onClear();
-		BaseObject._returnObject(this);
+	public fun returnToPool(): Unit {
+		this._onClear()
+		BaseObject._returnObject(this)
 	}
 }
