@@ -347,7 +347,7 @@ class AnimationState : BaseObject() {
 				for (timelineData in timelineDatas) {
 					when (timelineData.type) {
 						TimelineType.IKConstraint -> {
-							const timeline = BaseObject.borrowObject(IKConstraintTimelineState);
+							val timeline = BaseObject.borrowObject(IKConstraintTimelineState);
 							timeline.target = constraint;
 							timeline.init(this._armature, this, timelineData);
 							this._constraintTimelines.push(timeline);
@@ -382,7 +382,7 @@ class AnimationState : BaseObject() {
 			}
 
 			for (timeline in this._boneBlendTimelines) {
-				const timelineName = ((timeline.target as BlendState).target as Bone).name;
+				val timelineName = ((timeline.target as BlendState).target as Bone).name;
 				if (!(timelineName in boneTimelines)) {
 					boneTimelines[timelineName] = [];
 				}
@@ -407,42 +407,42 @@ class AnimationState : BaseObject() {
 						for (timelineData in timelineDatas) {
 							when (timelineData.type) {
 								TimelineType.BoneAll -> {
-									const timeline = BaseObject.borrowObject(BoneAllTimelineState);
+									val timeline = BaseObject.borrowObject(BoneAllTimelineState);
 									timeline.target = blendState;
 									timeline.init(this._armature, this, timelineData);
 									this._boneTimelines.push(timeline);
 								}
 
 								TimelineType.BoneTranslate -> {
-									const timeline = BaseObject.borrowObject(BoneTranslateTimelineState);
+									val timeline = BaseObject.borrowObject(BoneTranslateTimelineState);
 									timeline.target = blendState;
 									timeline.init(this._armature, this, timelineData);
 									this._boneTimelines.push(timeline);
 								}
 
 								TimelineType.BoneRotate -> {
-									const timeline = BaseObject.borrowObject(BoneRotateTimelineState);
+									val timeline = BaseObject.borrowObject(BoneRotateTimelineState);
 									timeline.target = blendState;
 									timeline.init(this._armature, this, timelineData);
 									this._boneTimelines.push(timeline);
 								}
 
 								TimelineType.BoneScale -> {
-									const timeline = BaseObject.borrowObject(BoneScaleTimelineState);
+									val timeline = BaseObject.borrowObject(BoneScaleTimelineState);
 									timeline.target = blendState;
 									timeline.init(this._armature, this, timelineData);
 									this._boneTimelines.push(timeline);
 								}
 
 								TimelineType.BoneAlpha -> {
-									const timeline = BaseObject.borrowObject(AlphaTimelineState);
+									val timeline = BaseObject.borrowObject(AlphaTimelineState);
 									timeline.target = this._armature.animation.getBlendState(BlendState.BONE_ALPHA, bone.name, bone);
 									timeline.init(this._armature, this, timelineData);
 									this._boneBlendTimelines.push(timeline);
 								}
 
 								TimelineType.Surface -> {
-									const timeline = BaseObject.borrowObject(SurfaceTimelineState);
+									val timeline = BaseObject.borrowObject(SurfaceTimelineState);
 									timeline.target = this._armature.animation.getBlendState(BlendState.SURFACE, bone.name, bone);
 									timeline.init(this._armature, this, timelineData);
 									this._boneBlendTimelines.push(timeline);
@@ -454,14 +454,14 @@ class AnimationState : BaseObject() {
 					}
 					else if (this.resetToPose) { // Pose timeline.
 						if (bone._boneData.type === BoneType.Bone) {
-							const timeline = BaseObject.borrowObject(BoneAllTimelineState);
+							val timeline = BaseObject.borrowObject(BoneAllTimelineState);
 							timeline.target = blendState;
 							timeline.init(this._armature, this, null);
 							this._boneTimelines.push(timeline);
 							this._poseTimelines.push(timeline);
 						}
 						else {
-							const timeline = BaseObject.borrowObject(SurfaceTimelineState);
+							val timeline = BaseObject.borrowObject(SurfaceTimelineState);
 							timeline.target = this._armature.animation.getBlendState(BlendState.SURFACE, bone.name, bone);
 							timeline.init(this._armature, this, null);
 							this._boneBlendTimelines.push(timeline);
@@ -471,9 +471,9 @@ class AnimationState : BaseObject() {
 				}
 			}
 
-			for (let k in boneTimelines) { // Remove bone timelines.
+			for (var k in boneTimelines) { // Remove bone timelines.
 				for (timeline in boneTimelines[k]) {
-					let index = this._boneTimelines.indexOf(timeline);
+					var index = this._boneTimelines.indexOf(timeline);
 					if (index >= 0) {
 						this._boneTimelines.splice(index, 1);
 						timeline.returnToPool();
@@ -489,11 +489,11 @@ class AnimationState : BaseObject() {
 		}
 
 		{ // Update slot timelines.
-			const slotTimelines: Map<Array<TimelineState>> = {};
-			const ffdFlags:  DoubleArray = [];
+			val slotTimelines: Map<Array<TimelineState>> = {};
+			val ffdFlags:  DoubleArray = [];
 			// Create slot timelines map.
 			for (timeline in this._slotTimelines) {
-				const timelineName = (timeline.target as Slot).name;
+				val timelineName = (timeline.target as Slot).name;
 				if (!(timelineName in slotTimelines)) {
 					slotTimelines[timelineName] = [];
 				}
@@ -502,7 +502,7 @@ class AnimationState : BaseObject() {
 			}
 
 			for (timeline in this._slotBlendTimelines) {
-				const timelineName = ((timeline.target as BlendState).target as Slot).name;
+				val timelineName = ((timeline.target as BlendState).target as Slot).name;
 				if (!(timelineName in slotTimelines)) {
 					slotTimelines[timelineName] = [];
 				}
@@ -511,26 +511,26 @@ class AnimationState : BaseObject() {
 			}
 			//
 			for (slot in this._armature.getSlots()) {
-				const boneName = slot.parent.name;
+				val boneName = slot.parent.name;
 				if (!this.containsBoneMask(boneName)) {
 					continue;
 				}
 
-				const timelineName = slot.name;
+				val timelineName = slot.name;
 				if (timelineName in slotTimelines) { // Remove slot timeline from map.
 					delete slotTimelines[timelineName];
 				}
 				else { // Create new slot timeline.
-					let displayIndexFlag = false;
-					let colorFlag = false;
+					var displayIndexFlag = false;
+					var colorFlag = false;
 					ffdFlags.length = 0;
 
-					const timelineDatas = this._animationData.getSlotTimelines(timelineName);
+					val timelineDatas = this._animationData.getSlotTimelines(timelineName);
 					if (timelineDatas !== null) {
 						for (timelineData in timelineDatas) {
 							when (timelineData.type) {
 								TimelineType.SlotDisplay -> {
-									const timeline = BaseObject.borrowObject(SlotDisplayTimelineState);
+									val timeline = BaseObject.borrowObject(SlotDisplayTimelineState);
 									timeline.target = slot;
 									timeline.init(this._armature, this, timelineData);
 									this._slotTimelines.push(timeline);
@@ -538,14 +538,14 @@ class AnimationState : BaseObject() {
 								}
 
 								TimelineType.SlotZIndex -> {
-									const timeline = BaseObject.borrowObject(SlotZIndexTimelineState);
+									val timeline = BaseObject.borrowObject(SlotZIndexTimelineState);
 									timeline.target = this._armature.animation.getBlendState(BlendState.SLOT_Z_INDEX, slot.name, slot);
 									timeline.init(this._armature, this, timelineData);
 									this._slotBlendTimelines.push(timeline);
 								}
 
 								TimelineType.SlotColor -> {
-									const timeline = BaseObject.borrowObject(SlotColorTimelineState);
+									val timeline = BaseObject.borrowObject(SlotColorTimelineState);
 									timeline.target = slot;
 									timeline.init(this._armature, this, timelineData);
 									this._slotTimelines.push(timeline);
@@ -553,7 +553,7 @@ class AnimationState : BaseObject() {
 								}
 
 								TimelineType.SlotDeform -> {
-									const timeline = BaseObject.borrowObject(DeformTimelineState);
+									val timeline = BaseObject.borrowObject(DeformTimelineState);
 									timeline.target = this._armature.animation.getBlendState(BlendState.SLOT_DEFORM, slot.name, slot);
 									timeline.init(this._armature, this, timelineData);
 
@@ -566,7 +566,7 @@ class AnimationState : BaseObject() {
 									}
 								}
 								TimelineType.SlotAlpha -> {
-									const timeline = BaseObject.borrowObject(AlphaTimelineState);
+									val timeline = BaseObject.borrowObject(AlphaTimelineState);
 									timeline.target = this._armature.animation.getBlendState(BlendState.SLOT_ALPHA, slot.name, slot);
 									timeline.init(this._armature, this, timelineData);
 									this._slotBlendTimelines.push(timeline);
@@ -582,7 +582,7 @@ class AnimationState : BaseObject() {
 
 					if (this.resetToPose) { // Pose timeline.
 						if (!displayIndexFlag) {
-							const timeline = BaseObject.borrowObject(SlotDisplayTimelineState);
+							val timeline = BaseObject.borrowObject(SlotDisplayTimelineState);
 							timeline.target = slot;
 							timeline.init(this._armature, this, null);
 							this._slotTimelines.push(timeline);
@@ -590,22 +590,22 @@ class AnimationState : BaseObject() {
 						}
 
 						if (!colorFlag) {
-							const timeline = BaseObject.borrowObject(SlotColorTimelineState);
+							val timeline = BaseObject.borrowObject(SlotColorTimelineState);
 							timeline.target = slot;
 							timeline.init(this._armature, this, null);
 							this._slotTimelines.push(timeline);
 							this._poseTimelines.push(timeline);
 						}
 
-						for (let i = 0, l = slot.displayFrameCount; i < l; ++i) {
-							const displayFrame = slot.getDisplayFrameAt(i);
+						for (var i = 0, l = slot.displayFrameCount; i < l; ++i) {
+							val displayFrame = slot.getDisplayFrameAt(i);
 							if (displayFrame.deformVertices.length === 0) {
 								continue;
 							}
 
-							const geometryData = displayFrame.getGeometryData();
+							val geometryData = displayFrame.getGeometryData();
 							if (geometryData !== null && ffdFlags.indexOf(geometryData.offset) < 0) {
-								const timeline = BaseObject.borrowObject(DeformTimelineState);
+								val timeline = BaseObject.borrowObject(DeformTimelineState);
 								timeline.geometryOffset = geometryData.offset; //
 								timeline.displayFrame = displayFrame; //
 								timeline.target = this._armature.animation.getBlendState(BlendState.SLOT_DEFORM, slot.name, slot);
@@ -618,9 +618,9 @@ class AnimationState : BaseObject() {
 				}
 			}
 
-			for (let k in slotTimelines) { // Remove slot timelines.
+			for (var k in slotTimelines) { // Remove slot timelines.
 				for (timeline in slotTimelines[k]) {
-					let index = this._slotTimelines.indexOf(timeline);
+					var index = this._slotTimelines.indexOf(timeline);
 					if (index >= 0) {
 						this._slotTimelines.splice(index, 1);
 						timeline.returnToPool();
@@ -637,16 +637,16 @@ class AnimationState : BaseObject() {
 	}
 
 	private fun _advanceFadeTime(passedTime: Double): Unit {
-		const isFadeOut = this._fadeState > 0;
+		val isFadeOut = this._fadeState > 0;
 
 		if (this._subFadeState < 0) { // Fade start event.
 			this._subFadeState = 0;
 
-			const eventActive = this._parent === null && this.actionEnabled;
+			val eventActive = this._parent === null && this.actionEnabled;
 			if (eventActive) {
-				const eventType = isFadeOut ? EventObject.FADE_OUT : EventObject.FADE_IN;
+				val eventType = isFadeOut ? EventObject.FADE_OUT : EventObject.FADE_IN;
 				if (this._armature.eventDispatcher.hasDBEventListener(eventType)) {
-					const eventObject = BaseObject.borrowObject(EventObject);
+					val eventObject = BaseObject.borrowObject(EventObject);
 					eventObject.type = eventType;
 					eventObject.armature = this._armature;
 					eventObject.animationState = this;
@@ -678,11 +678,11 @@ class AnimationState : BaseObject() {
 				this._fadeState = 0;
 			}
 
-			const eventActive = this._parent === null && this.actionEnabled;
+			val eventActive = this._parent === null && this.actionEnabled;
 			if (eventActive) {
-				const eventType = isFadeOut ? EventObject.FADE_OUT_COMPLETE : EventObject.FADE_IN_COMPLETE;
+				val eventType = isFadeOut ? EventObject.FADE_OUT_COMPLETE : EventObject.FADE_IN_COMPLETE;
 				if (this._armature.eventDispatcher.hasDBEventListener(eventType)) {
-					const eventObject = BaseObject.borrowObject(EventObject);
+					val eventObject = BaseObject.borrowObject(EventObject);
 					eventObject.type = eventType;
 					eventObject.armature = this._armature;
 					eventObject.animationState = this;
@@ -756,7 +756,7 @@ class AnimationState : BaseObject() {
 
 		if (animationConfig.boneMask.length > 0) {
 			this._boneMask.length = animationConfig.boneMask.length;
-			for (let i = 0, l = this._boneMask.length; i < l; ++i) {
+			for (var i = 0, l = this._boneMask.length; i < l; ++i) {
 				this._boneMask[i] = animationConfig.boneMask[i];
 			}
 		}
@@ -800,11 +800,11 @@ class AnimationState : BaseObject() {
 			this._updateBoneAndSlotTimelines();
 		}
 
-		const isBlendDirty = this._fadeState !== 0 || this._subFadeState === 0;
-		const isCacheEnabled = this._fadeState === 0 && cacheFrameRate > 0.0;
-		let isUpdateTimeline = true;
-		let isUpdateBoneTimeline = true;
-		let time = this._time;
+		val isBlendDirty = this._fadeState !== 0 || this._subFadeState === 0;
+		val isCacheEnabled = this._fadeState === 0 && cacheFrameRate > 0.0;
+		var isUpdateTimeline = true;
+		var isUpdateBoneTimeline = true;
+		var time = this._time;
 		this._weightResult = this._weight * this._fadeProgress;
 
 		if (this._parent !== null) {
@@ -820,7 +820,7 @@ class AnimationState : BaseObject() {
 		}
 
 		if (isCacheEnabled) { // Cache time internval.
-			const internval = cacheFrameRate * 2.0;
+			val internval = cacheFrameRate * 2.0;
 			this._actionTimeline.currentTime = Math.floor(this._actionTimeline.currentTime * internval) / internval;
 		}
 
@@ -829,7 +829,7 @@ class AnimationState : BaseObject() {
 		}
 
 		if (isCacheEnabled) { // Update cache.
-			const cacheFrameIndex = Math.floor(this._actionTimeline.currentTime * cacheFrameRate); // uint
+			val cacheFrameIndex = Math.floor(this._actionTimeline.currentTime * cacheFrameRate); // uint
 			if (this._armature._cacheFrameIndex === cacheFrameIndex) { // Same cache.
 				isUpdateTimeline = false;
 				isUpdateBoneTimeline = false;
@@ -847,24 +847,24 @@ class AnimationState : BaseObject() {
 		}
 
 		if (isUpdateTimeline) {
-			let isBlend = false;
-			let prevTarget: BlendState? = null as any; //
+			var isBlend = false;
+			var prevTarget: BlendState? = null as any; //
 
 			if (isUpdateBoneTimeline) {
-				for (let i = 0, l = this._boneTimelines.length; i < l; ++i) {
-					const timeline = this._boneTimelines[i];
+				for (var i = 0, l = this._boneTimelines.length; i < l; ++i) {
+					val timeline = this._boneTimelines[i];
 
 					if (timeline.playState <= 0) {
 						timeline.update(time);
 					}
 
 					if (timeline.target !== prevTarget) {
-						const blendState = timeline.target as BlendState;
+						val blendState = timeline.target as BlendState;
 						isBlend = blendState.update(this);
 						prevTarget = blendState;
 
 						if (blendState.dirty === 1) {
-							const pose = (blendState.target as Bone).animationPose;
+							val pose = (blendState.target as Bone).animationPose;
 							pose.x = 0.0;
 							pose.y = 0.0;
 							pose.rotation = 0.0;
@@ -880,8 +880,8 @@ class AnimationState : BaseObject() {
 				}
 			}
 
-			for (let i = 0, l = this._boneBlendTimelines.length; i < l; ++i) {
-				const timeline = this._boneBlendTimelines[i];
+			for (var i = 0, l = this._boneBlendTimelines.length; i < l; ++i) {
+				val timeline = this._boneBlendTimelines[i];
 
 				if (timeline.playState <= 0) {
 					timeline.update(time);
@@ -893,11 +893,11 @@ class AnimationState : BaseObject() {
 			}
 
 			if (this.displayControl) {
-				for (let i = 0, l = this._slotTimelines.length; i < l; ++i) {
-					const timeline = this._slotTimelines[i];
+				for (var i = 0, l = this._slotTimelines.length; i < l; ++i) {
+					val timeline = this._slotTimelines[i];
 					if (timeline.playState <= 0) {
-						const slot = timeline.target as Slot;
-						const displayController = slot.displayController;
+						val slot = timeline.target as Slot;
+						val displayController = slot.displayController;
 
 						if (
 							displayController === null ||
@@ -910,10 +910,10 @@ class AnimationState : BaseObject() {
 				}
 			}
 
-			for (let i = 0, l = this._slotBlendTimelines.length; i < l; ++i) {
-				const timeline = this._slotBlendTimelines[i];
+			for (var i = 0, l = this._slotBlendTimelines.length; i < l; ++i) {
+				val timeline = this._slotBlendTimelines[i];
 				if (timeline.playState <= 0) {
-					const blendState = timeline.target as BlendState;
+					val blendState = timeline.target as BlendState;
 					timeline.update(time);
 
 					if (blendState.update(this)) {
@@ -922,28 +922,28 @@ class AnimationState : BaseObject() {
 				}
 			}
 
-			for (let i = 0, l = this._constraintTimelines.length; i < l; ++i) {
-				const timeline = this._constraintTimelines[i];
+			for (var i = 0, l = this._constraintTimelines.length; i < l; ++i) {
+				val timeline = this._constraintTimelines[i];
 				if (timeline.playState <= 0) {
 					timeline.update(time);
 				}
 			}
 
 			if (this._animationTimelines.length > 0) {
-				let dL = 100.0;
-				let dR = 100.0;
-				let leftState: AnimationState? = null;
-				let rightState: AnimationState? = null;
+				var dL = 100.0;
+				var dR = 100.0;
+				var leftState: AnimationState? = null;
+				var rightState: AnimationState? = null;
 
-				for (let i = 0, l = this._animationTimelines.length; i < l; ++i) {
-					const timeline = this._animationTimelines[i];
+				for (var i = 0, l = this._animationTimelines.length; i < l; ++i) {
+					val timeline = this._animationTimelines[i];
 					if (timeline.playState <= 0) {
 						timeline.update(time);
 					}
 
 					if (this.blendType === AnimationBlendType.E1D) { // TODO
-						const animationState = timeline.target as AnimationState;
-						const d = this.parameterX - animationState.positionX;
+						val animationState = timeline.target as AnimationState;
+						val d = this.parameterX - animationState.positionX;
 
 						if (d >= 0.0) {
 							if (d < dL) {
@@ -993,7 +993,7 @@ class AnimationState : BaseObject() {
 
 				if (this._poseTimelines.length > 0) { // Remove pose timelines.
 					for (timeline in this._poseTimelines) {
-						let index = this._boneTimelines.indexOf(timeline);
+						var index = this._boneTimelines.indexOf(timeline);
 						if (index >= 0) {
 							this._boneTimelines.splice(index, 1);
 							timeline.returnToPool();
@@ -1125,7 +1125,7 @@ class AnimationState : BaseObject() {
 			for (timeline in this._animationTimelines) {
 				timeline.fadeOut();
 				//
-				const animaitonState = timeline.target as AnimationState;
+				val animaitonState = timeline.target as AnimationState;
 				animaitonState.fadeOut(999999.0, true);
 			}
 		}
@@ -1164,7 +1164,7 @@ class AnimationState : BaseObject() {
 	 * @language zh_CN
 	 */
 	public addBoneMask(boneName: String, recursive: Boolean = true): Unit {
-		const currentBone = this._armature.getBone(boneName);
+		val currentBone = this._armature.getBone(boneName);
 		if (currentBone === null) {
 			return;
 		}
@@ -1198,18 +1198,18 @@ class AnimationState : BaseObject() {
 	 * @language zh_CN
 	 */
 	public removeBoneMask(boneName: String, recursive: Boolean = true): Unit {
-		const index = this._boneMask.indexOf(boneName);
+		val index = this._boneMask.indexOf(boneName);
 		if (index >= 0) { // Remove mixing.
 			this._boneMask.splice(index, 1);
 		}
 
 		if (recursive) {
-			const currentBone = this._armature.getBone(boneName);
+			val currentBone = this._armature.getBone(boneName);
 			if (currentBone !== null) {
-				const bones = this._armature.getBones();
+				val bones = this._armature.getBones();
 				if (this._boneMask.length > 0) { // Remove recursive mixing.
 					for (bone in bones) {
-						const index = this._boneMask.indexOf(bone.name);
+						val index = this._boneMask.indexOf(bone.name);
 						if (index >= 0 && currentBone.contains(bone)) {
 							this._boneMask.splice(index, 1);
 						}
@@ -1253,13 +1253,13 @@ class AnimationState : BaseObject() {
 			for (timelineData in timelineDatas) {
 				switch (timelineData.type) {
 					case TimelineType.AnimationProgress: {
-						const timeline = BaseObject.borrowObject(AnimationProgressTimelineState);
+						val timeline = BaseObject.borrowObject(AnimationProgressTimelineState);
 						timeline.target = animationState;
 						timeline.init(this._armature, this, timelineData);
 						this._animationTimelines.push(timeline);
 
 						if (this.blendType !== AnimationBlendType.None) {
-							const animaitonTimelineData = timelineData as AnimationTimelineData;
+							val animaitonTimelineData = timelineData as AnimationTimelineData;
 							animationState.positionX = animaitonTimelineData.x;
 							animationState.positionY = animaitonTimelineData.y;
 							animationState.weight = 0.0;
@@ -1271,7 +1271,7 @@ class AnimationState : BaseObject() {
 					}
 
 					case TimelineType.AnimationWeight: {
-						const timeline = BaseObject.borrowObject(AnimationWeightTimelineState);
+						val timeline = BaseObject.borrowObject(AnimationWeightTimelineState);
 						timeline.target = animationState;
 						timeline.init(this._armature, this, timelineData);
 						this._animationTimelines.push(timeline);
@@ -1279,7 +1279,7 @@ class AnimationState : BaseObject() {
 					}
 
 					case TimelineType.AnimationParameter: {
-						const timeline = BaseObject.borrowObject(AnimationParametersTimelineState);
+						val timeline = BaseObject.borrowObject(AnimationParametersTimelineState);
 						timeline.target = animationState;
 						timeline.init(this._armature, this, timelineData);
 						this._animationTimelines.push(timeline);
@@ -1410,7 +1410,7 @@ class AnimationState : BaseObject() {
 		return this._actionTimeline.currentTime;
 	}
 	public set currentTime(value: Double) {
-		const currentPlayTimes = this._actionTimeline.currentPlayTimes - (this._actionTimeline.playState > 0 ? 1 : 0);
+		val currentPlayTimes = this._actionTimeline.currentPlayTimes - (this._actionTimeline.playState > 0 ? 1 : 0);
 		if (value < 0 || this._duration < value) {
 			value = (value % this._duration) + currentPlayTimes * this._duration;
 			if (value < 0) {
@@ -1523,8 +1523,8 @@ class BlendState  :  BaseObject {
 	}
 
 	public update(animationState: AnimationState): Boolean {
-		const animationLayer = animationState.layer;
-		let animationWeight = animationState._weightResult;
+		val animationLayer = animationState.layer;
+		var animationWeight = animationState._weightResult;
 
 		if (this.dirty > 0) {
 			if (this.leftWeight > 0.0) {

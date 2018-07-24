@@ -161,7 +161,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 			frameIndices.length += totalFrameCount
 			timeline.frameIndicesOffset = frameIndicesOffset
 
-			for (let i = 0, iK = 0, frameStart = 0, frameCount = 0i < totalFrameCount++i) {
+			for (var i = 0, iK = 0, frameStart = 0, frameCount = 0i < totalFrameCount++i) {
 				if (frameStart + frameCount <= i && iK < keyFrameCount) {
 					frameStart = this._frameArrayBuffer[this._animation.frameOffset + this._timelineArrayBuffer[timeline.offset + BinaryOffset.TimelineFrameOffset + iK]]
 					if (iK === keyFrameCount - 1) {

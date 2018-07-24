@@ -80,7 +80,7 @@ abstract class TextureAtlasData  :  BaseObject {
 	public val textures: Map<TextureData> = {};
 
 	protected fun _onClear(): Unit {
-		for (let k in this.textures) {
+		for (var k in this.textures) {
 			this.textures[k].returnToPool();
 			delete this.textures[k];
 		}

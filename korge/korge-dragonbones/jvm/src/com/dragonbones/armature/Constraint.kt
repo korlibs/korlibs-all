@@ -91,11 +91,11 @@ class IKConstraint  :  Constraint {
 	}
 
 	private _computeA(): Unit {
-		const ikGlobal = this._target.global;
-		const global = this._root.global;
-		const globalTransformMatrix = this._root.globalTransformMatrix;
+		val ikGlobal = this._target.global;
+		val global = this._root.global;
+		val globalTransformMatrix = this._root.globalTransformMatrix;
 
-		let radian = Math.atan2(ikGlobal.y - global.y, ikGlobal.x - global.x);
+		var radian = Math.atan2(ikGlobal.y - global.y, ikGlobal.x - global.x);
 		if (global.scaleX < 0.0) {
 			radian += Math.PI;
 		}
@@ -105,31 +105,31 @@ class IKConstraint  :  Constraint {
 	}
 
 	private _computeB(): Unit {
-		const boneLength = (this._bone as Bone)._boneData.length;
-		const parent = this._root as Bone;
-		const ikGlobal = this._target.global;
-		const parentGlobal = parent.global;
-		const global = (this._bone as Bone).global;
-		const globalTransformMatrix = (this._bone as Bone).globalTransformMatrix;
+		val boneLength = (this._bone as Bone)._boneData.length;
+		val parent = this._root as Bone;
+		val ikGlobal = this._target.global;
+		val parentGlobal = parent.global;
+		val global = (this._bone as Bone).global;
+		val globalTransformMatrix = (this._bone as Bone).globalTransformMatrix;
 
-		const x = globalTransformMatrix.a * boneLength;
-		const y = globalTransformMatrix.b * boneLength;
-		const lLL = x * x + y * y;
-		const lL = Math.sqrt(lLL);
-		let dX = global.x - parentGlobal.x;
-		let dY = global.y - parentGlobal.y;
-		const lPP = dX * dX + dY * dY;
-		const lP = Math.sqrt(lPP);
-		const rawRadian = global.rotation;
-		const rawParentRadian = parentGlobal.rotation;
-		const rawRadianA = Math.atan2(dY, dX);
+		val x = globalTransformMatrix.a * boneLength;
+		val y = globalTransformMatrix.b * boneLength;
+		val lLL = x * x + y * y;
+		val lL = Math.sqrt(lLL);
+		var dX = global.x - parentGlobal.x;
+		var dY = global.y - parentGlobal.y;
+		val lPP = dX * dX + dY * dY;
+		val lP = Math.sqrt(lPP);
+		val rawRadian = global.rotation;
+		val rawParentRadian = parentGlobal.rotation;
+		val rawRadianA = Math.atan2(dY, dX);
 
 		dX = ikGlobal.x - parentGlobal.x;
 		dY = ikGlobal.y - parentGlobal.y;
-		const lTT = dX * dX + dY * dY;
-		const lT = Math.sqrt(lTT);
+		val lTT = dX * dX + dY * dY;
+		val lT = Math.sqrt(lTT);
 
-		let radianA = 0.0;
+		var radianA = 0.0;
 		if (lL + lP <= lT || lT + lL <= lP || lT + lP <= lL) {
 			radianA = Math.atan2(ikGlobal.y - parentGlobal.y, ikGlobal.x - parentGlobal.x);
 			if (lL + lP <= lT) {
@@ -139,17 +139,17 @@ class IKConstraint  :  Constraint {
 			}
 		}
 		else {
-			const h = (lPP - lLL + lTT) / (2.0 * lTT);
-			const r = Math.sqrt(lPP - h * h * lTT) / lT;
-			const hX = parentGlobal.x + (dX * h);
-			const hY = parentGlobal.y + (dY * h);
-			const rX = -dY * r;
-			const rY = dX * r;
+			val h = (lPP - lLL + lTT) / (2.0 * lTT);
+			val r = Math.sqrt(lPP - h * h * lTT) / lT;
+			val hX = parentGlobal.x + (dX * h);
+			val hY = parentGlobal.y + (dY * h);
+			val rX = -dY * r;
+			val rY = dX * r;
 
-			let isPPR = false;
-			const parentParent = parent.parent;
+			var isPPR = false;
+			val parentParent = parent.parent;
 			if (parentParent !== null) {
-				const parentParentMatrix = parentParent.globalTransformMatrix;
+				val parentParentMatrix = parentParent.globalTransformMatrix;
 				isPPR = parentParentMatrix.a * parentParentMatrix.d - parentParentMatrix.b * parentParentMatrix.c < 0.0;
 			}
 
@@ -165,15 +165,15 @@ class IKConstraint  :  Constraint {
 			radianA = Math.atan2(global.y - parentGlobal.y, global.x - parentGlobal.x);
 		}
 
-		const dR = Transform.normalizeRadian(radianA - rawRadianA);
+		val dR = Transform.normalizeRadian(radianA - rawRadianA);
 		parentGlobal.rotation = rawParentRadian + dR * this._weight;
 		parentGlobal.toMatrix(parent.globalTransformMatrix);
 		//
-		const currentRadianA = rawRadianA + dR * this._weight;
+		val currentRadianA = rawRadianA + dR * this._weight;
 		global.x = parentGlobal.x + Math.cos(currentRadianA) * lP;
 		global.y = parentGlobal.y + Math.sin(currentRadianA) * lP;
 		//
-		let radianB = Math.atan2(ikGlobal.y - global.y, ikGlobal.x - global.x);
+		var radianB = Math.atan2(ikGlobal.y - global.y, ikGlobal.x - global.x);
 		if (global.scaleX < 0.0) {
 			radianB += Math.PI;
 		}
@@ -194,7 +194,7 @@ class IKConstraint  :  Constraint {
 		this._bone = this._constraintData.bone !== null ? this._armature.getBone(this._constraintData.bone.name) : null;
 
 		{
-			const ikConstraintData = this._constraintData as IKConstraintData;
+			val ikConstraintData = this._constraintData as IKConstraintData;
 			this._scaleEnabled = ikConstraintData.scaleEnabled;
 			this._bendPositive = ikConstraintData.bendPositive;
 			this._weight = ikConstraintData.weight;
@@ -277,32 +277,32 @@ class PathConstraint  :  Constraint {
 
 	protected _updatePathVertices(verticesData: GeometryData): Unit {
 		//计算曲线的节点数据
-		const armature = this._armature;
-		const dragonBonesData = armature.armatureData.parent;
-		const scale = armature.armatureData.scale;
-		const intArray = dragonBonesData.intArray;
-		const floatArray = dragonBonesData.floatArray;
+		val armature = this._armature;
+		val dragonBonesData = armature.armatureData.parent;
+		val scale = armature.armatureData.scale;
+		val intArray = dragonBonesData.intArray;
+		val floatArray = dragonBonesData.floatArray;
 
-		const pathOffset = verticesData.offset;
-		const pathVertexCount = intArray[pathOffset + BinaryOffset.GeometryVertexCount];
-		const pathVertexOffset = intArray[pathOffset + BinaryOffset.GeometryFloatOffset];
+		val pathOffset = verticesData.offset;
+		val pathVertexCount = intArray[pathOffset + BinaryOffset.GeometryVertexCount];
+		val pathVertexOffset = intArray[pathOffset + BinaryOffset.GeometryFloatOffset];
 
 		this._pathGlobalVertices.length = pathVertexCount * 2;
 
-		const weightData = verticesData.weight;
+		val weightData = verticesData.weight;
 		//没有骨骼约束我,那节点只受自己的Bone控制
 		if (weightData === null) {
-			const parentBone = this._pathSlot.parent;
+			val parentBone = this._pathSlot.parent;
 			parentBone.updateByConstraint();
 
-			const matrix = parentBone.globalTransformMatrix;
+			val matrix = parentBone.globalTransformMatrix;
 
-			for (let i = 0, iV = pathVertexOffset; i < pathVertexCount; i += 2) {
-				const vx = floatArray[iV++] * scale;
-				const vy = floatArray[iV++] * scale;
+			for (var i = 0, iV = pathVertexOffset; i < pathVertexCount; i += 2) {
+				val vx = floatArray[iV++] * scale;
+				val vy = floatArray[iV++] * scale;
 
-				const x = matrix.a * vx + matrix.c * vy + matrix.tx;
-				const y = matrix.b * vx + matrix.d * vy + matrix.ty;
+				val x = matrix.a * vx + matrix.c * vy + matrix.tx;
+				val y = matrix.b * vx + matrix.d * vy + matrix.ty;
 
 				//
 				this._pathGlobalVertices[i] = x;
@@ -312,31 +312,31 @@ class PathConstraint  :  Constraint {
 		}
 
 		//有骨骼约束我,那我的节点受骨骼权重控制
-		const bones = this._pathSlot._geometryBones;
-		const weightBoneCount = weightData.bones.length;
+		val bones = this._pathSlot._geometryBones;
+		val weightBoneCount = weightData.bones.length;
 
-		const weightOffset = weightData.offset;
-		const floatOffset = intArray[weightOffset + BinaryOffset.WeigthFloatOffset];
+		val weightOffset = weightData.offset;
+		val floatOffset = intArray[weightOffset + BinaryOffset.WeigthFloatOffset];
 
-		let iV = floatOffset;
-		let iB = weightOffset + BinaryOffset.WeigthBoneIndices + weightBoneCount;
+		var iV = floatOffset;
+		var iB = weightOffset + BinaryOffset.WeigthBoneIndices + weightBoneCount;
 
-		for (let i = 0, iW = 0; i < pathVertexCount; i++) {
-			const vertexBoneCount = intArray[iB++]; //
+		for (var i = 0, iW = 0; i < pathVertexCount; i++) {
+			val vertexBoneCount = intArray[iB++]; //
 
-			let xG = 0.0, yG = 0.0;
-			for (let ii = 0, ll = vertexBoneCount; ii < ll; ii++) {
-				const boneIndex = intArray[iB++];
-				const bone = bones[boneIndex];
+			var xG = 0.0, yG = 0.0;
+			for (var ii = 0, ll = vertexBoneCount; ii < ll; ii++) {
+				val boneIndex = intArray[iB++];
+				val bone = bones[boneIndex];
 				if (bone === null) {
 					continue;
 				}
 
 				bone.updateByConstraint();
-				const matrix = bone.globalTransformMatrix;
-				const weight = floatArray[iV++];
-				const vx = floatArray[iV++] * scale;
-				const vy = floatArray[iV++] * scale;
+				val matrix = bone.globalTransformMatrix;
+				val weight = floatArray[iV++];
+				val vx = floatArray[iV++] * scale;
+				val vy = floatArray[iV++] * scale;
 				xG += (matrix.a * vx + matrix.c * vy + matrix.tx) * weight;
 				yG += (matrix.b * vx + matrix.d * vy + matrix.ty) * weight;
 			}
@@ -348,7 +348,7 @@ class PathConstraint  :  Constraint {
 
 	protected _computeVertices(start: Double, count: Double, offset: Double, out:  DoubleArray): Unit {
 		//TODO优化
-		for (let i = offset, iW = start; i < count; i += 2) {
+		for (var i = offset, iW = start; i < count; i += 2) {
 			out[i] = this._pathGlobalVertices[iW++];
 			out[i + 1] = this._pathGlobalVertices[iW++];
 		}
@@ -356,25 +356,25 @@ class PathConstraint  :  Constraint {
 
 	protected _computeBezierCurve(pathDisplayDta: PathDisplayData, spaceCount: Double, tangents: Boolean, percentPosition: Boolean, percentSpacing: Boolean): Unit {
 		//计算当前的骨骼在曲线上的位置
-		const armature = this._armature;
-		const intArray = armature.armatureData.parent.intArray;
-		const vertexCount = intArray[pathDisplayDta.geometry.offset + BinaryOffset.GeometryVertexCount];
+		val armature = this._armature;
+		val intArray = armature.armatureData.parent.intArray;
+		val vertexCount = intArray[pathDisplayDta.geometry.offset + BinaryOffset.GeometryVertexCount];
 
-		const positions = this._positions;
-		const spaces = this._spaces;
-		const isClosed = pathDisplayDta.closed;
-		const curveVertices =  DoubleArray();
-		let verticesLength = vertexCount * 2;
-		let curveCount = verticesLength / 6;
-		let preCurve = -1;
-		let position = this.position;
+		val positions = this._positions;
+		val spaces = this._spaces;
+		val isClosed = pathDisplayDta.closed;
+		val curveVertices =  DoubleArray();
+		var verticesLength = vertexCount * 2;
+		var curveCount = verticesLength / 6;
+		var preCurve = -1;
+		var position = this.position;
 
 		positions.length = spaceCount * 3 + 2;
 
-		let pathLength = 0.0;
+		var pathLength = 0.0;
 		//不需要匀速运动，效率高些
 		if (!pathDisplayDta.constantSpeed) {
-			const lenghts = pathDisplayDta.curveLengths;
+			val lenghts = pathDisplayDta.curveLengths;
 			curveCount -= isClosed ? 1 : 2;
 			pathLength = lenghts[curveCount];
 
@@ -383,14 +383,14 @@ class PathConstraint  :  Constraint {
 			}
 
 			if (percentSpacing) {
-				for (let i = 0; i < spaceCount; i++) {
+				for (var i = 0; i < spaceCount; i++) {
 					spaces[i] *= pathLength;
 				}
 			}
 
 			curveVertices.length = 8;
-			for (let i = 0, o = 0, curve = 0; i < spaceCount; i++ , o += 3) {
-				const space = spaces[i];
+			for (var i = 0, o = 0, curve = 0; i < spaceCount; i++ , o += 3) {
+				val space = spaces[i];
 				position += space;
 
 				if (isClosed) {
@@ -409,9 +409,9 @@ class PathConstraint  :  Constraint {
 					continue;
 				}
 
-				let percent = 0.0;
+				var percent = 0.0;
 				for (; ; curve++) {
-					const len = lenghts[curve];
+					val len = lenghts[curve];
 					if (position > len) {
 						continue;
 					}
@@ -419,7 +419,7 @@ class PathConstraint  :  Constraint {
 						percent = position / len;
 					}
 					else {
-						const preLen = lenghts[curve - 1];
+						val preLen = lenghts[curve - 1];
 						percent = (position - preLen) / (len - preLen);
 					}
 					break;
@@ -461,12 +461,12 @@ class PathConstraint  :  Constraint {
 			this._computeVertices(2, verticesLength, 0, curveVertices);
 		}
 		//
-		let curves:  DoubleArray = new  DoubleArray(curveCount);
+		var curves:  DoubleArray = new  DoubleArray(curveCount);
 		pathLength = 0;
-		let x1 = curveVertices[0], y1 = curveVertices[1], cx1 = 0, cy1 = 0, cx2 = 0, cy2 = 0, x2 = 0, y2 = 0;
-		let tmpx, tmpy, dddfx, dddfy, ddfx, ddfy, dfx, dfy;
+		var x1 = curveVertices[0], y1 = curveVertices[1], cx1 = 0, cy1 = 0, cx2 = 0, cy2 = 0, x2 = 0, y2 = 0;
+		var tmpx, tmpy, dddfx, dddfy, ddfx, ddfy, dfx, dfy;
 
-		for (let i = 0, w = 2; i < curveCount; i++ , w += 6) {
+		for (var i = 0, w = 2; i < curveCount; i++ , w += 6) {
 			cx1 = curveVertices[w];
 			cy1 = curveVertices[w + 1];
 			cx2 = curveVertices[w + 2];
@@ -502,17 +502,17 @@ class PathConstraint  :  Constraint {
 			position *= pathLength;
 		}
 		if (percentSpacing) {
-			for (let i = 0; i < spaceCount; i++) {
+			for (var i = 0; i < spaceCount; i++) {
 				spaces[i] *= pathLength;
 			}
 		}
 
-		let segments = this._segments;
-		let curveLength: Double = 0;
-		for (let i = 0, o = 0, curve = 0, segment = 0; i < spaceCount; i++ , o += 3) {
-			const space = spaces[i];
+		var segments = this._segments;
+		var curveLength: Double = 0;
+		for (var i = 0, o = 0, curve = 0, segment = 0; i < spaceCount; i++ , o += 3) {
+			val space = spaces[i];
 			position += space;
-			let p = position;
+			var p = position;
 
 			if (isClosed) {
 				p %= pathLength;
@@ -526,12 +526,12 @@ class PathConstraint  :  Constraint {
 
 			// Determine curve containing position.
 			for (; ; curve++) {
-				const length = curves[curve];
+				val length = curves[curve];
 				if (p > length) continue;
 				if (curve === 0)
 					p /= length;
 				else {
-					const prev = curves[curve - 1];
+					val prev = curves[curve - 1];
 					p = (p - prev) / (length - prev);
 				}
 				break;
@@ -539,7 +539,7 @@ class PathConstraint  :  Constraint {
 
 			if (curve !== preCurve) {
 				preCurve = curve;
-				let ii = curve * 6;
+				var ii = curve * 6;
 				x1 = curveVertices[ii];
 				y1 = curveVertices[ii + 1];
 				cx1 = curveVertices[ii + 2];
@@ -580,12 +580,12 @@ class PathConstraint  :  Constraint {
 			// Weight by segment length.
 			p *= curveLength;
 			for (; ; segment++) {
-				const length = segments[segment];
+				val length = segments[segment];
 				if (p > length) continue;
 				if (segment === 0)
 					p /= length;
 				else {
-					const prev = segments[segment - 1];
+					val prev = segments[segment - 1];
 					p = segment + (p - prev) / (length - prev);
 				}
 				break;
@@ -611,16 +611,16 @@ class PathConstraint  :  Constraint {
 			return;
 		}
 
-		const mt = 1 - t;
-		const mt2 = mt * mt;
-		const t2 = t * t;
-		const a = mt2 * mt;
-		const b = mt2 * t * 3;
-		const c = mt * t2 * 3;
-		const d = t * t2;
+		val mt = 1 - t;
+		val mt2 = mt * mt;
+		val t2 = t * t;
+		val a = mt2 * mt;
+		val b = mt2 * t * 3;
+		val c = mt * t2 * 3;
+		val d = t * t2;
 
-		const x = a * x1 + b * cx1 + c * cx2 + d * x2;
-		const y = a * y1 + b * cy1 + c * cy2 + d * y2;
+		val x = a * x1 + b * cx1 + c * cx2 + d * x2;
+		val y = a * y1 + b * cy1 + c * cy2 + d * y2;
 
 		out[offset] = x;
 		out[offset + 1] = y;
@@ -637,7 +637,7 @@ class PathConstraint  :  Constraint {
 		this._constraintData = constraintData;
 		this._armature = armature;
 
-		let data = constraintData as PathConstraintData;
+		var data = constraintData as PathConstraintData;
 
 		this.pathOffset = data.pathDisplayData.geometry.offset;
 
@@ -653,8 +653,8 @@ class PathConstraint  :  Constraint {
 		this._target = this._armature.getBone(data.target.name) as Bone;
 		this._pathSlot = this._armature.getSlot(data.pathSlot.name) as Slot;
 
-		for (let i = 0, l = data.bones.length; i < l; i++) {
-			const bone = this._armature.getBone(data.bones[i].name);
+		for (var i = 0, l = data.bones.length; i < l; i++) {
+			val bone = this._armature.getBone(data.bones[i].name);
 			if (bone !== null) {
 				this._bones.push(bone);
 			}
@@ -668,7 +668,7 @@ class PathConstraint  :  Constraint {
 	}
 
 	public update(): Unit {
-		const pathSlot = this._pathSlot;
+		val pathSlot = this._pathSlot;
 
 		if (
 			pathSlot._geometryData === null ||
@@ -677,12 +677,12 @@ class PathConstraint  :  Constraint {
 			return;
 		}
 
-		const constraintData = this._constraintData as PathConstraintData;
+		val constraintData = this._constraintData as PathConstraintData;
 
 		//
 
 		//曲线节点数据改变:父亲bone改变，权重bones改变，变形顶点改变
-		let isPathVerticeDirty = false;
+		var isPathVerticeDirty = false;
 		if (this._root._childrenTransformDirty) {
 			this._updatePathVertices(pathSlot._geometryData);
 			isPathVerticeDirty = true;
@@ -698,35 +698,35 @@ class PathConstraint  :  Constraint {
 		}
 
 		//
-		const positionMode = constraintData.positionMode;
-		const spacingMode = constraintData.spacingMode;
-		const rotateMode = constraintData.rotateMode;
+		val positionMode = constraintData.positionMode;
+		val spacingMode = constraintData.spacingMode;
+		val rotateMode = constraintData.rotateMode;
 
-		const bones = this._bones;
+		val bones = this._bones;
 
-		const isLengthMode = spacingMode === SpacingMode.Length;
-		const isChainScaleMode = rotateMode === RotateMode.ChainScale;
-		const isTangentMode = rotateMode === RotateMode.Tangent;
-		const boneCount = bones.length;
-		const spacesCount = isTangentMode ? boneCount : boneCount + 1;
+		val isLengthMode = spacingMode === SpacingMode.Length;
+		val isChainScaleMode = rotateMode === RotateMode.ChainScale;
+		val isTangentMode = rotateMode === RotateMode.Tangent;
+		val boneCount = bones.length;
+		val spacesCount = isTangentMode ? boneCount : boneCount + 1;
 
-		const spacing = this.spacing;
-		let spaces = this._spaces;
+		val spacing = this.spacing;
+		var spaces = this._spaces;
 		spaces.length = spacesCount;
 
 		//计曲线间隔和长度
 		if (isChainScaleMode || isLengthMode) {
 			//Bone改变和spacing改变触发
 			spaces[0] = 0;
-			for (let i = 0, l = spacesCount - 1; i < l; i++) {
-				const bone = bones[i];
+			for (var i = 0, l = spacesCount - 1; i < l; i++) {
+				val bone = bones[i];
 				bone.updateByConstraint();
-				const boneLength = bone._boneData.length;
-				const matrix = bone.globalTransformMatrix;
-				const x = boneLength * matrix.a;
-				const y = boneLength * matrix.b;
+				val boneLength = bone._boneData.length;
+				val matrix = bone.globalTransformMatrix;
+				val x = boneLength * matrix.a;
+				val y = boneLength * matrix.b;
 
-				const len = Math.sqrt(x * x + y * y);
+				val len = Math.sqrt(x * x + y * y);
 				if (isChainScaleMode) {
 					this._boneLengths[i] = len;
 				}
@@ -734,7 +734,7 @@ class PathConstraint  :  Constraint {
 			}
 		}
 		else {
-			for (let i = 0; i < spacesCount; i++) {
+			for (var i = 0; i < spacesCount; i++) {
 				spaces[i] = spacing;
 			}
 		}
@@ -743,38 +743,38 @@ class PathConstraint  :  Constraint {
 		this._computeBezierCurve(((pathSlot._displayFrame as DisplayFrame).rawDisplayData as PathDisplayData), spacesCount, isTangentMode, positionMode === PositionMode.Percent, spacingMode === SpacingMode.Percent);
 
 		//根据新的节点数据重新采样
-		const positions = this._positions;
-		let rotateOffset = this.rotateOffset;
-		let boneX = positions[0], boneY = positions[1];
-		let tip: Boolean;
+		val positions = this._positions;
+		var rotateOffset = this.rotateOffset;
+		var boneX = positions[0], boneY = positions[1];
+		var tip: Boolean;
 		if (rotateOffset === 0) {
 			tip = rotateMode === RotateMode.Chain;
 		}
 		else {
 			tip = false;
-			const bone = pathSlot.parent;
+			val bone = pathSlot.parent;
 			if (bone !== null) {
-				const matrix = bone.globalTransformMatrix;
+				val matrix = bone.globalTransformMatrix;
 				rotateOffset *= matrix.a * matrix.d - matrix.b * matrix.c > 0 ? Transform.DEG_RAD : - Transform.DEG_RAD;
 			}
 		}
 
 		//
-		const rotateMix = this.rotateMix;
-		const translateMix = this.translateMix;
-		for (let i = 0, p = 3; i < boneCount; i++ , p += 3) {
-			let bone = bones[i];
+		val rotateMix = this.rotateMix;
+		val translateMix = this.translateMix;
+		for (var i = 0, p = 3; i < boneCount; i++ , p += 3) {
+			var bone = bones[i];
 			bone.updateByConstraint();
-			let matrix = bone.globalTransformMatrix;
+			var matrix = bone.globalTransformMatrix;
 			matrix.tx += (boneX - matrix.tx) * translateMix;
 			matrix.ty += (boneY - matrix.ty) * translateMix;
 
-			const x = positions[p], y = positions[p + 1];
-			const dx = x - boneX, dy = y - boneY;
+			val x = positions[p], y = positions[p + 1];
+			val dx = x - boneX, dy = y - boneY;
 			if (isChainScaleMode) {
-				const lenght = this._boneLengths[i];
+				val lenght = this._boneLengths[i];
 
-				const s = (Math.sqrt(dx * dx + dy * dy) / lenght - 1) * rotateMix + 1;
+				val s = (Math.sqrt(dx * dx + dy * dy) / lenght - 1) * rotateMix + 1;
 				matrix.a *= s;
 				matrix.b *= s;
 			}
@@ -782,7 +782,7 @@ class PathConstraint  :  Constraint {
 			boneX = x;
 			boneY = y;
 			if (rotateMix > 0) {
-				let a = matrix.a, b = matrix.b, c = matrix.c, d = matrix.d, r, cos, sin;
+				var a = matrix.a, b = matrix.b, c = matrix.c, d = matrix.d, r, cos, sin;
 				if (isTangentMode) {
 					r = positions[p - 1];
 				}
@@ -796,7 +796,7 @@ class PathConstraint  :  Constraint {
 					cos = Math.cos(r);
 					sin = Math.sin(r);
 
-					const length = bone._boneData.length;
+					val length = bone._boneData.length;
 					boneX += (length * (cos * a - sin * b) - dx) * rotateMix;
 					boneY += (length * (sin * a + cos * b) - dy) * rotateMix;
 				}

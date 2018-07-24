@@ -242,8 +242,8 @@ class Bone :  TransformObject() {
 			}
 			else {
 				if (boneData.inheritTranslation) {
-					const x = global.x
-					const y = global.y
+					val x = global.x
+					val y = global.y
 					global.x = parentMatrix.a * x + parentMatrix.c * y + parentMatrix.tx
 					global.y = parentMatrix.b * x + parentMatrix.d * y + parentMatrix.ty
 				}
@@ -423,7 +423,7 @@ class Bone :  TransformObject() {
 			this._childrenTransformDirty = true
 			//
 			if (this._cachedFrameIndex < 0) {
-				const isCache = cacheFrameIndex >= 0
+				val isCache = cacheFrameIndex >= 0
 				if (this._localDirty) {
 					this._updateGlobalTransformMatrix(isCache)
 				}
@@ -463,7 +463,7 @@ class Bone :  TransformObject() {
 	 * and when the skeleton must be updated for some reason, the method needs to be called explicitly.
 	 * @example
 	 * <pre>
-	 *     let bone = armature.getBone("arm");
+	 *     var bone = armature.getBone("arm");
 	 *     bone.offset.scaleX = 2.0;
 	 *     bone.invalidUpdate();
 	 * </pre>
@@ -475,7 +475,7 @@ class Bone :  TransformObject() {
 	 * 当该骨骼没有动画状态或其动画状态播放完成时，骨骼将不在继续更新，而此时由于某些原因必须更新骨骼时，则需要显式调用该方法。
 	 * @example
 	 * <pre>
-	 *     let bone = armature.getBone("arm");
+	 *     var bone = armature.getBone("arm");
 	 *     bone.offset.scaleX = 2.0;
 	 *     bone.invalidUpdate();
 	 * </pre>
@@ -502,7 +502,7 @@ class Bone :  TransformObject() {
 			return false
 		}
 
-		let ancestor: Bone? = value
+		var ancestor: Bone? = value
 		while (ancestor !== this && ancestor !== null) {
 			ancestor = ancestor.parent
 		}

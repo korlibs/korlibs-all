@@ -146,7 +146,7 @@ class DragonBonesData  : BaseObject() {
 	public var userData: UserData? = null; // Initial value.
 
 	protected fun _onClear(): Unit {
-		for (let k in this.armatures) {
+		for (var k in this.armatures) {
 			this.armatures[k].returnToPool();
 			delete this.armatures[k];
 		}

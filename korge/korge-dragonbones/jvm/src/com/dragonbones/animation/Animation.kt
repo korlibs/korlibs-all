@@ -79,9 +79,9 @@ class Animation : BaseObject {
 			delete this._animations[k]
 		}
 
-		for (let k in this._blendStates) {
-			const blendStates = this._blendStates[k]
-			for (let kB in blendStates) {
+		for (var k in this._blendStates) {
+			val blendStates = this._blendStates[k]
+			for (var kB in blendStates) {
 				blendStates[kB].returnToPool()
 		}
 
@@ -770,7 +770,7 @@ class Animation : BaseObject {
 	 * @example
 	 * <pre>
 	 *     armature.animation.play("walk");
-	 *     let walkState = armature.animation.getState("walk");
+	 *     var walkState = armature.animation.getState("walk");
 	 *     walkState.timeScale = 0.5;
 	 * </pre>
 	 * @version DragonBones 3.0
@@ -783,7 +783,7 @@ class Animation : BaseObject {
 	 * @example
 	 * <pre>
 	 *     armature.animation.play("walk");
-	 *     let walkState = armature.animation.getState("walk");
+	 *     var walkState = armature.animation.getState("walk");
 	 *     walkState.timeScale = 0.5;
 	 * </pre>
 	 * @version DragonBones 3.0
@@ -921,11 +921,11 @@ class Animation : BaseObject {
 
 			this._animationNames.length = 0
 
-			for (let k in this._animations) {
+			for (var k in this._animations) {
 				delete this._animations[k]
 			}
 
-			for (let k in value) {
+			for (var k in value) {
 				this._animationNames.push(k)
 				this._animations[k] = value[k]
 			}

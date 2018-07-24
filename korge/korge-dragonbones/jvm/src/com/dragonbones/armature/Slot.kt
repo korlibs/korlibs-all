@@ -49,7 +49,7 @@ class DisplayFrame  :  BaseObject {
 			return;
 		}
 
-		let rawGeometryData: GeometryData;
+		var rawGeometryData: GeometryData;
 		if (this.rawDisplayData.type === DisplayType.Mesh) {
 			rawGeometryData = (this.rawDisplayData as MeshDisplayData).geometry;
 		}
@@ -60,7 +60,7 @@ class DisplayFrame  :  BaseObject {
 			return;
 		}
 
-		let vertexCount = 0;
+		var vertexCount = 0;
 		if (rawGeometryData.weight !== null) {
 			vertexCount = rawGeometryData.weight.count * 2;
 		}
@@ -69,7 +69,7 @@ class DisplayFrame  :  BaseObject {
 		}
 
 		this.deformVertices.length = vertexCount;
-		for (let i = 0, l = this.deformVertices.length; i < l; ++i) {
+		for (var i = 0, l = this.deformVertices.length; i < l; ++i) {
 			this.deformVertices[i] = 0.0;
 		}
 	}
@@ -262,9 +262,9 @@ abstract class Slot  :  TransformObject {
 	protected _onClear(): Unit {
 		super._onClear();
 
-		const disposeDisplayList: Array<any> = [];
+		val disposeDisplayList: Array<any> = [];
 		for (dispayFrame in this._displayFrames) {
-			const display = dispayFrame.display;
+			val display = dispayFrame.display;
 			if (
 				display !== this._rawDisplay && display !== this._meshDisplay &&
 				disposeDisplayList.indexOf(display) < 0
@@ -373,7 +373,7 @@ abstract class Slot  :  TransformObject {
 	 * @internal
 	 */
 	public _updateAlpha() {
-		const globalAlpha = this._alpha * this._parent._globalAlpha;
+		val globalAlpha = this._alpha * this._parent._globalAlpha;
 
 		if (this._globalAlpha !== globalAlpha) {
 			this._globalAlpha = globalAlpha;
@@ -382,11 +382,11 @@ abstract class Slot  :  TransformObject {
 	}
 
 	protected _updateDisplayData(): Unit {
-		const prevDisplayFrame = this._displayFrame;
-		const prevGeometryData = this._geometryData;
-		const prevTextureData = this._textureData;
-		let rawDisplayData: DisplayData? = null;
-		let displayData: DisplayData? = null;
+		val prevDisplayFrame = this._displayFrame;
+		val prevGeometryData = this._geometryData;
+		val prevTextureData = this._textureData;
+		var rawDisplayData: DisplayData? = null;
+		var displayData: DisplayData? = null;
 
 		this._displayFrame = null;
 		this._geometryData = null;
@@ -409,16 +409,16 @@ abstract class Slot  :  TransformObject {
 		) {
 			// Update pivot offset.
 			if (this._geometryData === null && this._textureData !== null) {
-				const imageDisplayData = ((displayData !== null && displayData.type === DisplayType.Image) ? displayData : rawDisplayData) as ImageDisplayData; //
-				const scale = this._textureData.parent.scale * this._armature._armatureData.scale;
-				const frame = this._textureData.frame;
+				val imageDisplayData = ((displayData !== null && displayData.type === DisplayType.Image) ? displayData : rawDisplayData) as ImageDisplayData; //
+				val scale = this._textureData.parent.scale * this._armature._armatureData.scale;
+				val frame = this._textureData.frame;
 
 				this._pivotX = imageDisplayData.pivot.x;
 				this._pivotY = imageDisplayData.pivot.y;
 
-				const rect = frame !== null ? frame : this._textureData.region;
-				let width = rect.width;
-				let height = rect.height;
+				val rect = frame !== null ? frame : this._textureData.region;
+				var width = rect.width;
+				var height = rect.height;
 
 				if (this._textureData.rotated && frame === null) {
 					width = rect.height;
@@ -484,8 +484,8 @@ abstract class Slot  :  TransformObject {
 				if (this._geometryData !== null) {
 					this._geometryBones.length = 0;
 					if (this._geometryData.weight !== null) {
-						for (let i = 0, l = this._geometryData.weight.bones.length; i < l; ++i) {
-							const bone = this._armature.getBone(this._geometryData.weight.bones[i].name);
+						for (var i = 0, l = this._geometryData.weight.bones.length; i < l; ++i) {
+							val bone = this._armature.getBone(this._geometryData.weight.bones[i].name);
 							this._geometryBones.push(bone);
 						}
 					}
@@ -502,8 +502,8 @@ abstract class Slot  :  TransformObject {
 	}
 
 	protected _updateDisplay(): Unit {
-		const prevDisplay = this._display !== null ? this._display : this._rawDisplay;
-		const prevChildArmature = this._childArmature;
+		val prevDisplay = this._display !== null ? this._display : this._rawDisplay;
+		val prevChildArmature = this._childArmature;
 
 		// Update display and child armature.
 		if (this._displayFrame !== null) {
@@ -522,7 +522,7 @@ abstract class Slot  :  TransformObject {
 		}
 
 		// Update display.
-		const currentDisplay = this._display !== null ? this._display : this._rawDisplay;
+		val currentDisplay = this._display !== null ? this._display : this._rawDisplay;
 		if (currentDisplay !== prevDisplay) {
 			this._textureDirty = true;
 			this._visibleDirty = true;
@@ -550,7 +550,7 @@ abstract class Slot  :  TransformObject {
 				this._childArmature.clock = this._armature.clock;
 				if (this._childArmature.inheritAnimation) { // Set child armature cache frameRate.
 					if (this._childArmature.cacheFrameRate === 0) {
-						const cacheFrameRate = this._armature.cacheFrameRate;
+						val cacheFrameRate = this._armature.cacheFrameRate;
 						if (cacheFrameRate !== 0) {
 							this._childArmature.cacheFrameRate = cacheFrameRate;
 						}
@@ -558,15 +558,15 @@ abstract class Slot  :  TransformObject {
 
 					// Child armature action.
 					if (this._displayFrame !== null) {
-						let actions: Array<ActionData>? = null;
-						let displayData = this._displayFrame.displayData !== null ? this._displayFrame.displayData : this._displayFrame.rawDisplayData;
+						var actions: Array<ActionData>? = null;
+						var displayData = this._displayFrame.displayData !== null ? this._displayFrame.displayData : this._displayFrame.rawDisplayData;
 						if (displayData !== null && displayData.type === DisplayType.Armature) {
 							actions = (displayData as ArmatureDisplayData).actions;
 						}
 
 						if (actions !== null && actions.length > 0) {
 							for (action in actions) {
-								const eventObject = BaseObject.borrowObject(EventObject);
+								val eventObject = BaseObject.borrowObject(EventObject);
 								EventObject.actionDataToInstance(action, eventObject, this._armature);
 								eventObject.slot = this;
 								this._armature._bufferAction(eventObject, false);
@@ -582,7 +582,7 @@ abstract class Slot  :  TransformObject {
 	}
 
 	protected _updateGlobalTransformMatrix(isCache: Boolean): Unit {
-		const parentMatrix = this._parent._boneData.type === BoneType.Bone ? this._parent.globalTransformMatrix : (this._parent as Surface)._getGlobalTransformMatrix(this.global.x, this.global.y);
+		val parentMatrix = this._parent._boneData.type === BoneType.Bone ? this._parent.globalTransformMatrix : (this._parent as Surface)._getGlobalTransformMatrix(this.global.x, this.global.y);
 		this.globalTransformMatrix.copyFrom(this._localMatrix);
 		this.globalTransformMatrix.concat(parentMatrix);
 
@@ -654,7 +654,7 @@ abstract class Slot  :  TransformObject {
 		this._meshDisplay = meshDisplay;
 		//
 		this._armature = armatureValue;
-		const slotParent = this._armature.getBone(this._slotData.parent.name);
+		val slotParent = this._armature.getBone(this._slotData.parent.name);
 
 		if (slotParent !== null) {
 			this._parent = slotParent;
@@ -721,8 +721,8 @@ abstract class Slot  :  TransformObject {
 		}
 
 		if (this._geometryData !== null && this._display === this._meshDisplay) {
-			const isSkinned = this._geometryData.weight !== null;
-			const isSurface = this._parent._boneData.type !== BoneType.Bone;
+			val isSkinned = this._geometryData.weight !== null;
+			val isSurface = this._parent._boneData.type !== BoneType.Bone;
 
 			if (
 				this._verticesDirty ||
@@ -739,7 +739,7 @@ abstract class Slot  :  TransformObject {
 		}
 
 		if (cacheFrameIndex >= 0 && this._cachedFrameIndices !== null) {
-			const cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex];
+			val cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex];
 			if (cachedFrameIndex >= 0 && this._cachedFrameIndex === cachedFrameIndex) { // Same cache.
 				this._transformDirty = false;
 			}
@@ -768,7 +768,7 @@ abstract class Slot  :  TransformObject {
 
 		if (this._transformDirty) {
 			if (this._cachedFrameIndex < 0) {
-				const isCache = cacheFrameIndex >= 0;
+				val isCache = cacheFrameIndex >= 0;
 				this._updateGlobalTransformMatrix(isCache);
 
 				if (isCache && this._cachedFrameIndices !== null) {
@@ -819,14 +819,14 @@ abstract class Slot  :  TransformObject {
 			return;
 		}
 
-		const displayFrame = this._displayFrames[index];
+		val displayFrame = this._displayFrames[index];
 		if (displayFrame.rawDisplayData !== displayData) {
 			displayFrame.deformVertices.length = 0;
 			displayFrame.rawDisplayData = displayData;
 			if (displayFrame.rawDisplayData === null) {
-				const defaultSkin = this._armature._armatureData.defaultSkin;
+				val defaultSkin = this._armature._armatureData.defaultSkin;
 				if (defaultSkin !== null) {
-					const defaultRawDisplayDatas = defaultSkin.getDisplays(this._slotData.name);
+					val defaultRawDisplayDatas = defaultSkin.getDisplays(this._slotData.name);
 					if (defaultRawDisplayDatas !== null && index < defaultRawDisplayDatas.length) {
 						displayFrame.rawDisplayData = defaultRawDisplayDatas[index];
 					}
@@ -849,7 +849,7 @@ abstract class Slot  :  TransformObject {
 			return;
 		}
 
-		const displayFrame = this._displayFrames[index];
+		val displayFrame = this._displayFrames[index];
 		if (displayFrame.displayData !== displayData && displayFrame.rawDisplayData !== displayData) {
 			displayFrame.displayData = displayData;
 
@@ -869,7 +869,7 @@ abstract class Slot  :  TransformObject {
 			return;
 		}
 
-		const displayFrame = this._displayFrames[index];
+		val displayFrame = this._displayFrames[index];
 		if (displayFrame.textureData !== textureData) {
 			displayFrame.textureData = textureData;
 
@@ -889,9 +889,9 @@ abstract class Slot  :  TransformObject {
 			return;
 		}
 
-		const displayFrame = this._displayFrames[index];
+		val displayFrame = this._displayFrames[index];
 		if (displayFrame.display !== value) {
-			const prevDisplay = displayFrame.display;
+			val prevDisplay = displayFrame.display;
 			displayFrame.display = value;
 
 			if (
@@ -1002,7 +1002,7 @@ abstract class Slot  :  TransformObject {
 		xB = Slot._helpPoint.x;
 		yB = Slot._helpPoint.y;
 
-		const intersectionCount = this._boundingBoxData.intersectsSegment(xA, yA, xB, yB, intersectionPointA, intersectionPointB, normalRadians);
+		val intersectionCount = this._boundingBoxData.intersectsSegment(xA, yA, xB, yB, intersectionPointA, intersectionPointB, normalRadians);
 		if (intersectionCount > 0) {
 			if (intersectionCount === 1 || intersectionCount === 2) {
 				if (intersectionPointA !== null) {
@@ -1073,16 +1073,16 @@ abstract class Slot  :  TransformObject {
 		return this._displayFrames.length;
 	}
 	public set displayFrameCount(value: Double) {
-		const prevCount = this._displayFrames.length;
+		val prevCount = this._displayFrames.length;
 		if (prevCount < value) {
 			this._displayFrames.length = value;
 
-			for (let i = prevCount; i < value; ++i) {
+			for (var i = prevCount; i < value; ++i) {
 				this._displayFrames[i] = BaseObject.borrowObject(DisplayFrame);
 			}
 		}
 		else if (prevCount > value) {
-			for (let i = prevCount - 1; i < value; --i) {
+			for (var i = prevCount - 1; i < value; --i) {
 				this.replaceDisplay(null, i);
 				this._displayFrames[i].returnToPool();
 			}
@@ -1094,7 +1094,7 @@ abstract class Slot  :  TransformObject {
 	 * - The index of the display object displayed in the display list.
 	 * @example
 	 * <pre>
-	 *     let slot = armature.getSlot("weapon");
+	 *     var slot = armature.getSlot("weapon");
 	 *     slot.displayIndex = 3;
 	 *     slot.displayController = "none";
 	 * </pre>
@@ -1105,7 +1105,7 @@ abstract class Slot  :  TransformObject {
 	 * - 此时显示的显示对象在显示列表中的索引。
 	 * @example
 	 * <pre>
-	 *     let slot = armature.getSlot("weapon");
+	 *     var slot = armature.getSlot("weapon");
 	 *     slot.displayIndex = 3;
 	 *     slot.displayController = "none";
 	 * </pre>
@@ -1145,7 +1145,7 @@ abstract class Slot  :  TransformObject {
 	 * @language zh_CN
 	 */
 	public get displayList(): Array<any> {
-		const displays = new Array<any>();
+		val displays = new Array<any>();
 		for (displayFrame in this._displayFrames) {
 			displays.push(displayFrame.display);
 		}
@@ -1154,7 +1154,7 @@ abstract class Slot  :  TransformObject {
 	}
 	public set displayList(value: Array<any>) {
 		this.displayFrameCount = value.length;
-		let index = 0;
+		var index = 0;
 		for (eachDisplay in value) {
 			this.replaceDisplay(eachDisplay, index++);
 		}
@@ -1203,7 +1203,7 @@ abstract class Slot  :  TransformObject {
 	 * - The display object that the slot displays at this time.
 	 * @example
 	 * <pre>
-	 *     let slot = armature.getSlot("text");
+	 *     var slot = armature.getSlot("text");
 	 *     slot.display = new yourEngine.TextField();
 	 * </pre>
 	 * @version DragonBones 3.0
@@ -1213,7 +1213,7 @@ abstract class Slot  :  TransformObject {
 	 * - 插槽此时显示的显示对象。
 	 * @example
 	 * <pre>
-	 *     let slot = armature.getSlot("text");
+	 *     var slot = armature.getSlot("text");
 	 *     slot.display = new yourEngine.TextField();
 	 * </pre>
 	 * @version DragonBones 3.0
@@ -1238,8 +1238,8 @@ abstract class Slot  :  TransformObject {
 	 * - The child armature that the slot displayed at current time.
 	 * @example
 	 * <pre>
-	 *     let slot = armature.getSlot("weapon");
-	 *     let prevChildArmature = slot.childArmature;
+	 *     var slot = armature.getSlot("weapon");
+	 *     var prevChildArmature = slot.childArmature;
 	 *     if (prevChildArmature) {
 	 *         prevChildArmature.dispose();
 	 *     }
@@ -1253,8 +1253,8 @@ abstract class Slot  :  TransformObject {
 	 * 注意，被替换的对象或子骨架并不会被回收，根据语言和引擎的不同，需要额外处理。
 	 * @example
 	 * <pre>
-	 *     let slot = armature.getSlot("weapon");
-	 *     let prevChildArmature = slot.childArmature;
+	 *     var slot = armature.getSlot("weapon");
+	 *     var prevChildArmature = slot.childArmature;
 	 *     if (prevChildArmature) {
 	 *         prevChildArmature.dispose();
 	 *     }

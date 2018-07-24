@@ -95,7 +95,7 @@ abstract class BaseObject {
 				BaseObject._defaultMaxCount = maxCount
 
 				for (classType in BaseObject._poolsMap) {
-					const pool = BaseObject._poolsMap[classType]
+					val pool = BaseObject._poolsMap[classType]
 					if (pool.length > maxCount) {
 						pool.length = maxCount
 					}
@@ -128,7 +128,7 @@ abstract class BaseObject {
 			}
 			else {
 				for (k in BaseObject._poolsMap) {
-					const pool = BaseObject._poolsMap[k]
+					val pool = BaseObject._poolsMap[k]
 					pool.length = 0
 				}
 			}
@@ -149,12 +149,12 @@ abstract class BaseObject {
 			val classType = String(objectConstructor)
 			val pool = classType in BaseObject._poolsMap ? BaseObject._poolsMap[classType] : null
 			if (pool !== null && pool.length > 0) {
-				const object = pool.pop() as T
+				val object = pool.pop() as T
 				object._isInPool = false
 				return object
 			}
 
-			const object = new objectConstructor()
+			val object = new objectConstructor()
 			object._onClear()
 			return object
 		}

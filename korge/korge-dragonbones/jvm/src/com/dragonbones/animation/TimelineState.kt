@@ -31,18 +31,18 @@ class ActionTimelineState  :  TimelineState {
 	}
 
 	private _onCrossFrame(frameIndex: Double): Unit {
-		const eventDispatcher = this._armature.eventDispatcher;
+		val eventDispatcher = this._armature.eventDispatcher;
 		if (this._animationState.actionEnabled) {
-			const frameOffset = this._animationData.frameOffset + this._timelineArray[(this._timelineData as TimelineData).offset + BinaryOffset.TimelineFrameOffset + frameIndex];
-			const actionCount = this._frameArray[frameOffset + 1];
-			const actions = this._animationData.parent.actions; // May be the animaton data not belong to this armature data.
+			val frameOffset = this._animationData.frameOffset + this._timelineArray[(this._timelineData as TimelineData).offset + BinaryOffset.TimelineFrameOffset + frameIndex];
+			val actionCount = this._frameArray[frameOffset + 1];
+			val actions = this._animationData.parent.actions; // May be the animaton data not belong to this armature data.
 
-			for (let i = 0; i < actionCount; ++i) {
-				const actionIndex = this._frameArray[frameOffset + 2 + i];
-				const action = actions[actionIndex];
+			for (var i = 0; i < actionCount; ++i) {
+				val actionIndex = this._frameArray[frameOffset + 2 + i];
+				val action = actions[actionIndex];
 
 				if (action.type === ActionType.Play) {
-					const eventObject = BaseObject.borrowObject(EventObject);
+					val eventObject = BaseObject.borrowObject(EventObject);
 					// eventObject.time = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
 					eventObject.time = this._frameArray[frameOffset] / this._frameRate;
 					eventObject.animationState = this._animationState;
@@ -50,9 +50,9 @@ class ActionTimelineState  :  TimelineState {
 					this._armature._bufferAction(eventObject, true);
 				}
 				else {
-					const eventType = action.type === ActionType.Frame ? EventObject.FRAME_EVENT : EventObject.SOUND_EVENT;
+					val eventType = action.type === ActionType.Frame ? EventObject.FRAME_EVENT : EventObject.SOUND_EVENT;
 					if (action.type === ActionType.Sound || eventDispatcher.hasDBEventListener(eventType)) {
-						const eventObject = BaseObject.borrowObject(EventObject);
+						val eventObject = BaseObject.borrowObject(EventObject);
 						// eventObject.time = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
 						eventObject.time = this._frameArray[frameOffset] / this._frameRate;
 						eventObject.animationState = this._animationState;
@@ -68,13 +68,13 @@ class ActionTimelineState  :  TimelineState {
 	protected _onUpdateFrame(): Unit { }
 
 	public update(passedTime: Double): Unit {
-		const prevState = this.playState;
-		let prevPlayTimes = this.currentPlayTimes;
-		let prevTime = this.currentTime;
+		val prevState = this.playState;
+		var prevPlayTimes = this.currentPlayTimes;
+		var prevTime = this.currentTime;
 
 		if (this._setCurrentTime(passedTime)) {
-			const eventActive = this._animationState._parent === null && this._animationState.actionEnabled;
-			const eventDispatcher = this._armature.eventDispatcher;
+			val eventActive = this._animationState._parent === null && this._animationState.actionEnabled;
+			val eventDispatcher = this._armature.eventDispatcher;
 			if (prevState < 0) {
 				if (this.playState !== prevState) {
 					if (this._animationState.displayControl && this._animationState.resetToPose) { // Reset zorder to pose.
@@ -84,7 +84,7 @@ class ActionTimelineState  :  TimelineState {
 					prevPlayTimes = this.currentPlayTimes;
 
 					if (eventActive && eventDispatcher.hasDBEventListener(EventObject.START)) {
-						const eventObject = BaseObject.borrowObject(EventObject);
+						val eventObject = BaseObject.borrowObject(EventObject);
 						eventObject.type = EventObject.START;
 						eventObject.armature = this._armature;
 						eventObject.animationState = this._animationState;
@@ -96,9 +96,9 @@ class ActionTimelineState  :  TimelineState {
 				}
 			}
 
-			const isReverse = this._animationState.timeScale < 0.0;
-			let loopCompleteEvent: EventObject? = null;
-			let completeEvent: EventObject? = null;
+			val isReverse = this._animationState.timeScale < 0.0;
+			var loopCompleteEvent: EventObject? = null;
+			var completeEvent: EventObject? = null;
 
 			if (eventActive && this.currentPlayTimes !== prevPlayTimes) {
 				if (eventDispatcher.hasDBEventListener(EventObject.LOOP_COMPLETE)) {
@@ -119,12 +119,12 @@ class ActionTimelineState  :  TimelineState {
 			}
 
 			if (this._frameCount > 1) {
-				const timelineData = this._timelineData as TimelineData;
-				const timelineFrameIndex = Math.floor(this.currentTime * this._frameRate); // uint
-				const frameIndex = this._frameIndices[timelineData.frameIndicesOffset + timelineFrameIndex];
+				val timelineData = this._timelineData as TimelineData;
+				val timelineFrameIndex = Math.floor(this.currentTime * this._frameRate); // uint
+				val frameIndex = this._frameIndices[timelineData.frameIndicesOffset + timelineFrameIndex];
 
 				if (this._frameIndex !== frameIndex) { // Arrive at frame.
-					let crossedFrameIndex = this._frameIndex;
+					var crossedFrameIndex = this._frameIndex;
 					this._frameIndex = frameIndex;
 
 					if (this._timelineArray !== null) {
@@ -132,7 +132,7 @@ class ActionTimelineState  :  TimelineState {
 
 						if (isReverse) {
 							if (crossedFrameIndex < 0) {
-								const prevFrameIndex = Math.floor(prevTime * this._frameRate);
+								val prevFrameIndex = Math.floor(prevTime * this._frameRate);
 								crossedFrameIndex = this._frameIndices[timelineData.frameIndicesOffset + prevFrameIndex];
 
 								if (this.currentPlayTimes === prevPlayTimes) { // Start.
@@ -143,9 +143,9 @@ class ActionTimelineState  :  TimelineState {
 							}
 
 							while (crossedFrameIndex >= 0) {
-								const frameOffset = this._animationData.frameOffset + this._timelineArray[timelineData.offset + BinaryOffset.TimelineFrameOffset + crossedFrameIndex];
-								// const framePosition = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
-								const framePosition = this._frameArray[frameOffset] / this._frameRate;
+								val frameOffset = this._animationData.frameOffset + this._timelineArray[timelineData.offset + BinaryOffset.TimelineFrameOffset + crossedFrameIndex];
+								// val framePosition = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
+								val framePosition = this._frameArray[frameOffset] / this._frameRate;
 
 								if (
 									this._position <= framePosition &&
@@ -173,11 +173,11 @@ class ActionTimelineState  :  TimelineState {
 						}
 						else {
 							if (crossedFrameIndex < 0) {
-								const prevFrameIndex = Math.floor(prevTime * this._frameRate);
+								val prevFrameIndex = Math.floor(prevTime * this._frameRate);
 								crossedFrameIndex = this._frameIndices[timelineData.frameIndicesOffset + prevFrameIndex];
-								const frameOffset = this._animationData.frameOffset + this._timelineArray[timelineData.offset + BinaryOffset.TimelineFrameOffset + crossedFrameIndex];
-								// const framePosition = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
-								const framePosition = this._frameArray[frameOffset] / this._frameRate;
+								val frameOffset = this._animationData.frameOffset + this._timelineArray[timelineData.offset + BinaryOffset.TimelineFrameOffset + crossedFrameIndex];
+								// val framePosition = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
+								val framePosition = this._frameArray[frameOffset] / this._frameRate;
 
 								if (this.currentPlayTimes === prevPlayTimes) { // Start.
 									if (prevTime <= framePosition) { // Crossed.
@@ -202,9 +202,9 @@ class ActionTimelineState  :  TimelineState {
 									crossedFrameIndex = 0;
 								}
 
-								const frameOffset = this._animationData.frameOffset + this._timelineArray[timelineData.offset + BinaryOffset.TimelineFrameOffset + crossedFrameIndex];
-								// const framePosition = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
-								const framePosition = this._frameArray[frameOffset] / this._frameRate;
+								val frameOffset = this._animationData.frameOffset + this._timelineArray[timelineData.offset + BinaryOffset.TimelineFrameOffset + crossedFrameIndex];
+								// val framePosition = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
+								val framePosition = this._frameArray[frameOffset] / this._frameRate;
 
 								if (
 									this._position <= framePosition &&
@@ -231,7 +231,7 @@ class ActionTimelineState  :  TimelineState {
 				if (this._timelineData !== null) {
 					this._frameOffset = this._animationData.frameOffset + this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineFrameOffset];
 					// Arrive at frame.
-					const framePosition = this._frameArray[this._frameOffset] / this._frameRate;
+					val framePosition = this._frameArray[this._frameOffset] / this._frameRate;
 
 					if (this.currentPlayTimes === prevPlayTimes) { // Start.
 						if (prevTime <= framePosition) {
@@ -274,7 +274,7 @@ class ZOrderTimelineState  :  TimelineState {
 
 	protected _onArriveAtFrame(): Unit {
 		if (this.playState >= 0) {
-			const count = this._frameArray[this._frameOffset + 1];
+			val count = this._frameArray[this._frameOffset + 1];
 			if (count > 0) {
 				this._armature._sortZOrder(this._frameArray, this._frameOffset + 2);
 			}
@@ -323,13 +323,13 @@ class BoneAllTimelineState  :  MutilpleValueTimelineState {
 	}
 
 	public blend(isDirty: Boolean): Unit {
-		const valueScale = this._armature.armatureData.scale;
-		const rd = this._rd;
+		val valueScale = this._armature.armatureData.scale;
+		val rd = this._rd;
 		//
-		const blendState = this.target as BlendState;
-		const bone = blendState.target as Bone;
-		const blendWeight = blendState.blendWeight;
-		const result = bone.animationPose;
+		val blendState = this.target as BlendState;
+		val bone = blendState.target as Bone;
+		val blendWeight = blendState.blendWeight;
+		val result = bone.animationPose;
 
 		if (blendState.dirty > 1) {
 			result.x += rd[0] * blendWeight * valueScale;
@@ -371,10 +371,10 @@ class BoneTranslateTimelineState  :  DoubleValueTimelineState {
 	}
 
 	public blend(isDirty: Boolean): Unit {
-		const blendState = this.target as BlendState;
-		const bone = blendState.target as Bone;
-		const blendWeight = blendState.blendWeight;
-		const result = bone.animationPose;
+		val blendState = this.target as BlendState;
+		val bone = blendState.target as Bone;
+		val blendWeight = blendState.blendWeight;
+		val result = bone.animationPose;
 
 		if (blendState.dirty > 1) {
 			result.x += this._resultA * blendWeight;
@@ -426,10 +426,10 @@ class BoneRotateTimelineState  :  DoubleValueTimelineState {
 	}
 
 	public blend(isDirty: Boolean): Unit {
-		const blendState = this.target as BlendState;
-		const bone = blendState.target as Bone;
-		const blendWeight = blendState.blendWeight;
-		const result = bone.animationPose;
+		val blendState = this.target as BlendState;
+		val bone = blendState.target as Bone;
+		val blendWeight = blendState.blendWeight;
+		val result = bone.animationPose;
 
 		if (blendState.dirty > 1) {
 			result.rotation += this._resultA * blendWeight;
@@ -475,10 +475,10 @@ class BoneScaleTimelineState  :  DoubleValueTimelineState {
 	}
 
 	public blend(isDirty: Boolean): Unit {
-		const blendState = this.target as BlendState;
-		const bone = blendState.target as Bone;
-		const blendWeight = blendState.blendWeight;
-		const result = bone.animationPose;
+		val blendState = this.target as BlendState;
+		val bone = blendState.target as Bone;
+		val blendWeight = blendState.blendWeight;
+		val result = bone.animationPose;
 
 		if (blendState.dirty > 1) {
 			result.scaleX += (this._resultA - 1.0) * blendWeight;
@@ -523,9 +523,9 @@ class SurfaceTimelineState  :  MutilpleValueTimelineState {
 		super.init(armature, animationState, timelineData);
 
 		if (this._timelineData !== null) {
-			const dragonBonesData = this._animationData.parent.parent;
-			const frameIntArray = dragonBonesData.frameIntArray;
-			const frameIntOffset = this._animationData.frameIntOffset + this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineFrameValueCount];
+			val dragonBonesData = this._animationData.parent.parent;
+			val frameIntArray = dragonBonesData.frameIntArray;
+			val frameIntOffset = this._animationData.frameIntOffset + this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineFrameValueCount];
 			this._valueOffset = this._animationData.frameFloatOffset;
 			this._valueCount = frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount];
 			this._deformCount = frameIntArray[frameIntOffset + BinaryOffset.DeformCount];
@@ -541,20 +541,20 @@ class SurfaceTimelineState  :  MutilpleValueTimelineState {
 	}
 
 	public blend(isDirty: Boolean): Unit {
-		const blendState = this.target as BlendState;
-		const surface = blendState.target as Surface;
-		const blendWeight = blendState.blendWeight;
-		const result = surface._deformVertices;
-		const valueArray = this._valueArray;
+		val blendState = this.target as BlendState;
+		val surface = blendState.target as Surface;
+		val blendWeight = blendState.blendWeight;
+		val result = surface._deformVertices;
+		val valueArray = this._valueArray;
 
 		if (valueArray !== null) {
-			const valueCount = this._valueCount;
-			const deformOffset = this._deformOffset;
-			const sameValueOffset = this._sameValueOffset;
-			const rd = this._rd;
+			val valueCount = this._valueCount;
+			val deformOffset = this._deformOffset;
+			val sameValueOffset = this._sameValueOffset;
+			val rd = this._rd;
 
-			for (let i = 0; i < this._deformCount; ++i) {
-				let value = 0.0;
+			for (var i = 0; i < this._deformCount; ++i) {
+				var value = 0.0;
 
 				if (i < deformOffset) {
 					value = valueArray[sameValueOffset + i];
@@ -575,7 +575,7 @@ class SurfaceTimelineState  :  MutilpleValueTimelineState {
 			}
 		}
 		else if (blendState.dirty === 1) {
-			for (let i = 0; i < this._deformCount; ++i) {
+			for (var i = 0; i < this._deformCount; ++i) {
 				result[i] = 0.0;
 			}
 		}
@@ -611,9 +611,9 @@ class AlphaTimelineState  :  SingleValueTimelineState {
 	}
 
 	public blend(isDirty: Boolean): Unit {
-		const blendState = this.target as BlendState;
-		const alphaTarget = blendState.target as TransformObject;
-		const blendWeight = blendState.blendWeight;
+		val blendState = this.target as BlendState;
+		val alphaTarget = blendState.target as TransformObject;
+		val blendWeight = blendState.blendWeight;
 
 		if (blendState.dirty > 1) {
 			alphaTarget._alpha += this._result * blendWeight;
@@ -641,8 +641,8 @@ class SlotDisplayTimelineState  :  TimelineState {
 
 	protected _onArriveAtFrame(): Unit {
 		if (this.playState >= 0) {
-			const slot = this.target as Slot;
-			const displayIndex = this._timelineData !== null ? this._frameArray[this._frameOffset + 1] : slot._slotData.displayIndex;
+			val slot = this.target as Slot;
+			val displayIndex = this._timelineData !== null ? this._frameArray[this._frameOffset + 1] : slot._slotData.displayIndex;
 
 			if (slot.displayIndex !== displayIndex) {
 				slot._setDisplayIndex(displayIndex, true);
@@ -669,11 +669,11 @@ class SlotColorTimelineState  :  TweenTimelineState {
 		super._onArriveAtFrame();
 
 		if (this._timelineData !== null) {
-			const dragonBonesData = this._animationData.parent.parent;
-			const colorArray = dragonBonesData.colorArray;
-			const frameIntArray = dragonBonesData.frameIntArray;
-			const valueOffset = this._animationData.frameIntOffset + this._frameValueOffset + this._frameIndex;
-			let colorOffset = frameIntArray[valueOffset];
+			val dragonBonesData = this._animationData.parent.parent;
+			val colorArray = dragonBonesData.colorArray;
+			val frameIntArray = dragonBonesData.frameIntArray;
+			val valueOffset = this._animationData.frameIntOffset + this._frameValueOffset + this._frameIndex;
+			var colorOffset = frameIntArray[valueOffset];
 
 			if (colorOffset < 0) {
 				colorOffset += 65536; // Fixed out of bounds bug.
@@ -721,8 +721,8 @@ class SlotColorTimelineState  :  TweenTimelineState {
 			}
 		}
 		else { // Pose.
-			const slot = this.target as Slot;
-			const color = slot.slotData.color;
+			val slot = this.target as Slot;
+			val color = slot.slotData.color;
 			this._result[0] = color.alphaMultiplier;
 			this._result[1] = color.redMultiplier;
 			this._result[2] = color.greenMultiplier;
@@ -757,8 +757,8 @@ class SlotColorTimelineState  :  TweenTimelineState {
 		super.update(passedTime);
 		// Fade animation.
 		if (this._isTween || this.dirty) {
-			const slot = this.target as Slot;
-			const result = slot._colorTransform;
+			val slot = this.target as Slot;
+			val result = slot._colorTransform;
 
 			if (this._animationState._fadeState !== 0 || this._animationState._subFadeState !== 0) {
 				if (
@@ -771,7 +771,7 @@ class SlotColorTimelineState  :  TweenTimelineState {
 					result.greenOffset !== this._result[6] ||
 					result.blueOffset !== this._result[7]
 				) {
-					const fadeProgress = Math.pow(this._animationState._fadeProgress, 4);
+					val fadeProgress = Math.pow(this._animationState._fadeProgress, 4);
 					result.alphaMultiplier += (this._result[0] - result.alphaMultiplier) * fadeProgress;
 					result.redMultiplier += (this._result[1] - result.redMultiplier) * fadeProgress;
 					result.greenMultiplier += (this._result[2] - result.greenMultiplier) * fadeProgress;
@@ -822,8 +822,8 @@ class SlotZIndexTimelineState  :  SingleValueTimelineState {
 		super._onArriveAtFrame();
 
 		if (this._timelineData === null) { // Pose.
-			const blendState = this.target as BlendState;
-			const slot = blendState.target as Slot;
+			val blendState = this.target as BlendState;
+			val slot = blendState.target as Slot;
 			this._result = slot.slotData.zIndex;
 		}
 	}
@@ -836,9 +836,9 @@ class SlotZIndexTimelineState  :  SingleValueTimelineState {
 	}
 
 	public blend(isDirty: Boolean): Unit {
-		const blendState = this.target as BlendState;
-		const slot = blendState.target as Slot;
-		const blendWeight = blendState.blendWeight;
+		val blendState = this.target as BlendState;
+		val slot = blendState.target as Slot;
+		val blendWeight = blendState.blendWeight;
 
 		if (blendState.dirty > 1) {
 			slot._zIndex += this._result * blendWeight;
@@ -883,19 +883,19 @@ class DeformTimelineState  :  MutilpleValueTimelineState {
 		super.init(armature, animationState, timelineData);
 
 		if (this._timelineData !== null) {
-			const frameIntOffset = this._animationData.frameIntOffset + this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineFrameValueCount];
-			const dragonBonesData = this._animationData.parent.parent;
-			const frameIntArray = dragonBonesData.frameIntArray;
-			const slot = (this.target as BlendState).target as Slot;
+			val frameIntOffset = this._animationData.frameIntOffset + this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineFrameValueCount];
+			val dragonBonesData = this._animationData.parent.parent;
+			val frameIntArray = dragonBonesData.frameIntArray;
+			val slot = (this.target as BlendState).target as Slot;
 			this.geometryOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformVertexOffset];
 
 			if (this.geometryOffset < 0) {
 				this.geometryOffset += 65536; // Fixed out of bounds bug.
 			}
 
-			for (let i = 0, l = slot.displayFrameCount; i < l; ++i) {
-				const displayFrame = slot.getDisplayFrameAt(i);
-				const geometryData = displayFrame.getGeometryData();
+			for (var i = 0, l = slot.displayFrameCount; i < l; ++i) {
+				val displayFrame = slot.getDisplayFrameAt(i);
+				val geometryData = displayFrame.getGeometryData();
 
 				if (geometryData === null) {
 					continue;
@@ -928,20 +928,20 @@ class DeformTimelineState  :  MutilpleValueTimelineState {
 	}
 
 	public blend(isDirty: Boolean): Unit {
-		const blendState = this.target as BlendState;
-		const slot = blendState.target as Slot;
-		const blendWeight = blendState.blendWeight;
-		const result = this.displayFrame.deformVertices;
-		const valueArray = this._valueArray;
+		val blendState = this.target as BlendState;
+		val slot = blendState.target as Slot;
+		val blendWeight = blendState.blendWeight;
+		val result = this.displayFrame.deformVertices;
+		val valueArray = this._valueArray;
 
 		if (valueArray !== null) {
-			const valueCount = this._valueCount;
-			const deformOffset = this._deformOffset;
-			const sameValueOffset = this._sameValueOffset;
-			const rd = this._rd;
+			val valueCount = this._valueCount;
+			val deformOffset = this._deformOffset;
+			val sameValueOffset = this._sameValueOffset;
+			val rd = this._rd;
 
-			for (let i = 0; i < this._deformCount; ++i) {
-				let value = 0.0;
+			for (var i = 0; i < this._deformCount; ++i) {
+				var value = 0.0;
 
 				if (i < deformOffset) {
 					value = valueArray[sameValueOffset + i];
@@ -962,7 +962,7 @@ class DeformTimelineState  :  MutilpleValueTimelineState {
 			}
 		}
 		else if (blendState.dirty === 1) {
-			for (let i = 0; i < this._deformCount; ++i) {
+			for (var i = 0; i < this._deformCount; ++i) {
 				result[i] = 0.0;
 			}
 		}
@@ -987,14 +987,14 @@ class IKConstraintTimelineState  :  DoubleValueTimelineState {
 	protected _onUpdateFrame(): Unit {
 		super._onUpdateFrame();
 
-		const ikConstraint = this.target as IKConstraint;
+		val ikConstraint = this.target as IKConstraint;
 
 		if (this._timelineData !== null) {
 			ikConstraint._bendPositive = this._currentA > 0.0;
 			ikConstraint._weight = this._currentB;
 		}
 		else {
-			const ikConstraintData = ikConstraint._constraintData as IKConstraintData;
+			val ikConstraintData = ikConstraint._constraintData as IKConstraintData;
 			ikConstraint._bendPositive = ikConstraintData.bendPositive;
 			ikConstraint._weight = ikConstraintData.weight;
 		}
@@ -1022,7 +1022,7 @@ class AnimationProgressTimelineState  :  SingleValueTimelineState {
 	protected _onUpdateFrame(): Unit {
 		super._onUpdateFrame();
 
-		const animationState = this.target as AnimationState;
+		val animationState = this.target as AnimationState;
 		if (animationState._parent !== null) {
 			animationState.currentTime = this._result * animationState.totalTime;
 		}
@@ -1049,7 +1049,7 @@ class AnimationWeightTimelineState  :  SingleValueTimelineState {
 	protected _onUpdateFrame(): Unit {
 		super._onUpdateFrame();
 
-		const animationState = this.target as AnimationState;
+		val animationState = this.target as AnimationState;
 		if (animationState._parent !== null) {
 			animationState.weight = this._result;
 		}
@@ -1076,7 +1076,7 @@ class AnimationParametersTimelineState  :  DoubleValueTimelineState {
 	protected _onUpdateFrame(): Unit {
 		super._onUpdateFrame();
 
-		const animationState = this.target as AnimationState;
+		val animationState = this.target as AnimationState;
 		if (animationState._parent !== null) {
 			animationState.parameterX = this._resultA;
 			animationState.parameterY = this._resultB;

@@ -106,7 +106,7 @@ abstract class BoundingBoxData  :  BaseObject {
  * | 1001 | 1000 | 1010 |
  * ----------------------
  */
-const enum OutCode {
+val enum OutCode {
 	InSide = 0, // 0000
 	Left = 1,   // 0001
 	Right = 2,  // 0010
@@ -131,7 +131,7 @@ class RectangleBoundingBoxData  :  BoundingBoxData {
 	 * - Compute the bit code for a point (x, y) using the clip rectangle
 	 */
 	private static _computeOutCode(x: Double, y: Double, xMin: Double, yMin: Double, xMax: Double, yMax: Double): Double {
-		let code = OutCode.InSide;  // initialised as being inside of [[clip window]]
+		var code = OutCode.InSide;  // initialised as being inside of [[clip window]]
 
 		if (x < xMin) {             // to the left of clip window
 			code |= OutCode.Left;
@@ -159,16 +159,16 @@ class RectangleBoundingBoxData  :  BoundingBoxData {
 		intersectionPointB: { x: Double, y: Double }? = null,
 		normalRadians: { x: Double, y: Double }? = null
 	): Double {
-		const inSideA = xA > xMin && xA < xMax && yA > yMin && yA < yMax;
-		const inSideB = xB > xMin && xB < xMax && yB > yMin && yB < yMax;
+		val inSideA = xA > xMin && xA < xMax && yA > yMin && yA < yMax;
+		val inSideB = xB > xMin && xB < xMax && yB > yMin && yB < yMax;
 
 		if (inSideA && inSideB) {
 			return -1;
 		}
 
-		let intersectionCount = 0;
-		let outcode0 = RectangleBoundingBoxData._computeOutCode(xA, yA, xMin, yMin, xMax, yMax);
-		let outcode1 = RectangleBoundingBoxData._computeOutCode(xB, yB, xMin, yMin, xMax, yMax);
+		var intersectionCount = 0;
+		var outcode0 = RectangleBoundingBoxData._computeOutCode(xA, yA, xMin, yMin, xMax, yMax);
+		var outcode1 = RectangleBoundingBoxData._computeOutCode(xB, yB, xMin, yMin, xMax, yMax);
 
 		while (true) {
 			if ((outcode0 | outcode1) === 0) { // Bitwise OR is 0. Trivially accept and get out of loop
@@ -181,12 +181,12 @@ class RectangleBoundingBoxData  :  BoundingBoxData {
 
 			// failed both tests, so calculate the line segment to clip
 			// from an outside point to an intersection with clip edge
-			let x = 0.0;
-			let y = 0.0;
-			let normalRadian = 0.0;
+			var x = 0.0;
+			var y = 0.0;
+			var normalRadian = 0.0;
 
 			// At least one endpoint is outside the clip rectangle; pick it.
-			const outcodeOut = outcode0 !== 0 ? outcode0 : outcode1;
+			val outcodeOut = outcode0 !== 0 ? outcode0 : outcode1;
 
 			// Now find the intersection point;
 			if ((outcodeOut & OutCode.Top) !== 0) {             // point is above the clip rectangle
@@ -305,9 +305,9 @@ class RectangleBoundingBoxData  :  BoundingBoxData {
 	 * @inheritDoc
 	 */
 	public containsPoint(pX: Double, pY: Double): Boolean {
-		const widthH = this.width * 0.5;
+		val widthH = this.width * 0.5;
 		if (pX >= -widthH && pX <= widthH) {
-			const heightH = this.height * 0.5;
+			val heightH = this.height * 0.5;
 			if (pY >= -heightH && pY <= heightH) {
 				return true;
 			}
@@ -324,9 +324,9 @@ class RectangleBoundingBoxData  :  BoundingBoxData {
 		intersectionPointB: { x: Double, y: Double }? = null,
 		normalRadians: { x: Double, y: Double }? = null
 	): Double {
-		const widthH = this.width * 0.5;
-		const heightH = this.height * 0.5;
-		const intersectionCount = RectangleBoundingBoxData.rectangleIntersectsSegment(
+		val widthH = this.width * 0.5;
+		val heightH = this.height * 0.5;
+		val intersectionCount = RectangleBoundingBoxData.rectangleIntersectsSegment(
 			xA, yA, xB, yB,
 			-widthH, -heightH, widthH, heightH,
 			intersectionPointA, intersectionPointB, normalRadians
@@ -359,31 +359,31 @@ class EllipseBoundingBoxData  :  BoundingBoxData {
 		intersectionPointB: { x: Double, y: Double }? = null,
 		normalRadians: { x: Double, y: Double }? = null
 	): Double {
-		const d = widthH / heightH;
-		const dd = d * d;
+		val d = widthH / heightH;
+		val dd = d * d;
 
 		yA *= d;
 		yB *= d;
 
-		const dX = xB - xA;
-		const dY = yB - yA;
-		const lAB = Math.sqrt(dX * dX + dY * dY);
-		const xD = dX / lAB;
-		const yD = dY / lAB;
-		const a = (xC - xA) * xD + (yC - yA) * yD;
-		const aa = a * a;
-		const ee = xA * xA + yA * yA;
-		const rr = widthH * widthH;
-		const dR = rr - ee + aa;
-		let intersectionCount = 0;
+		val dX = xB - xA;
+		val dY = yB - yA;
+		val lAB = Math.sqrt(dX * dX + dY * dY);
+		val xD = dX / lAB;
+		val yD = dY / lAB;
+		val a = (xC - xA) * xD + (yC - yA) * yD;
+		val aa = a * a;
+		val ee = xA * xA + yA * yA;
+		val rr = widthH * widthH;
+		val dR = rr - ee + aa;
+		var intersectionCount = 0;
 
 		if (dR >= 0.0) {
-			const dT = Math.sqrt(dR);
-			const sA = a - dT;
-			const sB = a + dT;
-			const inSideA = sA < 0.0 ? -1 : (sA <= lAB ? 0 : 1);
-			const inSideB = sB < 0.0 ? -1 : (sB <= lAB ? 0 : 1);
-			const sideAB = inSideA * inSideB;
+			val dT = Math.sqrt(dR);
+			val sA = a - dT;
+			val sB = a + dT;
+			val inSideA = sA < 0.0 ? -1 : (sA <= lAB ? 0 : 1);
+			val inSideB = sB < 0.0 ? -1 : (sB <= lAB ? 0 : 1);
+			val sideAB = inSideA * inSideB;
 
 			if (sideAB < 0) {
 				return -1;
@@ -465,9 +465,9 @@ class EllipseBoundingBoxData  :  BoundingBoxData {
 	 * @inheritDoc
 	 */
 	public containsPoint(pX: Double, pY: Double): Boolean {
-		const widthH = this.width * 0.5;
+		val widthH = this.width * 0.5;
 		if (pX >= -widthH && pX <= widthH) {
-			const heightH = this.height * 0.5;
+			val heightH = this.height * 0.5;
 			if (pY >= -heightH && pY <= heightH) {
 				pY *= widthH / heightH;
 				return Math.sqrt(pX * pX + pY * pY) <= widthH;
@@ -485,7 +485,7 @@ class EllipseBoundingBoxData  :  BoundingBoxData {
 		intersectionPointB: { x: Double, y: Double }? = null,
 		normalRadians: { x: Double, y: Double }? = null
 	): Double {
-		const intersectionCount = EllipseBoundingBoxData.ellipseIntersectsSegment(
+		val intersectionCount = EllipseBoundingBoxData.ellipseIntersectsSegment(
 			xA, yA, xB, yB,
 			0.0, 0.0, this.width * 0.5, this.height * 0.5,
 			intersectionPointA, intersectionPointB, normalRadians
@@ -526,23 +526,23 @@ class PolygonBoundingBoxData  :  BoundingBoxData {
 			yA = yB + 0.000001;
 		}
 
-		const count = vertices.length;
-		const dXAB = xA - xB;
-		const dYAB = yA - yB;
-		const llAB = xA * yB - yA * xB;
-		let intersectionCount = 0;
-		let xC = vertices[count - 2];
-		let yC = vertices[count - 1];
-		let dMin = 0.0;
-		let dMax = 0.0;
-		let xMin = 0.0;
-		let yMin = 0.0;
-		let xMax = 0.0;
-		let yMax = 0.0;
+		val count = vertices.length;
+		val dXAB = xA - xB;
+		val dYAB = yA - yB;
+		val llAB = xA * yB - yA * xB;
+		var intersectionCount = 0;
+		var xC = vertices[count - 2];
+		var yC = vertices[count - 1];
+		var dMin = 0.0;
+		var dMax = 0.0;
+		var xMin = 0.0;
+		var yMin = 0.0;
+		var xMax = 0.0;
+		var yMax = 0.0;
 
-		for (let i = 0; i < count; i += 2) {
-			const xD = vertices[i];
-			const yD = vertices[i + 1];
+		for (var i = 0; i < count; i += 2) {
+			val xD = vertices[i];
+			val yD = vertices[i + 1];
 
 			if (xC === xD) {
 				xC = xD + 0.0001;
@@ -552,17 +552,17 @@ class PolygonBoundingBoxData  :  BoundingBoxData {
 				yC = yD + 0.0001;
 			}
 
-			const dXCD = xC - xD;
-			const dYCD = yC - yD;
-			const llCD = xC * yD - yC * xD;
-			const ll = dXAB * dYCD - dYAB * dXCD;
-			const x = (llAB * dXCD - dXAB * llCD) / ll;
+			val dXCD = xC - xD;
+			val dYCD = yC - yD;
+			val llCD = xC * yD - yC * xD;
+			val ll = dXAB * dYCD - dYAB * dXCD;
+			val x = (llAB * dXCD - dXAB * llCD) / ll;
 
 			if (((x >= xC && x <= xD) || (x >= xD && x <= xC)) && (dXAB === 0.0 || (x >= xA && x <= xB) || (x >= xB && x <= xA))) {
-				const y = (llAB * dYCD - dYAB * llCD) / ll;
+				val y = (llAB * dYCD - dYAB * llCD) / ll;
 				if (((y >= yC && y <= yD) || (y >= yD && y <= yC)) && (dYAB === 0.0 || (y >= yA && y <= yB) || (y >= yB && y <= yA))) {
 					if (intersectionPointB !== null) {
-						let d = x - xA;
+						var d = x - xA;
 						if (d < 0.0) {
 							d = -d;
 						}
@@ -687,14 +687,14 @@ class PolygonBoundingBoxData  :  BoundingBoxData {
 	 * @inheritDoc
 	 */
 	public containsPoint(pX: Double, pY: Double): Boolean {
-		let isInSide = false;
+		var isInSide = false;
 		if (pX >= this.x && pX <= this.width && pY >= this.y && pY <= this.height) {
-			for (let i = 0, l = this.vertices.length, iP = l - 2; i < l; i += 2) {
-				const yA = this.vertices[iP + 1];
-				const yB = this.vertices[i + 1];
+			for (var i = 0, l = this.vertices.length, iP = l - 2; i < l; i += 2) {
+				val yA = this.vertices[iP + 1];
+				val yB = this.vertices[i + 1];
 				if ((yB < pY && yA >= pY) || (yA < pY && yB >= pY)) {
-					const xA = this.vertices[iP];
-					const xB = this.vertices[i];
+					val xA = this.vertices[iP];
+					val xB = this.vertices[i];
 					if ((pY - yB) * (xA - xB) / (yA - yB) + xB < pX) {
 						isInSide = !isInSide;
 					}
@@ -715,7 +715,7 @@ class PolygonBoundingBoxData  :  BoundingBoxData {
 		intersectionPointB: { x: Double, y: Double }? = null,
 		normalRadians: { x: Double, y: Double }? = null
 	): Double {
-		let intersectionCount = 0;
+		var intersectionCount = 0;
 		if (RectangleBoundingBoxData.rectangleIntersectsSegment(xA, yA, xB, yB, this.x, this.y, this.x + this.width, this.y + this.height, null, null, null) !== 0) {
 			intersectionCount = PolygonBoundingBoxData.polygonIntersectsSegment(
 				xA, yA, xB, yB,

@@ -101,7 +101,7 @@ class WorldClock : IAnimatable {
 			passedTime = 0.0;
 		}
 
-		const currentTime = Date.now() * 0.001;
+		val currentTime = Date.now() * 0.001;
 
 		if (passedTime < 0.0) {
 			passedTime = currentTime - this._systemTime;
@@ -124,9 +124,9 @@ class WorldClock : IAnimatable {
 			this.time += passedTime;
 		}
 
-		let i = 0, r = 0, l = this._animatebles.length;
+		var i = 0, r = 0, l = this._animatebles.length;
 		for (; i < l; ++i) {
-			const animatable = this._animatebles[i];
+			val animatable = this._animatebles[i];
 			if (animatable !== null) {
 				if (r > 0) {
 					this._animatebles[i - r] = animatable;
@@ -143,7 +143,7 @@ class WorldClock : IAnimatable {
 		if (r > 0) {
 			l = this._animatebles.length;
 			for (; i < l; ++i) {
-				const animateble = this._animatebles[i];
+				val animateble = this._animatebles[i];
 				if (animateble !== null) {
 					this._animatebles[i - r] = animateble;
 				}
@@ -172,7 +172,7 @@ class WorldClock : IAnimatable {
 			return false;
 		}
 
-		let ancestor: IAnimatable? = value;
+		var ancestor: IAnimatable? = value;
 		while (ancestor !== this && ancestor !== null) {
 			ancestor = ancestor.clock;
 		}
@@ -210,7 +210,7 @@ class WorldClock : IAnimatable {
 	 * @language zh_CN
 	 */
 	public remove(value: IAnimatable): Unit {
-		const index = this._animatebles.indexOf(value);
+		val index = this._animatebles.indexOf(value);
 		if (index >= 0) {
 			this._animatebles[index] = null;
 			value.clock = null;

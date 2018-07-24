@@ -103,22 +103,22 @@ class Surface  :  Bone {
 
 		if (this._parent !== null) {
 			if (this._parent._boneData.type === BoneType.Surface) {
-				for (let i = 0, l = vertexCount; i < l; ++i) {
-					const iD = i * 2;
-					const x = floatArray[verticesOffset + iD] + animationVertices[iD];
-					const y = floatArray[verticesOffset + iD + 1] + animationVertices[iD + 1];
-					const matrix = (this._parent as Surface)._getGlobalTransformMatrix(x, y);
+				for (var i = 0, l = vertexCount; i < l; ++i) {
+					val iD = i * 2;
+					val x = floatArray[verticesOffset + iD] + animationVertices[iD];
+					val y = floatArray[verticesOffset + iD + 1] + animationVertices[iD + 1];
+					val matrix = (this._parent as Surface)._getGlobalTransformMatrix(x, y);
 					//
 					vertices[iD] = matrix.a * x + matrix.c * y + matrix.tx;
 					vertices[iD + 1] = matrix.b * x + matrix.d * y + matrix.ty;
 				}
 			}
 			else {
-				const parentMatrix = this._parent.globalTransformMatrix;
-				for (let i = 0, l = vertexCount; i < l; ++i) {
-					const iD = i * 2;
-					const x = floatArray[verticesOffset + iD] + animationVertices[iD];
-					const y = floatArray[verticesOffset + iD + 1] + animationVertices[iD + 1];
+				val parentMatrix = this._parent.globalTransformMatrix;
+				for (var i = 0, l = vertexCount; i < l; ++i) {
+					val iD = i * 2;
+					val x = floatArray[verticesOffset + iD] + animationVertices[iD];
+					val y = floatArray[verticesOffset + iD + 1] + animationVertices[iD + 1];
 					//
 					vertices[iD] = parentMatrix.a * x + parentMatrix.c * y + parentMatrix.tx;
 					vertices[iD + 1] = parentMatrix.b * x + parentMatrix.d * y + parentMatrix.ty;
@@ -126,8 +126,8 @@ class Surface  :  Bone {
 			}
 		}
 		else {
-			for (let i = 0, l = vertexCount; i < l; ++i) {
-				const iD = i * 2;
+			for (var i = 0, l = vertexCount; i < l; ++i) {
+				val iD = i * 2;
 				vertices[iD] = floatArray[verticesOffset + iD] + animationVertices[iD];
 				vertices[iD + 1] = floatArray[verticesOffset + iD + 1] + animationVertices[iD + 1];
 			}
@@ -466,7 +466,7 @@ class Surface  :  Bone {
 		this._matrixCahce.length = (segmentX * segmentY + segmentX * 2 + segmentY * 2) * 2 * 7;
 		this._hullCache.length = 10;
 
-		for (let i = 0; i < vertexCount * 2; ++i) {
+		for (var i = 0; i < vertexCount * 2; ++i) {
 			this._deformVertices[i] = 0.0;
 		}
 
@@ -538,14 +538,14 @@ class Surface  :  Bone {
 			this._transformDirty = false;
 			this._childrenTransformDirty = true;
 			//
-			for (let i = 0, l = this._matrixCahce.length; i < l; i += 7) {
+			for (var i = 0, l = this._matrixCahce.length; i < l; i += 7) {
 				this._matrixCahce[i] = -1.0;
 			}
 			//
 			this._updateVertices();
 			//
 			if (this._cachedFrameIndex < 0) {
-				const isCache = cacheFrameIndex >= 0;
+				val isCache = cacheFrameIndex >= 0;
 				if (this._localDirty) {
 					this._updateGlobalTransformMatrix(isCache);
 				}
@@ -558,12 +558,12 @@ class Surface  :  Bone {
 				this._armature._armatureData.getCacheFrame(this.globalTransformMatrix, this.global, this._cachedFrameIndex);
 			}
 			// Update hull vertices.
-			const lB = 1000.0;
-			const lA = 200.0;
-			const ddX = 2 * this.global.x;
-			const ddY = 2 * this.global.y;
+			val lB = 1000.0;
+			val lA = 200.0;
+			val ddX = 2 * this.global.x;
+			val ddY = 2 * this.global.y;
 			//
-			const helpPoint = Surface._helpPoint;
+			val helpPoint = Surface._helpPoint;
 			this.globalTransformMatrix.transformPoint(lB, -lA, helpPoint);
 			this._hullCache[0] = helpPoint.x;
 			this._hullCache[1] = helpPoint.y;

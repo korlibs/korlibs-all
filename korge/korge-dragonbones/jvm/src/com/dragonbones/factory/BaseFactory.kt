@@ -89,7 +89,7 @@ abstract class BaseFactory {
 	protected fun _getTextureData(textureAtlasName: String, textureName: String): TextureData? {
 		if (textureAtlasName in this._textureAtlasDataMap) {
 			for (textureAtlasData in this._textureAtlasDataMap[textureAtlasName]) {
-				const textureData = textureAtlasData.getTexture(textureName)
+				val textureData = textureAtlasData.getTexture(textureName)
 				if (textureData !== null) {
 					return textureData
 				}
@@ -100,7 +100,7 @@ abstract class BaseFactory {
 			for (k in this._textureAtlasDataMap.keys) {
 				for (textureAtlasData in this._textureAtlasDataMap[k]) {
 					if (textureAtlasData.autoSearch) {
-						const textureData = textureAtlasData.getTexture(textureName)
+						val textureData = textureAtlasData.getTexture(textureName)
 						if (textureData !== null) {
 							return textureData
 						}
@@ -127,7 +127,7 @@ abstract class BaseFactory {
 		}
 
 		if (armatureData === null && (dragonBonesName.length === 0 || this.autoSearch)) { // Will be search all data, if do not give a data name or the autoSearch is true.
-			for (let k in this._dragonBonesDataMap) {
+			for (var k in this._dragonBonesDataMap) {
 				dragonBonesData = this._dragonBonesDataMap[k]
 				if (dragonBonesName.length === 0 || dragonBonesData.autoSearch) {
 					armatureData = dragonBonesData.getArmature(armatureName)
@@ -149,9 +149,9 @@ abstract class BaseFactory {
 			if (skinName.length > 0) {
 				dataPackage.skin = armatureData.getSkin(skinName)
 				if (dataPackage.skin === null && this.autoSearch) {
-					for (let k in this._dragonBonesDataMap) {
-						const skinDragonBonesData = this._dragonBonesDataMap[k]
-						const skinArmatureData = skinDragonBonesData.getArmature(skinName)
+					for (var k in this._dragonBonesDataMap) {
+						val skinDragonBonesData = this._dragonBonesDataMap[k]
+						val skinArmatureData = skinDragonBonesData.getArmature(skinName)
 						if (skinArmatureData !== null) {
 							dataPackage.skin = skinArmatureData.defaultSkin
 							break
@@ -187,14 +187,14 @@ abstract class BaseFactory {
 		}
 
 		val skinSlots: Map<Array<DisplayData?>> = {}
-		for (let k in defaultSkin.displays) {
-			const displays = defaultSkin.getDisplays(k) as any
+		for (var k in defaultSkin.displays) {
+			val displays = defaultSkin.getDisplays(k) as any
 			skinSlots[k] = displays
 		}
 
 		if (currentSkin !== defaultSkin) {
-			for (let k in currentSkin.displays) {
-				const displays = currentSkin.getDisplays(k) as any
+			for (var k in currentSkin.displays) {
+				val displays = currentSkin.getDisplays(k) as any
 				skinSlots[k] = displays
 			}
 		}
@@ -205,17 +205,17 @@ abstract class BaseFactory {
 
 			if (displayDatas !== null) {
 				slot.displayFrameCount = displayDatas.length
-				for (let i = 0, l = slot.displayFrameCount; i < l; ++i) {
-					const displayData = displayDatas[i]
+				for (var i = 0, l = slot.displayFrameCount; i < l; ++i) {
+					val displayData = displayDatas[i]
 					slot.replaceRawDisplayData(displayData, i)
 
 					if (displayData !== null) {
 						if (dataPackage.textureAtlasName.length > 0) {
-							const textureData = this._getTextureData(dataPackage.textureAtlasName, displayData.path)
+							val textureData = this._getTextureData(dataPackage.textureAtlasName, displayData.path)
 							slot.replaceTextureData(textureData, i)
 						}
 
-						const display = this._getSlotDisplay(dataPackage, displayData, slot)
+						val display = this._getSlotDisplay(dataPackage, displayData, slot)
 						slot.replaceDisplay(display, i)
 					}
 					else {
@@ -262,10 +262,10 @@ abstract class BaseFactory {
 
 	protected _getSlotDisplay(dataPackage: BuildArmaturePackage?, displayData: DisplayData, slot: Slot): Any {
 		val dataName = dataPackage !== null ? dataPackage.dataName : displayData.parent.parent.parent.name
-		let display: Any = null
+		var display: Any = null
 		when (displayData.type) {
 			DisplayType.Image -> {
-				const imageDisplayData = displayData as ImageDisplayData
+				val imageDisplayData = displayData as ImageDisplayData
 				if (imageDisplayData.texture === null) {
 					imageDisplayData.texture = this._getTextureData(dataName, displayData.path)
 				}
@@ -274,7 +274,7 @@ abstract class BaseFactory {
 			}
 
 			DisplayType.Mesh -> {
-				const meshDisplayData = displayData as MeshDisplayData
+				val meshDisplayData = displayData as MeshDisplayData
 				if (meshDisplayData.texture === null) {
 					meshDisplayData.texture = this._getTextureData(dataName, meshDisplayData.path)
 				}
@@ -288,15 +288,15 @@ abstract class BaseFactory {
 			}
 
 			DisplayType.Armature -> {
-				const armatureDisplayData = displayData as ArmatureDisplayData
-				const childArmature = this._buildChildArmature(dataPackage, slot, armatureDisplayData)
+				val armatureDisplayData = displayData as ArmatureDisplayData
+				val childArmature = this._buildChildArmature(dataPackage, slot, armatureDisplayData)
 				if (childArmature !== null) {
 					childArmature.inheritAnimation = armatureDisplayData.inheritAnimation
 					if (!childArmature.inheritAnimation) {
-						const actions = armatureDisplayData.actions.length > 0 ? armatureDisplayData.actions : childArmature.armatureData.defaultActions
+						val actions = armatureDisplayData.actions.length > 0 ? armatureDisplayData.actions : childArmature.armatureData.defaultActions
 						if (actions.length > 0) {
 							for (action in actions) {
-								const eventObject = BaseObject.borrowObject(EventObject)
+								val eventObject = BaseObject.borrowObject(EventObject)
 								EventObject.actionDataToInstance(action, eventObject, slot.armature)
 								eventObject.slot = slot
 								slot.armature._bufferAction(eventObject, false)
@@ -354,11 +354,11 @@ abstract class BaseFactory {
 	 * @language zh_CN
 	 */
 	public parseDragonBonesData(rawData: Any, name: String? = null, scale: Double = 1.0): DragonBonesData? {
-		const dataParser = rawData instanceof ArrayBuffer ? BaseFactory._binaryParser : this._dataParser
-		const dragonBonesData = dataParser.parseDragonBonesData(rawData, scale)
+		val dataParser = rawData instanceof ArrayBuffer ? BaseFactory._binaryParser : this._dataParser
+		val dragonBonesData = dataParser.parseDragonBonesData(rawData, scale)
 
 		while (true) {
-			const textureAtlasData = this._buildTextureAtlasData(null, null)
+			val textureAtlasData = this._buildTextureAtlasData(null, null)
 			if (dataParser.parseTextureAtlasData(null, textureAtlasData, scale)) {
 				this.addTextureAtlasData(textureAtlasData, name)
 			}
@@ -403,7 +403,7 @@ abstract class BaseFactory {
 	 * @language zh_CN
 	 */
 	public parseTextureAtlasData(rawData: Any, textureAtlas: Any, name: String? = null, scale: Double = 1.0): TextureAtlasData {
-		const textureAtlasData = this._buildTextureAtlasData(null, null)
+		val textureAtlasData = this._buildTextureAtlasData(null, null)
 		this._dataParser.parseTextureAtlasData(rawData, textureAtlasData, scale)
 		this._buildTextureAtlasData(textureAtlasData, textureAtlas || null)
 		this.addTextureAtlasData(textureAtlasData, name)
@@ -425,9 +425,9 @@ abstract class BaseFactory {
 	 * @language zh_CN
 	 */
 	public updateTextureAtlases(textureAtlases: Array<any>, name: String): Unit {
-		const textureAtlasDatas = this.getTextureAtlasData(name)
+		val textureAtlasDatas = this.getTextureAtlasData(name)
 		if (textureAtlasDatas !== null) {
-			for (let i = 0, l = textureAtlasDatas.length; i < l; ++i) {
+			for (var i = 0, l = textureAtlasDatas.length; i < l; ++i) {
 				if (i < textureAtlases.length) {
 					this._buildTextureAtlasData(textureAtlasDatas[i], textureAtlases[i])
 				}
@@ -572,7 +572,7 @@ abstract class BaseFactory {
 	 */
 	public addTextureAtlasData(data: TextureAtlasData, name: String? = null): Unit {
 		name = name !== null ? name : data.name
-		const textureAtlasList = (name in this._textureAtlasDataMap) ? this._textureAtlasDataMap[name] : (this._textureAtlasDataMap[name] = [])
+		val textureAtlasList = (name in this._textureAtlasDataMap) ? this._textureAtlasDataMap[name] : (this._textureAtlasDataMap[name] = [])
 		if (textureAtlasList.indexOf(data) < 0) {
 			textureAtlasList.push(data)
 		}
@@ -601,7 +601,7 @@ abstract class BaseFactory {
 	 */
 	public removeTextureAtlasData(name: String, disposeData: Boolean = true): Unit {
 		if (name in this._textureAtlasDataMap) {
-			const textureAtlasDataList = this._textureAtlasDataMap[name]
+			val textureAtlasDataList = this._textureAtlasDataMap[name]
 			if (disposeData) {
 				for (textureAtlasData in textureAtlasDataList) {
 					this._dragonBones.bufferObject(textureAtlasData)
@@ -628,7 +628,7 @@ abstract class BaseFactory {
 	 * @language zh_CN
 	 */
 	public getArmatureData(name: String, dragonBonesName: String = ""): ArmatureData? {
-		const dataPackage: BuildArmaturePackage = new BuildArmaturePackage()
+		val dataPackage: BuildArmaturePackage = new BuildArmaturePackage()
 		if (!this._fillBuildArmaturePackage(dataPackage, dragonBonesName, name, "", "")) {
 			return null
 		}
@@ -648,7 +648,7 @@ abstract class BaseFactory {
 	 * @language zh_CN
 	 */
 	public clear(disposeData: Boolean = true): Unit {
-		for (let k in this._dragonBonesDataMap) {
+		for (var k in this._dragonBonesDataMap) {
 			if (disposeData) {
 				this._dragonBones.bufferObject(this._dragonBonesDataMap[k])
 			}
@@ -656,9 +656,9 @@ abstract class BaseFactory {
 			delete this._dragonBonesDataMap[k]
 		}
 
-		for (let k in this._textureAtlasDataMap) {
+		for (var k in this._textureAtlasDataMap) {
 			if (disposeData) {
-				const textureAtlasDataList = this._textureAtlasDataMap[k]
+				val textureAtlasDataList = this._textureAtlasDataMap[k]
 				for (textureAtlasData in textureAtlasDataList) {
 					this._dragonBones.bufferObject(textureAtlasData)
 				}
@@ -676,7 +676,7 @@ abstract class BaseFactory {
 	 * @returns The armature.
 	 * @example
 	 * <pre>
-	 *     let armature = factory.buildArmature("armatureName", "dragonBonesName");
+	 *     var armature = factory.buildArmature("armatureName", "dragonBonesName");
 	 *     armature.clock = factory.clock;
 	 * </pre>
 	 * @see dragonBones.DragonBonesData
@@ -693,7 +693,7 @@ abstract class BaseFactory {
 	 * @returns 骨架。
 	 * @example
 	 * <pre>
-	 *     let armature = factory.buildArmature("armatureName", "dragonBonesName");
+	 *     var armature = factory.buildArmature("armatureName", "dragonBonesName");
 	 *     armature.clock = factory.clock;
 	 * </pre>
 	 * @see dragonBones.DragonBonesData
@@ -702,13 +702,13 @@ abstract class BaseFactory {
 	 * @language zh_CN
 	 */
 	public buildArmature(armatureName: String, dragonBonesName: String = "", skinName: String = "", textureAtlasName: String = ""): Armature? {
-		const dataPackage: BuildArmaturePackage = new BuildArmaturePackage()
+		val dataPackage: BuildArmaturePackage = new BuildArmaturePackage()
 		if (!this._fillBuildArmaturePackage(dataPackage, dragonBonesName || "", armatureName, skinName || "", textureAtlasName || "")) {
 			console.warn("No armature data: " + armatureName + ", " + (dragonBonesName !== null ? dragonBonesName : ""))
 			return null
 		}
 
-		const armature = this._buildArmature(dataPackage)
+		val armature = this._buildArmature(dataPackage)
 		this._buildBones(dataPackage, armature)
 		this._buildSlots(dataPackage, armature)
 		this._buildConstraints(dataPackage, armature)
@@ -732,9 +732,9 @@ abstract class BaseFactory {
 		slot.replaceDisplayData(displayData, displayIndex)
 
 		if (displayData !== null) {
-			let display = this._getSlotDisplay(null, displayData, slot)
+			var display = this._getSlotDisplay(null, displayData, slot)
 			if (displayData.type === DisplayType.Image) {
-				const rawDisplayData = slot.getDisplayFrameAt(displayIndex).rawDisplayData
+				val rawDisplayData = slot.getDisplayFrameAt(displayIndex).rawDisplayData
 				if (
 					rawDisplayData !== null &&
 					rawDisplayData.type === DisplayType.Mesh
@@ -760,7 +760,7 @@ abstract class BaseFactory {
 	 * @param displayIndex - The index of the display data that is replaced. (If it is not set, replaces the current display data)
 	 * @example
 	 * <pre>
-	 *     let slot = armature.getSlot("weapon");
+	 *     var slot = armature.getSlot("weapon");
 	 *     factory.replaceSlotDisplay("dragonBonesName", "armatureName", "slotName", "displayName", slot);
 	 * </pre>
 	 * @version DragonBones 4.5
@@ -777,7 +777,7 @@ abstract class BaseFactory {
 	 * @param displayIndex - 被替换的显示对象数据的索引。 （如果未设置，则替换当前的显示对象数据）
 	 * @example
 	 * <pre>
-	 *     let slot = armature.getSlot("weapon");
+	 *     var slot = armature.getSlot("weapon");
 	 *     factory.replaceSlotDisplay("dragonBonesName", "armatureName", "slotName", "displayName", slot);
 	 * </pre>
 	 * @version DragonBones 4.5
@@ -787,12 +787,12 @@ abstract class BaseFactory {
 		dragonBonesName: String, armatureName: String, slotName: String, displayName: String,
 		slot: Slot, displayIndex: Double = -1
 	): Boolean {
-		const armatureData = this.getArmatureData(armatureName, dragonBonesName || "")
+		val armatureData = this.getArmatureData(armatureName, dragonBonesName || "")
 		if (armatureData === null || armatureData.defaultSkin === null) {
 			return false
 		}
 
-		const displayData = armatureData.defaultSkin.getDisplay(slotName, displayName)
+		val displayData = armatureData.defaultSkin.getDisplay(slotName, displayName)
 		this.replaceDisplay(slot, displayData, displayIndex)
 
 		return true
@@ -804,19 +804,19 @@ abstract class BaseFactory {
 		dragonBonesName: String?, armatureName: String, slotName: String,
 		slot: Slot
 	): Boolean {
-		const armatureData = this.getArmatureData(armatureName, dragonBonesName || "")
+		val armatureData = this.getArmatureData(armatureName, dragonBonesName || "")
 		if (!armatureData || !armatureData.defaultSkin) {
 			return false
 		}
 
-		const displayDatas = armatureData.defaultSkin.getDisplays(slotName)
+		val displayDatas = armatureData.defaultSkin.getDisplays(slotName)
 		if (!displayDatas) {
 			return false
 		}
 
 		slot.displayFrameCount = displayDatas.length
-		for (let i = 0, l = slot.displayFrameCount; i < l; ++i) {
-			const displayData = displayDatas[i]
+		for (var i = 0, l = slot.displayFrameCount; i < l; ++i) {
+			val displayData = displayDatas[i]
 			this.replaceDisplay(slot, displayData, i)
 		}
 
@@ -830,8 +830,8 @@ abstract class BaseFactory {
 	 * @param exclude - A list of slot names that do not need to be replace.
 	 * @example
 	 * <pre>
-	 *     let armatureA = factory.buildArmature("armatureA", "dragonBonesA");
-	 *     let armatureDataB = factory.getArmatureData("armatureB", "dragonBonesB");
+	 *     var armatureA = factory.buildArmature("armatureA", "dragonBonesA");
+	 *     var armatureDataB = factory.getArmatureData("armatureB", "dragonBonesB");
 	 *     if (armatureDataB && armatureDataB.defaultSkin) {
 	 *     factory.replaceSkin(armatureA, armatureDataB.defaultSkin, false, ["arm_l", "weapon_l"]);
 	 *     }
@@ -849,8 +849,8 @@ abstract class BaseFactory {
 	 * @param exclude - 不需要被替换的插槽名称列表。
 	 * @example
 	 * <pre>
-	 *     let armatureA = factory.buildArmature("armatureA", "dragonBonesA");
-	 *     let armatureDataB = factory.getArmatureData("armatureB", "dragonBonesB");
+	 *     var armatureA = factory.buildArmature("armatureA", "dragonBonesA");
+	 *     var armatureDataB = factory.getArmatureData("armatureB", "dragonBonesB");
 	 *     if (armatureDataB && armatureDataB.defaultSkin) {
 	 *     factory.replaceSkin(armatureA, armatureDataB.defaultSkin, false, ["arm_l", "weapon_l"]);
 	 *     }
@@ -861,15 +861,15 @@ abstract class BaseFactory {
 	 * @language zh_CN
 	 */
 	public replaceSkin(armature: Armature, skin: SkinData, isOverride: Boolean = false, exclude: Array<String>? = null): Boolean {
-		let success = false
-		const defaultSkin = skin.parent.defaultSkin
+		var success = false
+		val defaultSkin = skin.parent.defaultSkin
 
 		for (slot in armature.getSlots()) {
 			if (exclude !== null && exclude.indexOf(slot.name) >= 0) {
 				continue
 			}
 
-			let displayDatas = skin.getDisplays(slot.name)
+			var displayDatas = skin.getDisplays(slot.name)
 			if (displayDatas === null) {
 				if (defaultSkin !== null && skin !== defaultSkin) {
 					displayDatas = defaultSkin.getDisplays(slot.name)
@@ -884,8 +884,8 @@ abstract class BaseFactory {
 			}
 
 			slot.displayFrameCount = displayDatas.length
-			for (let i = 0, l = slot.displayFrameCount; i < l; ++i) {
-				const displayData = displayDatas[i]
+			for (var i = 0, l = slot.displayFrameCount; i < l; ++i) {
+				val displayData = displayDatas[i]
 			slot.replaceRawDisplayData(displayData, i)
 
 			if (displayData !== null) {
@@ -909,8 +909,8 @@ abstract class BaseFactory {
 	 * @param isOverride - Whether to completely overwrite the original animation. (Default: false)
 	 * @example
 	 * <pre>
-	 *     let armatureA = factory.buildArmature("armatureA", "dragonBonesA");
-	 *     let armatureDataB = factory.getArmatureData("armatureB", "dragonBonesB");
+	 *     var armatureA = factory.buildArmature("armatureA", "dragonBonesA");
+	 *     var armatureDataB = factory.getArmatureData("armatureB", "dragonBonesB");
 	 *     if (armatureDataB) {
 	 *     factory.replaceAnimation(armatureA, armatureDataB);
 	 *     }
@@ -928,8 +928,8 @@ abstract class BaseFactory {
 	 * @param isOverride - 是否完全覆盖原来的动画。（默认: false）
 	 * @example
 	 * <pre>
-	 *     let armatureA = factory.buildArmature("armatureA", "dragonBonesA");
-	 *     let armatureDataB = factory.getArmatureData("armatureB", "dragonBonesB");
+	 *     var armatureA = factory.buildArmature("armatureA", "dragonBonesA");
+	 *     var armatureDataB = factory.getArmatureData("armatureB", "dragonBonesB");
 	 *     if (armatureDataB) {
 	 *     factory.replaceAnimation(armatureA, armatureDataB);
 	 *     }
@@ -940,7 +940,7 @@ abstract class BaseFactory {
 	 * @language zh_CN
 	 */
 	public replaceAnimation(armature: Armature, armatureData: ArmatureData, isOverride: Boolean = true): Boolean {
-		const skinData = armatureData.defaultSkin
+		val skinData = armatureData.defaultSkin
 		if (skinData === null) {
 			return false
 		}
@@ -949,14 +949,14 @@ abstract class BaseFactory {
 			armature.animation.animations = armatureData.animations
 		}
 		else {
-			const rawAnimations = armature.animation.animations
-			const animations: Map<AnimationData> = {}
+			val rawAnimations = armature.animation.animations
+			val animations: Map<AnimationData> = {}
 
-			for (let k in rawAnimations) {
+			for (var k in rawAnimations) {
 				animations[k] = rawAnimations[k]
 			}
 
-			for (let k in armatureData.animations) {
+			for (var k in armatureData.animations) {
 				animations[k] = armatureData.animations[k]
 			}
 
@@ -964,14 +964,14 @@ abstract class BaseFactory {
 		}
 
 		for (slot in armature.getSlots()) {
-			let index = 0
+			var index = 0
 			for (display in slot.displayList) {
 				if (display instanceof Armature) {
-					const displayDatas = skinData.getDisplays(slot.name)
+					val displayDatas = skinData.getDisplays(slot.name)
 					if (displayDatas !== null && index < displayDatas.length) {
-						const displayData = displayDatas[index]
+						val displayData = displayDatas[index]
 						if (displayData !== null && displayData.type === DisplayType.Armature) {
-							const childArmatureData = this.getArmatureData(displayData.path, displayData.parent.parent.parent.name)
+							val childArmatureData = this.getArmatureData(displayData.path, displayData.parent.parent.parent.name)
 							if (childArmatureData) {
 								this.replaceAnimation(display, childArmatureData, isOverride)
 							}

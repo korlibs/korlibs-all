@@ -92,9 +92,9 @@ abstract class TimelineState  :  BaseObject {
 	protected abstract _onUpdateFrame(): Unit;
 
 	protected _setCurrentTime(passedTime: Double): Boolean {
-		const prevState = this.playState;
-		const prevPlayTimes = this.currentPlayTimes;
-		const prevTime = this.currentTime;
+		val prevState = this.playState;
+		val prevPlayTimes = this.currentPlayTimes;
+		val prevTime = this.currentTime;
 
 		if (this._actionTimeline !== null && this._frameCount <= 1) { // No frame or only one frame.
 			this.playState = this._actionTimeline.playState >= 0 ? 1 : -1;
@@ -102,8 +102,8 @@ abstract class TimelineState  :  BaseObject {
 			this.currentTime = this._actionTimeline.currentTime;
 		}
 		else if (this._actionTimeline === null || this._timeScale !== 1.0 || this._timeOffset !== 0.0) { // Action timeline or has scale and offset.
-			const playTimes = this._animationState.playTimes;
-			const totalTime = playTimes * this._duration;
+			val playTimes = this._animationState.playTimes;
+			val totalTime = playTimes * this._duration;
 
 			passedTime *= this._timeScale;
 			if (this._timeOffset !== 0.0) {
@@ -180,7 +180,7 @@ abstract class TimelineState  :  BaseObject {
 		this._duration = this._animationState._duration;
 
 		if (this._timelineData !== null) {
-			const dragonBonesData = this._animationData.parent.parent; // May by the animation data is not belone to this armature data.
+			val dragonBonesData = this._animationData.parent.parent; // May by the animation data is not belone to this armature data.
 			this._frameArray = dragonBonesData.frameArray;
 			this._timelineArray = dragonBonesData.timelineArray;
 			this._frameIndices = dragonBonesData.frameIndices;
@@ -199,8 +199,8 @@ abstract class TimelineState  :  BaseObject {
 	public update(passedTime: Double): Unit {
 		if (this._setCurrentTime(passedTime)) {
 			if (this._frameCount > 1) {
-				const timelineFrameIndex = Math.floor(this.currentTime * this._frameRate); // uint
-				const frameIndex = this._frameIndices[(this._timelineData as TimelineData).frameIndicesOffset + timelineFrameIndex];
+				val timelineFrameIndex = Math.floor(this.currentTime * this._frameRate); // uint
+				val frameIndex = this._frameIndices[(this._timelineData as TimelineData).frameIndicesOffset + timelineFrameIndex];
 
 				if (this._frameIndex !== frameIndex) {
 					this._frameIndex = frameIndex;
@@ -233,7 +233,7 @@ abstract class TimelineState  :  BaseObject {
  */
 abstract class TweenTimelineState  :  TimelineState {
 	private static _getEasingValue(tweenType: TweenType, progress: Double, easing: Double): Double {
-		let value = progress;
+		var value = progress;
 
 		switch (tweenType) {
 			case TweenType.QuadIn:
@@ -260,11 +260,11 @@ abstract class TweenTimelineState  :  TimelineState {
 			return 1.0;
 		}
 
-		const isOmited = count > 0;
-		const segmentCount = count + 1; // + 2 - 1
-		const valueIndex = Math.floor(progress * segmentCount);
-		let fromValue = 0.0;
-		let toValue = 0.0;
+		val isOmited = count > 0;
+		val segmentCount = count + 1; // + 2 - 1
+		val valueIndex = Math.floor(progress * segmentCount);
+		var fromValue = 0.0;
+		var toValue = 0.0;
 
 		if (isOmited) {
 			fromValue = valueIndex === 0 ? 0.0 : samples[offset + valueIndex - 1];
@@ -328,8 +328,8 @@ abstract class TweenTimelineState  :  TimelineState {
 				this._frameDurationR = 1.0 / (this._animationData.duration - this._framePosition);
 			}
 			else {
-				const nextFrameOffset = this._animationData.frameOffset + this._timelineArray[(this._timelineData as TimelineData).offset + BinaryOffset.TimelineFrameOffset + this._frameIndex + 1];
-				const frameDuration = this._frameArray[nextFrameOffset] * this._frameRateR - this._framePosition;
+				val nextFrameOffset = this._animationData.frameOffset + this._timelineArray[(this._timelineData as TimelineData).offset + BinaryOffset.TimelineFrameOffset + this._frameIndex + 1];
+				val frameDuration = this._frameArray[nextFrameOffset] * this._frameRateR - this._framePosition;
 
 				if (frameDuration > 0) {
 					this._frameDurationR = 1.0 / frameDuration;
@@ -379,13 +379,13 @@ abstract class SingleValueTimelineState  :  TweenTimelineState {
 		super._onArriveAtFrame();
 
 		if (this._timelineData !== null) {
-			const valueScale = this._valueScale;
-			const valueArray = this._valueArray;
+			val valueScale = this._valueScale;
+			val valueArray = this._valueArray;
 			//
-			const valueOffset = this._valueOffset + this._frameValueOffset + this._frameIndex;
+			val valueOffset = this._valueOffset + this._frameValueOffset + this._frameIndex;
 
 			if (this._isTween) {
-				const nextValueOffset = this._frameIndex === this._frameCount - 1 ?
+				val nextValueOffset = this._frameIndex === this._frameCount - 1 ?
 					this._valueOffset + this._frameValueOffset :
 					valueOffset + 1;
 
@@ -441,13 +441,13 @@ abstract class DoubleValueTimelineState  :  TweenTimelineState {
 		super._onArriveAtFrame();
 
 		if (this._timelineData !== null) {
-			const valueScale = this._valueScale;
-			const valueArray = this._valueArray;
+			val valueScale = this._valueScale;
+			val valueArray = this._valueArray;
 			//
-			const valueOffset = this._valueOffset + this._frameValueOffset + this._frameIndex * 2;
+			val valueOffset = this._valueOffset + this._frameValueOffset + this._frameIndex * 2;
 
 			if (this._isTween) {
-				const nextValueOffset = this._frameIndex === this._frameCount - 1 ?
+				val nextValueOffset = this._frameIndex === this._frameCount - 1 ?
 					this._valueOffset + this._frameValueOffset :
 					valueOffset + 2;
 
@@ -501,44 +501,44 @@ abstract class MutilpleValueTimelineState  :  TweenTimelineState {
 	protected _onArriveAtFrame(): Unit {
 		super._onArriveAtFrame();
 
-		const valueCount = this._valueCount;
-		const rd = this._rd;
+		val valueCount = this._valueCount;
+		val rd = this._rd;
 
 		if (this._timelineData !== null) {
-			const valueScale = this._valueScale;
-			const valueArray = this._valueArray;
+			val valueScale = this._valueScale;
+			val valueArray = this._valueArray;
 			//
-			const valueOffset = this._valueOffset + this._frameValueOffset + this._frameIndex * valueCount;
+			val valueOffset = this._valueOffset + this._frameValueOffset + this._frameIndex * valueCount;
 
 			if (this._isTween) {
-				const nextValueOffset = this._frameIndex === this._frameCount - 1 ?
+				val nextValueOffset = this._frameIndex === this._frameCount - 1 ?
 					this._valueOffset + this._frameValueOffset :
 					valueOffset + valueCount;
 
 				if (valueScale === 1.0) {
-					for (let i = 0; i < valueCount; ++i) {
+					for (var i = 0; i < valueCount; ++i) {
 						rd[valueCount + i] = valueArray[nextValueOffset + i] - valueArray[valueOffset + i];
 					}
 				}
 				else {
-					for (let i = 0; i < valueCount; ++i) {
+					for (var i = 0; i < valueCount; ++i) {
 						rd[valueCount + i] = (valueArray[nextValueOffset + i] - valueArray[valueOffset + i]) * valueScale;
 					}
 				}
 			}
 			else if (valueScale === 1.0) {
-				for (let i = 0; i < valueCount; ++i) {
+				for (var i = 0; i < valueCount; ++i) {
 					rd[i] = valueArray[valueOffset + i];
 				}
 			}
 			else {
-				for (let i = 0; i < valueCount; ++i) {
+				for (var i = 0; i < valueCount; ++i) {
 					rd[i] = valueArray[valueOffset + i] * valueScale;
 				}
 			}
 		}
 		else {
-			for (let i = 0; i < valueCount; ++i) {
+			for (var i = 0; i < valueCount; ++i) {
 				rd[i] = 0.0;
 			}
 		}
@@ -548,21 +548,21 @@ abstract class MutilpleValueTimelineState  :  TweenTimelineState {
 		super._onUpdateFrame();
 
 		if (this._isTween) {
-			const valueCount = this._valueCount;
-			const valueScale = this._valueScale;
-			const tweenProgress = this._tweenProgress;
-			const valueArray = this._valueArray;
-			const rd = this._rd;
+			val valueCount = this._valueCount;
+			val valueScale = this._valueScale;
+			val tweenProgress = this._tweenProgress;
+			val valueArray = this._valueArray;
+			val rd = this._rd;
 			//
-			const valueOffset = this._valueOffset + this._frameValueOffset + this._frameIndex * valueCount;
+			val valueOffset = this._valueOffset + this._frameValueOffset + this._frameIndex * valueCount;
 
 			if (valueScale === 1.0) {
-				for (let i = 0; i < valueCount; ++i) {
+				for (var i = 0; i < valueCount; ++i) {
 					rd[i] = valueArray[valueOffset + i] + rd[valueCount + i] * tweenProgress;
 				}
 			}
 			else {
-				for (let i = 0; i < valueCount; ++i) {
+				for (var i = 0; i < valueCount; ++i) {
 					rd[i] = valueArray[valueOffset + i] * valueScale + rd[valueCount + i] * tweenProgress;
 				}
 			}

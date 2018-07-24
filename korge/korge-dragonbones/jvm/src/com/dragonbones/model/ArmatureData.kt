@@ -188,7 +188,7 @@ class ArmatureData  : BaseObject() {
 			delete this.skins[k]
 		}
 
-		for (let k in this.animations) {
+		for (var k in this.animations) {
 			this.animations[k].returnToPool()
 			delete this.animations[k]
 		}

@@ -196,7 +196,7 @@ class Armature  : BaseObject(), IAnimatable {
 		val isOriginal = slotIndices === null
 
 		if (this._zOrderDirty || !isOriginal) {
-			for (let i = 0, l = slotDatas.length; i < l; ++i) {
+			for (var i = 0, l = slotDatas.length; i < l; ++i) {
 				val slotIndex = isOriginal ? i : (slotIndices as  DoubleArray)[offset + i]
 				if (slotIndex < 0 || slotIndex >= l) {
 					continue
@@ -317,7 +317,7 @@ class Armature  : BaseObject(), IAnimatable {
 			return
 		}
 
-		const prevCacheFrameIndex = this._cacheFrameIndex
+		val prevCacheFrameIndex = this._cacheFrameIndex
 		// Update animation.
 		this._animation.advanceTime(passedTime)
 		// Sort slots.
@@ -325,7 +325,7 @@ class Armature  : BaseObject(), IAnimatable {
 			this._slots.sort(Armature._onSortSlots)
 
 			if (this._zIndexDirty) {
-				for (let i = 0, l = this._slots.length; i < l; ++i) {
+				for (var i = 0, l = this._slots.length; i < l; ++i) {
 					this._slots[i]._setZOrder(i) //
 				}
 			}
@@ -348,7 +348,7 @@ class Armature  : BaseObject(), IAnimatable {
 		}
 		// Update bones and slots.
 		if (this._cacheFrameIndex < 0 || this._cacheFrameIndex !== prevCacheFrameIndex) {
-			let i = 0, l = 0
+			var i = 0, l = 0
 			for (i = 0, l = this._bones.length; i < l; ++i) {
 				this._bones[i].update(this._cacheFrameIndex)
 			}
@@ -360,11 +360,11 @@ class Armature  : BaseObject(), IAnimatable {
 		// Do actions.
 		if (this._actions.length > 0) {
 			for (action in  this._actions) {
-				const actionData = action.actionData
+				val actionData = action.actionData
 				if (actionData !== null) {
 					if (actionData.type === ActionType.Play) {
 						if (action.slot !== null) {
-							const childArmature = action.slot.childArmature
+							val childArmature = action.slot.childArmature
 							if (childArmature !== null) {
 								childArmature.animation.fadeIn(actionData.name)
 							}
@@ -372,7 +372,7 @@ class Armature  : BaseObject(), IAnimatable {
 						else if (action.bone !== null) {
 							for (slot in this.getSlots()) {
 								if (slot.parent === action.bone) {
-									const childArmature = slot.childArmature
+									val childArmature = slot.childArmature
 									if (childArmature !== null) {
 										childArmature.animation.fadeIn(actionData.name)
 									}
@@ -779,7 +779,7 @@ class Armature  : BaseObject(), IAnimatable {
 
 			// Set child armature frameRate.
 			for (slot in this._slots) {
-				const childArmature = slot.childArmature
+				val childArmature = slot.childArmature
 				if (childArmature !== null) {
 					childArmature.cacheFrameRate = value
 				}

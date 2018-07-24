@@ -117,7 +117,7 @@ abstract class TransformObject  :  BaseObject {
 	 * @example
 	 * <pre>
 	 *     bone.updateGlobalTransform();
-	 *     let rotation = bone.global.rotation;
+	 *     var rotation = bone.global.rotation;
 	 * </pre>
 	 * @version DragonBones 3.0
 	 * @language en_US
@@ -128,7 +128,7 @@ abstract class TransformObject  :  BaseObject {
 	 * @example
 	 * <pre>
 	 *     bone.updateGlobalTransform();
-	 *     let rotation = bone.global.rotation;
+	 *     var rotation = bone.global.rotation;
 	 * </pre>
 	 * @version DragonBones 3.0
 	 * @language zh_CN

@@ -270,7 +270,7 @@ class AnimationData  :  BaseObject() {
 	 * @private
 	 */
 	public fun addBoneTimeline(timelineName: String, timeline: TimelineData): Unit {
-		const timelines = timelineName in this.boneTimelines ? this.boneTimelines[timelineName] : (this.boneTimelines[timelineName] = [])
+		val timelines = timelineName in this.boneTimelines ? this.boneTimelines[timelineName] : (this.boneTimelines[timelineName] = [])
 		if (timelines.indexOf(timeline) < 0) {
 			timelines.push(timeline)
 		}
@@ -279,7 +279,7 @@ class AnimationData  :  BaseObject() {
 	 * @private
 	 */
 	public fun addSlotTimeline(timelineName: String, timeline: TimelineData): Unit {
-		const timelines = timelineName in this.slotTimelines ? this.slotTimelines[timelineName] : (this.slotTimelines[timelineName] = [])
+		val timelines = timelineName in this.slotTimelines ? this.slotTimelines[timelineName] : (this.slotTimelines[timelineName] = [])
 		if (timelines.indexOf(timeline) < 0) {
 			timelines.push(timeline)
 		}
@@ -288,7 +288,7 @@ class AnimationData  :  BaseObject() {
 	 * @private
 	 */
 	public fun addConstraintTimeline(timelineName: String, timeline: TimelineData): Unit {
-		const timelines = timelineName in this.constraintTimelines ? this.constraintTimelines[timelineName] : (this.constraintTimelines[timelineName] = [])
+		val timelines = timelineName in this.constraintTimelines ? this.constraintTimelines[timelineName] : (this.constraintTimelines[timelineName] = [])
 		if (timelines.indexOf(timeline) < 0) {
 			timelines.push(timeline)
 		}
@@ -297,7 +297,7 @@ class AnimationData  :  BaseObject() {
 	 * @private
 	 */
 	public fun addAnimationTimeline(timelineName: String, timeline: TimelineData): Unit {
-		const timelines = timelineName in this.animationTimelines ? this.animationTimelines[timelineName] : (this.animationTimelines[timelineName] = [])
+		val timelines = timelineName in this.animationTimelines ? this.animationTimelines[timelineName] : (this.animationTimelines[timelineName] = [])
 		if (timelines.indexOf(timeline) < 0) {
 			timelines.push(timeline)
 		}
