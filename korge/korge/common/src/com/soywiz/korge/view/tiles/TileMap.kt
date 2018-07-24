@@ -19,15 +19,7 @@ open class TileMap(val map: IntArray2, val tileset: TileSet) : View() {
 	private val t0 = MPoint2d(0, 0)
 	private val tt0 = MPoint2d(0, 0)
 	private val tt1 = MPoint2d(0, 0)
-
-	private val tt2 = MPoint2d(0, 0)
-	private val tt3 = MPoint2d(0, 0)
-	private val tt4 = MPoint2d(0, 0)
-	private val tt5 = MPoint2d(0, 0)
-
-	private val tt6 = MPoint2d(0, 0)
-	private val tt7 = MPoint2d(0, 0)
-	private val tt8 = MPoint2d(0, 0)
+	private val tempPointPool = MVector2Area(16)
 
 	private fun computeVertexIfRequired(ctx: RenderContext) {
 		if (!dirtyVertices) return
@@ -67,15 +59,6 @@ open class TileMap(val map: IntArray2, val tileset: TileSet) : View() {
 		for (y in my0 until my1) {
 			for (x in mx0 until mx1) {
 				val tex = tileset[map[x, y]] ?: continue
-				val p0 = tt2
-				val p1 = tt3
-				val p2 = tt4
-				val p3 = tt5
-
-				p0.setToAdd(pos, tt6.setToAdd(tt7.setToMul(dU, x.toDouble()), tt8.setToMul(dV, y.toDouble())))
-				p1.setToAdd(p0, dU)
-				p2.setToAdd(p0, tt7.setToAdd(dU, dV))
-				p3.setToAdd(p0, dV)
 
 				val info = verticesPerTex.getOrPut(tex.bmp) {
 					val indices = TexturedVertexArray.quadIndices(ntiles)
@@ -83,13 +66,19 @@ open class TileMap(val map: IntArray2, val tileset: TileSet) : View() {
 					Info(TexturedVertexArray(ntiles * 4, indices))
 				}
 
-				info.vertices.select(info.vcount++).xy(p0.x, p0.y).uv(tex.tl_x, tex.tl_y).cols(colMul, colAdd)
-				info.vertices.select(info.vcount++).xy(p1.x, p1.y).uv(tex.tr_x, tex.tr_y).cols(colMul, colAdd)
-				info.vertices.select(info.vcount++).xy(p2.x, p2.y).uv(tex.br_x, tex.br_y).cols(colMul, colAdd)
-				info.vertices.select(info.vcount++).xy(p3.x, p3.y).uv(tex.bl_x, tex.bl_y).cols(colMul, colAdd)
+				tempPointPool {
+					val p0 = pos + (dU * x.toDouble()) + (dV * y.toDouble())
+					val p1 = p0 + dU
+					val p2 = p0 + dU + dV
+					val p3 = p0 + dV
+
+					info.vertices.select(info.vcount++).xy(p0.x, p0.y).uv(tex.tl_x, tex.tl_y).cols(colMul, colAdd)
+					info.vertices.select(info.vcount++).xy(p1.x, p1.y).uv(tex.tr_x, tex.tr_y).cols(colMul, colAdd)
+					info.vertices.select(info.vcount++).xy(p2.x, p2.y).uv(tex.br_x, tex.br_y).cols(colMul, colAdd)
+					info.vertices.select(info.vcount++).xy(p3.x, p3.y).uv(tex.bl_x, tex.bl_y).cols(colMul, colAdd)
+				}
 
 				info.icount += 6
-
 				count++
 			}
 		}

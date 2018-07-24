@@ -1,6 +1,5 @@
 package com.soywiz.korma
 
-import com.soywiz.kds.*
 import com.soywiz.korma.geom.*
 import com.soywiz.korma.interpolation.*
 import com.soywiz.korma.math.*
@@ -58,12 +57,13 @@ interface Vector2 {
 	}
 
 	abstract class Base : Vector2 {
-		override fun equals(other: Any?): Boolean = if (other is Vector2) this.x == other.x && this.y == other.y else false
+		override fun equals(other: Any?): Boolean =
+			if (other is Vector2) this.x == other.x && this.y == other.y else false
+
 		override fun hashCode(): Int = x.hashCode() + (y.hashCode() shl 7)
 		override fun toString(): String = KormaStr { "(${x.niceStr}, ${y.niceStr})" }
 	}
 }
-
 
 
 @PublishedApi
@@ -113,8 +113,12 @@ class MVector2(override var x: Double = 0.0, override var y: Double = x) :
 
 	fun setToAdd(a: Vector2, b: Vector2): MVector2 = setTo(a.x + b.x, a.y + b.y)
 	fun setToSub(a: Vector2, b: Vector2): MVector2 = setTo(a.x - b.x, a.y - b.y)
+
 	fun setToMul(a: Vector2, b: Vector2): MVector2 = setTo(a.x * b.x, a.y * b.y)
 	fun setToMul(a: Vector2, s: Double): MVector2 = setTo(a.x * s, a.y * s)
+
+	fun setToDiv(a: Vector2, b: Vector2): MVector2 = setTo(a.x / b.x, a.y / b.y)
+	fun setToDiv(a: Vector2, s: Double): MVector2 = setTo(a.x / s, a.y / s)
 
 	operator fun plusAssign(that: Vector2) {
 		setTo(this.x + that.x, this.y + that.y)
@@ -125,13 +129,10 @@ class MVector2(override var x: Double = 0.0, override var y: Double = x) :
 		this.setTo(this.x / len, this.y / len)
 	}
 
-	val unit: MVector2 get() = this / length
 	val length: Double get() = Math.hypot(x, y)
-	operator fun plus(that: Vector2) = MVector2(this.x + that.x, this.y + that.y)
-	operator fun minus(that: Vector2) = MVector2(this.x - that.x, this.y - that.y)
-	operator fun times(that: Vector2) = this.x * that.x + this.y * that.y
-	operator fun times(v: Double) = MVector2(x * v, y * v)
-	operator fun div(v: Double) = MVector2(x / v, y / v)
+	/*
+
+	*/
 
 	fun distanceTo(x: Double, y: Double) = Math.hypot(x - this.x, y - this.y)
 	fun distanceTo(that: Vector2) = distanceTo(that.x, that.y)
@@ -145,6 +146,15 @@ class MVector2(override var x: Double = 0.0, override var y: Double = x) :
 
 inline fun Vec(x: Number, y: Number): Vector2 = IVector2(x.toDouble(), y.toDouble())
 
+val MVector2.unit: Vector2 get() = this / length
+/*
+operator fun MVector2.plus(that: Vector2) = MVector2(this.x + that.x, this.y + that.y)
+operator fun MVector2.minus(that: Vector2) = MVector2(this.x - that.x, this.y - that.y)
+operator fun MVector2.times(that: Vector2) = this.x * that.x + this.y * that.y
+operator fun MVector2.times(v: Double) = MVector2(x * v, y * v)
+operator fun MVector2.div(v: Double) = MVector2(x / v, y / v)
+*/
+
 // @TODO: mul instead of dot
 operator fun Vector2.plus(that: Vector2): Vector2 = Vector2(this.x + that.x, this.y + that.y)
 
@@ -156,8 +166,9 @@ operator fun Vector2.times(scale: Double): Vector2 = Vector2(this.x * scale, thi
 operator fun Vector2.div(scale: Double): Vector2 = Vector2(this.x / scale, this.y / scale)
 
 infix fun Vector2.dot(that: Vector2) = this.x * that.x + this.y * that.y
-infix fun Vector2.mul(that: Vector2) = Vector2(this.x * that.x, this.y * that.y)
+//infix fun Vector2.mul(that: Vector2) = Vector2(this.x * that.x, this.y * that.y)
 fun Vector2.distanceTo(x: Double, y: Double) = Math.hypot(x - this.x, y - this.y)
+
 fun Vector2.distanceTo(that: Vector2) = distanceTo(that.x, that.y)
 
 fun Vector2.angleToRad(other: Vector2): Double = Angle.betweenRad(this.x, this.y, other.x, other.y)
@@ -188,7 +199,7 @@ interface Vector2Int {
 	val y: Int
 
 	companion object {
-	    operator fun invoke(x: Int, y: Int): Vector2Int = IVector2Int(x, y)
+		operator fun invoke(x: Int, y: Int): Vector2Int = IVector2Int(x, y)
 	}
 }
 
@@ -209,5 +220,29 @@ val Vector2Int.immutable: Vector2Int get() = Vector2Int(x, y)
 
 val Vector2.int get() = Vector2Int(x.toInt(), y.toInt())
 val Vector2Int.double get() = Vector2(x.toDouble(), y.toDouble())
+
+class MVector2Area(val size: Int) {
+	val points = (0 until size).map { MPoint2d() }
+	var offset = 0
+
+	private fun alloc() = points[offset++]
+	operator fun Vector2.plus(other: Vector2): MVector2 = alloc().setToAdd(this, other)
+	operator fun Vector2.minus(other: Vector2): MVector2 = alloc().setToSub(this, other)
+
+	operator fun Vector2.times(value: Vector2): MVector2 = alloc().setToMul(this, value)
+	operator fun Vector2.times(value: Double): MVector2 = alloc().setToMul(this, value)
+
+	operator fun Vector2.div(value: Vector2): MVector2 = alloc().setToDiv(this, value)
+	operator fun Vector2.div(value: Double): MVector2 = alloc().setToDiv(this, value)
+
+	operator fun invoke(callback: MVector2Area.() -> Unit) {
+		val oldOffset = offset
+		try {
+			callback()
+		} finally {
+			offset = oldOffset
+		}
+	}
+}
 
 //val vector2Pool = Pool<MVector2> { MVector2() }
