@@ -32,7 +32,7 @@ class ParticleEmitterView(val emitter: ParticleEmitter, emitterPos: Point2d = Po
 	}
 
 	// @TODO: Make ultra-fast rendering flushing ctx and using a custom shader + vertices + indices
-	override fun render(ctx: RenderContext, m: Matrix2d) {
+	override fun render(ctx: RenderContext) {
 		if (!visible) return
 		//ctx.flush()
 
@@ -42,7 +42,7 @@ class ParticleEmitterView(val emitter: ParticleEmitter, emitterPos: Point2d = Po
 		val cy = texture.height * 0.5
 		context.keep {
 			context.blendFactors = emitter.blendFactors
-			context.setMatrix(m)
+			context.setMatrix(renderMatrix)
 
 			for (p in simulator.particles) {
 				val scale = p.scale

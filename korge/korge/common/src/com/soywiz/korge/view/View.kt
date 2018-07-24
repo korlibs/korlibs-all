@@ -369,6 +369,9 @@ open class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by EventDi
 			}
 		}
 
+	// @TODO: Use matrix from reference instead
+	val renderMatrix: Matrix2d get() = globalMatrix
+
 	val globalColorTransform: ColorTransform get() = run { _ensureGlobal(); _globalColorTransform }
 	val globalColorMul: Int get() = globalColorTransform.colorMul
 	val globalColorAdd: Int get() = globalColorTransform.colorAdd
@@ -399,12 +402,8 @@ open class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by EventDi
 		dirtyVertices = true
 	}
 
-	fun render(ctx: RenderContext) {
+	override fun render(ctx: RenderContext) {
 		if (autoFlush) ctx.flush()
-		render(ctx, globalMatrix)
-	}
-
-	override fun render(ctx: RenderContext, m: Matrix2d) {
 	}
 
 	@Suppress("RemoveCurlyBracesFromTemplate")
@@ -700,7 +699,7 @@ fun View?.descendantsWith(out: ArrayList<View> = arrayListOf(), check: (View) ->
 }
 
 @Suppress("NOTHING_TO_INLINE")
-inline fun <T : View> T.setXY(x: Number, y: Number): T =
+inline fun <T : View> T.xy(x: Number, y: Number): T =
 	this.apply { this.x = x.toDouble() }.apply { this.y = y.toDouble() }
 
 inline fun <T : View> T.position(x: Number, y: Number): T =

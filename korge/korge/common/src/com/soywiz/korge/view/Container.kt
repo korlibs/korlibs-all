@@ -47,16 +47,10 @@ open class Container : View() {
 	}
 
 	private val tempMatrix = Matrix2d()
-	override fun render(ctx: RenderContext, m: Matrix2d) {
+	override fun render(ctx: RenderContext) {
 		if (!visible) return
-		val isGlobal = (m === globalMatrix)
 		safeForEachChildren { child ->
-			if (isGlobal) {
-				child.render(ctx, child.globalMatrix)
-			} else {
-				tempMatrix.multiply(child.localMatrix, m)
-				child.render(ctx, tempMatrix)
-			}
+			child.render(ctx)
 		}
 	}
 

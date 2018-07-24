@@ -9,7 +9,7 @@ inline fun Container.scaleView(
 ) = ScaleView(width, height, scale, filtering).addTo(this).apply(callback)
 
 class ScaleView(width: Int, height: Int, scale: Double = 2.0, var filtering: Boolean = false) :
-	FixedSizeContainer() {
+	FixedSizeContainer(), View.Reference {
 	init {
 		this.width = width.toDouble()
 		this.height = height.toDouble()
@@ -18,24 +18,24 @@ class ScaleView(width: Int, height: Int, scale: Double = 2.0, var filtering: Boo
 
 	//val once = Once()
 
-	private fun super_render(ctx: RenderContext, m: Matrix2d) {
-		super.render(ctx, m);
+	private fun super_render(ctx: RenderContext) {
+		super.render(ctx);
 	}
 
-	override fun render(ctx: RenderContext, m: Matrix2d) {
+	override fun render(ctx: RenderContext) {
 		val iwidth = width.toInt()
 		val iheight = height.toInt()
 
 		ctx.renderToTexture(iwidth, iheight, renderToTexture = {
 			//super.render(ctx, Matrix2d()) // @TODO: Bug with JTransc 0.6.6
-			super_render(ctx, Matrix2d())
+			super_render(ctx)
 		}, use = { renderTexture ->
 			ctx.batch.drawQuad(
 				tex = renderTexture,
 				x = 0f, y = 0f,
 				width = iwidth.toFloat(),
 				height = iheight.toFloat(),
-				m = m,
+				m = renderMatrix,
 				colorMul = colorMul,
 				colorAdd = colorAdd,
 				filtering = filtering

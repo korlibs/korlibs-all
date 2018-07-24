@@ -7,6 +7,7 @@ import com.soywiz.korag.shader.*
 import com.soywiz.korge.view.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
+import kotlin.math.*
 
 private val logger = Logger("BatchBuilder2D")
 
@@ -155,20 +156,20 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 		}
 	}
 
-	fun drawVertices(array: TexturedVertexArray) {
-		ensure(array.indices.size, array.vcount)
+	fun drawVertices(array: TexturedVertexArray, vcount: Int = array.vcount, icount: Int = array.indices.size) {
+		ensure(icount, vcount)
 
-		for (idx in array.indices) addIndex(vertexCount + idx)
+		for (idx in 0 until min(icount, array.indices.size)) addIndex(vertexCount + array.indices[idx])
 		//for (p in array.points) addVertex(p.x, p.y, p.tx, p.ty, p.colMul, p.colAdd)
 
-		vertices.setAlignedArrayInt32(vertexPos, array.data, 0, array.vcount * 6)
-		vertexCount += array.vcount
-		vertexPos += array.vcount * 6
+		vertices.setAlignedArrayInt32(vertexPos, array.data, 0, vcount * 6)
+		vertexCount += vcount
+		vertexPos += vcount * 6
 	}
 
-	fun drawVertices(array: TexturedVertexArray, tex: Texture.Base, smoothing: Boolean, blendFactors: AG.Blending) {
+	fun drawVertices(array: TexturedVertexArray, tex: Texture.Base, smoothing: Boolean, blendFactors: AG.Blending, vcount: Int = array.vcount, icount: Int = array.indices.size) {
 		setStateFast(tex, smoothing, blendFactors)
-		drawVertices(array)
+		drawVertices(array, vcount, icount)
 	}
 
 	private fun ensure(indices: Int, vertices: Int) {
@@ -410,27 +411,77 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 // @TODO: Call this mesh?
 class TexturedVertexArray(val vcount: Int, val indices: IntArray) {
 	internal val data = IntArray(COMPONENTS_PER_VERTEX * vcount)
-	val points = (0 until vcount).map { Item(data, it) }
+	//val points = (0 until vcount).map { Item(data, it) }
 	//val icount = indices.size
 
 	companion object {
-		val COMPONENTS_PER_VERTEX = 6
+		const val COMPONENTS_PER_VERTEX = 6
 		val QUAD_INDICES = intArrayOf(0, 1, 2,  3, 0, 2)
+		fun quadIndices(quadCount: Int): IntArray {
+			val out = IntArray(quadCount * 6)
+			var m = 0
+			var base = 0
+			for (n in 0 until quadCount) {
+				out[m++] = base + 0
+				out[m++] = base + 1
+				out[m++] = base + 2
+				out[m++] = base + 3
+				out[m++] = base + 0
+				out[m++] = base + 2
+				base += 4
+			}
+			//QUAD_INDICES.repeat(quadCount)
+			return out
+		}
 	}
 
-	class Item(private val data: IntArray, index: Int) {
-		val offset = index * COMPONENTS_PER_VERTEX
-		var x: Float; get() = Float.fromBits(data[offset + 0]); set(v) = run { data[offset + 0] = v.toBits() }
-		var y: Float; get() = Float.fromBits(data[offset + 1]); set(v) = run { data[offset + 1] = v.toBits() }
-		var tx: Float; get() = Float.fromBits(data[offset + 2]); set(v) = run { data[offset + 2] = v.toBits() }
-		var ty: Float; get() = Float.fromBits(data[offset + 3]); set(v) = run { data[offset + 3] = v.toBits() }
-		var colMul: Int; get() = data[offset + 4]; set(v) = run { data[offset + 4] = v }
-		var colAdd: Int; get() = data[offset + 5]; set(v) = run { data[offset + 5] = v }
-		fun setXY(x: Double, y: Double, matrix: Matrix2d) = this.apply {
-			this.x = matrix.transformX(x, y).toFloat()
-			this.y = matrix.transformY(x, y).toFloat()
-		}
-		fun setTXY(tx: Float, ty: Float) = this.apply { this.tx = tx }.also { this.ty = ty }
-		fun setCols(colMul: Int, colAdd: Int) = this.apply { this.colMul = colMul }.also { this.colAdd = colAdd }
-	}
+	private var offset = 0
+	fun select(i: Int) = this.apply { offset = i * COMPONENTS_PER_VERTEX }
+	fun setX(v: Float) = this.apply { data[offset + 0] = v.toBits() }
+	fun setY(v: Float) = this.apply { data[offset + 1] = v.toBits() }
+	fun setU(v: Float) = this.apply { data[offset + 2] = v.toBits() }
+	fun setV(v: Float) = this.apply { data[offset + 3] = v.toBits() }
+	fun setCMul(v: Int) = this.apply { data[offset + 4] = v }
+	fun setCAdd(v: Int) = this.apply { data[offset + 5] = v }
+	fun xy(x: Double, y: Double, matrix: Matrix2d) = setX(matrix.transformX(x, y).toFloat()).setY(matrix.transformY(x, y).toFloat())
+	fun xy(x: Double, y: Double) = setX(x.toFloat()).setY(y.toFloat())
+	fun uv(tx: Float, ty: Float) = setU(tx).setV(ty)
+	fun cols(colMul: Int, colAdd: Int) = setCMul(colMul).setCAdd(colAdd)
+
+	//class Item(private val data: IntArray, index: Int) {
+	//	val offset = index * COMPONENTS_PER_VERTEX
+	//	var x: Float; get() = Float.fromBits(data[offset + 0]); set(v) = run { data[offset + 0] = v.toBits() }
+	//	var y: Float; get() = Float.fromBits(data[offset + 1]); set(v) = run { data[offset + 1] = v.toBits() }
+	//	var tx: Float; get() = Float.fromBits(data[offset + 2]); set(v) = run { data[offset + 2] = v.toBits() }
+	//	var ty: Float; get() = Float.fromBits(data[offset + 3]); set(v) = run { data[offset + 3] = v.toBits() }
+	//	var colMul: Int; get() = data[offset + 4]; set(v) = run { data[offset + 4] = v }
+	//	var colAdd: Int; get() = data[offset + 5]; set(v) = run { data[offset + 5] = v }
+	//	fun setXY(x: Double, y: Double, matrix: Matrix2d) = this.apply {
+	//		this.x = matrix.transformX(x, y).toFloat()
+	//		this.y = matrix.transformY(x, y).toFloat()
+	//	}
+	//	fun setXY(x: Double, y: Double) = this.apply { this.x = x.toFloat() }.also { this.y = y.toFloat() }
+	//	fun setTXY(tx: Float, ty: Float) = this.apply { this.tx = tx }.also { this.ty = ty }
+	//	fun setCols(colMul: Int, colAdd: Int) = this.apply { this.colMul = colMul }.also { this.colAdd = colAdd }
+	//}
 }
+
+/*
+// @TODO: Move to the right place
+private fun IntArray.repeat(count: Int): IntArray {
+	val out = IntArray(this.size * count)
+
+	for (n in 0 until out.size) out[n] = this[n % this.size]
+
+	//if (count > 0) {
+	//	arraycopy(this, 0, out, 0, this.size)
+	//	if (count > 1) {
+	//		// This should work because of overlapping!
+	//		arraycopy(out, 0, out, this.size, (count - 1) * this.size)
+	//	}
+	//}
+
+	//for (n in 0 until count) arraycopy(this, 0, out, n * this.size, this.size)
+	return out
+}
+*/

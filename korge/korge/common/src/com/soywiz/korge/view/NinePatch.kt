@@ -39,7 +39,7 @@ class NinePatch(
 		MPoint2d(1.0, 1.0)
 	)
 
-	override fun render(ctx: RenderContext, m: Matrix2d) {
+	override fun render(ctx: RenderContext) {
 		if (!visible) return
 		// Precalculate points to avoid matrix multiplication per vertex on each frame
 
@@ -69,7 +69,7 @@ class NinePatch(
 			width.toFloat(), height.toFloat(),
 			posCuts = posCuts,
 			texCuts = texCuts,
-			m = m,
+			m = renderMatrix,
 			colorMul = colorMul,
 			colorAdd = colorAdd,
 			filtering = smoothing,

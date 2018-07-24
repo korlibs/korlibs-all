@@ -31,8 +31,10 @@ class NinePatchEx(
 		): NinePatchEx = NinePatchEx(Tex(ninePatch), width, height)
 	}
 
-	override fun render(ctx: RenderContext, m: Matrix2d) {
+	override fun render(ctx: RenderContext) {
 		if (!visible) return
+
+		val m = renderMatrix
 
 		val xscale = m.a
 		val yscale = m.d

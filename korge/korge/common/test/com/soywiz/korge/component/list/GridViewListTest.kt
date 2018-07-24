@@ -10,11 +10,11 @@ class GridViewListTest : ViewsForTesting() {
 	@Test
 	fun createGrid() {
 		val rowTemplate = Container().apply {
-			this += SolidRect(10, 10, Colors.RED).apply { setXY(0, 0); name = "cell0" }
-			this += SolidRect(10, 10, Colors.RED).apply { setXY(20, 0); name = "cell1" }
+			this += SolidRect(10, 10, Colors.RED).apply { xy(0, 0); name = "cell0" }
+			this += SolidRect(10, 10, Colors.RED).apply { xy(20, 0); name = "cell1" }
 		}
-		val row0 = rowTemplate.clone().apply { setXY(0, 0); name = "row0" }
-		val row1 = rowTemplate.clone().apply { setXY(0, 20); name = "row1" }
+		val row0 = rowTemplate.clone().apply { xy(0, 0); name = "row0" }
+		val row1 = rowTemplate.clone().apply { xy(0, 20); name = "row1" }
 		views.stage.addChild(row0)
 		views.stage.addChild(row1)
 		val gridView =

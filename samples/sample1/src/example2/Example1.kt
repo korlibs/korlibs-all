@@ -40,6 +40,6 @@ class MyScene : Scene() {
 				onOver { alpha = 1.0 }
 				onOut { alpha = 0.5 }
 			}
-		})
+		}
 	}
 }

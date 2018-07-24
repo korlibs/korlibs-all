@@ -5,7 +5,6 @@ import com.soywiz.korge.render.*
 import com.soywiz.korge.util.*
 import com.soywiz.korge.view.*
 import com.soywiz.korim.bitmap.*
-import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 
 inline fun Container.tileMap(map: IntArray2, tileset: TileSet, callback: @ViewsDslMarker TileMap.() -> Unit = {}) =
@@ -20,8 +19,10 @@ open class TileMap(val map: IntArray2, val tileset: TileSet) : View() {
 	private val tt0 = MPoint2d(0, 0)
 	private val tt1 = MPoint2d(0, 0)
 
-	override fun render(ctx: RenderContext, m: Matrix2d) {
-		if (!visible) return
+	private fun computeVertexIfRequired(ctx: RenderContext) {
+		if (!dirtyVertices) return
+		dirtyVertices = false
+		val m = renderMatrix
 
 		val renderTilesCounter = ctx.stats.counter("renderedTiles")
 
@@ -29,18 +30,13 @@ open class TileMap(val map: IntArray2, val tileset: TileSet) : View() {
 		val dU = m.transform(tileWidth, 0.0) - pos
 		val dV = m.transform(0.0, tileHeight) - pos
 
-		val colorMul = globalColorMul
-		val colorAdd = globalColorAdd
+		val colMul = globalColorMul
+		val colAdd = globalColorAdd
 
-		ctx.batch.setStateFast(
-			ctx.getTex(tileset.base),
-			blendFactors = computedBlendMode.factors, smoothing = smoothing
-		)
 
 		// @TODO: Bounds in clipped view
-		val pp0 = globalToLocal(t0.setTo(ctx.virtualLeft, ctx.virtualTop), tt0)
-		//val pp1 = globalToLocal(t0.setTo(views.actualVirtualWidth, views.actualVirtualHeight), tt1)
-		val pp1 = globalToLocal(t0.setTo(ctx.virtualRight, ctx.virtualBottom), tt1)
+		val pp0 = globalToLocal(t0.setTo(currentVirtualRect.left, currentVirtualRect.top), tt0)
+		val pp1 = globalToLocal(t0.setTo(currentVirtualRect.right, currentVirtualRect.bottom), tt1)
 
 		val mx0 = ((pp0.x / tileWidth) - 1).toInt().clamp(0, map.width)
 		val mx1 = ((pp1.x / tileWidth) + 1).toInt().clamp(0, map.width)
@@ -53,36 +49,65 @@ open class TileMap(val map: IntArray2, val tileset: TileSet) : View() {
 		//views.stats.value("tiledmap.$name.mx0,my0").set("$mx0,$my0")
 		//views.stats.value("tiledmap.$name.mx1,my1").set("$mx1,$my1")
 
+		val yheight = my1 - my0
+		val xwidth = mx1 - mx0
+		val ntiles = xwidth * yheight
+		verticesPerTex.clear()
+
 		var count = 0
 		for (y in my0 until my1) {
 			for (x in mx0 until mx1) {
-				if (x < 0 || x >= map.width) continue
 				val tex = tileset[map[x, y]] ?: continue
 				val p0 = pos + (dU * x.toDouble()) + (dV * y.toDouble())
 				val p1 = p0 + dU
 				val p2 = p0 + dU + dV
 				val p3 = p0 + dV
-				render(ctx, p0, p1, p2, p3, tex, colorMul, colorAdd)
+
+				val info = verticesPerTex.getOrPut(tex.bmp) {
+					val indices = TexturedVertexArray.quadIndices(ntiles)
+					//println(indices.toList())
+					Info(TexturedVertexArray(ntiles * 4, indices))
+				}
+
+				info.vertices.select(info.vcount++).xy(p0.x, p0.y).uv(tex.tl_x, tex.tl_y).cols(colMul, colAdd)
+				info.vertices.select(info.vcount++).xy(p1.x, p1.y).uv(tex.tr_x, tex.tr_y).cols(colMul, colAdd)
+				info.vertices.select(info.vcount++).xy(p2.x, p2.y).uv(tex.br_x, tex.br_y).cols(colMul, colAdd)
+				info.vertices.select(info.vcount++).xy(p3.x, p3.y).uv(tex.bl_x, tex.bl_y).cols(colMul, colAdd)
+
+				info.icount += 6
+
 				count++
 			}
 		}
 		renderTilesCounter?.increment(count)
-
-		ctx.flush()
 	}
 
-	open fun render(
-		ctx: RenderContext,
-		p0: Vector2, p1: Vector2, p2: Vector2, p3: Vector2,
-		tex: BmpSlice, colorMul: Int, colorAdd: Int
-	) {
-		ctx.batch.drawQuadFast(
-			p0.x.toFloat(), p0.y.toFloat(),
-			p1.x.toFloat(), p1.y.toFloat(),
-			p2.x.toFloat(), p2.y.toFloat(),
-			p3.x.toFloat(), p3.y.toFloat(),
-			ctx.getTex(tex), colorMul, colorAdd
-		)
+	// @TOOD: Use a TextureVertexBuffer or something
+	class Info(val vertices: TexturedVertexArray) {
+		var vcount = 0
+		var icount = 0
+	}
+
+	private val verticesPerTex = LinkedHashMap<Bitmap, Info>()
+
+	private var lastVirtualRect = Rectangle(-1, -1, -1, -1)
+	private var currentVirtualRect = Rectangle(-1, -1, -1, -1)
+
+	override fun render(ctx: RenderContext) {
+		if (!visible) return
+		currentVirtualRect.setBounds(ctx.virtualLeft, ctx.virtualTop, ctx.virtualRight, ctx.virtualBottom)
+		if (currentVirtualRect != lastVirtualRect) {
+			dirtyVertices = true
+			lastVirtualRect.copyFrom(currentVirtualRect)
+		}
+		computeVertexIfRequired(ctx)
+
+		for ((tex, buffer) in verticesPerTex) {
+			ctx.batch.drawVertices(
+				buffer.vertices, ctx.getTex(tex), smoothing, computedBlendMode.factors, buffer.vcount, buffer.icount
+			)
+			ctx.flush()
+		}
 	}
 
 	override fun getLocalBoundsInternal(out: Rectangle) {

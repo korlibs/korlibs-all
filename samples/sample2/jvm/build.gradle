@@ -1,6 +1,6 @@
 apply plugin: 'application'
 
-mainClassName = "MainKt"
+mainClassName = "example2.Example2Jvm"
 
 dependencies {
     compile "org.jogamp.gluegen:gluegen-rt:$gluegenVersion"

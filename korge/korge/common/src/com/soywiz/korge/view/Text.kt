@@ -85,10 +85,11 @@ class Text : View(), IText, IHtml {
 		document?.doPositioning(fonts, textBounds)
 	}
 
-	override fun render(ctx: RenderContext, m: Matrix2d) {
+	override fun render(ctx: RenderContext) {
 		if (!visible) return
 		val colorMul = globalColorMul
 		val colorAdd = globalColorAdd
+		val m = renderMatrix
 		if (document != null) {
 			for (span in document!!.allSpans) {
 				val font = fonts.getBitmapFont(span.format)

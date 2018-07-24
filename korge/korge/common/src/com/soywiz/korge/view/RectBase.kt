@@ -2,7 +2,6 @@ package com.soywiz.korge.view
 
 import com.soywiz.korge.render.*
 import com.soywiz.korim.bitmap.*
-import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 
 open class RectBase(
@@ -25,15 +24,11 @@ open class RectBase(
 	private val sTop get() = -bheight * anchorY
 
 	private val vertices = TexturedVertexArray(4, TexturedVertexArray.QUAD_INDICES)
-	private val p0 = vertices.points[0]
-	private val p1 = vertices.points[1]
-	private val p2 = vertices.points[2]
-	private val p3 = vertices.points[3]
 
 	private fun computeVertexIfRequired() {
 		if (!dirtyVertices) return
 		dirtyVertices = false
-		val matrix = this.globalMatrix // @TODO: Use matrix from reference instead
+		val matrix = this.renderMatrix
 		val x = sLeft
 		val y = sTop
 		val width = bwidth
@@ -41,13 +36,13 @@ open class RectBase(
 		val colMul = globalColorMul
 		val colAdd = globalColorAdd
 		val bmp = baseBitmap
-		p0.setXY(x, y, matrix).setTXY(bmp.tl_x, bmp.tl_y).setCols(colMul, colAdd)
-		p1.setXY(x + width, y, matrix).setTXY(bmp.tr_x, bmp.tr_y).setCols(colMul, colAdd)
-		p2.setXY(x + width, y + height, matrix).setTXY(bmp.br_x, bmp.br_y).setCols(colMul, colAdd)
-		p3.setXY(x, y + height, matrix).setTXY(bmp.bl_x, bmp.bl_y).setCols(colMul, colAdd)
+		vertices.select(0).xy(x, y, matrix).uv(bmp.tl_x, bmp.tl_y).cols(colMul, colAdd)
+		vertices.select(1).xy(x + width, y, matrix).uv(bmp.tr_x, bmp.tr_y).cols(colMul, colAdd)
+		vertices.select(2).xy(x + width, y + height, matrix).uv(bmp.br_x, bmp.br_y).cols(colMul, colAdd)
+		vertices.select(3).xy(x, y + height, matrix).uv(bmp.bl_x, bmp.bl_y).cols(colMul, colAdd)
 	}
 
-	override fun render(ctx: RenderContext, m: Matrix2d) {
+	override fun render(ctx: RenderContext) {
 		if (!visible) return
 		computeVertexIfRequired()
 		ctx.batch.drawVertices(vertices, ctx.getTex(baseBitmap).base, smoothing, computedBlendMode.factors)

@@ -29,30 +29,31 @@ class TransitionView() : Container() {
 		this.addChild(next)
 	}
 
-	override fun render(ctx: RenderContext, m: Matrix2d) {
+	override fun render(ctx: RenderContext) {
 		if (!visible) return
+		val m = renderMatrix
 		when {
-			ratio <= 0.0 -> prev.render(ctx, m)
-			ratio >= 1.0 -> next.render(ctx, m)
-			else -> transition.render(ctx, m, prev, next, ratio)
+			ratio <= 0.0 -> prev.render(ctx)
+			ratio >= 1.0 -> next.render(ctx)
+			else -> transition.render(ctx, prev, next, ratio)
 		}
 	}
 }
 
-class Transition(val render: (ctx: RenderContext, m: Matrix2d, prev: View, next: View, ratio: Double) -> Unit)
+class Transition(val render: (ctx: RenderContext, prev: View, next: View, ratio: Double) -> Unit)
 
-fun Transition.withEasing(easing: Easing) = Transition { ctx, m, prev, next, ratio ->
-	this@withEasing.render(ctx, m, prev, next, easing(ratio))
+fun Transition.withEasing(easing: Easing) = Transition { ctx, prev, next, ratio ->
+	this@withEasing.render(ctx, prev, next, easing(ratio))
 }
 
-val AlphaTransition = Transition { ctx, m, prev, next, ratio ->
+val AlphaTransition = Transition { ctx, prev, next, ratio ->
 	val prevAlpha = prev.alpha
 	val nextAlpha = next.alpha
 	try {
 		prev.alpha = 1.0 - ratio
 		next.alpha = ratio
-		prev.render(ctx, m)
-		next.render(ctx, m)
+		prev.render(ctx)
+		next.render(ctx)
 	} finally {
 		prev.alpha = prevAlpha
 		next.alpha = nextAlpha

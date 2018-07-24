@@ -97,7 +97,7 @@ class SpriterView(
 	private val t1: Matrix2d = Matrix2d()
 	private val t2: Matrix2d = Matrix2d()
 
-	override fun render(ctx: RenderContext, m: Matrix2d) {
+	override fun render(ctx: RenderContext) {
 		if (!visible) return
 		val batch = ctx.batch
 		val colorMul = globalColorMul
@@ -115,7 +115,7 @@ class SpriterView(
 				-Angle.toRadians(obj._angle.toDouble()),
 				0.0, 0.0
 			)
-			t2.copyFrom(m)
+			t2.copyFrom(renderMatrix)
 			t2.prescale(1.0, -1.0)
 			t2.premultiply(t1)
 			//t2.translate(+trimLeft, +trimTop)
