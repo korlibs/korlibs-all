@@ -5,6 +5,7 @@ import com.soywiz.korge.render.*
 import com.soywiz.korge.util.*
 import com.soywiz.korge.view.*
 import com.soywiz.korim.bitmap.*
+import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 
 inline fun Container.tileMap(map: IntArray2, tileset: TileSet, callback: @ViewsDslMarker TileMap.() -> Unit = {}) =
@@ -18,6 +19,15 @@ open class TileMap(val map: IntArray2, val tileset: TileSet) : View() {
 	private val t0 = MPoint2d(0, 0)
 	private val tt0 = MPoint2d(0, 0)
 	private val tt1 = MPoint2d(0, 0)
+
+	private val tt2 = MPoint2d(0, 0)
+	private val tt3 = MPoint2d(0, 0)
+	private val tt4 = MPoint2d(0, 0)
+	private val tt5 = MPoint2d(0, 0)
+
+	private val tt6 = MPoint2d(0, 0)
+	private val tt7 = MPoint2d(0, 0)
+	private val tt8 = MPoint2d(0, 0)
 
 	private fun computeVertexIfRequired(ctx: RenderContext) {
 		if (!dirtyVertices) return
@@ -37,7 +47,6 @@ open class TileMap(val map: IntArray2, val tileset: TileSet) : View() {
 		// @TODO: Bounds in clipped view
 		val pp0 = globalToLocal(t0.setTo(currentVirtualRect.left, currentVirtualRect.top), tt0)
 		val pp1 = globalToLocal(t0.setTo(currentVirtualRect.right, currentVirtualRect.bottom), tt1)
-
 		val mx0 = ((pp0.x / tileWidth) - 1).toInt().clamp(0, map.width)
 		val mx1 = ((pp1.x / tileWidth) + 1).toInt().clamp(0, map.width)
 		val my0 = ((pp0.y / tileHeight) - 1).toInt().clamp(0, map.height)
@@ -58,10 +67,15 @@ open class TileMap(val map: IntArray2, val tileset: TileSet) : View() {
 		for (y in my0 until my1) {
 			for (x in mx0 until mx1) {
 				val tex = tileset[map[x, y]] ?: continue
-				val p0 = pos + (dU * x.toDouble()) + (dV * y.toDouble())
-				val p1 = p0 + dU
-				val p2 = p0 + dU + dV
-				val p3 = p0 + dV
+				val p0 = tt2
+				val p1 = tt3
+				val p2 = tt4
+				val p3 = tt5
+
+				p0.setToAdd(pos, tt6.setToAdd(tt7.setToMul(dU, x.toDouble()), tt8.setToMul(dV, y.toDouble())))
+				p1.setToAdd(p0, dU)
+				p2.setToAdd(p0, tt7.setToAdd(dU, dV))
+				p3.setToAdd(p0, dV)
 
 				val info = verticesPerTex.getOrPut(tex.bmp) {
 					val indices = TexturedVertexArray.quadIndices(ntiles)

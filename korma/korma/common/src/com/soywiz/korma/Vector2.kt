@@ -1,5 +1,6 @@
 package com.soywiz.korma
 
+import com.soywiz.kds.*
 import com.soywiz.korma.geom.*
 import com.soywiz.korma.interpolation.*
 import com.soywiz.korma.math.*
@@ -208,3 +209,5 @@ val Vector2Int.immutable: Vector2Int get() = Vector2Int(x, y)
 
 val Vector2.int get() = Vector2Int(x.toInt(), y.toInt())
 val Vector2Int.double get() = Vector2(x.toDouble(), y.toDouble())
+
+//val vector2Pool = Pool<MVector2> { MVector2() }
