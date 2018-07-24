@@ -22,17 +22,19 @@
  */
 package com.dragonbones.model
 
+import com.dragonbones.core.*
+
 /**
  * @private
  */
 class GeometryData {
-	public isShared: Boolean;
-	public inheritDeform: Boolean;
-	public offset: Double;
-	public data: DragonBonesData;
-	public weight: WeightData? = null; // Initial value.
+	public var isShared: Boolean;
+	public var inheritDeform: Boolean;
+	public var offset: Double;
+	public var data: DragonBonesData;
+	public var weight: WeightData? = null; // Initial value.
 
-	public clear(): Unit {
+	public fun clear(): Unit {
 		if (!this.isShared && this.weight !== null) {
 			this.weight.returnToPool();
 		}
@@ -44,33 +46,33 @@ class GeometryData {
 		this.weight = null;
 	}
 
-	public shareFrom(value: GeometryData): Unit {
+	public fun shareFrom(value: GeometryData): Unit {
 		this.isShared = true;
 		this.offset = value.offset;
 		this.weight = value.weight;
 	}
 
-	public get vertexCount(): Double {
-		const intArray = this.data.intArray;
+	public val vertexCount: Double get() {
+		val intArray = this.data.intArray;
 		return intArray[this.offset + dragonBones.BinaryOffset.GeometryVertexCount];
 	}
 
-	public get triangleCount(): Double {
-		const intArray = this.data.intArray;
+	public val triangleCount: Double get() {
+		val intArray = this.data.intArray;
 		return intArray[this.offset + dragonBones.BinaryOffset.GeometryTriangleCount];
 	}
 }
 /**
  * @private
  */
-abstract class DisplayData  :  BaseObject {
-	public type: DisplayType;
-	public name: String;
-	public path: String;
-	public readonly transform: Transform = new Transform();
-	public parent: SkinData;
+abstract class DisplayData  : BaseObject() {
+	public var type: DisplayType;
+	public var name: String;
+	public var path: String;
+	public var readonly transform: Transform = new Transform();
+	public var parent: SkinData;
 
-	protected _onClear(): Unit {
+	protected fun _onClear(): Unit {
 		this.name = "";
 		this.path = "";
 		this.transform.identity();
@@ -80,15 +82,15 @@ abstract class DisplayData  :  BaseObject {
 /**
  * @private
  */
-class ImageDisplayData  :  DisplayData {
-	public static toString(): String {
+class ImageDisplayData  :  DisplayData() {
+	public override fun toString(): String {
 		return "[class dragonBones.ImageDisplayData]";
 	}
 
-	public readonly pivot: Point = new Point();
-	public texture: TextureData?;
+	public val pivot: Point = new Point();
+	public var texture: TextureData?;
 
-	protected _onClear(): Unit {
+	protected fun _onClear(): Unit {
 		super._onClear();
 
 		this.type = DisplayType.Image;
@@ -100,18 +102,18 @@ class ImageDisplayData  :  DisplayData {
  * @private
  */
 class ArmatureDisplayData  :  DisplayData {
-	public static toString(): String {
+	public override fun toString(): String {
 		return "[class dragonBones.ArmatureDisplayData]";
 	}
 
-	public inheritAnimation: Boolean;
-	public readonly actions: Array<ActionData> = [];
-	public armature: ArmatureData?;
+	public var inheritAnimation: Boolean;
+	public val actions: Array<ActionData> = [];
+	public var armature: ArmatureData?;
 
-	protected _onClear(): Unit {
+	protected fun _onClear(): Unit {
 		super._onClear();
 
-		for (const action of this.actions) {
+		for (action in this.actions) {
 			action.returnToPool();
 		}
 
@@ -123,22 +125,22 @@ class ArmatureDisplayData  :  DisplayData {
 	/**
 	 * @private
 	 */
-	public addAction(value: ActionData): Unit {
+	public fun addAction(value: ActionData): Unit {
 		this.actions.push(value);
 	}
 }
 /**
  * @private
  */
-class MeshDisplayData  :  DisplayData {
-	public static toString(): String {
+class MeshDisplayData  :  DisplayData() {
+	public override fun toString(): String {
 		return "[class dragonBones.MeshDisplayData]";
 	}
 
-	public readonly geometry: GeometryData = new GeometryData();
-	public texture: TextureData?;
+	public val geometry: GeometryData = new GeometryData();
+	public var texture: TextureData?;
 
-	protected _onClear(): Unit {
+	protected fun _onClear(): Unit {
 		super._onClear();
 
 		this.type = DisplayType.Mesh;
@@ -150,13 +152,13 @@ class MeshDisplayData  :  DisplayData {
  * @private
  */
 class BoundingBoxDisplayData  :  DisplayData {
-	public static toString(): String {
+	public override fun toString(): String {
 		return "[class dragonBones.BoundingBoxDisplayData]";
 	}
 
-	public boundingBox: BoundingBoxData? = null; // Initial value.
+	public var boundingBox: BoundingBoxData? = null; // Initial value.
 
-	protected _onClear(): Unit {
+	protected fun _onClear(): Unit {
 		super._onClear();
 
 		if (this.boundingBox !== null) {
@@ -171,15 +173,15 @@ class BoundingBoxDisplayData  :  DisplayData {
  * @private
  */
 class PathDisplayData  :  DisplayData {
-	public static toString(): String {
+	public override fun toString(): String {
 		return "[class dragonBones.PathDisplayData]";
 	}
-	public closed: Boolean;
-	public constantSpeed: Boolean;
-	public readonly geometry: GeometryData = new GeometryData();
-	public readonly curveLengths:  DoubleArray = [];
+	public var closed: Boolean;
+	public var constantSpeed: Boolean;
+	public val geometry: GeometryData = GeometryData();
+	public val curveLengths:  DoubleArray = [];
 
-	protected _onClear(): Unit {
+	protected fun _onClear(): Unit {
 		super._onClear();
 
 		this.type = DisplayType.Path;
@@ -192,22 +194,22 @@ class PathDisplayData  :  DisplayData {
 /**
  * @private
  */
-class WeightData  :  BaseObject {
-	public static toString(): String {
+class WeightData  :  BaseObject() {
+	public override fun toString(): String {
 		return "[class dragonBones.WeightData]";
 	}
 
-	public count: Double;
-	public offset: Double;
-	public readonly bones: Array<BoneData> = [];
+	public var count: Double;
+	public var offset: Double;
+	public val bones: Array<BoneData> = [];
 
-	protected _onClear(): Unit {
+	protected fun _onClear(): Unit {
 		this.count = 0;
 		this.offset = 0;
-		this.bones.length = 0;
+		this.bones.size = 0;
 	}
 
-	public addBone(value: BoneData): Unit {
+	public fun addBone(value: BoneData): Unit {
 		this.bones.push(value);
 	}
 }

@@ -22,6 +22,8 @@
  */
 package com.dragonbones.model
 
+import com.dragonbones.core.*
+
 /**
  * - The DragonBones data.
  * A DragonBones data contains multiple armature data.
@@ -36,14 +38,14 @@ package com.dragonbones.model
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class DragonBonesData  :  BaseObject {
-	public static toString(): String {
+class DragonBonesData  : BaseObject() {
+	public override fun toString(): String {
 		return "[class dragonBones.DragonBonesData]";
 	}
 	/**
 	 * @private
 	 */
-	public autoSearch: Boolean;
+	public var autoSearch: Boolean;
 	/**
 	 * - The animation frame rate.
 	 * @version DragonBones 3.0
@@ -54,7 +56,7 @@ class DragonBonesData  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public frameRate: Double;
+	public var frameRate: Double;
 	/**
 	 * - The data version.
 	 * @version DragonBones 3.0
@@ -65,7 +67,7 @@ class DragonBonesData  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public version: String;
+	public var version: String;
 	/**
 	 * - The DragonBones data name.
 	 * The name is consistent with the DragonBones project name.
@@ -78,19 +80,19 @@ class DragonBonesData  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public name: String;
+	public var name: String;
 	/**
 	 * @private
 	 */
-	public stage: ArmatureData?;
+	public var stage: ArmatureData?;
 	/**
 	 * @internal
 	 */
-	public readonly frameIndices:  DoubleArray = [];
+	public val frameIndices:  DoubleArray = [];
 	/**
 	 * @internal
 	 */
-	public readonly cachedFrames:  DoubleArray = [];
+	public val cachedFrames:  DoubleArray = [];
 	/**
 	 * - All armature data names.
 	 * @version DragonBones 3.0
@@ -101,49 +103,49 @@ class DragonBonesData  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public readonly armatureNames: Array<String> = [];
+	public val armatureNames: Array<String> = [];
 	/**
 	 * @private
 	 */
-	public readonly armatures: Map<ArmatureData> = {};
+	public val armatures: Map<ArmatureData> = {};
 	/**
 	 * @internal
 	 */
-	public binary: ArrayBuffer;
+	public var binary: ArrayBuffer;
 	/**
 	 * @internal
 	 */
-	public intArray: Int16Array;
+	public var intArray: Int16Array;
 	/**
 	 * @internal
 	 */
-	public floatArray: Float32Array;
+	public var floatArray: Float32Array;
 	/**
 	 * @internal
 	 */
-	public frameIntArray: Int16Array;
+	public var frameIntArray: Int16Array;
 	/**
 	 * @internal
 	 */
-	public frameFloatArray: Float32Array;
+	public var frameFloatArray: Float32Array;
 	/**
 	 * @internal
 	 */
-	public frameArray: Int16Array;
+	public var frameArray: Int16Array;
 	/**
 	 * @internal
 	 */
-	public timelineArray: Uint16Array;
+	public var timelineArray: Uint16Array;
 	/**
 	 * @internal
 	 */
-	public colorArray: Uint16Array;
+	public var colorArray: Uint16Array;
 	/**
 	 * @private
 	 */
-	public userData: UserData? = null; // Initial value.
+	public var userData: UserData? = null; // Initial value.
 
-	protected _onClear(): Unit {
+	protected fun _onClear(): Unit {
 		for (let k in this.armatures) {
 			this.armatures[k].returnToPool();
 			delete this.armatures[k];
@@ -175,7 +177,7 @@ class DragonBonesData  :  BaseObject {
 	/**
 	 * @internal
 	 */
-	public addArmature(value: ArmatureData): Unit {
+	public fun addArmature(value: ArmatureData): Unit {
 		if (value.name in this.armatures) {
 			console.warn("Same armature: " + value.name);
 			return;
@@ -197,7 +199,7 @@ class DragonBonesData  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public getArmature(armatureName: String): ArmatureData? {
-		return armatureName in this.armatures ? this.armatures[armatureName] : null;
+	public fun getArmature(armatureName: String): ArmatureData? {
+		return if (armatureName in this.armatures) this.armatures[armatureName] else null;
 	}
 }

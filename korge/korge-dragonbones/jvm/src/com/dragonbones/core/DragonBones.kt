@@ -283,82 +283,82 @@ enum class RotateMode {
  * @private
  */
 interface Map<T> {
-	[key: String]: T;
+	[key: String]: T
 }
 /**
  * @private
  */
 class DragonBones {
 	companion object {
-		public val VERSION: String = "5.7.000";
+		public val VERSION: String = "5.7.000"
 
-		public var yDown: Boolean = true;
-		public var debug: Boolean = false;
-		public var debugDraw: Boolean = false;
+		public var yDown: Boolean = true
+		public var debug: Boolean = false
+		public var debugDraw: Boolean = false
 	}
 
-	private val _clock: WorldClock = new WorldClock();
-	private val _events: Array<EventObject> = [];
-	private val _objects: Array<BaseObject> = [];
-	private var _eventManager: IEventDispatcher = null as any;
+	private val _clock: WorldClock = WorldClock()
+	private val _events: ArrayList<EventObject> = arrayListOf()
+	private val _objects: ArrayList<BaseObject> = arrayListOf()
+	private var _eventManager: IEventDispatcher = null as any
 
 	public constructor(eventManager: IEventDispatcher) {
-		this._eventManager = eventManager;
+		this._eventManager = eventManager
 
-		println("DragonBones: ${DragonBones.VERSION}\nWebsite: http://dragonbones.com/\nSource and Demo: https://github.com/DragonBones/");
+		println("DragonBones: ${DragonBones.VERSION}\nWebsite: http://dragonbones.com/\nSource and Demo: https://github.com/DragonBones/")
 	}
 
 	public fun advanceTime(passedTime: Double): Unit {
 		if (this._objects.size > 0) {
-			for (const object of this._objects) {
-				object.returnToPool();
+			for (object in this._objects) {
+				object.returnToPool()
 			}
 
-			this._objects.size = 0;
+			this._objects.clear()
 		}
 
-		this._clock.advanceTime(passedTime);
+		this._clock.advanceTime(passedTime)
 
 		if (this._events.size > 0) {
 			for (i in 0 until this._events.size) {
-				val eventObject = this._events[i];
-				val armature = eventObject.armature;
+				val eventObject = this._events[i]
+				val armature = eventObject.armature
 
 				if (armature._armatureData != null) { // May be armature disposed before advanceTime.
-					armature.eventDispatcher.dispatchDBEvent(eventObject.type, eventObject);
+					armature.eventDispatcher.dispatchDBEvent(eventObject.type, eventObject)
 					if (eventObject.type === EventObject.SOUND_EVENT) {
-						this._eventManager.dispatchDBEvent(eventObject.type, eventObject);
+						this._eventManager.dispatchDBEvent(eventObject.type, eventObject)
 					}
 				}
 
-				this.bufferObject(eventObject);
+				this.bufferObject(eventObject)
 			}
 
-			this._events.size = 0;
+			this._events.size = 0
 		}
 	}
 
 	public fun bufferEvent(value: EventObject): Unit {
 		if (this._events.indexOf(value) < 0) {
-			this._events.push(value);
+			this._events.add(value)
 		}
 	}
 
 	public fun bufferObject(obj: BaseObject): Unit {
 		if (this._objects.indexOf(obj) < 0) {
-			this._objects.push(obj);
+			this._objects.add(obj)
 		}
 	}
 
 	public val clock: WorldClock
 		get() {
-		return this._clock;
-	}
+		return this._clock
+		}
 
 	public val eventManager: IEventDispatcher
 		get() {
-		return this._eventManager;
-	}
+		return this._eventManager
+		}
 }
 
 /*
@@ -377,8 +377,8 @@ if (!Date.now) {
     };
 }
 // Weixin can not support typescript  : .
-var __extends: any = function (t: any, e: any) {
-    function r(this: any) {
+var __extends: Any = function (t: Any, e: Any) {
+    function r(this: Any) {
         this.constructor = t;
     }
     for (var i in e) {
@@ -393,9 +393,9 @@ if (typeof global === "undefined" && typeof window !== "undefined") {
     var global = window as any;
 }
 //
-declare var exports: any;
-declare var module: any;
-declare var define: any;
+declare var exports: Any;
+declare var module: Any;
+declare var define: Any;
 if (typeof exports === "object" && typeof module === "object") {
     module.exports = dragonBones;
 }

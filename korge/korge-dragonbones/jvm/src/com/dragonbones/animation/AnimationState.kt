@@ -472,7 +472,7 @@ class AnimationState : BaseObject() {
 			}
 
 			for (let k in boneTimelines) { // Remove bone timelines.
-				for (const timeline of boneTimelines[k]) {
+				for (timeline in boneTimelines[k]) {
 					let index = this._boneTimelines.indexOf(timeline);
 					if (index >= 0) {
 						this._boneTimelines.splice(index, 1);
@@ -492,7 +492,7 @@ class AnimationState : BaseObject() {
 			const slotTimelines: Map<Array<TimelineState>> = {};
 			const ffdFlags:  DoubleArray = [];
 			// Create slot timelines map.
-			for (const timeline of this._slotTimelines) {
+			for (timeline in this._slotTimelines) {
 				const timelineName = (timeline.target as Slot).name;
 				if (!(timelineName in slotTimelines)) {
 					slotTimelines[timelineName] = [];
@@ -501,7 +501,7 @@ class AnimationState : BaseObject() {
 				slotTimelines[timelineName].push(timeline);
 			}
 
-			for (const timeline of this._slotBlendTimelines) {
+			for (timeline in this._slotBlendTimelines) {
 				const timelineName = ((timeline.target as BlendState).target as Slot).name;
 				if (!(timelineName in slotTimelines)) {
 					slotTimelines[timelineName] = [];
@@ -510,7 +510,7 @@ class AnimationState : BaseObject() {
 				slotTimelines[timelineName].push(timeline);
 			}
 			//
-			for (const slot of this._armature.getSlots()) {
+			for (slot in this._armature.getSlots()) {
 				const boneName = slot.parent.name;
 				if (!this.containsBoneMask(boneName)) {
 					continue;
@@ -527,7 +527,7 @@ class AnimationState : BaseObject() {
 
 					const timelineDatas = this._animationData.getSlotTimelines(timelineName);
 					if (timelineDatas !== null) {
-						for (const timelineData of timelineDatas) {
+						for (timelineData in timelineDatas) {
 							when (timelineData.type) {
 								TimelineType.SlotDisplay -> {
 									const timeline = BaseObject.borrowObject(SlotDisplayTimelineState);
@@ -619,7 +619,7 @@ class AnimationState : BaseObject() {
 			}
 
 			for (let k in slotTimelines) { // Remove slot timelines.
-				for (const timeline of slotTimelines[k]) {
+				for (timeline in slotTimelines[k]) {
 					let index = this._slotTimelines.indexOf(timeline);
 					if (index >= 0) {
 						this._slotTimelines.splice(index, 1);
@@ -992,7 +992,7 @@ class AnimationState : BaseObject() {
 				this._subFadeState = 0;
 
 				if (this._poseTimelines.length > 0) { // Remove pose timelines.
-					for (const timeline of this._poseTimelines) {
+					for (timeline in this._poseTimelines) {
 						let index = this._boneTimelines.indexOf(timeline);
 						if (index >= 0) {
 							this._boneTimelines.splice(index, 1);
@@ -1102,27 +1102,27 @@ class AnimationState : BaseObject() {
 				this._fadeProgress = 0.000001; // Modify fade progress to different value.
 			}
 
-			for (const timeline of this._boneTimelines) {
+			for (timeline in this._boneTimelines) {
 				timeline.fadeOut();
 			}
 
-			for (const timeline of this._boneBlendTimelines) {
+			for (timeline in this._boneBlendTimelines) {
 				timeline.fadeOut();
 			}
 
-			for (const timeline of this._slotTimelines) {
+			for (timeline in this._slotTimelines) {
 				timeline.fadeOut();
 			}
 
-			for (const timeline of this._slotBlendTimelines) {
+			for (timeline in this._slotBlendTimelines) {
 				timeline.fadeOut();
 			}
 
-			for (const timeline of this._constraintTimelines) {
+			for (timeline in this._constraintTimelines) {
 				timeline.fadeOut();
 			}
 
-			for (const timeline of this._animationTimelines) {
+			for (timeline in this._animationTimelines) {
 				timeline.fadeOut();
 				//
 				const animaitonState = timeline.target as AnimationState;
@@ -1174,7 +1174,7 @@ class AnimationState : BaseObject() {
 		}
 
 		if (recursive) { // Add recursive mixing.
-			for (const bone of this._armature.getBones()) {
+			for (bone in this._armature.getBones()) {
 				if (this._boneMask.indexOf(bone.name) < 0 && currentBone.contains(bone)) {
 					this._boneMask.push(bone.name);
 				}
@@ -1208,7 +1208,7 @@ class AnimationState : BaseObject() {
 			if (currentBone !== null) {
 				const bones = this._armature.getBones();
 				if (this._boneMask.length > 0) { // Remove recursive mixing.
-					for (const bone of bones) {
+					for (bone in bones) {
 						const index = this._boneMask.indexOf(bone.name);
 						if (index >= 0 && currentBone.contains(bone)) {
 							this._boneMask.splice(index, 1);
@@ -1216,7 +1216,7 @@ class AnimationState : BaseObject() {
 					}
 				}
 				else { // Add unrecursive mixing.
-					for (const bone of bones) {
+					for (bone in bones) {
 						if (bone === currentBone) {
 							continue;
 						}
@@ -1250,7 +1250,7 @@ class AnimationState : BaseObject() {
 	 */
 	public addState(animationState: AnimationState, timelineDatas: TimelineData[]? = null) {
 		if (timelineDatas !== null) {
-			for (const timelineData of timelineDatas) {
+			for (timelineData in timelineDatas) {
 				switch (timelineData.type) {
 					case TimelineType.AnimationProgress: {
 						const timeline = BaseObject.borrowObject(AnimationProgressTimelineState);
@@ -1300,7 +1300,7 @@ class AnimationState : BaseObject() {
 	 * @internal
 	 */
 	public activeTimeline(): Unit {
-		for (const timeline of this._slotTimelines) {
+		for (timeline in this._slotTimelines) {
 			timeline.dirty = true;
 			timeline.currentTime = -1.0;
 		}
@@ -1436,11 +1436,11 @@ class AnimationState : BaseObject() {
 			this._zOrderTimeline.playState = -1;
 		}
 
-		for (const timeline of this._boneTimelines) {
+		for (timeline in this._boneTimelines) {
 			timeline.playState = -1;
 		}
 
-		for (const timeline of this._slotTimelines) {
+		for (timeline in this._slotTimelines) {
 			timeline.playState = -1;
 		}
 	}
@@ -1472,15 +1472,15 @@ class AnimationState : BaseObject() {
 
 		this._weight = value;
 
-		for (const timeline of this._boneTimelines) {
+		for (timeline in this._boneTimelines) {
 			timeline.dirty = true;
 		}
 
-		for (const timeline of this._boneBlendTimelines) {
+		for (timeline in this._boneBlendTimelines) {
 			timeline.dirty = true;
 		}
 
-		for (const timeline of this._slotBlendTimelines) {
+		for (timeline in this._slotBlendTimelines) {
 			timeline.dirty = true;
 		}
 	}

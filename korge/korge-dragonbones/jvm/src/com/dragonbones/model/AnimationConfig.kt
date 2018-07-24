@@ -336,8 +336,8 @@ class AnimationConfig  : BaseObject() {
 		this.animation = value.animation
 		this.group = value.group
 
-		this.boneMask.length = value.boneMask.length
-		for (i in 0 until this.boneMask.length) {
+		this.boneMask.size = value.boneMask.size
+		for (i in 0 until this.boneMask.size) {
 			this.boneMask[i] = value.boneMask[i]
 		}
 	}

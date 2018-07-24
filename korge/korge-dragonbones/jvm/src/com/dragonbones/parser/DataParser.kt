@@ -9,10 +9,10 @@
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
  * the Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
@@ -22,354 +22,270 @@
  */
 package com.dragonbones.parser
 
+import com.dragonbones.core.*
+import com.dragonbones.model.*
+
 /**
  * @private
  */
+@Suppress("unused")
 abstract class DataParser {
-	protected static readonly DATA_VERSION_2_3: String = "2.3";
-	protected static readonly DATA_VERSION_3_0: String = "3.0";
-	protected static readonly DATA_VERSION_4_0: String = "4.0";
-	protected static readonly DATA_VERSION_4_5: String = "4.5";
-	protected static readonly DATA_VERSION_5_0: String = "5.0";
-	protected static readonly DATA_VERSION_5_5: String = "5.5";
-	protected static readonly DATA_VERSION_5_6: String = "5.6";
-	protected static readonly DATA_VERSION: String = DataParser.DATA_VERSION_5_6;
+	companion object {
+		const val DATA_VERSION_2_3: String = "2.3"
+		const val DATA_VERSION_3_0: String = "3.0"
+		const val DATA_VERSION_4_0: String = "4.0"
+		const val DATA_VERSION_4_5: String = "4.5"
+		const val DATA_VERSION_5_0: String = "5.0"
+		const val DATA_VERSION_5_5: String = "5.5"
+		const val DATA_VERSION_5_6: String = "5.6"
+		val DATA_VERSION: String = DataParser.DATA_VERSION_5_6
 
-	protected static readonly DATA_VERSIONS: Array<String> = [
-		DataParser.DATA_VERSION_4_0,
-		DataParser.DATA_VERSION_4_5,
-		DataParser.DATA_VERSION_5_0,
-		DataParser.DATA_VERSION_5_5,
-		DataParser.DATA_VERSION_5_6
-	];
+		val DATA_VERSIONS: Array<String> = arrayOf(
+			DataParser.DATA_VERSION_4_0,
+			DataParser.DATA_VERSION_4_5,
+			DataParser.DATA_VERSION_5_0,
+			DataParser.DATA_VERSION_5_5,
+			DataParser.DATA_VERSION_5_6
+		)
 
-	protected static readonly TEXTURE_ATLAS: String = "textureAtlas";
-	protected static readonly SUB_TEXTURE: String = "SubTexture";
-	protected static readonly FORMAT: String = "format";
-	protected static readonly IMAGE_PATH: String = "imagePath";
-	protected static readonly WIDTH: String = "width";
-	protected static readonly HEIGHT: String = "height";
-	protected static readonly ROTATED: String = "rotated";
-	protected static readonly FRAME_X: String = "frameX";
-	protected static readonly FRAME_Y: String = "frameY";
-	protected static readonly FRAME_WIDTH: String = "frameWidth";
-	protected static readonly FRAME_HEIGHT: String = "frameHeight";
+		const val TEXTURE_ATLAS: String = "textureAtlas"
+		const val SUB_TEXTURE: String = "SubTexture"
+		const val FORMAT: String = "format"
+		const val IMAGE_PATH: String = "imagePath"
+		const val WIDTH: String = "width"
+		const val HEIGHT: String = "height"
+		const val ROTATED: String = "rotated"
+		const val FRAME_X: String = "frameX"
+		const val FRAME_Y: String = "frameY"
+		const val FRAME_WIDTH: String = "frameWidth"
+		const val FRAME_HEIGHT: String = "frameHeight"
 
-	protected static readonly DRADON_BONES: String = "dragonBones";
-	protected static readonly USER_DATA: String = "userData";
-	protected static readonly ARMATURE: String = "armature";
-	protected static readonly CANVAS: String = "canvas";
-	protected static readonly BONE: String = "bone";
-	protected static readonly SURFACE: String = "surface";
-	protected static readonly SLOT: String = "slot";
-	protected static readonly CONSTRAINT: String = "constraint";
-	protected static readonly SKIN: String = "skin";
-	protected static readonly DISPLAY: String = "display";
-	protected static readonly FRAME: String = "frame";
-	protected static readonly IK: String = "ik";
-	protected static readonly PATH_CONSTRAINT: String = "path";
+		const val DRADON_BONES: String = "dragonBones"
+		const val USER_DATA: String = "userData"
+		const val ARMATURE: String = "armature"
+		const val CANVAS: String = "canvas"
+		const val BONE: String = "bone"
+		const val SURFACE: String = "surface"
+		const val SLOT: String = "slot"
+		const val CONSTRAINT: String = "constraint"
+		const val SKIN: String = "skin"
+		const val DISPLAY: String = "display"
+		const val FRAME: String = "frame"
+		const val IK: String = "ik"
+		const val PATH_CONSTRAINT: String = "path"
 
-	protected static readonly ANIMATION: String = "animation";
-	protected static readonly TIMELINE: String = "timeline";
-	protected static readonly FFD: String = "ffd";
-	protected static readonly TRANSLATE_FRAME: String = "translateFrame";
-	protected static readonly ROTATE_FRAME: String = "rotateFrame";
-	protected static readonly SCALE_FRAME: String = "scaleFrame";
-	protected static readonly DISPLAY_FRAME: String = "displayFrame";
-	protected static readonly COLOR_FRAME: String = "colorFrame";
-	protected static readonly DEFAULT_ACTIONS: String = "defaultActions";
-	protected static readonly ACTIONS: String = "actions";
-	protected static readonly EVENTS: String = "events";
+		const val ANIMATION: String = "animation"
+		const val TIMELINE: String = "timeline"
+		const val FFD: String = "ffd"
+		const val TRANSLATE_FRAME: String = "translateFrame"
+		const val ROTATE_FRAME: String = "rotateFrame"
+		const val SCALE_FRAME: String = "scaleFrame"
+		const val DISPLAY_FRAME: String = "displayFrame"
+		const val COLOR_FRAME: String = "colorFrame"
+		const val DEFAULT_ACTIONS: String = "defaultActions"
+		const val ACTIONS: String = "actions"
+		const val EVENTS: String = "events"
 
-	protected static readonly INTS: String = "ints";
-	protected static readonly FLOATS: String = "floats";
-	protected static readonly STRINGS: String = "strings";
+		const val INTS: String = "ints"
+		const val FLOATS: String = "floats"
+		const val STRINGS: String = "strings"
 
-	protected static readonly TRANSFORM: String = "transform";
-	protected static readonly PIVOT: String = "pivot";
-	protected static readonly AABB: String = "aabb";
-	protected static readonly COLOR: String = "color";
+		const val TRANSFORM: String = "transform"
+		const val PIVOT: String = "pivot"
+		const val AABB: String = "aabb"
+		const val COLOR: String = "color"
 
-	protected static readonly VERSION: String = "version";
-	protected static readonly COMPATIBLE_VERSION: String = "compatibleVersion";
-	protected static readonly FRAME_RATE: String = "frameRate";
-	protected static readonly TYPE: String = "type";
-	protected static readonly SUB_TYPE: String = "subType";
-	protected static readonly NAME: String = "name";
-	protected static readonly PARENT: String = "parent";
-	protected static readonly TARGET: String = "target";
-	protected static readonly STAGE: String = "stage";
-	protected static readonly SHARE: String = "share";
-	protected static readonly PATH: String = "path";
-	protected static readonly LENGTH: String = "length";
-	protected static readonly DISPLAY_INDEX: String = "displayIndex";
-	protected static readonly Z_ORDER: String = "zOrder";
-	protected static readonly Z_INDEX: String = "zIndex";
-	protected static readonly BLEND_MODE: String = "blendMode";
-	protected static readonly INHERIT_TRANSLATION: String = "inheritTranslation";
-	protected static readonly INHERIT_ROTATION: String = "inheritRotation";
-	protected static readonly INHERIT_SCALE: String = "inheritScale";
-	protected static readonly INHERIT_REFLECTION: String = "inheritReflection";
-	protected static readonly INHERIT_ANIMATION: String = "inheritAnimation";
-	protected static readonly INHERIT_DEFORM: String = "inheritDeform";
-	protected static readonly SEGMENT_X: String = "segmentX";
-	protected static readonly SEGMENT_Y: String = "segmentY";
-	protected static readonly BEND_POSITIVE: String = "bendPositive";
-	protected static readonly CHAIN: String = "chain";
-	protected static readonly WEIGHT: String = "weight";
+		const val VERSION: String = "version"
+		const val COMPATIBLE_VERSION: String = "compatibleVersion"
+		const val FRAME_RATE: String = "frameRate"
+		const val TYPE: String = "type"
+		const val SUB_TYPE: String = "subType"
+		const val NAME: String = "name"
+		const val PARENT: String = "parent"
+		const val TARGET: String = "target"
+		const val STAGE: String = "stage"
+		const val SHARE: String = "share"
+		const val PATH: String = "path"
+		const val LENGTH: String = "length"
+		const val DISPLAY_INDEX: String = "displayIndex"
+		const val Z_ORDER: String = "zOrder"
+		const val Z_INDEX: String = "zIndex"
+		const val BLEND_MODE: String = "blendMode"
+		const val INHERIT_TRANSLATION: String = "inheritTranslation"
+		const val INHERIT_ROTATION: String = "inheritRotation"
+		const val INHERIT_SCALE: String = "inheritScale"
+		const val INHERIT_REFLECTION: String = "inheritReflection"
+		const val INHERIT_ANIMATION: String = "inheritAnimation"
+		const val INHERIT_DEFORM: String = "inheritDeform"
+		const val SEGMENT_X: String = "segmentX"
+		const val SEGMENT_Y: String = "segmentY"
+		const val BEND_POSITIVE: String = "bendPositive"
+		const val CHAIN: String = "chain"
+		const val WEIGHT: String = "weight"
 
-	protected static readonly BLEND_TYPE: String = "blendType";
-	protected static readonly FADE_IN_TIME: String = "fadeInTime";
-	protected static readonly PLAY_TIMES: String = "playTimes";
-	protected static readonly SCALE: String = "scale";
-	protected static readonly OFFSET: String = "offset";
-	protected static readonly POSITION: String = "position";
-	protected static readonly DURATION: String = "duration";
-	protected static readonly TWEEN_EASING: String = "tweenEasing";
-	protected static readonly TWEEN_ROTATE: String = "tweenRotate";
-	protected static readonly TWEEN_SCALE: String = "tweenScale";
-	protected static readonly CLOCK_WISE: String = "clockwise";
-	protected static readonly CURVE: String = "curve";
-	protected static readonly SOUND: String = "sound";
-	protected static readonly EVENT: String = "event";
-	protected static readonly ACTION: String = "action";
+		const val BLEND_TYPE: String = "blendType"
+		const val FADE_IN_TIME: String = "fadeInTime"
+		const val PLAY_TIMES: String = "playTimes"
+		const val SCALE: String = "scale"
+		const val OFFSET: String = "offset"
+		const val POSITION: String = "position"
+		const val DURATION: String = "duration"
+		const val TWEEN_EASING: String = "tweenEasing"
+		const val TWEEN_ROTATE: String = "tweenRotate"
+		const val TWEEN_SCALE: String = "tweenScale"
+		const val CLOCK_WISE: String = "clockwise"
+		const val CURVE: String = "curve"
+		const val SOUND: String = "sound"
+		const val EVENT: String = "event"
+		const val ACTION: String = "action"
 
-	protected static readonly X: String = "x";
-	protected static readonly Y: String = "y";
-	protected static readonly SKEW_X: String = "skX";
-	protected static readonly SKEW_Y: String = "skY";
-	protected static readonly SCALE_X: String = "scX";
-	protected static readonly SCALE_Y: String = "scY";
-	protected static readonly VALUE: String = "value";
-	protected static readonly ROTATE: String = "rotate";
-	protected static readonly SKEW: String = "skew";
-	protected static readonly ALPHA: String = "alpha";
+		const val X: String = "x"
+		const val Y: String = "y"
+		const val SKEW_X: String = "skX"
+		const val SKEW_Y: String = "skY"
+		const val SCALE_X: String = "scX"
+		const val SCALE_Y: String = "scY"
+		const val VALUE: String = "value"
+		const val ROTATE: String = "rotate"
+		const val SKEW: String = "skew"
+		const val ALPHA: String = "alpha"
 
-	protected static readonly ALPHA_OFFSET: String = "aO";
-	protected static readonly RED_OFFSET: String = "rO";
-	protected static readonly GREEN_OFFSET: String = "gO";
-	protected static readonly BLUE_OFFSET: String = "bO";
-	protected static readonly ALPHA_MULTIPLIER: String = "aM";
-	protected static readonly RED_MULTIPLIER: String = "rM";
-	protected static readonly GREEN_MULTIPLIER: String = "gM";
-	protected static readonly BLUE_MULTIPLIER: String = "bM";
+		const val ALPHA_OFFSET: String = "aO"
+		const val RED_OFFSET: String = "rO"
+		const val GREEN_OFFSET: String = "gO"
+		const val BLUE_OFFSET: String = "bO"
+		const val ALPHA_MULTIPLIER: String = "aM"
+		const val RED_MULTIPLIER: String = "rM"
+		const val GREEN_MULTIPLIER: String = "gM"
+		const val BLUE_MULTIPLIER: String = "bM"
 
-	protected static readonly UVS: String = "uvs";
-	protected static readonly VERTICES: String = "vertices";
-	protected static readonly TRIANGLES: String = "triangles";
-	protected static readonly WEIGHTS: String = "weights";
-	protected static readonly SLOT_POSE: String = "slotPose";
-	protected static readonly BONE_POSE: String = "bonePose";
+		const val UVS: String = "uvs"
+		const val VERTICES: String = "vertices"
+		const val TRIANGLES: String = "triangles"
+		const val WEIGHTS: String = "weights"
+		const val SLOT_POSE: String = "slotPose"
+		const val BONE_POSE: String = "bonePose"
 
-	protected static readonly BONES: String = "bones";
-	protected static readonly POSITION_MODE: String = "positionMode";
-	protected static readonly SPACING_MODE: String = "spacingMode";
-	protected static readonly ROTATE_MODE: String = "rotateMode";
-	protected static readonly SPACING: String = "spacing";
-	protected static readonly ROTATE_OFFSET: String = "rotateOffset";
-	protected static readonly ROTATE_MIX: String = "rotateMix";
-	protected static readonly TRANSLATE_MIX: String = "translateMix";
+		const val BONES: String = "bones"
+		const val POSITION_MODE: String = "positionMode"
+		const val SPACING_MODE: String = "spacingMode"
+		const val ROTATE_MODE: String = "rotateMode"
+		const val SPACING: String = "spacing"
+		const val ROTATE_OFFSET: String = "rotateOffset"
+		const val ROTATE_MIX: String = "rotateMix"
+		const val TRANSLATE_MIX: String = "translateMix"
 
-	protected static readonly TARGET_DISPLAY: String = "targetDisplay";
-	protected static readonly CLOSED: String = "closed";
-	protected static readonly CONSTANT_SPEED: String = "constantSpeed";
-	protected static readonly VERTEX_COUNT: String = "vertexCount";
-	protected static readonly LENGTHS: String = "lengths";
+		const val TARGET_DISPLAY: String = "targetDisplay"
+		const val CLOSED: String = "closed"
+		const val CONSTANT_SPEED: String = "constantSpeed"
+		const val VERTEX_COUNT: String = "vertexCount"
+		const val LENGTHS: String = "lengths"
 
-	protected static readonly GOTO_AND_PLAY: String = "gotoAndPlay";
+		const val GOTO_AND_PLAY: String = "gotoAndPlay"
 
-	protected static readonly DEFAULT_NAME: String = "default";
+		const val DEFAULT_NAME: String = "default"
 
-	protected static _getArmatureType(value: String): ArmatureType {
-		switch (value.toLowerCase()) {
-			case "stage":
-				return ArmatureType.Stage;
+		fun _getArmatureType(value: String): ArmatureType {
+			return when (value.toLowerCase()) {
+				"stage" -> ArmatureType.Stage
+				"armature" -> ArmatureType.Armature
+				"movieclip" -> ArmatureType.MovieClip
+				else -> ArmatureType.Armature
+			}
+		}
 
-			case "armature":
-				return ArmatureType.Armature;
+		fun _getBoneType(value: String): BoneType {
+			return when (value.toLowerCase()) {
+				"bone" -> BoneType.Bone
+				"surface" -> BoneType.Surface
+				else -> BoneType.Bone
+			}
+		}
 
-			case "movieclip":
-				return ArmatureType.MovieClip;
+		fun _getPositionMode(value: String): PositionMode {
+			return when (value.toLowerCase()) {
+				"percent" -> PositionMode.Percent
+				"fixed" -> PositionMode.Fixed
+				else -> PositionMode.Percent
+			}
+		}
 
-			default:
-				return ArmatureType.Armature;
+		fun _getSpacingMode(value: String): SpacingMode {
+			return when (value.toLowerCase()) {
+				"length" -> SpacingMode.Length
+				"percent" -> SpacingMode.Percent
+				"fixed" -> SpacingMode.Fixed
+				else -> SpacingMode.Length
+			}
+		}
+
+		fun _getRotateMode(value: String): RotateMode {
+			return when (value.toLowerCase()) {
+				"tangent" -> RotateMode.Tangent
+				"chain" -> RotateMode.Chain
+				"chainscale" -> RotateMode.ChainScale
+				else -> RotateMode.Tangent
+			}
+		}
+
+		fun _getDisplayType(value: String): DisplayType {
+			return when (value.toLowerCase()) {
+				"image" -> DisplayType.Image
+				"mesh" -> DisplayType.Mesh
+				"armature" -> DisplayType.Armature
+				"boundingbox" -> DisplayType.BoundingBox
+				"path" -> DisplayType.Path
+				else -> DisplayType.Image
+			}
+		}
+
+		fun _getBoundingBoxType(value: String): BoundingBoxType {
+			return when (value.toLowerCase()) {
+				"rectangle" -> BoundingBoxType.Rectangle
+				"ellipse" -> BoundingBoxType.Ellipse
+				"polygon" -> BoundingBoxType.Polygon
+				else -> BoundingBoxType.Rectangle
+			}
+		}
+
+		fun _getBlendMode(value: String): BlendMode {
+			when (value.toLowerCase()) {
+				"normal" -> return BlendMode.Normal
+				"add" -> return BlendMode.Add
+				"alpha" -> return BlendMode.Alpha
+				"darken" -> return BlendMode.Darken
+				"difference" -> return BlendMode.Difference
+				"erase" -> return BlendMode.Erase
+				"hardlight" -> return BlendMode.HardLight
+				"invert" -> return BlendMode.Invert
+				"layer" -> return BlendMode.Layer
+				"lighten" -> return BlendMode.Lighten
+				"multiply" -> return BlendMode.Multiply
+				"overlay" -> return BlendMode.Overlay
+				"screen" -> return BlendMode.Screen
+				"subtract" -> return BlendMode.Subtract
+				else -> return BlendMode.Normal
+			}
+		}
+
+		fun _getAnimationBlendType(value: String): AnimationBlendType {
+			when (value.toLowerCase()) {
+				"none" -> return AnimationBlendType.None
+				"1d" -> return AnimationBlendType.E1D
+				else -> return AnimationBlendType.None
+			}
+		}
+
+		fun _getActionType(value: String): ActionType {
+			when (value.toLowerCase()) {
+				"play" -> return ActionType.Play
+				"frame" -> return ActionType.Frame
+				"sound" -> return ActionType.Sound
+				else -> return ActionType.Play
+			}
 		}
 	}
 
-	protected static _getBoneType(value: String): BoneType {
-		switch (value.toLowerCase()) {
-			case "bone":
-				return BoneType.Bone;
-
-			case "surface":
-				return BoneType.Surface;
-
-			default:
-				return BoneType.Bone;
-		}
-	}
-
-	protected static _getPositionMode(value: String): PositionMode {
-		switch (value.toLocaleLowerCase()) {
-			case "percent":
-				return PositionMode.Percent;
-
-			case "fixed":
-				return PositionMode.Fixed;
-
-			default:
-				return PositionMode.Percent;
-		}
-	}
-
-	protected static _getSpacingMode(value: String): SpacingMode {
-		switch (value.toLocaleLowerCase()) {
-			case "length":
-				return SpacingMode.Length;
-
-			case "percent":
-				return SpacingMode.Percent;
-
-			case "fixed":
-				return SpacingMode.Fixed;
-
-			default:
-				return SpacingMode.Length;
-		}
-	}
-
-	protected static _getRotateMode(value: String): RotateMode {
-		switch (value.toLocaleLowerCase()) {
-			case "tangent":
-				return RotateMode.Tangent;
-
-			case "chain":
-				return RotateMode.Chain;
-
-			case "chainscale":
-				return RotateMode.ChainScale;
-
-			default:
-				return RotateMode.Tangent;
-		}
-	}
-
-	protected static _getDisplayType(value: String): DisplayType {
-		switch (value.toLowerCase()) {
-			case "image":
-				return DisplayType.Image;
-
-			case "mesh":
-				return DisplayType.Mesh;
-
-			case "armature":
-				return DisplayType.Armature;
-
-			case "boundingbox":
-				return DisplayType.BoundingBox;
-
-			case "path":
-				return DisplayType.Path;
-
-			default:
-				return DisplayType.Image;
-		}
-	}
-
-	protected static _getBoundingBoxType(value: String): BoundingBoxType {
-		switch (value.toLowerCase()) {
-			case "rectangle":
-				return BoundingBoxType.Rectangle;
-
-			case "ellipse":
-				return BoundingBoxType.Ellipse;
-
-			case "polygon":
-				return BoundingBoxType.Polygon;
-
-			default:
-				return BoundingBoxType.Rectangle;
-		}
-	}
-
-	protected static _getBlendMode(value: String): BlendMode {
-		switch (value.toLowerCase()) {
-			case "normal":
-				return BlendMode.Normal;
-
-			case "add":
-				return BlendMode.Add;
-
-			case "alpha":
-				return BlendMode.Alpha;
-
-			case "darken":
-				return BlendMode.Darken;
-
-			case "difference":
-				return BlendMode.Difference;
-
-			case "erase":
-				return BlendMode.Erase;
-
-			case "hardlight":
-				return BlendMode.HardLight;
-
-			case "invert":
-				return BlendMode.Invert;
-
-			case "layer":
-				return BlendMode.Layer;
-
-			case "lighten":
-				return BlendMode.Lighten;
-
-			case "multiply":
-				return BlendMode.Multiply;
-
-			case "overlay":
-				return BlendMode.Overlay;
-
-			case "screen":
-				return BlendMode.Screen;
-
-			case "subtract":
-				return BlendMode.Subtract;
-
-			default:
-				return BlendMode.Normal;
-		}
-	}
-
-	protected static _getAnimationBlendType(value: String): AnimationBlendType {
-		switch (value.toLowerCase()) {
-			case "none":
-				return AnimationBlendType.None;
-
-			case "1d":
-				return AnimationBlendType.E1D;
-
-			default:
-				return AnimationBlendType.None;
-		}
-	}
-
-	protected static _getActionType(value: String): ActionType {
-		switch (value.toLowerCase()) {
-			case "play":
-				return ActionType.Play;
-
-			case "frame":
-				return ActionType.Frame;
-
-			case "sound":
-				return ActionType.Sound;
-
-			default:
-				return ActionType.Play;
-		}
-	}
-
-	public abstract parseDragonBonesData(rawData: any, scale: Double): DragonBonesData?;
-	public abstract parseTextureAtlasData(rawData: any, textureAtlasData: TextureAtlasData, scale: Double): Boolean;
+	abstract fun parseDragonBonesData(rawData: Any, scale: Double): DragonBonesData?
+	abstract fun parseTextureAtlasData(rawData: Any, textureAtlasData: TextureAtlasData, scale: Double): Boolean
 }

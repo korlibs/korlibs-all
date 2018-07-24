@@ -22,6 +22,8 @@
  */
 package com.dragonbones.model
 
+import com.dragonbones.core.*
+
 /**
  * - The skin data, typically a armature data instance contains at least one skinData.
  * @version DragonBones 3.0
@@ -32,8 +34,8 @@ package com.dragonbones.model
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class SkinData  :  BaseObject {
-	public static toString(): String {
+class SkinData  : BaseObject {
+	public override fun toString(): String {
 		return "[class dragonBones.SkinData]";
 	}
 	/**
@@ -46,20 +48,20 @@ class SkinData  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public name: String;
+	public var name: String;
 	/**
 	 * @private
 	 */
-	public readonly displays: Map<Array<DisplayData?>> = {};
+	public val displays: Map<Array<DisplayData?>> = {};
 	/**
 	 * @private
 	 */
-	public parent: ArmatureData;
+	public var parent: ArmatureData;
 
-	protected _onClear(): Unit {
-		for (let k in this.displays) {
-			const slotDisplays = this.displays[k];
-			for (const display of slotDisplays) {
+	protected fun _onClear(): Unit {
+		for (k in this.displays.keys) {
+			val slotDisplays = this.displays[k];
+			for (display in slotDisplays) {
 				if (display !== null) {
 					display.returnToPool();
 				}
@@ -75,7 +77,7 @@ class SkinData  :  BaseObject {
 	/**
 	 * @internal
 	 */
-	public addDisplay(slotName: String, value: DisplayData?): Unit {
+	public fun addDisplay(slotName: String, value: DisplayData?): Unit {
 		if (!(slotName in this.displays)) {
 			this.displays[slotName] = [];
 		}
@@ -84,16 +86,16 @@ class SkinData  :  BaseObject {
 			value.parent = this;
 		}
 
-		const slotDisplays = this.displays[slotName]; // TODO clear prev
+		val slotDisplays = this.displays[slotName]; // TODO clear prev
 		slotDisplays.push(value);
 	}
 	/**
 	 * @private
 	 */
-	public getDisplay(slotName: String, displayName: String): DisplayData? {
-		const slotDisplays = this.getDisplays(slotName);
+	public fun getDisplay(slotName: String, displayName: String): DisplayData? {
+		val slotDisplays = this.getDisplays(slotName);
 		if (slotDisplays !== null) {
-			for (const display of slotDisplays) {
+			for (display in slotDisplays) {
 				if (display !== null && display.name === displayName) {
 					return display;
 				}
@@ -105,7 +107,7 @@ class SkinData  :  BaseObject {
 	/**
 	 * @private
 	 */
-	public getDisplays(slotName: String): Array<DisplayData?>? {
+	public fun getDisplays(slotName: String): Array<DisplayData?>? {
 		if (!(slotName in this.displays)) {
 			return null;
 		}

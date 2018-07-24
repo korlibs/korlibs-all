@@ -21,6 +21,9 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package com.dragonbones.factory
+
+import com.dragonbones.model.*
+
 /**
  * - Base class for the factory that create the armatures. (Typically only one global factory instance is required)
  * The factory instance create armatures by parsed and added DragonBonesData instances and TextureAtlasData instances.
@@ -44,17 +47,19 @@ package com.dragonbones.factory
  * @language zh_CN
  */
 abstract class BaseFactory {
-	protected static _objectParser: ObjectDataParser = null as any
-	protected static _binaryParser: BinaryDataParser = null as any
+	companion object {
+		protected var _objectParser: ObjectDataParser = null as any
+		protected var _binaryParser: BinaryDataParser = null as any
+	}
 	/**
 	 * @private
 	 */
-	public autoSearch: Boolean = false
+	public var autoSearch: Boolean = false
 
-	protected readonly _dragonBonesDataMap: Map<DragonBonesData> = {}
-	protected readonly _textureAtlasDataMap: Map<Array<TextureAtlasData>> = {}
-	protected _dragonBones: DragonBones = null as any
-	protected _dataParser: DataParser = null as any
+	protected val _dragonBonesDataMap: Map<DragonBonesData> = {}
+	protected val _textureAtlasDataMap: Map<Array<TextureAtlasData>> = {}
+	protected var _dragonBones: DragonBones = null as any
+	protected var _dataParser: DataParser = null as any
 	/**
 	 * - Create a factory instance. (typically only one global factory instance is required)
 	 * @version DragonBones 3.0
@@ -77,13 +82,13 @@ abstract class BaseFactory {
 		this._dataParser = dataParser !== null ? dataParser : BaseFactory._objectParser
 	}
 
-	protected _isSupportMesh(): Boolean {
+	protected val _isSupportMesh: Boolean get() {
 		return true
 	}
 
-	protected _getTextureData(textureAtlasName: String, textureName: String): TextureData? {
+	protected fun _getTextureData(textureAtlasName: String, textureName: String): TextureData? {
 		if (textureAtlasName in this._textureAtlasDataMap) {
-			for (const textureAtlasData of this._textureAtlasDataMap[textureAtlasName]) {
+			for (textureAtlasData in this._textureAtlasDataMap[textureAtlasName]) {
 				const textureData = textureAtlasData.getTexture(textureName)
 				if (textureData !== null) {
 					return textureData
@@ -92,8 +97,8 @@ abstract class BaseFactory {
 		}
 
 		if (this.autoSearch) { // Will be search all data, if the autoSearch is true.
-			for (let k in this._textureAtlasDataMap) {
-				for (const textureAtlasData of this._textureAtlasDataMap[k]) {
+			for (k in this._textureAtlasDataMap.keys) {
+				for (textureAtlasData in this._textureAtlasDataMap[k]) {
 					if (textureAtlasData.autoSearch) {
 						const textureData = textureAtlasData.getTexture(textureName)
 						if (textureData !== null) {
@@ -107,12 +112,12 @@ abstract class BaseFactory {
 		return null
 	}
 
-	protected _fillBuildArmaturePackage(
+	protected fun _fillBuildArmaturePackage(
 		dataPackage: BuildArmaturePackage,
 		dragonBonesName: String, armatureName: String, skinName: String, textureAtlasName: String
 	): Boolean {
-		let dragonBonesData: DragonBonesData? = null
-		let armatureData: ArmatureData? = null
+		var dragonBonesData: DragonBonesData? = null
+		var armatureData: ArmatureData? = null
 
 		if (dragonBonesName.length > 0) {
 			if (dragonBonesName in this._dragonBonesDataMap) {
@@ -165,23 +170,23 @@ abstract class BaseFactory {
 		return false
 	}
 
-	protected _buildBones(dataPackage: BuildArmaturePackage, armature: Armature): Unit {
-		for (const boneData of dataPackage.armature.sortedBones) {
-			const bone = BaseObject.borrowObject(boneData.type === BoneType.Bone ? Bone : Surface)
+	protected fun _buildBones(dataPackage: BuildArmaturePackage, armature: Armature): Unit {
+		for (boneData in dataPackage.armature.sortedBones) {
+			val bone = BaseObject.borrowObject(boneData.type === BoneType.Bone ? Bone : Surface)
 			bone.init(boneData, armature)
 		}
 	}
 	/**
 	 * @private
 	 */
-	protected _buildSlots(dataPackage: BuildArmaturePackage, armature: Armature): Unit {
-		const currentSkin = dataPackage.skin
-		const defaultSkin = dataPackage.armature.defaultSkin
+	protected fun _buildSlots(dataPackage: BuildArmaturePackage, armature: Armature): Unit {
+		val currentSkin = dataPackage.skin
+		val defaultSkin = dataPackage.armature.defaultSkin
 		if (currentSkin === null || defaultSkin === null) {
 			return
 		}
 
-		const skinSlots: Map<Array<DisplayData?>> = {}
+		val skinSlots: Map<Array<DisplayData?>> = {}
 		for (let k in defaultSkin.displays) {
 			const displays = defaultSkin.getDisplays(k) as any
 			skinSlots[k] = displays
@@ -194,9 +199,9 @@ abstract class BaseFactory {
 			}
 		}
 
-		for (const slotData of dataPackage.armature.sortedSlots) {
-			const displayDatas = slotData.name in skinSlots ? skinSlots[slotData.name] : null
-			const slot = this._buildSlot(dataPackage, slotData, armature)
+		for (slotData in dataPackage.armature.sortedSlots) {
+			val displayDatas = slotData.name in skinSlots ? skinSlots[slotData.name] : null
+			val slot = this._buildSlot(dataPackage, slotData, armature)
 
 			if (displayDatas !== null) {
 				slot.displayFrameCount = displayDatas.length
@@ -223,29 +228,29 @@ abstract class BaseFactory {
 		}
 	}
 
-	protected _buildConstraints(dataPackage: BuildArmaturePackage, armature: Armature): Unit {
-		const constraints = dataPackage.armature.constraints
-		for (let k in constraints) {
-			const constraintData = constraints[k]
+	protected fun _buildConstraints(dataPackage: BuildArmaturePackage, armature: Armature): Unit {
+		val constraints = dataPackage.armature.constraints
+		for (k in constraints.keys) {
+			val constraintData = constraints[k]
 			// TODO more constraint type.
-			switch (constraintData.type) {
-				case ConstraintType.IK:
-					const ikConstraint = BaseObject.borrowObject(IKConstraint)
-				ikConstraint.init(constraintData, armature)
-				armature._addConstraint(ikConstraint)
-				break
+			when (constraintData.type) {
+				ConstraintType.IK -> {
+					val ikConstraint = BaseObject . borrowObject (IKConstraint)
+					ikConstraint.init(constraintData, armature)
+					armature._addConstraint(ikConstraint)
+				}
 
-				case ConstraintType.Path:
-					const pathConstraint = BaseObject.borrowObject(PathConstraint)
-				pathConstraint.init(constraintData, armature)
-				armature._addConstraint(pathConstraint)
-				break
+				ConstraintType.Path -> {
+					val pathConstraint = BaseObject . borrowObject (PathConstraint)
+					pathConstraint.init(constraintData, armature)
+					armature._addConstraint(pathConstraint)
+				}
 
-				default:
-					const constraint = BaseObject.borrowObject(IKConstraint)
-				constraint.init(constraintData, armature)
-				armature._addConstraint(constraint)
-				break
+				else -> {
+					val constraint = BaseObject . borrowObject (IKConstraint)
+					constraint.init(constraintData, armature)
+					armature._addConstraint(constraint)
+				}
 			}
 
 		}
@@ -255,9 +260,9 @@ abstract class BaseFactory {
 		return this.buildArmature(displayData.path, dataPackage !== null ? dataPackage.dataName : "", "", dataPackage !== null ? dataPackage.textureAtlasName : "")
 	}
 
-	protected _getSlotDisplay(dataPackage: BuildArmaturePackage?, displayData: DisplayData, slot: Slot): any {
+	protected _getSlotDisplay(dataPackage: BuildArmaturePackage?, displayData: DisplayData, slot: Slot): Any {
 		val dataName = dataPackage !== null ? dataPackage.dataName : displayData.parent.parent.parent.name
-		let display: any = null
+		let display: Any = null
 		when (displayData.type) {
 			DisplayType.Image -> {
 				const imageDisplayData = displayData as ImageDisplayData
@@ -290,7 +295,7 @@ abstract class BaseFactory {
 					if (!childArmature.inheritAnimation) {
 						const actions = armatureDisplayData.actions.length > 0 ? armatureDisplayData.actions : childArmature.armatureData.defaultActions
 						if (actions.length > 0) {
-							for (const action of actions) {
+							for (action in actions) {
 								const eventObject = BaseObject.borrowObject(EventObject)
 								EventObject.actionDataToInstance(action, eventObject, slot.armature)
 								eventObject.slot = slot
@@ -319,7 +324,7 @@ abstract class BaseFactory {
 		return display
 	}
 
-	protected abstract _buildTextureAtlasData(textureAtlasData: TextureAtlasData?, textureAtlas: any): TextureAtlasData
+	protected abstract _buildTextureAtlasData(textureAtlasData: TextureAtlasData?, textureAtlas: Any): TextureAtlasData
 	protected abstract _buildArmature(dataPackage: BuildArmaturePackage): Armature
 	protected abstract _buildSlot(dataPackage: BuildArmaturePackage, slotData: SlotData, armature: Armature): Slot
 	/**
@@ -348,7 +353,7 @@ abstract class BaseFactory {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public parseDragonBonesData(rawData: any, name: String? = null, scale: Double = 1.0): DragonBonesData? {
+	public parseDragonBonesData(rawData: Any, name: String? = null, scale: Double = 1.0): DragonBonesData? {
 		const dataParser = rawData instanceof ArrayBuffer ? BaseFactory._binaryParser : this._dataParser
 		const dragonBonesData = dataParser.parseDragonBonesData(rawData, scale)
 
@@ -397,7 +402,7 @@ abstract class BaseFactory {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public parseTextureAtlasData(rawData: any, textureAtlas: any, name: String? = null, scale: Double = 1.0): TextureAtlasData {
+	public parseTextureAtlasData(rawData: Any, textureAtlas: Any, name: String? = null, scale: Double = 1.0): TextureAtlasData {
 		const textureAtlasData = this._buildTextureAtlasData(null, null)
 		this._dataParser.parseTextureAtlasData(rawData, textureAtlasData, scale)
 		this._buildTextureAtlasData(textureAtlasData, textureAtlas || null)
@@ -598,7 +603,7 @@ abstract class BaseFactory {
 		if (name in this._textureAtlasDataMap) {
 			const textureAtlasDataList = this._textureAtlasDataMap[name]
 			if (disposeData) {
-				for (const textureAtlasData of textureAtlasDataList) {
+				for (textureAtlasData in textureAtlasDataList) {
 					this._dragonBones.bufferObject(textureAtlasData)
 				}
 			}
@@ -654,7 +659,7 @@ abstract class BaseFactory {
 		for (let k in this._textureAtlasDataMap) {
 			if (disposeData) {
 				const textureAtlasDataList = this._textureAtlasDataMap[k]
-				for (const textureAtlasData of textureAtlasDataList) {
+				for (textureAtlasData in textureAtlasDataList) {
 					this._dragonBones.bufferObject(textureAtlasData)
 				}
 			}
@@ -859,7 +864,7 @@ abstract class BaseFactory {
 		let success = false
 		const defaultSkin = skin.parent.defaultSkin
 
-		for (const slot of armature.getSlots()) {
+		for (slot in armature.getSlots()) {
 			if (exclude !== null && exclude.indexOf(slot.name) >= 0) {
 				continue
 			}
@@ -958,9 +963,9 @@ abstract class BaseFactory {
 			armature.animation.animations = animations
 		}
 
-		for (const slot of armature.getSlots()) {
+		for (slot in armature.getSlots()) {
 			let index = 0
-			for (const display of slot.displayList) {
+			for (display in slot.displayList) {
 				if (display instanceof Armature) {
 					const displayDatas = skinData.getDisplays(slot.name)
 					if (displayDatas !== null && index < displayDatas.length) {

@@ -73,7 +73,7 @@ class Armature  : BaseObject(), IAnimatable {
 	/**
 	 * @private
 	 */
-	public var userData: any
+	public var userData: Any
 	/**
 	 * @internal
 	 */
@@ -112,12 +112,12 @@ class Armature  : BaseObject(), IAnimatable {
 	public var _armatureData: ArmatureData
 	private var _animation: Animation = null as any // Initial value.
 	private var _proxy: IArmatureProxy = null as any // Initial value.
-	private var _display: any
+	private var _display: Any
 	/**
 	 * @internal
 	 */
 	public var _replaceTextureAtlasData: TextureAtlasData? = null // Initial value.
-	private var _replacedTexture: any
+	private var _replacedTexture: Any
 	/**
 	 * @internal
 	 */
@@ -133,19 +133,19 @@ class Armature  : BaseObject(), IAnimatable {
 			this._clock.remove(this)
 		}
 
-		for (const bone of this._bones) {
+		for (bone in this._bones) {
 			bone.returnToPool()
 		}
 
-		for (const slot of this._slots) {
+		for (slot in this._slots) {
 			slot.returnToPool()
 		}
 
-		for (const constraint of this._constraints) {
+		for (constraint in this._constraints) {
 			constraint.returnToPool()
 		}
 
-		for (const action of this._actions) {
+		for (action in this._actions) {
 			action.returnToPool()
 		}
 
@@ -282,7 +282,7 @@ class Armature  : BaseObject(), IAnimatable {
 	 */
 	public fun init(
 		armatureData: ArmatureData,
-		proxy: IArmatureProxy, display: any, dragonBones: DragonBones
+		proxy: IArmatureProxy, display: Any, dragonBones: DragonBones
 	): Unit {
 		if (this._armatureData !== null) {
 			return
@@ -338,11 +338,11 @@ class Armature  : BaseObject(), IAnimatable {
 			this._alphaDirty = false
 			this._globalAlpha = this._alpha * (this._parent !== null ? this._parent._globalAlpha : 1.0)
 
-			for (const bone of this._bones) {
+			for (bone in this._bones) {
 				bone._updateAlpha()
 			}
 
-			for (const slot of this._slots) {
+			for (slot in this._slots) {
 				slot._updateAlpha()
 			}
 		}
@@ -370,7 +370,7 @@ class Armature  : BaseObject(), IAnimatable {
 							}
 						}
 						else if (action.bone !== null) {
-							for (const slot of this.getSlots()) {
+							for (slot in this.getSlots()) {
 								if (slot.parent === action.bone) {
 									const childArmature = slot.childArmature
 									if (childArmature !== null) {
@@ -419,7 +419,7 @@ class Armature  : BaseObject(), IAnimatable {
 				bone.invalidUpdate()
 
 				if (updateSlot) {
-					for (const slot of this._slots) {
+					for (slot in this._slots) {
 						if (slot.parent === bone) {
 							slot.invalidUpdate()
 						}
@@ -659,9 +659,9 @@ class Armature  : BaseObject(), IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public fun getSlotByDisplay(display: any): Slot? {
+	public fun getSlotByDisplay(display: Any): Slot? {
 		if (display !== null) {
-			for (const slot of this._slots) {
+			for (slot in this._slots) {
 				if (slot.display === display) {
 					return slot
 				}
@@ -778,7 +778,7 @@ class Armature  : BaseObject(), IAnimatable {
 			this._armatureData.cacheFrames(value)
 
 			// Set child armature frameRate.
-			for (const slot of this._slots) {
+			for (slot in this._slots) {
 				const childArmature = slot.childArmature
 				if (childArmature !== null) {
 					childArmature.cacheFrameRate = value
@@ -871,7 +871,7 @@ class Armature  : BaseObject(), IAnimatable {
 	public var replacedTexture: Any get() {
 		return this._replacedTexture
 	}
-	set (value: any) {
+	set (value: Any) {
 		if (this._replacedTexture === value) {
 			return
 		}
@@ -883,7 +883,7 @@ class Armature  : BaseObject(), IAnimatable {
 
 		this._replacedTexture = value
 
-		for (const slot of this._slots) {
+		for (slot in this._slots) {
 			slot.invalidUpdate()
 			slot.update(-1)
 		}

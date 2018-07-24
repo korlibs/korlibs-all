@@ -82,7 +82,7 @@ abstract class TransformObject  :  BaseObject {
 	/**
 	 * @private
 	 */
-	public userData: any;
+	public userData: Any;
 	protected _globalDirty: Boolean;
 	/**
 	 * @internal

@@ -33,7 +33,7 @@ class DisplayFrame  :  BaseObject {
 	public rawDisplayData: DisplayData?;
 	public displayData: DisplayData?;
 	public textureData: TextureData?;
-	public display: any | Armature?;
+	public display: Any | Armature?;
 	public readonly deformVertices:  DoubleArray = [];
 
 	protected _onClear(): Unit {
@@ -246,9 +246,9 @@ abstract class Slot  :  TransformObject {
 	public _geometryData: GeometryData?;
 	protected _boundingBoxData: BoundingBoxData?;
 	protected _textureData: TextureData?;
-	protected _rawDisplay: any = null; // Initial value.
-	protected _meshDisplay: any = null; // Initial value.
-	protected _display: any? = null;
+	protected _rawDisplay: Any = null; // Initial value.
+	protected _meshDisplay: Any = null; // Initial value.
+	protected _display: Any? = null;
 	protected _childArmature: Armature?;
 	/**
 	 * @private
@@ -263,7 +263,7 @@ abstract class Slot  :  TransformObject {
 		super._onClear();
 
 		const disposeDisplayList: Array<any> = [];
-		for (const dispayFrame of this._displayFrames) {
+		for (dispayFrame in this._displayFrames) {
 			const display = dispayFrame.display;
 			if (
 				display !== this._rawDisplay && display !== this._meshDisplay &&
@@ -275,7 +275,7 @@ abstract class Slot  :  TransformObject {
 			dispayFrame.returnToPool();
 		}
 
-		for (const eachDisplay of disposeDisplayList) {
+		for (eachDisplay in disposeDisplayList) {
 			if (eachDisplay instanceof Armature) {
 				eachDisplay.dispose();
 			}
@@ -330,11 +330,11 @@ abstract class Slot  :  TransformObject {
 		this._cachedFrameIndices = null;
 	}
 
-	protected abstract _initDisplay(value: any, isRetain: Boolean): Unit;
-	protected abstract _disposeDisplay(value: any, isRelease: Boolean): Unit;
+	protected abstract _initDisplay(value: Any, isRetain: Boolean): Unit;
+	protected abstract _disposeDisplay(value: Any, isRelease: Boolean): Unit;
 	protected abstract _onUpdateDisplay(): Unit;
 	protected abstract _addDisplay(): Unit;
-	protected abstract _replaceDisplay(value: any): Unit;
+	protected abstract _replaceDisplay(value: Any): Unit;
 	protected abstract _removeDisplay(): Unit;
 	protected abstract _updateZOrder(): Unit;
 	/**
@@ -348,8 +348,8 @@ abstract class Slot  :  TransformObject {
 	protected abstract _updateTransform(): Unit;
 	protected abstract _identityTransform(): Unit;
 
-	protected _hasDisplay(display: any): Boolean {
-		for (const displayFrame of this._displayFrames) {
+	protected _hasDisplay(display: Any): Boolean {
+		for (displayFrame in this._displayFrames) {
 			if (displayFrame.display === display) {
 				return true;
 			}
@@ -361,7 +361,7 @@ abstract class Slot  :  TransformObject {
 	 * @internal
 	 */
 	public _isBonesUpdate(): Boolean {
-		for (const bone of this._geometryBones) {
+		for (bone in this._geometryBones) {
 			if (bone !== null && bone._childrenTransformDirty) {
 				return true;
 			}
@@ -565,7 +565,7 @@ abstract class Slot  :  TransformObject {
 						}
 
 						if (actions !== null && actions.length > 0) {
-							for (const action of actions) {
+							for (action in actions) {
 								const eventObject = BaseObject.borrowObject(EventObject);
 								EventObject.actionDataToInstance(action, eventObject, this._armature);
 								eventObject.slot = this;
@@ -637,7 +637,7 @@ abstract class Slot  :  TransformObject {
 	/**
 	 * @internal
 	 */
-	public init(slotData: SlotData, armatureValue: Armature, rawDisplay: any, meshDisplay: any): Unit {
+	public init(slotData: SlotData, armatureValue: Armature, rawDisplay: Any, meshDisplay: Any): Unit {
 		if (this._slotData !== null) {
 			return;
 		}
@@ -881,7 +881,7 @@ abstract class Slot  :  TransformObject {
 	/**
 	 * @private
 	 */
-	public replaceDisplay(value: any | Armature?, index: Double = -1): Unit {
+	public replaceDisplay(value: Any | Armature?, index: Double = -1): Unit {
 		if (index < 0) {
 			index = this._displayIndex < 0 ? 0 : this._displayIndex;
 		}
@@ -1146,7 +1146,7 @@ abstract class Slot  :  TransformObject {
 	 */
 	public get displayList(): Array<any> {
 		const displays = new Array<any>();
-		for (const displayFrame of this._displayFrames) {
+		for (displayFrame in this._displayFrames) {
 			displays.push(displayFrame.display);
 		}
 
@@ -1155,7 +1155,7 @@ abstract class Slot  :  TransformObject {
 	public set displayList(value: Array<any>) {
 		this.displayFrameCount = value.length;
 		let index = 0;
-		for (const eachDisplay of value) {
+		for (eachDisplay in value) {
 			this.replaceDisplay(eachDisplay, index++);
 		}
 	}
@@ -1190,13 +1190,13 @@ abstract class Slot  :  TransformObject {
 	/**
 	 * @private
 	 */
-	public get rawDisplay(): any {
+	public get rawDisplay(): Any {
 		return this._rawDisplay;
 	}
 	/**
 	 * @private
 	 */
-	public get meshDisplay(): any {
+	public get meshDisplay(): Any {
 		return this._meshDisplay;
 	}
 	/**
@@ -1219,10 +1219,10 @@ abstract class Slot  :  TransformObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public get display(): any {
+	public get display(): Any {
 		return this._display;
 	}
-	public set display(value: any) {
+	public set display(value: Any) {
 		if (this._display === value) {
 			return;
 		}
@@ -1297,7 +1297,7 @@ abstract class Slot  :  TransformObject {
 	 * @deprecated
 	 * @language zh_CN
 	 */
-	public getDisplay(): any {
+	public getDisplay(): Any {
 		return this._display;
 	}
 	/**
@@ -1310,7 +1310,7 @@ abstract class Slot  :  TransformObject {
 	 * @deprecated
 	 * @language zh_CN
 	 */
-	public setDisplay(value: any) {
+	public setDisplay(value: Any) {
 		this.display = value;
 	}
 }

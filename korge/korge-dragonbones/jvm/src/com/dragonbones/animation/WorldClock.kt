@@ -227,7 +227,7 @@ class WorldClock : IAnimatable {
 	 * @language zh_CN
 	 */
 	public clear(): Unit {
-		for (const animatable of this._animatebles) {
+		for (animatable in this._animatebles) {
 			if (animatable !== null) {
 				animatable.clock = null;
 			}

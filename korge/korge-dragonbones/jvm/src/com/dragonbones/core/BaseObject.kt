@@ -145,7 +145,7 @@ abstract class BaseObject {
 		 * @version DragonBones 4.5
 		 * @language zh_CN
 		 */
-		public fun borrowObject<T  :  BaseObject>(objectConstructor: { new(): T; }): T {
+		public fun <T  :  BaseObject> borrowObject(objectConstructor: { new(): T; }): T {
 			val classType = String(objectConstructor)
 			val pool = classType in BaseObject._poolsMap ? BaseObject._poolsMap[classType] : null
 			if (pool !== null && pool.length > 0) {
@@ -159,6 +159,7 @@ abstract class BaseObject {
 			return object
 		}
 
+		inline public fun <reified T  :  BaseObject> borrowObject(): T = TODO()
 	}
 
 	/**

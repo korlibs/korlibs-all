@@ -22,410 +22,411 @@
  */
 package com.dragonbones.parser
 
+import com.dragonbones.core.*
+import com.dragonbones.model.*
+
 /**
  * @private
  */
-class BinaryDataParser  :  ObjectDataParser {
-	private _binaryOffset: Double;
-	private _binary: ArrayBuffer;
-	private _intArrayBuffer: Int16Array;
-	private _frameArrayBuffer: Int16Array;
-	private _timelineArrayBuffer: Uint16Array;
+class BinaryDataParser  :  ObjectDataParser() {
+	private var _binaryOffset: Double
+	private var _binary: ArrayBuffer
+	private var _intArrayBuffer: Int16Array
+	private var _frameArrayBuffer: Int16Array
+	private var _timelineArrayBuffer: Uint16Array
 
-	private _inRange(a: Double, min: Double, max: Double): Boolean {
-		return min <= a && a <= max;
+	private fun _inRange(a: Int, min: Int, max: Int): Boolean {
+		return min <= a && a <= max
 	}
 
-	private _decodeUTF8(data: Uint8Array): String {
-		const EOF_byte = -1;
-		const EOF_code_point = -1;
-		const FATAL_POINT = 0xFFFD;
+	private fun _decodeUTF8(data: Uint8Array): String {
+		val EOF_byte = -1
+		val EOF_code_point = -1
+		val FATAL_POINT = 0xFFFD
 
-		let pos = 0;
-		let result = "";
-		let code_point;
-		let utf8_code_point = 0;
-		let utf8_bytes_needed = 0;
-		let utf8_bytes_seen = 0;
-		let utf8_lower_boundary = 0;
+		var pos = 0
+		var result = ""
+		var code_point: Int
+		var utf8_code_point: Int = 0
+		var utf8_bytes_needed = 0
+		var utf8_bytes_seen = 0
+		var utf8_lower_boundary = 0
 
 		while (data.length > pos) {
 
-			let _byte = data[pos++];
+			val _byte = data[pos++]
 
-			if (_byte === EOF_byte) {
-				if (utf8_bytes_needed !== 0) {
-					code_point = FATAL_POINT;
+			if (_byte == EOF_byte) {
+				if (utf8_bytes_needed != 0) {
+					code_point = FATAL_POINT
 				}
 				else {
-					code_point = EOF_code_point;
+					code_point = EOF_code_point
 				}
 			}
 			else {
-				if (utf8_bytes_needed === 0) {
+				if (utf8_bytes_needed == 0) {
 					if (this._inRange(_byte, 0x00, 0x7F)) {
-						code_point = _byte;
+						code_point = _byte
 					}
 					else {
 						if (this._inRange(_byte, 0xC2, 0xDF)) {
-							utf8_bytes_needed = 1;
-							utf8_lower_boundary = 0x80;
-							utf8_code_point = _byte - 0xC0;
+							utf8_bytes_needed = 1
+							utf8_lower_boundary = 0x80
+							utf8_code_point = _byte - 0xC0
 						}
 						else if (this._inRange(_byte, 0xE0, 0xEF)) {
-							utf8_bytes_needed = 2;
-							utf8_lower_boundary = 0x800;
-							utf8_code_point = _byte - 0xE0;
+							utf8_bytes_needed = 2
+							utf8_lower_boundary = 0x800
+							utf8_code_point = _byte - 0xE0
 						}
 						else if (this._inRange(_byte, 0xF0, 0xF4)) {
-							utf8_bytes_needed = 3;
-							utf8_lower_boundary = 0x10000;
-							utf8_code_point = _byte - 0xF0;
+							utf8_bytes_needed = 3
+							utf8_lower_boundary = 0x10000
+							utf8_code_point = _byte - 0xF0
 						}
 						else {
 
 						}
-						utf8_code_point = utf8_code_point * Math.pow(64, utf8_bytes_needed);
-						code_point = null;
+						utf8_code_point = (utf8_code_point * Math.pow(64, utf8_bytes_needed)).toInt()
+						code_point = null
 					}
 				}
 				else if (!this._inRange(_byte, 0x80, 0xBF)) {
-					utf8_code_point = 0;
-					utf8_bytes_needed = 0;
-					utf8_bytes_seen = 0;
-					utf8_lower_boundary = 0;
-					pos--;
-					code_point = _byte;
+					utf8_code_point = 0
+					utf8_bytes_needed = 0
+					utf8_bytes_seen = 0
+					utf8_lower_boundary = 0
+					pos--
+					code_point = _byte
 				}
 				else {
 
-					utf8_bytes_seen += 1;
-					utf8_code_point = utf8_code_point + (_byte - 0x80) * Math.pow(64, utf8_bytes_needed - utf8_bytes_seen);
+					utf8_bytes_seen += 1
+					utf8_code_point = utf8_code_point + (_byte - 0x80) * Math.pow(64, utf8_bytes_needed - utf8_bytes_seen)
 
-					if (utf8_bytes_seen !== utf8_bytes_needed) {
-						code_point = null;
+					if (utf8_bytes_seen != utf8_bytes_needed) {
+						code_point = null
 					}
 					else {
 
-						let cp = utf8_code_point;
-						let lower_boundary = utf8_lower_boundary;
-						utf8_code_point = 0;
-						utf8_bytes_needed = 0;
-						utf8_bytes_seen = 0;
-						utf8_lower_boundary = 0;
+						val cp = utf8_code_point
+						val lower_boundary = utf8_lower_boundary
+						utf8_code_point = 0
+						utf8_bytes_needed = 0
+						utf8_bytes_seen = 0
+						utf8_lower_boundary = 0
 						if (this._inRange(cp, lower_boundary, 0x10FFFF) && !this._inRange(cp, 0xD800, 0xDFFF)) {
-							code_point = cp;
+							code_point = cp
 						}
 						else {
-							code_point = _byte;
+							code_point = _byte
 						}
 					}
 
 				}
 			}
 			//Decode string
-			if (code_point !== null && code_point !== EOF_code_point) {
+			if (code_point !== null && code_point != EOF_code_point) {
 				if (code_point <= 0xFFFF) {
-					if (code_point > 0) result += String.fromCharCode(code_point);
+					if (code_point > 0) result += code_point.toChar()
 				}
 				else {
-					code_point -= 0x10000;
-					result += String.fromCharCode(0xD800 + ((code_point >> 10) & 0x3ff));
-					result += String.fromCharCode(0xDC00 + (code_point & 0x3ff));
+					code_point -= 0x10000
+					result += (0xD800 + ((code_point shr 10) and 0x3ff)).toChar()
+					result += (0xDC00 + (code_point and 0x3ff)).toChar()
 				}
 			}
 		}
 
-		return result;
+		return result
 	}
 
-	private _parseBinaryTimeline(type: TimelineType, offset: Double, timelineData: TimelineData? = null): TimelineData {
-		const timeline = timelineData !== null ? timelineData : BaseObject.borrowObject(TimelineData);
-		timeline.type = type;
-		timeline.offset = offset;
+	private fun _parseBinaryTimeline(type: TimelineType, offset: Double, timelineData: TimelineData? = null): TimelineData {
+		val timeline: TimelineData = if (timelineData !== null) timelineData else BaseObject.borrowObject<TimelineData>()
+		timeline.type = type
+		timeline.offset = offset
 
-		this._timeline = timeline;
+		this._timeline = timeline
 
-		const keyFrameCount = this._timelineArrayBuffer[timeline.offset + BinaryOffset.TimelineKeyFrameCount];
+		val keyFrameCount = this._timelineArrayBuffer[timeline.offset + BinaryOffset.TimelineKeyFrameCount]
 		if (keyFrameCount === 1) {
-			timeline.frameIndicesOffset = -1;
+			timeline.frameIndicesOffset = -1
 		}
 		else {
-			let frameIndicesOffset = 0;
-			const totalFrameCount = this._animation.frameCount + 1; // One more frame than animation.
-			const frameIndices = this._data.frameIndices;
-			frameIndicesOffset = frameIndices.length;
-			frameIndices.length += totalFrameCount;
-			timeline.frameIndicesOffset = frameIndicesOffset;
+			var frameIndicesOffset = 0
+			val totalFrameCount = this._animation.frameCount + 1 // One more frame than animation.
+			val frameIndices = this._data.frameIndices
+			frameIndicesOffset = frameIndices.length
+			frameIndices.length += totalFrameCount
+			timeline.frameIndicesOffset = frameIndicesOffset
 
-			for (
-				let i = 0, iK = 0, frameStart = 0, frameCount = 0;
-				i < totalFrameCount;
-				++i
-			) {
+			for (let i = 0, iK = 0, frameStart = 0, frameCount = 0i < totalFrameCount++i) {
 				if (frameStart + frameCount <= i && iK < keyFrameCount) {
-					frameStart = this._frameArrayBuffer[this._animation.frameOffset + this._timelineArrayBuffer[timeline.offset + BinaryOffset.TimelineFrameOffset + iK]];
+					frameStart = this._frameArrayBuffer[this._animation.frameOffset + this._timelineArrayBuffer[timeline.offset + BinaryOffset.TimelineFrameOffset + iK]]
 					if (iK === keyFrameCount - 1) {
-						frameCount = this._animation.frameCount - frameStart;
+						frameCount = this._animation.frameCount - frameStart
 					}
 					else {
-						frameCount = this._frameArrayBuffer[this._animation.frameOffset + this._timelineArrayBuffer[timeline.offset + BinaryOffset.TimelineFrameOffset + iK + 1]] - frameStart;
+						frameCount = this._frameArrayBuffer[this._animation.frameOffset + this._timelineArrayBuffer[timeline.offset + BinaryOffset.TimelineFrameOffset + iK + 1]] - frameStart
 					}
 
-					iK++;
+					iK++
 				}
 
-				frameIndices[frameIndicesOffset + i] = iK - 1;
+				frameIndices[frameIndicesOffset + i] = iK - 1
 			}
 		}
 
-		this._timeline = null as any; //
+		this._timeline = null as any //
 
-		return timeline;
+		return timeline
 	}
 
-	protected _parseAnimation(rawData: any): AnimationData {
-		const animation = BaseObject.borrowObject(AnimationData);
-		animation.blendType = DataParser._getAnimationBlendType(ObjectDataParser._getString(rawData, DataParser.BLEND_TYPE, ""));
-		animation.frameCount = ObjectDataParser._getNumber(rawData, DataParser.DURATION, 0);
-		animation.playTimes = ObjectDataParser._getNumber(rawData, DataParser.PLAY_TIMES, 1);
-		animation.duration = animation.frameCount / this._armature.frameRate; // float
-		animation.fadeInTime = ObjectDataParser._getNumber(rawData, DataParser.FADE_IN_TIME, 0.0);
-		animation.scale = ObjectDataParser._getNumber(rawData, DataParser.SCALE, 1.0);
-		animation.name = ObjectDataParser._getString(rawData, DataParser.NAME, DataParser.DEFAULT_NAME);
+	protected fun _parseAnimation(rawData: Any): AnimationData {
+		val animation: AnimationData = BaseObject.borrowObject<AnimationData>()
+		animation.blendType = DataParser._getAnimationBlendType(ObjectDataParser._getString(rawData, DataParser.BLEND_TYPE, ""))
+		animation.frameCount = ObjectDataParser._getNumber(rawData, DataParser.DURATION, 0)
+		animation.playTimes = ObjectDataParser._getNumber(rawData, DataParser.PLAY_TIMES, 1)
+		animation.duration = animation.frameCount / this._armature.frameRate // float
+		animation.fadeInTime = ObjectDataParser._getNumber(rawData, DataParser.FADE_IN_TIME, 0.0)
+		animation.scale = ObjectDataParser._getNumber(rawData, DataParser.SCALE, 1.0)
+		animation.name = ObjectDataParser._getString(rawData, DataParser.NAME, DataParser.DEFAULT_NAME)
 		if (animation.name.length === 0) {
-			animation.name = DataParser.DEFAULT_NAME;
+			animation.name = DataParser.DEFAULT_NAME
 		}
 
 		// Offsets.
-		const offsets = rawData[DataParser.OFFSET] as  DoubleArray;
-		animation.frameIntOffset = offsets[0];
-		animation.frameFloatOffset = offsets[1];
-		animation.frameOffset = offsets[2];
+		val offsets = rawData[DataParser.OFFSET] as  DoubleArray
+		animation.frameIntOffset = offsets[0]
+		animation.frameFloatOffset = offsets[1]
+		animation.frameOffset = offsets[2]
 
-		this._animation = animation;
+		this._animation = animation
 
 		if (DataParser.ACTION in rawData) {
-			animation.actionTimeline = this._parseBinaryTimeline(TimelineType.Action, rawData[DataParser.ACTION]);
+			animation.actionTimeline = this._parseBinaryTimeline(TimelineType.Action, rawData[DataParser.ACTION])
 		}
 
 		if (DataParser.Z_ORDER in rawData) {
-			animation.zOrderTimeline = this._parseBinaryTimeline(TimelineType.ZOrder, rawData[DataParser.Z_ORDER]);
+			animation.zOrderTimeline = this._parseBinaryTimeline(TimelineType.ZOrder, rawData[DataParser.Z_ORDER])
 		}
 
 		if (DataParser.BONE in rawData) {
-			const rawTimeliness = rawData[DataParser.BONE];
-			for (let k in rawTimeliness) {
-				const rawTimelines = rawTimeliness[k] as  DoubleArray;
-				const bone = this._armature.getBone(k);
+			val rawTimeliness = rawData[DataParser.BONE]
+			for (k in rawTimeliness.keys) {
+				val rawTimelines = rawTimeliness[k] as  DoubleArray
+				val bone = this._armature.getBone(k)
 				if (bone === null) {
-					continue;
+					continue
 				}
 
-				for (let i = 0, l = rawTimelines.length; i < l; i += 2) {
-					const timelineType = rawTimelines[i];
-					const timelineOffset = rawTimelines[i + 1];
-					const timeline = this._parseBinaryTimeline(timelineType, timelineOffset);
-					this._animation.addBoneTimeline(bone.name, timeline);
+				for (i in 0 until rawTimelines.size step 2) {
+					val timelineType = rawTimelines[i]
+					val timelineOffset = rawTimelines[i + 1]
+					val timeline = this._parseBinaryTimeline(timelineType, timelineOffset)
+					this._animation.addBoneTimeline(bone.name, timeline)
 				}
 			}
 		}
 
 		if (DataParser.SLOT in rawData) {
-			const rawTimeliness = rawData[DataParser.SLOT];
-			for (let k in rawTimeliness) {
-				const rawTimelines = rawTimeliness[k] as  DoubleArray;
-				const slot = this._armature.getSlot(k);
+			val rawTimeliness = rawData[DataParser.SLOT]
+			for (k in rawTimeliness.keys) {
+				val rawTimelines = rawTimeliness[k] as  DoubleArray
+				val slot = this._armature.getSlot(k)
 				if (slot === null) {
-					continue;
+					continue
 				}
 
-				for (let i = 0, l = rawTimelines.length; i < l; i += 2) {
-					const timelineType = rawTimelines[i];
-					const timelineOffset = rawTimelines[i + 1];
-					const timeline = this._parseBinaryTimeline(timelineType, timelineOffset);
-					this._animation.addSlotTimeline(slot.name, timeline);
+				for (i in 0 until rawTimelines.size step 2) {
+					val timelineType = rawTimelines[i]
+					val timelineOffset = rawTimelines[i + 1]
+					val timeline = this._parseBinaryTimeline(timelineType, timelineOffset)
+					this._animation.addSlotTimeline(slot.name, timeline)
 				}
 			}
 		}
 
 		if (DataParser.CONSTRAINT in rawData) {
-			const rawTimeliness = rawData[DataParser.CONSTRAINT];
-			for (let k in rawTimeliness) {
-				const rawTimelines = rawTimeliness[k] as  DoubleArray;
-				const constraint = this._armature.getConstraint(k);
+			val rawTimeliness = rawData[DataParser.CONSTRAINT]
+			for (k in rawTimeliness.keys) {
+				val rawTimelines = rawTimeliness[k] as  DoubleArray
+				val constraint = this._armature.getConstraint(k)
 				if (constraint === null) {
-					continue;
+					continue
 				}
 
-				for (let i = 0, l = rawTimelines.length; i < l; i += 2) {
-					const timelineType = rawTimelines[i];
-					const timelineOffset = rawTimelines[i + 1];
-					const timeline = this._parseBinaryTimeline(timelineType, timelineOffset);
-					this._animation.addConstraintTimeline(constraint.name, timeline);
+				for (i in 0 until rawTimelines.size step 2) {
+					val timelineType = rawTimelines[i]
+					val timelineOffset = rawTimelines[i + 1]
+					val timeline = this._parseBinaryTimeline(timelineType, timelineOffset)
+					this._animation.addConstraintTimeline(constraint.name, timeline)
 				}
 			}
 		}
 
 		if (DataParser.TIMELINE in rawData) {
-			const rawTimelines = rawData[DataParser.TIMELINE] as Array<any>;
-			for (const rawTimeline of rawTimelines) {
-				const timelineOffset = ObjectDataParser._getNumber(rawTimeline, DataParser.OFFSET, 0);
+			val rawTimelines = rawData[DataParser.TIMELINE] as Array<any>
+			for (rawTimeline in rawTimelines) {
+				val timelineOffset = ObjectDataParser._getNumber(rawTimeline, DataParser.OFFSET, 0)
 				if (timelineOffset >= 0) {
-					const timelineType = ObjectDataParser._getNumber(rawTimeline, DataParser.TYPE, TimelineType.Action);
-					const timelineName = ObjectDataParser._getString(rawTimeline, DataParser.NAME, "");
-					let timeline: TimelineData? = null;
+					val timelineType = ObjectDataParser._getNumber(rawTimeline, DataParser.TYPE, TimelineType.Action)
+					val timelineName = ObjectDataParser._getString(rawTimeline, DataParser.NAME, "")
+					var timeline: TimelineData? = null
 
 					if (timelineType === TimelineType.AnimationProgress && animation.blendType !== AnimationBlendType.None) {
-						timeline = BaseObject.borrowObject(AnimationTimelineData);
-						const animaitonTimeline = timeline as AnimationTimelineData;
-						animaitonTimeline.x = ObjectDataParser._getNumber(rawTimeline, DataParser.X, 0.0);
-						animaitonTimeline.y = ObjectDataParser._getNumber(rawTimeline, DataParser.Y, 0.0);
+						timeline = BaseObject.borrowObject(AnimationTimelineData)
+						val animaitonTimeline = timeline as AnimationTimelineData
+						animaitonTimeline.x = ObjectDataParser._getNumber(rawTimeline, DataParser.X, 0.0)
+						animaitonTimeline.y = ObjectDataParser._getNumber(rawTimeline, DataParser.Y, 0.0)
 					}
 
-					timeline = this._parseBinaryTimeline(timelineType, timelineOffset, timeline);
+					timeline = this._parseBinaryTimeline(timelineType, timelineOffset, timeline)
 
-					switch (timelineType) {
-						case TimelineType.Action:
+					when (timelineType) {
+						TimelineType.Action -> {
 							// TODO
-							break;
+						}
 
-						case TimelineType.ZOrder:
+						TimelineType.ZOrder -> {
 							// TODO
-							break;
+						}
 
-						case TimelineType.BoneTranslate:
-						case TimelineType.BoneRotate:
-						case TimelineType.BoneScale:
-						case TimelineType.Surface:
-						case TimelineType.BoneAlpha:
-							this._animation.addBoneTimeline(timelineName, timeline);
-							break;
+						TimelineType.BoneTranslate,
+						TimelineType.BoneRotate,
+						TimelineType.BoneScale,
+						TimelineType.Surface,
+						TimelineType.BoneAlpha -> {
+							this._animation.addBoneTimeline(timelineName, timeline)
+						}
 
-						case TimelineType.SlotDisplay:
-						case TimelineType.SlotColor:
-						case TimelineType.SlotDeform:
-						case TimelineType.SlotZIndex:
-						case TimelineType.SlotAlpha:
-							this._animation.addSlotTimeline(timelineName, timeline);
-							break;
+						TimelineType.SlotDisplay,
+						TimelineType.SlotColor,
+						TimelineType.SlotDeform,
+						TimelineType.SlotZIndex,
+						TimelineType.SlotAlpha -> {
+							this._animation.addSlotTimeline(timelineName, timeline)
+						}
 
-						case TimelineType.IKConstraint:
-							this._animation.addConstraintTimeline(timelineName, timeline);
-							break;
+						TimelineType.IKConstraint -> {
+							this._animation.addConstraintTimeline(timelineName, timeline)
+						}
 
-						case TimelineType.AnimationProgress:
-						case TimelineType.AnimationWeight:
-						case TimelineType.AnimationParameter:
-							this._animation.addAnimationTimeline(timelineName, timeline);
-							break;
+						TimelineType.AnimationProgress,
+						TimelineType.AnimationWeight,
+						TimelineType.AnimationParameter -> {
+							this._animation.addAnimationTimeline(timelineName, timeline)
+						}
 					}
 				}
 			}
 		}
 
-		this._animation = null as any;
+		this._animation = null as any
 
-		return animation;
+		return animation
 	}
 
-	protected _parseGeometry(rawData: any, geometry: GeometryData): Unit {
-		geometry.offset = rawData[DataParser.OFFSET];
-		geometry.data = this._data;
+	protected fun _parseGeometry(rawData: Any, geometry: GeometryData): Unit {
+		geometry.offset = rawData[DataParser.OFFSET]
+		geometry.data = this._data
 
-		const weightOffset = this._intArrayBuffer[geometry.offset + BinaryOffset.GeometryWeightOffset];
+		val weightOffset = this._intArrayBuffer[geometry.offset + BinaryOffset.GeometryWeightOffset]
 		if (weightOffset >= 0) {
-			const weight = BaseObject.borrowObject(WeightData);
-			const vertexCount = this._intArrayBuffer[geometry.offset + BinaryOffset.GeometryVertexCount];
-			const boneCount = this._intArrayBuffer[weightOffset + BinaryOffset.WeigthBoneCount];
-			weight.offset = weightOffset;
+			val weight = BaseObject.borrowObject(WeightData)
+			val vertexCount = this._intArrayBuffer[geometry.offset + BinaryOffset.GeometryVertexCount]
+			val boneCount = this._intArrayBuffer[weightOffset + BinaryOffset.WeigthBoneCount]
+			weight.offset = weightOffset
 
-			for (let i = 0; i < boneCount; ++i) {
-				const boneIndex = this._intArrayBuffer[weightOffset + BinaryOffset.WeigthBoneIndices + i];
-				weight.addBone(this._rawBones[boneIndex]);
+			for (i in 0 until boneCount) {
+				val boneIndex = this._intArrayBuffer[weightOffset + BinaryOffset.WeigthBoneIndices + i]
+				weight.addBone(this._rawBones[boneIndex])
 			}
 
-			let boneIndicesOffset = weightOffset + BinaryOffset.WeigthBoneIndices + boneCount;
-			let weightCount = 0;
-			for (let i = 0, l = vertexCount; i < l; ++i) {
-				const vertexBoneCount = this._intArrayBuffer[boneIndicesOffset++];
-				weightCount += vertexBoneCount;
-				boneIndicesOffset += vertexBoneCount;
+			var boneIndicesOffset = weightOffset + BinaryOffset.WeigthBoneIndices + boneCount
+			var weightCount = 0
+			for (i in 0 until vertexCount) {
+				val vertexBoneCount = this._intArrayBuffer[boneIndicesOffset++]
+				weightCount += vertexBoneCount
+				boneIndicesOffset += vertexBoneCount
 			}
 
-			weight.count = weightCount;
-			geometry.weight = weight;
+			weight.count = weightCount
+			geometry.weight = weight
 		}
 	}
 
-	protected _parseArray(rawData: any): Unit {
-		const offsets = rawData[DataParser.OFFSET] as  DoubleArray;
-		const l1 = offsets[1];
-		const l2 = offsets[3];
-		const l3 = offsets[5];
-		const l4 = offsets[7];
-		const l5 = offsets[9];
-		const l6 = offsets[11];
-		const l7 = offsets.length > 12 ? offsets[13] : 0; // Color.
-		const intArray = new Int16Array(this._binary, this._binaryOffset + offsets[0], l1 / Int16Array.BYTES_PER_ELEMENT);
-		const floatArray = new Float32Array(this._binary, this._binaryOffset + offsets[2], l2 / Float32Array.BYTES_PER_ELEMENT);
-		const frameIntArray = new Int16Array(this._binary, this._binaryOffset + offsets[4], l3 / Int16Array.BYTES_PER_ELEMENT);
-		const frameFloatArray = new Float32Array(this._binary, this._binaryOffset + offsets[6], l4 / Float32Array.BYTES_PER_ELEMENT);
-		const frameArray = new Int16Array(this._binary, this._binaryOffset + offsets[8], l5 / Int16Array.BYTES_PER_ELEMENT);
-		const timelineArray = new Uint16Array(this._binary, this._binaryOffset + offsets[10], l6 / Uint16Array.BYTES_PER_ELEMENT);
-		const colorArray = l7 > 0 ? new Int16Array(this._binary, this._binaryOffset + offsets[12], l7 / Int16Array.BYTES_PER_ELEMENT) : intArray; // Color.
+	protected fun _parseArray(rawData: Any): Unit {
+		val offsets = rawData[DataParser.OFFSET] as  DoubleArray
+		val l1 = offsets[1]
+		val l2 = offsets[3]
+		val l3 = offsets[5]
+		val l4 = offsets[7]
+		val l5 = offsets[9]
+		val l6 = offsets[11]
+		val l7 = offsets.length > 12 ? offsets[13] : 0 // Color.
+		val intArray = new Int16Array(this._binary, this._binaryOffset + offsets[0], l1 / Int16Array.BYTES_PER_ELEMENT)
+		val floatArray = new Float32Array(this._binary, this._binaryOffset + offsets[2], l2 / Float32Array.BYTES_PER_ELEMENT)
+		val frameIntArray = new Int16Array(this._binary, this._binaryOffset + offsets[4], l3 / Int16Array.BYTES_PER_ELEMENT)
+		val frameFloatArray = new Float32Array(this._binary, this._binaryOffset + offsets[6], l4 / Float32Array.BYTES_PER_ELEMENT)
+		val frameArray = new Int16Array(this._binary, this._binaryOffset + offsets[8], l5 / Int16Array.BYTES_PER_ELEMENT)
+		val timelineArray = new Uint16Array(this._binary, this._binaryOffset + offsets[10], l6 / Uint16Array.BYTES_PER_ELEMENT)
+		val colorArray = l7 > 0 ? new Int16Array(this._binary, this._binaryOffset + offsets[12], l7 / Int16Array.BYTES_PER_ELEMENT) : intArray // Color.
 
-		this._data.binary = this._binary;
-		this._data.intArray = this._intArrayBuffer = intArray;
-		this._data.floatArray = floatArray;
-		this._data.frameIntArray = frameIntArray;
-		this._data.frameFloatArray = frameFloatArray;
-		this._data.frameArray = this._frameArrayBuffer = frameArray;
-		this._data.timelineArray = this._timelineArrayBuffer = timelineArray;
-		this._data.colorArray = colorArray;
+		this._data.binary = this._binary
+		this._data.intArray = this._intArrayBuffer = intArray
+		this._data.floatArray = floatArray
+		this._data.frameIntArray = frameIntArray
+		this._data.frameFloatArray = frameFloatArray
+		this._data.frameArray = this._frameArrayBuffer = frameArray
+		this._data.timelineArray = this._timelineArrayBuffer = timelineArray
+		this._data.colorArray = colorArray
 	}
 
-	public parseDragonBonesData(rawData: any, scale: Double = 1): DragonBonesData? {
-		console.assert(rawData !== null && rawData !== undefined && rawData instanceof ArrayBuffer, "Data error.");
+	public fun parseDragonBonesData(rawData: Any, scale: Double = 1): DragonBonesData? {
+		console.assert(rawData !== null && rawData !== undefined && rawData instanceof ArrayBuffer, "Data error.")
 
-		const tag = new Uint8Array(rawData, 0, 8);
+		val tag = new Uint8Array(rawData, 0, 8)
 		if (
 			tag[0] !== "D".charCodeAt(0) ||
 			tag[1] !== "B".charCodeAt(0) ||
 			tag[2] !== "D".charCodeAt(0) ||
 			tag[3] !== "T".charCodeAt(0)
 		) {
-			console.assert(false, "Nonsupport data.");
-			return null;
+			console.assert(false, "Nonsupport data.")
+			return null
 		}
 
-		const headerLength = new Uint32Array(rawData, 8, 1)[0];
-		const headerBytes = new Uint8Array(rawData, 8 + 4, headerLength);
-		const headerString = this._decodeUTF8(headerBytes);
-		const header = JSON.parse(headerString);
+		val headerLength = new Uint32Array(rawData, 8, 1)[0]
+		val headerBytes = new Uint8Array(rawData, 8 + 4, headerLength)
+		val headerString = this._decodeUTF8(headerBytes)
+		val header = JSON.parse(headerString)
 		//
-		this._binaryOffset = 8 + 4 + headerLength;
-		this._binary = rawData;
+		this._binaryOffset = 8 + 4 + headerLength
+		this._binary = rawData
 
-		return super.parseDragonBonesData(header, scale);
+		return super.parseDragonBonesData(header, scale)
 	}
 
-	private static _binaryDataParserInstance: BinaryDataParser? = null;
-	/**
-	 * - Deprecated, please refer to {@link dragonBones.BaseFactory#parseDragonBonesData()}.
-	 * @deprecated
-	 * @language en_US
-	 */
-	/**
-	 * - 已废弃，请参考 {@link dragonBones.BaseFactory#parseDragonBonesData()}。
-	 * @deprecated
-	 * @language zh_CN
-	 */
-	public static getInstance(): BinaryDataParser {
-		if (BinaryDataParser._binaryDataParserInstance === null) {
-			BinaryDataParser._binaryDataParserInstance = new BinaryDataParser();
-		}
+	companion object {
+		private var _binaryDataParserInstance: BinaryDataParser? = null
+		/**
+		 * - Deprecated, please refer to {@link dragonBones.BaseFactory#parseDragonBonesData()}.
+		 * @deprecated
+		 * @language en_US
+		 */
+		/**
+		 * - 已废弃，请参考 {@link dragonBones.BaseFactory#parseDragonBonesData()}。
+		 * @deprecated
+		 * @language zh_CN
+		 */
+		public fun getInstance(): BinaryDataParser {
+			if (BinaryDataParser._binaryDataParserInstance == null) {
+				BinaryDataParser._binaryDataParserInstance = BinaryDataParser()
+			}
 
-		return BinaryDataParser._binaryDataParserInstance;
+			return BinaryDataParser._binaryDataParserInstance
+		}
 	}
 }
