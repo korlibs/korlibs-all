@@ -223,11 +223,9 @@ val Vector2Int.double get() = Vector2(x.toDouble(), y.toDouble())
 
 @Suppress("NOTHING_TO_INLINE")
 class MVector2Area(val size: Int) {
-	val points = (0 until size).map { MPoint2d() }
-	var offset = 0
-
-	@PublishedApi
-	internal fun alloc() = points[offset++]
+	@PublishedApi internal val points = Array(size) { MPoint2d() }
+	@PublishedApi internal var offset = 0
+	@PublishedApi internal fun alloc() = points[offset++]
 
 	operator fun Vector2.plus(other: Vector2): Vector2 = alloc().setToAdd(this, other)
 	operator fun Vector2.minus(other: Vector2): Vector2 = alloc().setToSub(this, other)
