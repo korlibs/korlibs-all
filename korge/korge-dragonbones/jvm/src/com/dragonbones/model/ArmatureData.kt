@@ -586,7 +586,7 @@ class SurfaceData  :  BoneData {
 
 	public var segmentX: Double
 	public var segmentY: Double
-	public var readonly geometry: GeometryData = new GeometryData()
+	public var val geometry: GeometryData = new GeometryData()
 
 	protected fun _onClear(): Unit {
 		super._onClear()

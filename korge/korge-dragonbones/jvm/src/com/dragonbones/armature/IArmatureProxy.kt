@@ -78,7 +78,7 @@ interface IArmatureProxy  :  IEventDispatcher {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	readonly armature: Armature;
+	val armature: Armature;
 	/**
 	 * - The animation player.
 	 * @version DragonBones 3.0
@@ -89,5 +89,5 @@ interface IArmatureProxy  :  IEventDispatcher {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	readonly animation: Animation;
+	val animation: Animation;
 }

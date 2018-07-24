@@ -489,7 +489,7 @@ abstract class DoubleValueTimelineState  :  TweenTimelineState {
  */
 abstract class MutilpleValueTimelineState  :  TweenTimelineState {
 	protected _valueCount: Double;
-	protected readonly _rd:  DoubleArray = [];
+	protected val _rd:  DoubleArray = [];
 
 	protected _onClear(): Unit {
 		super._onClear();

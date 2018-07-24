@@ -34,7 +34,7 @@ class DisplayFrame  :  BaseObject {
 	public displayData: DisplayData?;
 	public textureData: TextureData?;
 	public display: Any | Armature?;
-	public readonly deformVertices:  DoubleArray = [];
+	public val deformVertices:  DoubleArray = [];
 
 	protected _onClear(): Unit {
 		this.rawDisplayData = null;
@@ -219,19 +219,19 @@ abstract class Slot  :  TransformObject {
 	 * @internal
 	 */
 	public _pivotY: Double;
-	protected readonly _localMatrix: Matrix = new Matrix();
+	protected val _localMatrix: Matrix = new Matrix();
 	/**
 	 * @internal
 	 */
-	public readonly _colorTransform: ColorTransform = new ColorTransform();
+	public val _colorTransform: ColorTransform = new ColorTransform();
 	/**
 	 * @internal
 	 */
-	public readonly _displayFrames: Array<DisplayFrame> = [];
+	public val _displayFrames: Array<DisplayFrame> = [];
 	/**
 	 * @internal
 	 */
-	public readonly _geometryBones: Array<Bone?> = [];
+	public val _geometryBones: Array<Bone?> = [];
 	/**
 	 * @internal
 	 */

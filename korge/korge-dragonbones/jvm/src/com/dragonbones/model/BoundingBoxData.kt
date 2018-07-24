@@ -673,7 +673,7 @@ class PolygonBoundingBoxData  :  BoundingBoxData {
 	 * @version DragonBones 5.1
 	 * @language zh_CN
 	 */
-	public readonly vertices:  DoubleArray = [];
+	public val vertices:  DoubleArray = [];
 
 	protected _onClear(): Unit {
 		super._onClear();

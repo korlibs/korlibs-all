@@ -25,9 +25,9 @@ package com.dragonbones.armature
  * @internal
  */
 abstract class Constraint  :  BaseObject {
-	protected static readonly _helpMatrix: Matrix = new Matrix();
-	protected static readonly _helpTransform: Transform = new Transform();
-	protected static readonly _helpPoint: Point = new Point();
+	protected static val _helpMatrix: Matrix = new Matrix();
+	protected static val _helpTransform: Transform = new Transform();
+	protected static val _helpPoint: Point = new Point();
 	/**
 	 * - For timeline state.
 	 * @internal

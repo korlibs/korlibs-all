@@ -66,7 +66,7 @@ class WorldClock : IAnimatable {
 	public timeScale: Double = 1.0;
 
 	private _systemTime: Double = 0.0;
-	private readonly _animatebles: Array<IAnimatable?> = [];
+	private val _animatebles: Array<IAnimatable?> = [];
 	private _clock: WorldClock? = null;
 	/**
 	 * - Creating a Worldclock instance. Typically, you do not need to create Worldclock instance.

@@ -69,7 +69,7 @@ abstract class DisplayData  : BaseObject() {
 	public var type: DisplayType;
 	public var name: String;
 	public var path: String;
-	public var readonly transform: Transform = new Transform();
+	public var val transform: Transform = new Transform();
 	public var parent: SkinData;
 
 	protected fun _onClear(): Unit {

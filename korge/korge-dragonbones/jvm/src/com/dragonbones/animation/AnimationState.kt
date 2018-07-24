@@ -1498,12 +1498,12 @@ class AnimationState : BaseObject() {
  * @internal
  */
 class BlendState  :  BaseObject {
-	public static readonly BONE_TRANSFORM: String = "boneTransform";
-	public static readonly BONE_ALPHA: String = "boneAlpha";
-	public static readonly SURFACE: String = "surface";
-	public static readonly SLOT_DEFORM: String = "slotDeform";
-	public static readonly SLOT_ALPHA: String = "slotAlpha";
-	public static readonly SLOT_Z_INDEX: String = "slotZIndex";
+	public static val BONE_TRANSFORM: String = "boneTransform";
+	public static val BONE_ALPHA: String = "boneAlpha";
+	public static val SURFACE: String = "surface";
+	public static val SLOT_DEFORM: String = "slotDeform";
+	public static val SLOT_ALPHA: String = "slotAlpha";
+	public static val SLOT_Z_INDEX: String = "slotZIndex";
 
 	public static toString(): String {
 		return "[class dragonBones.BlendState]";

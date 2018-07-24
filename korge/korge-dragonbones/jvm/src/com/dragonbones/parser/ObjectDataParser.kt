@@ -118,7 +118,7 @@ class ObjectDataParser :  DataParser() {
 	}
 
 	protected var _rawTextureAtlasIndex: Double = 0
-	protected var readonly _rawBones: Array<BoneData> = []
+	protected var val _rawBones: Array<BoneData> = []
 	protected var _data: DragonBonesData = null as any //
 	protected var _armature: ArmatureData = null as any //
 	protected var _bone: BoneData = null as any //
@@ -2438,5 +2438,5 @@ class ObjectDataParser :  DataParser() {
  */
 class ActionFrame {
 	public frameStart: Double = 0
-	public readonly actions:  DoubleArray = []
+	public val actions:  DoubleArray = []
 }

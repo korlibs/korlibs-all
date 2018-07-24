@@ -661,9 +661,9 @@ class SlotColorTimelineState  :  TweenTimelineState {
 		return "[class dragonBones.SlotColorTimelineState]";
 	}
 
-	private readonly _current:  DoubleArray = [0, 0, 0, 0, 0, 0, 0, 0];
-	private readonly _difference:  DoubleArray = [0, 0, 0, 0, 0, 0, 0, 0];
-	private readonly _result:  DoubleArray = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+	private val _current:  DoubleArray = [0, 0, 0, 0, 0, 0, 0, 0];
+	private val _difference:  DoubleArray = [0, 0, 0, 0, 0, 0, 0, 0];
+	private val _result:  DoubleArray = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
 
 	protected _onArriveAtFrame(): Unit {
 		super._onArriveAtFrame();

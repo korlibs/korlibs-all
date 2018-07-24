@@ -35,9 +35,9 @@ package com.dragonbones.armature
  * @language zh_CN
  */
 abstract class TransformObject  :  BaseObject {
-	protected static readonly _helpMatrix: Matrix = new Matrix();
-	protected static readonly _helpTransform: Transform = new Transform();
-	protected static readonly _helpPoint: Point = new Point();
+	protected static val _helpMatrix: Matrix = new Matrix();
+	protected static val _helpTransform: Transform = new Transform();
+	protected static val _helpPoint: Point = new Point();
 	/**
 	 * - A matrix relative to the armature coordinate system.
 	 * @version DragonBones 3.0
@@ -48,7 +48,7 @@ abstract class TransformObject  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public readonly globalTransformMatrix: Matrix = new Matrix();
+	public val globalTransformMatrix: Matrix = new Matrix();
 	/**
 	 * - A transform relative to the armature coordinate system.
 	 * @see #updateGlobalTransform()
@@ -61,7 +61,7 @@ abstract class TransformObject  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public readonly global: Transform = new Transform();
+	public val global: Transform = new Transform();
 	/**
 	 * - The offset transform relative to the armature or the parent bone coordinate system.
 	 * @see #dragonBones.Bone#invalidUpdate()
@@ -74,7 +74,7 @@ abstract class TransformObject  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public readonly offset: Transform = new Transform();
+	public val offset: Transform = new Transform();
 	/**
 	 * @private
 	 */
