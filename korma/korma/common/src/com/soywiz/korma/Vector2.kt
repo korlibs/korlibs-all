@@ -238,7 +238,7 @@ class MVector2Area(val size: Int) {
 	operator fun Vector2.div(value: Vector2): Vector2 = alloc().setToDiv(this, value)
 	inline operator fun Vector2.div(value: Number): Vector2 = alloc().setToDiv(this, value.toDouble())
 
-	operator fun invoke(callback: MVector2Area.() -> Unit) {
+	inline operator fun invoke(callback: MVector2Area.() -> Unit) {
 		val oldOffset = offset
 		try {
 			callback()
