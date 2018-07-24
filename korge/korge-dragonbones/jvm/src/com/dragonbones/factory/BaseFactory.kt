@@ -22,7 +22,11 @@
  */
 package com.dragonbones.factory
 
+import com.dragonbones.animation.*
+import com.dragonbones.armature.*
+import com.dragonbones.core.*
 import com.dragonbones.model.*
+import com.dragonbones.util.*
 
 /**
  * - Base class for the factory that create the armatures. (Typically only one global factory instance is required)
@@ -127,9 +131,9 @@ abstract class BaseFactory {
 		}
 
 		if (armatureData === null && (dragonBonesName.length === 0 || this.autoSearch)) { // Will be search all data, if do not give a data name or the autoSearch is true.
-			for (var k in this._dragonBonesDataMap) {
+			for (k in this._dragonBonesDataMap.keys) {
 				dragonBonesData = this._dragonBonesDataMap[k]
-				if (dragonBonesName.length === 0 || dragonBonesData.autoSearch) {
+				if (dragonBonesName.length == 0 || dragonBonesData.autoSearch) {
 					armatureData = dragonBonesData.getArmature(armatureName)
 					if (armatureData !== null) {
 						dragonBonesName = k
@@ -172,7 +176,7 @@ abstract class BaseFactory {
 
 	protected fun _buildBones(dataPackage: BuildArmaturePackage, armature: Armature): Unit {
 		for (boneData in dataPackage.armature.sortedBones) {
-			val bone = BaseObject.borrowObject(boneData.type === BoneType.Bone ? Bone : Surface)
+			val bone = if (BaseObject.borrowObject(boneData.type === BoneType.Bone) Bone else Surface)
 			bone.init(boneData, armature)
 		}
 	}
@@ -205,7 +209,7 @@ abstract class BaseFactory {
 
 			if (displayDatas !== null) {
 				slot.displayFrameCount = displayDatas.length
-				for (var i = 0, l = slot.displayFrameCount; i < l; ++i) {
+				for (i in 0 until slot.displayFrameCount) {
 					val displayData = displayDatas[i]
 					slot.replaceRawDisplayData(displayData, i)
 
@@ -256,11 +260,11 @@ abstract class BaseFactory {
 		}
 	}
 
-	protected _buildChildArmature(dataPackage: BuildArmaturePackage?, _slot: Slot, displayData: ArmatureDisplayData): Armature? {
+	protected fun _buildChildArmature(dataPackage: BuildArmaturePackage?, _slot: Slot, displayData: ArmatureDisplayData): Armature? {
 		return this.buildArmature(displayData.path, dataPackage !== null ? dataPackage.dataName : "", "", dataPackage !== null ? dataPackage.textureAtlasName : "")
 	}
 
-	protected _getSlotDisplay(dataPackage: BuildArmaturePackage?, displayData: DisplayData, slot: Slot): Any {
+	protected fun _getSlotDisplay(dataPackage: BuildArmaturePackage?, displayData: DisplayData, slot: Slot): Any {
 		val dataName = dataPackage !== null ? dataPackage.dataName : displayData.parent.parent.parent.name
 		var display: Any = null
 		when (displayData.type) {
@@ -324,9 +328,9 @@ abstract class BaseFactory {
 		return display
 	}
 
-	protected abstract _buildTextureAtlasData(textureAtlasData: TextureAtlasData?, textureAtlas: Any): TextureAtlasData
-	protected abstract _buildArmature(dataPackage: BuildArmaturePackage): Armature
-	protected abstract _buildSlot(dataPackage: BuildArmaturePackage, slotData: SlotData, armature: Armature): Slot
+	protected abstract fun _buildTextureAtlasData(textureAtlasData: TextureAtlasData?, textureAtlas: Any): TextureAtlasData
+	protected abstract fun _buildArmature(dataPackage: BuildArmaturePackage): Armature
+	protected abstract fun _buildSlot(dataPackage: BuildArmaturePackage, slotData: SlotData, armature: Armature): Slot
 	/**
 	 * - Parse the raw data to a DragonBonesData instance and cache it to the factory.
 	 * @param rawData - The raw data.
@@ -353,7 +357,7 @@ abstract class BaseFactory {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public parseDragonBonesData(rawData: Any, name: String? = null, scale: Double = 1.0): DragonBonesData? {
+	public fun parseDragonBonesData(rawData: Any, name: String? = null, scale: Double = 1.0): DragonBonesData? {
 		val dataParser = rawData instanceof ArrayBuffer ? BaseFactory._binaryParser : this._dataParser
 		val dragonBonesData = dataParser.parseDragonBonesData(rawData, scale)
 
@@ -402,7 +406,7 @@ abstract class BaseFactory {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public parseTextureAtlasData(rawData: Any, textureAtlas: Any, name: String? = null, scale: Double = 1.0): TextureAtlasData {
+	public fun parseTextureAtlasData(rawData: Any, textureAtlas: Any, name: String? = null, scale: Double = 1.0): TextureAtlasData {
 		val textureAtlasData = this._buildTextureAtlasData(null, null)
 		this._dataParser.parseTextureAtlasData(rawData, textureAtlasData, scale)
 		this._buildTextureAtlasData(textureAtlasData, textureAtlas || null)
@@ -424,7 +428,7 @@ abstract class BaseFactory {
 	 * @version DragonBones 5.7
 	 * @language zh_CN
 	 */
-	public updateTextureAtlases(textureAtlases: Array<any>, name: String): Unit {
+	public fun updateTextureAtlases(textureAtlases: Array<any>, name: String): Unit {
 		val textureAtlasDatas = this.getTextureAtlasData(name)
 		if (textureAtlasDatas !== null) {
 			for (var i = 0, l = textureAtlasDatas.length; i < l; ++i) {
@@ -456,7 +460,7 @@ abstract class BaseFactory {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public getDragonBonesData(name: String): DragonBonesData? {
+	public fun getDragonBonesData(name: String): DragonBonesData? {
 		return (name in this._dragonBonesDataMap) ? this._dragonBonesDataMap[name] : null
 	}
 	/**
@@ -481,7 +485,7 @@ abstract class BaseFactory {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public addDragonBonesData(data: DragonBonesData, name: String? = null): Unit {
+	public fun addDragonBonesData(data: DragonBonesData, name: String? = null): Unit {
 		name = name !== null ? name : data.name
 		if (name in this._dragonBonesDataMap) {
 			if (this._dragonBonesDataMap[name] === data) {
@@ -516,7 +520,7 @@ abstract class BaseFactory {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public removeDragonBonesData(name: String, disposeData: Boolean = true): Unit {
+	public fun removeDragonBonesData(name: String, disposeData: Boolean = true): Unit {
 		if (name in this._dragonBonesDataMap) {
 			if (disposeData) {
 				this._dragonBones.bufferObject(this._dragonBonesDataMap[name])
@@ -545,7 +549,7 @@ abstract class BaseFactory {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public getTextureAtlasData(name: String): Array<TextureAtlasData>? {
+	public fun getTextureAtlasData(name: String): Array<TextureAtlasData>? {
 		return (name in this._textureAtlasDataMap) ? this._textureAtlasDataMap[name] : null
 	}
 	/**
@@ -570,7 +574,7 @@ abstract class BaseFactory {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public addTextureAtlasData(data: TextureAtlasData, name: String? = null): Unit {
+	public fun addTextureAtlasData(data: TextureAtlasData, name: String? = null): Unit {
 		name = name !== null ? name : data.name
 		val textureAtlasList = (name in this._textureAtlasDataMap) ? this._textureAtlasDataMap[name] : (this._textureAtlasDataMap[name] = [])
 		if (textureAtlasList.indexOf(data) < 0) {
@@ -599,7 +603,7 @@ abstract class BaseFactory {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public removeTextureAtlasData(name: String, disposeData: Boolean = true): Unit {
+	public fun removeTextureAtlasData(name: String, disposeData: Boolean = true): Unit {
 		if (name in this._textureAtlasDataMap) {
 			val textureAtlasDataList = this._textureAtlasDataMap[name]
 			if (disposeData) {
@@ -627,7 +631,7 @@ abstract class BaseFactory {
 	 * @version DragonBones 5.1
 	 * @language zh_CN
 	 */
-	public getArmatureData(name: String, dragonBonesName: String = ""): ArmatureData? {
+	public fun getArmatureData(name: String, dragonBonesName: String = ""): ArmatureData? {
 		val dataPackage: BuildArmaturePackage = new BuildArmaturePackage()
 		if (!this._fillBuildArmaturePackage(dataPackage, dragonBonesName, name, "", "")) {
 			return null
@@ -647,7 +651,7 @@ abstract class BaseFactory {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public clear(disposeData: Boolean = true): Unit {
+	public fun clear(disposeData: Boolean = true): Unit {
 		for (var k in this._dragonBonesDataMap) {
 			if (disposeData) {
 				this._dragonBones.bufferObject(this._dragonBonesDataMap[k])
@@ -701,10 +705,10 @@ abstract class BaseFactory {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public buildArmature(armatureName: String, dragonBonesName: String = "", skinName: String = "", textureAtlasName: String = ""): Armature? {
-		val dataPackage: BuildArmaturePackage = new BuildArmaturePackage()
+	public fun buildArmature(armatureName: String, dragonBonesName: String = "", skinName: String = "", textureAtlasName: String = ""): Armature? {
+		val dataPackage: BuildArmaturePackage = BuildArmaturePackage()
 		if (!this._fillBuildArmaturePackage(dataPackage, dragonBonesName || "", armatureName, skinName || "", textureAtlasName || "")) {
-			console.warn("No armature data: " + armatureName + ", " + (dragonBonesName !== null ? dragonBonesName : ""))
+			console.warn("No armature data: " + armatureName + ", " + (if (dragonBonesName != null) dragonBonesName else ""))
 			return null
 		}
 
@@ -720,7 +724,7 @@ abstract class BaseFactory {
 	/**
 	 * @private
 	 */
-	public replaceDisplay(slot: Slot, displayData: DisplayData?, displayIndex: Double = -1): Unit {
+	public fun replaceDisplay(slot: Slot, displayData: DisplayData?, displayIndex: Double = -1): Unit {
 		if (displayIndex < 0) {
 			displayIndex = slot.displayIndex
 		}
@@ -783,7 +787,7 @@ abstract class BaseFactory {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public replaceSlotDisplay(
+	public fun replaceSlotDisplay(
 		dragonBonesName: String, armatureName: String, slotName: String, displayName: String,
 		slot: Slot, displayIndex: Double = -1
 	): Boolean {
@@ -800,7 +804,7 @@ abstract class BaseFactory {
 	/**
 	 * @private
 	 */
-	public replaceSlotDisplayList(
+	public fun replaceSlotDisplayList(
 		dragonBonesName: String?, armatureName: String, slotName: String,
 		slot: Slot
 	): Boolean {
@@ -860,7 +864,7 @@ abstract class BaseFactory {
 	 * @version DragonBones 5.6
 	 * @language zh_CN
 	 */
-	public replaceSkin(armature: Armature, skin: SkinData, isOverride: Boolean = false, exclude: Array<String>? = null): Boolean {
+	public fun replaceSkin(armature: Armature, skin: SkinData, isOverride: Boolean = false, exclude: Array<String>? = null): Boolean {
 		var success = false
 		val defaultSkin = skin.parent.defaultSkin
 
@@ -939,7 +943,7 @@ abstract class BaseFactory {
 	 * @version DragonBones 5.6
 	 * @language zh_CN
 	 */
-	public replaceAnimation(armature: Armature, armatureData: ArmatureData, isOverride: Boolean = true): Boolean {
+	public fun replaceAnimation(armature: Armature, armatureData: ArmatureData, isOverride: Boolean = true): Boolean {
 		val skinData = armatureData.defaultSkin
 		if (skinData === null) {
 			return false
@@ -988,13 +992,13 @@ abstract class BaseFactory {
 	/**
 	 * @private
 	 */
-	public getAllDragonBonesData(): Map<DragonBonesData> {
+	public fun getAllDragonBonesData(): Map<DragonBonesData> {
 		return this._dragonBonesDataMap
 	}
 	/**
 	 * @private
 	 */
-	public getAllTextureAtlasData(): Map<Array<TextureAtlasData>> {
+	public fun getAllTextureAtlasData(): Map<Array<TextureAtlasData>> {
 		return this._textureAtlasDataMap
 	}
 	/**
@@ -1007,13 +1011,14 @@ abstract class BaseFactory {
 	 * @version DragonBones 5.7
 	 * @language zh_CN
 	 */
-	public get clock(): WorldClock {
+	public val clock: WorldClock
+		get() {
 		return this._dragonBones.clock
 	}
 	/**
 	 * @private
 	 */
-	public get dragonBones(): DragonBones {
+	public val dragonBones: DragonBones get() {
 		return this._dragonBones
 	}
 }
@@ -1021,9 +1026,9 @@ abstract class BaseFactory {
  * @private
  */
 class BuildArmaturePackage {
-	public dataName: String = ""
-	public textureAtlasName: String = ""
-	public data: DragonBonesData
-	public armature: ArmatureData
-	public skin: SkinData? = null
+	public var dataName: String = ""
+	public var textureAtlasName: String = ""
+	public var data: DragonBonesData
+	public var armature: ArmatureData
+	public var skin: SkinData? = null
 }

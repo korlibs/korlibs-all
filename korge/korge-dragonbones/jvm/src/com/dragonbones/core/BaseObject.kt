@@ -154,9 +154,9 @@ abstract class BaseObject {
 				return object
 			}
 
-			val object = new objectConstructor()
-			object._onClear()
-			return object
+			val obj = objectConstructor()
+			obj._onClear()
+			return obj
 		}
 
 		inline public fun <reified T  :  BaseObject> borrowObject(): T = TODO()
@@ -172,7 +172,7 @@ abstract class BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public val hashCode: Double = BaseObject._hashCode++
+	public val hashCode: Int = BaseObject._hashCode++
 	private var _isInPool: Boolean = false
 
 	protected abstract fun _onClear(): Unit

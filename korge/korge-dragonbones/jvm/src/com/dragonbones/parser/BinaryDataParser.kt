@@ -46,7 +46,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 
 		var pos = 0
 		var result = ""
-		var code_point: Int
+		var code_point: Int?
 		var utf8_code_point: Int = 0
 		var utf8_bytes_needed = 0
 		var utf8_bytes_seen = 0
@@ -88,7 +88,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 						else {
 
 						}
-						utf8_code_point = (utf8_code_point * Math.pow(64, utf8_bytes_needed)).toInt()
+						utf8_code_point = (utf8_code_point * Math.pow(64.0, utf8_bytes_needed.toDouble())).toInt()
 						code_point = null
 					}
 				}
@@ -103,7 +103,9 @@ class BinaryDataParser  :  ObjectDataParser() {
 				else {
 
 					utf8_bytes_seen += 1
-					utf8_code_point = utf8_code_point + (_byte - 0x80) * Math.pow(64, utf8_bytes_needed - utf8_bytes_seen)
+					utf8_code_point = utf8_code_point + (_byte - 0x80) * Math.pow(64.0,
+						(utf8_bytes_needed - utf8_bytes_seen).toDouble()
+					)
 
 					if (utf8_bytes_seen != utf8_bytes_needed) {
 						code_point = null
@@ -127,7 +129,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 				}
 			}
 			//Decode string
-			if (code_point !== null && code_point != EOF_code_point) {
+			if (code_point != null && code_point != EOF_code_point) {
 				if (code_point <= 0xFFFF) {
 					if (code_point > 0) result += code_point.toChar()
 				}
@@ -161,7 +163,10 @@ class BinaryDataParser  :  ObjectDataParser() {
 			frameIndices.length += totalFrameCount
 			timeline.frameIndicesOffset = frameIndicesOffset
 
-			for (var i = 0, iK = 0, frameStart = 0, frameCount = 0i < totalFrameCount++i) {
+			var iK = 0
+			var frameStart = 0
+			var frameCount = 0
+			for (i in 0 until totalFrameCount) {
 				if (frameStart + frameCount <= i && iK < keyFrameCount) {
 					frameStart = this._frameArrayBuffer[this._animation.frameOffset + this._timelineArrayBuffer[timeline.offset + BinaryOffset.TimelineFrameOffset + iK]]
 					if (iK === keyFrameCount - 1) {

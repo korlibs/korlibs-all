@@ -33,7 +33,7 @@ enum class FrameValueType {
 /**
  * @private
  */
-class ObjectDataParser :  DataParser() {
+open class ObjectDataParser :  DataParser() {
 	companion object {
 
 

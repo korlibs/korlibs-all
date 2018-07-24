@@ -23,6 +23,7 @@
 package com.dragonbones.armature
 
 import com.dragonbones.core.*
+import com.dragonbones.geom.*
 import com.dragonbones.model.*
 
 /**
@@ -44,7 +45,7 @@ import com.dragonbones.model.*
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class Bone :  TransformObject() {
+open class Bone :  TransformObject() {
 	public override fun toString(): String {
 		return "[class dragonBones.Bone]"
 	}
@@ -64,7 +65,7 @@ class Bone :  TransformObject() {
 	/**
 	 * @internal
 	 */
-	public val animationPose: Transform = new Transform()
+	public val animationPose: Transform = Transform()
 	/**
 	 * @internal
 	 */
@@ -91,7 +92,7 @@ class Bone :  TransformObject() {
 	/**
 	 * @internal
 	 */
-	public var _cachedFrameIndices:  DoubleArray?
+	public var _cachedFrameIndices:  IntArray?
 
 	protected fun _onClear(): Unit {
 		super._onClear()

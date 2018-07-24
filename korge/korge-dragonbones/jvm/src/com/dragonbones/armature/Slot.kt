@@ -22,120 +22,124 @@
  */
 package com.dragonbones.armature
 
+import com.dragonbones.core.*
+import com.dragonbones.geom.*
+import com.dragonbones.model.*
+
 /**
  * @private
  */
 class DisplayFrame  :  BaseObject {
 	public static toString(): String {
-		return "[class dragonBones.DisplayFrame]";
+		return "[class dragonBones.DisplayFrame]"
 	}
 
-	public rawDisplayData: DisplayData?;
-	public displayData: DisplayData?;
-	public textureData: TextureData?;
-	public display: Any | Armature?;
-	public val deformVertices:  DoubleArray = [];
+	public rawDisplayData: DisplayData?
+	public displayData: DisplayData?
+	public textureData: TextureData?
+	public display: Any | Armature?
+	public val deformVertices:  DoubleArray = []
 
 	protected _onClear(): Unit {
-		this.rawDisplayData = null;
-		this.displayData = null;
-		this.textureData = null;
-		this.display = null;
-		this.deformVertices.length = 0;
+		this.rawDisplayData = null
+		this.displayData = null
+		this.textureData = null
+		this.display = null
+		this.deformVertices.length = 0
 	}
 
 	public updateDeformVertices(): Unit {
 		if (this.rawDisplayData === null || this.deformVertices.length !== 0) {
-			return;
+			return
 		}
 
-		var rawGeometryData: GeometryData;
+		var rawGeometryData: GeometryData
 		if (this.rawDisplayData.type === DisplayType.Mesh) {
-			rawGeometryData = (this.rawDisplayData as MeshDisplayData).geometry;
+			rawGeometryData = (this.rawDisplayData as MeshDisplayData).geometry
 		}
 		else if (this.rawDisplayData.type === DisplayType.Path) {
-			rawGeometryData = (this.rawDisplayData as PathDisplayData).geometry;
+			rawGeometryData = (this.rawDisplayData as PathDisplayData).geometry
 		}
 		else {
-			return;
+			return
 		}
 
-		var vertexCount = 0;
+		var vertexCount = 0
 		if (rawGeometryData.weight !== null) {
-			vertexCount = rawGeometryData.weight.count * 2;
+			vertexCount = rawGeometryData.weight.count * 2
 		}
 		else {
-			vertexCount = rawGeometryData.data.intArray[rawGeometryData.offset + BinaryOffset.GeometryVertexCount] * 2;
+			vertexCount = rawGeometryData.data.intArray[rawGeometryData.offset + BinaryOffset.GeometryVertexCount] * 2
 		}
 
-		this.deformVertices.length = vertexCount;
+		this.deformVertices.length = vertexCount
 		for (var i = 0, l = this.deformVertices.length; i < l; ++i) {
-			this.deformVertices[i] = 0.0;
+			this.deformVertices[i] = 0.0
 		}
 	}
 
 	public getGeometryData(): GeometryData? {
 		if (this.displayData !== null) {
 			if (this.displayData.type === DisplayType.Mesh) {
-				return (this.displayData as MeshDisplayData).geometry;
+				return (this.displayData as MeshDisplayData).geometry
 			}
 
 			if (this.displayData.type === DisplayType.Path) {
-				return (this.displayData as PathDisplayData).geometry;
+				return (this.displayData as PathDisplayData).geometry
 			}
 		}
 
 		if (this.rawDisplayData !== null) {
 			if (this.rawDisplayData.type === DisplayType.Mesh) {
-				return (this.rawDisplayData as MeshDisplayData).geometry;
+				return (this.rawDisplayData as MeshDisplayData).geometry
 			}
 
 			if (this.rawDisplayData.type === DisplayType.Path) {
-				return (this.rawDisplayData as PathDisplayData).geometry;
+				return (this.rawDisplayData as PathDisplayData).geometry
 			}
 		}
 
-		return null;
+		return null
 	}
 
 	public getBoundingBox(): BoundingBoxData? {
 		if (this.displayData !== null && this.displayData.type === DisplayType.BoundingBox) {
-			return (this.displayData as BoundingBoxDisplayData).boundingBox;
+			return (this.displayData as BoundingBoxDisplayData).boundingBox
 		}
 
 		if (this.rawDisplayData !== null && this.rawDisplayData.type === DisplayType.BoundingBox) {
-			return (this.rawDisplayData as BoundingBoxDisplayData).boundingBox;
+			return (this.rawDisplayData as BoundingBoxDisplayData).boundingBox
 		}
 
-		return null;
+		return null
 	}
 
 	public getTextureData(): TextureData? {
 		if (this.displayData !== null) {
 			if (this.displayData.type === DisplayType.Image) {
-				return (this.displayData as ImageDisplayData).texture;
+				return (this.displayData as ImageDisplayData).texture
 			}
 
 			if (this.displayData.type === DisplayType.Mesh) {
-				return (this.displayData as MeshDisplayData).texture;
+				return (this.displayData as MeshDisplayData).texture
 			}
 		}
 
 		if (this.textureData !== null) {
-			return this.textureData;
+			return this.textureData
 		}
 
 		if (this.rawDisplayData !== null) {
 			if (this.rawDisplayData.type === DisplayType.Image) {
-				return (this.rawDisplayData as ImageDisplayData).texture;
+				return (this.rawDisplayData as ImageDisplayData).texture
 			}
 
 			if (this.rawDisplayData.type === DisplayType.Mesh) {
-				return (this.rawDisplayData as MeshDisplayData).texture;
+				return (this.rawDisplayData as MeshDisplayData).texture
 			}
 		}
 
-		return null;
+		return null
 	}
 }
 /**
@@ -162,7 +166,7 @@ class DisplayFrame  :  BaseObject {
  * @version DragonBones 3.0
  * @language zh_CN
  */
-abstract class Slot  :  TransformObject {
+abstract class Slot  :  TransformObject() {
 	/**
 	 * - Displays the animated state or mixed group name controlled by the object, set to null to be controlled by all animation states.
 	 * @default null
@@ -181,226 +185,227 @@ abstract class Slot  :  TransformObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public displayController: String?;
-	protected _displayDataDirty: Boolean;
-	protected _displayDirty: Boolean;
-	protected _geometryDirty: Boolean;
-	protected _textureDirty: Boolean;
-	protected _visibleDirty: Boolean;
-	protected _blendModeDirty: Boolean;
-	protected _zOrderDirty: Boolean;
+	public var displayController: String?
+	protected var _displayDataDirty: Boolean = false
+	protected var _displayDirty: Boolean = false
+	protected var _geometryDirty: Boolean = false
+	protected var _textureDirty: Boolean = false
+	protected var _visibleDirty: Boolean = false
+	protected var _blendModeDirty: Boolean = false
+	protected var _zOrderDirty: Boolean = false
 	/**
 	 * @internal
 	 */
-	public _colorDirty: Boolean;
+	public var _colorDirty: Boolean = false
 	/**
 	 * @internal
 	 */
-	public _verticesDirty: Boolean;
-	protected _transformDirty: Boolean;
-	protected _visible: Boolean;
-	protected _blendMode: BlendMode;
-	protected _displayIndex: Double;
-	protected _animationDisplayIndex: Double;
-	protected _cachedFrameIndex: Double;
+	public var _verticesDirty: Boolean = false
+	protected var _transformDirty: Boolean = false
+	protected var _visible: Boolean = true
+	protected var _blendMode: BlendMode = BlendMode.Normal
+	protected var _displayIndex: Int = -1
+	protected var _animationDisplayIndex: Int = -1
+	protected var _cachedFrameIndex: Int = -1
 	/**
 	 * @internal
 	 */
-	public _zOrder: Double;
+	public var _zOrder: Int = 0
 	/**
 	 * @internal
 	 */
-	public _zIndex: Double;
+	public var _zIndex: Int = 0
 	/**
 	 * @internal
 	 */
-	public _pivotX: Double;
+	public var _pivotX: Double = 0.0
 	/**
 	 * @internal
 	 */
-	public _pivotY: Double;
-	protected val _localMatrix: Matrix = new Matrix();
+	public var _pivotY: Double = 0.0
+	protected val _localMatrix: Matrix = Matrix()
 	/**
 	 * @internal
 	 */
-	public val _colorTransform: ColorTransform = new ColorTransform();
+	public val _colorTransform: ColorTransform = ColorTransform()
 	/**
 	 * @internal
 	 */
-	public val _displayFrames: Array<DisplayFrame> = [];
+	public val _displayFrames: ArrayList<DisplayFrame> = []
 	/**
 	 * @internal
 	 */
-	public val _geometryBones: Array<Bone?> = [];
+	public val _geometryBones: ArrayList<Bone?> = []
 	/**
 	 * @internal
 	 */
-	public _slotData: SlotData;
+	public var _slotData: SlotData
 	/**
 	 * @internal
 	 */
-	public _displayFrame: DisplayFrame?;
+	public var _displayFrame: DisplayFrame?
 	/**
 	 * @internal
 	 */
-	public _geometryData: GeometryData?;
-	protected _boundingBoxData: BoundingBoxData?;
-	protected _textureData: TextureData?;
-	protected _rawDisplay: Any = null; // Initial value.
-	protected _meshDisplay: Any = null; // Initial value.
-	protected _display: Any? = null;
-	protected _childArmature: Armature?;
+	public var _geometryData: GeometryData?
+	protected var _boundingBoxData: BoundingBoxData?
+	protected var _textureData: TextureData?
+	protected var _rawDisplay: Any = null // Initial value.
+	protected var _meshDisplay: Any = null // Initial value.
+	protected var _display: Any? = null
+	protected var _childArmature: Armature?
 	/**
 	 * @private
 	 */
-	protected _parent: Bone;
+	protected var _parent: Bone
 	/**
 	 * @internal
 	 */
-	public _cachedFrameIndices:  DoubleArray?;
+	public var _cachedFrameIndices:  DoubleArray?
 
-	protected _onClear(): Unit {
-		super._onClear();
+	protected fun _onClear(): Unit {
+		super._onClear()
 
-		val disposeDisplayList: Array<any> = [];
+		val disposeDisplayList: Array<any> = []
 		for (dispayFrame in this._displayFrames) {
-			val display = dispayFrame.display;
+			val display = dispayFrame.display
 			if (
 				display !== this._rawDisplay && display !== this._meshDisplay &&
 				disposeDisplayList.indexOf(display) < 0
 			) {
-				disposeDisplayList.push(display);
+				disposeDisplayList.push(display)
 			}
 
-			dispayFrame.returnToPool();
+			dispayFrame.returnToPool()
 		}
 
 		for (eachDisplay in disposeDisplayList) {
 			if (eachDisplay instanceof Armature) {
-				eachDisplay.dispose();
+				eachDisplay.dispose()
 			}
 			else {
-				this._disposeDisplay(eachDisplay, true);
+				this._disposeDisplay(eachDisplay, true)
 			}
 		}
 
 		if (this._meshDisplay !== null && this._meshDisplay !== this._rawDisplay) { // May be _meshDisplay and _rawDisplay is the same one.
-			this._disposeDisplay(this._meshDisplay, false);
+			this._disposeDisplay(this._meshDisplay, false)
 		}
 
 		if (this._rawDisplay !== null) {
-			this._disposeDisplay(this._rawDisplay, false);
+			this._disposeDisplay(this._rawDisplay, false)
 		}
 
-		this.displayController = null;
+		this.displayController = null
 
-		this._displayDataDirty = false;
-		this._displayDirty = false;
-		this._geometryDirty = false;
-		this._textureDirty = false;
-		this._visibleDirty = false;
-		this._blendModeDirty = false;
-		this._zOrderDirty = false;
-		this._colorDirty = false;
-		this._verticesDirty = false;
-		this._transformDirty = false;
-		this._visible = true;
-		this._blendMode = BlendMode.Normal;
-		this._displayIndex = -1;
-		this._animationDisplayIndex = -1;
-		this._zOrder = 0;
-		this._zIndex = 0;
-		this._cachedFrameIndex = -1;
-		this._pivotX = 0.0;
-		this._pivotY = 0.0;
-		this._localMatrix.identity();
-		this._colorTransform.identity();
-		this._displayFrames.length = 0;
-		this._geometryBones.length = 0;
-		this._slotData = null as any; //
-		this._displayFrame = null;
-		this._geometryData = null;
-		this._boundingBoxData = null;
-		this._textureData = null;
-		this._rawDisplay = null;
-		this._meshDisplay = null;
-		this._display = null;
-		this._childArmature = null;
-		this._parent = null as any; //
-		this._cachedFrameIndices = null;
+		this._displayDataDirty = false
+		this._displayDirty = false
+		this._geometryDirty = false
+		this._textureDirty = false
+		this._visibleDirty = false
+		this._blendModeDirty = false
+		this._zOrderDirty = false
+		this._colorDirty = false
+		this._verticesDirty = false
+		this._transformDirty = false
+		this._visible = true
+		this._blendMode = BlendMode.Normal
+		this._displayIndex = -1
+		this._animationDisplayIndex = -1
+		this._zOrder = 0
+		this._zIndex = 0
+		this._cachedFrameIndex = -1
+		this._pivotX = 0.0
+		this._pivotY = 0.0
+		this._localMatrix.identity()
+		this._colorTransform.identity()
+		this._displayFrames.clear()
+		this._geometryBones.clear()
+		this._slotData = null as any //
+		this._displayFrame = null
+		this._geometryData = null
+		this._boundingBoxData = null
+		this._textureData = null
+		this._rawDisplay = null
+		this._meshDisplay = null
+		this._display = null
+		this._childArmature = null
+		this._parent = null as any //
+		this._cachedFrameIndices = null
 	}
 
-	protected abstract _initDisplay(value: Any, isRetain: Boolean): Unit;
-	protected abstract _disposeDisplay(value: Any, isRelease: Boolean): Unit;
-	protected abstract _onUpdateDisplay(): Unit;
-	protected abstract _addDisplay(): Unit;
-	protected abstract _replaceDisplay(value: Any): Unit;
-	protected abstract _removeDisplay(): Unit;
-	protected abstract _updateZOrder(): Unit;
+	protected abstract fun _initDisplay(value: Any, isRetain: Boolean): Unit
+	protected abstract fun _disposeDisplay(value: Any, isRelease: Boolean): Unit
+	protected abstract fun _onUpdateDisplay(): Unit
+	protected abstract fun _addDisplay(): Unit
+	protected abstract fun _replaceDisplay(value: Any): Unit
+	protected abstract fun _removeDisplay(): Unit
+	protected abstract fun _updateZOrder(): Unit
 	/**
 	 * @internal
 	 */
-	public abstract _updateVisible(): Unit;
-	protected abstract _updateBlendMode(): Unit;
-	protected abstract _updateColor(): Unit;
-	protected abstract _updateFrame(): Unit;
-	protected abstract _updateMesh(): Unit;
-	protected abstract _updateTransform(): Unit;
-	protected abstract _identityTransform(): Unit;
+	public abstract fun _updateVisible(): Unit
 
-	protected _hasDisplay(display: Any): Boolean {
+	protected abstract fun _updateBlendMode(): Unit
+	protected abstract fun _updateColor(): Unit
+	protected abstract fun _updateFrame(): Unit
+	protected abstract fun _updateMesh(): Unit
+	protected abstract fun _updateTransform(): Unit
+	protected abstract fun _identityTransform(): Unit
+
+	protected fun _hasDisplay(display: Any): Boolean {
 		for (displayFrame in this._displayFrames) {
 			if (displayFrame.display === display) {
-				return true;
+				return true
 			}
 		}
 
-		return false;
+		return false
 	}
 	/**
 	 * @internal
 	 */
-	public _isBonesUpdate(): Boolean {
+	public fun _isBonesUpdate(): Boolean {
 		for (bone in this._geometryBones) {
 			if (bone !== null && bone._childrenTransformDirty) {
-				return true;
+				return true
 			}
 		}
 
-		return false;
+		return false
 	}
 	/**
 	 * @internal
 	 */
-	public _updateAlpha() {
-		val globalAlpha = this._alpha * this._parent._globalAlpha;
+	public fun _updateAlpha() {
+		val globalAlpha = this._alpha * this._parent._globalAlpha
 
 		if (this._globalAlpha !== globalAlpha) {
-			this._globalAlpha = globalAlpha;
-			this._colorDirty = true;
+			this._globalAlpha = globalAlpha
+			this._colorDirty = true
 		}
 	}
 
-	protected _updateDisplayData(): Unit {
-		val prevDisplayFrame = this._displayFrame;
-		val prevGeometryData = this._geometryData;
-		val prevTextureData = this._textureData;
-		var rawDisplayData: DisplayData? = null;
-		var displayData: DisplayData? = null;
+	protected fun _updateDisplayData(): Unit {
+		val prevDisplayFrame = this._displayFrame
+		val prevGeometryData = this._geometryData
+		val prevTextureData = this._textureData
+		var rawDisplayData: DisplayData? = null
+		var displayData: DisplayData? = null
 
-		this._displayFrame = null;
-		this._geometryData = null;
-		this._boundingBoxData = null;
-		this._textureData = null;
+		this._displayFrame = null
+		this._geometryData = null
+		this._boundingBoxData = null
+		this._textureData = null
 
 		if (this._displayIndex >= 0 && this._displayIndex < this._displayFrames.length) {
-			this._displayFrame = this._displayFrames[this._displayIndex];
-			rawDisplayData = this._displayFrame.rawDisplayData;
-			displayData = this._displayFrame.displayData;
+			this._displayFrame = this._displayFrames[this._displayIndex]
+			rawDisplayData = this._displayFrame.rawDisplayData
+			displayData = this._displayFrame.displayData
 
-			this._geometryData = this._displayFrame.getGeometryData();
-			this._boundingBoxData = this._displayFrame.getBoundingBox();
-			this._textureData = this._displayFrame.getTextureData();
+			this._geometryData = this._displayFrame.getGeometryData()
+			this._boundingBoxData = this._displayFrame.getBoundingBox()
+			this._textureData = this._displayFrame.getTextureData()
 		}
 
 		if (
@@ -409,171 +414,171 @@ abstract class Slot  :  TransformObject {
 		) {
 			// Update pivot offset.
 			if (this._geometryData === null && this._textureData !== null) {
-				val imageDisplayData = ((displayData !== null && displayData.type === DisplayType.Image) ? displayData : rawDisplayData) as ImageDisplayData; //
-				val scale = this._textureData.parent.scale * this._armature._armatureData.scale;
-				val frame = this._textureData.frame;
+				val imageDisplayData = ((displayData !== null && displayData.type === DisplayType.Image) ? displayData : rawDisplayData) as ImageDisplayData //
+				val scale = this._textureData.parent.scale * this._armature._armatureData.scale
+				val frame = this._textureData.frame
 
-				this._pivotX = imageDisplayData.pivot.x;
-				this._pivotY = imageDisplayData.pivot.y;
+				this._pivotX = imageDisplayData.pivot.x
+				this._pivotY = imageDisplayData.pivot.y
 
-				val rect = frame !== null ? frame : this._textureData.region;
-				var width = rect.width;
-				var height = rect.height;
+				val rect = frame !== null ? frame : this._textureData.region
+				var width = rect.width
+				var height = rect.height
 
 				if (this._textureData.rotated && frame === null) {
-					width = rect.height;
-					height = rect.width;
+					width = rect.height
+					height = rect.width
 				}
 
-				this._pivotX *= width * scale;
-				this._pivotY *= height * scale;
+				this._pivotX *= width * scale
+				this._pivotY *= height * scale
 
 				if (frame !== null) {
-					this._pivotX += frame.x * scale;
-					this._pivotY += frame.y * scale;
+					this._pivotX += frame.x * scale
+					this._pivotY += frame.y * scale
 				}
 
 				// Update replace pivot. TODO
 				if (rawDisplayData !== null && imageDisplayData !== rawDisplayData) {
-					rawDisplayData.transform.toMatrix(Slot._helpMatrix);
-					Slot._helpMatrix.invert();
-					Slot._helpMatrix.transformPoint(0.0, 0.0, Slot._helpPoint);
-					this._pivotX -= Slot._helpPoint.x;
-					this._pivotY -= Slot._helpPoint.y;
+					rawDisplayData.transform.toMatrix(Slot._helpMatrix)
+					Slot._helpMatrix.invert()
+					Slot._helpMatrix.transformPoint(0.0, 0.0, Slot._helpPoint)
+					this._pivotX -= Slot._helpPoint.x
+					this._pivotY -= Slot._helpPoint.y
 
-					imageDisplayData.transform.toMatrix(Slot._helpMatrix);
-					Slot._helpMatrix.invert();
-					Slot._helpMatrix.transformPoint(0.0, 0.0, Slot._helpPoint);
-					this._pivotX += Slot._helpPoint.x;
-					this._pivotY += Slot._helpPoint.y;
+					imageDisplayData.transform.toMatrix(Slot._helpMatrix)
+					Slot._helpMatrix.invert()
+					Slot._helpMatrix.transformPoint(0.0, 0.0, Slot._helpPoint)
+					this._pivotX += Slot._helpPoint.x
+					this._pivotY += Slot._helpPoint.y
 				}
 
 				if (!DragonBones.yDown) {
-					this._pivotY = (this._textureData.rotated ? this._textureData.region.width : this._textureData.region.height) * scale - this._pivotY;
+					this._pivotY = (this._textureData.rotated ? this._textureData.region.width : this._textureData.region.height) * scale - this._pivotY
 				}
 			}
 			else {
-				this._pivotX = 0.0;
-				this._pivotY = 0.0;
+				this._pivotX = 0.0
+				this._pivotY = 0.0
 			}
 
 			// Update original transform.
 			if (rawDisplayData !== null) { // Compatible.
-				this.origin = rawDisplayData.transform;
+				this.origin = rawDisplayData.transform
 			}
 			else if (displayData !== null) { // Compatible.
-				this.origin = displayData.transform;
+				this.origin = displayData.transform
 			}
 			else {
-				this.origin = null;
+				this.origin = null
 			}
 
 			// TODO remove slot offset.
 			if (this.origin !== null) {
-				this.global.copyFrom(this.origin).add(this.offset).toMatrix(this._localMatrix);
+				this.global.copyFrom(this.origin).add(this.offset).toMatrix(this._localMatrix)
 			}
 			else {
-				this.global.copyFrom(this.offset).toMatrix(this._localMatrix);
+				this.global.copyFrom(this.offset).toMatrix(this._localMatrix)
 			}
 
 			// Update geometry.
 			if (this._geometryData !== prevGeometryData) {
-				this._geometryDirty = true;
-				this._verticesDirty = true;
+				this._geometryDirty = true
+				this._verticesDirty = true
 
 				if (this._geometryData !== null) {
-					this._geometryBones.length = 0;
+					this._geometryBones.length = 0
 					if (this._geometryData.weight !== null) {
 						for (var i = 0, l = this._geometryData.weight.bones.length; i < l; ++i) {
-							val bone = this._armature.getBone(this._geometryData.weight.bones[i].name);
-							this._geometryBones.push(bone);
+							val bone = this._armature.getBone(this._geometryData.weight.bones[i].name)
+							this._geometryBones.push(bone)
 						}
 					}
 				}
 				else {
-					this._geometryBones.length = 0;
-					this._geometryData = null;
+					this._geometryBones.length = 0
+					this._geometryData = null
 				}
 			}
 
-			this._textureDirty = this._textureData !== prevTextureData;
-			this._transformDirty = true;
+			this._textureDirty = this._textureData !== prevTextureData
+			this._transformDirty = true
 		}
 	}
 
-	protected _updateDisplay(): Unit {
-		val prevDisplay = this._display !== null ? this._display : this._rawDisplay;
-		val prevChildArmature = this._childArmature;
+	protected fun _updateDisplay(): Unit {
+		val prevDisplay = this._display !== null ? this._display : this._rawDisplay
+		val prevChildArmature = this._childArmature
 
 		// Update display and child armature.
 		if (this._displayFrame !== null) {
-			this._display = this._displayFrame.display;
+			this._display = this._displayFrame.display
 			if (this._display !== null && this._display instanceof Armature) {
-				this._childArmature = this._display as Armature;
-				this._display = this._childArmature.display;
+				this._childArmature = this._display as Armature
+				this._display = this._childArmature.display
 			}
 			else {
-				this._childArmature = null;
+				this._childArmature = null
 			}
 		}
 		else {
-			this._display = null;
-			this._childArmature = null;
+			this._display = null
+			this._childArmature = null
 		}
 
 		// Update display.
-		val currentDisplay = this._display !== null ? this._display : this._rawDisplay;
+		val currentDisplay = this._display !== null ? this._display : this._rawDisplay
 		if (currentDisplay !== prevDisplay) {
-			this._textureDirty = true;
-			this._visibleDirty = true;
-			this._blendModeDirty = true;
+			this._textureDirty = true
+			this._visibleDirty = true
+			this._blendModeDirty = true
 			// this._zOrderDirty = true;
-			this._colorDirty = true;
-			this._transformDirty = true;
+			this._colorDirty = true
+			this._transformDirty = true
 
-			this._onUpdateDisplay();
-			this._replaceDisplay(prevDisplay);
+			this._onUpdateDisplay()
+			this._replaceDisplay(prevDisplay)
 		}
 
 		// Update child armature.
 		if (this._childArmature !== prevChildArmature) {
 			if (prevChildArmature !== null) {
-				prevChildArmature._parent = null; // Update child armature parent.
-				prevChildArmature.clock = null;
+				prevChildArmature._parent = null // Update child armature parent.
+				prevChildArmature.clock = null
 				if (prevChildArmature.inheritAnimation) {
-					prevChildArmature.animation.reset();
+					prevChildArmature.animation.reset()
 				}
 			}
 
 			if (this._childArmature !== null) {
-				this._childArmature._parent = this; // Update child armature parent.
-				this._childArmature.clock = this._armature.clock;
+				this._childArmature._parent = this // Update child armature parent.
+				this._childArmature.clock = this._armature.clock
 				if (this._childArmature.inheritAnimation) { // Set child armature cache frameRate.
 					if (this._childArmature.cacheFrameRate === 0) {
-						val cacheFrameRate = this._armature.cacheFrameRate;
+						val cacheFrameRate = this._armature.cacheFrameRate
 						if (cacheFrameRate !== 0) {
-							this._childArmature.cacheFrameRate = cacheFrameRate;
+							this._childArmature.cacheFrameRate = cacheFrameRate
 						}
 					}
 
 					// Child armature action.
 					if (this._displayFrame !== null) {
-						var actions: Array<ActionData>? = null;
-						var displayData = this._displayFrame.displayData !== null ? this._displayFrame.displayData : this._displayFrame.rawDisplayData;
+						var actions: Array<ActionData>? = null
+						var displayData = this._displayFrame.displayData !== null ? this._displayFrame.displayData : this._displayFrame.rawDisplayData
 						if (displayData !== null && displayData.type === DisplayType.Armature) {
-							actions = (displayData as ArmatureDisplayData).actions;
+							actions = (displayData as ArmatureDisplayData).actions
 						}
 
 						if (actions !== null && actions.length > 0) {
 							for (action in actions) {
-								val eventObject = BaseObject.borrowObject(EventObject);
-								EventObject.actionDataToInstance(action, eventObject, this._armature);
-								eventObject.slot = this;
-								this._armature._bufferAction(eventObject, false);
+								val eventObject = BaseObject.borrowObject(EventObject)
+								EventObject.actionDataToInstance(action, eventObject, this._armature)
+								eventObject.slot = this
+								this._armature._bufferAction(eventObject, false)
 							}
 						}
 						else {
-							this._childArmature.animation.play();
+							this._childArmature.animation.play()
 						}
 					}
 				}
@@ -581,206 +586,206 @@ abstract class Slot  :  TransformObject {
 		}
 	}
 
-	protected _updateGlobalTransformMatrix(isCache: Boolean): Unit {
-		val parentMatrix = this._parent._boneData.type === BoneType.Bone ? this._parent.globalTransformMatrix : (this._parent as Surface)._getGlobalTransformMatrix(this.global.x, this.global.y);
-		this.globalTransformMatrix.copyFrom(this._localMatrix);
-		this.globalTransformMatrix.concat(parentMatrix);
+	protected fun _updateGlobalTransformMatrix(isCache: Boolean): Unit {
+		val parentMatrix = this._parent._boneData.type === BoneType.Bone ? this._parent.globalTransformMatrix : (this._parent as Surface)._getGlobalTransformMatrix(this.global.x, this.global.y)
+		this.globalTransformMatrix.copyFrom(this._localMatrix)
+		this.globalTransformMatrix.concat(parentMatrix)
 
 		if (isCache) {
-			this.global.fromMatrix(this.globalTransformMatrix);
+			this.global.fromMatrix(this.globalTransformMatrix)
 		}
 		else {
-			this._globalDirty = true;
+			this._globalDirty = true
 		}
 	}
 	/**
 	 * @internal
 	 */
-	public _setDisplayIndex(value: Double, isAnimation: Boolean = false): Unit {
+	public fun _setDisplayIndex(value: Double, isAnimation: Boolean = false): Unit {
 		if (isAnimation) {
 			if (this._animationDisplayIndex === value) {
-				return;
+				return
 			}
 
-			this._animationDisplayIndex = value;
+			this._animationDisplayIndex = value
 		}
 
 		if (this._displayIndex === value) {
-			return;
+			return
 		}
 
-		this._displayIndex = value < this._displayFrames.length ? value : this._displayFrames.length - 1;
-		this._displayDataDirty = true;
-		this._displayDirty = this._displayIndex < 0 || this._display !== this._displayFrames[this._displayIndex].display;
+		this._displayIndex = value < this._displayFrames.length ? value : this._displayFrames.length - 1
+		this._displayDataDirty = true
+		this._displayDirty = this._displayIndex < 0 || this._display !== this._displayFrames[this._displayIndex].display
 	}
 	/**
 	 * @internal
 	 */
-	public _setZOrder(value: Double): Boolean {
+	public fun _setZOrder(value: Double): Boolean {
 		if (this._zOrder === value) {
 			// return false;
 		}
 
-		this._zOrder = value;
-		this._zOrderDirty = true;
+		this._zOrder = value
+		this._zOrderDirty = true
 
-		return this._zOrderDirty;
+		return this._zOrderDirty
 	}
 	/**
 	 * @internal
 	 */
-	public _setColor(value: ColorTransform): Boolean {
-		this._colorTransform.copyFrom(value);
+	public fun _setColor(value: ColorTransform): Boolean {
+		this._colorTransform.copyFrom(value)
 
-		return this._colorDirty = true;
+		return this._colorDirty = true
 	}
 	/**
 	 * @internal
 	 */
-	public init(slotData: SlotData, armatureValue: Armature, rawDisplay: Any, meshDisplay: Any): Unit {
+	public fun init(slotData: SlotData, armatureValue: Armature, rawDisplay: Any, meshDisplay: Any): Unit {
 		if (this._slotData !== null) {
-			return;
+			return
 		}
 
-		this._slotData = slotData;
-		this._colorDirty = true; //
-		this._blendModeDirty = true; //
-		this._blendMode = this._slotData.blendMode;
-		this._zOrder = this._slotData.zOrder;
-		this._zIndex = this._slotData.zIndex;
-		this._alpha = this._slotData.alpha;
-		this._colorTransform.copyFrom(this._slotData.color);
-		this._rawDisplay = rawDisplay;
-		this._meshDisplay = meshDisplay;
+		this._slotData = slotData
+		this._colorDirty = true //
+		this._blendModeDirty = true //
+		this._blendMode = this._slotData.blendMode
+		this._zOrder = this._slotData.zOrder
+		this._zIndex = this._slotData.zIndex
+		this._alpha = this._slotData.alpha
+		this._colorTransform.copyFrom(this._slotData.color)
+		this._rawDisplay = rawDisplay
+		this._meshDisplay = meshDisplay
 		//
-		this._armature = armatureValue;
-		val slotParent = this._armature.getBone(this._slotData.parent.name);
+		this._armature = armatureValue
+		val slotParent = this._armature.getBone(this._slotData.parent.name)
 
 		if (slotParent !== null) {
-			this._parent = slotParent;
+			this._parent = slotParent
 		}
 		else {
 			// Never;
 		}
 
-		this._armature._addSlot(this);
+		this._armature._addSlot(this)
 		//
-		this._initDisplay(this._rawDisplay, false);
+		this._initDisplay(this._rawDisplay, false)
 		if (this._rawDisplay !== this._meshDisplay) {
-			this._initDisplay(this._meshDisplay, false);
+			this._initDisplay(this._meshDisplay, false)
 		}
 
-		this._onUpdateDisplay();
-		this._addDisplay();
+		this._onUpdateDisplay()
+		this._addDisplay()
 	}
 	/**
 	 * @internal
 	 */
-	public update(cacheFrameIndex: Double): Unit {
+	public fun update(cacheFrameIndex: Double): Unit {
 		if (this._displayDataDirty) {
-			this._updateDisplayData();
-			this._displayDataDirty = false;
+			this._updateDisplayData()
+			this._displayDataDirty = false
 		}
 
 		if (this._displayDirty) {
-			this._updateDisplay();
-			this._displayDirty = false;
+			this._updateDisplay()
+			this._displayDirty = false
 		}
 
 		if (this._geometryDirty || this._textureDirty) {
 			if (this._display === null || this._display === this._rawDisplay || this._display === this._meshDisplay) {
-				this._updateFrame();
+				this._updateFrame()
 			}
 
-			this._geometryDirty = false;
-			this._textureDirty = false;
+			this._geometryDirty = false
+			this._textureDirty = false
 		}
 
 		if (this._display === null) {
-			return;
+			return
 		}
 
 		if (this._visibleDirty) {
-			this._updateVisible();
-			this._visibleDirty = false;
+			this._updateVisible()
+			this._visibleDirty = false
 		}
 
 		if (this._blendModeDirty) {
-			this._updateBlendMode();
-			this._blendModeDirty = false;
+			this._updateBlendMode()
+			this._blendModeDirty = false
 		}
 
 		if (this._colorDirty) {
-			this._updateColor();
-			this._colorDirty = false;
+			this._updateColor()
+			this._colorDirty = false
 		}
 
 		if (this._zOrderDirty) {
-			this._updateZOrder();
-			this._zOrderDirty = false;
+			this._updateZOrder()
+			this._zOrderDirty = false
 		}
 
 		if (this._geometryData !== null && this._display === this._meshDisplay) {
-			val isSkinned = this._geometryData.weight !== null;
-			val isSurface = this._parent._boneData.type !== BoneType.Bone;
+			val isSkinned = this._geometryData.weight !== null
+			val isSurface = this._parent._boneData.type !== BoneType.Bone
 
 			if (
 				this._verticesDirty ||
 				(isSkinned && this._isBonesUpdate()) ||
 				(isSurface && this._parent._childrenTransformDirty)
 			) {
-				this._verticesDirty = false; // Allow update mesh to reset the dirty value.
-				this._updateMesh();
+				this._verticesDirty = false // Allow update mesh to reset the dirty value.
+				this._updateMesh()
 			}
 
 			if (isSkinned || isSurface) { // Compatible.
-				return;
+				return
 			}
 		}
 
 		if (cacheFrameIndex >= 0 && this._cachedFrameIndices !== null) {
-			val cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex];
+			val cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex]
 			if (cachedFrameIndex >= 0 && this._cachedFrameIndex === cachedFrameIndex) { // Same cache.
-				this._transformDirty = false;
+				this._transformDirty = false
 			}
 			else if (cachedFrameIndex >= 0) { // Has been Cached.
-				this._transformDirty = true;
-				this._cachedFrameIndex = cachedFrameIndex;
+				this._transformDirty = true
+				this._cachedFrameIndex = cachedFrameIndex
 			}
 			else if (this._transformDirty || this._parent._childrenTransformDirty) { // Dirty.
-				this._transformDirty = true;
-				this._cachedFrameIndex = -1;
+				this._transformDirty = true
+				this._cachedFrameIndex = -1
 			}
 			else if (this._cachedFrameIndex >= 0) { // Same cache, but not set index yet.
-				this._transformDirty = false;
-				this._cachedFrameIndices[cacheFrameIndex] = this._cachedFrameIndex;
+				this._transformDirty = false
+				this._cachedFrameIndices[cacheFrameIndex] = this._cachedFrameIndex
 			}
 			else { // Dirty.
-				this._transformDirty = true;
-				this._cachedFrameIndex = -1;
+				this._transformDirty = true
+				this._cachedFrameIndex = -1
 			}
 		}
 		else if (this._transformDirty || this._parent._childrenTransformDirty) { // Dirty.
-			cacheFrameIndex = -1;
-			this._transformDirty = true;
-			this._cachedFrameIndex = -1;
+			cacheFrameIndex = -1
+			this._transformDirty = true
+			this._cachedFrameIndex = -1
 		}
 
 		if (this._transformDirty) {
 			if (this._cachedFrameIndex < 0) {
-				val isCache = cacheFrameIndex >= 0;
-				this._updateGlobalTransformMatrix(isCache);
+				val isCache = cacheFrameIndex >= 0
+				this._updateGlobalTransformMatrix(isCache)
 
 				if (isCache && this._cachedFrameIndices !== null) {
-					this._cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex] = this._armature._armatureData.setCacheFrame(this.globalTransformMatrix, this.global);
+					this._cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex] = this._armature._armatureData.setCacheFrame(this.globalTransformMatrix, this.global)
 				}
 			}
 			else {
-				this._armature._armatureData.getCacheFrame(this.globalTransformMatrix, this.global, this._cachedFrameIndex);
+				this._armature._armatureData.getCacheFrame(this.globalTransformMatrix, this.global, this._cachedFrameIndex)
 			}
 
-			this._updateTransform();
-			this._transformDirty = false;
+			this._updateTransform()
+			this._transformDirty = false
 		}
 	}
 	/**
@@ -793,106 +798,106 @@ abstract class Slot  :  TransformObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public invalidUpdate(): Unit {
-		this._displayDataDirty = true;
-		this._displayDirty = true;
+	public fun invalidUpdate(): Unit {
+		this._displayDataDirty = true
+		this._displayDirty = true
 		//
-		this._transformDirty = true;
+		this._transformDirty = true
 	}
 	/**
 	 * @private
 	 */
-	public updateTransformAndMatrix(): Unit {
+	public fun updateTransformAndMatrix(): Unit {
 		if (this._transformDirty) {
-			this._updateGlobalTransformMatrix(false);
-			this._transformDirty = false;
+			this._updateGlobalTransformMatrix(false)
+			this._transformDirty = false
 		}
 	}
 	/**
 	 * @private
 	 */
-	public replaceRawDisplayData(displayData: DisplayData?, index: Double = -1): Unit {
+	public fun replaceRawDisplayData(displayData: DisplayData?, index: Double = -1): Unit {
 		if (index < 0) {
-			index = this._displayIndex < 0 ? 0 : this._displayIndex;
+			index = if (this._displayIndex < 0) 0 else this._displayIndex
 		}
 		else if (index >= this._displayFrames.length) {
-			return;
+			return
 		}
 
-		val displayFrame = this._displayFrames[index];
+		val displayFrame = this._displayFrames[index]
 		if (displayFrame.rawDisplayData !== displayData) {
-			displayFrame.deformVertices.length = 0;
-			displayFrame.rawDisplayData = displayData;
+			displayFrame.deformVertices.length = 0
+			displayFrame.rawDisplayData = displayData
 			if (displayFrame.rawDisplayData === null) {
-				val defaultSkin = this._armature._armatureData.defaultSkin;
+				val defaultSkin = this._armature._armatureData.defaultSkin
 				if (defaultSkin !== null) {
-					val defaultRawDisplayDatas = defaultSkin.getDisplays(this._slotData.name);
+					val defaultRawDisplayDatas = defaultSkin.getDisplays(this._slotData.name)
 					if (defaultRawDisplayDatas !== null && index < defaultRawDisplayDatas.length) {
-						displayFrame.rawDisplayData = defaultRawDisplayDatas[index];
+						displayFrame.rawDisplayData = defaultRawDisplayDatas[index]
 					}
 				}
 			}
 
 			if (index === this._displayIndex) {
-				this._displayDataDirty = true;
+				this._displayDataDirty = true
 			}
 		}
 	}
 	/**
 	 * @private
 	 */
-	public replaceDisplayData(displayData: DisplayData?, index: Double = -1): Unit {
+	public fun replaceDisplayData(displayData: DisplayData?, index: Int = -1): Unit {
 		if (index < 0) {
-			index = this._displayIndex < 0 ? 0 : this._displayIndex;
+			index = this._displayIndex < 0 ? 0 : this._displayIndex
 		}
 		else if (index >= this._displayFrames.length) {
-			return;
+			return
 		}
 
-		val displayFrame = this._displayFrames[index];
+		val displayFrame = this._displayFrames[index]
 		if (displayFrame.displayData !== displayData && displayFrame.rawDisplayData !== displayData) {
-			displayFrame.displayData = displayData;
+			displayFrame.displayData = displayData
 
 			if (index === this._displayIndex) {
-				this._displayDataDirty = true;
+				this._displayDataDirty = true
 			}
 		}
 	}
 	/**
 	 * @private
 	 */
-	public replaceTextureData(textureData: TextureData?, index: Double = -1): Unit {
+	public fun replaceTextureData(textureData: TextureData?, index: Int = -1): Unit {
 		if (index < 0) {
-			index = this._displayIndex < 0 ? 0 : this._displayIndex;
+			index = if (this._displayIndex < 0) 0 else this._displayIndex
 		}
 		else if (index >= this._displayFrames.length) {
-			return;
+			return
 		}
 
-		val displayFrame = this._displayFrames[index];
+		val displayFrame = this._displayFrames[index]
 		if (displayFrame.textureData !== textureData) {
-			displayFrame.textureData = textureData;
+			displayFrame.textureData = textureData
 
 			if (index === this._displayIndex) {
-				this._displayDataDirty = true;
+				this._displayDataDirty = true
 			}
 		}
 	}
 	/**
 	 * @private
 	 */
-	public replaceDisplay(value: Any | Armature?, index: Double = -1): Unit {
+	public fun replaceDisplay(value: Any | Armature?, index: Double = -1): Unit {
 		if (index < 0) {
-			index = this._displayIndex < 0 ? 0 : this._displayIndex;
+			index = this._displayIndex < 0 ? 0 : this._displayIndex
 		}
 		else if (index >= this._displayFrames.length) {
-			return;
+			return
 		}
 
-		val displayFrame = this._displayFrames[index];
+		val displayFrame = this._displayFrames[index]
 		if (displayFrame.display !== value) {
-			val prevDisplay = displayFrame.display;
-			displayFrame.display = value;
+			val prevDisplay = displayFrame.display
+			displayFrame.display = value
 
 			if (
 				prevDisplay !== null &&
@@ -903,7 +908,7 @@ abstract class Slot  :  TransformObject {
 					// (eachDisplay as Armature).dispose();
 				}
 				else {
-					this._disposeDisplay(prevDisplay, true);
+					this._disposeDisplay(prevDisplay, true)
 				}
 			}
 
@@ -913,11 +918,11 @@ abstract class Slot  :  TransformObject {
 				!this._hasDisplay(prevDisplay) &&
 				!(value instanceof Armature)
 			) {
-				this._initDisplay(value, true);
+				this._initDisplay(value, true)
 			}
 
 			if (index === this._displayIndex) {
-				this._displayDirty = true;
+				this._displayDirty = true
 			}
 		}
 	}
@@ -939,18 +944,18 @@ abstract class Slot  :  TransformObject {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public containsPoint(x: Double, y: Double): Boolean {
+	public fun containsPoint(x: Double, y: Double): Boolean {
 		if (this._boundingBoxData === null) {
-			return false;
+			return false
 		}
 
-		this.updateTransformAndMatrix();
+		this.updateTransformAndMatrix()
 
-		Slot._helpMatrix.copyFrom(this.globalTransformMatrix);
-		Slot._helpMatrix.invert();
-		Slot._helpMatrix.transformPoint(x, y, Slot._helpPoint);
+		Slot._helpMatrix.copyFrom(this.globalTransformMatrix)
+		Slot._helpMatrix.invert()
+		Slot._helpMatrix.transformPoint(x, y, Slot._helpPoint)
 
-		return this._boundingBoxData.containsPoint(Slot._helpPoint.x, Slot._helpPoint.y);
+		return this._boundingBoxData.containsPoint(Slot._helpPoint.x, Slot._helpPoint.y)
 	}
 	/**
 	 * - Check whether a specific segment intersects a custom bounding box for the slot.
@@ -982,66 +987,66 @@ abstract class Slot  :  TransformObject {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public intersectsSegment(
+	public fun intersectsSegment(
 		xA: Double, yA: Double, xB: Double, yB: Double,
 		intersectionPointA: { x: Double, y: Double }? = null,
 		intersectionPointB: { x: Double, y: Double }? = null,
 		normalRadians: { x: Double, y: Double }? = null
 	): Double {
 		if (this._boundingBoxData === null) {
-			return 0;
+			return 0
 		}
 
-		this.updateTransformAndMatrix();
-		Slot._helpMatrix.copyFrom(this.globalTransformMatrix);
-		Slot._helpMatrix.invert();
-		Slot._helpMatrix.transformPoint(xA, yA, Slot._helpPoint);
-		xA = Slot._helpPoint.x;
-		yA = Slot._helpPoint.y;
-		Slot._helpMatrix.transformPoint(xB, yB, Slot._helpPoint);
-		xB = Slot._helpPoint.x;
-		yB = Slot._helpPoint.y;
+		this.updateTransformAndMatrix()
+		Slot._helpMatrix.copyFrom(this.globalTransformMatrix)
+		Slot._helpMatrix.invert()
+		Slot._helpMatrix.transformPoint(xA, yA, Slot._helpPoint)
+		xA = Slot._helpPoint.x
+		yA = Slot._helpPoint.y
+		Slot._helpMatrix.transformPoint(xB, yB, Slot._helpPoint)
+		xB = Slot._helpPoint.x
+		yB = Slot._helpPoint.y
 
-		val intersectionCount = this._boundingBoxData.intersectsSegment(xA, yA, xB, yB, intersectionPointA, intersectionPointB, normalRadians);
+		val intersectionCount = this._boundingBoxData.intersectsSegment(xA, yA, xB, yB, intersectionPointA, intersectionPointB, normalRadians)
 		if (intersectionCount > 0) {
 			if (intersectionCount === 1 || intersectionCount === 2) {
 				if (intersectionPointA !== null) {
-					this.globalTransformMatrix.transformPoint(intersectionPointA.x, intersectionPointA.y, intersectionPointA);
+					this.globalTransformMatrix.transformPoint(intersectionPointA.x, intersectionPointA.y, intersectionPointA)
 					if (intersectionPointB !== null) {
-						intersectionPointB.x = intersectionPointA.x;
-						intersectionPointB.y = intersectionPointA.y;
+						intersectionPointB.x = intersectionPointA.x
+						intersectionPointB.y = intersectionPointA.y
 					}
 				}
 				else if (intersectionPointB !== null) {
-					this.globalTransformMatrix.transformPoint(intersectionPointB.x, intersectionPointB.y, intersectionPointB);
+					this.globalTransformMatrix.transformPoint(intersectionPointB.x, intersectionPointB.y, intersectionPointB)
 				}
 			}
 			else {
 				if (intersectionPointA !== null) {
-					this.globalTransformMatrix.transformPoint(intersectionPointA.x, intersectionPointA.y, intersectionPointA);
+					this.globalTransformMatrix.transformPoint(intersectionPointA.x, intersectionPointA.y, intersectionPointA)
 				}
 
 				if (intersectionPointB !== null) {
-					this.globalTransformMatrix.transformPoint(intersectionPointB.x, intersectionPointB.y, intersectionPointB);
+					this.globalTransformMatrix.transformPoint(intersectionPointB.x, intersectionPointB.y, intersectionPointB)
 				}
 			}
 
 			if (normalRadians !== null) {
-				this.globalTransformMatrix.transformPoint(Math.cos(normalRadians.x), Math.sin(normalRadians.x), Slot._helpPoint, true);
-				normalRadians.x = Math.atan2(Slot._helpPoint.y, Slot._helpPoint.x);
+				this.globalTransformMatrix.transformPoint(Math.cos(normalRadians.x), Math.sin(normalRadians.x), Slot._helpPoint, true)
+				normalRadians.x = Math.atan2(Slot._helpPoint.y, Slot._helpPoint.x)
 
-				this.globalTransformMatrix.transformPoint(Math.cos(normalRadians.y), Math.sin(normalRadians.y), Slot._helpPoint, true);
-				normalRadians.y = Math.atan2(Slot._helpPoint.y, Slot._helpPoint.x);
+				this.globalTransformMatrix.transformPoint(Math.cos(normalRadians.y), Math.sin(normalRadians.y), Slot._helpPoint, true)
+				normalRadians.y = Math.atan2(Slot._helpPoint.y, Slot._helpPoint.x)
 			}
 		}
 
-		return intersectionCount;
+		return intersectionCount
 	}
 	/**
 	 * @private
 	 */
-	public getDisplayFrameAt(index: Double): DisplayFrame {
-		return this._displayFrames[index];
+	public fun getDisplayFrameAt(index: Double): DisplayFrame {
+		return this._displayFrames[index]
 	}
 	/**
 	 * - The visible of slot's display object.
@@ -1055,39 +1060,39 @@ abstract class Slot  :  TransformObject {
 	 * @version DragonBones 5.6
 	 * @language zh_CN
 	 */
-	public get visible(): Boolean {
-		return this._visible;
+	public var visible: Boolean get() {
+		return this._visible
 	}
-	public set visible(value: Boolean) {
+	set (value: Boolean) {
 		if (this._visible === value) {
-			return;
+			return
 		}
 
-		this._visible = value;
-		this._updateVisible();
+		this._visible = value
+		this._updateVisible()
 	}
 	/**
 	 * @private
 	 */
-	public get displayFrameCount(): Double {
-		return this._displayFrames.length;
+	public var displayFrameCount: Double get() {
+		return this._displayFrames.length
 	}
-	public set displayFrameCount(value: Double) {
-		val prevCount = this._displayFrames.length;
+	set(value: Double) {
+		val prevCount = this._displayFrames.length
 		if (prevCount < value) {
-			this._displayFrames.length = value;
+			this._displayFrames.length = value
 
 			for (var i = prevCount; i < value; ++i) {
-				this._displayFrames[i] = BaseObject.borrowObject(DisplayFrame);
+				this._displayFrames[i] = BaseObject.borrowObject(DisplayFrame)
 			}
 		}
 		else if (prevCount > value) {
 			for (var i = prevCount - 1; i < value; --i) {
-				this.replaceDisplay(null, i);
-				this._displayFrames[i].returnToPool();
+				this.replaceDisplay(null, i)
+				this._displayFrames[i].returnToPool()
 			}
 
-			this._displayFrames.length = value;
+			this._displayFrames.length = value
 		}
 	}
 	/**
@@ -1112,12 +1117,12 @@ abstract class Slot  :  TransformObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public get displayIndex(): Double {
-		return this._displayIndex;
+	public var displayIndex: Double get() {
+		return this._displayIndex
 	}
-	public set displayIndex(value: Double) {
-		this._setDisplayIndex(value);
-		this.update(-1);
+	set(value: Double) {
+		this._setDisplayIndex(value)
+		this.update(-1)
 	}
 	/**
 	 * - The slot name.
@@ -1131,8 +1136,8 @@ abstract class Slot  :  TransformObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public get name(): String {
-		return this._slotData.name;
+	public val name: String get() {
+		return this._slotData.name
 	}
 	/**
 	 * - Contains a display list of display objects or child armatures.
@@ -1144,19 +1149,19 @@ abstract class Slot  :  TransformObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public get displayList(): Array<any> {
-		val displays = new Array<any>();
+	public var displayList: Array<any> get() {
+		val displays = new Array<any>()
 		for (displayFrame in this._displayFrames) {
-			displays.push(displayFrame.display);
+			displays.push(displayFrame.display)
 		}
 
-		return displays;
+		return displays
 	}
-	public set displayList(value: Array<any>) {
-		this.displayFrameCount = value.length;
-		var index = 0;
+	set(value: Array<any>) {
+		this.displayFrameCount = value.length
+		var index = 0
 		for (eachDisplay in value) {
-			this.replaceDisplay(eachDisplay, index++);
+			this.replaceDisplay(eachDisplay, index++)
 		}
 	}
 	/**
@@ -1171,8 +1176,8 @@ abstract class Slot  :  TransformObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public get slotData(): SlotData {
-		return this._slotData;
+	public val slotData: SlotData get() {
+		return this._slotData
 	}
 	/**
 	 * - The custom bounding box data for the slot at current time.
@@ -1184,20 +1189,20 @@ abstract class Slot  :  TransformObject {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public get boundingBoxData(): BoundingBoxData? {
-		return this._boundingBoxData;
+	public val boundingBoxData(): BoundingBoxData? get() {
+		return this._boundingBoxData
 	}
 	/**
 	 * @private
 	 */
-	public get rawDisplay(): Any {
-		return this._rawDisplay;
+	public val rawDisplay(): Any get() {
+		return this._rawDisplay
 	}
 	/**
 	 * @private
 	 */
-	public get meshDisplay(): Any {
-		return this._meshDisplay;
+	public val meshDisplay(): Any get() {
+		return this._meshDisplay
 	}
 	/**
 	 * - The display object that the slot displays at this time.
@@ -1219,20 +1224,20 @@ abstract class Slot  :  TransformObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public get display(): Any {
-		return this._display;
+	public var display: Any get() {
+		return this._display
 	}
-	public set display(value: Any) {
+	set(value: Any) {
 		if (this._display === value) {
-			return;
+			return
 		}
 
 		if (this._displayFrames.length === 0) {
-			this.displayFrameCount = 1;
-			this._displayIndex = 0;
+			this.displayFrameCount = 1
+			this._displayIndex = 0
 		}
 
-		this.replaceDisplay(value, this._displayIndex);
+		this.replaceDisplay(value, this._displayIndex)
 	}
 	/**
 	 * - The child armature that the slot displayed at current time.
@@ -1263,15 +1268,15 @@ abstract class Slot  :  TransformObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public get childArmature(): Armature? {
-		return this._childArmature;
+	public var childArmature: Armature? get() {
+		return this._childArmature
 	}
-	public set childArmature(value: Armature?) {
+	set(value: Armature?) {
 		if (this._childArmature === value) {
-			return;
+			return
 		}
 
-		this.display = value;
+		this.display = value
 	}
 	/**
 	 * - The parent bone to which it belongs.
@@ -1283,8 +1288,8 @@ abstract class Slot  :  TransformObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public get parent(): Bone {
-		return this._parent;
+	public val parent: Bone get() {
+		return this._parent
 	}
 
 	/**
@@ -1297,8 +1302,8 @@ abstract class Slot  :  TransformObject {
 	 * @deprecated
 	 * @language zh_CN
 	 */
-	public getDisplay(): Any {
-		return this._display;
+	public fun getDisplay(): Any {
+		return this._display
 	}
 	/**
 	 * - Deprecated, please refer to {@link #display}.
@@ -1310,7 +1315,7 @@ abstract class Slot  :  TransformObject {
 	 * @deprecated
 	 * @language zh_CN
 	 */
-	public setDisplay(value: Any) {
-		this.display = value;
+	public fun setDisplay(value: Any) {
+		this.display = value
 	}
 }

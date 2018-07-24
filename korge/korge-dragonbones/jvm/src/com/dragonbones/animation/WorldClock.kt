@@ -48,7 +48,7 @@ class WorldClock : IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public time: Double = 0.0;
+	var time: Double = 0.0
 	/**
 	 * - The play speed, used to control animation speed-shift play.
 	 * [0: Stop play, (0~1): Slow play, 1: Normal play, (1~N): Fast play]
@@ -63,11 +63,11 @@ class WorldClock : IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public timeScale: Double = 1.0;
+	var timeScale: Double = 1.0
 
-	private _systemTime: Double = 0.0;
-	private val _animatebles: Array<IAnimatable?> = [];
-	private _clock: WorldClock? = null;
+	private var _systemTime: Double = 0.0
+	private val _animatebles: ArrayList<IAnimatable?> = []
+	private var _clock: WorldClock? = null
 	/**
 	 * - Creating a Worldclock instance. Typically, you do not need to create Worldclock instance.
 	 * When multiple Worldclock instances are running at different speeds, can achieving some specific animation effects, such as bullet time.
@@ -80,9 +80,9 @@ class WorldClock : IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public constructor(time: Double = 0.0) {
-		this.time = time;
-		this._systemTime = new Date().getTime() * 0.001;
+	constructor(time: Double = 0.0) {
+		this.time = time
+		this._systemTime = Date().getTime() * 0.001
 	}
 	/**
 	 * - Advance time for all IAnimatable instances.
@@ -96,63 +96,62 @@ class WorldClock : IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public advanceTime(passedTime: Double): Unit {
-		if (passedTime !== passedTime) {
-			passedTime = 0.0;
+	fun advanceTime(passedTime: Double): Unit {
+		if (passedTime != passedTime) {
+			passedTime = 0.0
 		}
 
-		val currentTime = Date.now() * 0.001;
+		val currentTime = Date.now() * 0.001
 
 		if (passedTime < 0.0) {
-			passedTime = currentTime - this._systemTime;
+			passedTime = currentTime - this._systemTime
 		}
 
-		this._systemTime = currentTime;
+		this._systemTime = currentTime
 
-		if (this.timeScale !== 1.0) {
-			passedTime *= this.timeScale;
+		if (this.timeScale != 1.0) {
+			passedTime *= this.timeScale
 		}
 
-		if (passedTime === 0.0) {
-			return;
+		if (passedTime == 0.0) {
+			return
 		}
 
 		if (passedTime < 0.0) {
-			this.time -= passedTime;
+			this.time -= passedTime
 		}
 		else {
-			this.time += passedTime;
+			this.time += passedTime
 		}
 
-		var i = 0, r = 0, l = this._animatebles.length;
-		for (; i < l; ++i) {
-			val animatable = this._animatebles[i];
+		var r = 0
+		for (i in 0 until this._animatebles.size) {
+			val animatable = this._animatebles[i]
 			if (animatable !== null) {
 				if (r > 0) {
-					this._animatebles[i - r] = animatable;
-					this._animatebles[i] = null;
+					this._animatebles[i - r] = animatable
+					this._animatebles[i] = null
 				}
 
-				animatable.advanceTime(passedTime);
+				animatable.advanceTime(passedTime)
 			}
 			else {
-				r++;
+				r++
 			}
 		}
 
 		if (r > 0) {
-			l = this._animatebles.length;
-			for (; i < l; ++i) {
-				val animateble = this._animatebles[i];
+			for (i in 0 until this._animatebles.size) {
+				val animateble = this._animatebles[i]
 				if (animateble !== null) {
-					this._animatebles[i - r] = animateble;
+					this._animatebles[i - r] = animateble
 				}
 				else {
-					r++;
+					r++
 				}
 			}
 
-			this._animatebles.length -= r;
+			this._animatebles.size -= r
 		}
 	}
 	/**
@@ -167,17 +166,17 @@ class WorldClock : IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public contains(value: IAnimatable): Boolean {
+	fun contains(value: IAnimatable): Boolean {
 		if (value === this) {
-			return false;
+			return false
 		}
 
-		var ancestor: IAnimatable? = value;
+		var ancestor: IAnimatable? = value
 		while (ancestor !== this && ancestor !== null) {
-			ancestor = ancestor.clock;
+			ancestor = ancestor.clock
 		}
 
-		return ancestor === this;
+		return ancestor === this
 	}
 	/**
 	 * - Add IAnimatable instance.
@@ -191,10 +190,10 @@ class WorldClock : IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public add(value: IAnimatable): Unit {
+	fun add(value: IAnimatable): Unit {
 		if (this._animatebles.indexOf(value) < 0) {
-			this._animatebles.push(value);
-			value.clock = this;
+			this._animatebles.add(value)
+			value.clock = this
 		}
 	}
 	/**
@@ -209,11 +208,11 @@ class WorldClock : IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public remove(value: IAnimatable): Unit {
-		val index = this._animatebles.indexOf(value);
+	fun remove(value: IAnimatable): Unit {
+		val index = this._animatebles.indexOf(value)
 		if (index >= 0) {
-			this._animatebles[index] = null;
-			value.clock = null;
+			this._animatebles[index] = null
+			value.clock = null
 		}
 	}
 	/**
@@ -226,32 +225,33 @@ class WorldClock : IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public clear(): Unit {
+	fun clear(): Unit {
 		for (animatable in this._animatebles) {
 			if (animatable !== null) {
-				animatable.clock = null;
+				animatable.clock = null
 			}
 		}
 	}
+
 	/**
 	 * @inheritDoc
 	 */
-	public get clock(): WorldClock? {
-		return this._clock;
+	var clock: WorldClock? get() {
+		return this._clock
 	}
-	public set clock(value: WorldClock?) {
+	set(value: WorldClock?) {
 		if (this._clock === value) {
-			return;
+			return
 		}
 
 		if (this._clock !== null) {
-			this._clock.remove(this);
+			this._clock.remove(this)
 		}
 
-		this._clock = value;
+		this._clock = value
 
 		if (this._clock !== null) {
-			this._clock.add(this);
+			this._clock.add(this)
 		}
 	}
 }
