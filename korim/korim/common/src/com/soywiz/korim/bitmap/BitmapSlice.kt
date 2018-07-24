@@ -6,14 +6,14 @@ import com.soywiz.korma.geom.*
 
 interface BmpSlice : Extra {
 	val bmp: Bitmap
-	val x0: Float
-	val y0: Float
-	val x1: Float
-	val y1: Float
-	val x2: Float
-	val y2: Float
-	val x3: Float
-	val y3: Float
+	val tl_x: Float
+	val tl_y: Float
+	val tr_x: Float
+	val tr_y: Float
+	val bl_x: Float
+	val bl_y: Float
+	val br_x: Float
+	val br_y: Float
 	val left: Int
 	val top: Int
 	val width: Int
@@ -28,17 +28,17 @@ class BitmapSlice<out T : Bitmap>(override val bmp: T, val bounds: RectangleInt)
 	override val width get() = bounds.width
 	override val height get() = bounds.height
 
-	override val x0 = left.toFloat() / bmp.width.toFloat()
-	override val y0 = top.toFloat() / bmp.height.toFloat()
+	override val tl_x = left.toFloat() / bmp.width.toFloat()
+	override val tl_y = top.toFloat() / bmp.height.toFloat()
 
-	override val x3 = right.toFloat() / bmp.width.toFloat()
-	override val y3 = bottom.toFloat() / bmp.height.toFloat()
+	override val br_x = right.toFloat() / bmp.width.toFloat()
+	override val br_y = bottom.toFloat() / bmp.height.toFloat()
 
-	override val x1 = x3
-	override val y1 = y0
+	override val tr_x = br_x
+	override val tr_y = tl_y
 
-	override val x2 = x0
-	override val y2 = y0
+	override val bl_x = tl_x
+	override val bl_y = br_y
 
 	fun extract(): T = bmp.extract(bounds.x, bounds.y, bounds.width, bounds.height)
 

@@ -25,6 +25,7 @@ open class Container : View() {
 	fun addChild(view: View) = this.plusAssign(view)
 
 	override fun invalidate() {
+		dirtyVertices = true
 		validGlobal = false
 		for (child in children) {
 			if (!child.validGlobal) continue

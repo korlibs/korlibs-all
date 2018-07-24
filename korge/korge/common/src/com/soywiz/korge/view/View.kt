@@ -31,7 +31,16 @@ import kotlin.reflect.*
 annotation class ViewsDslMarker
 
 open class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by EventDispatcher.Mixin() {
-	interface Reference // Viewport
+	/**
+	 * Views marked with this, break batching by acting as reference point for computing vertices.
+	 * Specially useful for containers whose most of their child are less likely to change but the container
+	 * itself is going to change like cameras, viewports and the Stage.
+	 */
+	interface Reference // View that breaks batching Viewport
+
+	enum class HitTestType {
+		BOUNDING, SHAPE
+	}
 
 	companion object {
 		fun commonAncestor(left: View?, right: View?): View? {
@@ -183,7 +192,7 @@ open class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by EventDi
 		invalidate()
 	}
 
-	// Properties
+	// region Properties
 	private val _props = linkedMapOf<String, String>()
 	val props: Map<String, String> get() = _props
 
@@ -203,6 +212,7 @@ open class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by EventDi
 	fun addProps(values: Map<String, String>) {
 		for (pair in values) addProp(pair.key, pair.value)
 	}
+	// endregion
 
 	private val tempTransform = Matrix2d.Transform()
 	//private val tempMatrix = Matrix2d()
@@ -219,12 +229,6 @@ open class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by EventDi
 			this._skewY = t.skewY
 			this._rotation = t.rotation
 		}
-	}
-
-	@Suppress("NOTHING_TO_INLINE")
-	inline fun setXY(x: Number, y: Number) {
-		this.x = x.toDouble()
-		this.y = y.toDouble()
 	}
 
 	val root: View get() = parent?.root ?: this
@@ -270,6 +274,7 @@ open class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by EventDi
 
 	val unsafeListRawComponents get() = components
 
+// region Components
 	private var components: ArrayList<Component>? = null
 	private var _componentsIt: ArrayList<Component>? = null
 	private val componentsIt: ArrayList<Component>?
@@ -325,6 +330,7 @@ open class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by EventDi
 		}
 		return component!! as T
 	}
+// endregion
 
 	var localMatrix: Matrix2d
 		get() {
@@ -386,8 +392,11 @@ open class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by EventDi
 		invalidate()
 	}
 
+	protected var dirtyVertices = false
+
 	open fun invalidate() {
 		validGlobal = false
+		dirtyVertices = true
 	}
 
 	fun render(ctx: RenderContext) {
@@ -423,10 +432,6 @@ open class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by EventDi
 	fun localToGlobalXY(x: Double, y: Double, out: MPoint2d = MPoint2d()): MPoint2d = globalMatrix.transform(x, y, out)
 	fun localToGlobalX(x: Double, y: Double): Double = globalMatrix.transformX(x, y)
 	fun localToGlobalY(x: Double, y: Double): Double = globalMatrix.transformY(x, y)
-
-	enum class HitTestType {
-		BOUNDING, SHAPE
-	}
 
 	fun hitTest(x: Double, y: Double, type: HitTestType): View? = when (type) {
 		HitTestType.SHAPE -> hitTest(x, y)
@@ -547,9 +552,7 @@ open class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by EventDi
 
 	fun getLocalBounds(out: Rectangle = Rectangle()) = out.apply { getLocalBoundsInternal(out) }
 
-	open fun getLocalBoundsInternal(out: Rectangle = Rectangle()) {
-		out.setTo(0, 0, 0, 0)
-	}
+	open fun getLocalBoundsInternal(out: Rectangle = Rectangle()): Unit = run { out.setTo(0, 0, 0, 0) }
 
 	protected open fun createInstance(): View =
 		throw MustOverrideException("Must Override ${this::class}.createInstance()")
@@ -695,6 +698,10 @@ fun View?.descendantsWith(out: ArrayList<View> = arrayListOf(), check: (View) ->
 	}
 	return out
 }
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun <T : View> T.setXY(x: Number, y: Number): T =
+	this.apply { this.x = x.toDouble() }.apply { this.y = y.toDouble() }
 
 inline fun <T : View> T.position(x: Number, y: Number): T =
 	this.apply { this.x = x.toDouble() }.apply { this.y = y.toDouble() }

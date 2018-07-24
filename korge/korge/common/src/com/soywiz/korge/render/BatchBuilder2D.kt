@@ -90,6 +90,7 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 
 	init { logger.trace { "BatchBuilder2D[11]" } }
 
+	// @TODO: copy data from TexturedVertexArray
 	private fun addVertex(x: Float, y: Float, u: Float, v: Float, colorMul: Int, colorAdd: Int) {
 		vertices.setAlignedFloat32(vertexPos++, x)
 		vertices.setAlignedFloat32(vertexPos++, y)
@@ -102,6 +103,15 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 
 	private fun addIndex(idx: Int) {
 		indices.setAlignedInt16(indexPos++, idx.toShort())
+	}
+
+	private fun addIndices(i0: Int, i1: Int, i2: Int, i3: Int, i4: Int, i5: Int) {
+		addIndex(i0)
+		addIndex(i1)
+		addIndex(i2)
+		addIndex(i3)
+		addIndex(i4)
+		addIndex(i5)
 	}
 
 	// 0..1
@@ -143,6 +153,22 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 			addVertex(x2, y2, tex.x1, tex.y1, colorMul, colorAdd)
 			addVertex(x3, y3, tex.x0, tex.y1, colorMul, colorAdd)
 		}
+	}
+
+	fun drawVertices(array: TexturedVertexArray) {
+		ensure(array.indices.size, array.vcount)
+
+		for (idx in array.indices) addIndex(vertexCount + idx)
+		//for (p in array.points) addVertex(p.x, p.y, p.tx, p.ty, p.colMul, p.colAdd)
+
+		vertices.setAlignedArrayInt32(vertexPos, array.data, 0, array.vcount * 6)
+		vertexCount += array.vcount
+		vertexPos += array.vcount * 6
+	}
+
+	fun drawVertices(array: TexturedVertexArray, tex: Texture.Base, smoothing: Boolean, blendFactors: AG.Blending) {
+		setStateFast(tex, smoothing, blendFactors)
+		drawVertices(array)
 	}
 
 	private fun ensure(indices: Int, vertices: Int) {
@@ -378,5 +404,33 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 		vertexPos = 0
 		indexPos = 0
 		currentTex = null
+	}
+}
+
+// @TODO: Call this mesh?
+class TexturedVertexArray(val vcount: Int, val indices: IntArray) {
+	internal val data = IntArray(COMPONENTS_PER_VERTEX * vcount)
+	val points = (0 until vcount).map { Item(data, it) }
+	//val icount = indices.size
+
+	companion object {
+		val COMPONENTS_PER_VERTEX = 6
+		val QUAD_INDICES = intArrayOf(0, 1, 2,  3, 0, 2)
+	}
+
+	class Item(private val data: IntArray, index: Int) {
+		val offset = index * COMPONENTS_PER_VERTEX
+		var x: Float; get() = Float.fromBits(data[offset + 0]); set(v) = run { data[offset + 0] = v.toBits() }
+		var y: Float; get() = Float.fromBits(data[offset + 1]); set(v) = run { data[offset + 1] = v.toBits() }
+		var tx: Float; get() = Float.fromBits(data[offset + 2]); set(v) = run { data[offset + 2] = v.toBits() }
+		var ty: Float; get() = Float.fromBits(data[offset + 3]); set(v) = run { data[offset + 3] = v.toBits() }
+		var colMul: Int; get() = data[offset + 4]; set(v) = run { data[offset + 4] = v }
+		var colAdd: Int; get() = data[offset + 5]; set(v) = run { data[offset + 5] = v }
+		fun setXY(x: Double, y: Double, matrix: Matrix2d) = this.apply {
+			this.x = matrix.transformX(x, y).toFloat()
+			this.y = matrix.transformY(x, y).toFloat()
+		}
+		fun setTXY(tx: Float, ty: Float) = this.apply { this.tx = tx }.also { this.ty = ty }
+		fun setCols(colMul: Int, colAdd: Int) = this.apply { this.colMul = colMul }.also { this.colAdd = colAdd }
 	}
 }
