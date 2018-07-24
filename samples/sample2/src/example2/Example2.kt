@@ -8,17 +8,11 @@ import com.soywiz.korui.react.*
 import com.soywiz.korui.style.*
 import com.soywiz.korui.ui.*
 
-fun main(args: Array<String>) = Application {
-    //Logger.defaultLevel = Logger.Level.TRACE
-    //Logger("korui-application").level = Logger.Level.TRACE
-    reactFrame(ReactApp(), MyState(count = 0), "HELLO")
-
-}
+fun main(args: Array<String>) = Application { reactFrame(ReactApp(), MyState(count = 0), "HELLO") }
 
 data class MyState(val count: Int = 0, val slider: Int = 50)
 
 class ReactApp : ReactComponent<MyState>() {
-    // @TODO: VirtualDOM (to prevent regenerating slider)
     override suspend fun Container.render() {
         tabPane {
             page("Main") {

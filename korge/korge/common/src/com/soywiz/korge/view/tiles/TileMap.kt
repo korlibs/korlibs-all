@@ -67,7 +67,7 @@ open class TileMap(val map: IntArray2, val tileset: TileSet) : View() {
 				}
 
 				tempPointPool {
-					val p0 = pos + (dU * x.toDouble()) + (dV * y.toDouble())
+					val p0 = pos + (dU * x) + (dV * y)
 					val p1 = p0 + dU
 					val p2 = p0 + dU + dV
 					val p3 = p0 + dV

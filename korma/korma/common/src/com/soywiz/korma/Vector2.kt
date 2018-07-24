@@ -221,19 +221,22 @@ val Vector2Int.immutable: Vector2Int get() = Vector2Int(x, y)
 val Vector2.int get() = Vector2Int(x.toInt(), y.toInt())
 val Vector2Int.double get() = Vector2(x.toDouble(), y.toDouble())
 
+@Suppress("NOTHING_TO_INLINE")
 class MVector2Area(val size: Int) {
 	val points = (0 until size).map { MPoint2d() }
 	var offset = 0
 
-	private fun alloc() = points[offset++]
-	operator fun Vector2.plus(other: Vector2): MVector2 = alloc().setToAdd(this, other)
-	operator fun Vector2.minus(other: Vector2): MVector2 = alloc().setToSub(this, other)
+	@PublishedApi
+	internal fun alloc() = points[offset++]
 
-	operator fun Vector2.times(value: Vector2): MVector2 = alloc().setToMul(this, value)
-	operator fun Vector2.times(value: Double): MVector2 = alloc().setToMul(this, value)
+	operator fun Vector2.plus(other: Vector2): Vector2 = alloc().setToAdd(this, other)
+	operator fun Vector2.minus(other: Vector2): Vector2 = alloc().setToSub(this, other)
 
-	operator fun Vector2.div(value: Vector2): MVector2 = alloc().setToDiv(this, value)
-	operator fun Vector2.div(value: Double): MVector2 = alloc().setToDiv(this, value)
+	operator fun Vector2.times(value: Vector2): Vector2 = alloc().setToMul(this, value)
+	inline operator fun Vector2.times(value: Number): Vector2 = alloc().setToMul(this, value.toDouble())
+
+	operator fun Vector2.div(value: Vector2): Vector2 = alloc().setToDiv(this, value)
+	inline operator fun Vector2.div(value: Number): Vector2 = alloc().setToDiv(this, value.toDouble())
 
 	operator fun invoke(callback: MVector2Area.() -> Unit) {
 		val oldOffset = offset
@@ -244,5 +247,3 @@ class MVector2Area(val size: Int) {
 		}
 	}
 }
-
-//val vector2Pool = Pool<MVector2> { MVector2() }
