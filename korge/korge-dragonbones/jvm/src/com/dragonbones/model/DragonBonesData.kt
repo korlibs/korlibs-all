@@ -24,6 +24,7 @@ package com.dragonbones.model
 
 import com.dragonbones.core.*
 import com.dragonbones.util.*
+import com.soywiz.kds.*
 
 /**
  * - The DragonBones data.
@@ -93,7 +94,7 @@ class DragonBonesData  : BaseObject() {
 	/**
 	 * @internal
 	 */
-	public val cachedFrames:  DoubleArray = []
+	public val cachedFrames:  DoubleArrayList = DoubleArrayList()
 	/**
 	 * - All armature data names.
 	 * @version DragonBones 3.0

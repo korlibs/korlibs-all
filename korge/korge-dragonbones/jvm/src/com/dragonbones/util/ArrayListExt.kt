@@ -9,20 +9,15 @@ var DoubleArrayList.lengthSet
 		while (size < value) this.add(0.0)
 	}
 
-var DoubleArrayList.size
-	get() = size
-	set(value) = if (value == 0) clear() else {
-		while (size > value) this.removeAt(size - 1)
-		while (size < value) this.add(0.0)
-	}
-
-var <T> ArrayList<T>.length
+var <T> ArrayList<T>.lengthSet
 	get() = size
 	set(value) = if (value == 0) clear() else {
 		while (size > value) this.removeAt(size - 1)
 		@Suppress("UNCHECKED_CAST")
 		while (size < value) (this as ArrayList<T?>).add(null)
 	}
+
+var <T> ArrayList<T>.length; get() = size; set(value) = run { lengthSet = value }
 
 //@Deprecated("", ReplaceWith("this.add(value)"))
 fun <T> ArrayList<T>.push(value: T) {

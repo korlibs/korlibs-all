@@ -35,8 +35,8 @@ import com.dragonbones.core.*
  * @language zh_CN
  */
 class SkinData  : BaseObject() {
-	public override fun toString(): String {
-		return "[class dragonBones.SkinData]";
+	override fun toString(): String {
+		return "[class dragonBones.SkinData]"
 	}
 	/**
 	 * - The skin name.
@@ -48,70 +48,73 @@ class SkinData  : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public var name: String = ""
+	var name: String = ""
 	/**
 	 * @private
 	 */
-	public val displays: LinkedHashMap<String, ArrayList<DisplayData?>> = {};
+	val displays: LinkedHashMap<String, ArrayList<DisplayData?>> = {}
 	/**
 	 * @private
 	 */
-	public var parent: ArmatureData;
+	var parent: ArmatureData
 
 	protected fun _onClear(): Unit {
 		for (k in this.displays.keys) {
-			val slotDisplays = this.displays[k];
+			val slotDisplays = this.displays[k]
 			for (display in slotDisplays) {
 				if (display !== null) {
-					display.returnToPool();
+					display.returnToPool()
 				}
 			}
 
-			delete this.displays[k];
+			delete this.displays[k]
 		}
 
-		this.name = "";
+		this.name = ""
 		// this.displays.clear();
-		this.parent = null as any; //
+		this.parent = null as any //
 	}
+
 	/**
 	 * @internal
 	 */
-	public fun addDisplay(slotName: String, value: DisplayData?): Unit {
+	fun addDisplay(slotName: String, value: DisplayData?): Unit {
 		if (!(slotName in this.displays)) {
-			this.displays[slotName] = [];
+			this.displays[slotName] = arrayListOf()
 		}
 
 		if (value !== null) {
-			value.parent = this;
+			value.parent = this
 		}
 
-		val slotDisplays = this.displays[slotName]; // TODO clear prev
-		slotDisplays?.add(value);
+		val slotDisplays = this.displays[slotName] // TODO clear prev
+		slotDisplays?.add(value)
 	}
+
 	/**
 	 * @private
 	 */
-	public fun getDisplay(slotName: String, displayName: String): DisplayData? {
-		val slotDisplays = this.getDisplays(slotName);
+	fun getDisplay(slotName: String, displayName: String): DisplayData? {
+		val slotDisplays = this.getDisplays(slotName)
 		if (slotDisplays !== null) {
 			for (display in slotDisplays) {
 				if (display !== null && display.name === displayName) {
-					return display;
+					return display
 				}
 			}
 		}
 
-		return null;
+		return null
 	}
+
 	/**
 	 * @private
 	 */
-	public fun getDisplays(slotName: String): ArrayList<DisplayData?>? {
+	fun getDisplays(slotName: String): ArrayList<DisplayData?>? {
 		if (!(slotName in this.displays)) {
-			return null;
+			return null
 		}
 
-		return this.displays[slotName];
+		return this.displays[slotName]
 	}
 }

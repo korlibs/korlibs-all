@@ -888,7 +888,7 @@ abstract class BaseFactory {
 				}
 			}
 
-			slot.displayFrameCount = displayDatas.length
+			slot.displayFrameCount = displayDatas.lengthSet
 			for (var i = 0, l = slot.displayFrameCount; i < l; ++i) {
 				val displayData = displayDatas[i]
 			slot.replaceRawDisplayData(displayData, i)
@@ -973,7 +973,7 @@ abstract class BaseFactory {
 			for (display in slot.displayList) {
 				if (display instanceof Armature) {
 					val displayDatas = skinData.getDisplays(slot.name)
-					if (displayDatas !== null && index < displayDatas.length) {
+					if (displayDatas !== null && index < displayDatas.lengthSet) {
 						val displayData = displayDatas[index]
 						if (displayData !== null && displayData.type === DisplayType.Armature) {
 							val childArmatureData = this.getArmatureData(displayData.path, displayData.parent.parent.parent.name)

@@ -758,7 +758,7 @@ class AnimationState : BaseObject() {
 		}
 
 		if (animationConfig.boneMask.length > 0) {
-			this._boneMask.length = animationConfig.boneMask.length
+			this._boneMask.lengthSet = animationConfig.boneMask.length
 			for (var i = 0, l = this._boneMask.length; i < l; ++i) {
 				this._boneMask[i] = animationConfig.boneMask[i]
 			}
@@ -932,7 +932,7 @@ class AnimationState : BaseObject() {
 				}
 			}
 
-			if (this._animationTimelines.length > 0) {
+			if (this._animationTimelines.lengthSet > 0) {
 				var dL = 100.0
 				var dR = 100.0
 				var leftState: AnimationState? = null
@@ -994,7 +994,7 @@ class AnimationState : BaseObject() {
 			if (this._subFadeState > 0) {
 				this._subFadeState = 0
 
-				if (this._poseTimelines.length > 0) { // Remove pose timelines.
+				if (this._poseTimelines.lengthSet > 0) { // Remove pose timelines.
 					for (timeline in this._poseTimelines) {
 						var index = this._boneTimelines.indexOf(timeline)
 						if (index >= 0) {
@@ -1032,7 +1032,7 @@ class AnimationState : BaseObject() {
 						}
 					}
 
-					this._poseTimelines.length = 0
+					this._poseTimelines.lengthSet = 0
 				}
 			}
 
@@ -1150,7 +1150,7 @@ class AnimationState : BaseObject() {
 	 * @language zh_CN
 	 */
 	public fun containsBoneMask(boneName: String): Boolean {
-		return this._boneMask.length === 0 || this._boneMask.indexOf(boneName) >= 0
+		return this._boneMask.lengthSet === 0 || this._boneMask.indexOf(boneName) >= 0
 	}
 	/**
 	 * - Add a specific bone mask.
@@ -1210,7 +1210,7 @@ class AnimationState : BaseObject() {
 			val currentBone = this._armature.getBone(boneName)
 			if (currentBone !== null) {
 				val bones = this._armature.getBones()
-				if (this._boneMask.length > 0) { // Remove recursive mixing.
+				if (this._boneMask.lengthSet > 0) { // Remove recursive mixing.
 					for (bone in bones) {
 						val index = this._boneMask.indexOf(bone.name)
 						if (index >= 0 && currentBone.contains(bone)) {
@@ -1245,7 +1245,7 @@ class AnimationState : BaseObject() {
 	 * @language zh_CN
 	 */
 	public fun removeAllBoneMask(): Unit {
-		this._boneMask.length = 0
+		this._boneMask.lengthSet = 0
 		this._timelineDirty = 1
 	}
 	/**

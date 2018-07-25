@@ -167,10 +167,10 @@ class Armature  : BaseObject(), IAnimatable {
 		this._cacheFrameIndex = -1
 		this._alpha = 1.0
 		this._globalAlpha = 1.0
-		this._bones.length = 0
-		this._slots.length = 0
-		this._constraints.length = 0
-		this._actions.length = 0
+		this._bones.lengthSet = 0
+		this._slots.lengthSet = 0
+		this._constraints.lengthSet = 0
+		this._actions.lengthSet = 0
 		this._armatureData = null as any //
 		this._animation = null as any //
 		this._proxy = null as any //
@@ -189,7 +189,7 @@ class Armature  : BaseObject(), IAnimatable {
 		val isOriginal = slotIndices === null
 
 		if (this._zOrderDirty || !isOriginal) {
-			val l = slotDatas.length
+			val l = slotDatas.lengthSet
 			for (i in 0 until l) {
 				val slotIndex = if (isOriginal) i else (slotIndices as  DoubleArray)[offset + i]
 				if (slotIndex < 0 || slotIndex >= l) {
@@ -319,7 +319,7 @@ class Armature  : BaseObject(), IAnimatable {
 			this._slots.sort(Armature._onSortSlots)
 
 			if (this._zIndexDirty) {
-				for (i in 0 until this._slots.length) {
+				for (i in 0 until this._slots.lengthSet) {
 ¡					this._slots[i]._setZOrder(i) //
 				}
 			}
@@ -352,7 +352,7 @@ class Armature  : BaseObject(), IAnimatable {
 			}
 		}
 		// Do actions.
-		if (this._actions.length > 0) {
+		if (this._actions.lengthSet > 0) {
 			for (action in  this._actions) {
 				val actionData = action.actionData
 				if (actionData !== null) {
@@ -382,7 +382,7 @@ class Armature  : BaseObject(), IAnimatable {
 				action.returnToPool()
 			}
 
-			this._actions.length = 0
+			this._actions.lengthSet = 0
 		}
 
 		this._lockUpdate = false

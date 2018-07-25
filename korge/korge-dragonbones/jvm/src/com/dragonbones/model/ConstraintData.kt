@@ -9,10 +9,10 @@
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
  * the Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
@@ -22,87 +22,92 @@
  */
 package com.dragonbones.model
 
+import com.dragonbones.core.*
+import com.dragonbones.util.*
+
 /**
  * @private
  */
-abstract class ConstraintData  :  BaseObject {
-	var order: Double;
-	var name: String;
-	var type: ConstraintType
+abstract class ConstraintData : BaseObject() {
+	var order: Int = 0
+	var name: String = ""
+	var type: ConstraintType = ConstraintType.IK
 	var target: BoneData
 	var root: BoneData
-	var bone: BoneData?
+	var bone: BoneData? = null
 
-	fun _onClear(): Unit {
-		this.order = 0;
-		this.name = "";
-		this.type = ConstraintType.IK;
-		this.target = null as any; //
-		this.root = null as any; //
-		this.bone = null;
+	override fun _onClear(): Unit {
+		this.order = 0
+		this.name = ""
+		this.type = ConstraintType.IK
+		this.target = null as any //
+		this.root = null as any //
+		this.bone = null
 	}
 }
+
 /**
  * @internal
  */
-class IKConstraintData  :  ConstraintData {
+class IKConstraintData : ConstraintData() {
 	override fun toString(): String {
-		return "[class dragonBones.IKConstraintData]";
+		return "[class dragonBones.IKConstraintData]"
 	}
 
-	varscaleEnabled: Boolean;
-	varbendPositive: Boolean;
-	varweight: Double;
+	var scaleEnabled: Boolean = false
+	var bendPositive: Boolean = false
+	var weight: Double = 1.0
 
-	fun _onClear(): Unit {
-		super._onClear();
+	override fun _onClear(): Unit {
+		super._onClear()
 
-		this.scaleEnabled = false;
-		this.bendPositive = false;
-		this.weight = 1.0;
+		this.scaleEnabled = false
+		this.bendPositive = false
+		this.weight = 1.0
 	}
 }
+
 /**
  * @internal
  */
-class PathConstraintData  :  ConstraintData {
-	public static toString(): String {
-		return "[class dragonBones.PathConstraintData]";
+class PathConstraintData : ConstraintData() {
+	override fun toString(): String {
+		return "[class dragonBones.PathConstraintData]"
 	}
 
-	public pathSlot : SlotData;
-	public pathDisplayData : PathDisplayData;
-	public bones : Array<BoneData> = [];
+	var pathSlot: SlotData
+	var pathDisplayData: PathDisplayData
+	var bones: ArrayList<BoneData> = arrayListOf()
 
-	public positionMode : PositionMode;
-	public spacingMode : SpacingMode;
-	public rotateMode : RotateMode;
+	var positionMode: PositionMode = PositionMode.Fixed
+	var spacingMode: SpacingMode = SpacingMode.Fixed
+	var rotateMode: RotateMode = RotateMode.Chain
 
-	public position : Double;
-	public spacing : Double;
-	public rotateOffset : Double;
-	public rotateMix : Double;
-	public translateMix : Double;
+	var position: Double = 0.0
+	var spacing: Double = 0.0
+	var rotateOffset: Double = 0.0
+	var rotateMix: Double = 0.0
+	var translateMix: Double = 0.0
 
-	protected _onClear() : Unit {
-		super._onClear();
+	override fun _onClear() {
+		super._onClear()
 
-		this.pathSlot = null as any;
-		this.pathDisplayData = null as any;
-		this.bones.length = 0;
+		this.pathSlot = null as any
+		this.pathDisplayData = null as any
+		this.bones.lengthSet = 0
 
-		this.positionMode = PositionMode.Fixed;
-		this.spacingMode = SpacingMode.Fixed;
-		this.rotateMode = RotateMode.Chain;
+		this.positionMode = PositionMode.Fixed
+		this.spacingMode = SpacingMode.Fixed
+		this.rotateMode = RotateMode.Chain
 
-		this.position = 0.0;
-		this.spacing = 0.0;
-		this.rotateOffset = 0.0;
-		this.rotateMix = 0.0;
-		this.translateMix = 0.0;
+		this.position = 0.0
+		this.spacing = 0.0
+		this.rotateOffset = 0.0
+		this.rotateMix = 0.0
+		this.translateMix = 0.0
 	}
 
-	public AddBone(value : BoneData) : Unit {
-		this.bones.push(value);
+	fun AddBone(value: BoneData): Unit {
+		this.bones.push(value)
 	}
 }

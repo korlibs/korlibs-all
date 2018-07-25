@@ -9,10 +9,10 @@
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
  * the Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
@@ -22,27 +22,29 @@
  */
 package com.dragonbones.model
 
+import com.dragonbones.core.*
+
 /**
  * @private
  */
-class CanvasData  :  BaseObject {
-	public static toString(): String {
-		return "[class dragonBones.CanvasData]";
+class CanvasData : BaseObject() {
+	override fun toString(): String {
+		return "[class dragonBones.CanvasData]"
 	}
 
-	public hasBackground: Boolean;
-	public color: Double;
-	public x: Double;
-	public y: Double;
-	public width: Double;
-	public height: Double;
+	var hasBackground: Boolean = false
+	var color: Int = 0x000000
+	var x: Int = 0
+	var y: Int = 0
+	var width: Int = 0
+	var height: Int = 0
 
-	protected _onClear(): Unit {
-		this.hasBackground = false;
-		this.color = 0x000000;
-		this.x = 0;
-		this.y = 0;
-		this.width = 0;
-		this.height = 0;
+	override fun _onClear() {
+		this.hasBackground = false
+		this.color = 0x000000
+		this.x = 0
+		this.y = 0
+		this.width = 0
+		this.height = 0
 	}
 }

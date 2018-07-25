@@ -125,7 +125,7 @@ abstract class BaseObject {
 				val classType = String(objectConstructor)
 				val pool = if (classType in BaseObject._poolsMap) BaseObject._poolsMap[classType] else null
 				if (pool != null && pool.size > 0) {
-					pool.length = 0
+					pool.lengthSet = 0
 				}
 			}
 			else {

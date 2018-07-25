@@ -409,7 +409,7 @@ abstract class Slot  :  TransformObject() {
 		this._boundingBoxData = null
 		this._textureData = null
 
-		if (this._displayIndex >= 0 && this._displayIndex < this._displayFrames.length) {
+		if (this._displayIndex >= 0 && this._displayIndex < this._displayFrames.lengthSet) {
 			this._displayFrame = this._displayFrames[this._displayIndex]
 			rawDisplayData = this._displayFrame.rawDisplayData
 			displayData = this._displayFrame.displayData
@@ -501,14 +501,14 @@ abstract class Slot  :  TransformObject() {
 					this._geometryBones.clear()
 					val gd = this._geometryData!!.weight
 					if (gd !== null) {
-						for (i in 0 until gd.bones.length) {
+						for (i in 0 until gd.bones.lengthSet) {
 							val bone = this._armature.getBone(gd.bones[i].name)
 							this._geometryBones.push(bone)
 						}
 					}
 				}
 				else {
-					this._geometryBones.length = 0
+					this._geometryBones.lengthSet = 0
 					this._geometryData = null
 				}
 			}
@@ -581,7 +581,7 @@ abstract class Slot  :  TransformObject() {
 							actions = (displayData as ArmatureDisplayData).actions
 						}
 
-						if (actions !== null && actions.length > 0) {
+						if (actions !== null && actions.lengthSet > 0) {
 							for (action in actions) {
 								val eventObject = BaseObject.borrowObject<EventObject>()
 								EventObject.actionDataToInstance(action, eventObject, this._armature)
@@ -627,7 +627,7 @@ abstract class Slot  :  TransformObject() {
 			return
 		}
 
-		this._displayIndex = if (value < this._displayFrames.length) value else this._displayFrames.length - 1
+		this._displayIndex = if (value < this._displayFrames.lengthSet) value else this._displayFrames.lengthSet - 1
 		this._displayDataDirty = true
 		this._displayDirty = this._displayIndex < 0 || this._display !== this._displayFrames[this._displayIndex].display
 	}
@@ -839,7 +839,7 @@ abstract class Slot  :  TransformObject() {
 		if (index < 0) {
 			index = if (this._displayIndex < 0) 0 else this._displayIndex
 		}
-		else if (index >= this._displayFrames.length) {
+		else if (index >= this._displayFrames.lengthSet) {
 			return
 		}
 
@@ -851,7 +851,7 @@ abstract class Slot  :  TransformObject() {
 				val defaultSkin = this._armature._armatureData.defaultSkin
 				if (defaultSkin !== null) {
 					val defaultRawDisplayDatas = defaultSkin.getDisplays(this._slotData.name)
-					if (defaultRawDisplayDatas !== null && index < defaultRawDisplayDatas.length) {
+					if (defaultRawDisplayDatas !== null && index < defaultRawDisplayDatas.lengthSet) {
 						displayFrame.rawDisplayData = defaultRawDisplayDatas[index]
 					}
 				}
@@ -870,7 +870,7 @@ abstract class Slot  :  TransformObject() {
 		if (index < 0) {
 			index = this._displayIndex < 0 ? 0 : this._displayIndex
 		}
-		else if (index >= this._displayFrames.length) {
+		else if (index >= this._displayFrames.lengthSet) {
 			return
 		}
 
@@ -891,7 +891,7 @@ abstract class Slot  :  TransformObject() {
 		if (index < 0) {
 			index = if (this._displayIndex < 0) 0 else this._displayIndex
 		}
-		else if (index >= this._displayFrames.length) {
+		else if (index >= this._displayFrames.lengthSet) {
 			return
 		}
 
@@ -912,7 +912,7 @@ abstract class Slot  :  TransformObject() {
 		if (index < 0) {
 			index = this._displayIndex < 0 ? 0 : this._displayIndex
 		}
-		else if (index >= this._displayFrames.length) {
+		else if (index >= this._displayFrames.lengthSet) {
 			return
 		}
 
@@ -1098,12 +1098,12 @@ abstract class Slot  :  TransformObject() {
 	 * @private
 	 */
 	var displayFrameCount: Int get() {
-		return this._displayFrames.length
+		return this._displayFrames.lengthSet
 	}
 	set(value: Double) {
-		val prevCount = this._displayFrames.length
+		val prevCount = this._displayFrames.lengthSet
 		if (prevCount < value) {
-			this._displayFrames.length = value
+			this._displayFrames.lengthSet = value
 
 			for (var i = prevCount; i < value; ++i) {
 				this._displayFrames[i] = BaseObject.borrowObject<DisplayFrame>()
@@ -1115,7 +1115,7 @@ abstract class Slot  :  TransformObject() {
 				this._displayFrames[i].returnToPool()
 			}
 
-			this._displayFrames.length = value
+			this._displayFrames.lengthSet = value
 		}
 	}
 	/**
@@ -1263,7 +1263,7 @@ abstract class Slot  :  TransformObject() {
 			return
 		}
 
-		if (this._displayFrames.length === 0) {
+		if (this._displayFrames.lengthSet === 0) {
 			this.displayFrameCount = 1
 			this._displayIndex = 0
 		}

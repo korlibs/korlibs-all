@@ -24,6 +24,7 @@ package com.dragonbones.model
 
 import com.dragonbones.core.*
 import com.dragonbones.geom.*
+import com.dragonbones.util.*
 
 /**
  * - The armature data.
@@ -88,43 +89,43 @@ class ArmatureData  : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	val animationNames: ArrayList<String> = []
+	val animationNames: ArrayList<String> = arrayListOf()
 	/**
 	 * @private
 	 */
-	val sortedBones: ArrayList<BoneData> = []
+	val sortedBones: ArrayList<BoneData> = arrayListOf()
 	/**
 	 * @private
 	 */
-	val sortedSlots: ArrayList<SlotData> = []
+	val sortedSlots: ArrayList<SlotData> = arrayListOf()
 	/**
 	 * @private
 	 */
-	val defaultActions: ArrayList<ActionData> = []
+	val defaultActions: ArrayList<ActionData> = arrayListOf()
 	/**
 	 * @private
 	 */
-	val actions: ArrayList<ActionData> = []
+	val actions: ArrayList<ActionData> = arrayListOf()
 	/**
 	 * @private
 	 */
-	val bones: LinkedHashMap<String, BoneData> = {}
+	val bones: LinkedHashMap<String, BoneData> = LinkedHashMap()
 	/**
 	 * @private
 	 */
-	val slots: LinkedHashMap<String, SlotData> = {}
+	val slots: LinkedHashMap<String, SlotData> = LinkedHashMap()
 	/**
 	 * @private
 	 */
-	val constraints: LinkedHashMap<String, ConstraintData> = {}
+	val constraints: LinkedHashMap<String, ConstraintData> = LinkedHashMap()
 	/**
 	 * @private
 	 */
-	val skins: LinkedHashMap<String, SkinData> = {}
+	val skins: LinkedHashMap<String, SkinData> = LinkedHashMap()
 	/**
 	 * @private
 	 */
-	val animations: LinkedHashMap<String, AnimationData> = {}
+	val animations: LinkedHashMap<String, AnimationData> = LinkedHashMap()
 	/**
 	 * - The default skin data.
 	 * @version DragonBones 4.5
@@ -160,7 +161,7 @@ class ArmatureData  : BaseObject() {
 	 */
 	var parent: DragonBonesData = null
 
-	protected fun _onClear(): Unit {
+	protected override fun _onClear(): Unit {
 		for (action in this.defaultActions) {
 			action.returnToPool()
 		}
@@ -169,38 +170,24 @@ class ArmatureData  : BaseObject() {
 			action.returnToPool()
 		}
 
-		for (k in this.bones.keys) {
-			this.bones[k].returnToPool()
-			delete this.bones[k]
-		}
+		for (v in this.bones.values) v.returnToPool()
+		this.bones.clear()
 
-		for (k in this.slots.keys) {
-			this.slots[k].returnToPool()
-			delete this.slots[k]
-		}
+		for (v in this.slots.values) v.returnToPool()
+		this.slots.clear()
 
-		for (k in this.constraints.keys) {
-			this.constraints[k].returnToPool()
-			delete this.constraints[k]
-		}
+		for (v in this.constraints.values) v.returnToPool()
+		this.constraints.clear()
 
-		for (k in this.skins.keys) {
-			this.skins[k].returnToPool()
-			delete this.skins[k]
-		}
+		for (v in this.skins.values) v.returnToPool()
+		this.skins.clear()
 
-		for (var k in this.animations) {
-			this.animations[k].returnToPool()
-			delete this.animations[k]
-		}
+		for (v in this.animations.values) v.returnToPool()
+		this.animations.clear()
 
-		if (this.canvas !== null) {
-			this.canvas.returnToPool()
-		}
+		this.canvas?.returnToPool()
 
-		if (this.userData !== null) {
-			this.userData.returnToPool()
-		}
+		this.userData?.returnToPool()
 
 		this.type = ArmatureType.Armature
 		this.frameRate = 0
@@ -237,7 +224,7 @@ class ArmatureData  : BaseObject() {
 		val sortHelper = this.sortedBones.toList()
 		var index = 0
 		var count = 0
-		this.sortedBones.size = 0
+		this.sortedBones.lengthSet = 0
 		while (count < total) {
 			val bone = sortHelper[index++]
 			if (index >= total) {
@@ -287,11 +274,11 @@ class ArmatureData  : BaseObject() {
 	/**
 	 * @internal
 	 */
-	fun setCacheFrame(globalTransformMatrix: Matrix, transform: Transform): Double {
+	fun setCacheFrame(globalTransformMatrix: Matrix, transform: Transform): Int {
 		val dataArray = this.parent.cachedFrames
-		var arrayOffset = dataArray.size
+		val arrayOffset = dataArray.size
 
-		dataArray.size += 10
+		dataArray.lengthSet += 10
 		dataArray[arrayOffset] = globalTransformMatrix.a
 		dataArray[arrayOffset + 1] = globalTransformMatrix.b
 		dataArray[arrayOffset + 2] = globalTransformMatrix.c
@@ -424,7 +411,7 @@ class ArmatureData  : BaseObject() {
 	 * @language zh_CN
 	 */
 	fun getBone(boneName: String): BoneData? {
-		return boneName in this.bones ? this.bones[boneName] : null
+		return this.bones[boneName]
 	}
 	/**
 	 * - Get a specific slot data.
@@ -439,14 +426,14 @@ class ArmatureData  : BaseObject() {
 	 * @language zh_CN
 	 */
 	fun getSlot(slotName: String): SlotData? {
-		return if (slotName in this.slots) this.slots[slotName] else null
+		return this.slots[slotName]
 	}
 
 	/**
 	 * @private
 	 */
 	fun getConstraint(constraintName: String): ConstraintData? {
-		return if (constraintName in this.constraints) this.constraints[constraintName] else null
+		return this.constraints[constraintName]
 	}
 	/**
 	 * - Get a specific skin data.
@@ -461,18 +448,14 @@ class ArmatureData  : BaseObject() {
 	 * @language zh_CN
 	 */
 	fun getSkin(skinName: String): SkinData? {
-		return if (skinName in this.skins) this.skins[skinName] else null
+		return this.skins[skinName]
 	}
 
 	/**
 	 * @private
 	 */
 	fun getMesh(skinName: String, slotName: String, meshName: String): MeshDisplayData? {
-		val skin = this.getSkin(skinName)
-		if (skin === null) {
-			return null
-		}
-
+		val skin = this.getSkin(skinName) ?: return null
 		return skin.getDisplay(slotName, meshName) as MeshDisplayData?
 	}
 	/**
@@ -572,11 +555,8 @@ open class BoneData  :  BaseObject() {
 	 */
 	var parent: BoneData? = null
 
-	protected fun _onClear(): Unit {
-		if (this.userData !== null) {
-			this.userData.returnToPool()
-		}
-
+	protected override fun _onClear(): Unit {
+		this.userData?.returnToPool()
 		this.inheritTranslation = false
 		this.inheritRotation = false
 		this.inheritScale = false
@@ -690,13 +670,10 @@ class SlotData  :  BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	var parent: BoneData
+	var parent: BoneData? = null
 
-	protected fun _onClear(): Unit {
-		if (this.userData !== null) {
-			this.userData.returnToPool()
-		}
-
+	protected override fun _onClear(): Unit {
+		this.userData?.returnToPool()
 		this.blendMode = BlendMode.Normal
 		this.displayIndex = 0
 		this.zOrder = 0

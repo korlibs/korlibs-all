@@ -211,7 +211,7 @@ class WeightData  :  BaseObject() {
 	protected fun _onClear(): Unit {
 		this.count = 0
 		this.offset = 0
-		this.bones.length = 0
+		this.bones.lengthSet = 0
 	}
 
 	fun addBone(value: BoneData): Unit {
