@@ -260,14 +260,14 @@ class ArmatureData  : BaseObject() {
 	/**
 	 * @internal
 	 */
-	fun cacheFrames(frameRate: Double): Unit {
+	fun cacheFrames(frameRate: Int): Unit {
 		if (this.cacheFrameRate > 0) { // TODO clear cache.
 			return
 		}
 
 		this.cacheFrameRate = frameRate
 		for (k in this.animations.keys) {
-			this.animations[k].cacheFrames(this.cacheFrameRate)
+			this.animations[k]!!.cacheFrames(this.cacheFrameRate)
 		}
 	}
 

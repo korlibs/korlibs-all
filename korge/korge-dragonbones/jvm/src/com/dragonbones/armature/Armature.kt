@@ -764,11 +764,11 @@ class Armature  : BaseObject(), IAnimatable {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public var cacheFrameRate: Double get() {
+	public var cacheFrameRate: Int get() {
 		return this._armatureData.cacheFrameRate
 	}
-	set(value: Double) {
-		if (this._armatureData.cacheFrameRate !== value) {
+	set(value: Int) {
+		if (this._armatureData.cacheFrameRate != value) {
 			this._armatureData.cacheFrames(value)
 
 			// Set child armature frameRate.

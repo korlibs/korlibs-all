@@ -52,27 +52,24 @@ class SkinData  : BaseObject() {
 	/**
 	 * @private
 	 */
-	val displays: LinkedHashMap<String, ArrayList<DisplayData?>> = {}
+	val displays: LinkedHashMap<String, ArrayList<DisplayData?>> = LinkedHashMap()
 	/**
 	 * @private
 	 */
-	var parent: ArmatureData
+	var parent: ArmatureData? = null
 
-	protected fun _onClear(): Unit {
-		for (k in this.displays.keys) {
-			val slotDisplays = this.displays[k]
+	protected override fun _onClear(): Unit {
+		for (slotDisplays in this.displays.values) {
 			for (display in slotDisplays) {
 				if (display !== null) {
 					display.returnToPool()
 				}
 			}
-
-			delete this.displays[k]
 		}
+		this.displays.clear()
 
 		this.name = ""
-		// this.displays.clear();
-		this.parent = null as any //
+		//this.parent = null as any //
 	}
 
 	/**
@@ -110,11 +107,5 @@ class SkinData  : BaseObject() {
 	/**
 	 * @private
 	 */
-	fun getDisplays(slotName: String): ArrayList<DisplayData?>? {
-		if (!(slotName in this.displays)) {
-			return null
-		}
-
-		return this.displays[slotName]
-	}
+	fun getDisplays(slotName: String?): ArrayList<DisplayData?>? = this.displays[slotName]
 }

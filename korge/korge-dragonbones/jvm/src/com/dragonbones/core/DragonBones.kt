@@ -77,6 +77,7 @@ enum class BoneType(val id: Int) {
  * @private
  */
 enum class DisplayType(val id: Int) {
+	None(-1),
 	Image(0),
 	Armature(1),
 	Mesh(2),
@@ -289,7 +290,7 @@ enum class RotateMode {
 /**
  * @private
  */
-class DragonBones {
+class DragonBones(eventManager: IEventDispatcher) {
 	companion object {
 		public val VERSION: String = "5.7.000"
 
@@ -301,18 +302,16 @@ class DragonBones {
 	private val _clock: WorldClock = WorldClock()
 	private val _events: ArrayList<EventObject> = arrayListOf()
 	private val _objects: ArrayList<BaseObject> = arrayListOf()
-	private var _eventManager: IEventDispatcher = null as any
+	private var _eventManager: IEventDispatcher = eventManager
 
-	public constructor(eventManager: IEventDispatcher) {
-		this._eventManager = eventManager
-
+	init {
 		println("DragonBones: ${DragonBones.VERSION}\nWebsite: http://dragonbones.com/\nSource and Demo: https://github.com/DragonBones/")
 	}
 
 	public fun advanceTime(passedTime: Double): Unit {
 		if (this._objects.size > 0) {
-			for (object in this._objects) {
-				object.returnToPool()
+			for (obj in this._objects) {
+				obj.returnToPool()
 			}
 
 			this._objects.clear()

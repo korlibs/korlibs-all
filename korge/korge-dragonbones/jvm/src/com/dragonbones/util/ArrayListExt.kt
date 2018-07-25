@@ -4,17 +4,21 @@ import com.soywiz.kds.*
 
 var IntArrayList.lengthSet
 	get() = size
-	set(value) = if (value == 0) clear() else {
-		while (size > value) this.removeAt(size - 1)
-		while (size < value) this.add(0.0)
-	}
+	set(value) = run { size = value }
+
 
 var DoubleArrayList.lengthSet
 	get() = size
-	set(value) = if (value == 0) clear() else {
-		while (size > value) this.removeAt(size - 1)
-		while (size < value) this.add(0.0)
-	}
+	set(value) = run { size = value }
+
+var IntArrayList.length
+	get() = size
+	set(value) = run { size = value }
+
+var DoubleArrayList.length
+	get() = size
+	set(value) = run { size = value }
+
 
 var <T> ArrayList<T>.lengthSet
 	get() = size

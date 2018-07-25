@@ -5,8 +5,12 @@ import kotlin.math.*
 class DoubleArrayList(capacity: Int = 7) : Collection<Double> {
 	var data: DoubleArray = DoubleArray(capacity); private set
 	internal val capacity: Int get() = data.size
-	var length: Int = 0; private set
-	override val size: Int get() = length
+	private var length: Int = 0
+	override var size: Int get() = length
+		set(value) {
+			ensure(value)
+			this.length = value
+		}
 
 	constructor(other: DoubleArrayList) : this() {
 		add(other)
@@ -75,4 +79,4 @@ class DoubleArrayList(capacity: Int = 7) : Collection<Double> {
 	}
 }
 
-fun DoubleArrayList.binarySearch(value: Double) = data.binarySearch(value, 0, length)
+fun DoubleArrayList.binarySearch(value: Double) = data.binarySearch(value, 0, size)
