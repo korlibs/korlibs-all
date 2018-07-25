@@ -23,6 +23,7 @@
 
 package com.dragonbones.animation
 
+import com.dragonbones.armature.*
 import com.dragonbones.core.*
 import com.dragonbones.model.*
 
@@ -56,17 +57,17 @@ class Animation : BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public var timeScale: Double
+	public var timeScale: Double = 1.0
 	/**
 	 * Update bones and slots cachedFrameIndices.
 	 */
-	private var _animationDirty: Boolean //
-	private var _inheritTimeScale: Double
-	private val _animationNames: Array<String> = []
-	private val _animationStates: Array<AnimationState> = []
-	private val _animations: Map<AnimationData> = {}
-	private val _blendStates: Map<Map<BlendState>> = {}
-	private var _armature: Armature
+	private var _animationDirty: Boolean = false //
+	private var _inheritTimeScale: Double = 1.0
+	private val _animationNames: ArrayList<String> = []
+	private val _animationStates: ArrayList<AnimationState> = []
+	private val _animations: LinkedHashMap<String, AnimationData> = {}
+	private val _blendStates: LinkedHashMap<LinkedHashMap<String, BlendState>> = {}
+	private var _armature: Armature? = null
 	private var _animationConfig: AnimationConfig = null as any // Initial value.
 	private var _lastAnimationState: AnimationState?
 
@@ -75,20 +76,18 @@ class Animation : BaseObject {
 			animationState.returnToPool()
 		}
 
-		for (k in this._animations.keys) {
-			delete this._animations[k]
-		}
+		this._animations.clear()
 
-		for (var k in this._blendStates) {
+		for (k in this._blendStates.keys.toList()) {
 			val blendStates = this._blendStates[k]
-			for (var kB in blendStates) {
+			for (kB in blendStates.keys) {
 				blendStates[kB].returnToPool()
 		}
 
-			delete this._blendStates[k]
+			this._blendStates.remove(k)
 		}
 
-		if (this._animationConfig !== null) {
+		if (this._animationConfig != null) {
 			this._animationConfig.returnToPool()
 		}
 
@@ -96,8 +95,8 @@ class Animation : BaseObject {
 
 		this._animationDirty = false
 		this._inheritTimeScale = 1.0
-		this._animationNames.length = 0
-		this._animationStates.length = 0
+		this._animationNames.clear()
+		this._animationStates.clear()
 		//this._animations.clear();
 		this._armature = null as any //
 		this._animationConfig = null as any //
@@ -438,11 +437,11 @@ class Animation : BaseObject {
 			}
 
 			if (!added) {
-				this._animationStates.push(animationState)
+				this._animationStates.add(animationState)
 			}
 		}
 		else {
-			this._animationStates.push(animationState)
+			this._animationStates.add(animationState)
 		}
 
 		for (slot in this._armature.getSlots()) { // Child armature play same name animation.
@@ -638,7 +637,7 @@ class Animation : BaseObject {
 
 		val animationData = if (animationName in this._animations) this._animations[animationName] else null
 		if (animationData !== null) {
-			this._animationConfig.position = animationData.frameCount > 0 ? animationData.duration * frame / animationData.frameCount : 0.0
+			this._animationConfig.position = if (animationData.frameCount > 0) animationData.duration * frame / animationData.frameCount else 0.0
 		}
 
 		return this.playConfig(this._animationConfig)

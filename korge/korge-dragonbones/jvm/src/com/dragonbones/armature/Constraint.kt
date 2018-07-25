@@ -64,7 +64,7 @@ abstract class Constraint  :  BaseObject {
 /**
  * @internal
  */
-class IKConstraint  :  Constraint {
+class IKConstraint  :  Constraint() {
 	public static toString(): String {
 		return "[class dragonBones.IKConstraint]";
 	}

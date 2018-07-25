@@ -109,8 +109,8 @@ open class TileMap(val map: IntArray2, val tileset: TileSet) : View() {
 			ctx.batch.drawVertices(
 				buffer.vertices, ctx.getTex(tex), smoothing, computedBlendMode.factors, buffer.vcount, buffer.icount
 			)
-			ctx.flush()
 		}
+		ctx.flush()
 	}
 
 	override fun getLocalBoundsInternal(out: Rectangle) {

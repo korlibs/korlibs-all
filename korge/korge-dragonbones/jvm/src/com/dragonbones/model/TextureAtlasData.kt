@@ -24,6 +24,7 @@ package com.dragonbones.model
 
 import com.dragonbones.core.*
 import com.dragonbones.geom.*
+import com.dragonbones.util.*
 
 /**
  * - The texture atlas data.
@@ -35,23 +36,23 @@ import com.dragonbones.geom.*
  * @version DragonBones 3.0
  * @language zh_CN
  */
-abstract class TextureAtlasData  :  BaseObject {
+abstract class TextureAtlasData  :  BaseObject() {
 	/**
 	 * @private
 	 */
-	public var autoSearch: Boolean;
+	var autoSearch: Boolean = false
 	/**
 	 * @private
 	 */
-	public var width: Double;
+	var width: Int = 0
 	/**
 	 * @private
 	 */
-	public var height: Double;
+	var height: Int = 0
 	/**
 	 * @private
 	 */
-	public var scale: Double;
+	var scale: Double = 1.0
 	/**
 	 * - The texture atlas name.
 	 * @version DragonBones 3.0
@@ -62,7 +63,7 @@ abstract class TextureAtlasData  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public var name: String;
+	var name: String = ""
 	/**
 	 * - The image path of the texture atlas.
 	 * @version DragonBones 3.0
@@ -73,71 +74,70 @@ abstract class TextureAtlasData  :  BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public var imagePath: String;
+	var imagePath: String = ""
 	/**
 	 * @private
 	 */
-	public val textures: Map<TextureData> = {};
+	val textures: LinkedHashMap<String, TextureData> = {}
 
-	protected fun _onClear(): Unit {
-		for (var k in this.textures) {
-			this.textures[k].returnToPool();
-			delete this.textures[k];
-		}
+	override fun _onClear() {
+		for (v in this.textures.values) v.returnToPool()
+		this.textures.clear()
 
-		this.autoSearch = false;
-		this.width = 0;
-		this.height = 0;
-		this.scale = 1.0;
+		this.autoSearch = false
+		this.width = 0
+		this.height = 0
+		this.scale = 1.0
 		// this.textures.clear();
-		this.name = "";
-		this.imagePath = "";
+		this.name = ""
+		this.imagePath = ""
 	}
+
 	/**
 	 * @private
 	 */
-	public fun copyFrom(value: TextureAtlasData): Unit {
-		this.autoSearch = value.autoSearch;
-		this.scale = value.scale;
-		this.width = value.width;
-		this.height = value.height;
-		this.name = value.name;
-		this.imagePath = value.imagePath;
+	fun copyFrom(value: TextureAtlasData) {
+		this.autoSearch = value.autoSearch
+		this.scale = value.scale
+		this.width = value.width
+		this.height = value.height
+		this.name = value.name
+		this.imagePath = value.imagePath
 
-		for (k in this.textures.keys) {
-			this.textures[k].returnToPool();
-			delete this.textures[k];
-		}
+		for (v in this.textures.values) v.returnToPool()
+		this.textures.clear()
 
 		// this.textures.clear();
 
 		for (k in value.textures.keys) {
-			val texture = this.createTexture();
-			texture.copyFrom(value.textures[k]);
-			this.textures[k] = texture;
+			val texture = this.createTexture()
+			texture.copyFrom(value.textures[k]!!)
+			this.textures[k] = texture
 		}
 	}
+
 	/**
 	 * @internal
 	 */
-	public abstract createTexture(): TextureData;
+	abstract fun createTexture(): TextureData
 	/**
 	 * @internal
 	 */
-	public fun addTexture(value: TextureData): Unit {
+	fun addTexture(value: TextureData) {
 		if (value.name in this.textures) {
-			console.warn("Same texture: " + value.name);
-			return;
+			console.warn("Same texture: " + value.name)
+			return
 		}
 
-		value.parent = this;
-		this.textures[value.name] = value;
+		value.parent = this
+		this.textures[value.name] = value
 	}
+
 	/**
 	 * @private
 	 */
-	public fun getTexture(textureName: String): TextureData? {
-		return if (textureName in this.textures) this.textures[textureName] else null;
+	fun getTexture(textureName: String): TextureData? {
+		return if (textureName in this.textures) this.textures[textureName] else null
 	}
 }
 /**
@@ -145,40 +145,40 @@ abstract class TextureAtlasData  :  BaseObject {
  */
 abstract class TextureData  : BaseObject() {
 	companion object {
-		public fun createRectangle(): Rectangle {
-			return Rectangle();
+		fun createRectangle(): Rectangle {
+			return Rectangle()
 		}
 	}
 
-	public var rotated: Boolean;
-	public var name: String;
-	public val region: Rectangle = Rectangle();
-	public var parent: TextureAtlasData;
-	public var frame: Rectangle? = null; // Initial value.
+	var rotated: Boolean = false
+	var name: String = ""
+	val region: Rectangle = Rectangle()
+	var parent: TextureAtlasData
+	var frame: Rectangle? = null // Initial value.
 
-	protected fun _onClear(): Unit {
-		this.rotated = false;
-		this.name = "";
-		this.region.clear();
-		this.parent = null as any; //
-		this.frame = null;
+	override fun _onClear(): Unit {
+		this.rotated = false
+		this.name = ""
+		this.region.clear()
+		this.parent = null as any //
+		this.frame = null
 	}
 
-	public fun copyFrom(value: TextureData): Unit {
-		this.rotated = value.rotated;
-		this.name = value.name;
-		this.region.copyFrom(value.region);
-		this.parent = value.parent;
+	fun copyFrom(value: TextureData): Unit {
+		this.rotated = value.rotated
+		this.name = value.name
+		this.region.copyFrom(value.region)
+		this.parent = value.parent
 
 		if (this.frame === null && value.frame !== null) {
-			this.frame = TextureData.createRectangle();
+			this.frame = TextureData.createRectangle()
 		}
 		else if (this.frame !== null && value.frame === null) {
-			this.frame = null;
+			this.frame = null
 		}
 
 		if (this.frame !== null && value.frame !== null) {
-			this.frame.copyFrom(value.frame);
+			this.frame.copyFrom(value.frame)
 		}
 	}
 }

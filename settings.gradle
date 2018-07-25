@@ -89,7 +89,7 @@ registerProject2('korge-ext-swf', 'korge', 'Korge: Extension for SWF')
 
 // Skeletal animations
 registerProject2('korge-ext-spriter', 'korge', 'Korge: Extension for spriter')
-//registerProject2('korge-dragonbones', 'korge', 'Korge: Extension for dragonbones')
+registerProject2('korge-dragonbones', 'korge', 'Korge: Extension for dragonbones')
 
 // KSDL
 //registerVersion('ksdl', 'korui/ksdl')

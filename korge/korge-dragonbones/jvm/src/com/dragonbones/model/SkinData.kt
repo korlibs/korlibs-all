@@ -34,7 +34,7 @@ import com.dragonbones.core.*
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class SkinData  : BaseObject {
+class SkinData  : BaseObject() {
 	public override fun toString(): String {
 		return "[class dragonBones.SkinData]";
 	}
@@ -48,11 +48,11 @@ class SkinData  : BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public var name: String;
+	public var name: String = ""
 	/**
 	 * @private
 	 */
-	public val displays: Map<Array<DisplayData?>> = {};
+	public val displays: LinkedHashMap<String, ArrayList<DisplayData?>> = {};
 	/**
 	 * @private
 	 */
@@ -87,7 +87,7 @@ class SkinData  : BaseObject {
 		}
 
 		val slotDisplays = this.displays[slotName]; // TODO clear prev
-		slotDisplays.push(value);
+		slotDisplays?.add(value);
 	}
 	/**
 	 * @private

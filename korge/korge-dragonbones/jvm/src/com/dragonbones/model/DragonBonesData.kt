@@ -23,6 +23,7 @@
 package com.dragonbones.model
 
 import com.dragonbones.core.*
+import com.dragonbones.util.*
 
 /**
  * - The DragonBones data.
@@ -40,12 +41,12 @@ import com.dragonbones.core.*
  */
 class DragonBonesData  : BaseObject() {
 	public override fun toString(): String {
-		return "[class dragonBones.DragonBonesData]";
+		return "[class dragonBones.DragonBonesData]"
 	}
 	/**
 	 * @private
 	 */
-	public var autoSearch: Boolean;
+	public var autoSearch: Boolean = false
 	/**
 	 * - The animation frame rate.
 	 * @version DragonBones 3.0
@@ -56,7 +57,7 @@ class DragonBonesData  : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public var frameRate: Double;
+	public var frameRate: Int = 0
 	/**
 	 * - The data version.
 	 * @version DragonBones 3.0
@@ -67,7 +68,7 @@ class DragonBonesData  : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public var version: String;
+	public var version: String = ""
 	/**
 	 * - The DragonBones data name.
 	 * The name is consistent with the DragonBones project name.
@@ -80,19 +81,19 @@ class DragonBonesData  : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public var name: String;
+	public var name: String = ""
 	/**
 	 * @private
 	 */
-	public var stage: ArmatureData?;
+	public var stage: ArmatureData? = null
 	/**
 	 * @internal
 	 */
-	public val frameIndices:  DoubleArray = [];
+	public val frameIndices:  DoubleArray = []
 	/**
 	 * @internal
 	 */
-	public val cachedFrames:  DoubleArray = [];
+	public val cachedFrames:  DoubleArray = []
 	/**
 	 * - All armature data names.
 	 * @version DragonBones 3.0
@@ -103,89 +104,85 @@ class DragonBonesData  : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public val armatureNames: Array<String> = [];
+	public val armatureNames: ArrayList<String> = arrayListOf()
 	/**
 	 * @private
 	 */
-	public val armatures: Map<ArmatureData> = {};
+	public val armatures: LinkedHashMap<String, ArmatureData> = LinkedHashMap<String, ArmatureData>()
 	/**
 	 * @internal
 	 */
-	public var binary: ArrayBuffer;
+	public var binary: ArrayBuffer
 	/**
 	 * @internal
 	 */
-	public var intArray: Int16Array;
+	public var intArray: Int16Array
 	/**
 	 * @internal
 	 */
-	public var floatArray: Float32Array;
+	public var floatArray: Float32Array
 	/**
 	 * @internal
 	 */
-	public var frameIntArray: Int16Array;
+	public var frameIntArray: ShortArray
 	/**
 	 * @internal
 	 */
-	public var frameFloatArray: Float32Array;
+	public var frameFloatArray: Float32Array
 	/**
 	 * @internal
 	 */
-	public var frameArray: Int16Array;
+	public var frameArray: Int16Array
 	/**
 	 * @internal
 	 */
-	public var timelineArray: Uint16Array;
+	public var timelineArray: Uint16Array
 	/**
 	 * @internal
 	 */
-	public var colorArray: Uint16Array;
+	public var colorArray: Uint16Array
 	/**
 	 * @private
 	 */
-	public var userData: UserData? = null; // Initial value.
+	public var userData: UserData? = null // Initial value.
 
 	protected fun _onClear(): Unit {
-		for (var k in this.armatures) {
-			this.armatures[k].returnToPool();
-			delete this.armatures[k];
-		}
+		for (a in this.armatures.values) a.returnToPool()
+		this.armatures.clear()
 
-		if (this.userData !== null) {
-			this.userData.returnToPool();
-		}
+		this.userData?.returnToPool()
 
-		this.autoSearch = false;
-		this.frameRate = 0;
-		this.version = "";
-		this.name = "";
-		this.stage = null;
-		this.frameIndices.length = 0;
-		this.cachedFrames.length = 0;
-		this.armatureNames.length = 0;
+		this.autoSearch = false
+		this.frameRate = 0
+		this.version = ""
+		this.name = ""
+		this.stage = null
+		this.frameIndices.clear()
+		this.cachedFrames.clear()
+		this.armatureNames.clear()
 		//this.armatures.clear();
-		this.binary = null as any; //
-		this.intArray = null as any; //
-		this.floatArray = null as any; //
-		this.frameIntArray = null as any; //
-		this.frameFloatArray = null as any; //
-		this.frameArray = null as any; //
-		this.timelineArray = null as any; //
-		this.colorArray = null as any; //
-		this.userData = null;
+		this.binary = null as any //
+		this.intArray = null as any //
+		this.floatArray = null as any //
+		this.frameIntArray = null as any //
+		this.frameFloatArray = null as any //
+		this.frameArray = null as any //
+		this.timelineArray = null as any //
+		this.colorArray = null as any //
+		this.userData = null
 	}
 	/**
 	 * @internal
 	 */
 	public fun addArmature(value: ArmatureData): Unit {
 		if (value.name in this.armatures) {
-			console.warn("Same armature: " + value.name);
-			return;
+			console.warn("Same armature: " + value.name)
+			return
 		}
 
-		value.parent = this;
-		this.armatures[value.name] = value;
-		this.armatureNames.push(value.name);
+		value.parent = this
+		this.armatures[value.name] = value
+		this.armatureNames.add(value.name)
 	}
 	/**
 	 * - Get a specific armature data.
@@ -200,6 +197,6 @@ class DragonBonesData  : BaseObject() {
 	 * @language zh_CN
 	 */
 	public fun getArmature(armatureName: String): ArmatureData? {
-		return if (armatureName in this.armatures) this.armatures[armatureName] else null;
+		return if (armatureName in this.armatures) this.armatures[armatureName] else null
 	}
 }
