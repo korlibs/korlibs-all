@@ -2,6 +2,13 @@ package com.dragonbones.util
 
 import com.soywiz.kds.*
 
+var IntArrayList.lengthSet
+	get() = size
+	set(value) = if (value == 0) clear() else {
+		while (size > value) this.removeAt(size - 1)
+		while (size < value) this.add(0.0)
+	}
+
 var DoubleArrayList.lengthSet
 	get() = size
 	set(value) = if (value == 0) clear() else {
@@ -27,6 +34,9 @@ fun <T> ArrayList<T>.push(value: T) {
 fun <T> ArrayList<T>.unshift(value: T) {
 	this.add(0, value)
 }
+
+fun DoubleArrayList.push(value: Double) = this.add(value)
+fun IntArrayList.push(value: Int) = this.add(value)
 
 fun <T> MutableList<T>.splice(removeOffset: Int, removeCount: Int, vararg itemsToAdd: T) {
 	// @TODO: Improve performance

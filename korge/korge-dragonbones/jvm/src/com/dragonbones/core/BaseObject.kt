@@ -86,8 +86,8 @@ abstract class BaseObject {
 
 			if (objectConstructor != null) {
 				val classType = String(objectConstructor)
-				val pool = classType in BaseObject._poolsMap ? BaseObject._poolsMap[classType] : null
-				if (pool !== null && pool.length > maxCount) {
+				val pool = if (classType in BaseObject._poolsMap) BaseObject._poolsMap[classType] else null
+				if (pool != null && pool.length > maxCount) {
 					pool.length = maxCount
 				}
 

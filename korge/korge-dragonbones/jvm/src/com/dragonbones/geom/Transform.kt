@@ -58,17 +58,18 @@ class Transform {
 		 * @private
 		 */
 		val DEG_RAD: Double = Math.PI / 180.0
+
+		/**
+		 * @private
+		 */
+		fun normalizeRadian(value: Double): Double {
+			var value = (value + Math.PI) % (Math.PI * 2.0)
+			value += if (value > 0.0) -Math.PI else Math.PI
+
+			return value
+		}
 	}
 
-	/**
-	 * @private
-	 */
-	fun normalizeRadian(value: Double): Double {
-		var value = (value + Math.PI) % (Math.PI * 2.0)
-		value += if (value > 0.0) -Math.PI else Math.PI
-
-		return value
-	}
 	/**
 	 * - Horizontal translate.
 	 * @version DragonBones 3.0

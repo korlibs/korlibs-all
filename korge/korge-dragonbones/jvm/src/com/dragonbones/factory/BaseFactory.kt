@@ -53,18 +53,18 @@ import com.dragonbones.util.*
  */
 abstract class BaseFactory {
 	companion object {
-		protected var _objectParser: ObjectDataParser = null as any
-		protected var _binaryParser: BinaryDataParser = null as any
+		protected val _objectParser: ObjectDataParser = ObjectDataParser()
+		protected val _binaryParser: BinaryDataParser = ObjectDataParser()
 	}
 	/**
 	 * @private
 	 */
 	public var autoSearch: Boolean = false
 
-	protected val _dragonBonesDataMap: LinkedHashMap<String, DragonBonesData> = {}
-	protected val _textureAtlasDataMap: LinkedHashMap<String, Array<TextureAtlasData>> = {}
-	protected var _dragonBones: DragonBones = null as any
-	protected var _dataParser: DataParser = null as any
+	protected val _dragonBonesDataMap: LinkedHashMap<String, DragonBonesData> = LinkedHashMap()
+	protected val _textureAtlasDataMap: LinkedHashMap<String, Array<TextureAtlasData>> = LinkedHashMap()
+	protected lateinit var _dragonBones: DragonBones
+	protected lateinit var _dataParser: DataParser
 	/**
 	 * - Create a factory instance. (typically only one global factory instance is required)
 	 * @version DragonBones 3.0
@@ -76,14 +76,6 @@ abstract class BaseFactory {
 	 * @language zh_CN
 	 */
 	public constructor(dataParser: DataParser? = null) {
-		if (BaseFactory._objectParser == null) {
-			BaseFactory._objectParser = ObjectDataParser()
-		}
-
-		if (BaseFactory._binaryParser == null) {
-			BaseFactory._binaryParser = BinaryDataParser()
-		}
-
 		this._dataParser = dataParser ?: BaseFactory._objectParser
 	}
 
@@ -121,6 +113,7 @@ abstract class BaseFactory {
 		dataPackage: BuildArmaturePackage,
 		dragonBonesName: String, armatureName: String, skinName: String, textureAtlasName: String
 	): Boolean {
+		var dragonBonesName = dragonBonesName
 		var dragonBonesData: DragonBonesData? = null
 		var armatureData: ArmatureData? = null
 
@@ -240,19 +233,19 @@ abstract class BaseFactory {
 			// TODO more constraint type.
 			when (constraintData.type) {
 				ConstraintType.IK -> {
-					val ikConstraint = BaseObject . borrowObject (IKConstraint)
+					val ikConstraint = BaseObject.borrowObject<IKConstraint>()
 					ikConstraint.init(constraintData, armature)
 					armature._addConstraint(ikConstraint)
 				}
 
 				ConstraintType.Path -> {
-					val pathConstraint = BaseObject . borrowObject (PathConstraint)
+					val pathConstraint = BaseObject.borrowObject<PathConstraint>()
 					pathConstraint.init(constraintData, armature)
 					armature._addConstraint(pathConstraint)
 				}
 
 				else -> {
-					val constraint = BaseObject . borrowObject (IKConstraint)
+					val constraint = BaseObject.borrowObject<IKConstraint>()
 					constraint.init(constraintData, armature)
 					armature._addConstraint(constraint)
 				}
@@ -429,11 +422,11 @@ abstract class BaseFactory {
 	 * @version DragonBones 5.7
 	 * @language zh_CN
 	 */
-	public fun updateTextureAtlases(textureAtlases: Array<any>, name: String): Unit {
+	public fun updateTextureAtlases(textureAtlases: Array<Any>, name: String): Unit {
 		val textureAtlasDatas = this.getTextureAtlasData(name)
 		if (textureAtlasDatas !== null) {
-			for (var i = 0, l = textureAtlasDatas.length; i < l; ++i) {
-				if (i < textureAtlases.length) {
+			for (i in 0 until textureAtlasDatas.size) {
+				if (i < textureAtlases.size) {
 					this._buildTextureAtlasData(textureAtlasDatas[i], textureAtlases[i])
 				}
 			}
@@ -461,9 +454,7 @@ abstract class BaseFactory {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public fun getDragonBonesData(name: String): DragonBonesData? {
-		return (name in this._dragonBonesDataMap) ? this._dragonBonesDataMap[name] : null
-	}
+	public fun getDragonBonesData(name: String): DragonBonesData? = this._dragonBonesDataMap[name]
 	/**
 	 * - Cache a DragonBonesData instance to the factory.
 	 * @param data - The DragonBonesData instance.
@@ -486,14 +477,11 @@ abstract class BaseFactory {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public fun addDragonBonesData(data: DragonBonesData, name: String? = null): Unit {
-		name = name ?: data.name
+	public fun addDragonBonesData(data: DragonBonesData, name: String? = null) {
+		var name = name ?: data.name
 		if (name in this._dragonBonesDataMap) {
-			if (this._dragonBonesDataMap[name] === data) {
-				return
-			}
-
-			console.warn("Can not add same name data: " + name)
+			if (this._dragonBonesDataMap[name] === data) return
+			console.warn("Can not add same name data: $name")
 			return
 		}
 
@@ -527,7 +515,7 @@ abstract class BaseFactory {
 				this._dragonBones.bufferObject(this._dragonBonesDataMap[name])
 			}
 
-			delete this._dragonBonesDataMap[name]
+			this._dragonBonesDataMap.remove(name)
 		}
 	}
 	/**
@@ -550,9 +538,7 @@ abstract class BaseFactory {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public fun getTextureAtlasData(name: String): Array<TextureAtlasData>? {
-		return if (name in this._textureAtlasDataMap) this._textureAtlasDataMap[name] else null
-	}
+	public fun getTextureAtlasData(name: String): Array<TextureAtlasData>? = this._textureAtlasDataMap[name]
 	/**
 	 * - Cache a TextureAtlasData instance to the factory.
 	 * @param data - The TextureAtlasData instance.
@@ -577,7 +563,7 @@ abstract class BaseFactory {
 	 */
 	public fun addTextureAtlasData(data: TextureAtlasData, name: String? = null): Unit {
 		val name = name ?: data.name
-		val textureAtlasList = (name in this._textureAtlasDataMap) ? this._textureAtlasDataMap[name] : (this._textureAtlasDataMap[name] = [])
+		val textureAtlasList = if (name in this._textureAtlasDataMap) this._textureAtlasDataMap[name] else (this._textureAtlasDataMap[name] = [])
 		if (textureAtlasList.indexOf(data) < 0) {
 			textureAtlasList.push(data)
 		}

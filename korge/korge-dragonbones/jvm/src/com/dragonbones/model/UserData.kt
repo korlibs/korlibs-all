@@ -24,6 +24,8 @@ package com.dragonbones.model
  */
 
 import com.dragonbones.core.*
+import com.dragonbones.util.*
+import com.soywiz.kds.*
 
 /**
  * - The user custom data.
@@ -35,9 +37,9 @@ import com.dragonbones.core.*
  * @version DragonBones 5.0
  * @language zh_CN
  */
-class UserData  :  BaseObject() {
-	public override fun toString(): String {
-		return "[class dragonBones.UserData]";
+class UserData : BaseObject() {
+	override fun toString(): String {
+		return "[class dragonBones.UserData]"
 	}
 	/**
 	 * - The custom int numbers.
@@ -49,7 +51,7 @@ class UserData  :  BaseObject() {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public val ints:  DoubleArray = [];
+	val ints: IntArrayList = IntArrayList()
 	/**
 	 * - The custom float numbers.
 	 * @version DragonBones 5.0
@@ -60,7 +62,7 @@ class UserData  :  BaseObject() {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public val floats:  DoubleArray = [];
+	val floats: DoubleArrayList = DoubleArrayList()
 	/**
 	 * - The custom strings.
 	 * @version DragonBones 5.0
@@ -71,30 +73,33 @@ class UserData  :  BaseObject() {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public val strings: Array<String> = [];
+	val strings: ArrayList<String> = arrayListOf()
 
-	protected fun _onClear(): Unit {
-		this.ints.length = 0;
-		this.floats.length = 0;
-		this.strings.length = 0;
+	protected override fun _onClear(): Unit {
+		this.ints.clear()
+		this.floats.clear()
+		this.strings.clear()
 	}
+
 	/**
 	 * @internal
 	 */
-	public fun addInt(value: Int): Unit {
-		this.ints.push(value);
+	fun addInt(value: Int): Unit {
+		this.ints.push(value)
 	}
+
 	/**
 	 * @internal
 	 */
-	public fun addFloat(value: Double): Unit {
-		this.floats.push(value);
+	fun addFloat(value: Double): Unit {
+		this.floats.push(value)
 	}
+
 	/**
 	 * @internal
 	 */
-	public fun addString(value: String): Unit {
-		this.strings.push(value);
+	fun addString(value: String): Unit {
+		this.strings.push(value)
 	}
 	/**
 	 * - Get the custom int number.
@@ -106,8 +111,8 @@ class UserData  :  BaseObject() {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public fun getInt(index: Int = 0): Int {
-		return index >= 0 && index < this.ints.length ? this.ints[index] : 0;
+	fun getInt(index: Int = 0): Int {
+		return if (index >= 0 && index < this.ints.length) this.ints[index] else 0
 	}
 	/**
 	 * - Get the custom float number.
@@ -119,9 +124,7 @@ class UserData  :  BaseObject() {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public fun getFloat(index: Int = 0): Double {
-		return index >= 0 && index < this.floats.length ? this.floats[index] : 0.0;
-	}
+	fun getFloat(index: Int = 0): Double = if (index >= 0 && index < this.floats.length) this.floats[index] else 0.0
 	/**
 	 * - Get the custom string.
 	 * @version DragonBones 5.0
@@ -132,33 +135,30 @@ class UserData  :  BaseObject() {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public fun getString(index: Int = 0): String {
-		return index >= 0 && index < this.strings.length ? this.strings[index] : "";
-	}
+	fun getString(index: Int = 0): String = if (index >= 0 && index < this.strings.length) this.strings[index] else ""
 }
+
 /**
  * @private
  */
-class ActionData  : BaseObject() {
-	public override fun toString(): String {
-		return "[class dragonBones.ActionData]";
+class ActionData : BaseObject() {
+	override fun toString(): String {
+		return "[class dragonBones.ActionData]"
 	}
 
-	public var type: ActionType;
-	public var name: String; // Frame event name | Sound event name | Animation name
-	public var bone: BoneData?;
-	public var slot: SlotData?;
-	public var data: UserData? = null; //
+	var type: ActionType = ActionType.Play
+	var name: String = "" // Frame event name | Sound event name | Animation name
+	var bone: BoneData? = null
+	var slot: SlotData? = null
+	var data: UserData? = null //
 
-	protected fun _onClear(): Unit {
-		if (this.data !== null) {
-			this.data.returnToPool();
-		}
+	protected override fun _onClear(): Unit {
+		this.data?.returnToPool()
 
-		this.type = ActionType.Play;
-		this.name = "";
-		this.bone = null;
-		this.slot = null;
-		this.data = null;
+		this.type = ActionType.Play
+		this.name = ""
+		this.bone = null
+		this.slot = null
+		this.data = null
 	}
 }

@@ -117,7 +117,7 @@ class DragonBonesData  : BaseObject() {
 	/**
 	 * @internal
 	 */
-	public var intArray: Int16Array
+	public var intArray: IntArrayList = IntArrayList() // Int16Array
 	/**
 	 * @internal
 	 */

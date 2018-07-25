@@ -29,7 +29,7 @@ import com.dragonbones.event.*
 /**
  * @private
  */
-enum class BinaryOffset(val id: Int) {
+enum class BinaryOffset(val index: Int) {
 	WeigthBoneCount(0),
 	WeigthFloatOffset(1),
 	WeigthBoneIndices(2),

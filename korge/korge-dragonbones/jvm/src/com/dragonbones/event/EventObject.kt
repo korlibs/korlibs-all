@@ -148,7 +148,7 @@ class EventObject : BaseObject() {
 			if (data.type === ActionType.Play) {
 				instance.type = EventObject.FRAME_EVENT
 			} else {
-				instance.type = data.type === ActionType.Frame ? EventObject.FRAME_EVENT : EventObject.SOUND_EVENT
+				instance.type = if (data.type === ActionType.Frame) EventObject.FRAME_EVENT else EventObject.SOUND_EVENT
 			}
 
 			instance.name = data.name
@@ -157,11 +157,11 @@ class EventObject : BaseObject() {
 			instance.data = data.data
 
 			if (data.bone !== null) {
-				instance.bone = armature.getBone(data.bone.name)
+				instance.bone = armature.getBone(data.bone?.name)
 			}
 
 			if (data.slot !== null) {
-				instance.slot = armature.getSlot(data.slot.name)
+				instance.slot = armature.getSlot(data.slot?.name)
 			}
 		}
 	}
@@ -214,7 +214,7 @@ class EventObject : BaseObject() {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public var armature: Armature
+	public lateinit var armature: Armature
 	/**
 	 * - The bone that dispatch the event.
 	 * @see dragonBones.Bone
@@ -253,7 +253,7 @@ class EventObject : BaseObject() {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public var animationState: AnimationState
+	public lateinit var animationState: AnimationState
 	/**
 	 * @private
 	 */
@@ -273,16 +273,16 @@ class EventObject : BaseObject() {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public var data: UserData?
+	public var data: UserData? = null
 
-	protected fun _onClear(): Unit {
+	protected override fun _onClear(): Unit {
 		this.time = 0.0
 		this.type = ""
 		this.name = ""
-		this.armature = null as any
+		//this.armature = null as any
 		this.bone = null
 		this.slot = null
-		this.animationState = null as any
+		//this.animationState = null as any
 		this.actionData = null
 		this.data = null
 	}

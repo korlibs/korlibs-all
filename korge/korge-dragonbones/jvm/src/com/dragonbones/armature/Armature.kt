@@ -589,7 +589,7 @@ class Armature  : BaseObject(), IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public fun getBone(name: String): Bone? {
+	public fun getBone(name: String?): Bone? {
 		for (bone in this._bones) {
 			if (bone.name === name) {
 				return bone
@@ -630,7 +630,7 @@ class Armature  : BaseObject(), IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public fun getSlot(name: String): Slot? {
+	public fun getSlot(name: String?): Slot? {
 		for (slot in this._slots) {
 			if (slot.name === name) {
 				return slot
