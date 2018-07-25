@@ -22,6 +22,8 @@
  */
 package com.dragonbones.core
 
+import com.dragonbones.util.*
+
 /**
  * - The BaseObject is the base class for all objects in the DragonBones framework.
  * All BaseObject instances are cached to the object pool to reduce the performance consumption of frequent requests for memory or memory recovery.
@@ -35,14 +37,14 @@ package com.dragonbones.core
  * @language zh_CN
  */
 abstract class BaseObject {
-	private fun _returnObject(object: BaseObject): Unit {
-		val classType = String(object.constructor)
+	private fun _returnObject(obj: BaseObject): Unit {
+		val classType = String(obj.constructor)
 		val maxCount = classType in BaseObject._maxCountMap ? BaseObject._maxCountMap[classType] : BaseObject._defaultMaxCount
 		val pool = BaseObject._poolsMap[classType] = BaseObject._poolsMap[classType] || []
 		if (pool.length < maxCount) {
-			if (!object._isInPool) {
-				object._isInPool = true
-				pool.push(object)
+			if (!obj._isInPool) {
+				obj._isInPool = true
+				pool.push(obj)
 			}
 			else {
 				console.warn("The object is already in the pool.")

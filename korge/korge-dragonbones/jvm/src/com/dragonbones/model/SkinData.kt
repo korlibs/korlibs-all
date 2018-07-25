@@ -107,7 +107,7 @@ class SkinData  : BaseObject() {
 	/**
 	 * @private
 	 */
-	public fun getDisplays(slotName: String): Array<DisplayData?>? {
+	public fun getDisplays(slotName: String): ArrayList<DisplayData?>? {
 		if (!(slotName in this.displays)) {
 			return null;
 		}

@@ -9,10 +9,10 @@
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
  * the Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
@@ -21,6 +21,9 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package com.dragonbones.armature
+
+import com.dragonbones.animation.*
+import com.dragonbones.event.*
 
 /**
  * - The armature proxy interface, the docking engine needs to implement it concretely.
@@ -34,19 +37,21 @@ package com.dragonbones.armature
  * @version DragonBones 5.0
  * @language zh_CN
  */
-interface IArmatureProxy  :  IEventDispatcher {
+interface IArmatureProxy : IEventDispatcher {
 	/**
 	 * @internal
 	 */
-	dbInit(armature: Armature): Unit;
+	fun dbInit(armature: Armature)
+
 	/**
 	 * @internal
 	 */
-	dbClear(): Unit;
+	fun dbClear()
+
 	/**
 	 * @internal
 	 */
-	dbUpdate(): Unit;
+	fun dbUpdate()
 	/**
 	 * - Dispose the instance and the Armature instance. (The Armature instance will return to the object pool)
 	 * @example
@@ -67,7 +72,7 @@ interface IArmatureProxy  :  IEventDispatcher {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	dispose(disposeProxy: Boolean): Unit;
+	fun dispose(disposeProxy: Boolean)
 	/**
 	 * - The armature.
 	 * @version DragonBones 4.5
@@ -78,7 +83,7 @@ interface IArmatureProxy  :  IEventDispatcher {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	val armature: Armature;
+	val armature: Armature
 	/**
 	 * - The animation player.
 	 * @version DragonBones 3.0
@@ -89,5 +94,5 @@ interface IArmatureProxy  :  IEventDispatcher {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	val animation: Animation;
+	val animation: Animation
 }

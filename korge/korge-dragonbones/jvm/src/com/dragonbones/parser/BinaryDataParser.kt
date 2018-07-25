@@ -281,7 +281,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 					var timeline: TimelineData? = null
 
 					if (timelineType === TimelineType.AnimationProgress && animation.blendType !== AnimationBlendType.None) {
-						timeline = BaseObject.borrowObject(AnimationTimelineData)
+						timeline = BaseObject.borrowObject<AnimationTimelineData>()
 						val animaitonTimeline = timeline as AnimationTimelineData
 						animaitonTimeline.x = ObjectDataParser._getNumber(rawTimeline, DataParser.X, 0.0)
 						animaitonTimeline.y = ObjectDataParser._getNumber(rawTimeline, DataParser.Y, 0.0)
@@ -339,7 +339,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 
 		val weightOffset = this._intArrayBuffer[geometry.offset + BinaryOffset.GeometryWeightOffset]
 		if (weightOffset >= 0) {
-			val weight = BaseObject.borrowObject(WeightData)
+			val weight = BaseObject.borrowObject<WeightData>()
 			val vertexCount = this._intArrayBuffer[geometry.offset + BinaryOffset.GeometryVertexCount]
 			val boneCount = this._intArrayBuffer[weightOffset + BinaryOffset.WeigthBoneCount]
 			weight.offset = weightOffset

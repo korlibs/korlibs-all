@@ -26,6 +26,7 @@ import com.dragonbones.animation.*
 import com.dragonbones.armature.*
 import com.dragonbones.core.*
 import com.dragonbones.model.*
+import com.dragonbones.parser.*
 import com.dragonbones.util.*
 
 /**
@@ -60,8 +61,8 @@ abstract class BaseFactory {
 	 */
 	public var autoSearch: Boolean = false
 
-	protected val _dragonBonesDataMap: Map<DragonBonesData> = {}
-	protected val _textureAtlasDataMap: Map<Array<TextureAtlasData>> = {}
+	protected val _dragonBonesDataMap: LinkedHashMap<String, DragonBonesData> = {}
+	protected val _textureAtlasDataMap: LinkedHashMap<String, Array<TextureAtlasData>> = {}
 	protected var _dragonBones: DragonBones = null as any
 	protected var _dataParser: DataParser = null as any
 	/**
@@ -75,15 +76,15 @@ abstract class BaseFactory {
 	 * @language zh_CN
 	 */
 	public constructor(dataParser: DataParser? = null) {
-		if (BaseFactory._objectParser === null) {
-			BaseFactory._objectParser = new ObjectDataParser()
+		if (BaseFactory._objectParser == null) {
+			BaseFactory._objectParser = ObjectDataParser()
 		}
 
-		if (BaseFactory._binaryParser === null) {
-			BaseFactory._binaryParser = new BinaryDataParser()
+		if (BaseFactory._binaryParser == null) {
+			BaseFactory._binaryParser = BinaryDataParser()
 		}
 
-		this._dataParser = dataParser !== null ? dataParser : BaseFactory._objectParser
+		this._dataParser = dataParser ?: BaseFactory._objectParser
 	}
 
 	protected val _isSupportMesh: Boolean get() {
@@ -300,7 +301,7 @@ abstract class BaseFactory {
 						val actions = armatureDisplayData.actions.length > 0 ? armatureDisplayData.actions : childArmature.armatureData.defaultActions
 						if (actions.length > 0) {
 							for (action in actions) {
-								val eventObject = BaseObject.borrowObject(EventObject)
+								val eventObject = BaseObject.borrowObject<EventObject>()
 								EventObject.actionDataToInstance(action, eventObject, slot.armature)
 								eventObject.slot = slot
 								slot.armature._bufferAction(eventObject, false)
@@ -486,7 +487,7 @@ abstract class BaseFactory {
 	 * @language zh_CN
 	 */
 	public fun addDragonBonesData(data: DragonBonesData, name: String? = null): Unit {
-		name = name !== null ? name : data.name
+		name = name ?: data.name
 		if (name in this._dragonBonesDataMap) {
 			if (this._dragonBonesDataMap[name] === data) {
 				return
@@ -550,7 +551,7 @@ abstract class BaseFactory {
 	 * @language zh_CN
 	 */
 	public fun getTextureAtlasData(name: String): Array<TextureAtlasData>? {
-		return (name in this._textureAtlasDataMap) ? this._textureAtlasDataMap[name] : null
+		return if (name in this._textureAtlasDataMap) this._textureAtlasDataMap[name] else null
 	}
 	/**
 	 * - Cache a TextureAtlasData instance to the factory.
@@ -575,7 +576,7 @@ abstract class BaseFactory {
 	 * @language zh_CN
 	 */
 	public fun addTextureAtlasData(data: TextureAtlasData, name: String? = null): Unit {
-		name = name !== null ? name : data.name
+		val name = name ?: data.name
 		val textureAtlasList = (name in this._textureAtlasDataMap) ? this._textureAtlasDataMap[name] : (this._textureAtlasDataMap[name] = [])
 		if (textureAtlasList.indexOf(data) < 0) {
 			textureAtlasList.push(data)
@@ -612,7 +613,7 @@ abstract class BaseFactory {
 				}
 			}
 
-			delete this._textureAtlasDataMap[name]
+			this._textureAtlasDataMap.remove(name)
 		}
 	}
 	/**
@@ -789,9 +790,9 @@ abstract class BaseFactory {
 	 */
 	public fun replaceSlotDisplay(
 		dragonBonesName: String, armatureName: String, slotName: String, displayName: String,
-		slot: Slot, displayIndex: Double = -1
+		slot: Slot, displayIndex: Int = -1
 	): Boolean {
-		val armatureData = this.getArmatureData(armatureName, dragonBonesName || "")
+		val armatureData = this.getArmatureData(armatureName, dragonBonesName ?: "")
 		if (armatureData === null || armatureData.defaultSkin === null) {
 			return false
 		}
@@ -818,8 +819,8 @@ abstract class BaseFactory {
 			return false
 		}
 
-		slot.displayFrameCount = displayDatas.length
-		for (var i = 0, l = slot.displayFrameCount; i < l; ++i) {
+		slot.displayFrameCount = displayDatas.size
+		for (i in 0 until slot.displayFrameCount) {
 			val displayData = displayDatas[i]
 			this.replaceDisplay(slot, displayData, i)
 		}

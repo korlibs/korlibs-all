@@ -21,43 +21,50 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package com.dragonbones.armature
+
+import com.dragonbones.core.*
+import com.dragonbones.geom.*
+import com.dragonbones.model.*
+
 /**
  * @internal
  */
-abstract class Constraint  :  BaseObject {
-	protected static val _helpMatrix: Matrix = new Matrix();
-	protected static val _helpTransform: Transform = new Transform();
-	protected static val _helpPoint: Point = new Point();
+abstract class Constraint  : BaseObject() {
+	companion object {
+		protected val _helpMatrix: Matrix = Matrix();
+		protected val _helpTransform: Transform = Transform();
+		protected val _helpPoint: Point = Point();
+	}
 	/**
 	 * - For timeline state.
 	 * @internal
 	 */
-	public _constraintData: ConstraintData;
-	protected _armature: Armature;
+	public var _constraintData: ConstraintData;
+	protected var _armature: Armature;
 	/**
 	 * - For sort bones.
 	 * @internal
 	 */
-	public _target: Bone;
+	public var _target: Bone;
 	/**
 	 * - For sort bones.
 	 * @internal
 	 */
-	public _root: Bone;
-	protected _bone: Bone?;
+	public var _root: Bone;
+	protected var _bone: Bone?;
 
-	protected _onClear(): Unit {
+	protected override fun _onClear(): Unit {
 		this._armature = null as any; //
 		this._target = null as any; //
 		this._root = null as any; //
 		this._bone = null;
 	}
 
-	public abstract init(constraintData: ConstraintData, armature: Armature): Unit;
-	public abstract update(): Unit;
-	public abstract invalidUpdate(): Unit;
+	public abstract fun init(constraintData: ConstraintData, armature: Armature): Unit;
+	public abstract fun update(): Unit;
+	public abstract fun invalidUpdate(): Unit;
 
-	public get name(): String {
+	public val name: String get() {
 		return this._constraintData.name;
 	}
 }
@@ -65,23 +72,23 @@ abstract class Constraint  :  BaseObject {
  * @internal
  */
 class IKConstraint  :  Constraint() {
-	public static toString(): String {
+	public override fun toString(): String {
 		return "[class dragonBones.IKConstraint]";
 	}
 
-	private _scaleEnabled: Boolean; // TODO
+	private var _scaleEnabled: Boolean; // TODO
 	/**
 	 * - For timeline state.
 	 * @internal
 	 */
-	public _bendPositive: Boolean;
+	public var _bendPositive: Boolean;
 	/**
 	 * - For timeline state.
 	 * @internal
 	 */
-	public _weight: Double;
+	public var _weight: Double;
 
-	protected _onClear(): Unit {
+	protected fun _onClear(): Unit {
 		super._onClear();
 
 		this._scaleEnabled = false;
@@ -90,7 +97,7 @@ class IKConstraint  :  Constraint() {
 		this._constraintData = null as any;
 	}
 
-	private _computeA(): Unit {
+	private fun _computeA(): Unit {
 		val ikGlobal = this._target.global;
 		val global = this._root.global;
 		val globalTransformMatrix = this._root.globalTransformMatrix;
@@ -104,7 +111,7 @@ class IKConstraint  :  Constraint() {
 		global.toMatrix(globalTransformMatrix);
 	}
 
-	private _computeB(): Unit {
+	private fun _computeB(): Unit {
 		val boneLength = (this._bone as Bone)._boneData.length;
 		val parent = this._root as Bone;
 		val ikGlobal = this._target.global;
@@ -182,7 +189,7 @@ class IKConstraint  :  Constraint() {
 		global.toMatrix(globalTransformMatrix);
 	}
 
-	public init(constraintData: ConstraintData, armature: Armature): Unit {
+	public fun init(constraintData: ConstraintData, armature: Armature): Unit {
 		if (this._constraintData !== null) {
 			return;
 		}
@@ -193,7 +200,7 @@ class IKConstraint  :  Constraint() {
 		this._root = this._armature.getBone(this._constraintData.root.name) as any;
 		this._bone = this._constraintData.bone !== null ? this._armature.getBone(this._constraintData.bone.name) : null;
 
-		{
+		run {
 			val ikConstraintData = this._constraintData as IKConstraintData;
 			this._scaleEnabled = ikConstraintData.scaleEnabled;
 			this._bendPositive = ikConstraintData.bendPositive;
@@ -203,7 +210,7 @@ class IKConstraint  :  Constraint() {
 		this._root._hasConstraint = true;
 	}
 
-	public update(): Unit {
+	public fun update(): Unit {
 		this._root.updateByConstraint();
 
 		if (this._bone !== null) {
@@ -215,7 +222,7 @@ class IKConstraint  :  Constraint() {
 		}
 	}
 
-	public invalidUpdate(): Unit {
+	public fun invalidUpdate(): Unit {
 		this._root.invalidUpdate();
 
 		if (this._bone !== null) {
@@ -227,32 +234,32 @@ class IKConstraint  :  Constraint() {
 /**
  * @internal
  */
-class PathConstraint  :  Constraint {
+class PathConstraint  :  Constraint() {
 
-	public dirty: Boolean;
-	public pathOffset: Double;
-	public position: Double;
-	public spacing: Double;
-	public rotateOffset: Double;
-	public rotateMix: Double;
-	public translateMix: Double;
+	public var dirty: Boolean;
+	public var pathOffset: Double;
+	public var position: Double;
+	public var spacing: Double;
+	public var rotateOffset: Double;
+	public var rotateMix: Double;
+	public var translateMix: Double;
 
-	private _pathSlot: Slot;
-	private _bones: Array<Bone> = [];
+	private var _pathSlot: Slot;
+	private var _bones: Array<Bone> = [];
 
-	private _spaces:  DoubleArray = [];
-	private _positions:  DoubleArray = [];
-	private _curves:  DoubleArray = [];
-	private _boneLengths:  DoubleArray = [];
+	private var _spaces:  DoubleArray = [];
+	private var _positions:  DoubleArray = [];
+	private var _curves:  DoubleArray = [];
+	private var _boneLengths:  DoubleArray = [];
 
-	private _pathGlobalVertices:  DoubleArray = [];
-	private _segments:  DoubleArray = [10];
+	private var _pathGlobalVertices:  DoubleArray = [];
+	private var _segments:  DoubleArray = [10];
 
-	public static toString(): String {
+	public override fun toString(): String {
 		return "[class dragonBones.PathConstraint]";
 	}
 
-	protected _onClear(): Unit {
+	protected override fun _onClear(): Unit {
 		super._onClear();
 
 		this.dirty = false;
@@ -265,17 +272,17 @@ class PathConstraint  :  Constraint {
 		this.translateMix = 1.0;
 
 		this._pathSlot = null as any;
-		this._bones.length = 0;
+		this._bones.clear()
 
-		this._spaces.length = 0;
-		this._positions.length = 0;
-		this._curves.length = 0;
-		this._boneLengths.length = 0;
+		this._spaces.clear()
+		this._positions.clear()
+		this._curves.clear()
+		this._boneLengths.clear()
 
-		this._pathGlobalVertices.length = 0;
+		this._pathGlobalVertices.clear()
 	}
 
-	protected _updatePathVertices(verticesData: GeometryData): Unit {
+	protected fun _updatePathVertices(verticesData: GeometryData): Unit {
 		//计算曲线的节点数据
 		val armature = this._armature;
 		val dragonBonesData = armature.armatureData.parent;
@@ -297,7 +304,8 @@ class PathConstraint  :  Constraint {
 
 			val matrix = parentBone.globalTransformMatrix;
 
-			for (var i = 0, iV = pathVertexOffset; i < pathVertexCount; i += 2) {
+			var iV = pathVertexOffset
+			for (i in 0 until pathVertexCount step 2) {
 				val vx = floatArray[iV++] * scale;
 				val vy = floatArray[iV++] * scale;
 
@@ -313,7 +321,7 @@ class PathConstraint  :  Constraint {
 
 		//有骨骼约束我,那我的节点受骨骼权重控制
 		val bones = this._pathSlot._geometryBones;
-		val weightBoneCount = weightData.bones.length;
+		val weightBoneCount = weightData.bones.size;
 
 		val weightOffset = weightData.offset;
 		val floatOffset = intArray[weightOffset + BinaryOffset.WeigthFloatOffset];
@@ -321,11 +329,13 @@ class PathConstraint  :  Constraint {
 		var iV = floatOffset;
 		var iB = weightOffset + BinaryOffset.WeigthBoneIndices + weightBoneCount;
 
-		for (var i = 0, iW = 0; i < pathVertexCount; i++) {
+		var iW = 0
+		for (i in 0 until pathVertexCount) {
 			val vertexBoneCount = intArray[iB++]; //
 
-			var xG = 0.0, yG = 0.0;
-			for (var ii = 0, ll = vertexBoneCount; ii < ll; ii++) {
+			var xG = 0.0
+			var yG = 0.0
+			for (ii in 0 until vertexBoneCount) {
 				val boneIndex = intArray[iB++];
 				val bone = bones[boneIndex];
 				if (bone === null) {
@@ -346,15 +356,16 @@ class PathConstraint  :  Constraint {
 		}
 	}
 
-	protected _computeVertices(start: Double, count: Double, offset: Double, out:  DoubleArray): Unit {
+	protected fun _computeVertices(start: Int, count: Int, offset: Int, out:  DoubleArray): Unit {
 		//TODO优化
-		for (var i = offset, iW = start; i < count; i += 2) {
+		var iW = start
+		for (i in offset until count step 2) {
 			out[i] = this._pathGlobalVertices[iW++];
 			out[i + 1] = this._pathGlobalVertices[iW++];
 		}
 	}
 
-	protected _computeBezierCurve(pathDisplayDta: PathDisplayData, spaceCount: Double, tangents: Boolean, percentPosition: Boolean, percentSpacing: Boolean): Unit {
+	protected fun _computeBezierCurve(pathDisplayDta: PathDisplayData, spaceCount: Double, tangents: Boolean, percentPosition: Boolean, percentSpacing: Boolean): Unit {
 		//计算当前的骨骼在曲线上的位置
 		val armature = this._armature;
 		val intArray = armature.armatureData.parent.intArray;
@@ -369,13 +380,13 @@ class PathConstraint  :  Constraint {
 		var preCurve = -1;
 		var position = this.position;
 
-		positions.length = spaceCount * 3 + 2;
+		positions.size = spaceCount * 3 + 2;
 
 		var pathLength = 0.0;
 		//不需要匀速运动，效率高些
 		if (!pathDisplayDta.constantSpeed) {
 			val lenghts = pathDisplayDta.curveLengths;
-			curveCount -= isClosed ? 1 : 2;
+			curveCount -= if (isClosed) 1 else 2;
 			pathLength = lenghts[curveCount];
 
 			if (percentPosition) {
@@ -383,7 +394,7 @@ class PathConstraint  :  Constraint {
 			}
 
 			if (percentSpacing) {
-				for (var i = 0; i < spaceCount; i++) {
+				for (i in 0 until spaceCount) {
 					spaces[i] *= pathLength;
 				}
 			}
@@ -596,7 +607,7 @@ class PathConstraint  :  Constraint {
 	}
 
 	//Calculates a point on the curve, for a given t value between 0 and 1.
-	private addCurvePosition(t: Double, x1: Double, y1: Double, cx1: Double, cy1: Double, cx2: Double, cy2: Double, x2: Double, y2: Double, out:  DoubleArray, offset: Double, tangents: Boolean) {
+	private fun addCurvePosition(t: Double, x1: Double, y1: Double, cx1: Double, cy1: Double, cx2: Double, cy2: Double, x2: Double, y2: Double, out:  DoubleArray, offset: Double, tangents: Boolean) {
 		if (t === 0) {
 			out[offset] = x1;
 			out[offset + 1] = y1;
@@ -633,7 +644,7 @@ class PathConstraint  :  Constraint {
 		}
 	}
 
-	public init(constraintData: ConstraintData, armature: Armature): Unit {
+	public fun init(constraintData: ConstraintData, armature: Armature): Unit {
 		this._constraintData = constraintData;
 		this._armature = armature;
 
@@ -667,7 +678,7 @@ class PathConstraint  :  Constraint {
 		this._root._hasConstraint = true;
 	}
 
-	public update(): Unit {
+	public fun update(): Unit {
 		val pathSlot = this._pathSlot;
 
 		if (
@@ -828,7 +839,7 @@ class PathConstraint  :  Constraint {
 		this.dirty = false;
 	}
 
-	public invalidUpdate(): Unit {
+	public fun invalidUpdate(): Unit {
 
 	}
 }

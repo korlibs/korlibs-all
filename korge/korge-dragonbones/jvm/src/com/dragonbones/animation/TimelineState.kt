@@ -47,7 +47,7 @@ class ActionTimelineState  :  TimelineState {
 				val action = actions[actionIndex]
 
 				if (action.type === ActionType.Play) {
-					val eventObject = BaseObject.borrowObject(EventObject)
+					val eventObject = BaseObject.borrowObject<EventObject>()
 					// eventObject.time = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
 					eventObject.time = this._frameArray[frameOffset] / this._frameRate
 					eventObject.animationState = this._animationState
@@ -57,7 +57,7 @@ class ActionTimelineState  :  TimelineState {
 				else {
 					val eventType = action.type === ActionType.Frame ? EventObject.FRAME_EVENT : EventObject.SOUND_EVENT
 					if (action.type === ActionType.Sound || eventDispatcher.hasDBEventListener(eventType)) {
-						val eventObject = BaseObject.borrowObject(EventObject)
+						val eventObject = BaseObject.borrowObject<EventObject>()
 						// eventObject.time = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
 						eventObject.time = this._frameArray[frameOffset] / this._frameRate
 						eventObject.animationState = this._animationState
@@ -89,7 +89,7 @@ class ActionTimelineState  :  TimelineState {
 					prevPlayTimes = this.currentPlayTimes
 
 					if (eventActive && eventDispatcher.hasDBEventListener(EventObject.START)) {
-						val eventObject = BaseObject.borrowObject(EventObject)
+						val eventObject = BaseObject.borrowObject<EventObject>()
 						eventObject.type = EventObject.START
 						eventObject.armature = this._armature
 						eventObject.animationState = this._animationState
@@ -107,7 +107,7 @@ class ActionTimelineState  :  TimelineState {
 
 			if (eventActive && this.currentPlayTimes != prevPlayTimes) {
 				if (eventDispatcher.hasDBEventListener(EventObject.LOOP_COMPLETE)) {
-					loopCompleteEvent = BaseObject.borrowObject(EventObject)
+					loopCompleteEvent = BaseObject.borrowObject<EventObject>()
 					loopCompleteEvent.type = EventObject.LOOP_COMPLETE
 					loopCompleteEvent.armature = this._armature
 					loopCompleteEvent.animationState = this._animationState
@@ -115,7 +115,7 @@ class ActionTimelineState  :  TimelineState {
 
 				if (this.playState > 0) {
 					if (eventDispatcher.hasDBEventListener(EventObject.COMPLETE)) {
-						completeEvent = BaseObject.borrowObject(EventObject)
+						completeEvent = BaseObject.borrowObject<EventObject>()
 						completeEvent.type = EventObject.COMPLETE
 						completeEvent.armature = this._armature
 						completeEvent.animationState = this._animationState

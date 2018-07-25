@@ -94,6 +94,7 @@ enum class DisplayType(val id: Int) {
  * @language zh_CN
  */
 enum class BoundingBoxType(val id: Int) {
+	None(-1),
 	Rectangle(0),
 	Ellipse(1),
 	Polygon(2)
@@ -282,9 +283,9 @@ enum class RotateMode {
 /**
  * @private
  */
-interface Map<T> {
-	[key: String]: T
-}
+//interface Map<T> {
+//	[key: String]: T
+//}
 /**
  * @private
  */

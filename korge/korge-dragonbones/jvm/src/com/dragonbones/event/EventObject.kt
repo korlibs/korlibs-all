@@ -9,10 +9,10 @@
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
  * the Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
@@ -22,6 +22,7 @@
  */
 package com.dragonbones.event
 
+import com.dragonbones.animation.*
 import com.dragonbones.armature.*
 import com.dragonbones.core.*
 import com.dragonbones.model.*
@@ -37,7 +38,7 @@ import com.dragonbones.model.*
  * @version DragonBones 4.5
  * @language zh_CN
  */
-class EventObject  : BaseObject() {
+class EventObject : BaseObject() {
 	companion object {
 		/**
 		 * - Animation start play.
@@ -143,8 +144,7 @@ class EventObject  : BaseObject() {
 		 * @internal
 		 * @private
 		 */
-		public fun actionDataToInstance(data : ActionData, instance: EventObject, armature: Armature): Unit
-		{
+		public fun actionDataToInstance(data: ActionData, instance: EventObject, armature: Armature): Unit {
 			if (data.type === ActionType.Play) {
 				instance.type = EventObject.FRAME_EVENT
 			} else {
@@ -179,7 +179,7 @@ class EventObject  : BaseObject() {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public var time: Double
+	public var time: Double = 0.0
 	/**
 	 * - The event type。
 	 * @version DragonBones 4.5
@@ -190,7 +190,7 @@ class EventObject  : BaseObject() {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public var type: EventStringType
+	public var type: EventStringType = ""
 	/**
 	 * - The event name. (The frame event name or the frame sound name)
 	 * @version DragonBones 4.5
@@ -201,7 +201,7 @@ class EventObject  : BaseObject() {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public var name: String
+	public var name: String = ""
 	/**
 	 * - The armature that dispatch the event.
 	 * @see dragonBones.Armature
@@ -227,7 +227,7 @@ class EventObject  : BaseObject() {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public var bone: Bone?
+	public var bone: Bone? = null
 	/**
 	 * - The slot that dispatch the event.
 	 * @see dragonBones.Slot
@@ -240,7 +240,7 @@ class EventObject  : BaseObject() {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public var slot: Slot?
+	public var slot: Slot? = null
 	/**
 	 * - The animation state that dispatch the event.
 	 * @see dragonBones.AnimationState
@@ -257,7 +257,7 @@ class EventObject  : BaseObject() {
 	/**
 	 * @private
 	 */
-	public var actionData: ActionData?
+	public var actionData: ActionData? = null
 	/**
 	 * @private
 	 */

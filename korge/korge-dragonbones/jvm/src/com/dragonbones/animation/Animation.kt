@@ -66,12 +66,12 @@ class Animation : BaseObject {
 	private val _animationNames: ArrayList<String> = []
 	private val _animationStates: ArrayList<AnimationState> = []
 	private val _animations: LinkedHashMap<String, AnimationData> = {}
-	private val _blendStates: LinkedHashMap<LinkedHashMap<String, BlendState>> = {}
+	private val _blendStates: LinkedHashMap<String, LinkedHashMap<String, BlendState>> = {}
 	private var _armature: Armature? = null
 	private var _animationConfig: AnimationConfig = null as any // Initial value.
-	private var _lastAnimationState: AnimationState?
+	private var _lastAnimationState: AnimationState? = null
 
-	protected fun _onClear(): Unit {
+	protected override fun _onClear(): Unit {
 		for (animationState in this._animationStates) {
 			animationState.returnToPool()
 		}
@@ -169,7 +169,7 @@ class Animation : BaseObject {
 		}
 
 		this._armature = armature
-		this._animationConfig = BaseObject.borrowObject(AnimationConfig)
+		this._animationConfig = BaseObject.borrowObject<AnimationConfig>()
 	}
 	/**
 	 * @internal
@@ -288,7 +288,7 @@ class Animation : BaseObject {
 
 		this._animationDirty = false
 		this._animationConfig.clear()
-		this._animationStates.length = 0
+		this._animationStates.clear()
 		this._lastAnimationState = null
 	}
 	/**
@@ -415,7 +415,7 @@ class Animation : BaseObject {
 
 		this._fadeOut(animationConfig)
 		//
-		val animationState = BaseObject.borrowObject(AnimationState)
+		val animationState = BaseObject.borrowObject<AnimationState>()
 		animationState.init(this._armature, animationData, animationConfig)
 		this._animationDirty = true
 		this._armature._cacheFrameIndex = -1
@@ -507,12 +507,12 @@ class Animation : BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public fun play(animationName: String? = null, playTimes: Double = -1): AnimationState? {
+	public fun play(animationName: String? = null, playTimes: Int = -1): AnimationState? {
 		this._animationConfig.clear()
 		this._animationConfig.resetToPose = true
 		this._animationConfig.playTimes = playTimes
 		this._animationConfig.fadeInTime = 0.0
-		this._animationConfig.animation = animationName !== null ? animationName : ""
+		this._animationConfig.animation = animationName ?: ""
 
 		if (animationName !== null && animationName.length > 0) {
 			this.playConfig(this._animationConfig)
@@ -756,7 +756,7 @@ class Animation : BaseObject {
 
 		val blendStates = this._blendStates[type]
 		if (!(name in blendStates)) {
-			val blendState = blendStates[name] = BaseObject.borrowObject(BlendState)
+			val blendState = blendStates[name] = BaseObject.borrowObject<BlendState>()
 			blendState.target = target
 		}
 

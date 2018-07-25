@@ -1,10 +1,42 @@
 package com.dragonbones.util
 
+import com.soywiz.kds.*
+
+var DoubleArrayList.lengthSet
+	get() = size
+	set(value) = if (value == 0) clear() else {
+		while (size > value) this.removeAt(size - 1)
+		while (size < value) this.add(0.0)
+	}
+
+var DoubleArrayList.size
+	get() = size
+	set(value) = if (value == 0) clear() else {
+		while (size > value) this.removeAt(size - 1)
+		while (size < value) this.add(0.0)
+	}
+
 var <T> ArrayList<T>.length
 	get() = size
-	set(value) {
-		while (size < value) {
-			@Suppress("UNCHECKED_CAST")
-			(this as ArrayList<T?>).add(null)
-		}
+	set(value) = if (value == 0) clear() else {
+		while (size > value) this.removeAt(size - 1)
+		@Suppress("UNCHECKED_CAST")
+		while (size < value) (this as ArrayList<T?>).add(null)
 	}
+
+//@Deprecated("", ReplaceWith("this.add(value)"))
+fun <T> ArrayList<T>.push(value: T) {
+	this.add(value)
+}
+
+fun <T> ArrayList<T>.unshift(value: T) {
+	this.add(0, value)
+}
+
+fun <T> MutableList<T>.splice(removeOffset: Int, removeCount: Int, vararg itemsToAdd: T) {
+	// @TODO: Improve performance
+	for (n in 0 until removeCount) this.removeAt(removeOffset)
+	for (n in 0 until itemsToAdd.size) {
+		this.add(removeOffset + n, itemsToAdd[n])
+	}
+}

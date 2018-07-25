@@ -27,6 +27,7 @@ import com.dragonbones.core.*
 import com.dragonbones.event.*
 import com.dragonbones.geom.*
 import com.dragonbones.model.*
+import com.dragonbones.util.*
 
 /**
  * - Armature is the core of the skeleton animation system.
@@ -51,8 +52,8 @@ class Armature  : BaseObject(), IAnimatable {
 		return "[class dragonBones.Armature]"
 	}
 	companion object {
-		private fun _onSortSlots(a: Slot, b: Slot): Double {
-			return a._zIndex * 1000 + a._zOrder > b._zIndex * 1000 + b._zOrder ? 1 : -1
+		private fun _onSortSlots(a: Slot, b: Slot): Int {
+			return if (a._zIndex * 1000 + a._zOrder > b._zIndex * 1000 + b._zOrder) 1 else -1
 		}
 	}
 	/**
@@ -77,9 +78,9 @@ class Armature  : BaseObject(), IAnimatable {
 	/**
 	 * @internal
 	 */
-	public var _lockUpdate: Boolean
-	private var _slotsDirty: Boolean
-	private var _zOrderDirty: Boolean
+	public var _lockUpdate: Boolean = false
+	private var _slotsDirty: Boolean = true
+	private var _zOrderDirty: Boolean = false
 	/**
 	 * @internal
 	 */
@@ -93,19 +94,19 @@ class Armature  : BaseObject(), IAnimatable {
 	/**
 	 * @internal
 	 */
-	public var _cacheFrameIndex: Double
-	private var _alpha: Double
+	public var _cacheFrameIndex: Int = -1
+	private var _alpha: Double = 1.0
 	/**
 	 * @internal
 	 */
-	public var _globalAlpha: Double
-	private val _bones: Array<Bone> = []
-	private val _slots: Array<Slot> = []
+	public var _globalAlpha: Double = 1.0
+	private val _bones: ArrayList<Bone> = arrayListOf()
+	private val _slots: ArrayList<Slot> = arrayListOf()
 	/**
 	 * @internal
 	 */
-	public val _constraints: Array<Constraint> = []
-	private val _actions: Array<EventObject> = []
+	public val _constraints: ArrayList<Constraint> = []
+	private val _actions: ArrayList<EventObject> = []
 	/**
 	 * @internal
 	 */
@@ -149,17 +150,9 @@ class Armature  : BaseObject(), IAnimatable {
 			action.returnToPool()
 		}
 
-		if (this._animation !== null) {
-			this._animation.returnToPool()
-		}
-
-		if (this._proxy !== null) {
-			this._proxy.dbClear()
-		}
-
-		if (this._replaceTextureAtlasData !== null) {
-			this._replaceTextureAtlasData.returnToPool()
-		}
+		this._animation?.returnToPool()
+		this._proxy?.dbClear()
+		this._replaceTextureAtlasData?.returnToPool()
 
 		this.inheritAnimation = true
 		this.userData = null
@@ -191,13 +184,14 @@ class Armature  : BaseObject(), IAnimatable {
 	/**
 	 * @internal
 	 */
-	public fun _sortZOrder(slotIndices:  DoubleArray | Int16Array?, offset: Double): Unit {
+	public fun _sortZOrder(slotIndices:  Either<DoubleArray, ShortArray>?, offset: Double): Unit {
 		val slotDatas = this._armatureData.sortedSlots
 		val isOriginal = slotIndices === null
 
 		if (this._zOrderDirty || !isOriginal) {
-			for (var i = 0, l = slotDatas.length; i < l; ++i) {
-				val slotIndex = isOriginal ? i : (slotIndices as  DoubleArray)[offset + i]
+			val l = slotDatas.length
+			for (i in 0 until l) {
+				val slotIndex = if (isOriginal) i else (slotIndices as  DoubleArray)[offset + i]
 				if (slotIndex < 0 || slotIndex >= l) {
 					continue
 				}
@@ -219,7 +213,7 @@ class Armature  : BaseObject(), IAnimatable {
 	 */
 	public fun _addBone(value: Bone): Unit {
 		if (this._bones.indexOf(value) < 0) {
-			this._bones.push(value)
+			this._bones.add(value)
 		}
 	}
 	/**
@@ -227,7 +221,7 @@ class Armature  : BaseObject(), IAnimatable {
 	 */
 	public fun _addSlot(value: Slot): Unit {
 		if (this._slots.indexOf(value) < 0) {
-			this._slots.push(value)
+			this._slots.add(value)
 		}
 	}
 	/**
@@ -235,7 +229,7 @@ class Armature  : BaseObject(), IAnimatable {
 	 */
 	public fun _addConstraint(value: Constraint): Unit {
 		if (this._constraints.indexOf(value) < 0) {
-			this._constraints.push(value)
+			this._constraints.add(value)
 		}
 	}
 	/**
@@ -272,7 +266,7 @@ class Armature  : BaseObject(), IAnimatable {
 	 * @language zh_CN
 	 */
 	public fun dispose(): Unit {
-		if (this._armatureData !== null) {
+		if (this._armatureData != null) {
 			this._lockUpdate = true
 			this._dragonBones.bufferObject(this)
 		}
@@ -284,12 +278,12 @@ class Armature  : BaseObject(), IAnimatable {
 		armatureData: ArmatureData,
 		proxy: IArmatureProxy, display: Any, dragonBones: DragonBones
 	): Unit {
-		if (this._armatureData !== null) {
+		if (this._armatureData != null) {
 			return
 		}
 
 		this._armatureData = armatureData
-		this._animation = BaseObject.borrowObject(Animation)
+		this._animation = BaseObject.borrowObject<Animation>()
 		this._proxy = proxy
 		this._display = display
 		this._dragonBones = dragonBones
@@ -301,18 +295,18 @@ class Armature  : BaseObject(), IAnimatable {
 	/**
 	 * @inheritDoc
 	 */
-	public fun advanceTime(passedTime: Double): Unit {
+	public override fun advanceTime(passedTime: Double): Unit {
 		if (this._lockUpdate) {
 			return
 		}
 
 		this._lockUpdate = true
 
-		if (this._armatureData === null) {
+		if (this._armatureData == null) {
 			console.warn("The armature has been disposed.")
 			return
 		}
-		else if (this._armatureData.parent === null) {
+		else if (this._armatureData.parent == null) {
 			console.warn("The armature data has been disposed.\nPlease make sure dispose armature before call factory.clear().")
 			return
 		}
@@ -325,8 +319,8 @@ class Armature  : BaseObject(), IAnimatable {
 			this._slots.sort(Armature._onSortSlots)
 
 			if (this._zIndexDirty) {
-				for (var i = 0, l = this._slots.length; i < l; ++i) {
-					this._slots[i]._setZOrder(i) //
+				for (i in 0 until this._slots.length) {
+¡					this._slots[i]._setZOrder(i) //
 				}
 			}
 
@@ -502,7 +496,7 @@ class Armature  : BaseObject(), IAnimatable {
 		intersectionPointB: Point? = null,
 		normalRadians: Point? = null
 	): Slot? {
-		val isV = xA === xB
+		val isV = xA == xB
 		var dMin = 0.0
 		var dMax = 0.0
 		var intXA = 0.0
@@ -530,7 +524,7 @@ class Armature  : BaseObject(), IAnimatable {
 							intYA = intersectionPointA.y
 							intSlotA = slot
 
-							if (normalRadians != 0.0) {
+							if (normalRadians != 0.0) { // @TODO: What?
 								intAN = normalRadians.x
 							}
 						}
@@ -620,7 +614,7 @@ class Armature  : BaseObject(), IAnimatable {
 	 */
 	public fun getBoneByDisplay(display: Any): Bone? {
 		val slot = this.getSlotByDisplay(display)
-		return slot !== null ? slot.parent : null
+		return if (slot != null) slot.parent else null
 	}
 	/**
 	 * - Get a specific slot.
@@ -899,15 +893,10 @@ class Armature  : BaseObject(), IAnimatable {
 			return
 		}
 
-		if (this._clock !== null) {
-			this._clock.remove(this)
-		}
+		this._clock?.remove(this)
 
 		this._clock = value
-
-		if (this._clock) {
-			this._clock.add(this)
-		}
+		this._clock?.add(this)
 
 		// Update childArmature clock.
 		for (slot in this._slots) {
