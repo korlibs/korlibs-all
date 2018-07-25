@@ -24,6 +24,8 @@ package com.dragonbones.parser
 
 import com.dragonbones.core.*
 import com.dragonbones.model.*
+import com.dragonbones.util.*
+import com.soywiz.kmem.*
 
 /**
  * @private
@@ -39,7 +41,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 		return min <= a && a <= max
 	}
 
-	private fun _decodeUTF8(data: Uint8Array): String {
+	private fun _decodeUTF8(data: UInt8Buffer): String {
 		val EOF_byte = -1
 		val EOF_code_point = -1
 		val FATAL_POINT = 0xFFFD
@@ -103,9 +105,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 				else {
 
 					utf8_bytes_seen += 1
-					utf8_code_point = utf8_code_point + (_byte - 0x80) * Math.pow(64.0,
-						(utf8_bytes_needed - utf8_bytes_seen).toDouble()
-					)
+					utf8_code_point += (_byte - 0x80) * Math.pow(64.0, (utf8_bytes_needed - utf8_bytes_seen).toDouble())
 
 					if (utf8_bytes_seen != utf8_bytes_needed) {
 						code_point = null
@@ -145,14 +145,14 @@ class BinaryDataParser  :  ObjectDataParser() {
 	}
 
 	private fun _parseBinaryTimeline(type: TimelineType, offset: Double, timelineData: TimelineData? = null): TimelineData {
-		val timeline: TimelineData = if (timelineData !== null) timelineData else BaseObject.borrowObject<TimelineData>()
+		val timeline: TimelineData = if (timelineData != null) timelineData else BaseObject.borrowObject<TimelineData>()
 		timeline.type = type
 		timeline.offset = offset
 
 		this._timeline = timeline
 
 		val keyFrameCount = this._timelineArrayBuffer[timeline.offset + BinaryOffset.TimelineKeyFrameCount]
-		if (keyFrameCount === 1) {
+		if (keyFrameCount == 1) {
 			timeline.frameIndicesOffset = -1
 		}
 		else {
@@ -169,7 +169,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 			for (i in 0 until totalFrameCount) {
 				if (frameStart + frameCount <= i && iK < keyFrameCount) {
 					frameStart = this._frameArrayBuffer[this._animation.frameOffset + this._timelineArrayBuffer[timeline.offset + BinaryOffset.TimelineFrameOffset + iK]]
-					if (iK === keyFrameCount - 1) {
+					if (iK == keyFrameCount - 1) {
 						frameCount = this._animation.frameCount - frameStart
 					}
 					else {
@@ -197,7 +197,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 		animation.fadeInTime = ObjectDataParser._getNumber(rawData, DataParser.FADE_IN_TIME, 0.0)
 		animation.scale = ObjectDataParser._getNumber(rawData, DataParser.SCALE, 1.0)
 		animation.name = ObjectDataParser._getString(rawData, DataParser.NAME, DataParser.DEFAULT_NAME)
-		if (animation.name.length === 0) {
+		if (animation.name.length == 0) {
 			animation.name = DataParser.DEFAULT_NAME
 		}
 
@@ -222,7 +222,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 			for (k in rawTimeliness.keys) {
 				val rawTimelines = rawTimeliness[k] as  DoubleArray
 				val bone = this._armature.getBone(k)
-				if (bone === null) {
+				if (bone == null) {
 					continue
 				}
 
@@ -240,7 +240,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 			for (k in rawTimeliness.keys) {
 				val rawTimelines = rawTimeliness[k] as  DoubleArray
 				val slot = this._armature.getSlot(k)
-				if (slot === null) {
+				if (slot == null) {
 					continue
 				}
 
@@ -258,7 +258,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 			for (k in rawTimeliness.keys) {
 				val rawTimelines = rawTimeliness[k] as  DoubleArray
 				val constraint = this._armature.getConstraint(k)
-				if (constraint === null) {
+				if (constraint == null) {
 					continue
 				}
 
@@ -280,9 +280,9 @@ class BinaryDataParser  :  ObjectDataParser() {
 					val timelineName = ObjectDataParser._getString(rawTimeline, DataParser.NAME, "")
 					var timeline: TimelineData? = null
 
-					if (timelineType === TimelineType.AnimationProgress && animation.blendType !== AnimationBlendType.None) {
+					if (timelineType == TimelineType.AnimationProgress && animation.blendType != AnimationBlendType.None) {
 						timeline = BaseObject.borrowObject<AnimationTimelineData>()
-						val animaitonTimeline = timeline as AnimationTimelineData
+						val animaitonTimeline = timeline
 						animaitonTimeline.x = ObjectDataParser._getNumber(rawTimeline, DataParser.X, 0.0)
 						animaitonTimeline.y = ObjectDataParser._getNumber(rawTimeline, DataParser.Y, 0.0)
 					}
@@ -362,7 +362,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 		}
 	}
 
-	protected fun _parseArray(rawData: Any): Unit {
+	protected fun _parseArray(rawData: Map<String, Any?>): Unit {
 		val offsets = rawData[DataParser.OFFSET] as  DoubleArray
 		val l1 = offsets[1]
 		val l2 = offsets[3]
@@ -370,7 +370,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 		val l4 = offsets[7]
 		val l5 = offsets[9]
 		val l6 = offsets[11]
-		val l7 = offsets.length > 12 ? offsets[13] : 0 // Color.
+		val l7 = if (offsets.length > 12) offsets[13] else 0 // Color.
 		val intArray = new Int16Array(this._binary, this._binaryOffset + offsets[0], l1 / Int16Array.BYTES_PER_ELEMENT)
 		val floatArray = new Float32Array(this._binary, this._binaryOffset + offsets[2], l2 / Float32Array.BYTES_PER_ELEMENT)
 		val frameIntArray = new Int16Array(this._binary, this._binaryOffset + offsets[4], l3 / Int16Array.BYTES_PER_ELEMENT)
@@ -389,15 +389,15 @@ class BinaryDataParser  :  ObjectDataParser() {
 		this._data.colorArray = colorArray
 	}
 
-	public fun parseDragonBonesData(rawData: Any, scale: Double = 1): DragonBonesData? {
-		console.assert(rawData !== null && rawData !== undefined && rawData instanceof ArrayBuffer, "Data error.")
+	fun parseDragonBonesData(rawData: Any, scale: Double = 1.0): DragonBonesData? {
+		console.assert(rawData != null && rawData is ArrayBuffer, "Data error.")
 
 		val tag = new Uint8Array(rawData, 0, 8)
 		if (
-			tag[0] !== "D".charCodeAt(0) ||
-			tag[1] !== "B".charCodeAt(0) ||
-			tag[2] !== "D".charCodeAt(0) ||
-			tag[3] !== "T".charCodeAt(0)
+			tag[0] != "D".charCodeAt(0) ||
+			tag[1] != "B".charCodeAt(0) ||
+			tag[2] != "D".charCodeAt(0) ||
+			tag[3] != "T".charCodeAt(0)
 		) {
 			console.assert(false, "Nonsupport data.")
 			return null
@@ -426,12 +426,12 @@ class BinaryDataParser  :  ObjectDataParser() {
 		 * @deprecated
 		 * @language zh_CN
 		 */
-		public fun getInstance(): BinaryDataParser {
+		fun getInstance(): BinaryDataParser {
 			if (BinaryDataParser._binaryDataParserInstance == null) {
 				BinaryDataParser._binaryDataParserInstance = BinaryDataParser()
 			}
 
-			return BinaryDataParser._binaryDataParserInstance
+			return BinaryDataParser._binaryDataParserInstance!!
 		}
 	}
 }

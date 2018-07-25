@@ -20,6 +20,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+@file:Suppress("KDocUnresolvedReference")
+
 package com.dragonbones.armature
 
 import com.dragonbones.core.*
@@ -104,7 +106,7 @@ abstract class TransformObject : BaseObject() {
 
 	/**
 	 */
-	protected override fun _onClear(): Unit {
+	override fun _onClear() {
 		this.globalTransformMatrix.identity()
 		this.global.identity()
 		this.offset.identity()
@@ -140,7 +142,7 @@ abstract class TransformObject : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	fun updateGlobalTransform(): Unit {
+	fun updateGlobalTransform() {
 		if (this._globalDirty) {
 			this._globalDirty = false
 			this.global.fromMatrix(this.globalTransformMatrix)

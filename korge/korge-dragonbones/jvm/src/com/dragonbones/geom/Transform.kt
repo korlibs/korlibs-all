@@ -32,7 +32,7 @@ package com.dragonbones.geom
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class Transform {
+class Transform : XY {
 	companion object {
 		/**
 		 * @private
@@ -80,7 +80,7 @@ class Transform {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public var x: Double
+	override var x: Double
 	/**
 	 * - Vertical translate.
 	 * @version DragonBones 3.0
@@ -91,7 +91,7 @@ class Transform {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public var y: Double
+	override var y: Double
 	/**
 	 * - Skew. (In radians)
 	 * @version DragonBones 3.0
@@ -102,7 +102,7 @@ class Transform {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public var skew: Double
+	var skew: Double
 	/**
 	 * - rotation. (In radians)
 	 * @version DragonBones 3.0
@@ -113,7 +113,7 @@ class Transform {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public var rotation: Double
+	var rotation: Double
 	/**
 	 * - Horizontal Scaling.
 	 * @version DragonBones 3.0
@@ -124,7 +124,7 @@ class Transform {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public var scaleX: Double
+	var scaleX: Double
 	/**
 	 * - Vertical scaling.
 	 * @version DragonBones 3.0
@@ -135,7 +135,7 @@ class Transform {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public var scaleY: Double
+	var scaleY: Double
 	/**
 	 * @private
 	 */
@@ -148,13 +148,14 @@ class Transform {
 		this.scaleY = scaleY
 	}
 
-	public override fun toString(): String {
+	override fun toString(): String {
 		return "[object dragonBones.Transform] x:" + this.x + " y:" + this.y + " skewX:" + this.skew * 180.0 / Math.PI + " skewY:" + this.rotation * 180.0 / Math.PI + " scaleX:" + this.scaleX + " scaleY:" + this.scaleY
 	}
+
 	/**
 	 * @private
 	 */
-	public fun copyFrom(value: Transform): Transform {
+	fun copyFrom(value: Transform): Transform {
 		this.x = value.x
 		this.y = value.y
 		this.skew = value.skew
@@ -164,10 +165,11 @@ class Transform {
 
 		return this
 	}
+
 	/**
 	 * @private
 	 */
-	public fun identity(): Transform {
+	fun identity(): Transform {
 		this.x = 0.0
 		this.y = 0.0
 		this.skew = 0.0
@@ -177,10 +179,11 @@ class Transform {
 
 		return this
 	}
+
 	/**
 	 * @private
 	 */
-	public fun add(value: Transform): Transform {
+	fun add(value: Transform): Transform {
 		this.x += value.x
 		this.y += value.y
 		this.skew += value.skew
@@ -190,10 +193,11 @@ class Transform {
 
 		return this
 	}
+
 	/**
 	 * @private
 	 */
-	public fun minus(value: Transform): Transform {
+	fun minus(value: Transform): Transform {
 		this.x -= value.x
 		this.y -= value.y
 		this.skew -= value.skew
@@ -203,10 +207,11 @@ class Transform {
 
 		return this
 	}
+
 	/**
 	 * @private
 	 */
-	public fun fromMatrix(matrix: Matrix): Transform {
+	fun fromMatrix(matrix: Matrix): Transform {
 		val backupScaleX = this.scaleX
 		val backupScaleY = this.scaleY
 		val PI_Q = Transform.PI_Q
@@ -233,10 +238,11 @@ class Transform {
 
 		return this
 	}
+
 	/**
 	 * @private
 	 */
-	public fun toMatrix(matrix: Matrix): Transform {
+	fun toMatrix(matrix: Matrix): Transform {
 		if (this.rotation == 0.0) {
 			matrix.a = 1.0
 			matrix.b = 0.0

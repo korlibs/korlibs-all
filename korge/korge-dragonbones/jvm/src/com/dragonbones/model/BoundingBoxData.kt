@@ -217,7 +217,7 @@ class RectangleBoundingBoxData : BoundingBoxData() {
 					x = xA + (xB - xA) * (yMin - yA) / (yB - yA)
 					y = yMin
 
-					if (normalRadians !== null) {
+					if (normalRadians != null) {
 						normalRadian = -Math.PI * 0.5
 					}
 				} else if ((outcodeOut and OutCode.Bottom) != 0) {
@@ -225,7 +225,7 @@ class RectangleBoundingBoxData : BoundingBoxData() {
 					x = xA + (xB - xA) * (yMax - yA) / (yB - yA)
 					y = yMax
 
-					if (normalRadians !== null) {
+					if (normalRadians != null) {
 						normalRadian = Math.PI * 0.5
 					}
 				} else if ((outcodeOut and OutCode.Right) != 0) {
@@ -233,7 +233,7 @@ class RectangleBoundingBoxData : BoundingBoxData() {
 					y = yA + (yB - yA) * (xMax - xA) / (xB - xA)
 					x = xMax
 
-					if (normalRadians !== null) {
+					if (normalRadians != null) {
 						normalRadian = 0.0
 					}
 				} else if ((outcodeOut and OutCode.Left) != 0) {
@@ -241,7 +241,7 @@ class RectangleBoundingBoxData : BoundingBoxData() {
 					y = yA + (yB - yA) * (xMin - xA) / (xB - xA)
 					x = xMin
 
-					if (normalRadians !== null) {
+					if (normalRadians != null) {
 						normalRadian = Math.PI
 					}
 				}
@@ -253,7 +253,7 @@ class RectangleBoundingBoxData : BoundingBoxData() {
 					yA = y
 					outcode0 = RectangleBoundingBoxData._computeOutCode(xA, yA, xMin, yMin, xMax, yMax)
 
-					if (normalRadians !== null) {
+					if (normalRadians != null) {
 						normalRadians.x = normalRadian
 					}
 				} else {
@@ -261,7 +261,7 @@ class RectangleBoundingBoxData : BoundingBoxData() {
 					yB = y
 					outcode1 = RectangleBoundingBoxData._computeOutCode(xB, yB, xMin, yMin, xMax, yMax)
 
-					if (normalRadians !== null) {
+					if (normalRadians != null) {
 						normalRadians.y = normalRadian
 					}
 				}
@@ -271,43 +271,43 @@ class RectangleBoundingBoxData : BoundingBoxData() {
 				if (inSideA) {
 					intersectionCount = 2 // 10
 
-					if (intersectionPointA !== null) {
+					if (intersectionPointA != null) {
 						intersectionPointA.x = xB
 						intersectionPointA.y = yB
 					}
 
-					if (intersectionPointB !== null) {
+					if (intersectionPointB != null) {
 						intersectionPointB.x = xB
 						intersectionPointB.y = xB
 					}
 
-					if (normalRadians !== null) {
+					if (normalRadians != null) {
 						normalRadians.x = normalRadians.y + Math.PI
 					}
 				} else if (inSideB) {
 					intersectionCount = 1 // 01
 
-					if (intersectionPointA !== null) {
+					if (intersectionPointA != null) {
 						intersectionPointA.x = xA
 						intersectionPointA.y = yA
 					}
 
-					if (intersectionPointB !== null) {
+					if (intersectionPointB != null) {
 						intersectionPointB.x = xA
 						intersectionPointB.y = yA
 					}
 
-					if (normalRadians !== null) {
+					if (normalRadians != null) {
 						normalRadians.y = normalRadians.x + Math.PI
 					}
 				} else {
 					intersectionCount = 3 // 11
-					if (intersectionPointA !== null) {
+					if (intersectionPointA != null) {
 						intersectionPointA.x = xA
 						intersectionPointA.y = yA
 					}
 
-					if (intersectionPointB !== null) {
+					if (intersectionPointB != null) {
 						intersectionPointB.x = xB
 						intersectionPointB.y = yB
 					}
@@ -423,17 +423,17 @@ class EllipseBoundingBoxData : BoundingBoxData() {
 						xB = xA + sB * xD
 						yB = (yA + sB * yD) / d
 
-						if (intersectionPointA !== null) {
+						if (intersectionPointA != null) {
 							intersectionPointA.x = xB
 							intersectionPointA.y = yB
 						}
 
-						if (intersectionPointB !== null) {
+						if (intersectionPointB != null) {
 							intersectionPointB.x = xB
 							intersectionPointB.y = yB
 						}
 
-						if (normalRadians !== null) {
+						if (normalRadians != null) {
 							normalRadians.x = Math.atan2(yB / rr * dd, xB / rr)
 							normalRadians.y = normalRadians.x + Math.PI
 						}
@@ -442,37 +442,37 @@ class EllipseBoundingBoxData : BoundingBoxData() {
 						xA = xA + sA * xD
 						yA = (yA + sA * yD) / d
 
-						if (intersectionPointA !== null) {
+						if (intersectionPointA != null) {
 							intersectionPointA.x = xA
 							intersectionPointA.y = yA
 						}
 
-						if (intersectionPointB !== null) {
+						if (intersectionPointB != null) {
 							intersectionPointB.x = xA
 							intersectionPointB.y = yA
 						}
 
-						if (normalRadians !== null) {
+						if (normalRadians != null) {
 							normalRadians.x = Math.atan2(yA / rr * dd, xA / rr)
 							normalRadians.y = normalRadians.x + Math.PI
 						}
 					} else {
 						intersectionCount = 3 // 11
 
-						if (intersectionPointA !== null) {
+						if (intersectionPointA != null) {
 							intersectionPointA.x = xA + sA * xD
 							intersectionPointA.y = (yA + sA * yD) / d
 
-							if (normalRadians !== null) {
+							if (normalRadians != null) {
 								normalRadians.x = Math.atan2(intersectionPointA.y / rr * dd, intersectionPointA.x / rr)
 							}
 						}
 
-						if (intersectionPointB !== null) {
+						if (intersectionPointB != null) {
 							intersectionPointB.x = xA + sB * xD
 							intersectionPointB.y = (yA + sB * yD) / d
 
-							if (normalRadians !== null) {
+							if (normalRadians != null) {
 								normalRadians.y = Math.atan2(intersectionPointB.y / rr * dd, intersectionPointB.x / rr)
 							}
 						}
@@ -590,7 +590,7 @@ class PolygonBoundingBoxData : BoundingBoxData() {
 			if (((x >= xC && x <= xD) || (x >= xD && x <= xC)) && (dXAB == 0.0 || (x >= xA && x <= xB) || (x >= xB && x <= xA))) {
 				val y = (llAB * dYCD - dYAB * llCD) / ll
 				if (((y >= yC && y <= yD) || (y >= yD && y <= yC)) && (dYAB == 0.0 || (y >= yA && y <= yB) || (y >= yB && y <= yA))) {
-					if (intersectionPointB !== null) {
+					if (intersectionPointB != null) {
 						var d = x - xA
 						if (d < 0.0) {
 							d = -d
@@ -604,7 +604,7 @@ class PolygonBoundingBoxData : BoundingBoxData() {
 							xMax = x
 							yMax = y
 
-							if (normalRadians !== null) {
+							if (normalRadians != null) {
 								normalRadians.x = Math.atan2(yD - yC, xD - xC) - Math.PI * 0.5
 								normalRadians.y = normalRadians.x
 							}
@@ -614,7 +614,7 @@ class PolygonBoundingBoxData : BoundingBoxData() {
 								xMin = x
 								yMin = y
 
-								if (normalRadians !== null) {
+								if (normalRadians != null) {
 									normalRadians.x = Math.atan2(yD - yC, xD - xC) - Math.PI * 0.5
 								}
 							}
@@ -624,7 +624,7 @@ class PolygonBoundingBoxData : BoundingBoxData() {
 								xMax = x
 								yMax = y
 
-								if (normalRadians !== null) {
+								if (normalRadians != null) {
 									normalRadians.y = Math.atan2(yD - yC, xD - xC) - Math.PI * 0.5
 								}
 							}
@@ -638,7 +638,7 @@ class PolygonBoundingBoxData : BoundingBoxData() {
 						yMax = y
 						intersectionCount++
 
-						if (normalRadians !== null) {
+						if (normalRadians != null) {
 							normalRadians.x = Math.atan2(yD - yC, xD - xC) - Math.PI * 0.5
 							normalRadians.y = normalRadians.x
 						}
@@ -652,28 +652,28 @@ class PolygonBoundingBoxData : BoundingBoxData() {
 		}
 
 		if (intersectionCount == 1) {
-			if (intersectionPointA !== null) {
+			if (intersectionPointA != null) {
 				intersectionPointA.x = xMin
 				intersectionPointA.y = yMin
 			}
 
-			if (intersectionPointB !== null) {
+			if (intersectionPointB != null) {
 				intersectionPointB.x = xMin
 				intersectionPointB.y = yMin
 			}
 
-			if (normalRadians !== null) {
+			if (normalRadians != null) {
 				normalRadians.y = normalRadians.x + Math.PI
 			}
 		} else if (intersectionCount > 1) {
 			intersectionCount++
 
-			if (intersectionPointA !== null) {
+			if (intersectionPointA != null) {
 				intersectionPointA.x = xMin
 				intersectionPointA.y = yMin
 			}
 
-			if (intersectionPointB !== null) {
+			if (intersectionPointB != null) {
 				intersectionPointB.x = xMax
 				intersectionPointB.y = yMax
 			}

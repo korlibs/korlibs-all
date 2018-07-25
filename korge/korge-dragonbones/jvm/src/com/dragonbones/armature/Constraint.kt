@@ -158,7 +158,7 @@ class IKConstraint  :  Constraint() {
 
 			var isPPR = false
 			val parentParent = parent.parent
-			if (parentParent !== null) {
+			if (parentParent != null) {
 				val parentParentMatrix = parentParent.globalTransformMatrix
 				isPPR = parentParentMatrix.a * parentParentMatrix.d - parentParentMatrix.b * parentParentMatrix.c < 0.0
 			}
@@ -216,7 +216,7 @@ class IKConstraint  :  Constraint() {
 	override fun update(): Unit {
 		this._root.updateByConstraint()
 
-		if (this._bone !== null) {
+		if (this._bone != null) {
 			this._bone?.updateByConstraint()
 			this._computeB()
 		}
@@ -300,7 +300,7 @@ class PathConstraint  :  Constraint() {
 
 		val weightData = verticesData.weight
 		//没有骨骼约束我,那节点只受自己的Bone控制
-		if (weightData === null) {
+		if (weightData == null) {
 			val parentBone = this._pathSlot!!.parent
 			parentBone.updateByConstraint()
 
@@ -340,7 +340,7 @@ class PathConstraint  :  Constraint() {
 			for (ii in 0 until vertexBoneCount) {
 				val boneIndex = intArray[iB++]
 				val bone = bones[boneIndex]
-				if (bone === null) {
+				if (bone == null) {
 					continue
 				}
 
@@ -432,7 +432,7 @@ class PathConstraint  :  Constraint() {
 				//	if (position > len) {
 				//			continue
 				//	}
-				//	if (curve === 0) {
+				//	if (curve == 0) {
 				//		percent = position / len
 				//	}
 				//	else {
@@ -581,7 +581,7 @@ class PathConstraint  :  Constraint() {
 			//for (; ; curve++) {
 			//	val length = curves[curve]
 			//	if (p > length) continue
-			//	if (curve === 0)
+			//	if (curve == 0)
 			//			p /= length
 			//	else {
 			//			val prev = curves[curve - 1]
@@ -596,7 +596,7 @@ class PathConstraint  :  Constraint() {
 					curve++
 					continue
 				}
-				if (curve === 0)
+				if (curve == 0)
 						p /= length
 				else {
 						val prev = curves[curve - 1]
@@ -651,7 +651,7 @@ class PathConstraint  :  Constraint() {
 			//for (; ; segment++) {
 			//	val length = segments[segment]
 			//	if (p > length) continue
-			//	if (segment === 0)
+			//	if (segment == 0)
 			//		p /= length
 			//	else {
 			//		val prev = segments[segment - 1]
@@ -739,12 +739,12 @@ class PathConstraint  :  Constraint() {
 
 		for (i in 0 until data.bones.length) {
 			val bone = this._armature.getBone(data.bones[i].name)
-			if (bone !== null) {
+			if (bone != null) {
 				this._bones.push(bone)
 			}
 		}
 
-		if (data.rotateMode === RotateMode.ChainScale) {
+		if (data.rotateMode == RotateMode.ChainScale) {
 			this._boneLengths.lengthSet = this._bones.length
 		}
 
@@ -755,7 +755,7 @@ class PathConstraint  :  Constraint() {
 		val pathSlot = this._pathSlot
 
 		if (
-			pathSlot?._geometryData === null ||
+			pathSlot?._geometryData == null ||
 			pathSlot._geometryData?.offset != this.pathOffset
 		) {
 			return
@@ -788,9 +788,9 @@ class PathConstraint  :  Constraint() {
 
 		val bones = this._bones
 
-		val isLengthMode = spacingMode === SpacingMode.Length
-		val isChainScaleMode = rotateMode === RotateMode.ChainScale
-		val isTangentMode = rotateMode === RotateMode.Tangent
+		val isLengthMode = spacingMode == SpacingMode.Length
+		val isChainScaleMode = rotateMode == RotateMode.ChainScale
+		val isTangentMode = rotateMode == RotateMode.Tangent
 		val boneCount = bones.length
 		val spacesCount = if (isTangentMode) boneCount else boneCount + 1
 
@@ -825,7 +825,7 @@ class PathConstraint  :  Constraint() {
 		}
 
 		//
-		this._computeBezierCurve(((pathSlot._displayFrame as DisplayFrame).rawDisplayData as PathDisplayData), spacesCount, isTangentMode, positionMode === PositionMode.Percent, spacingMode === SpacingMode.Percent)
+		this._computeBezierCurve(((pathSlot._displayFrame as DisplayFrame).rawDisplayData as PathDisplayData), spacesCount, isTangentMode, positionMode == PositionMode.Percent, spacingMode == SpacingMode.Percent)
 
 		//根据新的节点数据重新采样
 		val positions = this._positions
@@ -834,7 +834,7 @@ class PathConstraint  :  Constraint() {
 		var boneY = positions[1]
 		var tip: Boolean
 		if (rotateOffset == 0.0) {
-			tip = rotateMode === RotateMode.Chain
+			tip = rotateMode == RotateMode.Chain
 		}
 		else {
 			tip = false

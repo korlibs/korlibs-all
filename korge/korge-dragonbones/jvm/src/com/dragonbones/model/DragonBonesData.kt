@@ -25,6 +25,7 @@ package com.dragonbones.model
 import com.dragonbones.core.*
 import com.dragonbones.util.*
 import com.soywiz.kds.*
+import com.soywiz.kmem.*
 
 /**
  * - The DragonBones data.
@@ -41,13 +42,14 @@ import com.soywiz.kds.*
  * @language zh_CN
  */
 class DragonBonesData  : BaseObject() {
-	public override fun toString(): String {
+	override fun toString(): String {
 		return "[class dragonBones.DragonBonesData]"
 	}
+
 	/**
 	 * @private
 	 */
-	public var autoSearch: Boolean = false
+	var autoSearch: Boolean = false
 	/**
 	 * - The animation frame rate.
 	 * @version DragonBones 3.0
@@ -58,7 +60,7 @@ class DragonBonesData  : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public var frameRate: Int = 0
+	var frameRate: Int = 0
 	/**
 	 * - The data version.
 	 * @version DragonBones 3.0
@@ -69,7 +71,7 @@ class DragonBonesData  : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public var version: String = ""
+	var version: String = ""
 	/**
 	 * - The DragonBones data name.
 	 * The name is consistent with the DragonBones project name.
@@ -82,19 +84,19 @@ class DragonBonesData  : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public var name: String = ""
+	var name: String = ""
 	/**
 	 * @private
 	 */
-	public var stage: ArmatureData? = null
+	var stage: ArmatureData? = null
 	/**
 	 * @internal
 	 */
-	public val frameIndices:  DoubleArray = []
+	val frameIndices:  IntArrayList = IntArrayList()
 	/**
 	 * @internal
 	 */
-	public val cachedFrames:  DoubleArrayList = DoubleArrayList()
+	val cachedFrames:  DoubleArrayList = DoubleArrayList()
 	/**
 	 * - All armature data names.
 	 * @version DragonBones 3.0
@@ -105,47 +107,48 @@ class DragonBonesData  : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public val armatureNames: ArrayList<String> = arrayListOf()
+	val armatureNames: ArrayList<String> = arrayListOf()
 	/**
 	 * @private
 	 */
-	public val armatures: LinkedHashMap<String, ArmatureData> = LinkedHashMap<String, ArmatureData>()
+	val armatures: LinkedHashMap<String, ArmatureData> = LinkedHashMap()
 	/**
 	 * @internal
 	 */
-	public var binary: ArrayBuffer
+	var binary: MemBuffer? = null
 	/**
 	 * @internal
 	 */
-	public var intArray: IntArrayList = IntArrayList() // Int16Array
+	//var intArray: Int16Buffer? = null // Int16Array
+	var intArray: Int32Buffer? = null // Int16Array
 	/**
 	 * @internal
 	 */
-	public var floatArray: Float32Array
+	var floatArray: Float32Buffer? = null
 	/**
 	 * @internal
 	 */
-	public var frameIntArray: ShortArray
+	var frameIntArray: Int16Buffer? = null
 	/**
 	 * @internal
 	 */
-	public var frameFloatArray: Float32Array
+	var frameFloatArray: Float32Buffer? = null
 	/**
 	 * @internal
 	 */
-	public var frameArray: Int16Array
+	var frameArray: Int16Buffer? = null
 	/**
 	 * @internal
 	 */
-	public var timelineArray: Uint16Array
+	var timelineArray: Uint16Buffer? = null
 	/**
 	 * @internal
 	 */
-	public var colorArray: Uint16Array
+	var colorArray: Uint16Buffer? = null
 	/**
 	 * @private
 	 */
-	public var userData: UserData? = null // Initial value.
+	var userData: UserData? = null // Initial value.
 
 	protected fun _onClear(): Unit {
 		for (a in this.armatures.values) a.returnToPool()
@@ -162,20 +165,21 @@ class DragonBonesData  : BaseObject() {
 		this.cachedFrames.clear()
 		this.armatureNames.clear()
 		//this.armatures.clear();
-		this.binary = null as any //
-		this.intArray = null as any //
-		this.floatArray = null as any //
-		this.frameIntArray = null as any //
-		this.frameFloatArray = null as any //
-		this.frameArray = null as any //
-		this.timelineArray = null as any //
-		this.colorArray = null as any //
+		this.binary = null //
+		this.intArray = null //
+		this.floatArray = null //
+		this.frameIntArray = null //
+		this.frameFloatArray = null //
+		this.frameArray = null //
+		this.timelineArray = null //
+		this.colorArray = null //
 		this.userData = null
 	}
+
 	/**
 	 * @internal
 	 */
-	public fun addArmature(value: ArmatureData): Unit {
+	fun addArmature(value: ArmatureData): Unit {
 		if (value.name in this.armatures) {
 			console.warn("Same armature: " + value.name)
 			return
@@ -197,7 +201,7 @@ class DragonBonesData  : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public fun getArmature(armatureName: String): ArmatureData? {
+	fun getArmature(armatureName: String): ArmatureData? {
 		return if (armatureName in this.armatures) this.armatures[armatureName] else null
 	}
 }

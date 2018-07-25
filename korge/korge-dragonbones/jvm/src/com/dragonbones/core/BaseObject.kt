@@ -121,7 +121,7 @@ abstract class BaseObject {
 		 * @language zh_CN
 		 */
 		public fun clearPool(objectConstructor: (() -> BaseObject)? = null): Unit {
-			if (objectConstructor !== null) {
+			if (objectConstructor != null) {
 				val classType = String(objectConstructor)
 				val pool = if (classType in BaseObject._poolsMap) BaseObject._poolsMap[classType] else null
 				if (pool != null && pool.size > 0) {
@@ -150,7 +150,7 @@ abstract class BaseObject {
 		public fun <T  :  BaseObject> borrowObject(objectConstructor: { new(): T; }): T {
 			val classType = String(objectConstructor)
 			val pool = classType in BaseObject._poolsMap ? BaseObject._poolsMap[classType] : null
-			if (pool !== null && pool.length > 0) {
+			if (pool != null && pool.length > 0) {
 				val object = pool.pop() as T
 				object._isInPool = false
 				return object

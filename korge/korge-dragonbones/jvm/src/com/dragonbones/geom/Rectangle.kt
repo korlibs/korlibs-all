@@ -41,73 +41,63 @@ package com.dragonbones.geom
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class Rectangle {
-	/**
-	 * - The x coordinate of the top-left corner of the rectangle.
-	 * @default 0.0
-	 * @version DragonBones 3.0
-	 * @language en_US
-	 */
+class Rectangle
+/**
+ * @private
+ */(
 	/**
 	 * - 矩形左上角的 x 坐标。
 	 * @default 0.0
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	var x: Double
 	/**
-	 * - The y coordinate of the top-left corner of the rectangle.
+	 * - The x coordinate of the top-left corner of the rectangle.
 	 * @default 0.0
 	 * @version DragonBones 3.0
 	 * @language en_US
 	 */
+	var x: Double = 0.0,
 	/**
 	 * - 矩形左上角的 y 坐标。
 	 * @default 0.0
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	var y: Double
 	/**
-	 * - The width of the rectangle, in pixels.
+	 * - The y coordinate of the top-left corner of the rectangle.
 	 * @default 0.0
 	 * @version DragonBones 3.0
 	 * @language en_US
 	 */
+	var y: Double = 0.0,
 	/**
 	 * - 矩形的宽度（以像素为单位）。
 	 * @default 0.0
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	var width: Double
 	/**
-	 * - 矩形的高度（以像素为单位）。
+	 * - The width of the rectangle, in pixels.
 	 * @default 0.0
 	 * @version DragonBones 3.0
 	 * @language en_US
 	 */
+	var width: Double = 0.0,
 	/**
 	 * - The height of the rectangle, in pixels.
 	 * @default 0.0
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	var height: Double
-
 	/**
-	 * @private
+	 * - 矩形的高度（以像素为单位）。
+	 * @default 0.0
+	 * @version DragonBones 3.0
+	 * @language en_US
 	 */
-	constructor(
-		x: Double = 0.0, y: Double = 0.0,
-		width: Double = 0.0, height: Double = 0.0
-	) {
-		this.x = x
-		this.y = y
-		this.width = width
-		this.height = height
-	}
-
+	var height: Double = 0.0
+) {
 	/**
 	 * @private
 	 */
@@ -121,7 +111,7 @@ class Rectangle {
 	/**
 	 * @private
 	 */
-	fun clear(): Unit {
+	fun clear() {
 		this.x = 0.0
 		this.y = 0.0
 		this.width = 0.0

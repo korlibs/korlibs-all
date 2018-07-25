@@ -1,5 +1,7 @@
 package com.dragonbones.geom
 
+import com.soywiz.kds.*
+
 /**
  * The MIT License (MIT)
  *
@@ -307,7 +309,7 @@ class Matrix {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	fun transformPoint(x: Double, y: Double, result: Point, delta: Boolean = false): Unit {
+	fun transformPoint(x: Double, y: Double, result: XY, delta: Boolean = false): Unit {
 		result.x = this.a * x + this.c * y
 		result.y = this.b * x + this.d * y
 

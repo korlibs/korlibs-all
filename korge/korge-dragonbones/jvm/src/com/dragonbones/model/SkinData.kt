@@ -58,10 +58,10 @@ class SkinData  : BaseObject() {
 	 */
 	var parent: ArmatureData? = null
 
-	protected override fun _onClear(): Unit {
+	override fun _onClear() {
 		for (slotDisplays in this.displays.values) {
 			for (display in slotDisplays) {
-				if (display !== null) {
+				if (display != null) {
 					display.returnToPool()
 				}
 			}
@@ -75,12 +75,12 @@ class SkinData  : BaseObject() {
 	/**
 	 * @internal
 	 */
-	fun addDisplay(slotName: String, value: DisplayData?): Unit {
+	fun addDisplay(slotName: String, value: DisplayData?) {
 		if (!(slotName in this.displays)) {
 			this.displays[slotName] = arrayListOf()
 		}
 
-		if (value !== null) {
+		if (value != null) {
 			value.parent = this
 		}
 
@@ -93,9 +93,9 @@ class SkinData  : BaseObject() {
 	 */
 	fun getDisplay(slotName: String, displayName: String): DisplayData? {
 		val slotDisplays = this.getDisplays(slotName)
-		if (slotDisplays !== null) {
+		if (slotDisplays != null) {
 			for (display in slotDisplays) {
-				if (display !== null && display.name === displayName) {
+				if (display != null && display.name == displayName) {
 					return display
 				}
 			}

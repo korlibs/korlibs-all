@@ -34,11 +34,11 @@ class GeometryData {
 	var isShared: Boolean = false
 	var inheritDeform: Boolean = false
 	var offset: Int = 0
-	lateinit var data: DragonBonesData
+	var data: DragonBonesData? = null
 	var weight: WeightData? = null // Initial value.
 
-	fun clear(): Unit {
-		if (!this.isShared && this.weight !== null) {
+	fun clear() {
+		if (!this.isShared && this.weight != null) {
 			this.weight?.returnToPool()
 		}
 
@@ -46,23 +46,24 @@ class GeometryData {
 		this.inheritDeform = false
 		this.offset = 0
 		//this.data = null as any
+		this.data = null
 		this.weight = null
 	}
 
-	fun shareFrom(value: GeometryData): Unit {
+	fun shareFrom(value: GeometryData) {
 		this.isShared = true
 		this.offset = value.offset
 		this.weight = value.weight
 	}
 
 	val vertexCount: Int get() {
-		val intArray = this.data.intArray
-		return intArray[this.offset + dragonBones.BinaryOffset.GeometryVertexCount]
+		val intArray = this.data!!.intArray
+		return intArray[this.offset + BinaryOffset.GeometryVertexCount.index]
 	}
 
 	val triangleCount: Int get() {
-		val intArray = this.data.intArray
-		return intArray[this.offset + dragonBones.BinaryOffset.GeometryTriangleCount]
+		val intArray = this.data!!.intArray
+		return intArray[this.offset + BinaryOffset.GeometryTriangleCount.index]
 	}
 }
 /**
@@ -75,7 +76,7 @@ abstract class DisplayData  : BaseObject() {
 	val transform: Transform = Transform()
 	lateinit var parent: SkinData
 
-	protected override fun _onClear(): Unit {
+	override fun _onClear() {
 		this.name = ""
 		this.path = ""
 		this.transform.identity()
@@ -93,7 +94,7 @@ class ImageDisplayData  :  DisplayData() {
 	val pivot: Point = Point()
 	var texture: TextureData? = null
 
-	protected override fun _onClear(): Unit {
+	override fun _onClear() {
 		super._onClear()
 
 		this.type = DisplayType.Image
@@ -113,7 +114,7 @@ class ArmatureDisplayData  :  DisplayData() {
 	val actions: ArrayList<ActionData> = arrayListOf()
 	var armature: ArmatureData? = null
 
-	protected override fun _onClear(): Unit {
+	override fun _onClear() {
 		super._onClear()
 
 		for (action in this.actions) {
@@ -129,7 +130,7 @@ class ArmatureDisplayData  :  DisplayData() {
 	/**
 	 * @private
 	 */
-	fun addAction(value: ActionData): Unit {
+	fun addAction(value: ActionData) {
 		this.actions.push(value)
 	}
 }
@@ -144,7 +145,7 @@ class MeshDisplayData  :  DisplayData() {
 	val geometry: GeometryData = GeometryData()
 	var texture: TextureData? = null
 
-	protected override fun _onClear(): Unit {
+	override fun _onClear() {
 		super._onClear()
 
 		this.type = DisplayType.Mesh
@@ -162,10 +163,10 @@ class BoundingBoxDisplayData  :  DisplayData() {
 
 	var boundingBox: BoundingBoxData? = null // Initial value.
 
-	protected override fun _onClear(): Unit {
+	override fun _onClear() {
 		super._onClear()
 
-		if (this.boundingBox !== null) {
+		if (this.boundingBox != null) {
 			this.boundingBox?.returnToPool()
 		}
 
@@ -186,7 +187,7 @@ class PathDisplayData  :  DisplayData() {
 	val geometry: GeometryData = GeometryData()
 	val curveLengths: DoubleArrayList = DoubleArrayList()
 
-	protected override fun _onClear(): Unit {
+	override fun _onClear() {
 		super._onClear()
 
 		this.type = DisplayType.Path
@@ -208,13 +209,13 @@ class WeightData  :  BaseObject() {
 	var offset: Int = 0
 	val bones: ArrayList<BoneData> = arrayListOf()
 
-	protected override fun _onClear(): Unit {
+	override fun _onClear() {
 		this.count = 0
 		this.offset = 0
 		this.bones.lengthSet = 0
 	}
 
-	fun addBone(value: BoneData): Unit {
+	fun addBone(value: BoneData) {
 		this.bones.push(value)
 	}
 }

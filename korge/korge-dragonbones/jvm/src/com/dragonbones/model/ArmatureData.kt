@@ -9,10 +9,10 @@
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
  * the Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
@@ -36,7 +36,7 @@ import com.dragonbones.util.*
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class ArmatureData  : BaseObject() {
+class ArmatureData : BaseObject() {
 	override fun toString(): String {
 		return "[class dragonBones.ArmatureData]"
 	}
@@ -159,9 +159,9 @@ class ArmatureData  : BaseObject() {
 	/**
 	 * @private
 	 */
-	var parent: DragonBonesData = null
+	var parent: DragonBonesData? = null
 
-	protected override fun _onClear(): Unit {
+	override fun _onClear() {
 		for (action in this.defaultActions) {
 			action.returnToPool()
 		}
@@ -209,13 +209,13 @@ class ArmatureData  : BaseObject() {
 		this.defaultAnimation = null
 		this.canvas = null
 		this.userData = null
-		this.parent = null as any //
+		this.parent = null //
 	}
 
 	/**
 	 * @internal
 	 */
-	fun sortBones(): Unit {
+	fun sortBones() {
 		val total = this.sortedBones.size
 		if (total <= 0) {
 			return
@@ -236,9 +236,8 @@ class ArmatureData  : BaseObject() {
 			}
 
 			var flag = false
-			for (k in this.constraints) { // Wait constraint.
-				val constraint = this.constraints[k]
-				if (constraint.root === bone && this.sortedBones.indexOf(constraint.target) < 0) {
+			for (constraint in this.constraints.values) { // Wait constraint.
+				if (constraint.root == bone && this.sortedBones.indexOf(constraint.target) < 0) {
 					flag = true
 					break
 				}
@@ -248,7 +247,7 @@ class ArmatureData  : BaseObject() {
 				continue
 			}
 
-			if (bone.parent !== null && this.sortedBones.indexOf(bone.parent) < 0) { // Wait parent.
+			if (bone.parent != null && this.sortedBones.indexOf(bone.parent!!) < 0) { // Wait parent.
 				continue
 			}
 
@@ -260,7 +259,7 @@ class ArmatureData  : BaseObject() {
 	/**
 	 * @internal
 	 */
-	fun cacheFrames(frameRate: Int): Unit {
+	fun cacheFrames(frameRate: Int) {
 		if (this.cacheFrameRate > 0) { // TODO clear cache.
 			return
 		}
@@ -275,7 +274,7 @@ class ArmatureData  : BaseObject() {
 	 * @internal
 	 */
 	fun setCacheFrame(globalTransformMatrix: Matrix, transform: Transform): Int {
-		val dataArray = this.parent.cachedFrames
+		val dataArray = this.parent!!.cachedFrames
 		val arrayOffset = dataArray.size
 
 		dataArray.lengthSet += 10
@@ -296,8 +295,8 @@ class ArmatureData  : BaseObject() {
 	/**
 	 * @internal
 	 */
-	fun getCacheFrame(globalTransformMatrix: Matrix, transform: Transform, arrayOffset: Int): Unit {
-		val dataArray = this.parent.cachedFrames
+	fun getCacheFrame(globalTransformMatrix: Matrix, transform: Transform, arrayOffset: Int) {
+		val dataArray = this.parent!!.cachedFrames
 		globalTransformMatrix.a = dataArray[arrayOffset]
 		globalTransformMatrix.b = dataArray[arrayOffset + 1]
 		globalTransformMatrix.c = dataArray[arrayOffset + 2]
@@ -315,7 +314,7 @@ class ArmatureData  : BaseObject() {
 	/**
 	 * @internal
 	 */
-	fun addBone(value: BoneData): Unit {
+	fun addBone(value: BoneData) {
 		if (value.name in this.bones) {
 			console.warn("Same bone: " + value.name)
 			return
@@ -328,7 +327,7 @@ class ArmatureData  : BaseObject() {
 	/**
 	 * @internal
 	 */
-	fun addSlot(value: SlotData): Unit {
+	fun addSlot(value: SlotData) {
 		if (value.name in this.slots) {
 			console.warn("Same slot: " + value.name)
 			return
@@ -341,7 +340,7 @@ class ArmatureData  : BaseObject() {
 	/**
 	 * @internal
 	 */
-	fun addConstraint(value: ConstraintData): Unit {
+	fun addConstraint(value: ConstraintData) {
 		if (value.name in this.constraints) {
 			console.warn("Same constraint: " + value.name)
 			return
@@ -353,7 +352,7 @@ class ArmatureData  : BaseObject() {
 	/**
 	 * @internal
 	 */
-	fun addSkin(value: SkinData): Unit {
+	fun addSkin(value: SkinData) {
 		if (value.name in this.skins) {
 			console.warn("Same skin: " + value.name)
 			return
@@ -361,11 +360,11 @@ class ArmatureData  : BaseObject() {
 
 		value.parent = this
 		this.skins[value.name] = value
-		if (this.defaultSkin === null) {
+		if (this.defaultSkin == null) {
 			this.defaultSkin = value
 		}
 
-		if (value.name === "default") {
+		if (value.name == "default") {
 			this.defaultSkin = value
 		}
 	}
@@ -373,7 +372,7 @@ class ArmatureData  : BaseObject() {
 	/**
 	 * @internal
 	 */
-	fun addAnimation(value: AnimationData): Unit {
+	fun addAnimation(value: AnimationData) {
 		if (value.name in this.animations) {
 			console.warn("Same animation: " + value.name)
 			return
@@ -382,7 +381,7 @@ class ArmatureData  : BaseObject() {
 		value.parent = this
 		this.animations[value.name] = value
 		this.animationNames.push(value.name)
-		if (this.defaultAnimation === null) {
+		if (this.defaultAnimation == null) {
 			this.defaultAnimation = value
 		}
 	}
@@ -390,11 +389,10 @@ class ArmatureData  : BaseObject() {
 	/**
 	 * @internal
 	 */
-	fun addAction(value: ActionData, isDefault: Boolean): Unit {
+	fun addAction(value: ActionData, isDefault: Boolean) {
 		if (isDefault) {
 			this.defaultActions.push(value)
-		}
-		else {
+		} else {
 			this.actions.push(value)
 		}
 	}
@@ -410,9 +408,7 @@ class ArmatureData  : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	fun getBone(boneName: String): BoneData? {
-		return this.bones[boneName]
-	}
+	fun getBone(boneName: String): BoneData? = this.bones[boneName]
 	/**
 	 * - Get a specific slot data.
 	 * @param slotName - The slot name.
@@ -425,16 +421,12 @@ class ArmatureData  : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	fun getSlot(slotName: String): SlotData? {
-		return this.slots[slotName]
-	}
+	fun getSlot(slotName: String): SlotData? = this.slots[slotName]
 
 	/**
 	 * @private
 	 */
-	fun getConstraint(constraintName: String): ConstraintData? {
-		return this.constraints[constraintName]
-	}
+	fun getConstraint(constraintName: String): ConstraintData? = this.constraints[constraintName]
 	/**
 	 * - Get a specific skin data.
 	 * @param skinName - The skin name.
@@ -447,9 +439,7 @@ class ArmatureData  : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	fun getSkin(skinName: String): SkinData? {
-		return this.skins[skinName]
-	}
+	fun getSkin(skinName: String): SkinData? = this.skins[skinName]
 
 	/**
 	 * @private
@@ -470,9 +460,8 @@ class ArmatureData  : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	fun getAnimation(animationName: String): AnimationData? {
-		return if (animationName in this.animations) this.animations[animationName] else null
-	}
+	fun getAnimation(animationName: String): AnimationData? =
+		if (animationName in this.animations) this.animations[animationName] else null
 }
 /**
  * - The bone data.
@@ -484,7 +473,7 @@ class ArmatureData  : BaseObject() {
  * @version DragonBones 3.0
  * @language zh_CN
  */
-open class BoneData  :  BaseObject() {
+open class BoneData : BaseObject() {
 	override fun toString(): String {
 		return "[class dragonBones.BoneData]"
 	}
@@ -555,7 +544,7 @@ open class BoneData  :  BaseObject() {
 	 */
 	var parent: BoneData? = null
 
-	protected override fun _onClear(): Unit {
+	override fun _onClear() {
 		this.userData?.returnToPool()
 		this.inheritTranslation = false
 		this.inheritRotation = false
@@ -570,10 +559,11 @@ open class BoneData  :  BaseObject() {
 		this.parent = null
 	}
 }
+
 /**
  * @internal
  */
-class SurfaceData  :  BoneData (){
+class SurfaceData : BoneData() {
 	override fun toString(): String {
 		return "[class dragonBones.SurfaceData]"
 	}
@@ -582,7 +572,7 @@ class SurfaceData  :  BoneData (){
 	var segmentY: Int = 0
 	val geometry: GeometryData = GeometryData()
 
-	protected fun _onClear(): Unit {
+	override fun _onClear() {
 		super._onClear()
 
 		this.type = BoneType.Surface
@@ -601,7 +591,7 @@ class SurfaceData  :  BoneData (){
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class SlotData  :  BaseObject() {
+class SlotData : BaseObject() {
 	companion object {
 		/**
 		 * @internal
@@ -655,7 +645,7 @@ class SlotData  :  BaseObject() {
 	/**
 	 * @private
 	 */
-	var color: ColorTransform = null as any // Initial value.
+	var color: ColorTransform? = null // Initial value.
 	/**
 	 * @private
 	 */
@@ -672,7 +662,7 @@ class SlotData  :  BaseObject() {
 	 */
 	var parent: BoneData? = null
 
-	protected override fun _onClear(): Unit {
+	override fun _onClear() {
 		this.userData?.returnToPool()
 		this.blendMode = BlendMode.Normal
 		this.displayIndex = 0
@@ -680,8 +670,8 @@ class SlotData  :  BaseObject() {
 		this.zIndex = 0
 		this.alpha = 1.0
 		this.name = ""
-		this.color = null as any //
+		this.color = null //
 		this.userData = null
-		this.parent = null as any //
+		this.parent = null //
 	}
 }

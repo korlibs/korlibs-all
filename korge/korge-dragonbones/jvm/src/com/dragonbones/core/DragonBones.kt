@@ -2,6 +2,7 @@ package com.dragonbones.core
 
 import com.dragonbones.animation.*
 import com.dragonbones.event.*
+import com.dragonbones.util.*
 
 /**
  * The MIT License (MIT)
@@ -292,11 +293,11 @@ enum class RotateMode {
  */
 class DragonBones(eventManager: IEventDispatcher) {
 	companion object {
-		public val VERSION: String = "5.7.000"
+		val VERSION: String = "5.7.000"
 
-		public var yDown: Boolean = true
-		public var debug: Boolean = false
-		public var debugDraw: Boolean = false
+		var yDown: Boolean = true
+		var debug: Boolean = false
+		var debugDraw: Boolean = false
 	}
 
 	private val _clock: WorldClock = WorldClock()
@@ -308,7 +309,7 @@ class DragonBones(eventManager: IEventDispatcher) {
 		println("DragonBones: ${DragonBones.VERSION}\nWebsite: http://dragonbones.com/\nSource and Demo: https://github.com/DragonBones/")
 	}
 
-	public fun advanceTime(passedTime: Double): Unit {
+	fun advanceTime(passedTime: Double): Unit {
 		if (this._objects.size > 0) {
 			for (obj in this._objects) {
 				obj.returnToPool()
@@ -326,7 +327,7 @@ class DragonBones(eventManager: IEventDispatcher) {
 
 				if (armature._armatureData != null) { // May be armature disposed before advanceTime.
 					armature.eventDispatcher.dispatchDBEvent(eventObject.type, eventObject)
-					if (eventObject.type === EventObject.SOUND_EVENT) {
+					if (eventObject.type == EventObject.SOUND_EVENT) {
 						this._eventManager.dispatchDBEvent(eventObject.type, eventObject)
 					}
 				}
@@ -334,28 +335,28 @@ class DragonBones(eventManager: IEventDispatcher) {
 				this.bufferObject(eventObject)
 			}
 
-			this._events.size = 0
+			this._events.lengthSet = 0
 		}
 	}
 
-	public fun bufferEvent(value: EventObject): Unit {
+	fun bufferEvent(value: EventObject) {
 		if (this._events.indexOf(value) < 0) {
 			this._events.add(value)
 		}
 	}
 
-	public fun bufferObject(obj: BaseObject): Unit {
+	fun bufferObject(obj: BaseObject?) {
 		if (this._objects.indexOf(obj) < 0) {
 			this._objects.add(obj)
 		}
 	}
 
-	public val clock: WorldClock
+	val clock: WorldClock
 		get() {
 		return this._clock
 		}
 
-	public val eventManager: IEventDispatcher
+	val eventManager: IEventDispatcher
 		get() {
 		return this._eventManager
 		}
@@ -389,23 +390,23 @@ var __extends: Any = function (t: Any, e: Any) {
     r.prototype = e.prototype, t.prototype = new (r as any)();
 };
 //
-if (typeof global === "undefined" && typeof window !== "undefined") {
+if (typeof global == "undefined" && typeof window != "undefined") {
     var global = window as any;
 }
 //
 declare var exports: Any;
 declare var module: Any;
 declare var define: Any;
-if (typeof exports === "object" && typeof module === "object") {
+if (typeof exports == "object" && typeof module == "object") {
     module.exports = dragonBones;
 }
-else if (typeof define === "function" && define["amd"]) {
+else if (typeof define == "function" && define["amd"]) {
     define(["dragonBones"], function () { return dragonBones; });
 }
-else if (typeof exports === "object") {
+else if (typeof exports == "object") {
     exports = dragonBones;
 }
-else if (typeof global !== "undefined") {
+else if (typeof global != "undefined") {
     global.dragonBones = dragonBones;
 }
 */

@@ -145,10 +145,10 @@ class EventObject : BaseObject() {
 		 * @private
 		 */
 		public fun actionDataToInstance(data: ActionData, instance: EventObject, armature: Armature): Unit {
-			if (data.type === ActionType.Play) {
+			if (data.type == ActionType.Play) {
 				instance.type = EventObject.FRAME_EVENT
 			} else {
-				instance.type = if (data.type === ActionType.Frame) EventObject.FRAME_EVENT else EventObject.SOUND_EVENT
+				instance.type = if (data.type == ActionType.Frame) EventObject.FRAME_EVENT else EventObject.SOUND_EVENT
 			}
 
 			instance.name = data.name
@@ -156,11 +156,11 @@ class EventObject : BaseObject() {
 			instance.actionData = data
 			instance.data = data.data
 
-			if (data.bone !== null) {
+			if (data.bone != null) {
 				instance.bone = armature.getBone(data.bone?.name)
 			}
 
-			if (data.slot !== null) {
+			if (data.slot != null) {
 				instance.slot = armature.getSlot(data.slot?.name)
 			}
 		}

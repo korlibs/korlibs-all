@@ -1,5 +1,8 @@
 package com.dragonbones.animation
 
+import com.dragonbones.util.*
+import com.soywiz.klock.*
+
 /**
  * The MIT License (MIT)
  *
@@ -66,7 +69,7 @@ class WorldClock : IAnimatable {
 	var timeScale: Double = 1.0
 
 	private var _systemTime: Double = 0.0
-	private val _animatebles: ArrayList<IAnimatable?> = []
+	private val _animatebles: ArrayList<IAnimatable?> = arrayListOf()
 	private var _clock: WorldClock? = null
 	/**
 	 * - Creating a Worldclock instance. Typically, you do not need to create Worldclock instance.
@@ -82,7 +85,7 @@ class WorldClock : IAnimatable {
 	 */
 	constructor(time: Double = 0.0) {
 		this.time = time
-		this._systemTime = Date().getTime() * 0.001
+		this._systemTime = Klock.currentTimeMillisDouble() * 0.001
 	}
 	/**
 	 * - Advance time for all IAnimatable instances.
@@ -96,12 +99,13 @@ class WorldClock : IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	fun advanceTime(passedTime: Double): Unit {
+	override fun advanceTime(passedTime: Double): Unit {
+		var passedTime = passedTime
 		if (passedTime != passedTime) {
 			passedTime = 0.0
 		}
 
-		val currentTime = Date.now() * 0.001
+		val currentTime = Klock.currentTimeMillisDouble() * 0.001
 
 		if (passedTime < 0.0) {
 			passedTime = currentTime - this._systemTime
@@ -127,7 +131,7 @@ class WorldClock : IAnimatable {
 		var r = 0
 		for (i in 0 until this._animatebles.size) {
 			val animatable = this._animatebles[i]
-			if (animatable !== null) {
+			if (animatable != null) {
 				if (r > 0) {
 					this._animatebles[i - r] = animatable
 					this._animatebles[i] = null
@@ -143,7 +147,7 @@ class WorldClock : IAnimatable {
 		if (r > 0) {
 			for (i in 0 until this._animatebles.size) {
 				val animateble = this._animatebles[i]
-				if (animateble !== null) {
+				if (animateble != null) {
 					this._animatebles[i - r] = animateble
 				}
 				else {
@@ -151,7 +155,7 @@ class WorldClock : IAnimatable {
 				}
 			}
 
-			this._animatebles.size -= r
+			this._animatebles.lengthSet -= r
 		}
 	}
 	/**
@@ -167,16 +171,16 @@ class WorldClock : IAnimatable {
 	 * @language zh_CN
 	 */
 	fun contains(value: IAnimatable): Boolean {
-		if (value === this) {
+		if (value == this) {
 			return false
 		}
 
 		var ancestor: IAnimatable? = value
-		while (ancestor !== this && ancestor !== null) {
+		while (ancestor != this && ancestor != null) {
 			ancestor = ancestor.clock
 		}
 
-		return ancestor === this
+		return ancestor == this
 	}
 	/**
 	 * - Add IAnimatable instance.
@@ -227,7 +231,7 @@ class WorldClock : IAnimatable {
 	 */
 	fun clear(): Unit {
 		for (animatable in this._animatebles) {
-			if (animatable !== null) {
+			if (animatable != null) {
 				animatable.clock = null
 			}
 		}
@@ -236,22 +240,15 @@ class WorldClock : IAnimatable {
 	/**
 	 * @inheritDoc
 	 */
-	var clock: WorldClock? get() {
-		return this._clock
-	}
-	set(value: WorldClock?) {
-		if (this._clock === value) {
-			return
-		}
+	override var clock: WorldClock?
+		get() = this._clock
+		set(value: WorldClock?) {
+			if (this._clock == value) {
+				return
+			}
 
-		if (this._clock !== null) {
-			this._clock.remove(this)
+			this._clock?.remove(this)
+			this._clock = value
+			this._clock?.add(this)
 		}
-
-		this._clock = value
-
-		if (this._clock !== null) {
-			this._clock.add(this)
-		}
-	}
 }

@@ -1,6 +1,9 @@
+@file:Suppress("KDocUnresolvedReference")
+
 package com.dragonbones.model
 
 import com.dragonbones.core.*
+import com.dragonbones.util.*
 
 /**
  * The MIT License (MIT)
@@ -13,10 +16,10 @@ import com.dragonbones.core.*
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
  * the Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
@@ -28,7 +31,7 @@ import com.dragonbones.core.*
 /**
  * - The animation config is used to describe all the information needed to play an animation state.
  * The API is still in the experimental phase and may encounter bugs or stability or compatibility issues when used.
- * @see dragonBones.AnimationState
+ * @see com.dragonbones.animation.AnimationState
  * @beta
  * @version DragonBones 5.0
  * @language en_US
@@ -36,19 +39,20 @@ import com.dragonbones.core.*
 /**
  * - 动画配置用来描述播放一个动画状态所需要的全部信息。
  * 该 API 仍在实验阶段，使用时可能遭遇 bug 或稳定性或兼容性问题。
- * @see dragonBones.AnimationState
+ * @see com.dragonbones.animation.AnimationState
  * @beta
  * @version DragonBones 5.0
  * @language zh_CN
  */
-class AnimationConfig  : BaseObject() {
-	public override fun toString(): String {
+class AnimationConfig : BaseObject() {
+	override fun toString(): String {
 		return "[class dragonBones.AnimationConfig]"
 	}
+
 	/**
 	 * @private
 	 */
-	public var pauseFadeOut: Boolean
+	var pauseFadeOut: Boolean = true
 	/**
 	 * - Fade out the pattern of other animation states when the animation state is fade in.
 	 * This property is typically used to specify the substitution of multiple animation states blend.
@@ -63,27 +67,27 @@ class AnimationConfig  : BaseObject() {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public var fadeOutMode: AnimationFadeOutMode
+	var fadeOutMode: AnimationFadeOutMode = AnimationFadeOutMode.All
 	/**
 	 * @private
 	 */
-	public var fadeOutTweenType: TweenType
+	var fadeOutTweenType: TweenType = TweenType.Line
 	/**
 	 * @private
 	 */
-	public var fadeOutTime: Double
+	var fadeOutTime: Double = -1.0
 	/**
 	 * @private
 	 */
-	public var pauseFadeIn: Boolean
+	var pauseFadeIn: Boolean = true
 	/**
 	 * @private
 	 */
-	public var actionEnabled: Boolean
+	var actionEnabled: Boolean = true
 	/**
 	 * @private
 	 */
-	public var additive: Boolean
+	var additive: Boolean = false
 	/**
 	 * - Whether the animation state has control over the display property of the slots.
 	 * Sometimes blend a animation state does not want it to control the display properties of the slots,
@@ -100,7 +104,7 @@ class AnimationConfig  : BaseObject() {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public var displayControl: Boolean
+	var displayControl: Boolean = true
 	/**
 	 * - Whether to reset the objects without animation to the armature pose when the animation state is start to play.
 	 * This property should usually be set to false when blend multiple animation states.
@@ -115,11 +119,11 @@ class AnimationConfig  : BaseObject() {
 	 * @version DragonBones 5.1
 	 * @language zh_CN
 	 */
-	public var resetToPose: Boolean
+	var resetToPose: Boolean = true
 	/**
 	 * @private
 	 */
-	public var fadeInTweenType: TweenType
+	var fadeInTweenType: TweenType = TweenType.Line
 	/**
 	 * - The play times. [0: Loop play, [1~N]: Play N times]
 	 * @version DragonBones 3.0
@@ -130,7 +134,7 @@ class AnimationConfig  : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public var playTimes: Int
+	var playTimes: Int = -1
 	/**
 	 * - The blend layer.
 	 * High layer animation state will get the blend weight first.
@@ -147,7 +151,7 @@ class AnimationConfig  : BaseObject() {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public var layer: Int
+	var layer: Int = 0
 	/**
 	 * - The start time of play. (In seconds)
 	 * @default 0.0
@@ -160,7 +164,7 @@ class AnimationConfig  : BaseObject() {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public var position: Double
+	var position: Double = 0.0
 	/**
 	 * - The duration of play.
 	 * [-1: Use the default value of the animation data, 0: Stop play, (0~N]: The duration] (In seconds)
@@ -175,7 +179,7 @@ class AnimationConfig  : BaseObject() {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public var duration: Double
+	var duration: Double = -1.0
 	/**
 	 * - The play speed.
 	 * The value is an overlay relationship with {@link dragonBones.Animation#timeScale}.
@@ -192,7 +196,7 @@ class AnimationConfig  : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public var timeScale: Double
+	var timeScale: Double = -100.0
 	/**
 	 * - The blend weight.
 	 * @default 1.0
@@ -205,7 +209,7 @@ class AnimationConfig  : BaseObject() {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public var weight: Double
+	var weight: Double = 1.0
 	/**
 	 * - The fade in time.
 	 * [-1: Use the default value of the animation data, [0~N]: The fade in time] (In seconds)
@@ -220,7 +224,7 @@ class AnimationConfig  : BaseObject() {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public var fadeInTime: Double
+	var fadeInTime: Double = -1.0
 	/**
 	 * - The auto fade out time when the animation state play completed.
 	 * [-1: Do not fade out automatically, [0~N]: The fade out time] (In seconds)
@@ -235,7 +239,7 @@ class AnimationConfig  : BaseObject() {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public var autoFadeOutTime: Double
+	var autoFadeOutTime: Double = -1.0
 	/**
 	 * - The name of the animation state. (Can be different from the name of the animation data)
 	 * @version DragonBones 5.0
@@ -246,7 +250,7 @@ class AnimationConfig  : BaseObject() {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public var name: String
+	var name: String = ""
 	/**
 	 * - The animation data name.
 	 * @version DragonBones 5.0
@@ -257,7 +261,7 @@ class AnimationConfig  : BaseObject() {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public var animation: String
+	var animation: String = ""
 	/**
 	 * - The blend group name of the animation state.
 	 * This property is typically used to specify the substitution of multiple animation states blend.
@@ -272,13 +276,13 @@ class AnimationConfig  : BaseObject() {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public var group: String
+	var group: String = ""
 	/**
 	 * @private
 	 */
-	public val boneMask: Array<String> = []
+	val boneMask: ArrayList<String> = arrayListOf()
 
-	protected fun _onClear(): Unit {
+	override fun _onClear(): Unit {
 		this.pauseFadeOut = true
 		this.fadeOutMode = AnimationFadeOutMode.All
 		this.fadeOutTweenType = TweenType.Line
@@ -301,18 +305,20 @@ class AnimationConfig  : BaseObject() {
 		this.name = ""
 		this.animation = ""
 		this.group = ""
-		this.boneMask.length = 0
+		this.boneMask.clear()
 	}
+
 	/**
 	 * @private
 	 */
-	public fun clear(): Unit {
+	fun clear() {
 		this._onClear()
 	}
+
 	/**
 	 * @private
 	 */
-	public fun copyFrom(value: AnimationConfig): Unit {
+	fun copyFrom(value: AnimationConfig) {
 		this.pauseFadeOut = value.pauseFadeOut
 		this.fadeOutMode = value.fadeOutMode
 		this.autoFadeOutTime = value.autoFadeOutTime
@@ -336,7 +342,7 @@ class AnimationConfig  : BaseObject() {
 		this.animation = value.animation
 		this.group = value.group
 
-		this.boneMask.size = value.boneMask.size
+		this.boneMask.lengthSet = value.boneMask.size
 		for (i in 0 until this.boneMask.size) {
 			this.boneMask[i] = value.boneMask[i]
 		}

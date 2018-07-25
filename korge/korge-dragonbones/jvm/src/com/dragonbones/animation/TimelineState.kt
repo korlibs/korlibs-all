@@ -46,7 +46,7 @@ class ActionTimelineState  :  TimelineState {
 				val actionIndex = this._frameArray[frameOffset + 2 + i]
 				val action = actions[actionIndex]
 
-				if (action.type === ActionType.Play) {
+				if (action.type == ActionType.Play) {
 					val eventObject = BaseObject.borrowObject<EventObject>()
 					// eventObject.time = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
 					eventObject.time = this._frameArray[frameOffset] / this._frameRate
@@ -55,8 +55,8 @@ class ActionTimelineState  :  TimelineState {
 					this._armature._bufferAction(eventObject, true)
 				}
 				else {
-					val eventType = action.type === ActionType.Frame ? EventObject.FRAME_EVENT : EventObject.SOUND_EVENT
-					if (action.type === ActionType.Sound || eventDispatcher.hasDBEventListener(eventType)) {
+					val eventType = action.type == ActionType.Frame ? EventObject.FRAME_EVENT : EventObject.SOUND_EVENT
+					if (action.type == ActionType.Sound || eventDispatcher.hasDBEventListener(eventType)) {
 						val eventObject = BaseObject.borrowObject<EventObject>()
 						// eventObject.time = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
 						eventObject.time = this._frameArray[frameOffset] / this._frameRate
@@ -78,7 +78,7 @@ class ActionTimelineState  :  TimelineState {
 		var prevTime = this.currentTime
 
 		if (this._setCurrentTime(passedTime)) {
-			val eventActive = this._animationState._parent === null && this._animationState.actionEnabled
+			val eventActive = this._animationState._parent == null && this._animationState.actionEnabled
 			val eventDispatcher = this._armature.eventDispatcher
 			if (prevState < 0) {
 				if (this.playState != prevState) {
@@ -193,7 +193,7 @@ class ActionTimelineState  :  TimelineState {
 											crossedFrameIndex = this._frameCount - 1
 										}
 									}
-									else if (crossedFrameIndex === frameIndex) { // Uncrossed.
+									else if (crossedFrameIndex == frameIndex) { // Uncrossed.
 										crossedFrameIndex = -1
 									}
 								}
@@ -218,12 +218,12 @@ class ActionTimelineState  :  TimelineState {
 									this._onCrossFrame(crossedFrameIndex)
 								}
 
-								if (loopCompleteEvent !== null && crossedFrameIndex === 0) { // Add loop complete event before first frame.
+								if (loopCompleteEvent != null && crossedFrameIndex == 0) { // Add loop complete event before first frame.
 									this._armature._dragonBones.bufferEvent(loopCompleteEvent)
 									loopCompleteEvent = null
 								}
 
-								if (crossedFrameIndex === frameIndex) {
+								if (crossedFrameIndex == frameIndex) {
 									break
 								}
 							}
@@ -233,7 +233,7 @@ class ActionTimelineState  :  TimelineState {
 			}
 			else if (this._frameIndex < 0) {
 				this._frameIndex = 0
-				if (this._timelineData !== null) {
+				if (this._timelineData != null) {
 					this._frameOffset = this._animationData.frameOffset + this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineFrameOffset]
 					// Arrive at frame.
 					val framePosition = this._frameArray[this._frameOffset] / this._frameRate
@@ -244,7 +244,7 @@ class ActionTimelineState  :  TimelineState {
 						}
 					}
 					else if (this._position <= framePosition) { // Loop complete.
-						if (!isReverse && loopCompleteEvent !== null) { // Add loop complete event before first frame.
+						if (!isReverse && loopCompleteEvent != null) { // Add loop complete event before first frame.
 							this._armature._dragonBones.bufferEvent(loopCompleteEvent)
 							loopCompleteEvent = null
 						}
@@ -254,11 +254,11 @@ class ActionTimelineState  :  TimelineState {
 				}
 			}
 
-			if (loopCompleteEvent !== null) {
+			if (loopCompleteEvent != null) {
 				this._armature._dragonBones.bufferEvent(loopCompleteEvent)
 			}
 
-			if (completeEvent !== null) {
+			if (completeEvent != null) {
 				this._armature._dragonBones.bufferEvent(completeEvent)
 			}
 		}
@@ -302,12 +302,12 @@ class BoneAllTimelineState  :  MutilpleValueTimelineState() {
 	override fun _onArriveAtFrame(): Unit {
 		super._onArriveAtFrame()
 
-		if (this._isTween && this._frameIndex === this._frameCount - 1) {
+		if (this._isTween && this._frameIndex == this._frameCount - 1) {
 			this._rd[2] = Transform.normalizeRadian(this._rd[2])
 			this._rd[3] = Transform.normalizeRadian(this._rd[3])
 		}
 
-		if (this._timelineData === null) { // Pose.
+		if (this._timelineData == null) { // Pose.
 			this._rd[4] = 1.0
 			this._rd[5] = 1.0
 		}
@@ -385,7 +385,7 @@ class BoneTranslateTimelineState  :  DoubleValueTimelineState() {
 			result.x += this._resultA * blendWeight
 			result.y += this._resultB * blendWeight
 		}
-		else if (blendWeight !== 1.0) {
+		else if (blendWeight != 1.0) {
 			result.x = this._resultA * blendWeight
 			result.y = this._resultB * blendWeight
 		}
@@ -411,7 +411,7 @@ class BoneRotateTimelineState  :  DoubleValueTimelineState() {
 	protected fun _onArriveAtFrame(): Unit {
 		super._onArriveAtFrame()
 
-		if (this._isTween && this._frameIndex === this._frameCount - 1) {
+		if (this._isTween && this._frameIndex == this._frameCount - 1) {
 			this._differenceA = Transform.normalizeRadian(this._differenceA)
 			this._differenceB = Transform.normalizeRadian(this._differenceB)
 		}
@@ -466,7 +466,7 @@ class BoneScaleTimelineState  :  DoubleValueTimelineState() {
 	override fun _onArriveAtFrame(): Unit {
 		super._onArriveAtFrame()
 
-		if (this._timelineData === null) { // Pose.
+		if (this._timelineData == null) { // Pose.
 			this._resultA = 1.0
 			this._resultB = 1.0
 		}
@@ -489,7 +489,7 @@ class BoneScaleTimelineState  :  DoubleValueTimelineState() {
 			result.scaleX += (this._resultA - 1.0) * blendWeight
 			result.scaleY += (this._resultB - 1.0) * blendWeight
 		}
-		else if (blendWeight !== 1.0) {
+		else if (blendWeight != 1.0) {
 			result.scaleX = (this._resultA - 1.0) * blendWeight + 1.0
 			result.scaleY = (this._resultB - 1.0) * blendWeight + 1.0
 		}
@@ -527,7 +527,7 @@ class SurfaceTimelineState  :  MutilpleValueTimelineState() {
 	override fun init(armature: Armature, animationState: AnimationState, timelineData: TimelineData?): Unit {
 		super.init(armature, animationState, timelineData)
 
-		if (this._timelineData !== null) {
+		if (this._timelineData != null) {
 			val dragonBonesData = this._animationData.parent.parent
 			val frameIntArray = dragonBonesData.frameIntArray
 			val frameIntOffset = this._animationData.frameIntOffset + this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineFrameValueCount]
@@ -602,7 +602,7 @@ class AlphaTimelineState  :  SingleValueTimelineState() {
 	override fun _onArriveAtFrame(): Unit {
 		super._onArriveAtFrame()
 
-		if (this._timelineData === null) { // Pose.
+		if (this._timelineData == null) { // Pose.
 			this._result = 1.0
 		}
 	}
@@ -647,9 +647,9 @@ class SlotDisplayTimelineState  :  TimelineState() {
 	override fun _onArriveAtFrame(): Unit {
 		if (this.playState >= 0) {
 			val slot = this.target as Slot
-			val displayIndex = this._timelineData !== null ? this._frameArray[this._frameOffset + 1] : slot._slotData.displayIndex
+			val displayIndex = this._timelineData != null ? this._frameArray[this._frameOffset + 1] : slot._slotData.displayIndex
 
-			if (slot.displayIndex !== displayIndex) {
+			if (slot.displayIndex != displayIndex) {
 				slot._setDisplayIndex(displayIndex, true)
 			}
 		}
@@ -673,7 +673,7 @@ class SlotColorTimelineState  :  TweenTimelineState() {
 	override fun _onArriveAtFrame(): Unit {
 		super._onArriveAtFrame()
 
-		if (this._timelineData !== null) {
+		if (this._timelineData != null) {
 			val dragonBonesData = this._animationData.parent.parent
 			val colorArray = dragonBonesData.colorArray
 			val frameIntArray = dragonBonesData.frameIntArray
@@ -771,10 +771,10 @@ class SlotColorTimelineState  :  TweenTimelineState() {
 					result.redMultiplier != this._result[1] ||
 					result.greenMultiplier != this._result[2] ||
 					result.blueMultiplier != this._result[3] ||
-					result.alphaOffset !== this._result[4] ||
-					result.redOffset !== this._result[5] ||
-					result.greenOffset !== this._result[6] ||
-					result.blueOffset !== this._result[7]
+					result.alphaOffset != this._result[4] ||
+					result.redOffset != this._result[5] ||
+					result.greenOffset != this._result[6] ||
+					result.blueOffset != this._result[7]
 				) {
 					val fadeProgress = Math.pow(this._animationState._fadeProgress, 4)
 					result.alphaMultiplier += (this._result[0] - result.alphaMultiplier) * fadeProgress
@@ -796,10 +796,10 @@ class SlotColorTimelineState  :  TweenTimelineState() {
 					result.redMultiplier != this._result[1] ||
 					result.greenMultiplier != this._result[2] ||
 					result.blueMultiplier != this._result[3] ||
-					result.alphaOffset !== this._result[4] ||
-					result.redOffset !== this._result[5] ||
-					result.greenOffset !== this._result[6] ||
-					result.blueOffset !== this._result[7]
+					result.alphaOffset != this._result[4] ||
+					result.redOffset != this._result[5] ||
+					result.greenOffset != this._result[6] ||
+					result.blueOffset != this._result[7]
 				) {
 					result.alphaMultiplier = this._result[0]
 					result.redMultiplier = this._result[1]
@@ -826,7 +826,7 @@ class SlotZIndexTimelineState  :  SingleValueTimelineState() {
 	override fun _onArriveAtFrame(): Unit {
 		super._onArriveAtFrame()
 
-		if (this._timelineData === null) { // Pose.
+		if (this._timelineData == null) { // Pose.
 			val blendState = this.target as BlendState
 			val slot = blendState.target as Slot
 			this._result = slot.slotData.zIndex
@@ -887,7 +887,7 @@ class DeformTimelineState  :  MutilpleValueTimelineState() {
 	override fun init(armature: Armature, animationState: AnimationState, timelineData: TimelineData?): Unit {
 		super.init(armature, animationState, timelineData)
 
-		if (this._timelineData !== null) {
+		if (this._timelineData != null) {
 			val frameIntOffset = this._animationData.frameIntOffset + this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineFrameValueCount]
 			val dragonBonesData = this._animationData.parent.parent
 			val frameIntArray = dragonBonesData.frameIntArray
@@ -902,18 +902,18 @@ class DeformTimelineState  :  MutilpleValueTimelineState() {
 				val displayFrame = slot.getDisplayFrameAt(i)
 				val geometryData = displayFrame.getGeometryData()
 
-				if (geometryData === null) {
+				if (geometryData == null) {
 					continue
 				}
 
-				if (geometryData.offset === this.geometryOffset) {
+				if (geometryData.offset == this.geometryOffset) {
 					this.displayFrame = displayFrame
 					this.displayFrame.updateDeformVertices()
 					break
 				}
 			}
 
-			if (this.displayFrame === null) {
+			if (this.displayFrame == null) {
 				this.returnToPool() //
 				return
 			}
@@ -966,7 +966,7 @@ class DeformTimelineState  :  MutilpleValueTimelineState() {
 				}
 			}
 		}
-		else if (blendState.dirty === 1) {
+		else if (blendState.dirty == 1) {
 			for (var i = 0; i < this._deformCount; ++i) {
 				result[i] = 0.0
 			}
@@ -975,7 +975,7 @@ class DeformTimelineState  :  MutilpleValueTimelineState() {
 		if (isDirty || this.dirty) {
 			this.dirty = false
 
-			if (slot._geometryData === this.displayFrame.getGeometryData()) {
+			if (slot._geometryData == this.displayFrame.getGeometryData()) {
 				slot._verticesDirty = true
 			}
 		}
@@ -994,7 +994,7 @@ class IKConstraintTimelineState  :  DoubleValueTimelineState() {
 
 		val ikConstraint = this.target as IKConstraint
 
-		if (this._timelineData !== null) {
+		if (this._timelineData != null) {
 			ikConstraint._bendPositive = this._currentA > 0.0
 			ikConstraint._weight = this._currentB
 		}
@@ -1028,7 +1028,7 @@ class AnimationProgressTimelineState  :  SingleValueTimelineState() {
 		super._onUpdateFrame()
 
 		val animationState = this.target as AnimationState
-		if (animationState._parent !== null) {
+		if (animationState._parent != null) {
 			animationState.currentTime = this._result * animationState.totalTime
 		}
 
@@ -1055,7 +1055,7 @@ class AnimationWeightTimelineState  :  SingleValueTimelineState {
 		super._onUpdateFrame()
 
 		val animationState = this.target as AnimationState
-		if (animationState._parent !== null) {
+		if (animationState._parent != null) {
 			animationState.weight = this._result
 		}
 
@@ -1082,7 +1082,7 @@ class AnimationParametersTimelineState  :  DoubleValueTimelineState() {
 		super._onUpdateFrame()
 
 		val animationState = this.target as AnimationState
-		if (animationState._parent !== null) {
+		if (animationState._parent != null) {
 			animationState.parameterX = this._resultA
 			animationState.parameterY = this._resultB
 		}

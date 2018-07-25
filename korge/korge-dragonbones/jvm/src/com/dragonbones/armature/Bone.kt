@@ -25,6 +25,7 @@ package com.dragonbones.armature
 import com.dragonbones.core.*
 import com.dragonbones.geom.*
 import com.dragonbones.model.*
+import com.soywiz.kds.*
 
 /**
  * - Bone is one of the most important logical units in the armature animation system,
@@ -46,7 +47,7 @@ import com.dragonbones.model.*
  * @language zh_CN
  */
 open class Bone :  TransformObject() {
-	public override fun toString(): String {
+	override fun toString(): String {
 		return "[class dragonBones.Bone]"
 	}
 	/**
@@ -61,40 +62,40 @@ open class Bone :  TransformObject() {
 	 * @version DragonBones 5.5
 	 * @language zh_CN
 	 */
-	public var offsetMode: OffsetMode
+	var offsetMode: OffsetMode = OffsetMode.Additive
 	/**
 	 * @internal
 	 */
-	public val animationPose: Transform = Transform()
+	val animationPose: Transform = Transform()
 	/**
 	 * @internal
 	 */
-	public var _transformDirty: Boolean
+	var _transformDirty: Boolean = false
 	/**
 	 * @internal
 	 */
-	public var _childrenTransformDirty: Boolean
-	protected var _localDirty: Boolean
+	var _childrenTransformDirty: Boolean = false
+	protected var _localDirty: Boolean = true
 	/**
 	 * @internal
 	 */
-	public var _hasConstraint: Boolean
-	protected var _visible: Boolean
-	protected var _cachedFrameIndex: Int
+	var _hasConstraint: Boolean = false
+	protected var _visible: Boolean = true
+	protected var _cachedFrameIndex: Int = -1
 	/**
 	 * @internal
 	 */
-	public var _boneData: BoneData
+	var _boneData: BoneData? = null
 	/**
 	 * @private
 	 */
-	protected var _parent: Bone?
+	protected var _parent: Bone? = null
 	/**
 	 * @internal
 	 */
-	public var _cachedFrameIndices:  IntArray?
+	var _cachedFrameIndices:  IntArrayList? = null
 
-	protected fun _onClear(): Unit {
+	protected override fun _onClear(): Unit {
 		super._onClear()
 
 		this.offsetMode = OffsetMode.Additive
@@ -106,12 +107,12 @@ open class Bone :  TransformObject() {
 		this._hasConstraint = false
 		this._visible = true
 		this._cachedFrameIndex = -1
-		this._boneData = null as any //
-		this._parent = null as any //
+		this._boneData = null //
+		this._parent = null //
 		this._cachedFrameIndices = null
 	}
 
-	protected fun _updateGlobalTransformMatrix(isCache: Boolean): Unit {
+	protected open fun _updateGlobalTransformMatrix(isCache: Boolean): Unit {
 		// For typescript.
 		val boneData = this._boneData
 		val global = this.global
@@ -119,15 +120,15 @@ open class Bone :  TransformObject() {
 		val origin = this.origin
 		val offset = this.offset
 		val animationPose = this.animationPose
-		val parent = this._parent as Bone //
+		val parent = this._parent as? Bone? //
 
-		val flipX = this._armature.flipX
-		val flipY = this._armature.flipY === DragonBones.yDown
-		var inherit = parent !== null
+		val flipX = this._armature!!.flipX
+		val flipY = this._armature!!.flipY == DragonBones.yDown
+		var inherit = parent != null
 		var rotation = 0.0
 
-		if (this.offsetMode === OffsetMode.Additive) {
-			if (origin !== null) {
+		if (this.offsetMode == OffsetMode.Additive) {
+			if (origin != null) {
 				// global.copyFrom(this.origin).add(this.offset).add(this.animationPose);
 				global.x = origin.x + offset.x + animationPose.x
 				global.scaleX = origin.scaleX * offset.scaleX * animationPose.scaleX
@@ -156,8 +157,8 @@ open class Bone :  TransformObject() {
 				global.add(animationPose)
 			}
 		}
-		else if (this.offsetMode === OffsetMode.None) {
-			if (origin !== null) {
+		else if (this.offsetMode == OffsetMode.None) {
+			if (origin != null) {
 				global.copyFrom(origin).add(animationPose)
 			}
 			else {
@@ -176,19 +177,20 @@ open class Bone :  TransformObject() {
 		}
 
 		if (inherit) {
-			val isSurface = parent._boneData.type === BoneType.Surface
+			val parent = parent!!
+			val isSurface = parent._boneData!!.type == BoneType.Surface
 			val surfaceBone = if (isSurface) (parent as Surface)._bone else null
 			val parentMatrix = if (isSurface) (parent as Surface)._getGlobalTransformMatrix(global.x, global.y) else parent.globalTransformMatrix
 
-			if (boneData.inheritScale && (!isSurface || surfaceBone !== null)) {
+			if (boneData!!.inheritScale && (!isSurface || surfaceBone != null)) {
 				if (isSurface) {
-					if (boneData.inheritRotation) {
+					if (boneData!!.inheritRotation) {
 						global.rotation += parent.global.rotation
 					}
 
 					(surfaceBone as Bone).updateGlobalTransform()
-					global.scaleX *= (surfaceBone as Bone).global.scaleX
-					global.scaleY *= (surfaceBone as Bone).global.scaleY
+					global.scaleX *= surfaceBone.global.scaleX
+					global.scaleY *= surfaceBone.global.scaleY
 					parentMatrix.transformPoint(global.x, global.y, global)
 					global.toMatrix(globalTransformMatrix)
 
@@ -271,11 +273,11 @@ open class Bone :  TransformObject() {
 					if (parentMatrix.a * parentMatrix.d - parentMatrix.b * parentMatrix.c < 0.0) {
 						rotation -= global.rotation * 2.0
 
-						if (flipX !== flipY || boneData.inheritReflection) {
+						if (flipX != flipY || boneData.inheritReflection) {
 							global.skew += Math.PI
 						}
 
-						if (!dragonBones.DragonBones.yDown) {
+						if (!DragonBones.yDown) {
 							global.skew = -global.skew
 						}
 					}
@@ -333,44 +335,48 @@ open class Bone :  TransformObject() {
 			global.toMatrix(globalTransformMatrix)
 		}
 	}
+
 	/**
 	 * @internal
 	 */
-	public fun _updateAlpha() {
-		if (this._parent !== null) {
-			this._globalAlpha = this._alpha * this._parent._globalAlpha
+	fun _updateAlpha() {
+		if (this._parent != null) {
+			this._globalAlpha = this._alpha * this._parent!!._globalAlpha
 		}
 		else {
-			this._globalAlpha = this._alpha * this._armature._globalAlpha
+			this._globalAlpha = this._alpha * this._armature!!._globalAlpha
 		}
 	}
+
 	/**
 	 * @internal
 	 */
-	public fun init(boneData: BoneData, armatureValue: Armature): Unit {
-		if (this._boneData !== null) {
+	fun init(boneData: BoneData, armatureValue: Armature) {
+		if (this._boneData != null) {
 			return
 		}
 
 		this._boneData = boneData
 		this._armature = armatureValue
-		this._alpha = this._boneData.alpha
+		this._alpha = this._boneData!!.alpha
 
-		if (this._boneData.parent !== null) {
-			this._parent = this._armature.getBone(this._boneData.parent.name)
+		if (this._boneData?.parent != null) {
+			this._parent = this._armature?.getBone(this._boneData?.parent?.name)
 		}
 
-		this._armature._addBone(this)
+		this._armature?._addBone(this)
 		//
-		this.origin = this._boneData.transform
+		this.origin = this._boneData?.transform
 	}
+
 	/**
 	 * @internal
 	 */
-	public fun update(cacheFrameIndex: Double): Unit {
-		if (cacheFrameIndex >= 0 && this._cachedFrameIndices !== null) {
-			val cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex]
-			if (cachedFrameIndex >= 0 && this._cachedFrameIndex === cachedFrameIndex) { // Same cache.
+	open fun update(cacheFrameIndex: Int) {
+		var cacheFrameIndex = cacheFrameIndex
+		if (cacheFrameIndex >= 0 && this._cachedFrameIndices != null) {
+			val cachedFrameIndex = this._cachedFrameIndices!![cacheFrameIndex]
+			if (cachedFrameIndex >= 0 && this._cachedFrameIndex == cachedFrameIndex) { // Same cache.
 				this._transformDirty = false
 			}
 			else if (cachedFrameIndex >= 0) { // Has been Cached.
@@ -379,8 +385,8 @@ open class Bone :  TransformObject() {
 			}
 			else {
 				if (this._hasConstraint) { // Update constraints.
-					for (constraint in this._armature._constraints) {
-						if (constraint._root === this) {
+					for (constraint in this._armature!!._constraints) {
+						if (constraint._root == this) {
 							constraint.update()
 						}
 					}
@@ -388,14 +394,14 @@ open class Bone :  TransformObject() {
 
 				if (
 					this._transformDirty ||
-					(this._parent !== null && this._parent._childrenTransformDirty)
+					(this._parent != null && this._parent!!._childrenTransformDirty)
 				) { // Dirty.
 					this._transformDirty = true
 					this._cachedFrameIndex = -1
 				}
 				else if (this._cachedFrameIndex >= 0) { // Same cache, but not set index yet.
 					this._transformDirty = false
-					this._cachedFrameIndices[cacheFrameIndex] = this._cachedFrameIndex
+					this._cachedFrameIndices!![cacheFrameIndex] = this._cachedFrameIndex
 				}
 				else { // Dirty.
 					this._transformDirty = true
@@ -405,14 +411,14 @@ open class Bone :  TransformObject() {
 		}
 		else {
 			if (this._hasConstraint) { // Update constraints.
-				for (constraint in this._armature._constraints) {
-					if (constraint._root === this) {
+				for (constraint in this._armature!!._constraints) {
+					if (constraint._root == this) {
 						constraint.update()
 					}
 				}
 			}
 
-			if (this._transformDirty || (this._parent !== null && this._parent._childrenTransformDirty)) { // Dirty.
+			if (this._transformDirty || (this._parent != null && this._parent!!._childrenTransformDirty)) { // Dirty.
 				cacheFrameIndex = -1
 				this._transformDirty = true
 				this._cachedFrameIndex = -1
@@ -429,12 +435,14 @@ open class Bone :  TransformObject() {
 					this._updateGlobalTransformMatrix(isCache)
 				}
 
-				if (isCache && this._cachedFrameIndices !== null) {
-					this._cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex] = this._armature._armatureData.setCacheFrame(this.globalTransformMatrix, this.global)
+				if (isCache && this._cachedFrameIndices != null) {
+					val res = this._armature!!._armatureData!!.setCacheFrame(this.globalTransformMatrix, this.global)
+					this._cachedFrameIndex = res
+					this._cachedFrameIndices!![cacheFrameIndex] = res
 				}
 			}
 			else {
-				this._armature._armatureData.getCacheFrame(this.globalTransformMatrix, this.global, this._cachedFrameIndex)
+				this._armature?._armatureData?.getCacheFrame(this.globalTransformMatrix, this.global, this._cachedFrameIndex)
 			}
 			//
 		}
@@ -444,14 +452,15 @@ open class Bone :  TransformObject() {
 
 		this._localDirty = true
 	}
+
 	/**
 	 * @internal
 	 */
-	public fun updateByConstraint(): Unit {
+	fun updateByConstraint() {
 		if (this._localDirty) {
 			this._localDirty = false
 
-			if (this._transformDirty || (this._parent !== null && this._parent._childrenTransformDirty)) {
+			if (this._transformDirty || (this._parent != null && this._parent!!._childrenTransformDirty)) {
 				this._updateGlobalTransformMatrix(true)
 			}
 
@@ -483,7 +492,7 @@ open class Bone :  TransformObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public fun invalidUpdate(): Unit {
+	fun invalidUpdate(): Unit {
 		this._transformDirty = true
 	}
 	/**
@@ -498,17 +507,17 @@ open class Bone :  TransformObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public fun contains(value: Bone): Boolean {
-		if (value === this) {
+	fun contains(value: Bone): Boolean {
+		if (value == this) {
 			return false
 		}
 
 		var ancestor: Bone? = value
-		while (ancestor !== this && ancestor !== null) {
+		while (ancestor != this && ancestor != null) {
 			ancestor = ancestor.parent
 		}
 
-		return ancestor === this
+		return ancestor == this
 	}
 	/**
 	 * - The bone data.
@@ -520,10 +529,7 @@ open class Bone :  TransformObject() {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public val boneData: BoneData
-		get() {
-		return this._boneData
-		}
+	val boneData: BoneData get() = this._boneData!!
 	/**
 	 * - The visible of all slots in the bone.
 	 * @default true
@@ -538,22 +544,21 @@ open class Bone :  TransformObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public var visible: Boolean get() {
-		return this._visible
-	}
-	set(value: Boolean) {
-		if (this._visible === value) {
-			return
-		}
+	var visible: Boolean
+		get() = this._visible
+		set(value) {
+			if (this._visible == value) {
+				return
+			}
 
-		this._visible = value
+			this._visible = value
 
-		for (slot in this._armature.getSlots()) {
-			if (slot.parent === this) {
-				slot._updateVisible()
+			for (slot in this._armature!!.getSlots()) {
+				if (slot.parent == this) {
+					slot._updateVisible()
+				}
 			}
 		}
-	}
 	/**
 	 * - The bone name.
 	 * @version DragonBones 3.0
@@ -564,9 +569,7 @@ open class Bone :  TransformObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public val name: String get() {
-		return this._boneData.name
-	}
+	val name: String get() = this._boneData?.name ?: ""
 	/**
 	 * - The parent bone to which it belongs.
 	 * @version DragonBones 3.0
@@ -577,7 +580,5 @@ open class Bone :  TransformObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public val parent: Bone? get() {
-		return this._parent
-	}
+	val parent: Bone? get() = this._parent
 }

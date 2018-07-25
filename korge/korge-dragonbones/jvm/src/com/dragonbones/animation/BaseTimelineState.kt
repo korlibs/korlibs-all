@@ -101,22 +101,22 @@ abstract class TimelineState  : BaseObject() {
 		val prevPlayTimes = this.currentPlayTimes
 		val prevTime = this.currentTime
 
-		if (this._actionTimeline !== null && this._frameCount <= 1) { // No frame or only one frame.
+		if (this._actionTimeline != null && this._frameCount <= 1) { // No frame or only one frame.
 			this.playState = this._actionTimeline.playState >= 0 ? 1 : -1
 			this.currentPlayTimes = 1
 			this.currentTime = this._actionTimeline.currentTime
 		}
-		else if (this._actionTimeline === null || this._timeScale !== 1.0 || this._timeOffset !== 0.0) { // Action timeline or has scale and offset.
+		else if (this._actionTimeline == null || this._timeScale != 1.0 || this._timeOffset != 0.0) { // Action timeline or has scale and offset.
 			val playTimes = this._animationState.playTimes
 			val totalTime = playTimes * this._duration
 
 			passedTime *= this._timeScale
-			if (this._timeOffset !== 0.0) {
+			if (this._timeOffset != 0.0) {
 				passedTime += this._timeOffset * this._animationData.duration
 			}
 
 			if (playTimes > 0 && (passedTime >= totalTime || passedTime <= -totalTime)) {
-				if (this.playState <= 0 && this._animationState._playheadState === 3) {
+				if (this.playState <= 0 && this._animationState._playheadState == 3) {
 					this.playState = 1
 				}
 
@@ -125,11 +125,11 @@ abstract class TimelineState  : BaseObject() {
 					this.currentTime = 0.0
 				}
 				else {
-					this.currentTime = this.playState === 1 ? this._duration + 0.000001 : this._duration // Precision problem
+					this.currentTime = this.playState == 1 ? this._duration + 0.000001 : this._duration // Precision problem
 				}
 			}
 			else {
-				if (this.playState !== 0 && this._animationState._playheadState === 3) {
+				if (this.playState != 0 && this._animationState._playheadState == 3) {
 					this.playState = 0
 				}
 
@@ -152,14 +152,14 @@ abstract class TimelineState  : BaseObject() {
 			this.currentTime = this._actionTimeline.currentTime
 		}
 
-		if (this.currentPlayTimes === prevPlayTimes && this.currentTime === prevTime) {
+		if (this.currentPlayTimes == prevPlayTimes && this.currentTime == prevTime) {
 			return false
 		}
 
 		// Clear frame flag when timeline start or loopComplete.
 		if (
-			(prevState < 0 && this.playState !== prevState) ||
-			(this.playState <= 0 && this.currentPlayTimes !== prevPlayTimes)
+			(prevState < 0 && this.playState != prevState) ||
+			(this.playState <= 0 && this.currentPlayTimes != prevPlayTimes)
 		) {
 			this._frameIndex = -1
 		}
@@ -173,7 +173,7 @@ abstract class TimelineState  : BaseObject() {
 		this._timelineData = timelineData
 		this._actionTimeline = this._animationState._actionTimeline
 
-		if (this === this._actionTimeline) {
+		if (this == this._actionTimeline) {
 			this._actionTimeline = null as any //
 		}
 
@@ -184,7 +184,7 @@ abstract class TimelineState  : BaseObject() {
 		this._position = this._animationState._position
 		this._duration = this._animationState._duration
 
-		if (this._timelineData !== null) {
+		if (this._timelineData != null) {
 			val dragonBonesData = this._animationData.parent.parent // May by the animation data is not belone to this armature data.
 			this._frameArray = dragonBonesData.frameArray
 			this._timelineArray = dragonBonesData.timelineArray
@@ -207,7 +207,7 @@ abstract class TimelineState  : BaseObject() {
 				val timelineFrameIndex = Math.floor(this.currentTime * this._frameRate) // uint
 				val frameIndex = this._frameIndices[(this._timelineData as TimelineData).frameIndicesOffset + timelineFrameIndex]
 
-				if (this._frameIndex !== frameIndex) {
+				if (this._frameIndex != frameIndex) {
 					this._frameIndex = frameIndex
 					this._frameOffset = this._animationData.frameOffset + this._timelineArray[(this._timelineData as TimelineData).offset + BinaryOffset.TimelineFrameOffset + this._frameIndex]
 
@@ -217,7 +217,7 @@ abstract class TimelineState  : BaseObject() {
 			else if (this._frameIndex < 0) {
 				this._frameIndex = 0
 
-				if (this._timelineData !== null) { // May be pose timeline.
+				if (this._timelineData != null) { // May be pose timeline.
 					this._frameOffset = this._animationData.frameOffset + this._timelineArray[this._timelineData.offset + BinaryOffset.TimelineFrameOffset]
 				}
 
@@ -265,8 +265,8 @@ abstract class TweenTimelineState  :  TimelineState() {
 			var toValue = 0.0
 
 			if (isOmited) {
-				fromValue = valueIndex === 0 ? 0.0 : samples[offset + valueIndex - 1]
-				toValue = (valueIndex === segmentCount - 1) ? 10000.0 : samples[offset + valueIndex]
+				fromValue = valueIndex == 0 ? 0.0 : samples[offset + valueIndex - 1]
+				toValue = (valueIndex == segmentCount - 1) ? 10000.0 : samples[offset + valueIndex]
 			}
 			else {
 				fromValue = samples[offset + valueIndex - 1]
@@ -308,13 +308,13 @@ abstract class TweenTimelineState  :  TimelineState() {
 			)
 		) {
 			this._tweenType = this._frameArray[this._frameOffset + BinaryOffset.FrameTweenType]
-			this._isTween = this._tweenType !== TweenType.None
+			this._isTween = this._tweenType != TweenType.None
 
 			if (this._isTween) {
-				if (this._tweenType === TweenType.Curve) {
+				if (this._tweenType == TweenType.Curve) {
 					this._curveCount = this._frameArray[this._frameOffset + BinaryOffset.FrameTweenEasingOrCurveSampleCount]
 				}
-				else if (this._tweenType !== TweenType.None && this._tweenType !== TweenType.Line) {
+				else if (this._tweenType != TweenType.None && this._tweenType != TweenType.Line) {
 					this._tweenEasing = this._frameArray[this._frameOffset + BinaryOffset.FrameTweenEasingOrCurveSampleCount] * 0.01
 				}
 			}
@@ -350,10 +350,10 @@ abstract class TweenTimelineState  :  TimelineState() {
 			this.dirty = true
 			this._tweenProgress = (this.currentTime - this._framePosition) * this._frameDurationR
 
-			if (this._tweenType === TweenType.Curve) {
+			if (this._tweenType == TweenType.Curve) {
 				this._tweenProgress = TweenTimelineState._getEasingCurveValue(this._tweenProgress, this._frameArray, this._curveCount, this._frameOffset + BinaryOffset.FrameCurveSamples)
 			}
-			else if (this._tweenType !== TweenType.Line) {
+			else if (this._tweenType != TweenType.Line) {
 				this._tweenProgress = TweenTimelineState._getEasingValue(this._tweenType, this._tweenProgress, this._tweenEasing)
 			}
 		}
@@ -378,18 +378,18 @@ abstract class SingleValueTimelineState  :  TweenTimelineState() {
 	override fun _onArriveAtFrame(): Unit {
 		super._onArriveAtFrame()
 
-		if (this._timelineData !== null) {
+		if (this._timelineData != null) {
 			val valueScale = this._valueScale
 			val valueArray = this._valueArray
 			//
 			val valueOffset = this._valueOffset + this._frameValueOffset + this._frameIndex
 
 			if (this._isTween) {
-				val nextValueOffset = this._frameIndex === this._frameCount - 1 ?
+				val nextValueOffset = this._frameIndex == this._frameCount - 1 ?
 					this._valueOffset + this._frameValueOffset :
 					valueOffset + 1
 
-				if (valueScale === 1.0) {
+				if (valueScale == 1.0) {
 					this._current = valueArray[valueOffset]
 					this._difference = valueArray[nextValueOffset] - this._current
 				}
@@ -440,18 +440,18 @@ abstract class DoubleValueTimelineState  :  TweenTimelineState() {
 	override fun _onArriveAtFrame(): Unit {
 		super._onArriveAtFrame()
 
-		if (this._timelineData !== null) {
+		if (this._timelineData != null) {
 			val valueScale = this._valueScale
 			val valueArray = this._valueArray
 			//
 			val valueOffset = this._valueOffset + this._frameValueOffset + this._frameIndex * 2
 
 			if (this._isTween) {
-				val nextValueOffset = this._frameIndex === this._frameCount - 1 ?
+				val nextValueOffset = this._frameIndex == this._frameCount - 1 ?
 					this._valueOffset + this._frameValueOffset :
 					valueOffset + 2
 
-				if (valueScale === 1.0) {
+				if (valueScale == 1.0) {
 					this._currentA = valueArray[valueOffset]
 					this._currentB = valueArray[valueOffset + 1]
 					this._differenceA = valueArray[nextValueOffset] - this._currentA
@@ -504,7 +504,7 @@ abstract class MutilpleValueTimelineState  :  TweenTimelineState() {
 		val valueCount = this._valueCount
 		val rd = this._rd
 
-		if (this._timelineData !== null) {
+		if (this._timelineData != null) {
 			val valueScale = this._valueScale
 			val valueArray = this._valueArray
 			//

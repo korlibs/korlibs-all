@@ -32,7 +32,7 @@ package com.dragonbones.geom
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class Point {
+class Point : XY {
 	/**
 	 * - The horizontal coordinate.
 	 * @default 0.0
@@ -45,7 +45,7 @@ class Point {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	var x: Double
+	override var x: Double
 	/**
 	 * - The vertical coordinate.
 	 * @default 0.0
@@ -58,7 +58,7 @@ class Point {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	var y: Double
+	override var y: Double
 	/**
 	 * - Creates a new point. If you pass no parameters to this method, a point is created at (0,0).
 	 * @param x - The horizontal coordinate.

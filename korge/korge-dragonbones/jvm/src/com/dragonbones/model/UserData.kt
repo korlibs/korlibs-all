@@ -75,7 +75,7 @@ class UserData : BaseObject() {
 	 */
 	val strings: ArrayList<String> = arrayListOf()
 
-	protected override fun _onClear(): Unit {
+	override fun _onClear() {
 		this.ints.clear()
 		this.floats.clear()
 		this.strings.clear()
@@ -84,21 +84,21 @@ class UserData : BaseObject() {
 	/**
 	 * @internal
 	 */
-	fun addInt(value: Int): Unit {
+	fun addInt(value: Int) {
 		this.ints.push(value)
 	}
 
 	/**
 	 * @internal
 	 */
-	fun addFloat(value: Double): Unit {
+	fun addFloat(value: Double) {
 		this.floats.push(value)
 	}
 
 	/**
 	 * @internal
 	 */
-	fun addString(value: String): Unit {
+	fun addString(value: String) {
 		this.strings.push(value)
 	}
 	/**
@@ -152,7 +152,7 @@ class ActionData : BaseObject() {
 	var slot: SlotData? = null
 	var data: UserData? = null //
 
-	protected override fun _onClear(): Unit {
+	override fun _onClear() {
 		this.data?.returnToPool()
 
 		this.type = ActionType.Play

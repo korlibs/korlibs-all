@@ -32,16 +32,16 @@ abstract class ConstraintData : BaseObject() {
 	var order: Int = 0
 	var name: String = ""
 	var type: ConstraintType = ConstraintType.IK
-	var target: BoneData
-	var root: BoneData
+	var target: BoneData? = null
+	var root: BoneData? = null
 	var bone: BoneData? = null
 
 	override fun _onClear(): Unit {
 		this.order = 0
 		this.name = ""
 		this.type = ConstraintType.IK
-		this.target = null as any //
-		this.root = null as any //
+		this.target = null //
+		this.root = null //
 		this.bone = null
 	}
 }
@@ -75,8 +75,8 @@ class PathConstraintData : ConstraintData() {
 		return "[class dragonBones.PathConstraintData]"
 	}
 
-	var pathSlot: SlotData
-	var pathDisplayData: PathDisplayData
+	var pathSlot: SlotData? = null
+	var pathDisplayData: PathDisplayData? = null
 	var bones: ArrayList<BoneData> = arrayListOf()
 
 	var positionMode: PositionMode = PositionMode.Fixed
@@ -92,8 +92,8 @@ class PathConstraintData : ConstraintData() {
 	override fun _onClear() {
 		super._onClear()
 
-		this.pathSlot = null as any
-		this.pathDisplayData = null as any
+		this.pathSlot = null
+		this.pathDisplayData = null
 		this.bones.lengthSet = 0
 
 		this.positionMode = PositionMode.Fixed

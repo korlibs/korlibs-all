@@ -21,11 +21,14 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+@file:Suppress("KDocUnresolvedReference")
+
 package com.dragonbones.animation
 
 import com.dragonbones.armature.*
 import com.dragonbones.core.*
 import com.dragonbones.model.*
+import com.dragonbones.util.*
 
 /**
  * - The animation player is used to play the animation data and manage the animation states.
@@ -42,7 +45,7 @@ import com.dragonbones.model.*
  * @language zh_CN
  */
 class Animation : BaseObject {
-	public override fun toString(): String {
+	override fun toString(): String {
 		return "[class dragonBones.Animation]"
 	}
 	/**
@@ -57,39 +60,35 @@ class Animation : BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public var timeScale: Double = 1.0
+	var timeScale: Double = 1.0
 	/**
 	 * Update bones and slots cachedFrameIndices.
 	 */
 	private var _animationDirty: Boolean = false //
 	private var _inheritTimeScale: Double = 1.0
-	private val _animationNames: ArrayList<String> = []
-	private val _animationStates: ArrayList<AnimationState> = []
-	private val _animations: LinkedHashMap<String, AnimationData> = {}
-	private val _blendStates: LinkedHashMap<String, LinkedHashMap<String, BlendState>> = {}
+	private val _animationNames: ArrayList<String> = arrayListOf()
+	private val _animationStates: ArrayList<AnimationState> = arrayListOf()
+	private val _animations: LinkedHashMap<String, AnimationData> = LinkedHashMap()
+	private val _blendStates: LinkedHashMap<String, LinkedHashMap<String, BlendState>> = LinkedHashMap()
 	private var _armature: Armature? = null
-	private var _animationConfig: AnimationConfig = null as any // Initial value.
+	private var _animationConfig: AnimationConfig? = null // Initial value.
 	private var _lastAnimationState: AnimationState? = null
 
-	protected override fun _onClear(): Unit {
+	override fun _onClear(): Unit {
 		for (animationState in this._animationStates) {
 			animationState.returnToPool()
 		}
 
 		this._animations.clear()
 
-		for (k in this._blendStates.keys.toList()) {
-			val blendStates = this._blendStates[k]
+		for (blendStates in this._blendStates.values) {
 			for (kB in blendStates.keys) {
-				blendStates[kB].returnToPool()
+				blendStates[kB]?.returnToPool()
+			}
 		}
+		this._blendStates.clear()
 
-			this._blendStates.remove(k)
-		}
-
-		if (this._animationConfig != null) {
-			this._animationConfig.returnToPool()
-		}
+		this._animationConfig?.returnToPool()
 
 		this.timeScale = 1.0
 
@@ -98,8 +97,8 @@ class Animation : BaseObject {
 		this._animationNames.clear()
 		this._animationStates.clear()
 		//this._animations.clear();
-		this._armature = null as any //
-		this._animationConfig = null as any //
+		this._armature = null //
+		this._animationConfig = null //
 		this._lastAnimationState = null
 	}
 
@@ -107,11 +106,11 @@ class Animation : BaseObject {
 		when (animationConfig.fadeOutMode) {
 			AnimationFadeOutMode.SameLayer -> {
 				for (animationState in this._animationStates) {
-					if (animationState._parent !== null) {
+					if (animationState._parent != null) {
 						continue
 					}
 
-					if (animationState.layer === animationConfig.layer) {
+					if (animationState.layer == animationConfig.layer) {
 						animationState.fadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut)
 					}
 				}
@@ -119,11 +118,11 @@ class Animation : BaseObject {
 
 			AnimationFadeOutMode.SameGroup -> {
 				for (animationState in this._animationStates) {
-					if (animationState._parent !== null) {
+					if (animationState._parent != null) {
 						continue
 					}
 
-					if (animationState.group === animationConfig.group) {
+					if (animationState.group == animationConfig.group) {
 						animationState.fadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut)
 					}
 				}
@@ -131,13 +130,13 @@ class Animation : BaseObject {
 
 			AnimationFadeOutMode.SameLayerAndGroup -> {
 				for (animationState in this._animationStates) {
-					if (animationState._parent !== null) {
+					if (animationState._parent != null) {
 						continue
 					}
 
 					if (
-						animationState.layer === animationConfig.layer &&
-						animationState.group === animationConfig.group
+						animationState.layer == animationConfig.layer &&
+						animationState.group == animationConfig.group
 					) {
 						animationState.fadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut)
 					}
@@ -146,7 +145,7 @@ class Animation : BaseObject {
 
 			AnimationFadeOutMode.All -> {
 				for (animationState in this._animationStates) {
-					if (animationState._parent !== null) {
+					if (animationState._parent != null) {
 						continue
 					}
 
@@ -160,27 +159,30 @@ class Animation : BaseObject {
 			}
 		}
 	}
+
 	/**
 	 * @internal
 	 */
-	public fun init(armature: Armature): Unit {
-		if (this._armature !== null) {
+	fun init(armature: Armature): Unit {
+		if (this._armature != null) {
 			return
 		}
 
 		this._armature = armature
 		this._animationConfig = BaseObject.borrowObject<AnimationConfig>()
 	}
+
 	/**
 	 * @internal
 	 */
-	public fun advanceTime(passedTime: Double): Unit {
+	fun advanceTime(passedTime: Double): Unit {
+		var passedTime = passedTime
 		if (passedTime < 0.0) { // Only animationState can reverse play.
 			passedTime = -passedTime
 		}
 
-		if (this._armature.inheritAnimation && this._armature._parent !== null) { // Inherit parent animation timeScale.
-			this._inheritTimeScale = this._armature._parent._armature.animation._inheritTimeScale * this.timeScale
+		if (this._armature.inheritAnimation && this._armature?._parent != null) { // Inherit parent animation timeScale.
+			this._inheritTimeScale = this._armature!!._parent!!._armature!!.animation._inheritTimeScale * this.timeScale
 		}
 		else {
 			this._inheritTimeScale = this.timeScale
@@ -190,8 +192,8 @@ class Animation : BaseObject {
 			passedTime *= this._inheritTimeScale
 		}
 
-		for (blendStates in this._blendStates) {
-			for (state in blendStates) {
+		for (blendStates in this._blendStates.values) {
+			for (state in blendStates.values) {
 				state.reset()
 			}
 		}
@@ -200,7 +202,7 @@ class Animation : BaseObject {
 		if (animationStateCount == 1) {
 			val animationState = this._animationStates[0]
 			if (animationState._fadeState > 0 && animationState._subFadeState > 0) {
-				this._armature._dragonBones.bufferObject(animationState)
+				this._armature?._dragonBones?.bufferObject(animationState)
 				this._animationStates.length = 0
 				this._lastAnimationState = null
 			}
@@ -211,16 +213,16 @@ class Animation : BaseObject {
 				if (this._animationDirty && cacheFrameRate > 0.0) { // Update cachedFrameIndices.
 					this._animationDirty = false
 
-					for (bone in this._armature.getBones()) {
+					for (bone in this._armature!!.getBones()) {
 						bone._cachedFrameIndices = animationData.getBoneCachedFrameIndices(bone.name)
 					}
 
-					for (slot in this._armature.getSlots()) {
+					for (slot in this._armature!!.getSlots()) {
 						if (slot.displayFrameCount > 0) {
 							val rawDisplayData = slot.getDisplayFrameAt(0).rawDisplayData
 							if (
-								rawDisplayData !== null &&
-								rawDisplayData.parent === this._armature.armatureData.defaultSkin
+								rawDisplayData != null &&
+								rawDisplayData.parent == this._armature!!.armatureData.defaultSkin
 							) {
 								slot._cachedFrameIndices = animationData.getSlotCachedFrameIndices(slot.name)
 								continue
@@ -235,14 +237,16 @@ class Animation : BaseObject {
 			}
 		}
 		else if (animationStateCount > 1) {
+			// for (let i = 0, r = 0; i < animationStateCount; ++i) {
+			var r = 0
 			for (i in 0 until animationStateCount) {
 				val animationState = this._animationStates[i]
 				if (animationState._fadeState > 0 && animationState._subFadeState > 0) {
 					r++
-					this._armature._dragonBones.bufferObject(animationState)
+					this._armature?._dragonBones?.bufferObject(animationState)
 					this._animationDirty = true
 
-					if (this._lastAnimationState === animationState) { // Update last animation state.
+					if (this._lastAnimationState == animationState) { // Update last animation state.
 						this._lastAnimationState = null
 					}
 				}
@@ -257,16 +261,16 @@ class Animation : BaseObject {
 				if (i == animationStateCount - 1 && r > 0) { // Modify animation states size.
 					this._animationStates.length -= r
 
-					if (this._lastAnimationState === null && this._animationStates.length > 0) {
+					if (this._lastAnimationState == null && this._animationStates.length > 0) {
 						this._lastAnimationState = this._animationStates[this._animationStates.length - 1]
 					}
 				}
 			}
 
-			this._armature._cacheFrameIndex = -1
+			this._armature?._cacheFrameIndex = -1
 		}
 		else {
-			this._armature._cacheFrameIndex = -1
+			this._armature?._cacheFrameIndex = -1
 		}
 	}
 	/**
@@ -281,13 +285,13 @@ class Animation : BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public fun reset(): Unit {
+	fun reset(): Unit {
 		for (animationState in this._animationStates) {
 			animationState.returnToPool()
 		}
 
 		this._animationDirty = false
-		this._animationConfig.clear()
+		this._animationConfig?.clear()
 		this._animationStates.clear()
 		this._lastAnimationState = null
 	}
@@ -305,10 +309,10 @@ class Animation : BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public fun stop(animationName: String? = null): Unit {
-		if (animationName !== null) {
+	fun stop(animationName: String? = null) {
+		if (animationName != null) {
 			val animationState = this.getState(animationName)
-			if (animationState !== null) {
+			if (animationState != null) {
 				animationState.stop()
 			}
 		}
@@ -338,34 +342,34 @@ class Animation : BaseObject {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public fun playConfig(animationConfig: AnimationConfig): AnimationState? {
+	fun playConfig(animationConfig: AnimationConfig): AnimationState? {
 		val animationName = animationConfig.animation
-		if (!(animationName in this._animations)) {
+		if (animationName !in this._animations) {
 			console.warn(
 				"Non-existent animation.\n",
-				"DragonBones name: " + this._armature.armatureData.parent.name,
-				"Armature name: " + this._armature.name,
-				"Animation name: " + animationName
+				"DragonBones name: " + this._armature?.armatureData?.parent?.name,
+				"Armature name: " + this._armature?.name,
+				"Animation name: $animationName"
 			)
 
 			return null
 		}
 
-		val animationData = this._animations[animationName]
+		val animationData = this._animations[animationName]!!
 
-		if (animationConfig.fadeOutMode === AnimationFadeOutMode.Single) {
+		if (animationConfig.fadeOutMode == AnimationFadeOutMode.Single) {
 			for (animationState in this._animationStates) {
 				if (
 					animationState._fadeState < 1 &&
-					animationState.layer === animationConfig.layer &&
-					animationState.animationData === animationData
+					animationState.layer == animationConfig.layer &&
+					animationState.animationData == animationData
 				) {
 					return animationState
 				}
 			}
 		}
 
-		if (this._animationStates.size === 0) {
+		if (this._animationStates.size == 0) {
 			animationConfig.fadeInTime = 0.0
 		}
 		else if (animationConfig.fadeInTime < 0.0) {
@@ -409,20 +413,22 @@ class Animation : BaseObject {
 			}
 		}
 
-		if (animationConfig.duration === 0.0) {
+		if (animationConfig.duration == 0.0) {
 			animationConfig.duration = -1.0
 		}
 
 		this._fadeOut(animationConfig)
 		//
 		val animationState = BaseObject.borrowObject<AnimationState>()
-		animationState.init(this._armature, animationData, animationConfig)
+		animationState.init(this._armature!!, animationData, animationConfig)
 		this._animationDirty = true
-		this._armature._cacheFrameIndex = -1
+		this._armature?._cacheFrameIndex = -1
 
 		if (this._animationStates.size > 0) { // Sort animation state.
 			var  added = false
 
+			val l = this._animationStates.size
+			// for (let i = 0, l = this._animationStates.length; i < l; ++i) {
 			for (i in 0 until this._animationStates.size) {
 				if (animationState.layer > this._animationStates[i].layer) {
 					added = true
@@ -444,12 +450,12 @@ class Animation : BaseObject {
 			this._animationStates.add(animationState)
 		}
 
-		for (slot in this._armature.getSlots()) { // Child armature play same name animation.
+		for (slot in this._armature!!.getSlots()) { // Child armature play same name animation.
 			val childArmature = slot.childArmature
 			if (
-				childArmature !== null && childArmature.inheritAnimation &&
+				childArmature != null && childArmature.inheritAnimation &&
 				childArmature.animation.hasAnimation(animationName) &&
-				childArmature.animation.getState(animationName) === null
+				childArmature.animation.getState(animationName) == null
 			) {
 				childArmature.animation.fadeIn(animationName) //
 			}
@@ -457,7 +463,7 @@ class Animation : BaseObject {
 
 		for (k in animationData.animationTimelines.keys) { // Blend animation node.
 			val childAnimationState = this.fadeIn(k, 0.0, 1, animationState.layer, "", AnimationFadeOutMode.Single)
-			if (childAnimationState === null) {
+			if (childAnimationState == null) {
 				continue
 			}
 
@@ -507,29 +513,30 @@ class Animation : BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public fun play(animationName: String? = null, playTimes: Int = -1): AnimationState? {
-		this._animationConfig.clear()
-		this._animationConfig.resetToPose = true
-		this._animationConfig.playTimes = playTimes
-		this._animationConfig.fadeInTime = 0.0
-		this._animationConfig.animation = animationName ?: ""
+	fun play(animationName: String? = null, playTimes: Int = -1): AnimationState? {
+		val _animationConfig1 = this._animationConfig!!
+		_animationConfig1.clear()
+		_animationConfig1.resetToPose = true
+		_animationConfig1.playTimes = playTimes
+		_animationConfig1.fadeInTime = 0.0
+		_animationConfig1.animation = animationName ?: ""
 
-		if (animationName !== null && animationName.length > 0) {
-			this.playConfig(this._animationConfig)
+		if (animationName != null && animationName.isNotEmpty()) {
+			this.playConfig(_animationConfig1)
 		}
-		else if (this._lastAnimationState === null) {
+		else if (this._lastAnimationState == null) {
 			val defaultAnimation = this._armature.armatureData.defaultAnimation
-			if (defaultAnimation !== null) {
-				this._animationConfig.animation = defaultAnimation.name
-				this.playConfig(this._animationConfig)
+			if (defaultAnimation != null) {
+				_animationConfig1.animation = defaultAnimation.name
+				this.playConfig(_animationConfig1)
 			}
 		}
 		else if (!this._lastAnimationState.isPlaying && !this._lastAnimationState.isCompleted) {
 			this._lastAnimationState.play()
 		}
 		else {
-			this._animationConfig.animation = this._lastAnimationState.name
-			this.playConfig(this._animationConfig)
+			_animationConfig1.animation = this._lastAnimationState.name
+			this.playConfig(_animationConfig1)
 		}
 
 		return this._lastAnimationState
@@ -568,9 +575,9 @@ class Animation : BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public fun fadeIn(
-		animationName: String, fadeInTime: Double = -1.0, playTimes: Double = -1,
-		layer: Double = 0, group: String? = null, fadeOutMode: AnimationFadeOutMode = AnimationFadeOutMode.SameLayerAndGroup
+	fun fadeIn(
+		animationName: String, fadeInTime: Double = -1.0, playTimes: Int = -1,
+		layer: Int = 0, group: String? = null, fadeOutMode: AnimationFadeOutMode = AnimationFadeOutMode.SameLayerAndGroup
 	): AnimationState? {
 		this._animationConfig.clear()
 		this._animationConfig.fadeOutMode = fadeOutMode
@@ -600,7 +607,7 @@ class Animation : BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public fun gotoAndPlayByTime(animationName: String, time: Double = 0.0, playTimes: Int = -1): AnimationState? {
+	fun gotoAndPlayByTime(animationName: String, time: Double = 0.0, playTimes: Int = -1): AnimationState? {
 		this._animationConfig.clear()
 		this._animationConfig.resetToPose = true
 		this._animationConfig.playTimes = playTimes
@@ -628,7 +635,7 @@ class Animation : BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public fun gotoAndPlayByFrame(animationName: String, frame: Int = 0, playTimes: Int = -1): AnimationState? {
+	fun gotoAndPlayByFrame(animationName: String, frame: Int = 0, playTimes: Int = -1): AnimationState? {
 		this._animationConfig.clear()
 		this._animationConfig.resetToPose = true
 		this._animationConfig.playTimes = playTimes
@@ -636,11 +643,11 @@ class Animation : BaseObject {
 		this._animationConfig.animation = animationName
 
 		val animationData = if (animationName in this._animations) this._animations[animationName] else null
-		if (animationData !== null) {
+		if (animationData != null) {
 			this._animationConfig.position = if (animationData.frameCount > 0) animationData.duration * frame / animationData.frameCount else 0.0
 		}
 
-		return this.playConfig(this._animationConfig)
+		return this.playConfig(this._animationConfig!!)
 	}
 	/**
 	 * - Play a specific animation from the specific progress.
@@ -660,19 +667,20 @@ class Animation : BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public fun gotoAndPlayByProgress(animationName: String, progress: Double = 0.0, playTimes: Int = -1): AnimationState? {
-		this._animationConfig.clear()
-		this._animationConfig.resetToPose = true
-		this._animationConfig.playTimes = playTimes
-		this._animationConfig.fadeInTime = 0.0
-		this._animationConfig.animation = animationName
+	fun gotoAndPlayByProgress(animationName: String, progress: Double = 0.0, playTimes: Int = -1): AnimationState? {
+		val _animationConfig1 = this._animationConfig!!
+		_animationConfig1.clear()
+		_animationConfig1.resetToPose = true
+		_animationConfig1.playTimes = playTimes
+		_animationConfig1.fadeInTime = 0.0
+		_animationConfig1.animation = animationName
 
 		val animationData = if (animationName in this._animations) this._animations[animationName] else null
-		if (animationData !== null) {
-			this._animationConfig.position = animationData.duration * (if (progress > 0.0) progress else 0.0)
+		if (animationData != null) {
+			_animationConfig1.position = animationData.duration * (if (progress > 0.0) progress else 0.0)
 		}
 
-		return this.playConfig(this._animationConfig)
+		return this.playConfig(_animationConfig1!!)
 	}
 	/**
 	 * - Stop a specific animation at the specific time.
@@ -690,9 +698,9 @@ class Animation : BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public fun gotoAndStopByTime(animationName: String, time: Double = 0.0): AnimationState? {
+	fun gotoAndStopByTime(animationName: String, time: Double = 0.0): AnimationState? {
 		val animationState = this.gotoAndPlayByTime(animationName, time, 1)
-		if (animationState !== null) {
+		if (animationState != null) {
 			animationState.stop()
 		}
 
@@ -714,9 +722,9 @@ class Animation : BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public fun gotoAndStopByFrame(animationName: String, frame: Double = 0): AnimationState? {
+	fun gotoAndStopByFrame(animationName: String, frame: Int = 0): AnimationState? {
 		val animationState = this.gotoAndPlayByFrame(animationName, frame, 1)
-		if (animationState !== null) {
+		if (animationState != null) {
 			animationState.stop()
 		}
 
@@ -738,29 +746,32 @@ class Animation : BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public fun gotoAndStopByProgress(animationName: String, progress: Double = 0.0): AnimationState? {
+	fun gotoAndStopByProgress(animationName: String, progress: Double = 0.0): AnimationState? {
 		val animationState = this.gotoAndPlayByProgress(animationName, progress, 1)
-		if (animationState !== null) {
+		if (animationState != null) {
 			animationState.stop()
 		}
 
 		return animationState
 	}
+
 	/**
 	 * @internal
 	 */
-	public fun getBlendState(type: String, name: String, target: BaseObject): BlendState {
+	fun getBlendState(type: String, name: String, target: BaseObject): BlendState {
 		if (!(type in this._blendStates)) {
-			this._blendStates[type] = {}
+			this._blendStates[type] = LinkedHashMap()
 		}
 
-		val blendStates = this._blendStates[type]
-		if (!(name in blendStates)) {
-			val blendState = blendStates[name] = BaseObject.borrowObject<BlendState>()
+		val blendStates = this._blendStates[type]!!
+		if (name !in blendStates) {
+			val res = BaseObject.borrowObject<BlendState>()
+			val blendState = res
+			blendStates[name] = res
 			blendState.target = target
 		}
 
-		return blendStates[name]
+		return blendStates[name]!!
 	}
 	/**
 	 * - Get a specific animation state.
@@ -788,11 +799,11 @@ class Animation : BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public fun getState(animationName: String, layer: Double = -1): AnimationState? {
+	fun getState(animationName: String, layer: Int = -1): AnimationState? {
 		var i = this._animationStates.size
-		while (i--) {
+		while (i-- >= 0) {
 			val animationState = this._animationStates[i]
-			if (animationState.name === animationName && (layer < 0 || animationState.layer === layer)) {
+			if (animationState.name == animationName && (layer < 0 || animationState.layer == layer)) {
 				return animationState
 			}
 		}
@@ -813,7 +824,7 @@ class Animation : BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public fun hasAnimation(animationName: String): Boolean {
+	fun hasAnimation(animationName: String): Boolean {
 		return animationName in this._animations
 	}
 	/**
@@ -826,7 +837,7 @@ class Animation : BaseObject {
 	 * @version DragonBones 5.1
 	 * @language zh_CN
 	 */
-	public fun getStates(): ReadonlyArray<AnimationState> {
+	fun getStates(): List<AnimationState> {
 		return this._animationStates
 	}
 	/**
@@ -841,7 +852,7 @@ class Animation : BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public val isPlaying: Boolean get() {
+	val isPlaying: Boolean get() {
 		for (animationState in this._animationStates) {
 			if (animationState.isPlaying) {
 				return true
@@ -862,7 +873,7 @@ class Animation : BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public val isCompleted: Boolean get() {
+	val isCompleted: Boolean get() {
 		for (animationState in this._animationStates) {
 			if (!animationState.isCompleted) {
 				return false
@@ -883,8 +894,8 @@ class Animation : BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public val lastAnimationName: String get() {
-		return this._lastAnimationState !== null ? this._lastAnimationState.name : ""
+	val lastAnimationName: String get() {
+		return this._lastAnimationState?.name ?: ""
 	}
 	/**
 	 * - The name of all animation data
@@ -896,7 +907,7 @@ class Animation : BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public val animationNames: ReadonlyArray<String> get() {
+	val animationNames: List<String> get() {
 		return this._animationNames
 	}
 	/**
@@ -909,24 +920,22 @@ class Animation : BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public var animations: Map<AnimationData>
+	var animations: LinkedHashMap<String, AnimationData>
 		get() {
 			return this._animations
 		}
 		set(value) {
-			if (this._animations === value) {
+			if (this._animations == value) {
 				return
 			}
 
 			this._animationNames.length = 0
 
-			for (var k in this._animations) {
-				delete this._animations[k]
-			}
+			this._animations.clear()
 
-			for (var k in value) {
+			for (k in value.keys) {
 				this._animationNames.push(k)
-				this._animations[k] = value[k]
+				this._animations[k] = value[k]!!
 			}
 		}
 	/**
@@ -941,9 +950,9 @@ class Animation : BaseObject {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public val animationConfig: AnimationConfig get() {
-		this._animationConfig.clear()
-		return this._animationConfig
+	val animationConfig: AnimationConfig get() {
+		this._animationConfig?.clear()
+		return this._animationConfig!!
 	}
 	/**
 	 * - The last playing animation state
@@ -957,7 +966,8 @@ class Animation : BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public val lastAnimationState: AnimationState? get() {
-		return this._lastAnimationState
+	val lastAnimationState: AnimationState
+		get() {
+		return this._lastAnimationState!!
 	}
 }

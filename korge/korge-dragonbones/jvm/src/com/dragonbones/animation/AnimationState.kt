@@ -43,17 +43,18 @@ import com.dragonbones.util.*
  * @language zh_CN
  */
 class AnimationState : BaseObject() {
-	public override fun toString(): String {
+	override fun toString(): String {
 		return "[class dragonBones.AnimationState]"
 	}
+
 	/**
 	 * @private
 	 */
-	public var actionEnabled: Boolean = false
+	var actionEnabled: Boolean = false
 	/**
 	 * @private
 	 */
-	public var additive: Boolean = false
+	var additive: Boolean = false
 	/**
 	 * - Whether the animation state has control over the display object properties of the slots.
 	 * Sometimes blend a animation state does not want it to control the display object properties of the slots,
@@ -70,7 +71,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public var displayControl: Boolean = false
+	var displayControl: Boolean = false
 	/**
 	 * - Whether to reset the objects without animation to the armature pose when the animation state is start to play.
 	 * This property should usually be set to false when blend multiple animation states.
@@ -85,11 +86,11 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 5.1
 	 * @language zh_CN
 	 */
-	public var resetToPose: Boolean = false
+	var resetToPose: Boolean = false
 	/**
 	 * @private
 	 */
-	public var blendType: AnimationBlendType = AnimationBlendType.None
+	var blendType: AnimationBlendType = AnimationBlendType.None
 	/**
 	 * - The play times. [0: Loop play, [1~N]: Play N times]
 	 * @version DragonBones 3.0
@@ -100,7 +101,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public var playTimes: Int = 1
+	var playTimes: Int = 1
 	/**
 	 * - The blend layer.
 	 * High layer animation state will get the blend weight first.
@@ -117,7 +118,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public var layer: Int = 0
+	var layer: Int = 0
 	/**
 	 * - The play speed.
 	 * The value is an overlay relationship with {@link dragonBones.Animation#timeScale}.
@@ -134,23 +135,23 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public var timeScale: Double = 1.0
+	var timeScale: Double = 1.0
 	/**
 	 * @private
 	 */
-	public var parameterX: Double = 0.0
+	var parameterX: Double = 0.0
 	/**
 	 * @private
 	 */
-	public var parameterY: Double = 0.0
+	var parameterY: Double = 0.0
 	/**
 	 * @private
 	 */
-	public var positionX: Double = 0.0
+	var positionX: Double = 0.0
 	/**
 	 * @private
 	 */
-	public var positionY: Double = 0.0
+	var positionY: Double = 0.0
 	/**
 	 * - The auto fade out time when the animation state play completed.
 	 * [-1: Do not fade out automatically, [0~N]: The fade out time] (In seconds)
@@ -165,11 +166,11 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public var autoFadeOutTime: Double = 0.0
+	var autoFadeOutTime: Double = 0.0
 	/**
 	 * @private
 	 */
-	public var fadeTotalTime: Double = 0.0
+	var fadeTotalTime: Double = 0.0
 	/**
 	 * - The name of the animation state. (Can be different from the name of the animation data)
 	 * @readonly
@@ -182,7 +183,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public var name: String = ""
+	var name: String = ""
 	/**
 	 * - The blend group name of the animation state.
 	 * This property is typically used to specify the substitution of multiple animation states blend.
@@ -197,42 +198,42 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public var group: String = ""
+	var group: String = ""
 	private var _timelineDirty: Int = 2
 	/**
 	 * - xx: Play Enabled, Fade Play Enabled
 	 * @internal
 	 */
-	public var _playheadState: Int = 0
+	var _playheadState: Int = 0
 	/**
 	 * -1: Fade in, 0: Fade complete, 1: Fade out;
 	 * @internal
 	 */
-	public var _fadeState: Int = -1
+	var _fadeState: Int = -1
 	/**
 	 * -1: Fade start, 0: Fading, 1: Fade complete;
 	 * @internal
 	 */
-	public var _subFadeState: Int = -1
+	var _subFadeState: Int = -1
 	/**
 	 * @internal
 	 */
-	public var _position: Double = 0.0
+	var _position: Double = 0.0
 	/**
 	 * @internal
 	 */
-	public var _duration: Double = 0.0
+	var _duration: Double = 0.0
 	private var _weight: Double = 1.0
 	private var _fadeTime: Double = 0.0
 	private var _time: Double = 0.0
 	/**
 	 * @internal
 	 */
-	public var _fadeProgress: Double = 0.0
+	var _fadeProgress: Double = 0.0
 	/**
 	 * @internal
 	 */
-	public var _weightResult: Double = 0.0
+	var _weightResult: Double = 0.0
 	private val _boneMask: ArrayList<String> = []
 	private val _boneTimelines: ArrayList<TimelineState> = []
 	private val _boneBlendTimelines: ArrayList<TimelineState> = []
@@ -246,14 +247,14 @@ class AnimationState : BaseObject() {
 	/**
 	 * @internal
 	 */
-	public var _actionTimeline: ActionTimelineState = null as any // Initial value.
+	var _actionTimeline: ActionTimelineState = null as any // Initial value.
 	private var _zOrderTimeline: ZOrderTimelineState? = null // Initial value.
 	private var _activeChildA: AnimationState?
 	private var _activeChildB: AnimationState?
 	/**
 	 * @internal
 	 */
-	public var _parent: AnimationState?
+	var _parent: AnimationState?
 
 	protected fun _onClear(): Unit {
 		for (timeline in this._boneTimelines) {
@@ -278,7 +279,7 @@ class AnimationState : BaseObject() {
 
 		for (timeline in this._animationTimelines) {
 			val animationState = timeline.target as AnimationState
-			if (animationState._parent === this) {
+			if (animationState._parent == this) {
 				animationState._fadeState = 1
 				animationState._subFadeState = 1
 				animationState._parent = null
@@ -291,7 +292,7 @@ class AnimationState : BaseObject() {
 			this._actionTimeline.returnToPool()
 		}
 
-		if (this._zOrderTimeline !== null) {
+		if (this._zOrderTimeline != null) {
 			this._zOrderTimeline.returnToPool()
 		}
 
@@ -346,7 +347,7 @@ class AnimationState : BaseObject() {
 		for (constraint in this._armature._constraints) {
 			val timelineDatas = this._animationData.getConstraintTimelines(constraint.name)
 
-			if (timelineDatas !== null) {
+			if (timelineDatas != null) {
 				for (timelineData in timelineDatas) {
 					when (timelineData.type) {
 						TimelineType.IKConstraint -> {
@@ -406,7 +407,7 @@ class AnimationState : BaseObject() {
 					val timelineDatas = this._animationData.getBoneTimelines(timelineName)
 					val blendState = this._armature.animation.getBlendState(BlendState.BONE_TRANSFORM, bone.name, bone)
 
-					if (timelineDatas !== null) {
+					if (timelineDatas != null) {
 						for (timelineData in timelineDatas) {
 							when (timelineData.type) {
 								TimelineType.BoneAll -> {
@@ -456,7 +457,7 @@ class AnimationState : BaseObject() {
 						}
 					}
 					else if (this.resetToPose) { // Pose timeline.
-						if (bone._boneData.type === BoneType.Bone) {
+						if (bone._boneData.type == BoneType.Bone) {
 							val timeline = BaseObject.borrowObject<BoneAllTimelineState>()
 							timeline.target = blendState
 							timeline.init(this._armature, this, null)
@@ -529,7 +530,7 @@ class AnimationState : BaseObject() {
 					ffdFlags.length = 0
 
 					val timelineDatas = this._animationData.getSlotTimelines(timelineName)
-					if (timelineDatas !== null) {
+					if (timelineDatas != null) {
 						for (timelineData in timelineDatas) {
 							when (timelineData.type) {
 								TimelineType.SlotDisplay -> {
@@ -560,7 +561,7 @@ class AnimationState : BaseObject() {
 									timeline.target = this._armature.animation.getBlendState(BlendState.SLOT_DEFORM, slot.name, slot)
 									timeline.init(this._armature, this, timelineData)
 
-									if (timeline.target !== null) {
+									if (timeline.target != null) {
 										this._slotBlendTimelines.push(timeline)
 										ffdFlags.push(timeline.geometryOffset)
 									}
@@ -607,7 +608,7 @@ class AnimationState : BaseObject() {
 							}
 
 							val geometryData = displayFrame.getGeometryData()
-							if (geometryData !== null && ffdFlags.indexOf(geometryData.offset) < 0) {
+							if (geometryData != null && ffdFlags.indexOf(geometryData.offset) < 0) {
 								val timeline = BaseObject.borrowObject<DeformTimelineState>()
 								timeline.geometryOffset = geometryData.offset //
 								timeline.displayFrame = displayFrame //
@@ -645,7 +646,7 @@ class AnimationState : BaseObject() {
 		if (this._subFadeState < 0) { // Fade start event.
 			this._subFadeState = 0
 
-			val eventActive = this._parent === null && this.actionEnabled
+			val eventActive = this._parent == null && this.actionEnabled
 			if (eventActive) {
 				val eventType = isFadeOut ? EventObject.FADE_OUT : EventObject.FADE_IN
 				if (this._armature.eventDispatcher.hasDBEventListener(eventType)) {
@@ -681,7 +682,7 @@ class AnimationState : BaseObject() {
 				this._fadeState = 0
 			}
 
-			val eventActive = this._parent === null && this.actionEnabled
+			val eventActive = this._parent == null && this.actionEnabled
 			if (eventActive) {
 				val eventType = isFadeOut ? EventObject.FADE_OUT_COMPLETE : EventObject.FADE_IN_COMPLETE
 				if (this._armature.eventDispatcher.hasDBEventListener(eventType)) {
@@ -694,11 +695,12 @@ class AnimationState : BaseObject() {
 			}
 		}
 	}
+
 	/**
 	 * @internal
 	 */
-	public fun init(armature: Armature, animationData: AnimationData, animationConfig: AnimationConfig): Unit {
-		if (this._armature !== null) {
+	fun init(armature: Armature, animationData: AnimationData, animationConfig: AnimationConfig): Unit {
+		if (this._armature != null) {
 			return
 		}
 
@@ -731,7 +733,7 @@ class AnimationState : BaseObject() {
 			this._position = 0.0
 			this._duration = this._animationData.duration
 
-			if (animationConfig.position !== 0.0) {
+			if (animationConfig.position != 0.0) {
 				if (this.timeScale >= 0.0) {
 					this._time = animationConfig.position
 				}
@@ -749,7 +751,7 @@ class AnimationState : BaseObject() {
 			this._time = 0.0
 		}
 
-		if (this.timeScale < 0.0 && this._time === 0.0) {
+		if (this.timeScale < 0.0 && this._time == 0.0) {
 			this._time = -0.000001 // Turn to end.
 		}
 
@@ -772,30 +774,31 @@ class AnimationState : BaseObject() {
 			this._actionTimeline.currentTime = this._duration - this._actionTimeline.currentTime
 		}
 
-		if (this._animationData.zOrderTimeline !== null) {
+		if (this._animationData.zOrderTimeline != null) {
 			this._zOrderTimeline = BaseObject.borrowObject<ZOrderTimelineState>()
 			this._zOrderTimeline.init(this._armature, this, this._animationData.zOrderTimeline)
 		}
 	}
+
 	/**
 	 * @internal
 	 */
-	public fun advanceTime(passedTime: Double, cacheFrameRate: Double): Unit {
+	fun advanceTime(passedTime: Double, cacheFrameRate: Double): Unit {
 		// Update fade time.
-		if (this._fadeState !== 0 || this._subFadeState !== 0) {
+		if (this._fadeState != 0 || this._subFadeState != 0) {
 			this._advanceFadeTime(passedTime)
 		}
 		// Update time.
-		if (this._playheadState === 3) { // 11
-			if (this.timeScale !== 1.0) {
+		if (this._playheadState == 3) { // 11
+			if (this.timeScale != 1.0) {
 				passedTime *= this.timeScale
 			}
 
 			this._time += passedTime
 		}
 		// Update timeline.
-		if (this._timelineDirty !== 0) {
-			if (this._timelineDirty === 2) {
+		if (this._timelineDirty != 0) {
+			if (this._timelineDirty == 2) {
 				this._updateTimelines()
 			}
 
@@ -803,14 +806,14 @@ class AnimationState : BaseObject() {
 			this._updateBoneAndSlotTimelines()
 		}
 
-		val isBlendDirty = this._fadeState !== 0 || this._subFadeState === 0
-		val isCacheEnabled = this._fadeState === 0 && cacheFrameRate > 0.0
+		val isBlendDirty = this._fadeState != 0 || this._subFadeState == 0
+		val isCacheEnabled = this._fadeState == 0 && cacheFrameRate > 0.0
 		var isUpdateTimeline = true
 		var isUpdateBoneTimeline = true
 		var time = this._time
 		this._weightResult = this._weight * this._fadeProgress
 
-		if (this._parent !== null) {
+		if (this._parent != null) {
 			this._weightResult *= this._parent._weightResult
 		}
 
@@ -818,7 +821,7 @@ class AnimationState : BaseObject() {
 			this._actionTimeline.update(time)
 		}
 
-		if (this._weight === 0.0) {
+		if (this._weight == 0.0) {
 			return
 		}
 
@@ -827,13 +830,13 @@ class AnimationState : BaseObject() {
 			this._actionTimeline.currentTime = Math.floor(this._actionTimeline.currentTime * internval) / internval
 		}
 
-		if (this._zOrderTimeline !== null && this._zOrderTimeline.playState <= 0) { // Update zOrder timeline.
+		if (this._zOrderTimeline != null && this._zOrderTimeline.playState <= 0) { // Update zOrder timeline.
 			this._zOrderTimeline.update(time)
 		}
 
 		if (isCacheEnabled) { // Update cache.
 			val cacheFrameIndex = Math.floor(this._actionTimeline.currentTime * cacheFrameRate) // uint
-			if (this._armature._cacheFrameIndex === cacheFrameIndex) { // Same cache.
+			if (this._armature._cacheFrameIndex == cacheFrameIndex) { // Same cache.
 				isUpdateTimeline = false
 				isUpdateBoneTimeline = false
 			}
@@ -851,22 +854,23 @@ class AnimationState : BaseObject() {
 
 		if (isUpdateTimeline) {
 			var isBlend = false
-			var prevTarget: BlendState? = null as any //
+			var prevTarget: BlendState? = null //
 
 			if (isUpdateBoneTimeline) {
-				for (var i = 0, l = this._boneTimelines.length; i < l; ++i) {
+				//for (var i = 0, l = this._boneTimelines.length; i < l; ++i) {
+				for (i in 0 until this._boneTimelines.length) {
 					val timeline = this._boneTimelines[i]
 
 					if (timeline.playState <= 0) {
 						timeline.update(time)
 					}
 
-					if (timeline.target !== prevTarget) {
+					if (timeline.target != prevTarget) {
 						val blendState = timeline.target as BlendState
 						isBlend = blendState.update(this)
 						prevTarget = blendState
 
-						if (blendState.dirty === 1) {
+						if (blendState.dirty == 1) {
 							val pose = (blendState.target as Bone).animationPose
 							pose.x = 0.0
 							pose.y = 0.0
@@ -883,7 +887,8 @@ class AnimationState : BaseObject() {
 				}
 			}
 
-			for (var i = 0, l = this._boneBlendTimelines.length; i < l; ++i) {
+			//for (var i = 0, l = this._boneBlendTimelines.length; i < l; ++i) {
+			for (i in 0 until this._boneBlendTimelines.length) {
 				val timeline = this._boneBlendTimelines[i]
 
 				if (timeline.playState <= 0) {
@@ -896,16 +901,17 @@ class AnimationState : BaseObject() {
 			}
 
 			if (this.displayControl) {
-				for (var i = 0, l = this._slotTimelines.length; i < l; ++i) {
+				//for (var i = 0, l = this._slotTimelines.length; i < l; ++i) {
+				for (i in 0 until this._slotTimelines.length) {
 					val timeline = this._slotTimelines[i]
 					if (timeline.playState <= 0) {
 						val slot = timeline.target as Slot
 						val displayController = slot.displayController
 
 						if (
-							displayController === null ||
-							displayController === this.name ||
-							displayController === this.group
+							displayController == null ||
+							displayController == this.name ||
+							displayController == this.group
 						) {
 							timeline.update(time)
 						}
@@ -913,7 +919,8 @@ class AnimationState : BaseObject() {
 				}
 			}
 
-			for (var i = 0, l = this._slotBlendTimelines.length; i < l; ++i) {
+			//for (var i = 0, l = this._slotBlendTimelines.length; i < l; ++i) {
+			for (i in 0 until this._slotBlendTimelines.length) {
 				val timeline = this._slotBlendTimelines[i]
 				if (timeline.playState <= 0) {
 					val blendState = timeline.target as BlendState
@@ -925,7 +932,8 @@ class AnimationState : BaseObject() {
 				}
 			}
 
-			for (var i = 0, l = this._constraintTimelines.length; i < l; ++i) {
+			//for (var i = 0, l = this._constraintTimelines.length; i < l; ++i) {
+			for (i in 0 until this._constraintTimelines.length) {
 				val timeline = this._constraintTimelines[i]
 				if (timeline.playState <= 0) {
 					timeline.update(time)
@@ -938,13 +946,14 @@ class AnimationState : BaseObject() {
 				var leftState: AnimationState? = null
 				var rightState: AnimationState? = null
 
-				for (var i = 0, l = this._animationTimelines.length; i < l; ++i) {
+				//for (var i = 0, l = this._animationTimelines.length; i < l; ++i) {
+				for (i in 0 until this._animationTimelines.length) {
 					val timeline = this._animationTimelines[i]
 					if (timeline.playState <= 0) {
 						timeline.update(time)
 					}
 
-					if (this.blendType === AnimationBlendType.E1D) { // TODO
+					if (this.blendType == AnimationBlendType.E1D) { // TODO
 						val animationState = timeline.target as AnimationState
 						val d = this.parameterX - animationState.positionX
 
@@ -963,19 +972,19 @@ class AnimationState : BaseObject() {
 					}
 				}
 
-				if (leftState !== null) {
-					if (this._activeChildA !== leftState) {
-						if (this._activeChildA !== null) {
-							this._activeChildA.weight = 0.0
+				if (leftState != null) {
+					if (this._activeChildA != leftState) {
+						if (this._activeChildA != null) {
+							this._activeChildA!!.weight = 0.0
 						}
 
 						this._activeChildA = leftState
-						this._activeChildA.activeTimeline()
+						this._activeChildA!!.activeTimeline()
 					}
 
-					if (this._activeChildB !== rightState) {
-						if (this._activeChildB !== null) {
-							this._activeChildB.weight = 0.0
+					if (this._activeChildB != rightState) {
+						if (this._activeChildB != null) {
+							this._activeChildB!!.weight = 0.0
 						}
 
 						this._activeChildB = rightState
@@ -983,14 +992,14 @@ class AnimationState : BaseObject() {
 
 					leftState.weight = dR / (dL + dR)
 
-					if (rightState) {
+					if (rightState != null) {
 						rightState.weight = 1.0 - leftState.weight
 					}
 				}
 			}
 		}
 
-		if (this._fadeState === 0) {
+		if (this._fadeState == 0) {
 			if (this._subFadeState > 0) {
 				this._subFadeState = 0
 
@@ -1053,7 +1062,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public fun play(): Unit {
+	fun play(): Unit {
 		this._playheadState = 3 // 11
 	}
 	/**
@@ -1066,7 +1075,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public fun stop(): Unit {
+	fun stop(): Unit {
 		this._playheadState &= 1 // 0x
 	}
 	/**
@@ -1083,13 +1092,14 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public fun fadeOut(fadeOutTime: Double, pausePlayhead: Boolean = true): Unit {
+	fun fadeOut(fadeOutTime: Double, pausePlayhead: Boolean = true): Unit {
+		var fadeOutTime = fadeOutTime
 		if (fadeOutTime < 0.0) {
 			fadeOutTime = 0.0
 		}
 
 		if (pausePlayhead) {
-			this._playheadState &= 2 // x0
+			this._playheadState = this._playheadState and 2 // x0
 		}
 
 		if (this._fadeState > 0) {
@@ -1149,8 +1159,8 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public fun containsBoneMask(boneName: String): Boolean {
-		return this._boneMask.lengthSet === 0 || this._boneMask.indexOf(boneName) >= 0
+	fun containsBoneMask(boneName: String): Boolean {
+		return this._boneMask.lengthSet == 0 || this._boneMask.indexOf(boneName) >= 0
 	}
 	/**
 	 * - Add a specific bone mask.
@@ -1166,9 +1176,9 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public fun addBoneMask(boneName: String, recursive: Boolean = true): Unit {
+	fun addBoneMask(boneName: String, recursive: Boolean = true): Unit {
 		val currentBone = this._armature.getBone(boneName)
-		if (currentBone === null) {
+		if (currentBone == null) {
 			return
 		}
 
@@ -1200,7 +1210,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public fun removeBoneMask(boneName: String, recursive: Boolean = true): Unit {
+	fun removeBoneMask(boneName: String, recursive: Boolean = true): Unit {
 		val index = this._boneMask.indexOf(boneName)
 		if (index >= 0) { // Remove mixing.
 			this._boneMask.splice(index, 1)
@@ -1208,7 +1218,7 @@ class AnimationState : BaseObject() {
 
 		if (recursive) {
 			val currentBone = this._armature.getBone(boneName)
-			if (currentBone !== null) {
+			if (currentBone != null) {
 				val bones = this._armature.getBones()
 				if (this._boneMask.lengthSet > 0) { // Remove recursive mixing.
 					for (bone in bones) {
@@ -1220,7 +1230,7 @@ class AnimationState : BaseObject() {
 				}
 				else { // Add unrecursive mixing.
 					for (bone in bones) {
-						if (bone === currentBone) {
+						if (bone == currentBone) {
 							continue
 						}
 
@@ -1244,24 +1254,25 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public fun removeAllBoneMask(): Unit {
+	fun removeAllBoneMask() {
 		this._boneMask.lengthSet = 0
 		this._timelineDirty = 1
 	}
+
 	/**
 	 * @private
 	 */
-	public fun addState(animationState: AnimationState, timelineDatas: TimelineData[]? = null) {
-		if (timelineDatas !== null) {
+	fun addState(animationState: AnimationState, timelineDatas: ArrayList<TimelineData>? = null) {
+		if (timelineDatas != null) {
 			for (timelineData in timelineDatas) {
-				switch (timelineData.type) {
-					case TimelineType.AnimationProgress: {
+				when (timelineData.type) {
+					TimelineType.AnimationProgress -> {
 						val timeline = BaseObject.borrowObject<AnimationProgressTimelineState>()
 						timeline.target = animationState
 						timeline.init(this._armature, this, timelineData)
 						this._animationTimelines.push(timeline)
 
-						if (this.blendType !== AnimationBlendType.None) {
+						if (this.blendType != AnimationBlendType.None) {
 							val animaitonTimelineData = timelineData as AnimationTimelineData
 							animationState.positionX = animaitonTimelineData.x
 							animationState.positionY = animaitonTimelineData.y
@@ -1270,39 +1281,38 @@ class AnimationState : BaseObject() {
 
 						animationState._parent = this
 						this.resetToPose = false
-						break
 					}
 
-					case TimelineType.AnimationWeight: {
+					TimelineType.AnimationWeight -> {
 						val timeline = BaseObject.borrowObject<AnimationWeightTimelineState>()
 						timeline.target = animationState
 						timeline.init(this._armature, this, timelineData)
 						this._animationTimelines.push(timeline)
-						break
 					}
 
-					case TimelineType.AnimationParameter: {
+					TimelineType.AnimationParameter -> {
 						val timeline = BaseObject.borrowObject<AnimationParametersTimelineState>()
 						timeline.target = animationState
 						timeline.init(this._armature, this, timelineData)
 						this._animationTimelines.push(timeline)
-						break
 					}
 
-					default:
-						break
+					else -> {
+
+					}
 				}
 			}
 		}
 
-		if (animationState._parent === null) {
+		if (animationState._parent == null) {
 			animationState._parent = this
 		}
 	}
+
 	/**
 	 * @internal
 	 */
-	public fun activeTimeline(): Unit {
+	fun activeTimeline(): Unit {
 		for (timeline in this._slotTimelines) {
 			timeline.dirty = true
 			timeline.currentTime = -1.0
@@ -1318,7 +1328,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 5.1
 	 * @language zh_CN
 	 */
-	public val isFadeIn: Boolean get() {
+	val isFadeIn: Boolean get() {
 		return this._fadeState < 0
 	}
 	/**
@@ -1331,7 +1341,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 5.1
 	 * @language zh_CN
 	 */
-	public val isFadeOut: Boolean get() {
+	val isFadeOut: Boolean get() {
 		return this._fadeState > 0
 	}
 	/**
@@ -1344,8 +1354,8 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 5.1
 	 * @language zh_CN
 	 */
-	public val isFadeComplete: Boolean get() {
-		return this._fadeState === 0
+	val isFadeComplete: Boolean get() {
+		return this._fadeState == 0
 	}
 	/**
 	 * - Whether the animation state is playing.
@@ -1357,8 +1367,8 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public val isPlaying: Boolean get() {
-		return (this._playheadState & 2) !== 0 && this._actionTimeline.playState <= 0
+	val isPlaying: Boolean get() {
+		return (this._playheadState & 2) != 0 && this._actionTimeline.playState <= 0
 	}
 	/**
 	 * - Whether the animation state is play completed.
@@ -1370,7 +1380,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public val isCompleted: Boolean get() {
+	val isCompleted: Boolean get() {
 		return this._actionTimeline.playState > 0
 	}
 	/**
@@ -1383,7 +1393,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public val currentPlayTimes: Double get() {
+	val currentPlayTimes: Double get() {
 		return this._actionTimeline.currentPlayTimes
 	}
 	/**
@@ -1396,7 +1406,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public val totalTime: Double get() {
+	val totalTime: Double get() {
 		return this._duration
 	}
 	/**
@@ -1409,7 +1419,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public var currentTime: Double
+	var currentTime: Double
 		get() {
 		return this._actionTimeline.currentTime
 	}
@@ -1423,20 +1433,20 @@ class AnimationState : BaseObject() {
 		}
 
 		if (
-			this.playTimes > 0 && currentPlayTimes === this.playTimes - 1 &&
-			value === this._duration && this._parent === null
+			this.playTimes > 0 && currentPlayTimes == this.playTimes - 1 &&
+			value == this._duration && this._parent == null
 		) {
 			value = this._duration - 0.000001 //
 		}
 
-		if (this._time === value) {
+		if (this._time == value) {
 			return
 		}
 
 		this._time = value
 		this._actionTimeline.setCurrentTime(this._time)
 
-		if (this._zOrderTimeline !== null) {
+		if (this._zOrderTimeline != null) {
 			this._zOrderTimeline.playState = -1
 		}
 
@@ -1466,11 +1476,11 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language en_US
 	 */
-	public var weight: Double get() {
+	var weight: Double get() {
 		return this._weight
 	}
 	set(value: Double) {
-		if (this._weight === value) {
+		if (this._weight == value) {
 			return
 		}
 
@@ -1494,7 +1504,7 @@ class AnimationState : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	public val animationData: AnimationData get() {
+	val animationData: AnimationData get() {
 		return this._animationData
 	}
 }
@@ -1511,30 +1521,38 @@ class BlendState  :  BaseObject() {
 		const val SLOT_Z_INDEX: String = "slotZIndex"
 	}
 
-	public override fun toString(): String {
+	override fun toString(): String {
 		return "[class dragonBones.BlendState]"
 	}
 
-	public var dirty: Double
-	public var layer: Double
-	public var leftWeight: Double
-	public var layerWeight: Double
-	public var blendWeight: Double
-	public var target: BaseObject
+	var dirty: Int = 0
+	var layer: Int = 0
+	var leftWeight: Double = 0.0
+	var layerWeight: Double = 0.0
+	var blendWeight: Double = 0.0
+	var target: BaseObject? = null
 
-	protected fun _onClear(): Unit {
+	override fun _onClear() {
 		this.reset()
 
 		this.target = null as any
 	}
 
-	public fun update(animationState: AnimationState): Boolean {
+	fun reset() {
+		this.dirty = 0
+		this.layer = 0
+		this.leftWeight = 0.0
+		this.layerWeight = 0.0
+		this.blendWeight = 0.0
+	}
+
+	fun update(animationState: AnimationState): Boolean {
 		val animationLayer = animationState.layer
 		var animationWeight = animationState._weightResult
 
 		if (this.dirty > 0) {
 			if (this.leftWeight > 0.0) {
-				if (this.layer !== animationLayer) {
+				if (this.layer != animationLayer) {
 					if (this.layerWeight >= this.leftWeight) {
 						this.dirty++
 						this.layer = animationLayer
@@ -1567,13 +1585,5 @@ class BlendState  :  BaseObject() {
 		this.layerWeight = animationWeight
 
 		return true
-	}
-
-	public fun reset(): Unit {
-		this.dirty = 0
-		this.layer = 0
-		this.leftWeight = 0.0
-		this.layerWeight = 0.0
-		this.blendWeight = 0.0
 	}
 }
