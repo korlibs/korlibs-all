@@ -100,6 +100,8 @@ interface Shape : Context2d.Drawable {
 	fun addBounds(bb: BoundsBuilder): Unit
 	fun buildSvg(svg: SvgBuilder): Unit {
 	}
+
+	fun containsPoint(x: Double, y: Double): Boolean
 }
 
 fun Shape.getBounds(out: Rectangle = Rectangle()) = out.apply {
@@ -255,6 +257,13 @@ data class FillShape(
 	override fun getSvgXmlAttributes(svg: SvgBuilder) = super.getSvgXmlAttributes(svg) + mapOf(
 		"fill" to paint.toSvg(svg)
 	)
+
+	override fun containsPoint(x: Double, y: Double): Boolean {
+		val tx = transform.transformX(x, y)
+		val ty = transform.transformY(x, y)
+		if (clip != null) return clip.containsPoint(tx, ty)
+		return path.containsPoint(tx, ty)
+	}
 }
 
 data class PolylineShape(
@@ -277,6 +286,13 @@ data class PolylineShape(
 		c.stroke(paint)
 	}
 
+	override fun containsPoint(x: Double, y: Double): Boolean {
+		val tx = transform.transformX(x, y)
+		val ty = transform.transformY(x, y)
+		if (clip != null) return clip.containsPoint(tx, ty)
+		return path.containsPoint(tx, ty)
+	}
+
 	override fun getSvgXmlAttributes(svg: SvgBuilder) = super.getSvgXmlAttributes(svg) + mapOf(
 		"stroke-width" to "$thickness",
 		"stroke" to paint.toSvg(svg)
@@ -289,4 +305,7 @@ class CompoundShape(
 	override fun addBounds(bb: BoundsBuilder) = run { for (component in components) component.addBounds(bb) }
 	override fun draw(c: Context2d) = run { for (component in components) component.draw(c) }
 	override fun buildSvg(svg: SvgBuilder) = run { for (component in components) component.buildSvg(svg) }
+	override fun containsPoint(x: Double, y: Double): Boolean {
+		return components.any { it.containsPoint(x, y) }
+	}
 }
