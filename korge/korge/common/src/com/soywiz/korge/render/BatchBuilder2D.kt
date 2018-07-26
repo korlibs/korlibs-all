@@ -5,6 +5,7 @@ import com.soywiz.kmem.*
 import com.soywiz.korag.*
 import com.soywiz.korag.shader.*
 import com.soywiz.korge.view.*
+import com.soywiz.korim.color.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 import kotlin.math.*
@@ -92,12 +93,12 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 	init { logger.trace { "BatchBuilder2D[11]" } }
 
 	// @TODO: copy data from TexturedVertexArray
-	private fun addVertex(x: Float, y: Float, u: Float, v: Float, colorMul: Int, colorAdd: Int) {
+	private fun addVertex(x: Float, y: Float, u: Float, v: Float, colorMul: RGBA, colorAdd: Int) {
 		vertices.setAlignedFloat32(vertexPos++, x)
 		vertices.setAlignedFloat32(vertexPos++, y)
 		vertices.setAlignedFloat32(vertexPos++, u)
 		vertices.setAlignedFloat32(vertexPos++, v)
-		vertices.setAlignedInt32(vertexPos++, colorMul)
+		vertices.setAlignedInt32(vertexPos++, colorMul.rgba)
 		vertices.setAlignedInt32(vertexPos++, colorAdd)
 		vertexCount++
 	}
@@ -128,7 +129,7 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 		x3: Float,
 		y3: Float,
 		tex: Texture,
-		colorMul: Int,
+		colorMul: RGBA,
 		colorAdd: Int,
 		rotated: Boolean = false
 	) {
@@ -200,7 +201,7 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 		texCuts: Array<MPoint2d>,
 		m: Matrix2d = identity,
 		filtering: Boolean = true,
-		colorMul: Int = -1,
+		colorMul: RGBA = Colors.WHITE,
 		colorAdd: Int = 0x7f7f7f7f,
 		blendFactors: AG.Blending = BlendMode.NORMAL.factors
 	) {
@@ -274,7 +275,7 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 		height: Float = tex.height.toFloat(),
 		m: Matrix2d = identity,
 		filtering: Boolean = true,
-		colorMul: Int = -1,
+		colorMul: RGBA = Colors.WHITE,
 		colorAdd: Int = 0x7f7f7f7f,
 		blendFactors: AG.Blending = BlendMode.NORMAL.factors,
 		rotated: Boolean = false
@@ -441,12 +442,12 @@ class TexturedVertexArray(val vcount: Int, val indices: IntArray) {
 	fun setY(v: Float) = this.apply { data[offset + 1] = v.toBits() }
 	fun setU(v: Float) = this.apply { data[offset + 2] = v.toBits() }
 	fun setV(v: Float) = this.apply { data[offset + 3] = v.toBits() }
-	fun setCMul(v: Int) = this.apply { data[offset + 4] = v }
+	fun setCMul(v: RGBA) = this.apply { data[offset + 4] = v.rgba }
 	fun setCAdd(v: Int) = this.apply { data[offset + 5] = v }
 	fun xy(x: Double, y: Double, matrix: Matrix2d) = setX(matrix.transformX(x, y).toFloat()).setY(matrix.transformY(x, y).toFloat())
 	fun xy(x: Double, y: Double) = setX(x.toFloat()).setY(y.toFloat())
 	fun uv(tx: Float, ty: Float) = setU(tx).setV(ty)
-	fun cols(colMul: Int, colAdd: Int) = setCMul(colMul).setCAdd(colAdd)
+	fun cols(colMul: RGBA, colAdd: Int) = setCMul(colMul).setCAdd(colAdd)
 
 	//class Item(private val data: IntArray, index: Int) {
 	//	val offset = index * COMPONENTS_PER_VERTEX

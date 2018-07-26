@@ -86,7 +86,7 @@ class BitmapFont(
 		x: Int,
 		y: Int,
 		m: Matrix2d = Matrix2d(),
-		colMul: Int = Colors.WHITE,
+		colMul: RGBA = Colors.WHITE,
 		colAdd: Int = 0x7f7f7f7f,
 		blendMode: BlendMode = BlendMode.INHERIT,
 		filtering: Boolean = true
@@ -141,7 +141,7 @@ fun RenderContext.drawText(
 	x: Int,
 	y: Int,
 	m: Matrix2d = Matrix2d(),
-	colMul: Int = Colors.WHITE,
+	colMul: RGBA = Colors.WHITE,
 	colAdd: Int = 0x7f7f7f7f,
 	blendMode: BlendMode = BlendMode.INHERIT
 ) {

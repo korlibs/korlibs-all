@@ -121,7 +121,7 @@ class MouseEvents(override val view: View) : MouseComponent, UpdateComponentWith
 						y = bounds.y.toFloat(),
 						width = bounds.width.toFloat(),
 						height = bounds.height.toFloat(),
-						colorMul = RGBAInt(0xFF, 0, 0, 0x3F),
+						colorMul = RGBA(0xFF, 0, 0, 0x3F),
 						m = mouseHit.globalMatrix
 					)
 					renderContext.drawText(
@@ -142,7 +142,7 @@ class MouseEvents(override val view: View) : MouseComponent, UpdateComponentWith
 						y = bounds.y.toFloat(),
 						width = bounds.width.toFloat(),
 						height = bounds.height.toFloat(),
-						colorMul = RGBAInt(0x00, 0, 0xFF, 0x3F),
+						colorMul = RGBA(0x00, 0, 0xFF, 0x3F),
 						m = mouseHitResultUsed.globalMatrix
 					)
 					var vview = mouseHitResultUsed

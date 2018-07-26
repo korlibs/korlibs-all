@@ -162,7 +162,7 @@ class Views(
 		}
 	}
 
-	fun render(clearColor: Int = Colors.BLACK, clear: Boolean = true) {
+	fun render(clearColor: RGBA = Colors.BLACK, clear: Boolean = true) {
 		if (clear) ag.clear(clearColor, stencil = 0, clearColor = true, clearStencil = true)
 		stage.render(renderContext)
 
@@ -188,7 +188,7 @@ class Views(
 		}
 	}
 
-	fun frameUpdateAndRender(clear: Boolean, clearColor: Int, fixedSizeStep: Int? = null) {
+	fun frameUpdateAndRender(clear: Boolean, clearColor: RGBA, fixedSizeStep: Int? = null) {
 		views.stats.startFrame()
 		Korge.logger.trace { "ag.onRender" }
 		//println("Render")

@@ -169,7 +169,7 @@ class ParticleEmitter(val views: Views) {
 		@JvmField var rotationDelta: Double = 0.0,
 		@JvmField var scaleDelta: Double = 0.0
 	) {
-		val colorInt: Int get() = RGBA.packf(colorR.toFloat(), colorG.toFloat(), colorB.toFloat(), colorA.toFloat())
+		val colorInt: RGBA get() = RGBA(RGBA.packf(colorR.toFloat(), colorG.toFloat(), colorB.toFloat(), colorA.toFloat()))
 		val alive: Boolean get() = this.currentTime < this.totalTime
 	}
 

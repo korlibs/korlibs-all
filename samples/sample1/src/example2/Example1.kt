@@ -35,7 +35,7 @@ object MyModule : Module() {
 class MyScene : Scene() {
 	override suspend fun Container.sceneInit() {
 		graphics() {
-			beginFill(RGBA(Colors.RED), 1.0)
+			beginFill(Colors.RED, 1.0)
 			//drawRect(0.0, 0.0, 128.0, 128.0)
 			drawCircle(64.0, 64.0, 64.0)
 			endFill()

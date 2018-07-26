@@ -1,5 +1,6 @@
 package com.soywiz.korim.bitmap
 
+import com.soywiz.korim.color.*
 import com.soywiz.korma.geom.*
 
 fun Bitmap.matchContents(that: Bitmap): Boolean {
@@ -17,7 +18,7 @@ fun Bitmap.matchContents(that: Bitmap): Boolean {
 }
 
 fun Bitmap32.setAlpha(value: Int) {
-	for (n in 0 until this.data.size) this.data[n] = (this.data[n] and 0x00FFFFFF) or (value shl 24)
+	for (n in 0 until this.data.size) this.data[n] = RGBA(this.data[n].rgb, value)
 }
 
 fun <T : Bitmap> T.putWithBorder(x: Int, y: Int, bmp: T, border: Int = 1) {

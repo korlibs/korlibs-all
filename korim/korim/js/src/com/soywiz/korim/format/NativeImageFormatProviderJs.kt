@@ -36,7 +36,7 @@ open class HtmlNativeImage(val texSource: TexImageSource, width: Int, height: In
 	}
 
 	override fun toNonNativeBmp(): Bitmap {
-		val data = IntArray(width * height)
+		val data = RgbaArray(width * height)
 		HtmlImage.renderHtmlCanvasIntoBitmap(lazyCanvasElement, data)
 		return Bitmap32(width, height, data)
 	}
@@ -159,7 +159,7 @@ class CanvasContext2dRenderer(private val canvas: HTMLCanvasElement) : Context2d
 	fun Context2d.Paint.toJsStr(): Any? {
 		return when (this) {
 			is Context2d.None -> "none"
-			is Context2d.Color -> Colors.toHtmlStringSimple(this.color)
+			is Context2d.Color -> this.color.htmlStringSimple
 			is Context2d.Gradient -> {
 				when (kind) {
 					Context2d.Gradient.Kind.LINEAR -> {

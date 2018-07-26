@@ -39,7 +39,7 @@ object BMP : ImageFormat("bmp") {
 		return when (h.bitsPerPixel) {
 			8 -> {
 				val out = Bitmap8(h.width, h.height)
-				for (n in 0 until 256) out.palette[n] = s.readS32_le() or 0xFF000000.toInt()
+				for (n in 0 until 256) out.palette[n] = RGBA(s.readS32_le(), 0xFF)
 				for (n in 0 until h.height) out.setRow(h.height - n - 1, s.readBytes(h.width))
 				ImageData(listOf(ImageFrame(out)))
 			}

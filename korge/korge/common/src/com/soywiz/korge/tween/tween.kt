@@ -147,7 +147,7 @@ operator fun <V> KMutableProperty0<V>.rangeTo(that: Pair<V, V>) = this[that.firs
 fun <V> V2<V>.withEasing(easing: Easing): V2<V> =
 	this.copy(interpolator = { a, b, ratio -> this.interpolator(a, b, easing(ratio)) })
 
-fun V2<Int>.color(): V2<Int> = this.copy(interpolator = RGBA.Companion::blendRGBA)
+fun V2<Int>.color(): V2<Int> = this.copy(interpolator = RGBA.Companion::blendRGBAInt)
 
 fun <V> V2<V>.easing(easing: Easing): V2<V> =
 	this.copy(interpolator = { a, b, ratio -> this.interpolator(a, b, easing(ratio)) })

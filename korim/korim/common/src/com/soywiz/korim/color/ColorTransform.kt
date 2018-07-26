@@ -38,13 +38,13 @@ data class ColorTransform(
 	@Transient
 	private var dirty = true
 
-	private var _colorMul: Int = 0
+	private var _colorMul: RGBA = RGBA(0)
 	private var _colorAdd: Int = 0
 
 	private fun computeColors() = this.apply {
 		if (dirty) {
 			dirty = false
-			_colorMul = RGBA.packf(_mR.toFloat(), _mG.toFloat(), _mB.toFloat(), _mA.toFloat())
+			_colorMul = RGBA(RGBA.packf(_mR.toFloat(), _mG.toFloat(), _mB.toFloat(), _mA.toFloat()))
 			_colorAdd = packAdd(_aR, _aG, _aB, _aA)
 		}
 	}
@@ -57,13 +57,13 @@ data class ColorTransform(
 	private fun packAddComponent(v: Int) = (0x7f + (v shr 1)).clamp(0, 0xFF)
 	private fun unpackAddComponent(v: Int): Int = (v - 0x7F) * 2
 
-	var colorMul: Int
+	var colorMul: RGBA
 		get() = computeColors()._colorMul
 		set(v) {
-			_mR = RGBA.getFastRf(v).toDouble()
-			_mG = RGBA.getFastGf(v).toDouble()
-			_mB = RGBA.getFastBf(v).toDouble()
-			_mA = RGBA.getFastAf(v).toDouble()
+			_mR = v.rd
+			_mG = v.gd
+			_mB = v.bd
+			_mA = v.ad
 			dirty = true
 		}
 

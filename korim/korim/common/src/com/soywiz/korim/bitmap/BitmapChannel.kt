@@ -1,5 +1,7 @@
 package com.soywiz.korim.bitmap
 
+import com.soywiz.korim.color.*
+
 enum class BitmapChannel(val index: Int) {
 	RED(0), GREEN(1), BLUE(2), ALPHA(3);
 
@@ -7,8 +9,8 @@ enum class BitmapChannel(val index: Int) {
 	val setMask = (0xFF shl shift)
 	val clearMask = setMask.inv()
 
-	fun extract(rgba: Int): Int = (rgba ushr shift) and 0xFF
-	fun insert(rgba: Int, value: Int): Int = (rgba and clearMask) or ((value and 0xFF) shl shift)
+	fun extract(rgba: RGBA): Int = (rgba.rgba ushr shift) and 0xFF
+	fun insert(rgba: RGBA, value: Int): RGBA = RGBA((rgba.rgba and clearMask) or ((value and 0xFF) shl shift))
 
 	companion object {
 		val ALL = values()

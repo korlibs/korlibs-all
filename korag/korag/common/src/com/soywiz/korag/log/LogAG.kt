@@ -4,6 +4,7 @@ import com.soywiz.kmem.*
 import com.soywiz.korag.*
 import com.soywiz.korag.shader.*
 import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
 import com.soywiz.korio.lang.*
 
 open class LogAG(
@@ -25,7 +26,7 @@ open class LogAG(
 	fun getLogAsString(): String = log.joinToString("\n")
 
 	override fun clear(
-		color: Int,
+		color: RGBA,
 		depth: Float,
 		stencil: Int,
 		clearColor: Boolean,

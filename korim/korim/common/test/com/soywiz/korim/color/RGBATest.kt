@@ -5,12 +5,12 @@ import kotlin.test.*
 class RGBATest {
 	@kotlin.test.Test
 	fun premultiply() {
-		assertEquals("#7f7f7f7f", RGBA.toHexString(RGBA.premultiply(RGBA.packFast(0xFF, 0xFF, 0xFF, 0x7F))))
-		assertEquals("#7f7f7f7f", RGBA.toHexString(RGBA.premultiplyFast(RGBA.packFast(0xFF, 0xFF, 0xFF, 0x7F))))
-		assertEquals("#ffffffff", RGBA.toHexString(RGBA.premultiplyFast(RGBA.packFast(0xFF, 0xFF, 0xFF, 0xFF))))
-		assertEquals("#0000007f", RGBA.toHexString(RGBA.premultiplyFast(RGBA.packFast(0x00, 0x00, 0x00, 0x7F))))
-		assertEquals("#3f3f3f7f", RGBA.toHexString(RGBA.premultiplyFast(RGBA.packFast(0x7F, 0x7F, 0x7F, 0x7F))))
-		assertEquals("#001f3f7f", RGBA.toHexString(RGBA.premultiplyFast(RGBA.packFast(0x00, 0x3F, 0x7F, 0x7F))))
+		assertEquals("#7f7f7f7f", RGBA.premultiply(RGBA(0xFF, 0xFF, 0xFF, 0x7F)).hexString)
+		assertEquals("#7f7f7f7f", RGBA.premultiplyFast(RGBA(0xFF, 0xFF, 0xFF, 0x7F)).hexString)
+		assertEquals("#ffffffff", RGBA.premultiplyFast(RGBA(0xFF, 0xFF, 0xFF, 0xFF)).hexString)
+		assertEquals("#0000007f", RGBA.premultiplyFast(RGBA(0x00, 0x00, 0x00, 0x7F)).hexString)
+		assertEquals("#3f3f3f7f", RGBA.premultiplyFast(RGBA(0x7F, 0x7F, 0x7F, 0x7F)).hexString)
+		assertEquals("#001f3f7f", RGBA.premultiplyFast(RGBA(0x00, 0x3F, 0x7F, 0x7F)).hexString)
 	}
 
 	@kotlin.test.Test

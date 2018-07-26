@@ -165,12 +165,12 @@ object PNG : ImageFormat("png") {
 					val index = bitmap.index(0, y)
 					if (bitmap.premult) {
 						for (x in 0 until width) {
-							out.write32_le(pos, RGBA.depremultiplyFast(bitmap.data[index + x]))
+							out.write32_le(pos, RGBA.depremultiplyFast(bitmap.data[index + x]).toInt())
 							pos += 4
 						}
 					} else {
 						for (x in 0 until width) {
-							out.write32_le(pos, bitmap.data[index + x])
+							out.write32_le(pos, bitmap.data[index + x].toInt())
 							pos += 4
 						}
 					}
@@ -255,14 +255,14 @@ object PNG : ImageFormat("png") {
 			header.bytes == 1 -> Bitmap8(
 				width,
 				height,
-				palette = (0 until paletteCount).map {
-					RGBAInt(
+				palette = RgbaArray((0 until paletteCount).map {
+					RGBA(
 						rgbPalette[it * 3 + 0],
 						rgbPalette[it * 3 + 1],
 						rgbPalette[it * 3 + 2],
 						aPalette[it]
-					)
-				}.toIntArray()
+					).rgba
+				}.toIntArray())
 			)
 			else -> Bitmap32(width, height)
 		}
@@ -308,7 +308,7 @@ object PNG : ImageFormat("png") {
 	class DecodingContext(val header: Header) {
 		var lastRow = UByteArray(header.stride)
 		var currentRow = UByteArray(header.stride)
-		val row32 = IntArray(header.width)
+		val row32 = RgbaArray(header.width)
 
 		fun swapRows() {
 			val temp = currentRow

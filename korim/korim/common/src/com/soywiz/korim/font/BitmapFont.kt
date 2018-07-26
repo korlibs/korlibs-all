@@ -21,7 +21,7 @@ class BitmapFont(
 		return x
 	}
 
-	fun drawText(bmp: Bitmap32, str: String, x: Int = 0, y: Int, color: Int = Colors.WHITE) {
+	fun drawText(bmp: Bitmap32, str: String, x: Int = 0, y: Int, color: RGBA = Colors.WHITE) {
 		var py = y
 		var px = x
 		for (c in str) {

@@ -62,7 +62,7 @@ class SVG(val root: Xml) : Context2d.SizedDrawable {
 			val offset = parsePercent(stop.str("offset"))
 			val colorStop = Colors.Default[stop.str("stop-color")]
 			val alphaStop = stop.double("stop-opacity", 1.0)
-			out += Pair(offset, RGBA.packRGB_A(colorStop, (alphaStop * 255).toInt()))
+			out += Pair(offset, RGBA.packRGB_A(colorStop.rgb, (alphaStop * 255).toInt()))
 		}
 		return out
 	}

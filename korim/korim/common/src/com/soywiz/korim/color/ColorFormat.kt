@@ -48,11 +48,11 @@ abstract class ColorFormat(val bpp: Int) : ColorFormatBase {
 	//fun clamp0_FF(a: Int): Int = Math.min(Math.max(a, 0), 255)
 	//fun clampFF(a: Int): Int = Math.min(a, 255)
 
-	fun toRGBA(v: Int) = RGBA.packFast(getR(v), getG(v), getB(v), getA(v))
+	fun toRGBA(v: Int): RGBA = RGBA(getR(v), getG(v), getB(v), getA(v))
 
-	fun packRGBA(rgba: Int): Int = pack(RGBA.getR(rgba), RGBA.getG(rgba), RGBA.getB(rgba), RGBA.getA(rgba))
+	fun packRGBA(c: RGBA): Int = pack(c.r, c.g, c.b, c.a)
 
-	fun unpackToRGBA(packed: Int): Int = RGBA.packFast(getR(packed), getG(packed), getB(packed), getA(packed))
+	fun unpackToRGBA(packed: Int): RGBA = RGBA(getR(packed), getG(packed), getB(packed), getA(packed))
 
 	fun convertTo(color: Int, target: ColorFormat): Int = target.pack(
 		this.getR(color), this.getG(color), this.getB(color), this.getA(color)
@@ -72,7 +72,7 @@ abstract class ColorFormat(val bpp: Int) : ColorFormatBase {
 	inline fun decodeInternal(
 		data: ByteArray,
 		dataOffset: Int,
-		out: IntArray,
+		out: RgbaArray,
 		outOffset: Int,
 		size: Int,
 		read: (data: ByteArray, io: Int) -> Int
@@ -84,14 +84,14 @@ abstract class ColorFormat(val bpp: Int) : ColorFormatBase {
 		for (n in 0 until size) {
 			val c = read(data, io)
 			io += bytesPerPixel
-			out[oo++] = RGBA.packFast(getR(c), getG(c), getB(c), getA(c))
+			out[oo++] = RGBA(getR(c), getG(c), getB(c), getA(c))
 		}
 	}
 
 	open fun decode(
 		data: ByteArray,
 		dataOffset: Int,
-		out: IntArray,
+		out: RgbaArray,
 		outOffset: Int,
 		size: Int,
 		littleEndian: Boolean = true
@@ -121,8 +121,8 @@ abstract class ColorFormat(val bpp: Int) : ColorFormatBase {
 		dataOffset: Int = 0,
 		size: Int = data.size / bytesPerPixel,
 		littleEndian: Boolean = true
-	): IntArray {
-		val out = IntArray(size)
+	): RgbaArray {
+		val out = RgbaArray(size)
 		decode(data, dataOffset, out, 0, size, littleEndian)
 		return out
 	}
@@ -147,7 +147,7 @@ abstract class ColorFormat(val bpp: Int) : ColorFormatBase {
 	}
 
 	open fun encode(
-		colors: IntArray,
+		colors: RgbaArray,
 		colorsOffset: Int,
 		out: ByteArray,
 		outOffset: Int,
@@ -158,7 +158,7 @@ abstract class ColorFormat(val bpp: Int) : ColorFormatBase {
 		var oo = outOffset
 		for (n in 0 until size) {
 			val c = colors[io++]
-			val ec = pack(RGBA.getR(c), RGBA.getG(c), RGBA.getB(c), RGBA.getA(c))
+			val ec = pack(c.r, c.g, c.b, c.a)
 			when (bpp) {
 				16 -> if (littleEndian) out.write16_le(oo, ec) else out.write16_be(oo, ec)
 				24 -> if (littleEndian) out.write24_le(oo, ec) else out.write24_be(oo, ec)
@@ -170,7 +170,7 @@ abstract class ColorFormat(val bpp: Int) : ColorFormatBase {
 	}
 
 	open fun encode(
-		colors: IntArray,
+		colors: RgbaArray,
 		colorsOffset: Int = 0,
 		size: Int = colors.size,
 		littleEndian: Boolean = true

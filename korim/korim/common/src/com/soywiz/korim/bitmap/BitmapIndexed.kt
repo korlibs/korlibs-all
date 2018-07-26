@@ -8,7 +8,7 @@ abstract class BitmapIndexed(
 	bpp: Int,
 	width: Int, height: Int,
 	var data: ByteArray = ByteArray(width * height / (8 / bpp)),
-	var palette: IntArray = IntArray(1 shl bpp)
+	var palette: RgbaArray = RgbaArray(1 shl bpp)
 ) : Bitmap(width, height, bpp, false, data) {
 	init {
 		if (data.size < width * height / (8 / bpp)) throw RuntimeException("Bitmap data is too short: width=$width, height=$height, data=ByteArray(${data.size}), area=${width * height}")
@@ -21,13 +21,17 @@ abstract class BitmapIndexed(
 	val datau = UByteArray(data)
 	val n8_dbpp: Int = 8 / bpp
 	val mask = ((1 shl bpp) - 1)
-	override operator fun get(x: Int, y: Int): Int = (datau[index_d(x, y)] ushr (bpp * index_m(x, y))) and mask
-	override operator fun set(x: Int, y: Int, color: Int): Unit {
+
+	inline operator fun get(x: Int, y: Int): Int = getInt(x, y)
+	inline operator fun set(x: Int, y: Int, color: Int): Unit = setInt(x, y, color)
+
+	override fun getInt(x: Int, y: Int): Int = (datau[index_d(x, y)] ushr (bpp * index_m(x, y))) and mask
+	override fun setInt(x: Int, y: Int, color: Int): Unit {
 		val i = index_d(x, y)
 		datau[i] = datau[i].insert(color, bpp * index_m(x, y), bpp)
 	}
 
-	override fun get32(x: Int, y: Int): Int = palette[this[x, y]]
+	override fun get32(x: Int, y: Int): RGBA = palette[this[x, y]]
 	fun index_d(x: Int, y: Int) = index(x, y) / n8_dbpp
 	fun index_m(x: Int, y: Int) = index(x, y) % n8_dbpp
 
@@ -42,7 +46,7 @@ abstract class BitmapIndexed(
 	fun setWhitescalePalette() = this.apply {
 		for (n in 0 until palette.size) {
 			val col = ((n.toFloat() / palette.size.toFloat()) * 255).toInt()
-			palette[n] = RGBAInt(col, col, col, 0xFF)
+			palette[n] = RGBA(col, col, col, 0xFF)
 		}
 		return this
 	}

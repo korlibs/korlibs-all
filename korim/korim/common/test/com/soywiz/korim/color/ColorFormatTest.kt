@@ -6,7 +6,7 @@ import com.soywiz.korio.lang.*
 import kotlin.test.*
 
 class ColorFormatTest {
-	fun bmp() = Bitmap32(3, 1, intArrayOf(Colors.RED, Colors.GREEN, Colors.BLUE))
+	fun bmp() = Bitmap32(3, 1, arrayOf(Colors.RED, Colors.GREEN, Colors.BLUE).toRgbaArray())
 	fun ByteArray.toHexChunks(size: Int) = this.hex.splitInChunks(size).joinToString("-").toLowerCase()
 
 	@kotlin.test.Test

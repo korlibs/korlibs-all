@@ -8,6 +8,7 @@ import com.soywiz.korge.resources.*
 import com.soywiz.korge.scene.*
 import com.soywiz.korge.stat.*
 import com.soywiz.korge.view.*
+import com.soywiz.korim.color.*
 import com.soywiz.korim.format.*
 import com.soywiz.korim.vector.*
 import com.soywiz.korinject.*
@@ -121,7 +122,7 @@ object Korge {
 		return sc
 	}
 
-	fun prepareViews(views: Views, eventDispatcher: EventDispatcher, clearEachFrame: Boolean = true, bgcolor: Int = 0, fixedSizeStep: Int? = null) {
+	fun prepareViews(views: Views, eventDispatcher: EventDispatcher, clearEachFrame: Boolean = true, bgcolor: RGBA = Colors.TRANSPARENT_BLACK, fixedSizeStep: Int? = null) {
 		val input = views.input
 		val ag = views.ag
 		val downPos = MPoint2d()

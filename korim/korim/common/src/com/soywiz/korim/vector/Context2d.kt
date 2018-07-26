@@ -179,7 +179,7 @@ class Context2d(val renderer: Renderer) : Disposable {
 		}
 	}
 
-	inline fun fillStyle(color: RGBAInt, callback: () -> Unit) = fillStyle(createColor(color), callback)
+	inline fun fillStyle(color: RGBA, callback: () -> Unit) = fillStyle(createColor(color), callback)
 
 	inline fun keepApply(callback: Context2d.() -> Unit) = this.apply { keep { callback() } }
 
@@ -328,7 +328,7 @@ class Context2d(val renderer: Renderer) : Disposable {
 		stroke(paint)
 	}
 
-	inline fun stroke(color: RGBAInt, callback: () -> Unit) {
+	inline fun stroke(color: RGBA, callback: () -> Unit) {
 		callback()
 		stroke(Color(color))
 	}
@@ -377,7 +377,7 @@ class Context2d(val renderer: Renderer) : Disposable {
 	fun createRadialGradient(x0: Double, y0: Double, r0: Double, x1: Double, y1: Double, r1: Double) =
 		Gradient(Gradient.Kind.RADIAL, x0, y0, r0, x1, y1, r1)
 
-	fun createColor(color: RGBAInt) = Color(color)
+	fun createColor(color: RGBA) = Color(color)
 	fun createPattern(
 		bitmap: Bitmap,
 		repeat: Boolean = false,
@@ -406,7 +406,7 @@ class Context2d(val renderer: Renderer) : Disposable {
 		font: Font? = null,
 		halign: HorizontalAlign? = null,
 		valign: VerticalAlign? = null,
-		color: RGBAInt? = null
+		color: RGBA? = null
 	): Unit {
 		font(font, halign, valign) {
 			fillStyle(color?.let { createColor(it) } ?: fillStyle) {
@@ -426,7 +426,7 @@ class Context2d(val renderer: Renderer) : Disposable {
 
 	object None : Paint
 
-	data class Color(val color: RGBAInt) : Paint
+	data class Color(val color: RGBA) : Paint
 
 	interface TransformedPaint : Paint {
 		val transform: Matrix2d

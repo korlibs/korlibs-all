@@ -25,7 +25,7 @@ class Graphics : Image(Bitmaps.transparent) {
 		shapes.clear()
 	}
 
-	fun lineStyle(d: Double, i: Int, d1: Double) = dirty {
+	fun lineStyle(thickness: Double, color: RGBA, alpha: Double) = dirty {
 	}
 
 	fun moveTo(x: Double, y: Double) = dirty {
@@ -36,10 +36,11 @@ class Graphics : Image(Bitmaps.transparent) {
 		currentPath.lineTo(x, y)
 	}
 
-	fun beginFill(color: RGBAInt, alpha: Double) = beginFill(RGBA(color), alpha)
+	// Inline Class ERROR: Platform declaration clash: The following declarations have the same JVM signature (beginFill(ID)Lcom/soywiz/korge/view/Graphics;):
+	//fun beginFill(color: Int, alpha: Double) = beginFill(RGBA(color), alpha)
 
 	fun beginFill(color: RGBA, alpha: Double) = dirty {
-		fill = Context2d.Color(RGBAInt(color.r, color.g, color.b, (alpha * 255).toInt()))
+		fill = Context2d.Color(RGBA(color.r, color.g, color.b, (alpha * 255).toInt()))
 		currentPath = GraphicsPath()
 	}
 

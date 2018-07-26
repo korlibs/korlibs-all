@@ -35,7 +35,7 @@ open class ChartBars(val list: List<DataPoint>) : Chart() {
 		y0: Number,
 		x1: Number,
 		y1: Number,
-		color: RGBAInt,
+		color: RGBA,
 		width: Number = 1.2
 	) {
 		lineWidth = width.toDouble()

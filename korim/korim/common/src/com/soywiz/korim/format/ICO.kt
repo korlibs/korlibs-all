@@ -53,7 +53,7 @@ object ICO : ImageFormat("ico") {
 			val pixelsYPerMeter = s.readS32_le()
 			val clrUsed = s.readS32_le()
 			val clrImportant = s.readS32_le()
-			var palette = IntArray(0)
+			var palette = RgbaArray(0)
 			if (compression != 0) throw UnsupportedOperationException("Not supported compressed .ico")
 			if (bitCount <= 8) {
 				val colors = if (clrUsed == 0) 1 shl bitCount else clrUsed
@@ -62,8 +62,8 @@ object ICO : ImageFormat("ico") {
 					val g = s.readU8()
 					val r = s.readU8()
 					val reserved = s.readU8()
-					RGBAInt(r, g, b, 0xFF)
-				}.toIntArray()
+					RGBA(r, g, b, 0xFF)
+				}.toRgbaArray()
 			}
 
 			val stride = (e.width * bitCount) / 8

@@ -176,7 +176,7 @@ abstract class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by Eve
 	private val _colorTransform = ColorTransform()
 	private var _globalColorTransform = ColorTransform()
 
-	var colorMul: Int
+	var colorMul: RGBA
 		get() = _colorTransform.colorMul;
 		set(v) = run {
 			_colorTransform.colorMul = v; invalidateColorTransform()
@@ -190,7 +190,7 @@ abstract class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by Eve
 	var colorTransform: ColorTransform get() = _colorTransform; set(v) = run { _colorTransform.copyFrom(v); invalidateColorTransform() }
 
 	// alias
-	var tint: Int
+	var tint: RGBA
 		get() = colorMul
 		set(value) = run { colorMul = value }
 
@@ -394,7 +394,7 @@ abstract class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by Eve
 	val renderMatrix: Matrix2d get() = globalMatrix
 
 	val globalColorTransform: ColorTransform get() = run { _ensureGlobal(); _globalColorTransform }
-	val globalColorMul: Int get() = globalColorTransform.colorMul
+	val globalColorMul: RGBA get() = globalColorTransform.colorMul
 	val globalColorAdd: Int get() = globalColorTransform.colorAdd
 	val globalAlpha: Double get() = globalColorTransform.mA
 

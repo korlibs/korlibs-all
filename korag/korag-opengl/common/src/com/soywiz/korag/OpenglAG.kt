@@ -405,7 +405,7 @@ abstract class AGOpengl : AG() {
 	}
 
 	override fun clear(
-		color: Int,
+		color: RGBA,
 		depth: Float,
 		stencil: Int,
 		clearColor: Boolean,
@@ -417,7 +417,7 @@ abstract class AGOpengl : AG() {
 		checkErrors { gl.disable(gl.SCISSOR_TEST) }
 		if (clearColor) {
 			bits = bits or gl.COLOR_BUFFER_BIT
-			checkErrors { gl.clearColor(RGBA.getRf(color), RGBA.getGf(color), RGBA.getBf(color), RGBA.getAf(color)) }
+			checkErrors { gl.clearColor(color.rf, color.gf, color.bf, color.af) }
 		}
 		if (clearDepth) {
 			bits = bits or gl.DEPTH_BUFFER_BIT
@@ -508,7 +508,7 @@ abstract class AGOpengl : AG() {
 					//println("BMP: Bitmap32")
 					//val abmp: Bitmap32 = bmp
 					val mem = KmlNativeBuffer(abmp.area * 4)
-					arraycopy(abmp.data, 0, mem.arrayInt, 0, abmp.area)
+					arraycopy(abmp.data.array, 0, mem.arrayInt, 0, abmp.area)
 					@Suppress("USELESS_CAST")
 					return mem
 				}
@@ -613,7 +613,7 @@ abstract class AGOpengl : AG() {
 				0, 0, bitmap.width, bitmap.height,
 				gl.RGBA, gl.UNSIGNED_BYTE, buffer
 			)
-			buffer.getAlignedArrayInt32(0, bitmap.data, 0, bitmap.area)
+			buffer.getAlignedArrayInt32(0, bitmap.data.array, 0, bitmap.area)
 		}
 	}
 

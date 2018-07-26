@@ -19,15 +19,15 @@ abstract class Bitmap(
 	fun index(x: Int, y: Int) = y * width + x
 	override val size: Size get() = Size(width, height)
 
-	open fun set32(x: Int, y: Int, v: Int): Unit = TODO()
-	open fun get32(x: Int, y: Int): Int = 0
-	open operator fun set(x: Int, y: Int, color: Int): Unit = Unit
-	open operator fun get(x: Int, y: Int) = 0
+	open fun set32(x: Int, y: Int, v: RGBA): Unit = TODO()
+	open fun get32(x: Int, y: Int): RGBA = RGBA(0)
+	open fun setInt(x: Int, y: Int, color: Int): Unit = Unit
+	open fun getInt(x: Int, y: Int): Int = 0
 
-	fun get32Clamped(x: Int, y: Int): Int = if (inBounds(x, y)) get32(x, y) else Colors.TRANSPARENT_BLACK
+	fun get32Clamped(x: Int, y: Int): RGBA = if (inBounds(x, y)) get32(x, y) else Colors.TRANSPARENT_BLACK
 
 	// @TODO: super-slow, optimize this! and probably expose some API to read several sampled pixels at once, to reuse computations as much as possible
-	fun get32Sampled(x: Double, y: Double): Int {
+	fun get32Sampled(x: Double, y: Double): RGBA {
 		if (x < 0.0 || x >= width.toDouble() || y < 0.0 || y >= height.toDouble()) return Colors.TRANSPARENT_BLACK
 		val x0 = x.toIntFloor()
 		val x1 = x.toIntCeil()
@@ -47,7 +47,7 @@ abstract class Bitmap(
 	open fun copy(srcX: Int, srcY: Int, dst: Bitmap, dstX: Int, dstY: Int, width: Int, height: Int) {
 		for (y in 0 until height) {
 			for (x in 0 until width) {
-				dst[dstX + x, dstY] = this[srcX + x, srcY]
+				dst.setInt(dstX + x, dstY, this.getInt(srcX + x, srcY))
 			}
 		}
 	}
@@ -66,10 +66,10 @@ abstract class Bitmap(
 
 	open fun swapRows(y0: Int, y1: Int) {
 		for (x in 0 until width) {
-			val c0 = get(x, y0)
-			val c1 = get(x, y1)
-			set(x, y0, c1)
-			set(x, y1, c0)
+			val c0 = getInt(x, y0)
+			val c1 = getInt(x, y1)
+			setInt(x, y0, c1)
+			setInt(x, y1, c0)
 		}
 	}
 

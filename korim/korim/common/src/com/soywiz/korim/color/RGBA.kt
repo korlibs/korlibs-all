@@ -1,12 +1,7 @@
 package com.soywiz.korim.color
 
 import com.soywiz.kmem.*
-import com.soywiz.korio.*
 import com.soywiz.korio.lang.*
-
-typealias RGBAInt = Int
-
-fun RGBAInt(r: Int, g: Int, b: Int, a: Int): RGBAInt = RGBA.pack(r, g, b, a)
 
 inline class RGBA(val rgba: Int) {
 	val r: Int get() = (rgba ushr 0) and 0xFF
@@ -30,6 +25,13 @@ inline class RGBA(val rgba: Int) {
 	fun withG(v: Int) = RGBA((rgba and (0xFF shl 8).inv()) or ((v and 0xFF) shl 8))
 	fun withB(v: Int) = RGBA((rgba and (0xFF shl 16).inv()) or ((v and 0xFF) shl 16))
 	fun withA(v: Int) = RGBA((rgba and (0xFF shl 24).inv()) or ((v and 0xFF) shl 16))
+	fun withRGB(rgb: Int) = RGBA(rgb, a)
+
+	fun toInt(): Int = rgba
+
+	val hexString: String get() ="#%02x%02x%02x%02x".format(r, g, b, a)
+	val htmlColor: String get() = "rgba($r, $g, $b, $af)"
+	val htmlStringSimple: String get() = "#%02x%02x%02x".format(r, g, b)
 
 	operator fun plus(other: RGBA): RGBA = RGBA(this.r + other.r, this.g + other.g, this.b + other.b, this.a + other.a)
 	operator fun minus(other: RGBA): RGBA =
@@ -41,6 +43,8 @@ inline class RGBA(val rgba: Int) {
 		operator fun invoke(r: Int, g: Int, b: Int, a: Int): RGBA =
 			RGBA(((r and 0xFF) shl 0) or ((g and 0xFF) shl 8) or ((b and 0xFF) shl 16) or ((a and 0xFF) shl 24))
 
+		operator fun invoke(rgb: Int, a: Int): RGBA = RGBA((rgb and 0xFFFFFF) or (a shl 24))
+
 		//private inline val R_SHIFT: Int get() = 0
 		//private inline val G_SHIFT: Int get() = 8
 		//private inline val B_SHIFT: Int get() = 16
@@ -51,7 +55,7 @@ inline class RGBA(val rgba: Int) {
 		override fun getB(v: Int): Int = getFastB(v)
 		override fun getA(v: Int): Int = getFastA(v)
 
-		override fun pack(r: Int, g: Int, b: Int, a: Int): RGBAInt =
+		override fun pack(r: Int, g: Int, b: Int, a: Int): Int =
 			((ColorFormat.clamp0_FF(r)) shl 0) or ((ColorFormat.clamp0_FF(g)) shl 8) or ((ColorFormat.clamp0_FF(b)) shl 16) or ((ColorFormat.clamp0_FF(
 				a
 			)) shl 24)
@@ -99,7 +103,7 @@ inline class RGBA(val rgba: Int) {
 
 		@Deprecated("", ReplaceWith("RGBA.premultiplyFast(v)", "com.soywiz.korim.color.RGBA"))
 		//@JvmStatic
-		fun multipliedByAlpha(v: Int): Int = premultiplyFast(v)
+		fun multipliedByAlpha(v: RGBA): RGBA = premultiplyFast(v)
 
 		//@JvmStatic
 		fun toHexString(v: Int): String = "#%02x%02x%02x%02x".format(getFastR(v), getFastG(v), getFastB(v), getFastA(v))
@@ -108,7 +112,7 @@ inline class RGBA(val rgba: Int) {
 		fun toHtmlColor(v: Int): String = "rgba(${getFastR(v)}, ${getFastG(v)}, ${getFastB(v)}, ${getFastAf(v)})"
 
 		//@JvmStatic
-		fun premultiply(v: Int): Int = premultiplyFast(v)
+		fun premultiply(v: RGBA): RGBA = premultiplyFast(v)
 
 		//@JvmStatic
 		fun premultiplyAccurate(v: Int): Int {
@@ -118,11 +122,11 @@ inline class RGBA(val rgba: Int) {
 		}
 
 		//@JvmStatic
-		fun premultiplyFast(v: Int): Int {
-			val A = (v ushr 24) + 1
-			val RB = (((v and 0x00FF00FF) * A) ushr 8) and 0x00FF00FF
-			val G = (((v and 0x0000FF00) * A) ushr 8) and 0x0000FF00
-			return (v and 0x00FFFFFF.inv()) or RB or G
+		fun premultiplyFast(v: RGBA): RGBA {
+			val A = v.a + 1
+			val RB = (((v.rgba and 0x00FF00FF) * A) ushr 8) and 0x00FF00FF
+			val G = (((v.rgba and 0x0000FF00) * A) ushr 8) and 0x0000FF00
+			return RGBA((v.rgba and 0x00FFFFFF.inv()) or RB or G)
 		}
 
 		////@JvmStatic fun premultiplyFast2(v: Int): Int {
@@ -137,20 +141,22 @@ inline class RGBA(val rgba: Int) {
 			com.soywiz.korim.color.RGBA.pack(getFastR(v), getFastG(v), getFastB(v), (getFastA(v) * alpha).toInt())
 
 		//@JvmStatic
-		fun depremultiply(v: Int): Int = depremultiplyFast(v)
+		fun depremultiply(v: RGBA): RGBA = depremultiplyFast(v)
 
 		//@JvmStatic
-		fun depremultiplyAccurate(v: RGBAInt): RGBAInt {
-			val alpha = getAd(v)
+		fun depremultiplyAccurate(v: RGBA): RGBA {
+			val alpha = v.ad
 			if (alpha == 0.0) {
 				return Colors.TRANSPARENT_WHITE
 			} else {
 				val ialpha = 1.0 / alpha
-				return pack(
-					(getFastR(v) * ialpha).toInt(),
-					(getFastG(v) * ialpha).toInt(),
-					(getFastB(v) * ialpha).toInt(),
-					getFastA(v)
+				return RGBA(
+					pack(
+						(v.r * ialpha).toInt(),
+						(v.g * ialpha).toInt(),
+						(v.b * ialpha).toInt(),
+						v.a
+					)
 				)
 			}
 		}
@@ -160,22 +166,22 @@ inline class RGBA(val rgba: Int) {
 		fun Int.clamp255() = if (this > 255) 255 else this
 
 		//@JvmStatic
-		fun depremultiplyFast(v: Int): Int {
-			val A = v ushr 24
+		fun depremultiplyFast(v: RGBA): RGBA {
+			val A = v.a
 			val alpha = A.toDouble() / 255.0
-			if (alpha == 0.0) return 0
+			if (alpha == 0.0) return RGBA(0)
 			val ialpha = 1.0 / alpha
-			val R = (getFastR(v) * ialpha).toInt().clamp255()
-			val G = (getFastG(v) * ialpha).toInt().clamp255()
-			val B = (getFastB(v) * ialpha).toInt().clamp255()
-			return packFast(R, G, B, A)
+			val R = (v.r * ialpha).toInt().clamp255()
+			val G = (v.g * ialpha).toInt().clamp255()
+			val B = (v.b * ialpha).toInt().clamp255()
+			return RGBA(R, G, B, A)
 		}
 
-		fun depremultiplyFast(data: IntArray, start: Int = 0, end: Int = data.size): IntArray = data.apply {
+		fun depremultiplyFast(data: RgbaArray, start: Int = 0, end: Int = data.size): RgbaArray = data.apply {
 			for (n in start until end) data[n] = depremultiplyFast(data[n])
 		}
 
-		fun premultiplyFast(data: IntArray, start: Int = 0, end: Int = data.size): IntArray = data.apply {
+		fun premultiplyFast(data: RgbaArray, start: Int = 0, end: Int = data.size): RgbaArray = data.apply {
 			for (n in start until end) data[n] = premultiplyFast(data[n])
 		}
 
@@ -241,11 +247,13 @@ inline class RGBA(val rgba: Int) {
 		//@JvmStatic
 		fun blendRGB(c1: Int, c2: Int, factor: Double): Int = blendRGB(c1, c2, (factor * 256).toInt())
 
+		fun blendRGBAInt(c1: Int, c2: Int, factor: Double): Int = blendRGBA(RGBA(c1), RGBA(c2), factor).rgba
+
 		//@JvmStatic
-		fun blendRGBA(c1: Int, c2: Int, factor: Double): Int {
-			val RGB = blendRGB(c1 and 0xFFFFFF, c2 and 0xFFFFFF, (factor * 256).toInt())
-			val A = blendComponent(getFastA(c1), getFastA(c2), factor)
-			return packRGB_A(RGB, A)
+		fun blendRGBA(c1: RGBA, c2: RGBA, factor: Double): RGBA {
+			val RGB = blendRGB(c1.rgba and 0xFFFFFF, c2.rgba and 0xFFFFFF, (factor * 256).toInt())
+			val A = blendComponent(c1.a, c2.a, factor)
+			return RGBA(packRGB_A(RGB, A))
 		}
 
 		//@JvmStatic
@@ -268,55 +276,35 @@ inline class RGBA(val rgba: Int) {
 		fun packf(rgb: Int, a: Float): Int = packRGB_A(rgb, f2i(a))
 
 		//@JvmStatic
-		fun mix(dst: Int, src: Int): Int {
-			val srcA = com.soywiz.korim.color.RGBA.getFastA(src)
+		fun mix(dst: RGBA, src: RGBA): RGBA {
+			val srcA = src.a
 			return when (srcA) {
 				0x000 -> dst
 				0xFF -> src
 				else -> {
-					com.soywiz.korim.color.RGBA.packRGB_A(
-						blendRGB(dst, src, srcA + 1),
-						clampFF(com.soywiz.korim.color.RGBA.getFastA(dst) + srcA)
-					)
+					RGBA(com.soywiz.korim.color.RGBA.packRGB_A(
+						blendRGB(dst.rgba, src.rgba, srcA + 1),
+						clampFF(com.soywiz.korim.color.RGBA.getFastA(dst.rgba) + srcA)
+					))
 				}
 			}
 		}
 
 		//@JvmStatic
-		fun interpolate(src: Int, dst: Int, ratio: Double): Int {
-			return com.soywiz.korim.color.RGBA.pack(
-				com.soywiz.korma.interpolation.interpolate(
-					com.soywiz.korim.color.RGBA.getR(src),
-					com.soywiz.korim.color.RGBA.getR(dst),
-					ratio
-				),
-				com.soywiz.korma.interpolation.interpolate(
-					com.soywiz.korim.color.RGBA.getG(src),
-					com.soywiz.korim.color.RGBA.getG(dst),
-					ratio
-				),
-				com.soywiz.korma.interpolation.interpolate(
-					com.soywiz.korim.color.RGBA.getB(src),
-					com.soywiz.korim.color.RGBA.getB(dst),
-					ratio
-				),
-				com.soywiz.korma.interpolation.interpolate(
-					com.soywiz.korim.color.RGBA.getA(src),
-					com.soywiz.korim.color.RGBA.getA(dst),
-					ratio
-				)
-			)
-		}
+		fun interpolate(src: RGBA, dst: RGBA, ratio: Double): RGBA = RGBA(
+			com.soywiz.korma.interpolation.interpolate(src.r, dst.r, ratio),
+			com.soywiz.korma.interpolation.interpolate(src.g, dst.g, ratio),
+			com.soywiz.korma.interpolation.interpolate(src.b, dst.b, ratio),
+			com.soywiz.korma.interpolation.interpolate(src.a, dst.a, ratio)
+		)
 
 		//@JvmStatic
-		fun multiply(c1: Int, c2: Int): Int {
-			return com.soywiz.korim.color.RGBA.pack(
-				(com.soywiz.korim.color.RGBA.getFastR(c1) * com.soywiz.korim.color.RGBA.getFastR(c2)) / 0xFF,
-				(com.soywiz.korim.color.RGBA.getFastG(c1) * com.soywiz.korim.color.RGBA.getFastG(c2)) / 0xFF,
-				(com.soywiz.korim.color.RGBA.getFastB(c1) * com.soywiz.korim.color.RGBA.getFastB(c2)) / 0xFF,
-				(com.soywiz.korim.color.RGBA.getFastA(c1) * com.soywiz.korim.color.RGBA.getFastA(c2)) / 0xFF
-			)
-		}
+		fun multiply(c1: RGBA, c2: RGBA): RGBA = RGBA(
+			clamp0_FF((c1.r * c2.r) / 0xFF),
+			clamp0_FF((c1.g * c2.g) / 0xFF),
+			clamp0_FF((c1.b * c2.b) / 0xFF),
+			clamp0_FF((c1.a * c2.a) / 0xFF)
+		)
 
 		//@JvmStatic
 		fun blendRGBAFastAlreadyPremultiplied_05(c1: Int, c2: Int): Int {
@@ -374,17 +362,69 @@ inline class RGBA(val rgba: Int) {
 
 
 //inline class RgbaArray(val array: IntArray) {
-class RgbaArray(val array: IntArray) {
-	constructor(size: Int) : this(IntArray(size))
+inline class RgbaArray(val array: IntArray) : List<RGBA> {
+	override fun contains(element: RGBA): Boolean = array.contains(element.rgba)
+	override fun containsAll(elements: Collection<RGBA>): Boolean = elements.all { contains(it) }
+	override fun indexOf(element: RGBA): Int = array.indexOf(element.rgba)
 
-	val size get() = array.size
-	operator fun get(index: Int): RGBA = RGBA(array[index])
-	operator fun set(index: Int, color: RGBA) {
-		array[index] = color.rgba
+	override fun isEmpty(): Boolean {
+		TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
 	}
 
+	override fun iterator(): Iterator<RGBA> {
+		TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+	}
+
+	override fun lastIndexOf(element: RGBA): Int {
+		TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+	}
+
+	override fun listIterator(): ListIterator<RGBA> {
+		TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+	}
+
+	override fun listIterator(index: Int): ListIterator<RGBA> {
+		TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+	}
+
+	override fun subList(fromIndex: Int, toIndex: Int): List<RGBA> {
+		TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+	}
+
+	//constructor(size: Int) : this(IntArray(size))
+	companion object {
+		operator fun invoke(size: Int): RgbaArray = RgbaArray(IntArray(size))
+		operator fun invoke(size: Int, callback: (index: Int) -> RGBA): RgbaArray = RgbaArray(IntArray(size)).apply { for (n in 0 until size) this[n] = callback(n) }
+	}
+
+	override val size get() = array.size
+	override operator fun get(index: Int): RGBA = RGBA(array[index])
+	operator fun set(index: Int, color: RGBA) = run { array[index] = color.rgba }
 	fun fill(value: RGBA, start: Int = 0, end: Int = this.size): Unit = array.fill(value.rgba, start, end)
 }
+
+public fun Collection<RGBA>.toRgbaArray(): RgbaArray = RgbaArray(this.size).apply {
+	for ((index, it) in this@toRgbaArray.withIndex()) this[index] = it
+}
+
+fun arraycopy(src: RgbaArray, srcPos: Int, dst: RgbaArray, dstPos: Int, size: Int): Unit = arraycopy(src.array, srcPos, dst.array, dstPos, size)
+
+@Deprecated("")
+fun RGBA.Companion.getR(v: RGBA): Int = v.r
+@Deprecated("")
+fun RGBA.Companion.getG(v: RGBA): Int = v.g
+@Deprecated("")
+fun RGBA.Companion.getB(v: RGBA): Int = v.b
+@Deprecated("")
+fun RGBA.Companion.getA(v: RGBA): Int = v.a
+
+fun RGBA.Companion.toHexString(v: RGBA): String = v.hexString
+fun RGBA.Companion.toHtmlColor(v: RGBA): String = v.htmlColor
+
+fun RGBA.Companion.depremultiplyFaster(v: RGBA): RGBA = RGBA(RGBA.depremultiplyFaster(v.toInt()))
+fun RGBA.Companion.depremultiplyFastest(v: RGBA): RGBA = RGBA(RGBA.depremultiplyFastest(v.toInt()))
+
+fun Array<RGBA>.toRgbaArray() = RgbaArray(this.size) { this@toRgbaArray[it] }
 
 /*
 inline class Rgba(val rgba: Int) {

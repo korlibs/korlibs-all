@@ -58,7 +58,7 @@ open class TileMap(val map: IntArray2, val tileset: TileSet) : View() {
 		var count = 0
 		for (y in my0 until my1) {
 			for (x in mx0 until mx1) {
-				val tex = tileset[map[x, y]] ?: continue
+				val tex = tileset[map.getInt(x, y)] ?: continue
 
 				val info = verticesPerTex.getOrPut(tex.bmp) {
 					val indices = TexturedVertexArray.quadIndices(ntiles)

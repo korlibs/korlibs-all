@@ -4,7 +4,7 @@ import com.soywiz.korio.lang.*
 
 // Colors are in RGBAInt for easy transition to inline classes
 object Colors {
-	private fun RGB(r: Int, g: Int, b: Int, a: Int = 0xFF): RGBAInt = RGBA.pack(r, g, b, a)
+	private fun RGB(r: Int, g: Int, b: Int, a: Int = 0xFF): RGBA = RGBA(r, g, b, a)
 	//private fun RGB(r: Int, g: Int, b: Int, a: Int = 0xFF) = Color(r, g, b, a)
 
 	val WHITE = RGB(0xFF, 0xFF, 0xFF, 0xFF)
@@ -300,9 +300,9 @@ object Colors {
 		"yellowgreen" to YELLOWGREEN
 	)
 
-	operator fun get(str: String): RGBAInt = get(str, Colors.TRANSPARENT_BLACK, errorOnDefault = true)
+	operator fun get(str: String): RGBA = get(str, Colors.TRANSPARENT_BLACK, errorOnDefault = true)
 
-	operator fun get(str: String, default: RGBAInt, errorOnDefault: Boolean = false): RGBAInt {
+	operator fun get(str: String, default: RGBA, errorOnDefault: Boolean = false): RGBA {
 		when {
 			str.startsWith("#") -> {
 				val hex = str.substr(1)
@@ -314,7 +314,7 @@ object Colors {
 				val g = (hex.substr(1 * chars, chars).toInt(0x10) * scale).toInt()
 				val b = (hex.substr(2 * chars, chars).toInt(0x10) * scale).toInt()
 				val a = if (hasAlpha) (hex.substr(3 * chars, chars).toInt(0x10) * scale).toInt() else 0xFF
-				return RGBAInt(r, g, b, a)
+				return RGBA(r, g, b, a)
 			}
 			str.startsWith("RGBA(", ignoreCase = true) -> {
 				val parts = str.toUpperCase().removePrefix("RGBA(").removeSuffix(")").split(",")
@@ -322,7 +322,7 @@ object Colors {
 				val g = parts.getOrElse(1) { "0" }.toIntOrNull() ?: 0
 				val b = parts.getOrElse(2) { "0" }.toIntOrNull() ?: 0
 				val af = parts.getOrElse(3) { "1.0" }.toDoubleOrNull() ?: 1.0
-				return RGBAInt(r, g, b, (af * 255).toInt())
+				return RGBA(r, g, b, (af * 255).toInt())
 			}
 			else -> {
 				val col = colorsByName[str.toLowerCase()]
@@ -338,6 +338,6 @@ object Colors {
 	fun toHtmlStringSimple(color: Int) = "#%02x%02x%02x".format(RGBA.getR(color), RGBA.getG(color), RGBA.getB(color))
 
 	object Default {
-		operator fun get(str: String): RGBAInt = get(str, default = Colors.RED)
+		operator fun get(str: String): RGBA = get(str, default = Colors.RED)
 	}
 }

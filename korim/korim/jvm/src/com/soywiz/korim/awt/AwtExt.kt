@@ -87,7 +87,7 @@ fun BufferedImage.toBMP32(): Bitmap32 {
 	val ints = (image.raster.dataBuffer as DataBufferInt).data
 	val area = image.width * image.height
 	for (n in 0 until area) ints[n] = RGBA.rgbaToBgra(ints[n])
-	return Bitmap32(image.width, image.height, ints, premultiplied)
+	return Bitmap32(image.width, image.height, RgbaArray(ints), premultiplied)
 }
 
 fun ImageIOReadFormat(s: InputStream, type: Int = AWT_INTERNAL_IMAGE_TYPE): BufferedImage {

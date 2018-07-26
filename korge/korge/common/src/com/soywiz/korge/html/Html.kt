@@ -4,7 +4,7 @@ import com.soywiz.kds.Computed
 import com.soywiz.kds.Extra
 import com.soywiz.korge.bitmapfont.BitmapFont
 import com.soywiz.korge.view.*
-import com.soywiz.korim.color.Colors
+import com.soywiz.korim.color.*
 import com.soywiz.korio.serialization.xml.Xml
 import com.soywiz.korio.serialization.xml.isComment
 import com.soywiz.korio.serialization.xml.isNode
@@ -45,7 +45,7 @@ object Html {
 
 	data class Format(
 		override var parent: Format? = null,
-		var color: Int? = null,
+		var color: RGBA? = null,
 		var face: FontFace? = null,
 		var size: Int? = null,
 		var letterSpacing: Double? = null,

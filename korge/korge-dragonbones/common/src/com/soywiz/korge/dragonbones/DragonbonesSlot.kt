@@ -31,6 +31,7 @@ import com.soywiz.kmem.*
 import com.soywiz.korge.view.*
 import com.soywiz.korge.view.BlendMode
 import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
 import com.soywiz.korma.geom.*
 import kotlin.math.*
 
@@ -133,7 +134,7 @@ class DragonbonesSlot : Slot() {
 			val color = (round(this._colorTransform.redMultiplier * 0xFF).toInt() shl 16) +
 					(round(this._colorTransform.greenMultiplier * 0xFF).toInt() shl 8) +
 					round(this._colorTransform.blueMultiplier * 0xFF).toInt()
-			this._renderDisplay?.tint = color
+			this._renderDisplay?.tint = RGBA(color)
 		}
 		// TODO child armature.
 	}

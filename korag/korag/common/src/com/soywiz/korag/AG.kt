@@ -559,7 +559,7 @@ abstract class AG : Extra by Extra.Mixin() {
 	protected open fun flipInternal() = Unit
 
 	open fun clear(
-		color: Int = Colors.TRANSPARENT_BLACK,
+		color: RGBA = Colors.TRANSPARENT_BLACK,
 		depth: Float = 0f,
 		stencil: Int = 0,
 		clearColor: Boolean = true,
@@ -595,7 +595,7 @@ abstract class AG : Extra by Extra.Mixin() {
 
 		rb.start(width, height)
 		try {
-			clear(0) // transparent
+			clear(Colors.TRANSPARENT_BLACK) // transparent
 			callback()
 		} finally {
 			rb.end()
@@ -614,7 +614,7 @@ abstract class AG : Extra by Extra.Mixin() {
 
 		rb.start(bmp.width, bmp.height)
 		try {
-			clear(0)
+			clear(Colors.TRANSPARENT_BLACK)
 			callback()
 		} finally {
 			rb.readBitmap(bmp)
@@ -631,7 +631,7 @@ abstract class AG : Extra by Extra.Mixin() {
 
 		rb.start(bmp.width, bmp.height)
 		try {
-			clear(0)
+			clear(Colors.TRANSPARENT_BLACK)
 			callback(rb)
 		} finally {
 			rb.readBitmap(bmp)

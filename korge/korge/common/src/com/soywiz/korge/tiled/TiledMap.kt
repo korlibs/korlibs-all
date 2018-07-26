@@ -80,7 +80,7 @@ class TiledMap(
 		var name: String = ""
 		var visible: Boolean = true
 		var draworder: String = ""
-		var color: Int = -1
+		var color: RGBA = Colors.WHITE
 		var opacity = 1.0
 		var offsetx: Double = 0.0
 		var offsety: Double = 0.0
@@ -285,7 +285,7 @@ suspend fun VfsFile.readTiledMapData(): TiledMapData {
 							else -> invalidOp("Unhandled encoding '$encoding'")
 						}
 						if (tilesArray.size != count) invalidOp("")
-						layer.map = Bitmap32(width, height, tilesArray)
+						layer.map = Bitmap32(width, height, RgbaArray(tilesArray))
 					}
 					is TiledMap.Layer.Image -> {
 						for (image in element.children("image")) {
@@ -347,7 +347,7 @@ suspend fun VfsFile.readTiledMapData(): TiledMapData {
 suspend fun VfsFile.readTiledMap(
 	views: Views,
 	hasTransparentColor: Boolean = false,
-	transparentColor: Int = Colors.FUCHSIA,
+	transparentColor: RGBA = Colors.FUCHSIA,
 	createBorder: Int = 1
 ): TiledMap {
 	val folder = this.parent.jail()

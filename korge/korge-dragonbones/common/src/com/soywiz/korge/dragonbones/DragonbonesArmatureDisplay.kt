@@ -30,6 +30,7 @@ import com.dragonbones.event.*
 import com.dragonbones.model.*
 import com.dragonbones.util.*
 import com.soywiz.korge.view.*
+import com.soywiz.korim.color.*
 
 /**
  * @inheritDoc
@@ -93,11 +94,11 @@ class DragonbonesArmatureDisplay : Container(), IArmatureProxy {
 					val endX = startX + bone.globalTransformMatrix.a * boneLength
 					val endY = startY + bone.globalTransformMatrix.b * boneLength
 
-					boneDrawer.lineStyle(2.0, 0x00FFFF, 0.7)
+					boneDrawer.lineStyle(2.0, Colors.PURPLE, 0.7)
 					boneDrawer.moveTo(startX, startY)
 					boneDrawer.lineTo(endX, endY)
-					boneDrawer.lineStyle(0.0, 0, 0.0)
-					boneDrawer.beginFill(0x00FFFF, 0.7)
+					boneDrawer.lineStyle(0.0, Colors.BLACK, 0.0)
+					boneDrawer.beginFill(Colors.PURPLE, 0.7)
 					boneDrawer.drawCircle(startX, startY, 3.0)
 					boneDrawer.endFill()
 				}
@@ -117,7 +118,7 @@ class DragonbonesArmatureDisplay : Container(), IArmatureProxy {
 						}
 
 						child.clear()
-						child.lineStyle(2.0, 0xFF00FF, 0.7)
+						child.lineStyle(2.0, Colors.RED, 0.7)
 
 						when (boundingBoxData.type) {
 							BoundingBoxType.Rectangle -> {

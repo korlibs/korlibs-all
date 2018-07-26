@@ -39,8 +39,8 @@ import kotlin.math.*
 
 @Suppress("unused")
 open class QR(
-	val colorDark: Int = Colors.BLACK,
-	val colorLight: Int = Colors.WHITE,
+	val colorDark: RGBA = Colors.BLACK,
+	val colorLight: RGBA = Colors.WHITE,
 	val correctLevel: QRErrorCorrectLevel = QRErrorCorrectLevel.H
 ) {
 	fun msg(msg: ByteArray): Bitmap32 =
@@ -169,7 +169,7 @@ enum class QRErrorCorrectLevel(val id: Int) {
 	L(1), M(0), Q(3), H(2)
 }
 
-private fun QRCodeModel.toBitmap(colorDark: Int, colorLight: Int) =
+private fun QRCodeModel.toBitmap(colorDark: RGBA, colorLight: RGBA) =
 	Bitmap32(moduleCount, moduleCount, premult = false) { col, row ->
 		if (isDark(row, col)) colorDark else colorLight
 	}

@@ -3,12 +3,12 @@ package com.soywiz.korge.view
 import com.soywiz.korim.color.*
 
 inline fun Container.solidRect(
-	width: Number, height: Number, color: RGBAInt, callback: @ViewsDslMarker SolidRect.() -> Unit = {}
+	width: Number, height: Number, color: RGBA, callback: @ViewsDslMarker SolidRect.() -> Unit = {}
 ) = SolidRect(width.toDouble(), height.toDouble(), color).addTo(this).apply(callback)
 
-class SolidRect(width: Double, height: Double, color: RGBAInt) : RectBase() {
+class SolidRect(width: Double, height: Double, color: RGBA) : RectBase() {
 	companion object {
-		inline operator fun invoke(width: Number, height: Number, color: RGBAInt) =
+		inline operator fun invoke(width: Number, height: Number, color: RGBA) =
 			SolidRect(width.toDouble(), height.toDouble(), color)
 	}
 

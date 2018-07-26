@@ -82,10 +82,10 @@ object TGA : ImageFormat("tga") {
 				val data = ByteArray(bitmap.area * 4)
 				var m = 0
 				for (c in bitmap.data) {
-					data[m++] = RGBA.getB(c).toByte()
-					data[m++] = RGBA.getG(c).toByte()
-					data[m++] = RGBA.getR(c).toByte()
-					data[m++] = RGBA.getA(c).toByte()
+					data[m++] = c.b.toByte()
+					data[m++] = c.g.toByte()
+					data[m++] = c.r.toByte()
+					data[m++] = c.a.toByte()
 				}
 				s.write8(0) // idLength
 				s.write8(0) // colorMapType

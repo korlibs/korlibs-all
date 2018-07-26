@@ -152,11 +152,11 @@ interface StyledShape : Shape {
 	}
 }
 
-private fun colorToSvg(color: Int): String {
-	val r = RGBA.getR(color)
-	val g = RGBA.getG(color)
-	val b = RGBA.getB(color)
-	val af = RGBA.getAf(color)
+private fun colorToSvg(color: RGBA): String {
+	val r = color.r
+	val g = color.g
+	val b = color.b
+	val af = color.af
 	return "rgba($r,$g,$b,$af)"
 }
 
@@ -173,7 +173,7 @@ fun Context2d.Paint.toSvg(svg: SvgBuilder): String {
 		is Context2d.Gradient -> {
 			val stops = (0 until numberOfStops).map {
 				val ratio = this.stops[it]
-				val color = this.colors[it]
+				val color = RGBA(this.colors[it])
 				Xml.Tag("stop", mapOf("offset" to "${ratio * 100}%", "stop-color" to colorToSvg(color)), listOf())
 			}
 

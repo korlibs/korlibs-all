@@ -99,16 +99,16 @@ class Bitmap32Context2d(val bmp: Bitmap32, val antialiasing: Boolean) : Context2
 		open fun updated() {
 		}
 
-		abstract fun fill(data: IntArray, offset: Int, x: Int, y: Int, count: Int)
+		abstract fun fill(data: RgbaArray, offset: Int, x: Int, y: Int, count: Int)
 	}
 
 	class NoneFiller : Filler<Context2d.None>() {
-		override fun fill(data: IntArray, offset: Int, x: Int, y: Int, count: Int) {
+		override fun fill(data: RgbaArray, offset: Int, x: Int, y: Int, count: Int) {
 		}
 	}
 
 	class ColorFiller : Filler<Context2d.Color>() {
-		override fun fill(data: IntArray, offset: Int, x: Int, y: Int, count: Int) {
+		override fun fill(data: RgbaArray, offset: Int, x: Int, y: Int, count: Int) {
 			val c = fill.color
 			for (n in 0 until count) {
 				data[offset + n] = c
@@ -125,7 +125,7 @@ class Bitmap32Context2d(val bmp: Bitmap32, val antialiasing: Boolean) : Context2
 			fillTrans = fill.transform.inverted()
 		}
 
-		override fun fill(data: IntArray, offset: Int, x: Int, y: Int, count: Int) {
+		override fun fill(data: RgbaArray, offset: Int, x: Int, y: Int, count: Int) {
 			for (n in 0 until count) {
 				// @TODO: Optimize. We can calculate start and end points and interpolate
 				val bmpX = fillTrans.transformX(x + n, y)
@@ -141,7 +141,7 @@ class Bitmap32Context2d(val bmp: Bitmap32, val antialiasing: Boolean) : Context2
 
 	class GradientFiller : Filler<Context2d.Gradient>() {
 		val NCOLORS = 256
-		val colors = IntArray(NCOLORS)
+		val colors = RgbaArray(NCOLORS)
 
 		fun stopN(n: Int): Int = (fill.stops[n] * NCOLORS).toInt()
 
@@ -151,22 +151,22 @@ class Bitmap32Context2d(val bmp: Bitmap32, val antialiasing: Boolean) : Context2
 		override fun updated() {
 			stateTrans = state.transform.inverted()
 			fillTrans = fill.transform.inverted()
-			for (n in 0 until stopN(0)) colors[n] = fill.colors.first()
+			for (n in 0 until stopN(0)) colors[n] = RGBA(fill.colors.first())
 			for (n in 0 until fill.numberOfStops - 1) {
 				val stop0 = stopN(n + 0)
 				val stop1 = stopN(n + 1)
-				val color0 = fill.colors[n + 0]
-				val color1 = fill.colors[n + 1]
+				val color0 = RGBA(fill.colors[n + 0])
+				val color1 = RGBA(fill.colors[n + 1])
 				for (s in stop0 until stop1) {
 					val ratio = (s - stop0).toDouble() / (stop1 - stop0).toDouble()
 					colors[s] = RGBA.interpolate(color0, color1, ratio)
 				}
 			}
-			for (n in stopN(fill.numberOfStops - 1) until NCOLORS) colors[n] = fill.colors.last()
+			for (n in stopN(fill.numberOfStops - 1) until NCOLORS) colors[n] = RGBA(fill.colors.last())
 			//println(colors.map { RGBA.toHexString(it) })
 		}
 
-		override fun fill(data: IntArray, offset: Int, x: Int, y: Int, count: Int) {
+		override fun fill(data: RgbaArray, offset: Int, x: Int, y: Int, count: Int) {
 
 			val p0 = Point2d(fill.x0, fill.y0)
 			val p1 = Point2d(fill.x1, fill.y1)

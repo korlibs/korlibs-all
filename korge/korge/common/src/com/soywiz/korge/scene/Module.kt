@@ -8,7 +8,7 @@ import com.soywiz.korui.light.*
 import kotlin.reflect.*
 
 open class Module {
-	open val bgcolor: Int = Colors.BLACK
+	open val bgcolor: RGBA = Colors.BLACK
 	open val title: String = "Game"
 	open val icon: String? = null
 	open val iconImage: Context2d.SizedDrawable? = null

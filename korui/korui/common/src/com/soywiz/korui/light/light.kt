@@ -123,7 +123,7 @@ class LightProperty<out T>(val name: String, val default: T) {
 		val VISIBLE = LightProperty("VISIBLE", true)
 		val TEXT = LightProperty("TEXT", "")
 		val ICON = LightProperty<Bitmap?>("ICON", null)
-		val BGCOLOR = LightProperty<Int>("BGCOLOR", Colors.BLACK)
+		val BGCOLOR = LightProperty<RGBA>("BGCOLOR", Colors.BLACK)
 		val PROGRESS_CURRENT = LightProperty<Int>("PROGRESS_CURRENT", 0)
 		val PROGRESS_MAX = LightProperty<Int>("PROGRESS_MAX", 100)
 		val IMAGE = LightProperty<Bitmap?>("IMAGE", null)

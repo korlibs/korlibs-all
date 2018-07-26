@@ -590,7 +590,7 @@ class HtmlLightComponents : LightComponents() {
 			}
 			LightProperty.BGCOLOR -> {
 				val v = key[value]
-				childOrDocumentBody?.style?.background = colorString(v)
+				childOrDocumentBody?.style?.background = v.htmlColor
 			}
 			LightProperty.IMAGE_SMOOTH -> {
 				val v = key[value]
@@ -647,9 +647,6 @@ class HtmlLightComponents : LightComponents() {
 		}
 		return super.getProperty(c, key)
 	}
-
-
-	fun colorString(c: Int) = "RGBA(${RGBA.getR(c)},${RGBA.getG(c)},${RGBA.getB(c)},${RGBA.getAf(c)})"
 
 	private fun setCanvas(c: Any, bmp: HTMLCanvasElement?) {
 		val targetCanvas = c as HTMLCanvasElement

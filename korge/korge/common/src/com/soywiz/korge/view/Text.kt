@@ -18,7 +18,7 @@ class Text : View(), IText, IHtml {
 		operator fun invoke(
 			text: String,
 			textSize: Double = 16.0,
-			color: Int = Colors.WHITE,
+			color: RGBA = Colors.WHITE,
 			font: BitmapFont = Fonts.defaultFont
 		): Text = Text().apply {
 			this.format = Html.Format(color = color, face = Html.FontFace.Bitmap(font), size = textSize.toInt())

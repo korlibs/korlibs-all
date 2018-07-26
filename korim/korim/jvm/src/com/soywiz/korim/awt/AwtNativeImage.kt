@@ -196,7 +196,7 @@ class AwtContext2dRender(val awtImage: BufferedImage, val antialiasing: Boolean 
 		this.g.drawImage((image.ensureNative() as AwtNativeImage).awtImage, x, y, width, height, null)
 	}
 
-	fun convertColor(c: Int): java.awt.Color = java.awt.Color(RGBA.getR(c), RGBA.getG(c), RGBA.getB(c), RGBA.getA(c))
+	fun convertColor(c: RGBA): java.awt.Color = java.awt.Color(c.r, c.g, c.b, c.a)
 
 	fun Context2d.CycleMethod.toAwt() = when (this) {
 		Context2d.CycleMethod.NO_CYCLE -> MultipleGradientPaint.CycleMethod.NO_CYCLE
@@ -229,7 +229,7 @@ class AwtContext2dRender(val awtImage: BufferedImage, val antialiasing: Boolean 
 
 			when (this) {
 				is Context2d.Gradient -> {
-					val pairs = this.stops.map(Double::toFloat).zip(this.colors.map { convertColor(it) })
+					val pairs = this.stops.map(Double::toFloat).zip(this.colors.map { convertColor(RGBA(it)) })
 						.distinctBy { it.first }
 					val stops = pairs.map { it.first }.toFloatArray()
 					val colors = pairs.map { it.second }.toTypedArray()
@@ -290,10 +290,10 @@ class AwtContext2dRender(val awtImage: BufferedImage, val antialiasing: Boolean 
 						}
 					}
 				}
-				else -> java.awt.Color(Colors.BLACK)
+				else -> java.awt.Color(Colors.BLACK.rgba)
 			}
 		}
-		else -> java.awt.Color(Colors.BLACK)
+		else -> java.awt.Color(Colors.BLACK.rgba)
 	}
 
 	fun Context2d.LineCap.toAwt() = when (this) {

@@ -15,7 +15,7 @@ object HtmlImage {
 	}
 
 	fun renderToHtmlCanvas(
-		bmpData: IntArray,
+		bmpData: RgbaArray,
 		bmpWidth: Int,
 		bmpHeight: Int,
 		canvas: HTMLCanvasElement
@@ -29,10 +29,10 @@ object HtmlImage {
 			val c = bmpData[n]
 
 			// @TODO: Kotlin.JS bug Clamped Array should be int inst@TODO: Kotlin.JS bug Clamped Array should be int instead of Byte
-			idataData[m++] = RGBA.getFastR(c).asDynamic()
-			idataData[m++] = RGBA.getFastG(c).asDynamic()
-			idataData[m++] = RGBA.getFastB(c).asDynamic()
-			idataData[m++] = RGBA.getFastA(c).asDynamic()
+			idataData[m++] = c.r.asDynamic()
+			idataData[m++] = c.g.asDynamic()
+			idataData[m++] = c.b.asDynamic()
+			idataData[m++] = c.a.asDynamic()
 		}
 		ctx.putImageData(idata, 0.0, 0.0)
 		return canvas
@@ -40,14 +40,14 @@ object HtmlImage {
 
 	fun renderToHtmlCanvas(bmp: Bitmap32, canvas: HTMLCanvasElement): HTMLCanvasElement {
 		val data = if (bmp.premult) {
-			RGBA.depremultiplyFast(bmp.data.copyOf())
+			RGBA.depremultiplyFast(RgbaArray(bmp.data.array.copyOf()))
 		} else {
 			bmp.data
 		}
 		return renderToHtmlCanvas(data, bmp.width, bmp.height, canvas)
 	}
 
-	fun renderHtmlCanvasIntoBitmap(canvas: HTMLCanvasElement, out: IntArray): Unit {
+	fun renderHtmlCanvasIntoBitmap(canvas: HTMLCanvasElement, out: RgbaArray): Unit {
 		val width = canvas.width
 		val height = canvas.height
 		val len = width * height
@@ -60,7 +60,7 @@ object HtmlImage {
 			val g = ddata[m++].toInt() and 0xFF
 			val b = ddata[m++].toInt() and 0xFF
 			val a = ddata[m++].toInt() and 0xFF
-			out[n] = RGBA.packFast(r, g, b, a)
+			out[n] = RGBA(r, g, b, a)
 		}
 		//console.log(out);
 	}

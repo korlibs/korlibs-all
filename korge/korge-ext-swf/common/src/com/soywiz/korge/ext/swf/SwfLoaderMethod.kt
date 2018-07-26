@@ -597,7 +597,7 @@ class SwfLoaderMethod(val views: Views, val config: SWFExportConfig) {
 				is TagFrameLabel -> Unit
 				is TagFileAttributes -> Unit
 				is TagSetBackgroundColor -> {
-					lib.bgcolor = decodeSWFColor(it.color)
+					lib.bgcolor = decodeSWFColor(it.color).rgba
 				}
 				is TagProtect -> Unit // ignore
 				is TagDefineFont -> {
@@ -682,7 +682,7 @@ class SwfLoaderMethod(val views: Views, val config: SWFExportConfig) {
 									}
 									val pixels = s.readBytes(it.actualWidth * it.actualHeight)
 
-									val bmp = Bitmap8(it.actualWidth, it.actualHeight, pixels, clut)
+									val bmp = Bitmap8(it.actualWidth, it.actualHeight, pixels, RgbaArray(clut))
 									fbmp = bmp
 								}
 								BitmapFormat.BIT_15 -> {
@@ -698,8 +698,7 @@ class SwfLoaderMethod(val views: Views, val config: SWFExportConfig) {
 										colorFormat.decode(uncompressedData, littleEndian = false)
 									)
 									if (!it.hasAlpha) {
-										for (n in 0 until fbmp.data.size) fbmp.data[n] = 0x00FFFFFF.inv() or
-												(fbmp.data[n] and 0x00FFFFFF)
+										for (n in 0 until fbmp.data.size) fbmp.data[n] = RGBA(fbmp.data[n].rgb, 0xFF)
 									}
 								}
 								else -> Unit
