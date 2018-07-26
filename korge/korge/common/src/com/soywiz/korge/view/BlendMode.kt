@@ -76,6 +76,8 @@ enum class BlendMode(val factors: AG.Blending) {
 	;
 
 	companion object {
+		val OVERLAY = NORMAL
+
 		val BY_ORDINAL = values().map { it.ordinal to it }.toMap()
 	}
 }

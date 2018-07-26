@@ -125,6 +125,9 @@ class Uint16Buffer(val b: Int16Buffer) {
 	operator fun set(index: Int, value: Int): Unit = run { b[index] = value.toShort() }
 }
 
+fun Uint8BufferAlloc(size: Int): Uint8Buffer = Uint8Buffer(Int8BufferAlloc(size))
+fun Uint16BufferAlloc(size: Int): Uint16Buffer = Uint16Buffer(Int16BufferAlloc(size))
+
 inline fun <T> kmlNativeBuffer(size: Int, callback: (KmlNativeBuffer) -> T): T = KmlNativeBuffer(size).run(callback)
 
 

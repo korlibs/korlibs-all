@@ -30,7 +30,9 @@ import kotlin.reflect.*
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
 annotation class ViewsDslMarker
 
-open class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by EventDispatcher.Mixin() {
+typealias DisplayObject = View
+
+abstract class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by EventDispatcher.Mixin() {
 	/**
 	 * Views marked with this, break batching by acting as reference point for computing vertices.
 	 * Specially useful for containers whose most of their child are less likely to change but the container
@@ -63,7 +65,6 @@ open class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by EventDi
 	}
 
 	open var ratio: Double = 0.0
-	open val autoFlush: Boolean = false
 	var index: Int = 0; internal set
 	var speed: Double = 1.0
 	var parent: Container? = null; internal set
@@ -188,6 +189,11 @@ open class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by EventDi
 	var alpha: Double get() = _colorTransform.mA; set(v) = run { _colorTransform.mA = v;invalidateColorTransform() }
 	var colorTransform: ColorTransform get() = _colorTransform; set(v) = run { _colorTransform.copyFrom(v); invalidateColorTransform() }
 
+	// alias
+	var tint: Int
+		get() = colorMul
+		set(value) = run { colorMul = value }
+
 	private fun invalidateColorTransform() {
 		invalidate()
 	}
@@ -261,6 +267,21 @@ open class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by EventDi
 		validLocalMatrix = true
 		invalidate()
 	}
+
+	fun setTransform(transform: Matrix2d.Transform) {
+		val t = transform
+		//transform.toMatrix(_localMatrix)
+		pos.x = t.x; pos.y = t.y
+		_scaleX = t.scaleX; _scaleY = t.scaleY
+		_skewX = t.skewY; _skewY = t.skewY
+		_rotation = t.rotation
+		validLocalProps = true
+		validLocalMatrix = false
+		invalidate()
+	}
+
+	fun setTransform(x: Double, y: Double, sx: Double, sy: Double, angle: Double, skewX: Double, skewY: Double, pivotX: Double = 0.0, pivotY: Double = 0.0) =
+		setTransform(tempTransform.setTo(x, y, sx, sy, skewX, skewY, rotation))
 
 	private var _localMatrix = Matrix2d()
 	var _globalMatrix = Matrix2d()
@@ -402,9 +423,7 @@ open class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by EventDi
 		dirtyVertices = true
 	}
 
-	override fun render(ctx: RenderContext) {
-		if (autoFlush) ctx.flush()
-	}
+	abstract override fun render(ctx: RenderContext)
 
 	@Suppress("RemoveCurlyBracesFromTemplate")
 	override fun toString(): String {
@@ -583,8 +602,9 @@ open class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by EventDi
 	}
 }
 
-class DummyView : View() {
+open class DummyView : View() {
 	override fun createInstance(): View = DummyView()
+	override fun render(ctx: RenderContext) = Unit
 }
 
 fun View.hasAncestor(ancestor: View): Boolean {
@@ -704,6 +724,15 @@ inline fun <T : View> T.xy(x: Number, y: Number): T =
 
 inline fun <T : View> T.position(x: Number, y: Number): T =
 	this.apply { this.x = x.toDouble() }.apply { this.y = y.toDouble() }
+
+inline fun <T : View> T.rotation(rot: Number): T =
+	this.apply { this.rotation = rot.toDouble() }
+
+inline fun <T : View> T.rotationDegrees(degs: Number): T =
+	this.apply { this.rotationDegrees = degs.toDouble() }
+
+inline fun <T : View> T.skew(sx: Number, sy: Number): T =
+	this.apply { this.skewX = sx.toDouble() }.apply { this.skewY = sy.toDouble() }
 
 inline fun <T : View> T.scale(sx: Number, sy: Number = sx): T =
 	this.apply { this.scaleX = sx.toDouble() }.apply { this.scaleY = sy.toDouble() }

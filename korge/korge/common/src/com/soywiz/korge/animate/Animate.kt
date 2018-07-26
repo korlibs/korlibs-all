@@ -181,8 +181,7 @@ class AnMorphShape(library: AnLibrary, val morphSymbol: AnSymbolMorphShape) : An
 	}
 }
 
-class AnEmptyView(override val library: AnLibrary, override val symbol: AnSymbolEmpty = AnSymbolEmpty) : View(),
-	AnElement {
+class AnEmptyView(override val library: AnLibrary, override val symbol: AnSymbolEmpty = AnSymbolEmpty) : DummyView(), AnElement {
 	override fun createInstance(): View = symbol.create(library) as View
 }
 

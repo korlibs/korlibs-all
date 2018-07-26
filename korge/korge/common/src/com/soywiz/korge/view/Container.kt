@@ -10,9 +10,47 @@ import kotlin.reflect.*
 inline fun Container.container(callback: @ViewsDslMarker Container.() -> Unit = {}) =
 	Container().addTo(this).apply(callback)
 
+// For Flash compatibility
+//open class Sprite : Container()
+
 open class Container : View() {
 	val children = arrayListOf<View>()
 	val containerRoot: Container get() = parent?.containerRoot ?: this
+
+	// @TODO: Untested
+	fun swapChildren(view1: View, view2: View) {
+		if (view1.parent == view2.parent && view1.parent == this) {
+			val index1 = view1.index
+			val index2 = view2.index
+			children[index1] = view2.apply { index = index1 }
+			children[index2] = view1.apply { index = index2 }
+		}
+	}
+
+	// @TODO: Untested
+	fun addChildAt(view: View, index: Int) {
+		val index = index.clamp(0, this.children.size)
+		view.removeFromParent()
+		view.index = index
+		children.add(index, view)
+		for (n in index + 1 until children.size) children[n].index = n // Update other indices
+		view.parent = this
+		view.invalidate()
+	}
+
+	// @TODO: Untested
+	fun getChildIndex(view: View): Int = view.index
+	// @TODO: Untested
+	fun getChildAt(index: Int): View = children[index]
+
+	// @TODO: Untested
+	fun getChildByName(name: String): View? = children.firstOrNull { it.name == name }
+
+	fun removeChild(view: View?) {
+		if (view?.parent == this) {
+			view?.removeFromParent()
+		}
+	}
 
 	fun removeChildren() {
 		for (child in children) {

@@ -4,7 +4,11 @@ import com.soywiz.kds.*
 import com.soywiz.kmem.*
 import com.soywiz.korma.geom.*
 
+typealias Tex = BmpSlice
+
 interface BmpSlice : Extra {
+	val name: String
+	var parent: Any?
 	val bmp: Bitmap
 	val tl_x: Float
 	val tl_y: Float
@@ -18,9 +22,13 @@ interface BmpSlice : Extra {
 	val top: Int
 	val width: Int
 	val height: Int
+	val rotated: Boolean
+	val rotatedAngle: Int
 }
 
-class BitmapSlice<out T : Bitmap>(override val bmp: T, val bounds: RectangleInt) : BmpSlice, Extra by Extra.Mixin() {
+class BitmapSlice<out T : Bitmap>(override val bmp: T, val bounds: RectangleInt, override val name: String = "unknown") : BmpSlice, Extra by Extra.Mixin() {
+	override var parent: Any? = null
+
 	override val left get() = bounds.left
 	override val top get() = bounds.top
 	val right get() = bounds.right
@@ -60,7 +68,19 @@ class BitmapSlice<out T : Bitmap>(override val bmp: T, val bounds: RectangleInt)
 
 	private fun Int.clampX() = this.clamp(bounds.left, bounds.right)
 	private fun Int.clampY() = this.clamp(bounds.top, bounds.bottom)
+
+	override val rotated: Boolean = false
+	override val rotatedAngle: Int = 0
 }
+
+// http://pixijs.download/dev/docs/PIXI.Texture.html#Texture
+fun BitmapSliceCompat(
+	bmp: Bitmap,
+	frame: Rectangle,
+	orig: Rectangle,
+	trim: Rectangle,
+	rotated: Boolean
+) = BitmapSlice(bmp, frame.toInt())
 
 fun <T : Bitmap> T.slice(): BitmapSlice<T> = BitmapSlice(this, RectangleInt(0, 0, width, height))
 fun <T : Bitmap> T.slice(bounds: RectangleInt): BitmapSlice<T> = BitmapSlice<T>(this, bounds)

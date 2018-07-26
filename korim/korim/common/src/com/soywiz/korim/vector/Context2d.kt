@@ -518,6 +518,8 @@ class Context2d(val renderer: Renderer) : Disposable {
 	}
 }
 
+fun Context2d.Drawable.renderTo(ctx: Context2d) = ctx.draw(this)
+
 fun Context2d.SizedDrawable.filled(paint: Context2d.Paint): Context2d.SizedDrawable {
 	return object : Context2d.SizedDrawable by this {
 		override fun draw(c: Context2d) {

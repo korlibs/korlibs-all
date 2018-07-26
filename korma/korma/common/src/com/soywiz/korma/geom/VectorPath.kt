@@ -258,11 +258,11 @@ open class VectorPath(
 			rect(x, y, w, h)
 		} else {
 			val r = if (w < 2 * rx) w / 2.0 else if (h < 2 * rx) h / 2.0 else rx
-			this.moveTo(x + r, y);
-			this.arcTo(x + w, y, x + w, y + h, r);
-			this.arcTo(x + w, y + h, x, y + h, r);
-			this.arcTo(x, y + h, x, y, r);
-			this.arcTo(x, y, x + w, y, r);
+			this.moveTo(x + r, y)
+			this.arcTo(x + w, y, x + w, y + h, r)
+			this.arcTo(x + w, y + h, x, y + h, r)
+			this.arcTo(x, y + h, x, y, r)
+			this.arcTo(x, y, x + w, y, r)
 		}
 	}
 
@@ -298,7 +298,7 @@ open class VectorPath(
 			val x3 = x2
 			val y3 = -y2
 			val ar = a + a1
-			val cos_ar = cos(ar);
+			val cos_ar = cos(ar)
 			val sin_ar = sin(ar)
 			p1.setTo(x + r * cos(a1), y + r * sin(a1))
 			p2.setTo(x + x2 * cos_ar - y2 * sin_ar, y + x2 * sin_ar + y2 * cos_ar)
@@ -318,6 +318,21 @@ open class VectorPath(
 	}
 
 	fun circle(x: Double, y: Double, radius: Double) = arc(x, y, radius, 0.0, PI * 2.0)
+
+	fun ellipse(x: Double, y: Double, rw: Double, rh: Double) {
+		val k = .5522848
+		val ox = (rw / 2) * k
+		val oy = (rh / 2) * k
+		val xe = x + rw
+		val ye = y + rh
+		val xm = x + rw / 2
+		val ym = y + rh / 2
+		moveTo(x, ym)
+		cubicTo(x, ym - oy, xm - ox, y, xm, y)
+		cubicTo(xm + ox, y, xe, ym - oy, xe, ym)
+		cubicTo(xe, ym + oy, xm + ox, ye, xm, ye)
+		cubicTo(xm - ox, ye, x, ym + oy, x, ym)
+	}
 
 	fun addBounds(bb: BoundsBuilder): Unit {
 		var lx = 0.0
@@ -387,7 +402,18 @@ open class VectorPath(
 				intersections += HorizontalLine.intersectionsWithLine(testx, testy, x0, y0, x1, y1)
 			},
 			quad = { x0, y0, x1, y1, x2, y2 ->
-				intersections += HorizontalLine.interesectionsWithQuadBezier(testx, testy, x0, y0, x1, y1, x2, y2, p1, p2)
+				intersections += HorizontalLine.interesectionsWithQuadBezier(
+					testx,
+					testy,
+					x0,
+					y0,
+					x1,
+					y1,
+					x2,
+					y2,
+					p1,
+					p2
+				)
 			},
 			cubic = { x0, y0, x1, y1, x2, y2, x3, y3 ->
 				intersections += HorizontalLine.intersectionsWithCubicBezier(

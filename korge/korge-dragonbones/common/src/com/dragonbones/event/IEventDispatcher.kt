@@ -87,7 +87,7 @@ interface IEventDispatcher {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	fun addDBEventListener(type: EventStringType, listener: () -> Unit, thisObject: Any): Unit;
+	fun addDBEventListener(type: EventStringType, listener: (event: EventObject) -> Unit, thisObject: Any): Unit;
 	/**
 	 * - Removes a listener from the object.
 	 * @param type - Event type.
@@ -104,5 +104,5 @@ interface IEventDispatcher {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	fun removeDBEventListener(type: EventStringType, listener: () -> Unit, thisObject: Any): Unit;
+	fun removeDBEventListener(type: EventStringType, listener: (event: EventObject) -> Unit, thisObject: Any): Unit;
 }

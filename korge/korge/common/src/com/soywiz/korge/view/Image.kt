@@ -11,6 +11,8 @@ inline fun Container.image(
 	texture: Bitmap, anchorX: Double = 0.0, anchorY: Double = 0.0, callback: @ViewsDslMarker Image.() -> Unit = {}
 ): Image = Image(texture, anchorX, anchorY).addTo(this).apply(callback)
 
+//typealias Sprite = Image
+
 open class Image(
 	bitmap: BmpSlice,
 	anchorX: Double = 0.0,
@@ -27,6 +29,7 @@ open class Image(
 	) : this(bitmap.slice(), anchorX, anchorY, hitShape, smoothing)
 
 	var bitmap: BmpSlice get() = baseBitmap; set(v) = run { baseBitmap = v }
+	var texture: BmpSlice get() = baseBitmap; set(v) = run { baseBitmap = v }
 
 	init {
 		this.baseBitmap = bitmap
