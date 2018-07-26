@@ -725,6 +725,9 @@ inline fun <T : View> T.xy(x: Number, y: Number): T =
 inline fun <T : View> T.position(x: Number, y: Number): T =
 	this.apply { this.x = x.toDouble() }.apply { this.y = y.toDouble() }
 
+inline fun <T : View> T.rotation(rot: Angle): T =
+	this.apply { this.rotation = rot.radians }
+
 inline fun <T : View> T.rotation(rot: Number): T =
 	this.apply { this.rotation = rot.toDouble() }
 

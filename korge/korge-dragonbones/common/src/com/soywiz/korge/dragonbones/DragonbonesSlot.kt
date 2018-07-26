@@ -31,6 +31,7 @@ import com.soywiz.kmem.*
 import com.soywiz.korge.view.*
 import com.soywiz.korge.view.BlendMode
 import com.soywiz.korim.bitmap.*
+import com.soywiz.korma.geom.*
 import kotlin.math.*
 
 /**
@@ -356,7 +357,7 @@ class DragonbonesSlot : Slot() {
 		}
 		else {
 			this._renderDisplay?.position(transform.x, transform.y)
-			this._renderDisplay?.rotation(transform.rotation)
+			this._renderDisplay?.rotation(transform.rotation.radians)
 			this._renderDisplay?.skew(transform.skew, 0.0)
 			this._renderDisplay?.scale(transform.scaleX, transform.scaleY)
 		}
