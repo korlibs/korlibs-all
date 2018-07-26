@@ -6,8 +6,8 @@ import kotlin.math.*
 inline class Angle(val radians: Double) {
 	val degrees get() = rad2deg(radians)
 
-	val normalizedRadians get() = KdsExt { radians umod Angle.MAX_RADIANS }
-	val normalizedDegrees get() = KdsExt { degrees umod Angle.MAX_DEGREES }
+	//val normalizedRadians get() = KdsExt { radians umod Angle.MAX_RADIANS }
+	//val normalizedDegrees get() = KdsExt { degrees umod Angle.MAX_DEGREES }
 	val absoluteValue: Angle get() = Angle.fromRadians(radians.absoluteValue)
 
 	fun shortDistanceTo(other: Angle): Angle = Angle(Angle.shortRadDistanceTo(this.radians, other.radians))
@@ -75,8 +75,8 @@ inline class Angle(val radians: Double) {
 	}
 }
 
-//val Angle.normalizedRadians get() = KdsExt { radians umod Angle.MAX_RADIANS }
-//val Angle.normalizedDegrees get() = KdsExt { degrees umod Angle.MAX_DEGREES }
+val Angle.normalizedRadians get() = KdsExt { radians umod Angle.MAX_RADIANS }
+val Angle.normalizedDegrees get() = KdsExt { degrees umod Angle.MAX_DEGREES }
 
 inline val Number.degrees get() = Angle.fromDegrees(this)
 inline val Number.radians get() = Angle.fromRadians(this)
