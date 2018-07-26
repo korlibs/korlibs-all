@@ -2,7 +2,7 @@ package com.soywiz.kds
 
 import kotlin.math.*
 
-class IntArrayList(capacity: Int = 7) : Collection<Int> {
+class IntArrayList(capacity: Int = 7) : NumberArrayList(), Collection<Int> {
 	var data: IntArray = IntArray(capacity); private set
 	val capacity: Int get() = data.size
 	private var length: Int = 0
@@ -77,6 +77,10 @@ class IntArrayList(capacity: Int = 7) : Collection<Int> {
 		length--
 		return out
 	}
+
+	override fun getDouble(index: Int): Double = this[index].toDouble()
+	override fun setDouble(index: Int, value: Double) = run { this[index] = value.toInt() }
 }
 
 fun IntArrayList.binarySearch(value: Int) = data.binarySearch(value, 0, size)
+fun intArrayListOf(vararg ints: Int) = IntArrayList(*ints)

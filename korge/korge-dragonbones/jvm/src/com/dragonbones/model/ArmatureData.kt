@@ -408,7 +408,7 @@ class ArmatureData : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	fun getBone(boneName: String): BoneData? = this.bones[boneName]
+	fun getBone(boneName: String?): BoneData? = this.bones[boneName]
 	/**
 	 * - Get a specific slot data.
 	 * @param slotName - The slot name.
@@ -421,7 +421,7 @@ class ArmatureData : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	fun getSlot(slotName: String): SlotData? = this.slots[slotName]
+	fun getSlot(slotName: String?): SlotData? = this.slots[slotName]
 
 	/**
 	 * @private

@@ -27,6 +27,16 @@ import com.dragonbones.util.*
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+interface IntEnum {
+	val id: Int
+}
+
+// @TODO: Associate by index
+open class IntEnumCompanion<T : IntEnum>(private val rawValues: Array<T>) {
+	private val values = rawValues.associateBy { it.id }
+	operator fun get(index: Int): T = values[index] ?: rawValues.first()
+}
+
 /**
  * @private
  */
@@ -62,28 +72,34 @@ enum class BinaryOffset(val index: Int) {
 /**
  * @private
  */
-enum class ArmatureType(val id: Int) {
+enum class ArmatureType(override val id: Int) : IntEnum {
 	Armature(0),
 	MovieClip(1),
-	Stage(2)
+	Stage(2);
+
+	companion object : IntEnumCompanion<ArmatureType>(values())
 }
 /**
  * @private
  */
-enum class BoneType(val id: Int) {
+enum class BoneType(override val id: Int) : IntEnum {
 	Bone(0),
-	Surface(1)
+	Surface(1);
+
+	companion object : IntEnumCompanion<BoneType>(values())
 }
 /**
  * @private
  */
-enum class DisplayType(val id: Int) {
+enum class DisplayType(override val id: Int) : IntEnum {
 	None(-1),
 	Image(0),
 	Armature(1),
 	Mesh(2),
 	BoundingBox(3),
-	Path(4)
+	Path(4);
+
+	companion object : IntEnumCompanion<DisplayType>(values())
 }
 /**
  * - Bounding box type.
@@ -95,24 +111,28 @@ enum class DisplayType(val id: Int) {
  * @version DragonBones 5.0
  * @language zh_CN
  */
-enum class BoundingBoxType(val id: Int) {
+enum class BoundingBoxType(override val id: Int) : IntEnum {
 	None(-1),
 	Rectangle(0),
 	Ellipse(1),
-	Polygon(2)
+	Polygon(2);
+
+	companion object : IntEnumCompanion<BoundingBoxType>(values())
 }
 /**
  * @private
  */
-enum class ActionType(val id: Int) {
+enum class ActionType(override val id: Int) : IntEnum {
 	Play(0),
 	Frame(10),
-	Sound(11)
+	Sound(11);
+
+	companion object : IntEnumCompanion<ActionType>(values())
 }
 /**
  * @private
  */
-enum class BlendMode(val id: Int) {
+enum class BlendMode(override val id: Int) : IntEnum {
 	Normal(0),
 	Add(1),
 	Alpha(2),
@@ -126,23 +146,27 @@ enum class BlendMode(val id: Int) {
 	Multiply(10),
 	Overlay(11),
 	Screen(12),
-	Subtract(13)
+	Subtract(13);
+
+	companion object : IntEnumCompanion<BlendMode>(values())
 }
 /**
  * @private
  */
-enum class TweenType(val id: Int) {
+enum class TweenType(override val id: Int) : IntEnum {
 	None(0),
 	Line(1),
 	Curve(2),
 	QuadIn(3),
 	QuadOut(4),
-	QuadInOut(5)
+	QuadInOut(5);
+
+	companion object : IntEnumCompanion<TweenType>(values())
 }
 /**
  * @private
  */
-enum class TimelineType(val id: Int) {
+enum class TimelineType(override val id: Int) : IntEnum {
 	Action(0),
 	ZOrder(1),
 
@@ -164,7 +188,9 @@ enum class TimelineType(val id: Int) {
 
 	AnimationProgress(40),
 	AnimationWeight(41),
-	AnimationParameter(42),
+	AnimationParameter(42);
+
+	companion object : IntEnumCompanion<TimelineType>(values())
 }
 /**
  * - Offset mode.
@@ -191,7 +217,7 @@ enum class OffsetMode {
  * @version DragonBones 4.5
  * @language zh_CN
  */
-enum class AnimationFadeOutMode(val id: Int) {
+enum class AnimationFadeOutMode(override val id: Int) : IntEnum {
 	/**
 	 * - Fade out the animation states of the same layer.
 	 * @language en_US
@@ -236,7 +262,9 @@ enum class AnimationFadeOutMode(val id: Int) {
 	 * - 不替换同名的动画状态。
 	 * @language zh_CN
 	 */
-	Single(5),
+	Single(5);
+
+	companion object : IntEnumCompanion<AnimationFadeOutMode>(values())
 }
 /**
  * @private
@@ -347,19 +375,13 @@ class DragonBones(eventManager: IEventDispatcher) {
 
 	fun bufferObject(obj: BaseObject?) {
 		if (this._objects.indexOf(obj) < 0) {
-			this._objects.add(obj)
+			if (obj != null) this._objects.add(obj)
 		}
 	}
 
-	val clock: WorldClock
-		get() {
-		return this._clock
-		}
+	val clock: WorldClock get() = this._clock
 
-	val eventManager: IEventDispatcher
-		get() {
-		return this._eventManager
-		}
+	val eventManager: IEventDispatcher get() = this._eventManager
 }
 
 /*

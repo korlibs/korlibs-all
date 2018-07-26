@@ -341,7 +341,7 @@ open class TimelineData  : BaseObject() {
 
 	var type: TimelineType = TimelineType.BoneAll
 	var offset: Int = 0 // TimelineArray.
-	var frameIndicesOffset = -1 // FrameIndices.
+	var frameIndicesOffset: Int = -1 // FrameIndices.
 
 	override fun _onClear(): Unit {
 		this.type = TimelineType.BoneAll

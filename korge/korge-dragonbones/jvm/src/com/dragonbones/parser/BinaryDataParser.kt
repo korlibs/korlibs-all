@@ -188,7 +188,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 		return timeline
 	}
 
-	protected fun _parseAnimation(rawData: Any): AnimationData {
+	protected fun _parseAnimation(rawData: LinkedHashMap<String, Any?>): AnimationData {
 		val animation: AnimationData = BaseObject.borrowObject<AnimationData>()
 		animation.blendType = DataParser._getAnimationBlendType(ObjectDataParser._getString(rawData, DataParser.BLEND_TYPE, ""))
 		animation.frameCount = ObjectDataParser._getNumber(rawData, DataParser.DURATION, 0)
@@ -370,7 +370,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 		val l4 = offsets[7]
 		val l5 = offsets[9]
 		val l6 = offsets[11]
-		val l7 = if (offsets.length > 12) offsets[13] else 0 // Color.
+		val l7 = if (offsets.size > 12) offsets[13] else 0 // Color.
 		val intArray = new Int16Array(this._binary, this._binaryOffset + offsets[0], l1 / Int16Array.BYTES_PER_ELEMENT)
 		val floatArray = new Float32Array(this._binary, this._binaryOffset + offsets[2], l2 / Float32Array.BYTES_PER_ELEMENT)
 		val frameIntArray = new Int16Array(this._binary, this._binaryOffset + offsets[4], l3 / Int16Array.BYTES_PER_ELEMENT)

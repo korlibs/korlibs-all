@@ -22,7 +22,10 @@
  */
 package com.dragonbones.core
 
+import com.dragonbones.animation.*
+import com.dragonbones.model.*
 import com.dragonbones.util.*
+import kotlin.reflect.*
 
 /**
  * - The BaseObject is the base class for all objects in the DragonBones framework.
@@ -61,8 +64,8 @@ abstract class BaseObject {
 	companion object {
 		private var _hashCode: Int = 0
 		private var _defaultMaxCount: Int = 3000
-		private val _maxCountMap: Map<Int> = {}
-		private val _poolsMap: Map<Array<BaseObject>> = {}
+		private val _maxCountMap: LinkedHashMap<String, Int> = LinkedHashMap()
+		private val _poolsMap: LinkedHashMap<String, ArrayList<BaseObject>> = LinkedHashMap()
 
 		/**
 		 * - Set the maximum cache count of the specify object pool.
@@ -78,7 +81,7 @@ abstract class BaseObject {
 		 * @version DragonBones 4.5
 		 * @language zh_CN
 		 */
-		public fun setMaxCount(objectConstructor: (() -> BaseObject)?, maxCount: Int): Unit {
+		public fun setMaxCount(clazz: KClass<out BaseObject>, maxCount: Int): Unit {
 			var maxCount = maxCount
 			if (maxCount < 0 || maxCount != maxCount) { // isNaN
 				maxCount = 0
@@ -97,13 +100,13 @@ abstract class BaseObject {
 				BaseObject._defaultMaxCount = maxCount
 
 				for (classType in BaseObject._poolsMap) {
-					val pool = BaseObject._poolsMap[classType]
+					val pool = BaseObject._poolsMap!![classType]!!
 					if (pool.length > maxCount) {
 						pool.length = maxCount
 					}
 
 					if (classType in BaseObject._maxCountMap) {
-						BaseObject._maxCountMap[classType] = maxCount
+						BaseObject._maxCountMap!![classType] = maxCount
 					}
 				}
 			}
@@ -147,7 +150,7 @@ abstract class BaseObject {
 		 * @version DragonBones 4.5
 		 * @language zh_CN
 		 */
-		public fun <T  :  BaseObject> borrowObject(objectConstructor: { new(): T; }): T {
+		public fun <T  :  BaseObject> borrowObject(clazz: KClass<T>): T {
 			val classType = String(objectConstructor)
 			val pool = classType in BaseObject._poolsMap ? BaseObject._poolsMap[classType] : null
 			if (pool != null && pool.length > 0) {
@@ -162,7 +165,24 @@ abstract class BaseObject {
 		}
 
 		inline public fun <reified T  :  BaseObject> borrowObject(): T = TODO()
+
+		@Suppress("UNCHECKED_CAST")
+		private fun <T  :  BaseObject> createInstance(clazz: KClass<T>): T {
+			return return when (clazz) {
+				AnimationConfig::class -> AnimationConfig() as T
+				BlendState::class -> BlendState() as T
+				IKConstraintTimelineState::class -> IKConstraintTimelineState() as T
+				BoneAllTimelineState::class -> BoneAllTimelineState() as T
+				BoneTranslateTimelineState::class -> BoneTranslateTimelineState() as T
+				BoneRotateTimelineState::class -> BoneRotateTimelineState() as T
+				BoneScaleTimelineState::class -> BoneScaleTimelineState() as T
+				AlphaTimelineState::class -> AlphaTimelineState() as T
+				SurfaceTimelineState::class -> SurfaceTimelineState() as T
+				else -> TODO("Missing createInstance $clazz")
+			}
+		}
 	}
+
 
 	/**
 	 * - A unique identification number assigned to the object.

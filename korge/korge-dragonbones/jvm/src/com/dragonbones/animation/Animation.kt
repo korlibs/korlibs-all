@@ -44,7 +44,7 @@ import com.dragonbones.util.*
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class Animation : BaseObject {
+class Animation : BaseObject() {
 	override fun toString(): String {
 		return "[class dragonBones.Animation]"
 	}
@@ -181,7 +181,7 @@ class Animation : BaseObject {
 			passedTime = -passedTime
 		}
 
-		if (this._armature.inheritAnimation && this._armature?._parent != null) { // Inherit parent animation timeScale.
+		if (this._armature!!.inheritAnimation && this._armature?._parent != null) { // Inherit parent animation timeScale.
 			this._inheritTimeScale = this._armature!!._parent!!._armature!!.animation._inheritTimeScale * this.timeScale
 		}
 		else {
@@ -525,17 +525,17 @@ class Animation : BaseObject {
 			this.playConfig(_animationConfig1)
 		}
 		else if (this._lastAnimationState == null) {
-			val defaultAnimation = this._armature.armatureData.defaultAnimation
+			val defaultAnimation = this._armature?.armatureData?.defaultAnimation
 			if (defaultAnimation != null) {
 				_animationConfig1.animation = defaultAnimation.name
 				this.playConfig(_animationConfig1)
 			}
 		}
-		else if (!this._lastAnimationState.isPlaying && !this._lastAnimationState.isCompleted) {
-			this._lastAnimationState.play()
+		else if (!this._lastAnimationState!!.isPlaying && !this._lastAnimationState!!.isCompleted) {
+			this._lastAnimationState?.play()
 		}
 		else {
-			_animationConfig1.animation = this._lastAnimationState.name
+			_animationConfig1.animation = this._lastAnimationState!!.name
 			this.playConfig(_animationConfig1)
 		}
 
@@ -579,15 +579,16 @@ class Animation : BaseObject {
 		animationName: String, fadeInTime: Double = -1.0, playTimes: Int = -1,
 		layer: Int = 0, group: String? = null, fadeOutMode: AnimationFadeOutMode = AnimationFadeOutMode.SameLayerAndGroup
 	): AnimationState? {
-		this._animationConfig.clear()
-		this._animationConfig.fadeOutMode = fadeOutMode
-		this._animationConfig.playTimes = playTimes
-		this._animationConfig.layer = layer
-		this._animationConfig.fadeInTime = fadeInTime
-		this._animationConfig.animation = animationName
-		this._animationConfig.group = group ?: ""
+		val _animationConfig1 = this._animationConfig!!
+		_animationConfig1.clear()
+		_animationConfig1.fadeOutMode = fadeOutMode
+		_animationConfig1.playTimes = playTimes
+		_animationConfig1.layer = layer
+		_animationConfig1.fadeInTime = fadeInTime
+		_animationConfig1.animation = animationName
+		_animationConfig1.group = group ?: ""
 
-		return this.playConfig(this._animationConfig)
+		return this.playConfig(_animationConfig1)
 	}
 	/**
 	 * - Play a specific animation from the specific time.
@@ -608,14 +609,15 @@ class Animation : BaseObject {
 	 * @language zh_CN
 	 */
 	fun gotoAndPlayByTime(animationName: String, time: Double = 0.0, playTimes: Int = -1): AnimationState? {
-		this._animationConfig.clear()
-		this._animationConfig.resetToPose = true
-		this._animationConfig.playTimes = playTimes
-		this._animationConfig.position = time
-		this._animationConfig.fadeInTime = 0.0
-		this._animationConfig.animation = animationName
+		val _animationConfig1 = this._animationConfig!!
+		_animationConfig1.clear()
+		_animationConfig1.resetToPose = true
+		_animationConfig1.playTimes = playTimes
+		_animationConfig1.position = time
+		_animationConfig1.fadeInTime = 0.0
+		_animationConfig1.animation = animationName
 
-		return this.playConfig(this._animationConfig)
+		return this.playConfig(_animationConfig1)
 	}
 	/**
 	 * - Play a specific animation from the specific frame.
@@ -636,18 +638,19 @@ class Animation : BaseObject {
 	 * @language zh_CN
 	 */
 	fun gotoAndPlayByFrame(animationName: String, frame: Int = 0, playTimes: Int = -1): AnimationState? {
-		this._animationConfig.clear()
-		this._animationConfig.resetToPose = true
-		this._animationConfig.playTimes = playTimes
-		this._animationConfig.fadeInTime = 0.0
-		this._animationConfig.animation = animationName
+		val _animationConfig1 = this._animationConfig!!
+		_animationConfig1.clear()
+		_animationConfig1.resetToPose = true
+		_animationConfig1.playTimes = playTimes
+		_animationConfig1.fadeInTime = 0.0
+		_animationConfig1.animation = animationName
 
 		val animationData = if (animationName in this._animations) this._animations[animationName] else null
 		if (animationData != null) {
-			this._animationConfig.position = if (animationData.frameCount > 0) animationData.duration * frame / animationData.frameCount else 0.0
+			_animationConfig1.position = if (animationData.frameCount > 0) animationData.duration * frame / animationData.frameCount else 0.0
 		}
 
-		return this.playConfig(this._animationConfig!!)
+		return this.playConfig(_animationConfig1!!)
 	}
 	/**
 	 * - Play a specific animation from the specific progress.
@@ -824,9 +827,7 @@ class Animation : BaseObject {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	fun hasAnimation(animationName: String): Boolean {
-		return animationName in this._animations
-	}
+	fun hasAnimation(animationName: String): Boolean = animationName in this._animations
 	/**
 	 * - Get all the animation states.
 	 * @version DragonBones 5.1
@@ -837,9 +838,7 @@ class Animation : BaseObject {
 	 * @version DragonBones 5.1
 	 * @language zh_CN
 	 */
-	fun getStates(): List<AnimationState> {
-		return this._animationStates
-	}
+	fun getStates(): List<AnimationState> = this._animationStates
 	/**
 	 * - Check whether there is an animation state is playing
 	 * @see dragonBones.AnimationState

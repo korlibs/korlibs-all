@@ -50,7 +50,7 @@ class EventObject : BaseObject() {
 		 * @version DragonBones 4.5
 		 * @language zh_CN
 		 */
-		public val START: String = "start"
+		val START: String = "start"
 		/**
 		 * - Animation loop play complete once.
 		 * @version DragonBones 4.5
@@ -61,7 +61,7 @@ class EventObject : BaseObject() {
 		 * @version DragonBones 4.5
 		 * @language zh_CN
 		 */
-		public val LOOP_COMPLETE: String = "loopComplete"
+		val LOOP_COMPLETE: String = "loopComplete"
 		/**
 		 * - Animation play complete.
 		 * @version DragonBones 4.5
@@ -72,7 +72,7 @@ class EventObject : BaseObject() {
 		 * @version DragonBones 4.5
 		 * @language zh_CN
 		 */
-		public val COMPLETE: String = "complete"
+		val COMPLETE: String = "complete"
 		/**
 		 * - Animation fade in start.
 		 * @version DragonBones 4.5
@@ -83,7 +83,7 @@ class EventObject : BaseObject() {
 		 * @version DragonBones 4.5
 		 * @language zh_CN
 		 */
-		public val FADE_IN: String = "fadeIn"
+		val FADE_IN: String = "fadeIn"
 		/**
 		 * - Animation fade in complete.
 		 * @version DragonBones 4.5
@@ -94,7 +94,7 @@ class EventObject : BaseObject() {
 		 * @version DragonBones 4.5
 		 * @language zh_CN
 		 */
-		public val FADE_IN_COMPLETE: String = "fadeInComplete"
+		val FADE_IN_COMPLETE: String = "fadeInComplete"
 		/**
 		 * - Animation fade out start.
 		 * @version DragonBones 4.5
@@ -105,7 +105,7 @@ class EventObject : BaseObject() {
 		 * @version DragonBones 4.5
 		 * @language zh_CN
 		 */
-		public val FADE_OUT: String = "fadeOut"
+		val FADE_OUT: String = "fadeOut"
 		/**
 		 * - Animation fade out complete.
 		 * @version DragonBones 4.5
@@ -116,7 +116,7 @@ class EventObject : BaseObject() {
 		 * @version DragonBones 4.5
 		 * @language zh_CN
 		 */
-		public val FADE_OUT_COMPLETE: String = "fadeOutComplete"
+		val FADE_OUT_COMPLETE: String = "fadeOutComplete"
 		/**
 		 * - Animation frame event.
 		 * @version DragonBones 4.5
@@ -127,7 +127,7 @@ class EventObject : BaseObject() {
 		 * @version DragonBones 4.5
 		 * @language zh_CN
 		 */
-		public val FRAME_EVENT: String = "frameEvent"
+		val FRAME_EVENT: String = "frameEvent"
 		/**
 		 * - Animation frame sound event.
 		 * @version DragonBones 4.5
@@ -138,13 +138,13 @@ class EventObject : BaseObject() {
 		 * @version DragonBones 4.5
 		 * @language zh_CN
 		 */
-		public val SOUND_EVENT: String = "soundEvent"
+		val SOUND_EVENT: String = "soundEvent"
 
 		/**
 		 * @internal
 		 * @private
 		 */
-		public fun actionDataToInstance(data: ActionData, instance: EventObject, armature: Armature): Unit {
+		fun actionDataToInstance(data: ActionData, instance: EventObject, armature: Armature): Unit {
 			if (data.type == ActionType.Play) {
 				instance.type = EventObject.FRAME_EVENT
 			} else {
@@ -166,9 +166,7 @@ class EventObject : BaseObject() {
 		}
 	}
 
-	public override fun toString(): String {
-		return "[class dragonBones.EventObject]"
-	}
+	override fun toString(): String = "[class dragonBones.EventObject]"
 	/**
 	 * - If is a frame event, the value is used to describe the time that the event was in the animation timeline. (In seconds)
 	 * @version DragonBones 4.5
@@ -179,7 +177,7 @@ class EventObject : BaseObject() {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public var time: Double = 0.0
+	var time: Double = 0.0
 	/**
 	 * - The event type。
 	 * @version DragonBones 4.5
@@ -190,7 +188,7 @@ class EventObject : BaseObject() {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public var type: EventStringType = ""
+	var type: EventStringType = ""
 	/**
 	 * - The event name. (The frame event name or the frame sound name)
 	 * @version DragonBones 4.5
@@ -201,7 +199,7 @@ class EventObject : BaseObject() {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public var name: String = ""
+	var name: String = ""
 	/**
 	 * - The armature that dispatch the event.
 	 * @see dragonBones.Armature
@@ -214,7 +212,7 @@ class EventObject : BaseObject() {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public lateinit var armature: Armature
+	lateinit var armature: Armature
 	/**
 	 * - The bone that dispatch the event.
 	 * @see dragonBones.Bone
@@ -227,7 +225,7 @@ class EventObject : BaseObject() {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public var bone: Bone? = null
+	var bone: Bone? = null
 	/**
 	 * - The slot that dispatch the event.
 	 * @see dragonBones.Slot
@@ -240,7 +238,7 @@ class EventObject : BaseObject() {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public var slot: Slot? = null
+	var slot: Slot? = null
 	/**
 	 * - The animation state that dispatch the event.
 	 * @see dragonBones.AnimationState
@@ -253,11 +251,11 @@ class EventObject : BaseObject() {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	public lateinit var animationState: AnimationState
+	lateinit var animationState: AnimationState
 	/**
 	 * @private
 	 */
-	public var actionData: ActionData? = null
+	var actionData: ActionData? = null
 	/**
 	 * @private
 	 */
@@ -273,9 +271,9 @@ class EventObject : BaseObject() {
 	 * @version DragonBones 5.0
 	 * @language zh_CN
 	 */
-	public var data: UserData? = null
+	var data: UserData? = null
 
-	protected override fun _onClear(): Unit {
+	override fun _onClear(): Unit {
 		this.time = 0.0
 		this.type = ""
 		this.name = ""

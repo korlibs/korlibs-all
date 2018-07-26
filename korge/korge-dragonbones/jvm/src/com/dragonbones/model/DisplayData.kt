@@ -26,6 +26,7 @@ import com.dragonbones.core.*
 import com.dragonbones.geom.*
 import com.dragonbones.util.*
 import com.soywiz.kds.*
+import com.soywiz.kmem.*
 
 /**
  * @private
@@ -58,12 +59,12 @@ class GeometryData {
 
 	val vertexCount: Int get() {
 		val intArray = this.data!!.intArray
-		return intArray[this.offset + BinaryOffset.GeometryVertexCount.index]
+		return intArray!![this.offset + BinaryOffset.GeometryVertexCount.index]
 	}
 
 	val triangleCount: Int get() {
 		val intArray = this.data!!.intArray
-		return intArray[this.offset + BinaryOffset.GeometryTriangleCount.index]
+		return intArray!![this.offset + BinaryOffset.GeometryTriangleCount.index]
 	}
 }
 /**

@@ -120,7 +120,8 @@ class DragonBonesData  : BaseObject() {
 	 * @internal
 	 */
 	//var intArray: Int16Buffer? = null // Int16Array
-	var intArray: Int32Buffer? = null // Int16Array
+	//var intArray: Int32Buffer? = null // Int16Array
+	var intArray: IntArrayList? = null // Int16Array
 	/**
 	 * @internal
 	 */
@@ -128,29 +129,33 @@ class DragonBonesData  : BaseObject() {
 	/**
 	 * @internal
 	 */
-	var frameIntArray: Int16Buffer? = null
+	//var frameIntArray: Int16Buffer? = null
+	var frameIntArray: IntArrayList? = null
 	/**
 	 * @internal
 	 */
-	var frameFloatArray: Float32Buffer? = null
+	//var frameFloatArray: Float32Buffer? = null
+	var frameFloatArray: DoubleArrayList? = null
 	/**
 	 * @internal
 	 */
-	var frameArray: Int16Buffer? = null
+	//var frameArray: Int16Buffer? = null
+	//var frameArray: IntArrayList? = null
+	var frameArray: DoubleArrayList? = null
 	/**
 	 * @internal
 	 */
-	var timelineArray: Uint16Buffer? = null
+	var timelineArray: IntArrayList? = null
 	/**
 	 * @internal
 	 */
-	var colorArray: Uint16Buffer? = null
+	var colorArray: IntArrayList? = null
 	/**
 	 * @private
 	 */
 	var userData: UserData? = null // Initial value.
 
-	protected fun _onClear(): Unit {
+	protected override fun _onClear(): Unit {
 		for (a in this.armatures.values) a.returnToPool()
 		this.armatures.clear()
 
@@ -164,7 +169,6 @@ class DragonBonesData  : BaseObject() {
 		this.frameIndices.clear()
 		this.cachedFrames.clear()
 		this.armatureNames.clear()
-		//this.armatures.clear();
 		this.binary = null //
 		this.intArray = null //
 		this.floatArray = null //

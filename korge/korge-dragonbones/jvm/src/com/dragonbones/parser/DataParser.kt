@@ -28,7 +28,7 @@ import com.dragonbones.model.*
 /**
  * @private
  */
-@Suppress("unused")
+@Suppress("unused", "MayBeConstant", "MemberVisibilityCanBePrivate", "FunctionName")
 abstract class DataParser {
 	companion object {
 		val DATA_VERSION_2_3: String = "2.3"
@@ -185,8 +185,9 @@ abstract class DataParser {
 
 		val DEFAULT_NAME: String = "default"
 
-		fun _getArmatureType(value: String): ArmatureType {
-			return when (value.toLowerCase()) {
+		fun _getArmatureType(value: String?): ArmatureType {
+			return when (value?.toLowerCase()) {
+				null -> ArmatureType.Armature
 				"stage" -> ArmatureType.Stage
 				"armature" -> ArmatureType.Armature
 				"movieclip" -> ArmatureType.MovieClip
@@ -194,24 +195,27 @@ abstract class DataParser {
 			}
 		}
 
-		fun _getBoneType(value: String): BoneType {
-			return when (value.toLowerCase()) {
+		fun _getBoneType(value: String?): BoneType {
+			return when (value?.toLowerCase()) {
+				null -> BoneType.Bone
 				"bone" -> BoneType.Bone
 				"surface" -> BoneType.Surface
 				else -> BoneType.Bone
 			}
 		}
 
-		fun _getPositionMode(value: String): PositionMode {
-			return when (value.toLowerCase()) {
+		fun _getPositionMode(value: String?): PositionMode {
+			return when (value?.toLowerCase()) {
+				null -> PositionMode.Percent
 				"percent" -> PositionMode.Percent
 				"fixed" -> PositionMode.Fixed
 				else -> PositionMode.Percent
 			}
 		}
 
-		fun _getSpacingMode(value: String): SpacingMode {
-			return when (value.toLowerCase()) {
+		fun _getSpacingMode(value: String?): SpacingMode {
+			return when (value?.toLowerCase()) {
+				null -> SpacingMode.Length
 				"length" -> SpacingMode.Length
 				"percent" -> SpacingMode.Percent
 				"fixed" -> SpacingMode.Fixed
@@ -219,8 +223,9 @@ abstract class DataParser {
 			}
 		}
 
-		fun _getRotateMode(value: String): RotateMode {
-			return when (value.toLowerCase()) {
+		fun _getRotateMode(value: String?): RotateMode {
+			return when (value?.toLowerCase()) {
+				null -> RotateMode.Tangent
 				"tangent" -> RotateMode.Tangent
 				"chain" -> RotateMode.Chain
 				"chainscale" -> RotateMode.ChainScale
@@ -228,8 +233,9 @@ abstract class DataParser {
 			}
 		}
 
-		fun _getDisplayType(value: String): DisplayType {
-			return when (value.toLowerCase()) {
+		fun _getDisplayType(value: String?): DisplayType {
+			return when (value?.toLowerCase()) {
+				null -> DisplayType.Image
 				"image" -> DisplayType.Image
 				"mesh" -> DisplayType.Mesh
 				"armature" -> DisplayType.Armature
@@ -239,8 +245,9 @@ abstract class DataParser {
 			}
 		}
 
-		fun _getBoundingBoxType(value: String): BoundingBoxType {
-			return when (value.toLowerCase()) {
+		fun _getBoundingBoxType(value: String?): BoundingBoxType {
+			return when (value?.toLowerCase()) {
+				null -> BoundingBoxType.Rectangle
 				"rectangle" -> BoundingBoxType.Rectangle
 				"ellipse" -> BoundingBoxType.Ellipse
 				"polygon" -> BoundingBoxType.Polygon
@@ -248,8 +255,9 @@ abstract class DataParser {
 			}
 		}
 
-		fun _getBlendMode(value: String): BlendMode {
-			return when (value.toLowerCase()) {
+		fun _getBlendMode(value: String?): BlendMode {
+			return when (value?.toLowerCase()) {
+				null -> BlendMode.Normal
 				"normal" -> BlendMode.Normal
 				"add" -> BlendMode.Add
 				"alpha" -> BlendMode.Alpha
@@ -268,16 +276,18 @@ abstract class DataParser {
 			}
 		}
 
-		fun _getAnimationBlendType(value: String): AnimationBlendType {
-			return when (value.toLowerCase()) {
+		fun _getAnimationBlendType(value: String?): AnimationBlendType {
+			return when (value?.toLowerCase()) {
+				null -> AnimationBlendType.None
 				"none" -> AnimationBlendType.None
 				"1d" -> AnimationBlendType.E1D
 				else -> AnimationBlendType.None
 			}
 		}
 
-		fun _getActionType(value: String): ActionType {
-			return when (value.toLowerCase()) {
+		fun _getActionType(value: String?): ActionType {
+			return when (value?.toLowerCase()) {
+				null -> ActionType.Play
 				"play" -> ActionType.Play
 				"frame" -> ActionType.Frame
 				"sound" -> ActionType.Sound
@@ -286,6 +296,6 @@ abstract class DataParser {
 		}
 	}
 
-	abstract fun parseDragonBonesData(rawData: Any, scale: Double): DragonBonesData?
-	abstract fun parseTextureAtlasData(rawData: Any, textureAtlasData: TextureAtlasData, scale: Double): Boolean
+	abstract fun parseDragonBonesData(rawData: Any?, scale: Double): DragonBonesData?
+	abstract fun parseTextureAtlasData(rawData: Any?, textureAtlasData: TextureAtlasData, scale: Double = 1.0): Boolean
 }
