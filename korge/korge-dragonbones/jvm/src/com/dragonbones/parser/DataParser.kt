@@ -296,6 +296,6 @@ abstract class DataParser {
 		}
 	}
 
-	abstract fun parseDragonBonesData(rawData: Any?, scale: Double): DragonBonesData?
+	abstract fun parseDragonBonesData(rawData: Any?, scale: Double = 1.0): DragonBonesData?
 	abstract fun parseTextureAtlasData(rawData: Any?, textureAtlasData: TextureAtlasData, scale: Double = 1.0): Boolean
 }

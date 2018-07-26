@@ -110,6 +110,8 @@ class KmlNativeBuffer(val mem: MemBuffer, val size: Int = mem.size) {
 }
 
 class UInt8Buffer(val b: Int8Buffer) {
+	companion object;
+
 	operator fun get(index: Int): Int = b[index].toInt() and 0xFF
 	operator fun set(index: Int, value: Int): Unit = run { b[index] = value.toByte() }
 }

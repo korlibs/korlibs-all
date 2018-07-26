@@ -119,9 +119,9 @@ class DragonBonesData  : BaseObject() {
 	/**
 	 * @internal
 	 */
-	//var intArray: Int16Buffer? = null // Int16Array
+	var intArray: Int16Buffer? = null // Int16Array
 	//var intArray: Int32Buffer? = null // Int16Array
-	var intArray: IntArrayList? = null // Int16Array
+	//var intArray: IntArrayList? = null // Int16Array
 	/**
 	 * @internal
 	 */
@@ -129,27 +129,30 @@ class DragonBonesData  : BaseObject() {
 	/**
 	 * @internal
 	 */
-	//var frameIntArray: Int16Buffer? = null
-	var frameIntArray: IntArrayList? = null
+	var frameIntArray: Int16Buffer? = null
+	//var frameIntArray: IntArrayList? = null
 	/**
 	 * @internal
 	 */
-	//var frameFloatArray: Float32Buffer? = null
-	var frameFloatArray: DoubleArrayList? = null
+	var frameFloatArray: Float32Buffer? = null
+	//var frameFloatArray: DoubleArrayList? = null
 	/**
 	 * @internal
 	 */
-	//var frameArray: Int16Buffer? = null
+	var frameArray: Int16Buffer? = null
 	//var frameArray: IntArrayList? = null
-	var frameArray: DoubleArrayList? = null
+	//var frameArray: DoubleArrayList? = null
 	/**
 	 * @internal
 	 */
-	var timelineArray: IntArrayList? = null
+	//var timelineArray: IntArrayList? = null
+	var timelineArray: Int16Buffer? = null
 	/**
 	 * @internal
 	 */
-	var colorArray: IntArrayList? = null
+	//var colorArray: IntArrayList? = null
+	//var colorArray: IntArrayList? = null
+	var colorArray: Int16Buffer? = null
 	/**
 	 * @private
 	 */

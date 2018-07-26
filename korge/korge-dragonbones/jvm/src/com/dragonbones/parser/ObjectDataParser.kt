@@ -27,6 +27,7 @@ import com.dragonbones.geom.*
 import com.dragonbones.model.*
 import com.dragonbones.util.*
 import com.soywiz.kds.*
+import com.soywiz.kmem.*
 import com.soywiz.korio.lang.*
 
 /**
@@ -40,16 +41,19 @@ enum class FrameValueType(val index: kotlin.Int) {
 /**
  * @private
  */
+@Suppress("UNCHECKED_CAST", "NAME_SHADOWING", "UNUSED_CHANGED_VALUE")
 open class ObjectDataParser :  DataParser() {
 	companion object {
 		// dynamic tools
-		operator fun Any?.get(key: String): Any? {
+		private operator fun Any?.get(key: String): Any? {
 			return Dynamic.get(this, key)
 		}
 
-		operator fun Any?.contains(key: String): Boolean {
+		private operator fun Any?.contains(key: String): Boolean {
 			return this.get(key) != null
 		}
+
+		private val Any?.list get() = this as List<Any?>
 
 		protected fun _getBoolean(rawData: Any?, key: String, defaultValue: Boolean): Boolean
 		{
@@ -63,7 +67,7 @@ open class ObjectDataParser :  DataParser() {
 					"0", "NaN", "", "false", "null", "undefined" -> false
 					else -> true
 				}
-				else -> value != null
+				else -> defaultValue
 			}
 		}
 
@@ -103,7 +107,7 @@ open class ObjectDataParser :  DataParser() {
 		 * @deprecated
 		 * @language zh_CN
 		 */
-		public fun getInstance(): ObjectDataParser = ObjectDataParser._objectDataParserInstance
+		fun getInstance(): ObjectDataParser = ObjectDataParser._objectDataParserInstance
 
 	}
 
@@ -122,7 +126,8 @@ open class ObjectDataParser :  DataParser() {
 
 	private var _frameValueType: FrameValueType = FrameValueType.STEP
 	private var _defaultColorOffset: Int = -1
-	private var _prevClockwise: Int = 0
+	//private var _prevClockwise: Int = 0
+	private var _prevClockwise: Double = 0.0
 	private var _prevRotation: Double = 0.0
 	private var _frameDefaultValue: Double = 0.0
 	private var _frameValueScale: Double = 1.0
@@ -149,7 +154,7 @@ open class ObjectDataParser :  DataParser() {
 	private val _cacheBones: LinkedHashMap<String, ArrayList<BoneData>> = LinkedHashMap()
 	private val _slotChildActions: LinkedHashMap<String, ArrayList<ActionData>> = LinkedHashMap()
 
-	private fun _getCurvePoint(x1: Double, y1: Double, x2: Double, y2: Double, x3: Double, y3: Double, x4: Double, y4: Double, t: Double, result: Point): Unit {
+	private fun _getCurvePoint(x1: Double, y1: Double, x2: Double, y2: Double, x3: Double, y3: Double, x4: Double, y4: Double, t: Double, result: Point) {
 		val l_t = 1.0 - t
 		val powA = l_t * l_t
 		val powB = t * t
@@ -162,14 +167,14 @@ open class ObjectDataParser :  DataParser() {
 		result.y = kA * y1 + kB * y2 + kC * y3 + kD * y4
 	}
 
-	private fun _samplingEasingCurve(curve:  DoubleArray, samples:  DoubleArray): Boolean {
+	private fun _samplingEasingCurve(curve: DoubleArrayList, samples: DoubleArrayList): Boolean {
 		val curveCount = curve.size
 
 		if (curveCount % 3 == 1) {
 			var stepIndex = -2
 			val l = samples.size
 			for (i in 0 until samples.size) {
-				var t: Double = (i + 1) / (l.toDouble() + 1) // float
+				val t: Double = (i + 1) / (l.toDouble() + 1) // float
 				while ((if (stepIndex + 6 < curveCount) curve[stepIndex + 6] else 1.0) < t) { // stepIndex + 3 * 2
 					stepIndex += 6
 			}
@@ -206,7 +211,7 @@ open class ObjectDataParser :  DataParser() {
 			var stepIndex = 0
 			val l = samples.size
 			for (i in 0 until samples.size) {
-				var t = (i + 1) / (l + 1) // float
+				val t = (i + 1) / (l + 1) // float
 				while (curve[stepIndex + 6] < t) { // stepIndex + 3 * 2
 					stepIndex += 6
 				}
@@ -240,7 +245,7 @@ open class ObjectDataParser :  DataParser() {
 		}
 	}
 
-	private fun _parseActionDataInFrame(rawData: Any?, frameStart: Int, bone: BoneData?, slot: SlotData?): Unit {
+	private fun _parseActionDataInFrame(rawData: Any?, frameStart: Int, bone: BoneData?, slot: SlotData?) {
 		if (DataParser.EVENT in rawData) {
 			this._mergeActionFrame(rawData[DataParser.EVENT]!!, frameStart, ActionType.Frame, bone, slot)
 		}
@@ -262,7 +267,7 @@ open class ObjectDataParser :  DataParser() {
 		}
 	}
 
-	private fun _mergeActionFrame(rawData: Any?, frameStart: Int, type: ActionType, bone: BoneData?, slot: SlotData?): Unit {
+	private fun _mergeActionFrame(rawData: Any?, frameStart: Int, type: ActionType, bone: BoneData?, slot: SlotData?) {
 		val actionOffset = this._armature!!.actions.size
 		val actions = this._parseActionData(rawData, type, bone, slot)
 		var frameIndex = 0
@@ -407,7 +412,7 @@ open class ObjectDataParser :  DataParser() {
 			val rawPaths = rawData[DataParser.PATH_CONSTRAINT] as List<Any?>
 			for (rawPath in rawPaths) {
 				val constraint = this._parsePathConstraint(rawPath)
-				if (constraint) {
+				if (constraint != null) {
 					armature.addConstraint(constraint)
 				}
 			}
@@ -417,16 +422,16 @@ open class ObjectDataParser :  DataParser() {
 		for (i in 0 until this._cacheRawMeshes.length) {
 			val rawData = this._cacheRawMeshes[i]
 			val shareName = ObjectDataParser._getString(rawData, DataParser.SHARE, "")
-			if (shareName.length == 0) {
+			if (shareName.isEmpty()) {
 				continue
 			}
 
 			var skinName = ObjectDataParser._getString(rawData, DataParser.SKIN, DataParser.DEFAULT_NAME)
-			if (skinName.length == 0) { //
+			if (skinName.isEmpty()) { //
 				skinName = DataParser.DEFAULT_NAME
 			}
 
-			val shareMesh = armature.getMesh(skinName, "", shareName) as MeshDisplayData? // TODO slot;
+			val shareMesh = armature.getMesh(skinName, "", shareName) // TODO slot;
 			if (shareMesh == null) {
 				continue // Error.
 			}
@@ -479,7 +484,7 @@ open class ObjectDataParser :  DataParser() {
 	}
 
 	protected fun _parseBone(rawData: Any?): BoneData {
-		var type: BoneType = BoneType.Bone
+		val type: BoneType
 
 		if (DataParser.TYPE in rawData && rawData[DataParser.TYPE] is String) {
 			type = DataParser._getBoneType(rawData[DataParser.TYPE]?.toString())
@@ -489,13 +494,13 @@ open class ObjectDataParser :  DataParser() {
 		}
 
 		if (type == BoneType.Bone) {
-			val scale = this._armature.scale
+			val scale = this._armature!!.scale
 			val bone = BaseObject.borrowObject<BoneData>()
 			bone.inheritTranslation = ObjectDataParser._getBoolean(rawData, DataParser.INHERIT_TRANSLATION, true)
 			bone.inheritRotation = ObjectDataParser._getBoolean(rawData, DataParser.INHERIT_ROTATION, true)
 			bone.inheritScale = ObjectDataParser._getBoolean(rawData, DataParser.INHERIT_SCALE, true)
 			bone.inheritReflection = ObjectDataParser._getBoolean(rawData, DataParser.INHERIT_REFLECTION, true)
-			bone.length = ObjectDataParser._getNumber(rawData, DataParser.LENGTH, 0) * scale
+			bone.length = ObjectDataParser._getNumber(rawData, DataParser.LENGTH, 0.0) * scale
 			bone.alpha = ObjectDataParser._getNumber(rawData, DataParser.ALPHA, 1.0)
 			bone.name = ObjectDataParser._getString(rawData, DataParser.NAME, "")
 
@@ -516,7 +521,7 @@ open class ObjectDataParser :  DataParser() {
 		return surface
 	}
 
-	protected fun _parseIKConstraint(rawData: Map<String, Any?>): ConstraintData? {
+	protected fun _parseIKConstraint(rawData: Any?): ConstraintData? {
 		val bone = this._armature?.getBone(ObjectDataParser._getString(rawData, DataParser.BONE, "")) ?: return null
 		val target = this._armature?.getBone(ObjectDataParser._getString(rawData, DataParser.TARGET, "")) ?: return null
 
@@ -541,9 +546,9 @@ open class ObjectDataParser :  DataParser() {
 		return constraint
 	}
 
-	protected fun _parsePathConstraint(rawData: Map<String, Any?>): ConstraintData? {
-		val target = this._armature.getSlot(ObjectDataParser._getString(rawData, DataParser.TARGET, "")) ?: return null
-		val defaultSkin = this._armature.defaultSkin ?: return null
+	protected fun _parsePathConstraint(rawData: Any?): ConstraintData? {
+		val target = this._armature?.getSlot(ObjectDataParser._getString(rawData, DataParser.TARGET, "")) ?: return null
+		val defaultSkin = this._armature?.defaultSkin ?: return null
 		//TODO
 		val targetDisplay = defaultSkin.getDisplay(target.name, ObjectDataParser._getString(rawData, DataParser.TARGET_DISPLAY, target.name))
 		if (targetDisplay == null || !(targetDisplay is PathDisplayData)) {
@@ -615,11 +620,11 @@ open class ObjectDataParser :  DataParser() {
 		return slot
 	}
 	
-	protected fun _parseSkin(rawData: Map<String, Any?>): SkinData {
+	protected fun _parseSkin(rawData: Any?): SkinData {
 		val skin = BaseObject.borrowObject<SkinData>()
 		skin.name = ObjectDataParser._getString(rawData, DataParser.NAME, DataParser.DEFAULT_NAME)
 
-		if (skin.name.length == 0) {
+		if (skin.name.isEmpty()) {
 			skin.name = DataParser.DEFAULT_NAME
 		}
 
@@ -627,17 +632,17 @@ open class ObjectDataParser :  DataParser() {
 			val rawSlots = rawData[DataParser.SLOT]
 			this._skin = skin
 
-			for (rawSlot in rawSlots) {
+			for (rawSlot in rawSlots.list) {
 				val slotName = ObjectDataParser._getString(rawSlot, DataParser.NAME, "")
-				val slot = this._armature.getSlot(slotName)
+				val slot = this._armature?.getSlot(slotName)
 
 				if (slot != null) {
 					this._slot = slot
 
 					if (DataParser.DISPLAY in rawSlot) {
 						val rawDisplays = rawSlot[DataParser.DISPLAY]
-						for (rawDisplay in rawDisplays) {
-							if (rawDisplay) {
+						for (rawDisplay in rawDisplays.list) {
+							if (rawDisplay != null) {
 								skin.addDisplay(slotName, this._parseDisplay(rawDisplay))
 							}
 							else {
@@ -656,17 +661,17 @@ open class ObjectDataParser :  DataParser() {
 		return skin
 	}
 
-	protected fun _parseDisplay(rawData: Map<String, Any?>): DisplayData? {
+	protected fun _parseDisplay(rawData: Any?): DisplayData? {
 		val name = ObjectDataParser._getString(rawData, DataParser.NAME, "")
 		val path = ObjectDataParser._getString(rawData, DataParser.PATH, "")
 		var type = DisplayType.Image
 		var display: DisplayData? = null
 
 		if (DataParser.TYPE in rawData && rawData[DataParser.TYPE] is String) {
-			type = DataParser._getDisplayType(rawData[DataParser.TYPE])
+			type = DataParser._getDisplayType(rawData[DataParser.TYPE]?.toString())
 		}
 		else {
-			type = ObjectDataParser._getNumber(rawData, DataParser.TYPE, type)
+			type = DisplayType[ObjectDataParser._getInt(rawData, DataParser.TYPE, type.id)]
 		}
 
 		when (type) {
@@ -690,14 +695,14 @@ open class ObjectDataParser :  DataParser() {
 						armatureDisplay.addAction(action)
 					}
 				}
-				else if (this._slot.name in this._slotChildActions) {
-					val displays = this._skin.getDisplays(this._slot.name)
-					if (if (displays == null) this._slot.displayIndex == 0 else this._slot.displayIndex == displays.length) {
-						for (action in this._slotChildActions[this._slot.name]) {
+				else if (this._slot?.name in this._slotChildActions) {
+					val displays = this._skin?.getDisplays(this._slot?.name)
+					if (if (displays == null) this._slot!!.displayIndex == 0 else this._slot!!.displayIndex == displays.length) {
+						for (action in this._slotChildActions[this._slot?.name]!!) {
 							armatureDisplay.addAction(action)
 						}
 
-						this._slotChildActions.remove(this._slot.name)
+						this._slotChildActions.remove(this._slot?.name)
 					}
 				}
 			}
@@ -706,11 +711,11 @@ open class ObjectDataParser :  DataParser() {
 				display = meshDisplay
 				meshDisplay.geometry.inheritDeform = ObjectDataParser._getBoolean(rawData, DataParser.INHERIT_DEFORM, true)
 				meshDisplay.name = name
-				meshDisplay.path = path.length > 0 ? path : name
+				meshDisplay.path = if (path.isNotEmpty()) path else name
 
 				if (DataParser.SHARE in rawData) {
 					meshDisplay.geometry.data = this._data
-					this._cacheRawMeshes.push(rawData)
+					this._cacheRawMeshes.push(rawData!!)
 					this._cacheMeshes.push(meshDisplay)
 				}
 				else {
@@ -723,7 +728,7 @@ open class ObjectDataParser :  DataParser() {
 					val boundingBoxDisplay = BaseObject.borrowObject<BoundingBoxDisplayData>()
 					display = boundingBoxDisplay
 					boundingBoxDisplay.name = name
-					boundingBoxDisplay.path = path.length > 0 ? path : name
+					boundingBoxDisplay.path = if (path.isNotEmpty()) path else name
 					boundingBoxDisplay.boundingBox = boundingBox
 				}
 			}
@@ -744,10 +749,12 @@ open class ObjectDataParser :  DataParser() {
 
 				this._parsePath(rawData, pathDisplay)
 			}
+			else -> {
+			}
 		}
 
 		if (display != null && DataParser.TRANSFORM in rawData) {
-			this._parseTransform(rawData[DataParser.TRANSFORM], display.transform, this._armature.scale)
+			this._parseTransform(rawData[DataParser.TRANSFORM], display.transform, this._armature!!.scale)
 		}
 
 		return display
@@ -757,7 +764,7 @@ open class ObjectDataParser :  DataParser() {
 		this._parseGeometry(rawData, display.geometry)
 	}
 
-	protected fun _parsePivot(rawData: Any?, display: ImageDisplayData): Unit {
+	protected fun _parsePivot(rawData: Any?, display: ImageDisplayData) {
 		if (DataParser.PIVOT in rawData) {
 			val rawPivot = rawData[DataParser.PIVOT]
 			display.pivot.x = ObjectDataParser._getNumber(rawPivot, DataParser.X, 0.0)
@@ -769,27 +776,27 @@ open class ObjectDataParser :  DataParser() {
 		}
 	}
 
-	protected fun _parseMesh(rawData: Any?, mesh: MeshDisplayData): Unit {
+	protected fun _parseMesh(rawData: Any?, mesh: MeshDisplayData) {
 		this._parseGeometry(rawData, mesh.geometry)
 
 		if (DataParser.WEIGHTS in rawData) { // Cache pose data.
-			val rawSlotPose = rawData[DataParser.SLOT_POSE] as  DoubleArray
-			val rawBonePoses = rawData[DataParser.BONE_POSE] as  DoubleArray
-			val meshName = this._skin.name + "_" + this._slot.name + "_" + mesh.name
+			val rawSlotPose = rawData[DataParser.SLOT_POSE] as  DoubleArrayList
+			val rawBonePoses = rawData[DataParser.BONE_POSE] as  DoubleArrayList
+			val meshName = "" + this._skin?.name + "_" + this._slot?.name + "_" + mesh.name
 			this._weightSlotPose[meshName] = rawSlotPose
 			this._weightBonePoses[meshName] = rawBonePoses
 		}
 	}
 
-	protected fun _parseBoundingBox(rawData: Map<String, Any?>): BoundingBoxData? {
+	protected fun _parseBoundingBox(rawData: Any?): BoundingBoxData? {
 		var boundingBox: BoundingBoxData? = null
 		var type = BoundingBoxType.Rectangle
 
 		if (DataParser.SUB_TYPE in rawData && rawData[DataParser.SUB_TYPE] is String) {
-			type = DataParser._getBoundingBoxType(rawData[DataParser.SUB_TYPE])
+			type = DataParser._getBoundingBoxType(rawData[DataParser.SUB_TYPE]?.toString())
 		}
 		else {
-			type = ObjectDataParser._getNumber(rawData, DataParser.SUB_TYPE, type)
+			type = BoundingBoxType[ObjectDataParser._getInt(rawData, DataParser.SUB_TYPE, type.id)]
 		}
 
 		when (type) {
@@ -804,6 +811,8 @@ open class ObjectDataParser :  DataParser() {
 			BoundingBoxType.Polygon -> {
 				boundingBox = this._parsePolygonBoundingBox(rawData)
 			}
+			else -> {
+			}
 		}
 
 		if (boundingBox != null) {
@@ -817,11 +826,11 @@ open class ObjectDataParser :  DataParser() {
 		return boundingBox
 	}
 
-	protected fun _parsePolygonBoundingBox(rawData: Map<String, Any?>): PolygonBoundingBoxData {
+	protected fun _parsePolygonBoundingBox(rawData: Any?): PolygonBoundingBoxData {
 		val polygonBoundingBox = BaseObject.borrowObject<PolygonBoundingBoxData>()
 
 		if (DataParser.VERTICES in rawData) {
-			val scale = this._armature.scale
+			val scale = this._armature!!.scale
 			val rawVertices = rawData[DataParser.VERTICES] as  DoubleArray
 			val vertices = polygonBoundingBox.vertices
 			vertices.length = rawVertices.size
@@ -867,12 +876,12 @@ open class ObjectDataParser :  DataParser() {
 		return polygonBoundingBox
 	}
 
-	protected fun _parseAnimation(rawData: Map<String, Any?>): AnimationData {
+	protected fun _parseAnimation(rawData: Any?): AnimationData {
 		val animation = BaseObject.borrowObject<AnimationData>()
 		animation.blendType = DataParser._getAnimationBlendType(ObjectDataParser._getString(rawData, DataParser.BLEND_TYPE, ""))
-		animation.frameCount = ObjectDataParser._getNumber(rawData, DataParser.DURATION, 0)
-		animation.playTimes = ObjectDataParser._getNumber(rawData, DataParser.PLAY_TIMES, 1)
-		animation.duration = animation.frameCount / this._armature.frameRate // float
+		animation.frameCount = ObjectDataParser._getInt(rawData, DataParser.DURATION, 0)
+		animation.playTimes = ObjectDataParser._getInt(rawData, DataParser.PLAY_TIMES, 1)
+		animation.duration = animation.frameCount.toDouble() / this._armature!!.frameRate.toDouble() // float
 		animation.fadeInTime = ObjectDataParser._getNumber(rawData, DataParser.FADE_IN_TIME, 0.0)
 		animation.scale = ObjectDataParser._getNumber(rawData, DataParser.SCALE, 1.0)
 		animation.name = ObjectDataParser._getString(rawData, DataParser.NAME, DataParser.DEFAULT_NAME)
@@ -896,13 +905,13 @@ open class ObjectDataParser :  DataParser() {
 				for (i in 0 until keyFrameCount) {
 					val rawFrame = rawFrames[i]
 					this._parseActionDataInFrame(rawFrame, frameStart, null, null)
-					frameStart += ObjectDataParser._getNumber(rawFrame, DataParser.DURATION, 1)
+					frameStart += ObjectDataParser._getInt(rawFrame, DataParser.DURATION, 1)
 				}
 			}
 		}
 
 		if (DataParser.Z_ORDER in rawData) {
-			this._animation.zOrderTimeline = this._parseTimeline(
+			this._animation!!.zOrderTimeline = this._parseTimeline(
 				rawData[DataParser.Z_ORDER], null, DataParser.FRAME, TimelineType.ZOrder,
 				FrameValueType.STEP, 0,
 				this::_parseZOrderFrame
@@ -930,12 +939,12 @@ open class ObjectDataParser :  DataParser() {
 				val slotName = ObjectDataParser._getString(rawTimeline, DataParser.SLOT, "")
 				val displayName = ObjectDataParser._getString(rawTimeline, DataParser.NAME, "")
 
-				if (skinName.length == 0) { //
+				if (skinName.isEmpty()) { //
 					skinName = DataParser.DEFAULT_NAME
 				}
 
-				this._slot = this._armature.getSlot(slotName)
-				this._mesh = this._armature.getMesh(skinName, slotName, displayName)
+				this._slot = this._armature?.getSlot(slotName)
+				this._mesh = this._armature?.getMesh(skinName, slotName, displayName)
 				if (this._slot == null || this._mesh == null) {
 					continue
 				}
@@ -959,7 +968,8 @@ open class ObjectDataParser :  DataParser() {
 			val rawTimelines = rawData[DataParser.IK] as List<Any?>
 			for (rawTimeline in rawTimelines) {
 				val constraintName = ObjectDataParser._getString(rawTimeline, DataParser.NAME, "")
-				val constraint = this._armature.getConstraint(constraintName) ?: continue
+				@Suppress("UNUSED_VARIABLE")
+				val constraint = this._armature!!.getConstraint(constraintName) ?: continue
 
 				val timeline = this._parseTimeline(
 					rawTimeline, null, DataParser.FRAME, TimelineType.IKConstraint,
@@ -974,18 +984,18 @@ open class ObjectDataParser :  DataParser() {
 		}
 
 		if (this._actionFrames.length > 0) {
-			this._animation.actionTimeline = this._parseTimeline(
-				null, this._actionFrames, "", TimelineType.Action,
+			this._animation!!.actionTimeline = this._parseTimeline(
+				null, this._actionFrames as ArrayList<Any?>?, "", TimelineType.Action,
 				FrameValueType.STEP, 0,
-				this::_parseActionFrame
+				this::_parseActionFrameRaw
 			)
 			this._actionFrames.length = 0
 		}
 
 		if (DataParser.TIMELINE in rawData) {
 			val rawTimelines = rawData[DataParser.TIMELINE]
-			loop@for (rawTimeline in rawTimelines) {
-				val timelineType = ObjectDataParser._getNumber(rawTimeline, DataParser.TYPE, TimelineType.Action) as TimelineType
+			loop@for (rawTimeline in rawTimelines.list) {
+				val timelineType = TimelineType[ObjectDataParser._getInt(rawTimeline, DataParser.TYPE, TimelineType.Action.id)]
 				val timelineName = ObjectDataParser._getString(rawTimeline, DataParser.NAME, "")
 				var timeline: TimelineData? = null
 
@@ -1032,7 +1042,7 @@ open class ObjectDataParser :  DataParser() {
 
 						if (timelineType == TimelineType.AnimationProgress && animation.blendType != AnimationBlendType.None) {
 							timeline = BaseObject.borrowObject<AnimationTimelineData>()
-							val animaitonTimeline = timeline as AnimationTimelineData
+							val animaitonTimeline = timeline
 							animaitonTimeline.x = ObjectDataParser._getNumber(rawTimeline, DataParser.X, 0.0)
 							animaitonTimeline.y = ObjectDataParser._getNumber(rawTimeline, DataParser.Y, 0.0)
 						}
@@ -1105,10 +1115,10 @@ open class ObjectDataParser :  DataParser() {
 
 					TimelineType.SlotDeform -> {
 						this._geometry = null //
-						for (skinName in this._armature!!.skins) {
+						for (skinName in this._armature!!.skins.keys) {
 							val skin = this._armature!!.skins[skinName]
-							for (slontName in skin!!.displays) {
-								val displays = skin.displays[slontName]
+							for (slontName in skin!!.displays.keys) {
+								val displays = skin.displays[slontName]!!
 								for (display in displays) {
 									if (display != null && display.name == timelineName) {
 										this._geometry = (display as MeshDisplayData).geometry
@@ -1137,6 +1147,8 @@ open class ObjectDataParser :  DataParser() {
 							FrameValueType.INT, 1,
 							this::_parseSlotColorFrame
 						)
+					}
+					else -> {
 					}
 				}
 
@@ -1175,6 +1187,8 @@ open class ObjectDataParser :  DataParser() {
 						TimelineType.AnimationParameter -> {
 							this._animation?.addAnimationTimeline(timelineName, timeline)
 						}
+						else -> {
+						}
 					}
 				}
 			}
@@ -1191,9 +1205,10 @@ open class ObjectDataParser :  DataParser() {
 		frameParser: (rawData: Any?, frameStart: Int, frameCount: Int) -> Int, timeline: TimelineData? = null
 	): TimelineData? {
 		var timeline = timeline
-		var frameParser = frameParser
-		if (rawData != null && framesKey.length > 0 && framesKey in rawData) {
-			rawFrames = rawData[framesKey]
+		val frameParser = frameParser
+		var rawFrames = rawFrames
+		if (rawData != null && framesKey.isNotEmpty() && framesKey in rawData) {
+			rawFrames = rawData[framesKey] as ArrayList<Any?>?
 		}
 
 		if (rawFrames == null) {
@@ -1248,11 +1263,12 @@ open class ObjectDataParser :  DataParser() {
 
 		if (keyFrameCount == 1) { // Only one frame.
 			timeline.frameIndicesOffset = -1
-			this._timelineArray[timelineOffset + BinaryOffset.TimelineFrameOffset + 0] = frameParser(rawFrames[0], 0, 0) - this._animation!!.frameOffset
+			this._timelineArray[timelineOffset + BinaryOffset.TimelineFrameOffset.index + 0] =
+					(frameParser(rawFrames[0], 0, 0) - this._animation!!.frameOffset).toDouble()
 		}
 		else {
-			val totalFrameCount = this._animation.frameCount + 1 // One more frame than animation.
-			val frameIndices = this._data.frameIndices
+			val totalFrameCount = this._animation!!.frameCount + 1 // One more frame than animation.
+			val frameIndices = this._data!!.frameIndices
 			val frameIndicesOffset = frameIndices.length
 			frameIndices.length += totalFrameCount
 			timeline.frameIndicesOffset = frameIndicesOffset
@@ -1267,7 +1283,7 @@ open class ObjectDataParser :  DataParser() {
 					frameStart = i // frame.frameStart;
 
 					if (iK == keyFrameCount - 1) {
-						frameCount = this._animation.frameCount - frameStart
+						frameCount = this._animation!!.frameCount - frameStart
 					}
 					else {
 						if (rawFrame is ActionFrame) {
@@ -1278,7 +1294,8 @@ open class ObjectDataParser :  DataParser() {
 						}
 					}
 
-					this._timelineArray[timelineOffset + BinaryOffset.TimelineFrameOffset + iK] = frameParser.call(this, rawFrame, frameStart, frameCount) - this._animation.frameOffset
+					this._timelineArray[timelineOffset + BinaryOffset.TimelineFrameOffset.index + iK] =
+							(frameParser(rawFrame, frameStart, frameCount) - this._animation!!.frameOffset).toDouble()
 					iK++
 				}
 
@@ -1291,7 +1308,7 @@ open class ObjectDataParser :  DataParser() {
 		return timeline
 	}
 
-	protected fun _parseBoneTimeline(rawData: Map<String, Any?>): Unit {
+	protected fun _parseBoneTimeline(rawData: Any?) {
 		val bone = this._armature?.getBone(ObjectDataParser._getString(rawData, DataParser.NAME, "")) ?: return
 
 		this._bone = bone
@@ -1321,7 +1338,7 @@ open class ObjectDataParser :  DataParser() {
 			)
 
 			if (timeline != null) {
-				this._animation.addBoneTimeline(bone.name, timeline)
+				this._animation?.addBoneTimeline(bone.name, timeline)
 			}
 		}
 
@@ -1335,7 +1352,7 @@ open class ObjectDataParser :  DataParser() {
 			)
 
 			if (timeline != null) {
-				this._animation.addBoneTimeline(bone.name, timeline)
+				this._animation?.addBoneTimeline(bone.name, timeline)
 			}
 		}
 
@@ -1347,7 +1364,7 @@ open class ObjectDataParser :  DataParser() {
 			)
 
 			if (timeline != null) {
-				this._animation.addBoneTimeline(bone.name, timeline)
+				this._animation?.addBoneTimeline(bone.name, timeline)
 			}
 		}
 
@@ -1355,14 +1372,11 @@ open class ObjectDataParser :  DataParser() {
 		this._slot = null //
 	}
 
-	protected fun _parseSlotTimeline(rawData: Map<String, Any?>): Unit {
-		val slot = this._armature.getSlot(ObjectDataParser._getString(rawData, DataParser.NAME, ""))
-		if (slot == null) {
-			return
-		}
+	protected fun _parseSlotTimeline(rawData: Any?) {
+		val slot = this._armature?.getSlot(ObjectDataParser._getString(rawData, DataParser.NAME, "")) ?: return
 
-		var displayTimeline: TimelineData? = null
-		var colorTimeline: TimelineData? = null
+		val displayTimeline: TimelineData?
+		val colorTimeline: TimelineData?
 		this._slot = slot
 
 		if (DataParser.DISPLAY_FRAME in rawData) {
@@ -1410,7 +1424,7 @@ open class ObjectDataParser :  DataParser() {
 	protected fun _parseFrame(rawData: Any?, frameStart: Int, frameCount: Int): Int {
 		val frameOffset = this._frameArray.length
 		this._frameArray.length += 1
-		this._frameArray[frameOffset + BinaryOffset.FramePosition.index] = frameStart
+		this._frameArray[frameOffset + BinaryOffset.FramePosition.index] = frameStart.toDouble()
 
 		return frameOffset
 	}
@@ -1422,14 +1436,14 @@ open class ObjectDataParser :  DataParser() {
 			if (DataParser.CURVE in rawData) {
 				val sampleCount = frameCount + 1
 				this._helpArray.length = sampleCount
-				val isOmited = this._samplingEasingCurve(rawData[DataParser.CURVE], this._helpArray)
+				val isOmited = this._samplingEasingCurve(rawData[DataParser.CURVE] as DoubleArrayList, this._helpArray)
 
 				this._frameArray.length += 1 + 1 + this._helpArray.length
-				this._frameArray[frameOffset + BinaryOffset.FrameTweenType.index] = TweenType.Curve
-				this._frameArray[frameOffset + BinaryOffset.FrameTweenEasingOrCurveSampleCount.index] = if (isOmited) sampleCount else -sampleCount
+				this._frameArray[frameOffset + BinaryOffset.FrameTweenType.index] = TweenType.Curve.id.toDouble()
+				this._frameArray[frameOffset + BinaryOffset.FrameTweenEasingOrCurveSampleCount.index] = (if (isOmited) sampleCount else -sampleCount).toDouble()
 				//for (var i = 0; i < sampleCount; ++i) {
 				for (i in 0 until sampleCount) {
-					this._frameArray[frameOffset + BinaryOffset.FrameCurveSamples.index + i] = Math.round(this._helpArray[i] * 10000.0)
+					this._frameArray[frameOffset + BinaryOffset.FrameCurveSamples.index + i] = Math.round(this._helpArray[i] * 10000.0).toDouble()
 				}
 			}
 			else {
@@ -1466,7 +1480,7 @@ open class ObjectDataParser :  DataParser() {
 		}
 		else {
 			this._frameArray.length += 1
-			this._frameArray[frameOffset + BinaryOffset.FrameTweenType.index] = TweenType.None
+			this._frameArray[frameOffset + BinaryOffset.FrameTweenType.index] = TweenType.None.id.toDouble()
 		}
 
 		return frameOffset
@@ -1529,19 +1543,18 @@ open class ObjectDataParser :  DataParser() {
 		return frameOffset
 	}
 
-	protected fun _parseActionFrame(frame: ActionFrame, frameStart: Int, frameCount: Int): Int {
-		// tslint:disable-next-line:no-unused-expression
-		frameCount
+	protected fun _parseActionFrameRaw(frame: Any?, frameStart: Int, frameCount: Int): Int = _parseActionFrame(frame as ActionFrame, frameStart, frameCount)
 
+	protected fun _parseActionFrame(frame: ActionFrame, frameStart: Int, frameCount: Int): Int {
 		val frameOffset = this._frameArray.length
 		val actionCount = frame.actions.length
 		this._frameArray.length += 1 + 1 + actionCount
-		this._frameArray[frameOffset + BinaryOffset.FramePosition] = frameStart
-		this._frameArray[frameOffset + BinaryOffset.FramePosition + 1] = actionCount // Action count.
+		this._frameArray[frameOffset + BinaryOffset.FramePosition.index] = frameStart.toDouble()
+		this._frameArray[frameOffset + BinaryOffset.FramePosition.index + 1] = actionCount.toDouble() // Action count.
 
 		//for (var i = 0; i < actionCount; ++i) { // Action offsets.
 		for (i in 0 until actionCount) { // Action offsets.
-			this._frameArray[frameOffset + BinaryOffset.FramePosition + 2 + i] = frame.actions[i]
+			this._frameArray[frameOffset + BinaryOffset.FramePosition.index + 2 + i] = frame.actions[i].toDouble()
 		}
 
 		return frameOffset
@@ -1605,7 +1618,7 @@ open class ObjectDataParser :  DataParser() {
 		}
 
 		this._frameArray.length += 1
-		this._frameArray[frameOffset + 1] = 0
+		this._frameArray[frameOffset + 1] = 0.0
 
 		return frameOffset
 	}
@@ -1619,12 +1632,12 @@ open class ObjectDataParser :  DataParser() {
 		// Modify rotation.
 		var rotation = this._helpTransform.rotation
 		if (frameStart != 0) {
-			if (this._prevClockwise == 0) {
+			if (this._prevClockwise == 0.0) {
 				rotation = this._prevRotation + Transform.normalizeRadian(rotation - this._prevRotation)
 			}
 			else {
-				if (this._prevClockwise > 0 ? rotation >= this._prevRotation : rotation <= this._prevRotation) {
-					this._prevClockwise = this._prevClockwise > 0 ? this._prevClockwise - 1 : this._prevClockwise + 1
+				if (if (this._prevClockwise > 0) rotation >= this._prevRotation else rotation <= this._prevRotation) {
+					this._prevClockwise = if (this._prevClockwise > 0) this._prevClockwise - 1 else this._prevClockwise + 1
 				}
 
 				rotation = this._prevRotation + rotation - this._prevRotation + Transform.PI_D * this._prevClockwise
@@ -1663,19 +1676,19 @@ open class ObjectDataParser :  DataParser() {
 		var rotation = ObjectDataParser._getNumber(rawData, DataParser.ROTATE, 0.0) * Transform.DEG_RAD
 
 		if (frameStart != 0) {
-			if (this._prevClockwise == 0) {
+			if (this._prevClockwise == 0.0) {
 				rotation = this._prevRotation + Transform.normalizeRadian(rotation - this._prevRotation)
 			}
 			else {
-				if (this._prevClockwise > 0 ? rotation >= this._prevRotation : rotation <= this._prevRotation) {
-					this._prevClockwise = this._prevClockwise > 0 ? this._prevClockwise - 1 : this._prevClockwise + 1
+				if (if (this._prevClockwise > 0) rotation >= this._prevRotation else rotation <= this._prevRotation) {
+					this._prevClockwise = if (this._prevClockwise > 0) this._prevClockwise - 1 else this._prevClockwise + 1
 				}
 
 				rotation = this._prevRotation + rotation - this._prevRotation + Transform.PI_D * this._prevClockwise
 			}
 		}
 
-		this._prevClockwise = ObjectDataParser._getNumber(rawData, DataParser.CLOCK_WISE, 0)
+		this._prevClockwise = ObjectDataParser._getNumber(rawData, DataParser.CLOCK_WISE, 0.0)
 		this._prevRotation = rotation
 		//
 		val frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount)
@@ -1702,13 +1715,13 @@ open class ObjectDataParser :  DataParser() {
 		this._frameArray.length += 1
 
 		if (DataParser.VALUE in rawData) {
-			this._frameArray[frameOffset + 1] = ObjectDataParser._getNumber(rawData, DataParser.VALUE, 0)
+			this._frameArray[frameOffset + 1] = ObjectDataParser._getNumber(rawData, DataParser.VALUE, 0.0)
 		}
 		else {
-			this._frameArray[frameOffset + 1] = ObjectDataParser._getNumber(rawData, DataParser.DISPLAY_INDEX, 0)
+			this._frameArray[frameOffset + 1] = ObjectDataParser._getNumber(rawData, DataParser.DISPLAY_INDEX, 0.0)
 		}
 
-		this._parseActionDataInFrame(rawData, frameStart, this._slot.parent, this._slot)
+		this._parseActionDataInFrame(rawData, frameStart, this._slot?.parent, this._slot)
 
 		return frameOffset
 	}
@@ -1766,12 +1779,12 @@ open class ObjectDataParser :  DataParser() {
 		val frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount)
 		val rawVertices = rawData[DataParser.VERTICES] as? DoubleArray?
 		val offset = ObjectDataParser._getInt(rawData, DataParser.OFFSET, 0) // uint
-		val vertexCount = this._intArray[this._mesh.geometry.offset + BinaryOffset.GeometryVertexCount]
-		val meshName = "" + this._mesh?.parent?.name + "_" + this._slot.name + "_" + this._mesh.name
+		val vertexCount = this._intArray[this._mesh!!.geometry.offset + BinaryOffset.GeometryVertexCount.index]
+		val meshName = "" + this._mesh?.parent?.name + "_" + this._slot?.name + "_" + this._mesh?.name
 		val weight = this._mesh?.geometry!!.weight
 
-		var x = 0.0
-		var y = 0.0
+		var x: Double
+		var y: Double
 		var iB = 0
 		var iV = 0
 		if (weight != null) {
@@ -1807,7 +1820,7 @@ open class ObjectDataParser :  DataParser() {
 			}
 
 			if (weight != null) { // If mesh is skinned, transform point by bone bind pose.
-				val rawBonePoses = this._weightBonePoses[meshName]
+				val rawBonePoses = this._weightBonePoses[meshName]!!
 				val vertexBoneCount = this._intArray[iB++]
 
 				this._helpMatrixA.transformPoint(x, y, this._helpPoint, true)
@@ -1834,12 +1847,12 @@ open class ObjectDataParser :  DataParser() {
 		if (frameStart == 0) {
 			val frameIntOffset = this._frameIntArray.length
 			this._frameIntArray.length += 1 + 1 + 1 + 1 + 1
-			this._frameIntArray[frameIntOffset + BinaryOffset.DeformVertexOffset] = this._mesh.geometry.offset
-			this._frameIntArray[frameIntOffset + BinaryOffset.DeformCount] = this._frameFloatArray.length - frameFloatOffset
-			this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount] = this._frameFloatArray.length - frameFloatOffset
-			this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueOffset] = 0
-			this._frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset] = frameFloatOffset - this._animation.frameFloatOffset
-			this._timelineArray[this._timeline.offset + BinaryOffset.TimelineFrameValueCount] = frameIntOffset - this._animation.frameIntOffset
+			this._frameIntArray[frameIntOffset + BinaryOffset.DeformVertexOffset.index] = this._mesh!!.geometry.offset
+			this._frameIntArray[frameIntOffset + BinaryOffset.DeformCount.index] = this._frameFloatArray.length - frameFloatOffset
+			this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount.index] = this._frameFloatArray.length - frameFloatOffset
+			this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueOffset.index] = 0
+			this._frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset.index] = frameFloatOffset - this._animation!!.frameFloatOffset
+			this._timelineArray[this._timeline!!.offset + BinaryOffset.TimelineFrameValueCount.index] = (frameIntOffset - this._animation!!.frameIntOffset).toDouble()
 		}
 
 		return frameOffset
@@ -1909,7 +1922,7 @@ open class ObjectDataParser :  DataParser() {
 						userData = BaseObject.borrowObject<UserData>()
 					}
 
-					val rawInts = rawAction[DataParser.INTS] as  DoubleArray
+					val rawInts = rawAction[DataParser.INTS] as  IntArrayList
 					for (rawValue in rawInts) {
 						userData.addInt(rawValue)
 					}
@@ -1920,7 +1933,7 @@ open class ObjectDataParser :  DataParser() {
 						userData = BaseObject.borrowObject<UserData>()
 					}
 
-					val rawFloats = rawAction[DataParser.FLOATS] as  DoubleArray
+					val rawFloats = rawAction[DataParser.FLOATS] as  DoubleArrayList
 					for (rawValue in rawFloats) {
 						userData.addFloat(rawValue)
 					}
@@ -1951,11 +1964,11 @@ open class ObjectDataParser :  DataParser() {
 		val rawVertices = if (DataParser.VERTICES in rawData)
 			rawData[DataParser.VERTICES] as? DoubleArrayList? else
 			rawData[DataParser.VALUE] as? DoubleArrayList?
-		val offset = ObjectDataParser._getNumber(rawData, DataParser.OFFSET, 0).toInt() // uint
-		val vertexCount = this._intArray[this._geometry.offset + BinaryOffset.GeometryVertexCount]
-		val weight = this._geometry.weight
-		var x = 0.0
-		var y = 0.0
+		val offset = ObjectDataParser._getNumber(rawData, DataParser.OFFSET, 0.0).toInt() // uint
+		val vertexCount = this._intArray[this._geometry!!.offset + BinaryOffset.GeometryVertexCount.index]
+		val weight = this._geometry!!.weight
+		var x: Double
+		var y: Double
 
 		if (weight != null) {
 			// TODO
@@ -1993,18 +2006,18 @@ open class ObjectDataParser :  DataParser() {
 		if (frameStart == 0) {
 			val frameIntOffset = this._frameIntArray.length
 			this._frameIntArray.length += 1 + 1 + 1 + 1 + 1
-			this._frameIntArray[frameIntOffset + BinaryOffset.DeformVertexOffset] = this._geometry.offset
-			this._frameIntArray[frameIntOffset + BinaryOffset.DeformCount] = this._frameFloatArray.length - frameFloatOffset
-			this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount] = this._frameFloatArray.length - frameFloatOffset
-			this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueOffset] = 0
-			this._frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset] = frameFloatOffset - this._animation.frameFloatOffset
-			this._timelineArray[this._timeline.offset + BinaryOffset.TimelineFrameValueCount] = frameIntOffset - this._animation.frameIntOffset
+			this._frameIntArray[frameIntOffset + BinaryOffset.DeformVertexOffset.index] = this._geometry!!.offset
+			this._frameIntArray[frameIntOffset + BinaryOffset.DeformCount.index] = this._frameFloatArray.length - frameFloatOffset
+			this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount.index] = this._frameFloatArray.length - frameFloatOffset
+			this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueOffset.index] = 0
+			this._frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset.index] = frameFloatOffset - this._animation!!.frameFloatOffset
+			this._timelineArray[this._timeline!!.offset + BinaryOffset.TimelineFrameValueCount.index] = (frameIntOffset - this._animation!!.frameIntOffset).toDouble()
 		}
 
 		return frameOffset
 	}
 
-	protected fun _parseTransform(rawData: Any?, transform: Transform, scale: Double): Unit {
+	protected fun _parseTransform(rawData: Any?, transform: Transform, scale: Double) {
 		transform.x = ObjectDataParser._getNumber(rawData, DataParser.X, 0.0) * scale
 		transform.y = ObjectDataParser._getNumber(rawData, DataParser.Y, 0.0) * scale
 
@@ -2032,7 +2045,7 @@ open class ObjectDataParser :  DataParser() {
 		color.blueOffset = ObjectDataParser._getInt(rawData, DataParser.BLUE_OFFSET, 0)
 	}
 
-	protected fun _parseGeometry(rawData: Any?, geometry: GeometryData): Unit {
+	protected fun _parseGeometry(rawData: Any?, geometry: GeometryData) {
 		val rawVertices = rawData[DataParser.VERTICES] as  DoubleArray
 		val vertexCount: Int = rawVertices.size / 2 // uint
 		var triangleCount = 0
@@ -2043,9 +2056,9 @@ open class ObjectDataParser :  DataParser() {
 		geometry.data = this._data
 		//
 		this._intArray.length += 1 + 1 + 1 + 1
-		this._intArray[geometryOffset + BinaryOffset.GeometryVertexCount] = vertexCount
-		this._intArray[geometryOffset + BinaryOffset.GeometryFloatOffset] = verticesOffset
-		this._intArray[geometryOffset + BinaryOffset.GeometryWeightOffset] = -1 //
+		this._intArray[geometryOffset + BinaryOffset.GeometryVertexCount.index] = vertexCount
+		this._intArray[geometryOffset + BinaryOffset.GeometryFloatOffset.index] = verticesOffset
+		this._intArray[geometryOffset + BinaryOffset.GeometryWeightOffset.index] = -1 //
 		//
 		this._floatArray.length += vertexCount * 2
 		//for (var i = 0, l = vertexCount * 2; i < l; ++i) {
@@ -2104,7 +2117,7 @@ open class ObjectDataParser :  DataParser() {
 					val bone = this._rawBones[rawBoneIndex]
 					weight.addBone(bone)
 					weightBoneIndices[i] = rawBoneIndex
-					this._intArray[weightOffset + BinaryOffset.WeigthBoneIndices.index + i] = sortedBones.indexOf(bone)
+					this._intArray[weightOffset + BinaryOffset.WeigthBoneIndices.index + i] = sortedBones!!.indexOf(bone)
 				}
 
 				this._floatArray.length += weightCount * 3
@@ -2145,10 +2158,10 @@ open class ObjectDataParser :  DataParser() {
 
 				//for (var i = 0; i < weightBoneCount; i++) {
 				for (i in 0 until weightBoneCount) {
-					val rawBoneIndex = rawBones[i]
+					val rawBoneIndex = rawBones[i].toInt()
 					val bone = this._rawBones[rawBoneIndex]
 					weight.addBone(bone)
-					this._intArray[weightOffset + BinaryOffset.WeigthBoneIndices.index + i] = sortedBones.indexOf(bone)
+					this._intArray[weightOffset + BinaryOffset.WeigthBoneIndices.index + i] = sortedBones!!.indexOf(bone)
 				}
 
 				this._floatArray.length += weightCount * 3
@@ -2180,9 +2193,7 @@ open class ObjectDataParser :  DataParser() {
 		}
 	}
 
-	protected fun _parseArray(rawData: Any): Unit {
-		// tslint:disable-next-line:no-unused-expression
-		//rawData
+	protected fun _parseArray(@Suppress("UNUSED_PARAMETER") rawData: Any?) {
 		this._intArray.length = 0
 		this._floatArray.length = 0
 		this._frameIntArray.length = 0
@@ -2192,91 +2203,92 @@ open class ObjectDataParser :  DataParser() {
 		this._colorArray.length = 0
 	}
 
-	protected fun _modifyArray(): Unit {
+	protected fun _modifyArray() {
 		// Align.
-		if ((this._intArray.length % Int16Array.BYTES_PER_ELEMENT) != 0) {
+		if ((this._intArray.length % Int16Buffer.BYTES_PER_ELEMENT) != 0) {
 			this._intArray.push(0)
 		}
 
-		if ((this._frameIntArray.length % Int16Array.BYTES_PER_ELEMENT) != 0) {
+		if ((this._frameIntArray.length % Int16Buffer.BYTES_PER_ELEMENT) != 0) {
 			this._frameIntArray.push(0)
 		}
 
-		if ((this._frameArray.length % Int16Array.BYTES_PER_ELEMENT) != 0) {
-			this._frameArray.push(0)
+		if ((this._frameArray.length % Int16Buffer.BYTES_PER_ELEMENT) != 0) {
+			this._frameArray.push(0.0)
 		}
 
-		if ((this._timelineArray.length % Uint16Array.BYTES_PER_ELEMENT) != 0) {
-			this._timelineArray.push(0)
+		if ((this._timelineArray.length % Int16Buffer.BYTES_PER_ELEMENT) != 0) {
+			//this._timelineArray.push(0)
+			this._timelineArray.push(0.0)
 		}
 
-		if ((this._timelineArray.length % Int16Array.BYTES_PER_ELEMENT) != 0) {
+		if ((this._timelineArray.length % Int16Buffer.BYTES_PER_ELEMENT) != 0) {
 			this._colorArray.push(0)
 		}
 
-		val l1 = this._intArray.length * Int16Array.BYTES_PER_ELEMENT
-		val l2 = this._floatArray.length * Float32Array.BYTES_PER_ELEMENT
-		val l3 = this._frameIntArray.length * Int16Array.BYTES_PER_ELEMENT
-		val l4 = this._frameFloatArray.length * Float32Array.BYTES_PER_ELEMENT
-		val l5 = this._frameArray.length * Int16Array.BYTES_PER_ELEMENT
-		val l6 = this._timelineArray.length * Uint16Array.BYTES_PER_ELEMENT
-		val l7 = this._colorArray.length * Int16Array.BYTES_PER_ELEMENT
+		val l1 = this._intArray.length * Int16Buffer.BYTES_PER_ELEMENT
+		val l2 = this._floatArray.length * Float32Buffer.BYTES_PER_ELEMENT
+		val l3 = this._frameIntArray.length * Int16Buffer.BYTES_PER_ELEMENT
+		val l4 = this._frameFloatArray.length * Float32Buffer.BYTES_PER_ELEMENT
+		val l5 = this._frameArray.length * Int16Buffer.BYTES_PER_ELEMENT
+		val l6 = this._timelineArray.length * Int16Buffer.BYTES_PER_ELEMENT
+		val l7 = this._colorArray.length * Int16Buffer.BYTES_PER_ELEMENT
 		val lTotal = l1 + l2 + l3 + l4 + l5 + l6 + l7
 		//
-		val binary = new ArrayBuffer(lTotal)
-		val intArray = new Int16Array(binary, 0, this._intArray.length)
-		val floatArray = new Float32Array(binary, l1, this._floatArray.length)
-		val frameIntArray = new Int16Array(binary, l1 + l2, this._frameIntArray.length)
-		val frameFloatArray = new Float32Array(binary, l1 + l2 + l3, this._frameFloatArray.length)
-		val frameArray = new Int16Array(binary, l1 + l2 + l3 + l4, this._frameArray.length)
-		val timelineArray = new Uint16Array(binary, l1 + l2 + l3 + l4 + l5, this._timelineArray.length)
-		val colorArray = new Int16Array(binary, l1 + l2 + l3 + l4 + l5 + l6, this._colorArray.length)
+		val binary = MemBufferAlloc(lTotal)
+		val intArray = binary.sliceInt16Buffer(0, this._intArray.length)
+		val floatArray = binary.sliceFloat32Buffer(l1, this._floatArray.length)
+		val frameIntArray = binary.sliceInt16Buffer(l1 + l2, this._frameIntArray.length)
+		val frameFloatArray = binary.sliceFloat32Buffer(l1 + l2 + l3, this._frameFloatArray.length)
+		val frameArray = binary.sliceInt16Buffer(l1 + l2 + l3 + l4, this._frameArray.length)
+		val timelineArray = binary.sliceInt16Buffer(l1 + l2 + l3 + l4 + l5, this._timelineArray.length) // @TODO: Kotlin: Uint16
+		val colorArray = binary.sliceInt16Buffer(l1 + l2 + l3 + l4 + l5 + l6, this._colorArray.length)
 
 		for (i in 0 until this._intArray.length) {
-			intArray[i] = this._intArray[i]
+			intArray[i] = this._intArray[i].toShort()
 		}
 
 		for (i in 0 until this._floatArray.length) {
-			floatArray[i] = this._floatArray[i]
+			floatArray[i] = this._floatArray[i].toFloat()
 		}
 
 		//for (var i = 0, l = this._frameIntArray.length; i < l; ++i) {
 		for (i in 0 until this._frameIntArray.length) {
-			frameIntArray[i] = this._frameIntArray[i]
+			frameIntArray[i] = this._frameIntArray[i].toShort()
 		}
 
 		//for (var i = 0, l = this._frameFloatArray.length; i < l; ++i) {
 		for (i in 0 until this._frameFloatArray.length) {
-			frameFloatArray[i] = this._frameFloatArray[i]
+			frameFloatArray[i] = this._frameFloatArray[i].toFloat()
 		}
 
 		//for (var i = 0, l = this._frameArray.length; i < l; ++i) {
 		for (i in 0 until this._frameArray.length) {
-			frameArray[i] = this._frameArray[i]
+			frameArray[i] = this._frameArray[i].toShort()
 		}
 
 		//for (var i = 0, l = this._timelineArray.length; i < l; ++i) {
 		for (i in 0 until this._timelineArray.length) {
-			timelineArray[i] = this._timelineArray[i]
+			timelineArray[i] = this._timelineArray[i].toShort()
 		}
 
 		//for (var i = 0, l = this._colorArray.length; i < l; ++i) {
 		for (i in 0 until this._colorArray.length) {
-			colorArray[i] = this._colorArray[i]
+			colorArray[i] = this._colorArray[i].toShort()
 		}
 
-		this._data.binary = binary
-		this._data.intArray = intArray
-		this._data.floatArray = floatArray
-		this._data.frameIntArray = frameIntArray
-		this._data.frameFloatArray = frameFloatArray
-		this._data.frameArray = frameArray
-		this._data.timelineArray = timelineArray
-		this._data.colorArray = colorArray
+		this._data?.binary = binary
+		this._data?.intArray = intArray
+		this._data?.floatArray = floatArray
+		this._data?.frameIntArray = frameIntArray
+		this._data?.frameFloatArray = frameFloatArray
+		this._data?.frameArray = frameArray
+		this._data?.timelineArray = timelineArray
+		this._data?.colorArray = colorArray
 		this._defaultColorOffset = -1
 	}
 
-	public fun parseDragonBonesData(rawData: Any?, scale: Double = 1.0): DragonBonesData? {
+	override fun parseDragonBonesData(rawData: Any?, scale: Double): DragonBonesData? {
 		//console.assert(rawData != null && rawData != null, "Data error.")
 
 		val version = ObjectDataParser._getString(rawData, DataParser.VERSION, "")
@@ -2304,7 +2316,7 @@ open class ObjectDataParser :  DataParser() {
 					data.addArmature(this._parseArmature(rawArmature, scale))
 				}
 
-				if (this._data.binary != null) { // DragonBones.webAssembly ? 0 : null;
+				if (this._data?.binary != null) { // DragonBones.webAssembly ? 0 : null;
 					this._modifyArray()
 				}
 
@@ -2319,7 +2331,7 @@ open class ObjectDataParser :  DataParser() {
 			}
 
 			if (DataParser.TEXTURE_ATLAS in rawData) {
-				this._rawTextureAtlases = rawData[DataParser.TEXTURE_ATLAS]
+				this._rawTextureAtlases = rawData[DataParser.TEXTURE_ATLAS] as ArrayList<Any?>?
 			}
 
 			return data
@@ -2338,14 +2350,14 @@ open class ObjectDataParser :  DataParser() {
 
 	override fun parseTextureAtlasData(rawData: Any?, textureAtlasData: TextureAtlasData, scale: Double): Boolean {
 		if (rawData == null) {
-			if (this._rawTextureAtlases == null || this._rawTextureAtlases.length == 0) {
+			if (this._rawTextureAtlases == null || this._rawTextureAtlases!!.length == 0) {
 				return false
 			}
 
-			val rawTextureAtlas = this._rawTextureAtlases[this._rawTextureAtlasIndex++]
+			val rawTextureAtlas = this._rawTextureAtlases!![this._rawTextureAtlasIndex++]
 			this.parseTextureAtlasData(rawTextureAtlas, textureAtlasData, scale)
 
-			if (this._rawTextureAtlasIndex >= this._rawTextureAtlases.length) {
+			if (this._rawTextureAtlasIndex >= this._rawTextureAtlases!!.length) {
 				this._rawTextureAtlasIndex = 0
 				this._rawTextureAtlases = null
 			}
