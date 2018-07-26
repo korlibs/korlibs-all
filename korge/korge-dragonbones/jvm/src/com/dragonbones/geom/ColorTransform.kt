@@ -36,7 +36,7 @@ class ColorTransform(
 	var blueOffset: Int = 0
 ) {
 
-	fun copyFrom(value: ColorTransform): Unit {
+	fun copyFrom(value: ColorTransform) {
 		this.alphaMultiplier = value.alphaMultiplier
 		this.redMultiplier = value.redMultiplier
 		this.greenMultiplier = value.greenMultiplier
@@ -47,7 +47,7 @@ class ColorTransform(
 		this.blueOffset = value.blueOffset
 	}
 
-	fun identity(): Unit {
+	fun identity() {
 		this.alphaMultiplier = 1.0
 		this.redMultiplier = 1.0
 		this.greenMultiplier = 1.0

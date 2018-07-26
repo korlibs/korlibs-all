@@ -32,6 +32,7 @@ import com.dragonbones.geom.*
 import com.dragonbones.model.*
 import com.dragonbones.util.*
 import com.soywiz.kds.*
+import com.soywiz.korio.ds.*
 
 /**
  * - Armature is the core of the skeleton animation system.
@@ -176,14 +177,14 @@ class Armature  : BaseObject(), IAnimatable {
 	/**
 	 * @internal
 	 */
-	fun _sortZOrder(slotIndices: NumberArrayList?, offset: Int) {
+	fun _sortZOrder(slotIndices: NumberRawArray?, offset: Int) {
 		val slotDatas = this._armatureData!!.sortedSlots
 		val isOriginal = slotIndices == null
 
 		if (this._zOrderDirty || !isOriginal) {
 			val l = slotDatas.lengthSet
 			for (i in 0 until l) {
-				val slotIndex: Int = if (isOriginal) i else (slotIndices as  NumberArrayList).getInt(offset + i)
+				val slotIndex: Int = if (isOriginal) i else (slotIndices as  NumberRawArray).getInt(offset + i)
 				if (slotIndex < 0 || slotIndex >= l) {
 					continue
 				}

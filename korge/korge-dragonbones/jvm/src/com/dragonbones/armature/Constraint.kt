@@ -27,17 +27,12 @@ import com.dragonbones.geom.*
 import com.dragonbones.model.*
 import com.dragonbones.util.*
 import com.soywiz.kds.*
+import com.soywiz.kmem.*
 
 /**
  * @internal
  */
 abstract class Constraint  : BaseObject() {
-	companion object {
-		protected val _helpMatrix: Matrix = Matrix()
-		protected val _helpTransform: Transform = Transform()
-		protected val _helpPoint: Point = Point()
-	}
-
 	/**
 	 * - For timeline state.
 	 * @internal
@@ -56,16 +51,16 @@ abstract class Constraint  : BaseObject() {
 	lateinit var _root: Bone
 	protected var _bone: Bone? = null
 
-	override fun _onClear(): Unit {
-		//this._armature = null as any //
-		//this._target = null as any //
-		//this._root = null as any //
+	override fun _onClear() {
+		//this._armature = null //
+		//this._target = null //
+		//this._root = null //
 		this._bone = null
 	}
 
-	abstract fun init(constraintData: ConstraintData, armature: Armature): Unit
-	abstract fun update(): Unit
-	abstract fun invalidUpdate(): Unit
+	abstract fun init(constraintData: ConstraintData, armature: Armature)
+	abstract fun update()
+	abstract fun invalidUpdate()
 
 	val name: String get() {
 		return this._constraintData?.name ?: ""
@@ -91,16 +86,16 @@ class IKConstraint  :  Constraint() {
 	 */
 	var _weight: Double = 1.0
 
-	override fun _onClear(): Unit {
+	override fun _onClear() {
 		super._onClear()
 
 		this._scaleEnabled = false
 		this._bendPositive = false
 		this._weight = 1.0
-		//this._constraintData = null as any
+		//this._constraintData = null
 	}
 
-	private fun _computeA(): Unit {
+	private fun _computeA() {
 		val ikGlobal = this._target.global
 		val global = this._root.global
 		val globalTransformMatrix = this._root.globalTransformMatrix
@@ -114,8 +109,8 @@ class IKConstraint  :  Constraint() {
 		global.toMatrix(globalTransformMatrix)
 	}
 
-	private fun _computeB(): Unit {
-		val boneLength = (this._bone as Bone)._boneData.length
+	private fun _computeB() {
+		val boneLength = (this._bone as Bone)._boneData!!.length
 		val parent = this._root
 		val ikGlobal = this._target.global
 		val parentGlobal = parent.global
@@ -139,7 +134,7 @@ class IKConstraint  :  Constraint() {
 		val lTT = dX * dX + dY * dY
 		val lT = Math.sqrt(lTT)
 
-		var radianA = 0.0
+		var radianA: Double
 		if (lL + lP <= lT || lT + lL <= lP || lT + lP <= lL) {
 			radianA = Math.atan2(ikGlobal.y - parentGlobal.y, ikGlobal.x - parentGlobal.x)
 			if (lL + lP <= lT) {
@@ -192,7 +187,7 @@ class IKConstraint  :  Constraint() {
 		global.toMatrix(globalTransformMatrix)
 	}
 
-	override fun init(constraintData: ConstraintData, armature: Armature): Unit {
+	override fun init(constraintData: ConstraintData, armature: Armature) {
 		if (this._constraintData != null) {
 			return
 		}
@@ -213,7 +208,7 @@ class IKConstraint  :  Constraint() {
 		this._root._hasConstraint = true
 	}
 
-	override fun update(): Unit {
+	override fun update() {
 		this._root.updateByConstraint()
 
 		if (this._bone != null) {
@@ -261,7 +256,7 @@ class PathConstraint  :  Constraint() {
 		return "[class dragonBones.PathConstraint]"
 	}
 
-	override fun _onClear(): Unit {
+	override fun _onClear() {
 		super._onClear()
 
 		this.dirty = false
@@ -284,13 +279,13 @@ class PathConstraint  :  Constraint() {
 		this._pathGlobalVertices.clear()
 	}
 
-	protected fun _updatePathVertices(verticesData: GeometryData): Unit {
+	protected fun _updatePathVertices(verticesData: GeometryData) {
 		//计算曲线的节点数据
 		val armature = this._armature
-		val dragonBonesData = armature.armatureData.parent
+		val dragonBonesData = armature.armatureData.parent!!
 		val scale = armature.armatureData.scale
-		val intArray = dragonBonesData.intArray
-		val floatArray = dragonBonesData.floatArray
+		val intArray = dragonBonesData.intArray!!
+		val floatArray = dragonBonesData.floatArray!!
 
 		val pathOffset = verticesData.offset
 		val pathVertexCount = intArray[pathOffset + BinaryOffset.GeometryVertexCount.index]
@@ -306,7 +301,7 @@ class PathConstraint  :  Constraint() {
 
 			val matrix = parentBone.globalTransformMatrix
 
-			var iV = pathVertexOffset
+			var iV = pathVertexOffset.toInt()
 			for (i in 0 until pathVertexCount step 2) {
 				val vx = floatArray[iV++] * scale
 				val vy = floatArray[iV++] * scale
@@ -326,7 +321,7 @@ class PathConstraint  :  Constraint() {
 		val weightBoneCount = weightData.bones.size
 
 		val weightOffset = weightData.offset
-		val floatOffset = intArray[weightOffset + BinaryOffset.WeigthFloatOffset.index]
+		val floatOffset = intArray[weightOffset + BinaryOffset.WeigthFloatOffset.index].toInt()
 
 		var iV = floatOffset
 		var iB = weightOffset + BinaryOffset.WeigthBoneIndices.index + weightBoneCount
@@ -338,11 +333,8 @@ class PathConstraint  :  Constraint() {
 			var xG = 0.0
 			var yG = 0.0
 			for (ii in 0 until vertexBoneCount) {
-				val boneIndex = intArray[iB++]
-				val bone = bones[boneIndex]
-				if (bone == null) {
-					continue
-				}
+				val boneIndex = intArray[iB++].toInt()
+				val bone = bones[boneIndex] ?: continue
 
 				bone.updateByConstraint()
 				val matrix = bone.globalTransformMatrix
@@ -358,7 +350,7 @@ class PathConstraint  :  Constraint() {
 		}
 	}
 
-	protected fun _computeVertices(start: Int, count: Int, offset: Int, out:  DoubleArrayList): Unit {
+	protected fun _computeVertices(start: Int, count: Int, offset: Int, out:  DoubleArrayList) {
 		//TODO优化
 		var iW = start
 		for (i in offset until count step 2) {
@@ -367,11 +359,11 @@ class PathConstraint  :  Constraint() {
 		}
 	}
 
-	protected fun _computeBezierCurve(pathDisplayDta: PathDisplayData, spaceCount: Int, tangents: Boolean, percentPosition: Boolean, percentSpacing: Boolean): Unit {
+	protected fun _computeBezierCurve(pathDisplayDta: PathDisplayData, spaceCount: Int, tangents: Boolean, percentPosition: Boolean, percentSpacing: Boolean) {
 		//计算当前的骨骼在曲线上的位置
 		val armature = this._armature
-		val intArray = armature.armatureData.parent.intArray
-		val vertexCount = intArray[pathDisplayDta.geometry.offset + BinaryOffset.GeometryVertexCount.index]
+		val intArray = armature.armatureData.parent!!.intArray!!
+		val vertexCount = intArray[pathDisplayDta.geometry.offset + BinaryOffset.GeometryVertexCount.index].toInt()
 
 		val positions = this._positions
 		val spaces = this._spaces
@@ -384,7 +376,7 @@ class PathConstraint  :  Constraint() {
 
 		positions.lengthSet = spaceCount * 3 + 2
 
-		var pathLength = 0.0
+		var pathLength: Double
 		//不需要匀速运动，效率高些
 		if (!pathDisplayDta.constantSpeed) {
 			val lenghts = pathDisplayDta.curveLengths
@@ -425,7 +417,7 @@ class PathConstraint  :  Constraint() {
 					continue
 				}
 
-				var percent = 0.0
+				var percent: Double
 
 				//for (; ; curve++) {
 				//	val len = lenghts[curve]
@@ -556,8 +548,8 @@ class PathConstraint  :  Constraint() {
 			}
 		}
 
-		var segments = this._segments
-		var curveLength: Double = 0.0
+		val segments = this._segments
+		var curveLength = 0.0
 		//for (var i = 0, o = 0, curve = 0, segment = 0; i < spaceCount; i++ , o += 3) {
 		var curve = 0
 		var segment = 0
@@ -607,7 +599,7 @@ class PathConstraint  :  Constraint() {
 
 			if (curve != preCurve) {
 				preCurve = curve
-				var ii = curve * 6
+				val ii = curve * 6
 				x1 = curveVertices[ii]
 				y1 = curveVertices[ii + 1]
 				cx1 = curveVertices[ii + 2]
@@ -627,7 +619,7 @@ class PathConstraint  :  Constraint() {
 				curveLength = Math.sqrt(dfx * dfx + dfy * dfy)
 				segments[0] = curveLength
 				//for (ii = 1; ii < 8; ii++) {
-				for (ii in  1 until 8) {
+				for (@Suppress("NAME_SHADOWING") ii in  1 until 8) {
 					dfx += ddfx
 					dfy += ddfy
 					ddfx += dddfx
@@ -717,13 +709,13 @@ class PathConstraint  :  Constraint() {
 		}
 	}
 
-	override fun init(constraintData: ConstraintData, armature: Armature): Unit {
+	override fun init(constraintData: ConstraintData, armature: Armature) {
 		this._constraintData = constraintData
 		this._armature = armature
 
-		var data = constraintData as PathConstraintData
+		val data = constraintData as PathConstraintData
 
-		this.pathOffset = data.pathDisplayData.geometry.offset
+		this.pathOffset = data.pathDisplayData!!.geometry.offset
 
 		//
 		this.position = data.position
@@ -733,9 +725,9 @@ class PathConstraint  :  Constraint() {
 		this.translateMix = data.translateMix
 
 		//
-		this._root = this._armature.getBone(data.root.name) as Bone
-		this._target = this._armature.getBone(data.target.name) as Bone
-		this._pathSlot = this._armature.getSlot(data.pathSlot.name) as Slot
+		this._root = this._armature.getBone(data.root?.name) as Bone
+		this._target = this._armature.getBone(data.target?.name) as Bone
+		this._pathSlot = this._armature.getSlot(data.pathSlot?.name) as Slot
 
 		for (i in 0 until data.bones.length) {
 			val bone = this._armature.getBone(data.bones[i].name)
@@ -751,7 +743,7 @@ class PathConstraint  :  Constraint() {
 		this._root._hasConstraint = true
 	}
 
-	override fun update(): Unit {
+	override fun update() {
 		val pathSlot = this._pathSlot
 
 		if (
@@ -795,7 +787,7 @@ class PathConstraint  :  Constraint() {
 		val spacesCount = if (isTangentMode) boneCount else boneCount + 1
 
 		val spacing = this.spacing
-		var spaces = this._spaces
+		val spaces = this._spaces
 		spaces.lengthSet = spacesCount
 
 		//计曲线间隔和长度
@@ -806,7 +798,7 @@ class PathConstraint  :  Constraint() {
 			for (i in 0 until spacesCount - 1) {
 				val bone = bones[i]
 				bone.updateByConstraint()
-				val boneLength = bone._boneData.length
+				val boneLength = bone._boneData!!.length.toInt()
 				val matrix = bone.globalTransformMatrix
 				val x = boneLength * matrix.a
 				val y = boneLength * matrix.b
@@ -832,13 +824,13 @@ class PathConstraint  :  Constraint() {
 		var rotateOffset = this.rotateOffset
 		var boneX = positions[0]
 		var boneY = positions[1]
-		var tip: Boolean
+		val tip: Boolean
 		if (rotateOffset == 0.0) {
 			tip = rotateMode == RotateMode.Chain
 		}
 		else {
 			tip = false
-			val bone = pathSlot.parent
+			val bone = pathSlot._parent
 			if (bone != null) {
 				val matrix = bone.globalTransformMatrix
 				rotateOffset *= if (matrix.a * matrix.d - matrix.b * matrix.c > 0) Transform.DEG_RAD else -Transform.DEG_RAD
@@ -851,9 +843,9 @@ class PathConstraint  :  Constraint() {
 		//for (var i = 0, p = 3; i < boneCount; i++ , p += 3) {
 		for (i in 0 until boneCount) {
 			val p = i * 3
-			var bone = bones[i]
+			val bone = bones[i]
 			bone.updateByConstraint()
-			var matrix = bone.globalTransformMatrix
+			val matrix = bone.globalTransformMatrix
 			matrix.tx += (boneX - matrix.tx) * translateMix
 			matrix.ty += (boneY - matrix.ty) * translateMix
 
@@ -872,18 +864,17 @@ class PathConstraint  :  Constraint() {
 			boneX = x
 			boneY = y
 			if (rotateMix > 0) {
-				var a = matrix.a
-				var b = matrix.b
-				var c = matrix.c
-				var d = matrix.d
+				val a = matrix.a
+				val b = matrix.b
+				val c = matrix.c
+				val d = matrix.d
 				var r: Double
 				var cos: Double
 				var sin: Double
-				if (isTangentMode) {
-					r = positions[p - 1]
-				}
-				else {
-					r = Math.atan2(dy, dx)
+				r = if (isTangentMode) {
+					positions[p - 1]
+				} else {
+					Math.atan2(dy, dx)
 				}
 
 				r -= Math.atan2(b, a)
@@ -892,7 +883,7 @@ class PathConstraint  :  Constraint() {
 					cos = Math.cos(r)
 					sin = Math.sin(r)
 
-					val length = bone._boneData.length
+					val length = bone._boneData!!.length
 					boneX += (length * (cos * a - sin * b) - dx) * rotateMix
 					boneY += (length * (sin * a + cos * b) - dy) * rotateMix
 				}
@@ -924,7 +915,7 @@ class PathConstraint  :  Constraint() {
 		this.dirty = false
 	}
 
-	override fun invalidUpdate(): Unit {
+	override fun invalidUpdate() {
 
 	}
 }

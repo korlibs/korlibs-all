@@ -30,6 +30,8 @@ import com.dragonbones.armature.*
 import com.dragonbones.core.*
 import com.dragonbones.model.*
 import com.soywiz.kds.*
+import com.soywiz.kmem.*
+import com.soywiz.korio.ds.*
 
 abstract class TimelineState  : BaseObject() {
 	var dirty: Boolean = false
@@ -62,14 +64,17 @@ abstract class TimelineState  : BaseObject() {
 	//protected var _timelineArray:  NumberArrayList? = null
 	//protected var _timelineArray:  IntArrayList? = null
 	//protected var _timelineArray:  DoubleArrayList? = null
-	protected var _timelineArray:  NumberArrayList? = null
+	//protected var _timelineArray:  NumberArrayList? = null
+	protected var _timelineArray:  Uint16Buffer? = null
 
 	//protected var _frameArray:  NumberArrayList? = null
-	protected var _frameArray:  DoubleArrayList? = null
+	//protected var _frameArray:  DoubleArrayList? = null
+	protected var _frameArray:  Int16Buffer? = null
 
-	protected var _valueArray:  NumberArrayList? = null
+	//protected var _valueArray:  NumberArrayList? = null
 	//protected var _valueArray:  IntArrayList? = null
 	//protected var _valueArray:  DoubleArrayList? = null
+	protected var _valueArray:  NumberRawArray? = null
 
 	//protected var _frameIndices:  DoubleArrayList? = null
 	protected var _frameIndices:  IntArrayList? = null
@@ -203,10 +208,10 @@ abstract class TimelineState  : BaseObject() {
 			this._timelineArray = dragonBonesData.timelineArray
 			this._frameIndices = dragonBonesData.frameIndices
 			//
-			this._frameCount = this._timelineArray!!.getInt(_timelineData.offset + BinaryOffset.TimelineKeyFrameCount.index)
-			this._frameValueOffset = this._timelineArray!!.getInt(_timelineData.offset + BinaryOffset.TimelineFrameValueOffset.index)
-			this._timeScale = 100.0 / this._timelineArray!!.getDouble(_timelineData.offset + BinaryOffset.TimelineScale.index)
-			this._timeOffset = this._timelineArray!!.getDouble(_timelineData.offset + BinaryOffset.TimelineOffset.index) * 0.01
+			this._frameCount = this._timelineArray!![_timelineData.offset + BinaryOffset.TimelineKeyFrameCount.index]
+			this._frameValueOffset = this._timelineArray!![_timelineData.offset + BinaryOffset.TimelineFrameValueOffset.index]
+			this._timeScale = 100.0 / this._timelineArray!![_timelineData.offset + BinaryOffset.TimelineScale.index]
+			this._timeOffset = this._timelineArray!![_timelineData.offset + BinaryOffset.TimelineOffset.index] * 0.01
 		}
 	}
 
@@ -222,7 +227,7 @@ abstract class TimelineState  : BaseObject() {
 
 				if (this._frameIndex != frameIndex) {
 					this._frameIndex = frameIndex
-					this._frameOffset = this._animationData!!.frameOffset + this._timelineArray!!.getInt((this._timelineData as TimelineData).offset + BinaryOffset.TimelineFrameOffset.index + this._frameIndex)
+					this._frameOffset = this._animationData!!.frameOffset + this._timelineArray!![(this._timelineData as TimelineData).offset + BinaryOffset.TimelineFrameOffset.index + this._frameIndex]
 
 					this._onArriveAtFrame()
 				}
@@ -231,7 +236,7 @@ abstract class TimelineState  : BaseObject() {
 				this._frameIndex = 0
 
 				if (this._timelineData != null) { // May be pose timeline.
-					this._frameOffset = this._animationData!!.frameOffset + this._timelineArray!!.getInt(this._timelineData!!.offset + BinaryOffset.TimelineFrameOffset.index)
+					this._frameOffset = this._animationData!!.frameOffset + this._timelineArray!![this._timelineData!!.offset + BinaryOffset.TimelineFrameOffset.index]
 				}
 
 				this._onArriveAtFrame()
@@ -265,7 +270,7 @@ abstract class TweenTimelineState  :  TimelineState() {
 			return (value - progress) * easing + progress
 		}
 
-		private fun _getEasingCurveValue(progress: Double, samples: DoubleArrayList, count: Int, offset: Int): Double {
+		private fun _getEasingCurveValue(progress: Double, samples: DoubleArrayLike, count: Int, offset: Int): Double {
 			if (progress <= 0.0) {
 				return 0.0
 			}
@@ -290,7 +295,6 @@ abstract class TweenTimelineState  :  TimelineState() {
 
 			return (fromValue + (toValue - fromValue) * (progress * segmentCount - valueIndex)) * 0.0001
 		}
-
 	}
 
 	protected var _tweenType: TweenType = TweenType.None
@@ -343,7 +347,7 @@ abstract class TweenTimelineState  :  TimelineState() {
 				this._frameDurationR = 1.0 / (this._animationData!!.duration - this._framePosition)
 			}
 			else {
-				val nextFrameOffset = this._animationData!!.frameOffset + this._timelineArray!!.getInt((this._timelineData as TimelineData).offset + BinaryOffset.TimelineFrameOffset.index + this._frameIndex + 1)
+				val nextFrameOffset = this._animationData!!.frameOffset + this._timelineArray!![(this._timelineData as TimelineData).offset + BinaryOffset.TimelineFrameOffset.index + this._frameIndex + 1]
 				val frameDuration = this._frameArray!![nextFrameOffset] * this._frameRateR - this._framePosition
 
 				if (frameDuration > 0) {
@@ -366,7 +370,7 @@ abstract class TweenTimelineState  :  TimelineState() {
 			this._tweenProgress = (this._currentTime - this._framePosition) * this._frameDurationR
 
 			if (this._tweenType == TweenType.Curve) {
-				this._tweenProgress = TweenTimelineState._getEasingCurveValue(this._tweenProgress, this._frameArray!!, this._curveCount, this._frameOffset + BinaryOffset.FrameCurveSamples.index)
+				this._tweenProgress = TweenTimelineState._getEasingCurveValue(this._tweenProgress, this._frameArray!!.raw.asDouble(), this._curveCount, this._frameOffset + BinaryOffset.FrameCurveSamples.index)
 			}
 			else if (this._tweenType != TweenType.Line) {
 				this._tweenProgress = TweenTimelineState._getEasingValue(this._tweenType, this._tweenProgress, this._tweenEasing)
@@ -467,20 +471,20 @@ abstract class DoubleValueTimelineState  :  TweenTimelineState() {
 
 				if (valueScale == 1.0) {
 					this._currentA = valueArray.getDouble(valueOffset)
-					this._currentB = valueArray[valueOffset + 1]
-					this._differenceA = valueArray[nextValueOffset] - this._currentA
-					this._differenceB = valueArray[nextValueOffset + 1] - this._currentB
+					this._currentB = valueArray.getDouble(valueOffset + 1)
+					this._differenceA = valueArray.getDouble(nextValueOffset) - this._currentA
+					this._differenceB = valueArray.getDouble(nextValueOffset + 1) - this._currentB
 				}
 				else {
-					this._currentA = valueArray[valueOffset] * valueScale
+					this._currentA = valueArray.getDouble(valueOffset) * valueScale
 					this._currentB = valueArray.getDouble(valueOffset + 1) * valueScale
-					this._differenceA = valueArray[nextValueOffset] * valueScale - this._currentA
-					this._differenceB = valueArray[nextValueOffset + 1] * valueScale - this._currentB
+					this._differenceA = valueArray.getDouble(nextValueOffset) * valueScale - this._currentA
+					this._differenceB = valueArray.getDouble(nextValueOffset + 1) * valueScale - this._currentB
 				}
 			}
 			else {
-				this._resultA = valueArray[valueOffset] * valueScale
-				this._resultB = valueArray[valueOffset + 1] * valueScale
+				this._resultA = valueArray.getDouble(valueOffset) * valueScale
+				this._resultB = valueArray.getDouble(valueOffset + 1) * valueScale
 			}
 		}
 		else {
@@ -572,12 +576,12 @@ abstract class MutilpleValueTimelineState  :  TweenTimelineState() {
 
 			if (valueScale == 1.0) {
 				for (i in 0 until valueCount) {
-					rd[i] = valueArray[valueOffset + i] + rd[valueCount + i] * tweenProgress
+					rd[i] = valueArray.getDouble(valueOffset + i) + rd[valueCount + i] * tweenProgress
 				}
 			}
 			else {
 				for (i in 0 until valueCount) {
-					rd[i] = valueArray[valueOffset + i] * valueScale + rd[valueCount + i] * tweenProgress
+					rd[i] = valueArray.getDouble(valueOffset + i) * valueScale + rd[valueCount + i] * tweenProgress
 				}
 			}
 		}

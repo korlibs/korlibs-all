@@ -116,7 +116,7 @@ abstract class TransformObject : BaseObject() {
 		this._globalDirty = false
 		this._alpha = 1.0
 		this._globalAlpha = 1.0
-		//this._armature = null as any //
+		//this._armature = null //
 		this._armature = null //
 	}
 	/**

@@ -109,11 +109,20 @@ class KmlNativeBuffer(val mem: MemBuffer, val size: Int = mem.size) {
 		copyAligned(this, srcPos, dst, dstPos, len)
 }
 
-class UInt8Buffer(val b: Int8Buffer) {
+class Uint8Buffer(val b: Int8Buffer) {
 	companion object;
 
+	val size: Int get() = b.size
 	operator fun get(index: Int): Int = b[index].toInt() and 0xFF
 	operator fun set(index: Int, value: Int): Unit = run { b[index] = value.toByte() }
+}
+
+class Uint16Buffer(val b: Int16Buffer) {
+	companion object;
+
+	val size: Int get() = b.size
+	operator fun get(index: Int): Int = b[index].toInt() and 0xFFFF
+	operator fun set(index: Int, value: Int): Unit = run { b[index] = value.toShort() }
 }
 
 inline fun <T> kmlNativeBuffer(size: Int, callback: (KmlNativeBuffer) -> T): T = KmlNativeBuffer(size).run(callback)

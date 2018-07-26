@@ -29,6 +29,7 @@ import com.dragonbones.armature.*
 import com.dragonbones.core.*
 import com.dragonbones.model.*
 import com.dragonbones.util.*
+import com.soywiz.kds.*
 
 /**
  * - The animation player is used to play the animation data and manage the animation states.
@@ -751,10 +752,7 @@ class Animation : BaseObject() {
 	 */
 	fun gotoAndStopByProgress(animationName: String, progress: Double = 0.0): AnimationState? {
 		val animationState = this.gotoAndPlayByProgress(animationName, progress, 1)
-		if (animationState != null) {
-			animationState.stop()
-		}
-
+		animationState?.stop()
 		return animationState
 	}
 
@@ -762,7 +760,7 @@ class Animation : BaseObject() {
 	 * @internal
 	 */
 	fun getBlendState(type: String, name: String, target: BaseObject): BlendState {
-		if (!(type in this._blendStates)) {
+		if (type !in this._blendStates) {
 			this._blendStates[type] = LinkedHashMap()
 		}
 

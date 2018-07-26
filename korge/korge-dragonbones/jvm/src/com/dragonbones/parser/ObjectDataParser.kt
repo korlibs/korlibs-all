@@ -45,17 +45,19 @@ enum class FrameValueType(val index: kotlin.Int) {
 open class ObjectDataParser :  DataParser() {
 	companion object {
 		// dynamic tools
-		private operator fun Any?.get(key: String): Any? {
+		internal operator fun Any?.get(key: String): Any? {
 			return Dynamic.get(this, key)
 		}
 
-		private operator fun Any?.contains(key: String): Boolean {
+		internal operator fun Any?.contains(key: String): Boolean {
 			return this.get(key) != null
 		}
 
-		private val Any?.list get() = this as List<Any?>
+		internal val Any?.keys get() = (this as Map<String, Any?>).keys
+		internal val Any?.values get() = (this as Map<String, Any?>).values
+		internal val Any?.list get() = Dynamic.toList(this)
 
-		protected fun _getBoolean(rawData: Any?, key: String, defaultValue: Boolean): Boolean
+		fun _getBoolean(rawData: Any?, key: String, defaultValue: Boolean): Boolean
 		{
 			val value = rawData [key]
 
@@ -71,7 +73,7 @@ open class ObjectDataParser :  DataParser() {
 			}
 		}
 
-		protected fun _getNumber(rawData: Any?, key: String, defaultValue: Double): Double
+		fun _getNumber(rawData: Any?, key: String, defaultValue: Double): Double
 		{
 			val value = rawData [key] as? Number?
 			return if (value != null && value != Double.NaN) {
@@ -81,7 +83,7 @@ open class ObjectDataParser :  DataParser() {
 			}
 		}
 
-		protected fun _getInt(rawData: Any?, key: String, defaultValue: Int): Int
+		fun _getInt(rawData: Any?, key: String, defaultValue: Int): Int
 		{
 			val value = rawData [key] as? Number?
 			return if (value != null && value != Double.NaN) {
@@ -91,7 +93,7 @@ open class ObjectDataParser :  DataParser() {
 			}
 		}
 
-		protected fun _getString(rawData: Any?, key: String, defaultValue: String): String
+		fun _getString(rawData: Any?, key: String, defaultValue: String): String
 		{
 			return rawData[key]?.toString() ?: defaultValue
 		}
@@ -2045,7 +2047,7 @@ open class ObjectDataParser :  DataParser() {
 		color.blueOffset = ObjectDataParser._getInt(rawData, DataParser.BLUE_OFFSET, 0)
 	}
 
-	protected fun _parseGeometry(rawData: Any?, geometry: GeometryData) {
+	open protected fun _parseGeometry(rawData: Any?, geometry: GeometryData) {
 		val rawVertices = rawData[DataParser.VERTICES] as  DoubleArray
 		val vertexCount: Int = rawVertices.size / 2 // uint
 		var triangleCount = 0
@@ -2205,34 +2207,34 @@ open class ObjectDataParser :  DataParser() {
 
 	protected fun _modifyArray() {
 		// Align.
-		if ((this._intArray.length % Int16Buffer.BYTES_PER_ELEMENT) != 0) {
+		if ((this._intArray.length % Int16Buffer_BYTES_PER_ELEMENT) != 0) {
 			this._intArray.push(0)
 		}
 
-		if ((this._frameIntArray.length % Int16Buffer.BYTES_PER_ELEMENT) != 0) {
+		if ((this._frameIntArray.length % Int16Buffer_BYTES_PER_ELEMENT) != 0) {
 			this._frameIntArray.push(0)
 		}
 
-		if ((this._frameArray.length % Int16Buffer.BYTES_PER_ELEMENT) != 0) {
+		if ((this._frameArray.length % Int16Buffer_BYTES_PER_ELEMENT) != 0) {
 			this._frameArray.push(0.0)
 		}
 
-		if ((this._timelineArray.length % Int16Buffer.BYTES_PER_ELEMENT) != 0) {
+		if ((this._timelineArray.length % Int16Buffer_BYTES_PER_ELEMENT) != 0) {
 			//this._timelineArray.push(0)
 			this._timelineArray.push(0.0)
 		}
 
-		if ((this._timelineArray.length % Int16Buffer.BYTES_PER_ELEMENT) != 0) {
+		if ((this._timelineArray.length % Int16Buffer_BYTES_PER_ELEMENT) != 0) {
 			this._colorArray.push(0)
 		}
 
-		val l1 = this._intArray.length * Int16Buffer.BYTES_PER_ELEMENT
-		val l2 = this._floatArray.length * Float32Buffer.BYTES_PER_ELEMENT
-		val l3 = this._frameIntArray.length * Int16Buffer.BYTES_PER_ELEMENT
-		val l4 = this._frameFloatArray.length * Float32Buffer.BYTES_PER_ELEMENT
-		val l5 = this._frameArray.length * Int16Buffer.BYTES_PER_ELEMENT
-		val l6 = this._timelineArray.length * Int16Buffer.BYTES_PER_ELEMENT
-		val l7 = this._colorArray.length * Int16Buffer.BYTES_PER_ELEMENT
+		val l1 = this._intArray.length * Int16Buffer_BYTES_PER_ELEMENT
+		val l2 = this._floatArray.length * Float32Buffer_BYTES_PER_ELEMENT
+		val l3 = this._frameIntArray.length * Int16Buffer_BYTES_PER_ELEMENT
+		val l4 = this._frameFloatArray.length * Float32Buffer_BYTES_PER_ELEMENT
+		val l5 = this._frameArray.length * Int16Buffer_BYTES_PER_ELEMENT
+		val l6 = this._timelineArray.length * Int16Buffer_BYTES_PER_ELEMENT
+		val l7 = this._colorArray.length * Int16Buffer_BYTES_PER_ELEMENT
 		val lTotal = l1 + l2 + l3 + l4 + l5 + l6 + l7
 		//
 		val binary = MemBufferAlloc(lTotal)
@@ -2241,7 +2243,7 @@ open class ObjectDataParser :  DataParser() {
 		val frameIntArray = binary.sliceInt16Buffer(l1 + l2, this._frameIntArray.length)
 		val frameFloatArray = binary.sliceFloat32Buffer(l1 + l2 + l3, this._frameFloatArray.length)
 		val frameArray = binary.sliceInt16Buffer(l1 + l2 + l3 + l4, this._frameArray.length)
-		val timelineArray = binary.sliceInt16Buffer(l1 + l2 + l3 + l4 + l5, this._timelineArray.length) // @TODO: Kotlin: Uint16
+		val timelineArray = binary.sliceUint16Buffer(l1 + l2 + l3 + l4 + l5, this._timelineArray.length)
 		val colorArray = binary.sliceInt16Buffer(l1 + l2 + l3 + l4 + l5 + l6, this._colorArray.length)
 
 		for (i in 0 until this._intArray.length) {
@@ -2269,7 +2271,7 @@ open class ObjectDataParser :  DataParser() {
 
 		//for (var i = 0, l = this._timelineArray.length; i < l; ++i) {
 		for (i in 0 until this._timelineArray.length) {
-			timelineArray[i] = this._timelineArray[i].toShort()
+			timelineArray[i] = this._timelineArray[i].toInt()
 		}
 
 		//for (var i = 0, l = this._colorArray.length; i < l; ++i) {

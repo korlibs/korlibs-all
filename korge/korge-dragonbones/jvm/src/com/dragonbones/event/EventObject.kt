@@ -33,6 +33,7 @@ import com.dragonbones.model.*
  * @version DragonBones 4.5
  * @language en_US
  */
+@Suppress("KDocUnresolvedReference")
 /**
  * - 事件对象，包含有关事件的基本信息，当发生事件时，该实例将作为参数或参数的参数传递给事件侦听器。
  * @version DragonBones 4.5
@@ -144,7 +145,7 @@ class EventObject : BaseObject() {
 		 * @internal
 		 * @private
 		 */
-		fun actionDataToInstance(data: ActionData, instance: EventObject, armature: Armature): Unit {
+		fun actionDataToInstance(data: ActionData, instance: EventObject, armature: Armature) {
 			if (data.type == ActionType.Play) {
 				instance.type = EventObject.FRAME_EVENT
 			} else {
@@ -273,14 +274,14 @@ class EventObject : BaseObject() {
 	 */
 	var data: UserData? = null
 
-	override fun _onClear(): Unit {
+	override fun _onClear() {
 		this.time = 0.0
 		this.type = ""
 		this.name = ""
-		//this.armature = null as any
+		//this.armature = null
 		this.bone = null
 		this.slot = null
-		//this.animationState = null as any
+		//this.animationState = null
 		this.actionData = null
 		this.data = null
 	}

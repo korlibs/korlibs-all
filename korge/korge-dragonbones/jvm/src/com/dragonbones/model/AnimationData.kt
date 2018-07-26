@@ -264,7 +264,7 @@ class AnimationData  :  BaseObject() {
 	/**
 	 * @private
 	 */
-	fun addBoneTimeline(timelineName: String, timeline: TimelineData): Unit {
+	fun addBoneTimeline(timelineName: String, timeline: TimelineData) {
 		val timelines = this.boneTimelines.getOrPut(timelineName) { arrayListOf() }
 		if (timelines.indexOf(timeline) < 0) {
 			timelines.push(timeline)
@@ -274,7 +274,7 @@ class AnimationData  :  BaseObject() {
 	/**
 	 * @private
 	 */
-	fun addSlotTimeline(timelineName: String, timeline: TimelineData): Unit {
+	fun addSlotTimeline(timelineName: String, timeline: TimelineData) {
 		val timelines = this.slotTimelines.getOrPut(timelineName) { arrayListOf() }
 		if (timelines.indexOf(timeline) < 0) {
 			timelines.push(timeline)
@@ -284,7 +284,7 @@ class AnimationData  :  BaseObject() {
 	/**
 	 * @private
 	 */
-	fun addConstraintTimeline(timelineName: String, timeline: TimelineData): Unit {
+	fun addConstraintTimeline(timelineName: String, timeline: TimelineData) {
 		val timelines = this.constraintTimelines.getOrPut(timelineName) { arrayListOf() }
 		if (timelines.indexOf(timeline) < 0) {
 			timelines.push(timeline)

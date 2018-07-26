@@ -69,7 +69,7 @@ class SkinData  : BaseObject() {
 		this.displays.clear()
 
 		this.name = ""
-		//this.parent = null as any //
+		//this.parent = null //
 	}
 
 	/**

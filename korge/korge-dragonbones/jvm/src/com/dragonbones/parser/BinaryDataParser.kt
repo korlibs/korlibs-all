@@ -25,23 +25,25 @@ package com.dragonbones.parser
 import com.dragonbones.core.*
 import com.dragonbones.model.*
 import com.dragonbones.util.*
+import com.soywiz.kds.*
 import com.soywiz.kmem.*
+import com.soywiz.korio.serialization.json.*
 
 /**
  * @private
  */
 class BinaryDataParser  :  ObjectDataParser() {
-	private var _binaryOffset: Double
-	private var _binary: ArrayBuffer
-	private var _intArrayBuffer: Int16Array
-	private var _frameArrayBuffer: Int16Array
-	private var _timelineArrayBuffer: Uint16Array
+	private var _binaryOffset: Int = 0
+	private lateinit var _binary: MemBuffer
+	private lateinit var _intArrayBuffer: Int16Buffer
+	private lateinit var _frameArrayBuffer: Int16Buffer
+	private lateinit var _timelineArrayBuffer: Uint16Buffer
 
 	private fun _inRange(a: Int, min: Int, max: Int): Boolean {
 		return min <= a && a <= max
 	}
 
-	private fun _decodeUTF8(data: UInt8Buffer): String {
+	private fun _decodeUTF8(data: Uint8Buffer): String {
 		val EOF_byte = -1
 		val EOF_code_point = -1
 		val FATAL_POINT = 0xFFFD
@@ -54,7 +56,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 		var utf8_bytes_seen = 0
 		var utf8_lower_boundary = 0
 
-		while (data.length > pos) {
+		while (data.size > pos) {
 
 			val _byte = data[pos++]
 
@@ -105,7 +107,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 				else {
 
 					utf8_bytes_seen += 1
-					utf8_code_point += (_byte - 0x80) * Math.pow(64.0, (utf8_bytes_needed - utf8_bytes_seen).toDouble())
+					utf8_code_point += ((_byte - 0x80) * Math.pow(64.0, (utf8_bytes_needed - utf8_bytes_seen).toDouble())).toInt()
 
 					if (utf8_bytes_seen != utf8_bytes_needed) {
 						code_point = null
@@ -144,21 +146,21 @@ class BinaryDataParser  :  ObjectDataParser() {
 		return result
 	}
 
-	private fun _parseBinaryTimeline(type: TimelineType, offset: Double, timelineData: TimelineData? = null): TimelineData {
+	private fun _parseBinaryTimeline(type: TimelineType, offset: Int, timelineData: TimelineData? = null): TimelineData {
 		val timeline: TimelineData = if (timelineData != null) timelineData else BaseObject.borrowObject<TimelineData>()
 		timeline.type = type
 		timeline.offset = offset
 
 		this._timeline = timeline
 
-		val keyFrameCount = this._timelineArrayBuffer[timeline.offset + BinaryOffset.TimelineKeyFrameCount]
+		val keyFrameCount = this._timelineArrayBuffer[timeline.offset + BinaryOffset.TimelineKeyFrameCount.index]
 		if (keyFrameCount == 1) {
 			timeline.frameIndicesOffset = -1
 		}
 		else {
 			var frameIndicesOffset = 0
-			val totalFrameCount = this._animation.frameCount + 1 // One more frame than animation.
-			val frameIndices = this._data.frameIndices
+			val totalFrameCount = this._animation!!.frameCount + 1 // One more frame than animation.
+			val frameIndices = this._data!!.frameIndices
 			frameIndicesOffset = frameIndices.length
 			frameIndices.length += totalFrameCount
 			timeline.frameIndicesOffset = frameIndicesOffset
@@ -168,12 +170,12 @@ class BinaryDataParser  :  ObjectDataParser() {
 			var frameCount = 0
 			for (i in 0 until totalFrameCount) {
 				if (frameStart + frameCount <= i && iK < keyFrameCount) {
-					frameStart = this._frameArrayBuffer[this._animation.frameOffset + this._timelineArrayBuffer[timeline.offset + BinaryOffset.TimelineFrameOffset + iK]]
+					frameStart = this._frameArrayBuffer[this._animation!!.frameOffset + this._timelineArrayBuffer[timeline.offset + BinaryOffset.TimelineFrameOffset.index + iK]].toInt()
 					if (iK == keyFrameCount - 1) {
-						frameCount = this._animation.frameCount - frameStart
+						frameCount = this._animation!!.frameCount - frameStart
 					}
 					else {
-						frameCount = this._frameArrayBuffer[this._animation.frameOffset + this._timelineArrayBuffer[timeline.offset + BinaryOffset.TimelineFrameOffset + iK + 1]] - frameStart
+						frameCount = this._frameArrayBuffer[this._animation!!.frameOffset + this._timelineArrayBuffer[timeline.offset + BinaryOffset.TimelineFrameOffset.index + iK + 1]] - frameStart
 					}
 
 					iK++
@@ -183,7 +185,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 			}
 		}
 
-		this._timeline = null as any //
+		this._timeline = null //
 
 		return timeline
 	}
@@ -191,18 +193,18 @@ class BinaryDataParser  :  ObjectDataParser() {
 	protected fun _parseAnimation(rawData: LinkedHashMap<String, Any?>): AnimationData {
 		val animation: AnimationData = BaseObject.borrowObject<AnimationData>()
 		animation.blendType = DataParser._getAnimationBlendType(ObjectDataParser._getString(rawData, DataParser.BLEND_TYPE, ""))
-		animation.frameCount = ObjectDataParser._getNumber(rawData, DataParser.DURATION, 0)
-		animation.playTimes = ObjectDataParser._getNumber(rawData, DataParser.PLAY_TIMES, 1)
-		animation.duration = animation.frameCount / this._armature.frameRate // float
+		animation.frameCount = ObjectDataParser._getInt(rawData, DataParser.DURATION, 0)
+		animation.playTimes = ObjectDataParser._getInt(rawData, DataParser.PLAY_TIMES, 1)
+		animation.duration = animation.frameCount.toDouble() / this._armature!!.frameRate.toDouble() // float
 		animation.fadeInTime = ObjectDataParser._getNumber(rawData, DataParser.FADE_IN_TIME, 0.0)
 		animation.scale = ObjectDataParser._getNumber(rawData, DataParser.SCALE, 1.0)
 		animation.name = ObjectDataParser._getString(rawData, DataParser.NAME, DataParser.DEFAULT_NAME)
-		if (animation.name.length == 0) {
+		if (animation.name.isEmpty()) {
 			animation.name = DataParser.DEFAULT_NAME
 		}
 
 		// Offsets.
-		val offsets = rawData[DataParser.OFFSET] as  DoubleArray
+		val offsets = rawData[DataParser.OFFSET] as  IntArrayList
 		animation.frameIntOffset = offsets[0]
 		animation.frameFloatOffset = offsets[1]
 		animation.frameOffset = offsets[2]
@@ -210,27 +212,24 @@ class BinaryDataParser  :  ObjectDataParser() {
 		this._animation = animation
 
 		if (DataParser.ACTION in rawData) {
-			animation.actionTimeline = this._parseBinaryTimeline(TimelineType.Action, rawData[DataParser.ACTION])
+			animation.actionTimeline = this._parseBinaryTimeline(TimelineType.Action, rawData[DataParser.ACTION] as Int)
 		}
 
 		if (DataParser.Z_ORDER in rawData) {
-			animation.zOrderTimeline = this._parseBinaryTimeline(TimelineType.ZOrder, rawData[DataParser.Z_ORDER])
+			animation.zOrderTimeline = this._parseBinaryTimeline(TimelineType.ZOrder, rawData[DataParser.Z_ORDER] as Int)
 		}
 
 		if (DataParser.BONE in rawData) {
 			val rawTimeliness = rawData[DataParser.BONE]
 			for (k in rawTimeliness.keys) {
-				val rawTimelines = rawTimeliness[k] as  DoubleArray
-				val bone = this._armature.getBone(k)
-				if (bone == null) {
-					continue
-				}
+				val rawTimelines = rawTimeliness[k] as  IntArrayList
+				val bone = this._armature?.getBone(k) ?: continue
 
 				for (i in 0 until rawTimelines.size step 2) {
-					val timelineType = rawTimelines[i]
+					val timelineType = TimelineType[rawTimelines[i]]
 					val timelineOffset = rawTimelines[i + 1]
 					val timeline = this._parseBinaryTimeline(timelineType, timelineOffset)
-					this._animation.addBoneTimeline(bone.name, timeline)
+					this._animation?.addBoneTimeline(bone.name, timeline)
 				}
 			}
 		}
@@ -238,17 +237,14 @@ class BinaryDataParser  :  ObjectDataParser() {
 		if (DataParser.SLOT in rawData) {
 			val rawTimeliness = rawData[DataParser.SLOT]
 			for (k in rawTimeliness.keys) {
-				val rawTimelines = rawTimeliness[k] as  DoubleArray
-				val slot = this._armature.getSlot(k)
-				if (slot == null) {
-					continue
-				}
+				val rawTimelines = rawTimeliness[k] as  IntArrayList
+				val slot = this._armature?.getSlot(k) ?: continue
 
 				for (i in 0 until rawTimelines.size step 2) {
-					val timelineType = rawTimelines[i]
+					val timelineType = TimelineType[rawTimelines[i]]
 					val timelineOffset = rawTimelines[i + 1]
 					val timeline = this._parseBinaryTimeline(timelineType, timelineOffset)
-					this._animation.addSlotTimeline(slot.name, timeline)
+					this._animation?.addSlotTimeline(slot.name, timeline)
 				}
 			}
 		}
@@ -256,27 +252,24 @@ class BinaryDataParser  :  ObjectDataParser() {
 		if (DataParser.CONSTRAINT in rawData) {
 			val rawTimeliness = rawData[DataParser.CONSTRAINT]
 			for (k in rawTimeliness.keys) {
-				val rawTimelines = rawTimeliness[k] as  DoubleArray
-				val constraint = this._armature.getConstraint(k)
-				if (constraint == null) {
-					continue
-				}
+				val rawTimelines = rawTimeliness[k] as  IntArrayList
+				val constraint = this._armature?.getConstraint(k) ?: continue
 
 				for (i in 0 until rawTimelines.size step 2) {
-					val timelineType = rawTimelines[i]
+					val timelineType = TimelineType[rawTimelines[i]]
 					val timelineOffset = rawTimelines[i + 1]
 					val timeline = this._parseBinaryTimeline(timelineType, timelineOffset)
-					this._animation.addConstraintTimeline(constraint.name, timeline)
+					this._animation?.addConstraintTimeline(constraint.name, timeline)
 				}
 			}
 		}
 
 		if (DataParser.TIMELINE in rawData) {
-			val rawTimelines = rawData[DataParser.TIMELINE] as Array<any>
+			val rawTimelines = rawData[DataParser.TIMELINE] as ArrayList<Any?>
 			for (rawTimeline in rawTimelines) {
-				val timelineOffset = ObjectDataParser._getNumber(rawTimeline, DataParser.OFFSET, 0)
+				val timelineOffset = ObjectDataParser._getInt(rawTimeline, DataParser.OFFSET, 0)
 				if (timelineOffset >= 0) {
-					val timelineType = ObjectDataParser._getNumber(rawTimeline, DataParser.TYPE, TimelineType.Action)
+					val timelineType = TimelineType[ObjectDataParser._getInt(rawTimeline, DataParser.TYPE, TimelineType.Action.id)]
 					val timelineName = ObjectDataParser._getString(rawTimeline, DataParser.NAME, "")
 					var timeline: TimelineData? = null
 
@@ -303,7 +296,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 						TimelineType.BoneScale,
 						TimelineType.Surface,
 						TimelineType.BoneAlpha -> {
-							this._animation.addBoneTimeline(timelineName, timeline)
+							this._animation?.addBoneTimeline(timelineName, timeline)
 						}
 
 						TimelineType.SlotDisplay,
@@ -311,45 +304,45 @@ class BinaryDataParser  :  ObjectDataParser() {
 						TimelineType.SlotDeform,
 						TimelineType.SlotZIndex,
 						TimelineType.SlotAlpha -> {
-							this._animation.addSlotTimeline(timelineName, timeline)
+							this._animation?.addSlotTimeline(timelineName, timeline)
 						}
 
 						TimelineType.IKConstraint -> {
-							this._animation.addConstraintTimeline(timelineName, timeline)
+							this._animation?.addConstraintTimeline(timelineName, timeline)
 						}
 
 						TimelineType.AnimationProgress,
 						TimelineType.AnimationWeight,
 						TimelineType.AnimationParameter -> {
-							this._animation.addAnimationTimeline(timelineName, timeline)
+							this._animation?.addAnimationTimeline(timelineName, timeline)
 						}
 					}
 				}
 			}
 		}
 
-		this._animation = null as any
+		this._animation = null
 
 		return animation
 	}
 
-	protected fun _parseGeometry(rawData: Any, geometry: GeometryData): Unit {
-		geometry.offset = rawData[DataParser.OFFSET]
+	protected override fun _parseGeometry(rawData: Any?, geometry: GeometryData): Unit {
+		geometry.offset = rawData[DataParser.OFFSET] as Int
 		geometry.data = this._data
 
-		val weightOffset = this._intArrayBuffer[geometry.offset + BinaryOffset.GeometryWeightOffset]
+		val weightOffset = this._intArrayBuffer[geometry.offset + BinaryOffset.GeometryWeightOffset.index].toInt()
 		if (weightOffset >= 0) {
 			val weight = BaseObject.borrowObject<WeightData>()
-			val vertexCount = this._intArrayBuffer[geometry.offset + BinaryOffset.GeometryVertexCount]
-			val boneCount = this._intArrayBuffer[weightOffset + BinaryOffset.WeigthBoneCount]
+			val vertexCount = this._intArrayBuffer[geometry.offset + BinaryOffset.GeometryVertexCount.index]
+			val boneCount = this._intArrayBuffer[weightOffset + BinaryOffset.WeigthBoneCount.index]
 			weight.offset = weightOffset
 
 			for (i in 0 until boneCount) {
-				val boneIndex = this._intArrayBuffer[weightOffset + BinaryOffset.WeigthBoneIndices + i]
+				val boneIndex = this._intArrayBuffer[weightOffset + BinaryOffset.WeigthBoneIndices.index + i].toInt()
 				weight.addBone(this._rawBones[boneIndex])
 			}
 
-			var boneIndicesOffset = weightOffset + BinaryOffset.WeigthBoneIndices + boneCount
+			var boneIndicesOffset = weightOffset + BinaryOffset.WeigthBoneIndices.index + boneCount
 			var weightCount = 0
 			for (i in 0 until vertexCount) {
 				val vertexBoneCount = this._intArrayBuffer[boneIndicesOffset++]
@@ -363,7 +356,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 	}
 
 	protected fun _parseArray(rawData: Map<String, Any?>): Unit {
-		val offsets = rawData[DataParser.OFFSET] as  DoubleArray
+		val offsets = rawData[DataParser.OFFSET] as  IntArrayList
 		val l1 = offsets[1]
 		val l2 = offsets[3]
 		val l3 = offsets[5]
@@ -371,42 +364,41 @@ class BinaryDataParser  :  ObjectDataParser() {
 		val l5 = offsets[9]
 		val l6 = offsets[11]
 		val l7 = if (offsets.size > 12) offsets[13] else 0 // Color.
-		val intArray = new Int16Array(this._binary, this._binaryOffset + offsets[0], l1 / Int16Array.BYTES_PER_ELEMENT)
-		val floatArray = new Float32Array(this._binary, this._binaryOffset + offsets[2], l2 / Float32Array.BYTES_PER_ELEMENT)
-		val frameIntArray = new Int16Array(this._binary, this._binaryOffset + offsets[4], l3 / Int16Array.BYTES_PER_ELEMENT)
-		val frameFloatArray = new Float32Array(this._binary, this._binaryOffset + offsets[6], l4 / Float32Array.BYTES_PER_ELEMENT)
-		val frameArray = new Int16Array(this._binary, this._binaryOffset + offsets[8], l5 / Int16Array.BYTES_PER_ELEMENT)
-		val timelineArray = new Uint16Array(this._binary, this._binaryOffset + offsets[10], l6 / Uint16Array.BYTES_PER_ELEMENT)
-		val colorArray = l7 > 0 ? new Int16Array(this._binary, this._binaryOffset + offsets[12], l7 / Int16Array.BYTES_PER_ELEMENT) : intArray // Color.
+		val binary = this._binary!!
+		val intArray = binary.sliceInt16Buffer(this._binaryOffset + offsets[0], l1 / Int16Buffer_BYTES_PER_ELEMENT)
+		val floatArray = binary.sliceFloat32Buffer(this._binaryOffset + offsets[2], l2 / Float32Buffer_BYTES_PER_ELEMENT)
+		val frameIntArray = binary.sliceInt16Buffer(this._binaryOffset + offsets[4], l3 / Int16Buffer_BYTES_PER_ELEMENT)
+		val frameFloatArray = binary.sliceFloat32Buffer(this._binaryOffset + offsets[6], l4 / Float32Buffer_BYTES_PER_ELEMENT)
+		val frameArray = binary.sliceInt16Buffer(this._binaryOffset + offsets[8], l5 / Int16Buffer_BYTES_PER_ELEMENT)
+		val timelineArray = binary.sliceUint16Buffer(this._binaryOffset + offsets[10], l6 / Uint16Buffer_BYTES_PER_ELEMENT)
+		val colorArray = if (l7 > 0) binary.sliceInt16Buffer(this._binaryOffset + offsets[12], l7 / Int16Buffer_BYTES_PER_ELEMENT) else intArray // Color.
 
-		this._data.binary = this._binary
-		this._data.intArray = this._intArrayBuffer = intArray
-		this._data.floatArray = floatArray
-		this._data.frameIntArray = frameIntArray
-		this._data.frameFloatArray = frameFloatArray
-		this._data.frameArray = this._frameArrayBuffer = frameArray
-		this._data.timelineArray = this._timelineArrayBuffer = timelineArray
-		this._data.colorArray = colorArray
+		this._data!!.binary = this._binary
+		this._data!!.intArray = intArray
+		this._intArrayBuffer = intArray
+		this._data!!.floatArray = floatArray
+		this._data!!.frameIntArray = frameIntArray
+		this._data!!.frameFloatArray = frameFloatArray
+		this._data!!.frameArray = frameArray
+		this._frameArrayBuffer = frameArray
+		this._data!!.timelineArray = timelineArray
+		this._timelineArrayBuffer = timelineArray
+		this._data!!.colorArray = colorArray
 	}
 
-	fun parseDragonBonesData(rawData: Any, scale: Double = 1.0): DragonBonesData? {
-		console.assert(rawData != null && rawData is ArrayBuffer, "Data error.")
+	override fun parseDragonBonesData(rawData: Any?, scale: Double): DragonBonesData? {
+		//console.assert(rawData != null && rawData is MemBuffer, "Data error.")
 
-		val tag = new Uint8Array(rawData, 0, 8)
-		if (
-			tag[0] != "D".charCodeAt(0) ||
-			tag[1] != "B".charCodeAt(0) ||
-			tag[2] != "D".charCodeAt(0) ||
-			tag[3] != "T".charCodeAt(0)
-		) {
+		val tag = NewUint8Buffer(rawData as MemBuffer, 0, 8)
+		if (tag[0] != 'D'.toInt() || tag[1] != 'B'.toInt() || tag[2] != 'D'.toInt() || tag[3] != 'T'.toInt()) {
 			console.assert(false, "Nonsupport data.")
 			return null
 		}
 
-		val headerLength = new Uint32Array(rawData, 8, 1)[0]
-		val headerBytes = new Uint8Array(rawData, 8 + 4, headerLength)
+		val headerLength = NewInt32Buffer(rawData, 8, 1)[0]
+		val headerBytes = NewUint8Buffer(rawData, 8 + 4, headerLength)
 		val headerString = this._decodeUTF8(headerBytes)
-		val header = JSON.parse(headerString)
+		val header = Json.parse(headerString)
 		//
 		this._binaryOffset = 8 + 4 + headerLength
 		this._binary = rawData

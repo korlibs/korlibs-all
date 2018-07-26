@@ -146,7 +146,7 @@ class DragonBonesData  : BaseObject() {
 	 * @internal
 	 */
 	//var timelineArray: IntArrayList? = null
-	var timelineArray: Int16Buffer? = null
+	var timelineArray: Uint16Buffer? = null
 	/**
 	 * @internal
 	 */

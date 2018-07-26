@@ -19,6 +19,9 @@ inline fun MemBuffer.sliceInt32Buffer(offset: Int = 0, size: Int = (this.size / 
 inline fun MemBuffer.sliceFloat32Buffer(offset: Int = 0, size: Int = (this.size / 4) - offset): Float32Buffer = this._sliceFloat32Buffer(offset, size)
 inline fun MemBuffer.sliceFloat64Buffer(offset: Int = 0, size: Int = (this.size / 8) - offset): Float64Buffer = this._sliceFloat64Buffer(offset, size)
 
+inline fun MemBuffer.sliceUint8Buffer(offset: Int = 0, size: Int = (this.size / 2) - offset): Uint8Buffer = Uint8Buffer(_sliceInt8Buffer(offset, size))
+inline fun MemBuffer.sliceUint16Buffer(offset: Int = 0, size: Int = (this.size / 2) - offset): Uint16Buffer = Uint16Buffer(_sliceInt16Buffer(offset, size))
+
 inline fun MemBuffer.asInt8Buffer(): Int8Buffer = this.sliceInt8Buffer()
 inline fun MemBuffer.asInt16Buffer(): Int16Buffer = this.sliceInt16Buffer()
 inline fun MemBuffer.asInt32Buffer(): Int32Buffer = this.sliceInt32Buffer()
@@ -39,9 +42,7 @@ expect fun DataBuffer.setFloat(index: Int, value: Float): Unit
 expect fun DataBuffer.getDouble(index: Int): Double
 expect fun DataBuffer.setDouble(index: Int, value: Double): Unit
 
-expect class Int8Buffer {
-	companion object
-}
+expect class Int8Buffer
 inline fun Int8BufferAlloc(size: Int): Int8Buffer = MemBufferAlloc(size * 1).sliceInt8Buffer() // @TODO: Can't use class name directly (it fails in JS)
 expect val Int8Buffer.mem: MemBuffer
 expect val Int8Buffer.offset: Int
@@ -50,9 +51,7 @@ expect operator fun Int8Buffer.get(index: Int): Byte
 expect operator fun Int8Buffer.set(index: Int, value: Byte): Unit
 fun Int8Buffer.subarray(begin: Int, end: Int = this.size): Int8Buffer = this.mem.sliceInt8Buffer(this.offset + begin, end - begin)
 
-expect class Int16Buffer {
-	companion object
-}
+expect class Int16Buffer
 inline fun Int16BufferAlloc(size: Int): Int16Buffer = MemBufferAlloc(size * 2).sliceInt16Buffer() // @TODO: Can't use class name directly (it fails in JS)
 expect val Int16Buffer.mem: MemBuffer
 expect val Int16Buffer.offset: Int
@@ -61,9 +60,7 @@ expect operator fun Int16Buffer.get(index: Int): Short
 expect operator fun Int16Buffer.set(index: Int, value: Short): Unit
 fun Int16Buffer.subarray(begin: Int, end: Int = this.size): Int16Buffer = this.mem.sliceInt16Buffer(this.offset + begin, end - begin)
 
-expect class Int32Buffer {
-	companion object
-}
+expect class Int32Buffer
 inline fun Int32BufferAlloc(size: Int): Int32Buffer = MemBufferAlloc(size * 4).sliceInt32Buffer() // @TODO: Can't use class name directly (it fails in JS)
 expect val Int32Buffer.mem: MemBuffer
 expect val Int32Buffer.offset: Int
@@ -72,9 +69,7 @@ expect operator fun Int32Buffer.get(index: Int): Int
 expect operator fun Int32Buffer.set(index: Int, value: Int): Unit
 fun Int32Buffer.subarray(begin: Int, end: Int = this.size): Int32Buffer = this.mem.sliceInt32Buffer(this.offset + begin, end - begin)
 
-expect class Float32Buffer {
-	companion object
-}
+expect class Float32Buffer
 inline fun Float32BufferAlloc(size: Int): Float32Buffer = MemBufferAlloc(size * 4).sliceFloat32Buffer() // @TODO: Can't use class name directly (it fails in JS)
 expect val Float32Buffer.mem: MemBuffer
 expect val Float32Buffer.offset: Int
@@ -83,9 +78,7 @@ expect operator fun Float32Buffer.get(index: Int): Float
 expect operator fun Float32Buffer.set(index: Int, value: Float): Unit
 fun Float32Buffer.subarray(begin: Int, end: Int = this.size): Float32Buffer = this.mem.sliceFloat32Buffer(this.offset + begin, end - begin)
 
-expect class Float64Buffer {
-	companion object
-}
+expect class Float64Buffer
 inline fun Float64BufferAlloc(size: Int): Float64Buffer = MemBufferAlloc(size * 8).sliceFloat64Buffer() // @TODO: Can't use class name directly (it fails in JS)
 expect val Float64Buffer.mem: MemBuffer
 expect val Float64Buffer.offset: Int
@@ -149,10 +142,19 @@ inline fun IntArray.fill(value: Int, start: Int = 0, end: Int = this.size): Unit
 inline fun FloatArray.fill(value: Float, start: Int = 0, end: Int = this.size): Unit = _fill(this, value, start, end)
 inline fun DoubleArray.fill(value: Double, start: Int = 0, end: Int = this.size): Unit = _fill(this, value, start, end)
 
-val Float64Buffer.Companion.BYTES_PER_ELEMENT get() = 8
-val Float32Buffer.Companion.BYTES_PER_ELEMENT get() = 4
-val Int32Buffer.Companion.BYTES_PER_ELEMENT get() = 4
-//val UInt16Buffer.Companion.BYTES_PER_ELEMENT get() = 2
-val Int16Buffer.Companion.BYTES_PER_ELEMENT get() = 2
-val Int8Buffer.Companion.BYTES_PER_ELEMENT get() = 2
-val UInt8Buffer.Companion.BYTES_PER_ELEMENT get() = 1
+const val Float64Buffer_BYTES_PER_ELEMENT = 8
+const val Float32Buffer_BYTES_PER_ELEMENT = 4
+const val Int32Buffer_BYTES_PER_ELEMENT = 4
+const val Int16Buffer_BYTES_PER_ELEMENT = 2
+const val Int8Buffer_BYTES_PER_ELEMENT = 2
+
+const val Uint8Buffer_BYTES_PER_ELEMENT = 1
+const val Uint16Buffer_BYTES_PER_ELEMENT = 2
+
+fun NewUint8Buffer(mem: MemBuffer, offset: Int, len: Int) = mem.sliceUint8Buffer(offset, len)
+fun NewUint16Buffer(mem: MemBuffer, offset: Int, len: Int) = mem.sliceUint16Buffer(offset, len)
+fun NewInt8Buffer(mem: MemBuffer, offset: Int, len: Int) = mem.sliceInt8Buffer(offset, len)
+fun NewInt16Buffer(mem: MemBuffer, offset: Int, len: Int) = mem.sliceInt16Buffer(offset, len)
+fun NewInt32Buffer(mem: MemBuffer, offset: Int, len: Int) = mem.sliceInt32Buffer(offset, len)
+fun NewFloat32Buffer(mem: MemBuffer, offset: Int, len: Int) = mem.sliceFloat32Buffer(offset, len)
+fun NewFloat64Buffer(mem: MemBuffer, offset: Int, len: Int) = mem.sliceFloat64Buffer(offset, len)

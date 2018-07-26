@@ -271,7 +271,7 @@ abstract class Slot  :  TransformObject() {
 	/**
 	 * @private
 	 */
-	protected var _parent: Bone? = null
+	internal var _parent: Bone? = null
 	/**
 	 * @internal
 	 */
