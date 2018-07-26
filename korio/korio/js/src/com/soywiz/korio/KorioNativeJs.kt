@@ -11,15 +11,15 @@ import com.soywiz.korio.net.http.*
 import com.soywiz.korio.net.ws.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
-import kotlinx.coroutines.experimental.*
-import kotlinx.coroutines.experimental.intrinsics.*
+import kotlinx.coroutines.*
 import org.khronos.webgl.*
 import org.khronos.webgl.set
 import org.w3c.dom.*
 import org.w3c.xhr.*
 import kotlin.browser.*
 import kotlin.collections.set
-import kotlin.coroutines.experimental.*
+import kotlin.coroutines.*
+import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.*
 
 actual annotation class Synchronized
@@ -66,13 +66,12 @@ actual object KorioNative {
 		return callback()
 	}
 
-	@Suppress("unused", "DEPRECATION")
-	actual fun random(): Double = kotlin.js.Math.random()
-
 	actual fun asyncEntryPoint(context: CoroutineContext, callback: suspend () -> Unit): dynamic {
 		//callback.startCoroutine(EmptyContinuation(context))
 		return kotlin.js.Promise<dynamic> { resolve, reject ->
-			callback.startCoroutineCancellable(object : Continuation<Unit> {
+			//callback.startCoroutine()
+			//callback.startCoroutineCancellable(object : OldContinuationAdaptor<Unit>() {
+			callback.startCoroutine(object : OldContinuationAdaptor<Unit>() {
 				override val context: CoroutineContext = context
 
 				override fun resume(value: Unit) = resolve(undefined)
@@ -228,7 +227,8 @@ actual object KorioNative {
 	//actual fun suspendTest(callback: suspend () -> Unit): dynamic = promise { callback() }
 	actual fun suspendTest(callback: suspend () -> Unit): dynamic {
 		return kotlin.js.Promise<dynamic> { resolve, reject ->
-			callback.startCoroutineCancellable(object : Continuation<Unit> {
+			//callback.startCoroutineCancellable(object : OldContinuationAdaptor<Unit>() {
+			callback.startCoroutine(object : OldContinuationAdaptor<Unit>() {
 				override val context: CoroutineContext = KorioDefaultDispatcher
 				override fun resume(value: Unit) = resolve(undefined)
 				override fun resumeWithException(exception: Throwable) = reject(exception)

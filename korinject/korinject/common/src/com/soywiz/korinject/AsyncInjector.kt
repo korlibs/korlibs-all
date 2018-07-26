@@ -1,6 +1,6 @@
 package com.soywiz.korinject
 
-import kotlin.coroutines.experimental.*
+import kotlin.coroutines.*
 import kotlin.reflect.*
 
 //import kotlin.reflect.KClass
@@ -134,18 +134,23 @@ class AsyncInjector(val parent: AsyncInjector? = null, val level: Int = 0) {
 
 	inline fun <reified T : Any> getSync(ctx: RequestContext = RequestContext(T::class)): T = getSync(T::class, ctx)
 	fun <T : Any> getSync(clazz: KClass<T>, ctx: RequestContext = RequestContext(clazz)): T {
-		lateinit var result: T
+		lateinit var rresult: T
 		var rexception: Throwable? = null
 		suspend {
 			get(clazz, ctx)
 		}.startCoroutine(object : Continuation<T> {
 			override val context: CoroutineContext = EmptyCoroutineContext
-			override fun resume(value: T) = run { result = value }
-			override fun resumeWithException(exception: Throwable) = run { rexception = exception }
+			override fun resumeWith(result: SuccessOrFailure<T>) {
+				if (result.isSuccess) {
+					rresult = result.getOrThrow()
+				} else {
+					rexception = result.exceptionOrNull()!!
+				}
+			}
 		})
 		if (rexception != null) throw rexception!!
 		try {
-			return result
+			return rresult
 		} catch (e: Throwable) {
 			throw RuntimeException("Couldn't get instance of type $clazz synchronously", e)
 		}

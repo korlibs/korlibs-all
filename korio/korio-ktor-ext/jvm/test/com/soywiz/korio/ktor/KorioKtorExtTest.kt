@@ -1,13 +1,6 @@
 package com.soywiz.korio.ktor
 
-import com.soywiz.korio.file.std.*
-import io.ktor.application.*
-import io.ktor.http.*
-import io.ktor.routing.*
-import io.ktor.server.testing.*
-import org.junit.Test
-import kotlin.test.*
-
+/*
 class KorioKtorExtTest {
 	@Test
 	fun name() {
@@ -28,3 +21,4 @@ class KorioKtorExtTest {
 		}
 	}
 }
+*/

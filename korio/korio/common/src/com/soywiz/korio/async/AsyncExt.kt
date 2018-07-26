@@ -5,9 +5,9 @@ import com.soywiz.klock.*
 import com.soywiz.korio.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.util.*
-import kotlinx.coroutines.experimental.*
-import kotlinx.coroutines.experimental.timeunit.*
-import kotlin.coroutines.experimental.*
+import kotlinx.coroutines.*
+import kotlinx.coroutines.timeunit.*
+import kotlin.coroutines.*
 
 // @TODO: BUG: kotlin-js bug :: Uncaught ReferenceError: CoroutineImpl is not defined
 //Coroutine$await$lambda.$metadata$ = {kind: Kotlin.Kind.CLASS, simpleName: null, interfaces: [CoroutineImpl]};
@@ -55,7 +55,7 @@ suspend fun CoroutineContext.delayNextFrame() {
 
 suspend fun CoroutineContext.delay(time: Int) {
 	withContext(this) {
-		kotlinx.coroutines.experimental.delay(time)
+		kotlinx.coroutines.delay(time)
 	}
 }
 
@@ -97,12 +97,12 @@ class TestCoroutineDispatcher(val frameTime: Int = 16) :
 		return object : Continuation<T> {
 			override val context: CoroutineContext = continuation.context
 
-			override fun resume(value: T) {
-				continuation.resume(value)
-			}
-
-			override fun resumeWithException(exception: Throwable) {
-				continuation.resumeWithException(exception)
+			override fun resumeWith(result: SuccessOrFailure<T>) {
+				if (result.isSuccess) {
+					continuation.resume(result.getOrThrow())
+				} else {
+					continuation.resumeWithException(result.exceptionOrNull()!!)
+				}
 			}
 		}
 	}
@@ -136,10 +136,12 @@ class TestCoroutineDispatcher(val frameTime: Int = 16) :
 			//println("RUN: $task")
 			task.callback.startCoroutine(object : Continuation<Unit> {
 				override val context: CoroutineContext = this@TestCoroutineDispatcher
-				override fun resume(value: Unit) = Unit
-				override fun resumeWithException(exception: Throwable) {
-					exception.printStackTrace()
-					this@TestCoroutineDispatcher.exception = exception
+				override fun resumeWith(result: SuccessOrFailure<Unit>) {
+					val exception = result.exceptionOrNull()
+					if (exception != null) {
+						exception.printStackTrace()
+						this@TestCoroutineDispatcher.exception = exception
+					}
 				}
 			})
 		}
@@ -148,10 +150,12 @@ class TestCoroutineDispatcher(val frameTime: Int = 16) :
 	fun loop(entry: suspend () -> Unit) {
 		entry.startCoroutine(object : Continuation<Unit> {
 			override val context: CoroutineContext = this@TestCoroutineDispatcher
-			override fun resume(value: Unit) = Unit
-			override fun resumeWithException(exception: Throwable) {
-				exception.printStackTrace()
-				this@TestCoroutineDispatcher.exception = exception
+			override fun resumeWith(result: SuccessOrFailure<Unit>) {
+				val exception = result.exceptionOrNull()
+				if (exception != null) {
+					exception.printStackTrace()
+					this@TestCoroutineDispatcher.exception = exception
+				}
 			}
 		})
 		loop()

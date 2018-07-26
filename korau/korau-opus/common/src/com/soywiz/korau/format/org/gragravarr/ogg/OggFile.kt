@@ -15,7 +15,6 @@ package com.soywiz.korau.format.org.gragravarr.ogg
 
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korma.random.BaseRand.random
 
 /**
  * This class takes care of reading and writing
@@ -57,7 +56,7 @@ class OggFile : Closeable {
 	protected val unusedSerialNumber: Int
 		get() {
 			while (true) {
-				val sid = (random() * Short.MAX_VALUE).toInt()
+				val sid = (kotlin.random.Random.nextDouble() * Short.MAX_VALUE).toInt()
 				if (!seenSIDs.contains(sid)) {
 					return sid
 				}

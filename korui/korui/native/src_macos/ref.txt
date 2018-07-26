@@ -18,7 +18,7 @@ import platform.OpenGL.GL_COLOR_BUFFER_BIT
 import platform.OpenGL.glClear
 import platform.OpenGL.glClearColor
 import platform.darwin.NSObject
-import kotlin.coroutines.experimental.CoroutineContext
+import kotlin.coroutines.CoroutineContext
 
 fun main(args: Array<String>) {
     EventLoop().loop()

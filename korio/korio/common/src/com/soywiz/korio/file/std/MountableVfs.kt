@@ -3,9 +3,9 @@
 package com.soywiz.korio.file.std
 
 import com.soywiz.korio.*
+import com.soywiz.korio.async.*
 import com.soywiz.korio.file.*
-import com.soywiz.korio.file.*
-import kotlin.coroutines.experimental.*
+import kotlin.coroutines.*
 
 suspend fun MountableVfs(callback: suspend Mountable.() -> Unit): VfsFile =
 	suspendCoroutine { c ->
@@ -44,7 +44,7 @@ suspend fun MountableVfs(callback: suspend Mountable.() -> Unit): VfsFile =
 
 			override fun toString(): String = "MountableVfs"
 		}
-		callback.startCoroutine(mount, object : Continuation<Unit> {
+		callback.startCoroutine(mount, object : OldContinuationAdaptor<Unit>() {
 			override val context: CoroutineContext = c.context
 			override fun resume(value: Unit) = c.resume(mount.root)
 			override fun resumeWithException(exception: Throwable) = c.resumeWithException(exception)

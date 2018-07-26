@@ -2,10 +2,10 @@ package com.soywiz.korio.async
 
 import com.soywiz.korio.error.*
 import com.soywiz.korio.lang.*
-import kotlinx.coroutines.experimental.*
-import kotlinx.coroutines.experimental.intrinsics.*
-import kotlinx.coroutines.experimental.timeunit.*
-import kotlin.coroutines.experimental.*
+import kotlinx.coroutines.*
+import kotlinx.coroutines.intrinsics.*
+import kotlinx.coroutines.timeunit.*
+import kotlin.coroutines.*
 
 // Fails on JS:     InvalidOperationException: ioSync completed=true, result=null, resultEx=null, suspendCount=3015
 ///**
@@ -54,7 +54,7 @@ fun <T : Any> runBlockingNoSuspensions(callback: suspend () -> T): T {
 	var resultEx: Throwable? = null
 	var suspendCount = 0
 
-	callback.startCoroutineUndispatched(object : Continuation<T?> {
+	callback.startCoroutineUndispatched(object : OldContinuationAdaptor<T?>() {
 		override val context: CoroutineContext = object : CoroutineDispatcher(), ContinuationInterceptor, Delay {
 			override val key: CoroutineContext.Key<*> = ContinuationInterceptor.Key
 

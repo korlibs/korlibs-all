@@ -1,6 +1,6 @@
 package com.soywiz.korio.async
 
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.*
 import java.util.concurrent.*
 import java.util.concurrent.CancellationException
 import kotlin.test.*

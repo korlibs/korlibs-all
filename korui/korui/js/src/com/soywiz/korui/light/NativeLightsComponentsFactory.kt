@@ -1,6 +1,6 @@
 package com.soywiz.korui.light
 
-import kotlin.coroutines.experimental.*
+import kotlin.coroutines.*
 
 actual object NativeLightsComponentsFactory : LightComponentsFactory {
 	actual override fun create(context: CoroutineContext): LightComponents = HtmlLightComponents()

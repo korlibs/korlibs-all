@@ -14,14 +14,14 @@ import com.soywiz.korinject.*
 //}
 
 fun main(args: Array<String>): Unit {
-	Logger.defaultLevel = Logger.Level.TRACE
-	Logger("Views").level = Logger.Level.TRACE
-	Logger("Korge").level = Logger.Level.TRACE
-	Logger("RenderContext").level = Logger.Level.TRACE
-	Logger("BatchBuilder2D").level = Logger.Level.TRACE
-	Logger("DefaultShaders").level = Logger.Level.TRACE
-	Logger("RenderContext2D").level = Logger.Level.TRACE
-	Korge(MyModule)
+	//Logger.defaultLevel = Logger.Level.TRACE
+	//Logger("Views").level = Logger.Level.TRACE
+	//Logger("Korge").level = Logger.Level.TRACE
+	//Logger("RenderContext").level = Logger.Level.TRACE
+	//Logger("BatchBuilder2D").level = Logger.Level.TRACE
+	//Logger("DefaultShaders").level = Logger.Level.TRACE
+	//Logger("RenderContext2D").level = Logger.Level.TRACE
+	Korge(MyModule, debug = true)
 }
 
 object MyModule : Module() {
@@ -34,6 +34,20 @@ object MyModule : Module() {
 
 class MyScene : Scene() {
 	override suspend fun Container.sceneInit() {
+		graphics() {
+			beginFill(RGBA(Colors.RED), 1.0)
+			//drawRect(0.0, 0.0, 128.0, 128.0)
+			drawCircle(64.0, 64.0, 64.0)
+			endFill()
+
+			alpha = 0.5
+			mouse {
+				//hitTestType = View.HitTestType.SHAPE
+				onOver { alpha = 1.0 }
+				onOut { alpha = 0.5 }
+			}
+		}
+		/*
 		solidRect(128, 128, Colors.RED) {
 			alpha = 0.5
 			mouse {
@@ -41,5 +55,6 @@ class MyScene : Scene() {
 				onOut { alpha = 0.5 }
 			}
 		}
+		*/
 	}
 }

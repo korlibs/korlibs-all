@@ -6,7 +6,7 @@ import com.soywiz.korio.file.*
 import com.soywiz.korui.*
 import com.soywiz.korui.light.*
 import com.soywiz.korui.ui.*
-import kotlin.coroutines.experimental.*
+import kotlin.coroutines.*
 
 @Singleton
 open class Browser(val injector: AsyncInjector) {

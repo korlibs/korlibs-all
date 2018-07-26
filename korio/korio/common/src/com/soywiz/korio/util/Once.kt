@@ -1,8 +1,8 @@
 package com.soywiz.korio.util
 
 import com.soywiz.korio.async.*
-import kotlinx.coroutines.experimental.*
-import kotlin.coroutines.experimental.*
+import kotlinx.coroutines.*
+import kotlin.coroutines.*
 
 class Once {
 	var completed = false

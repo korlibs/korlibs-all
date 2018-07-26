@@ -2,9 +2,9 @@ package com.soywiz.korio.util
 
 import com.soywiz.klock.*
 import com.soywiz.korio.async.*
-import kotlinx.coroutines.experimental.*
-import kotlinx.coroutines.experimental.Deferred
-import kotlin.coroutines.experimental.*
+import kotlinx.coroutines.*
+import kotlinx.coroutines.Deferred
+import kotlin.coroutines.*
 import kotlin.reflect.*
 
 class AsyncInmemoryCache {

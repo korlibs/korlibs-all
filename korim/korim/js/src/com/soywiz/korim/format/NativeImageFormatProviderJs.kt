@@ -8,12 +8,13 @@ import com.soywiz.korio.file.*
 import com.soywiz.korio.file.std.*
 import com.soywiz.korio.util.*
 import com.soywiz.korma.*
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.*
 import org.khronos.webgl.*
 import org.w3c.dom.*
 import org.w3c.dom.url.*
 import org.w3c.files.*
 import kotlin.browser.*
+import kotlin.coroutines.*
 import kotlin.math.*
 
 actual val nativeImageFormatProvider: NativeImageFormatProvider = HtmlNativeImageFormatProvider

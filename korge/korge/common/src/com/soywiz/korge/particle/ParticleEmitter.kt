@@ -11,6 +11,7 @@ import com.soywiz.korio.serialization.xml.*
 import com.soywiz.korma.geom.*
 import com.soywiz.korma.random.*
 import kotlin.math.*
+import kotlin.random.*
 
 //e: java.lang.UnsupportedOperationException: Class literal annotation arguments are not yet supported: Factory
 //@AsyncFactoryClass(ParticleEmitter.Factory::class)
@@ -175,7 +176,7 @@ class ParticleEmitter(val views: Views) {
 	class Simulator(
 		private val emitter: ParticleEmitter,
 		var emitterPos: Point2d = Point2d(),
-		val seed: Long = BaseRand.random().toBits()
+		val seed: Long = kotlin.random.Random.nextLong()
 	) {
 		val random = Rand(seed)
 		var totalElapsedTime = 0

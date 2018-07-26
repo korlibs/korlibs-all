@@ -5,10 +5,9 @@ import com.soywiz.kmem.*
 import com.soywiz.korau.format.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.file.*
-import com.soywiz.korio.file.*
 import com.soywiz.korma.math.*
-import com.soywiz.korma.random.BaseRand.random
 import kotlin.math.*
+import kotlin.random.*
 
 /*
   fast tracker 2 module player for web audio api
@@ -55,7 +54,7 @@ class Fasttracker {
 					0 -> (127f * sin(PI * 2 * (i / 64))).toFloat()
 					1 -> (127f - 4f * i)
 					2 -> if (i < 32) 127f else -127f
-					3 -> ((1 - 2 * random()) * 127).toFloat()
+					3 -> ((1 - 2 * Random.nextDouble()) * 127).toFloat()
 					else -> invalidOp
 				}
 			}

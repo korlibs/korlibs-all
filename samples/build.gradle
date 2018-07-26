@@ -141,7 +141,7 @@ allprojects {
 		}
 
 		if (isKotlin && !isNative) {
-			kotlin.experimental.coroutines 'enable'
+			//kotlin.experimental.coroutines 'enable'
 		}
 	}
 }

@@ -5,7 +5,7 @@ import com.soywiz.korui.*
 import com.soywiz.korui.light.*
 import com.soywiz.korui.react.*
 import com.soywiz.korui.ui.*
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.*
 
 object Example2Jvm {
     @JvmStatic

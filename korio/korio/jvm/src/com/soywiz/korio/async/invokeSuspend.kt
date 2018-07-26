@@ -1,9 +1,9 @@
 package com.soywiz.korio.async
 
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.*
 import java.lang.reflect.*
-import kotlin.coroutines.experimental.*
-import kotlin.coroutines.experimental.intrinsics.*
+import kotlin.coroutines.*
+import kotlin.coroutines.intrinsics.*
 
 suspend fun Method.invokeSuspend(obj: Any?, args: List<Any?>): Any? {
 	val method = this@invokeSuspend

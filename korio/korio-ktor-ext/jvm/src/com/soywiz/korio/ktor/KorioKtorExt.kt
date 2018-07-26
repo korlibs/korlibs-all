@@ -1,19 +1,6 @@
 package com.soywiz.korio.ktor
 
-import com.soywiz.korio.file.*
-import com.soywiz.korio.file.std.*
-import com.soywiz.korio.stream.*
-import com.soywiz.korio.util.*
-import io.ktor.application.*
-import io.ktor.content.*
-import io.ktor.http.*
-import io.ktor.response.*
-import kotlinx.coroutines.experimental.*
-import kotlinx.coroutines.experimental.io.*
-import java.io.*
-import java.nio.file.*
-import java.util.*
-
+/*
 fun VfsFile.openByteReadChannel(range: LongRange? = null) = writer(DefaultDispatcher) {
 	val ch = channel
 	val temp = ByteArray(16 * 1024)
@@ -62,3 +49,4 @@ suspend fun ApplicationCall.respondFile(file: VfsFile) {
 		respond(VfsFileContent(file))
 	}
 }
+*/

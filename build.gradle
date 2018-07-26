@@ -32,7 +32,7 @@ buildscript {
 			"korinject"        : ["korlibstd"],
 			"korma"            : ["kds"],
 			"korio"            : ["klock", "kmem", "kds", "klogger", "org.jetbrains.kotlinx:kotlinx-coroutines-core{JSUFFIX}:$kotlinxCoroutinesVersion"],
-			"korio-ktor-ext"   : ["korio", "io.ktor:ktor-server-core:$ktorVersion"],
+			//"korio-ktor-ext"   : ["korio", "io.ktor:ktor-server-core:$ktorVersion"],
 			"korim"            : ["korio", "korma"],
 			"korim-qr"         : ["korim"],
 			"kgl"              : ["kmem", "korim"],
@@ -207,7 +207,7 @@ allprojects {
 	}
 
 	if (isKotlin && !isNative) {
-		kotlin.experimental.coroutines 'enable'
+		//kotlin.experimental.coroutines 'enable'
 	}
 
 	if (isNative) {
@@ -242,21 +242,21 @@ allprojects {
 		if (isJvm) {
 			[compileKotlin, compileTestKotlin]*.configure {
 				kotlinOptions.freeCompilerArgs = ["-XXLanguage:+InlineClasses"]
-				kotlinOptions.languageVersion = "1.2"
+				kotlinOptions.languageVersion = ext.kotlinLangVersion
 			}
 		}
 
 		if (isJs) {
 			[compileKotlin2Js, compileTestKotlin2Js]*.configure {
 				kotlinOptions.freeCompilerArgs = ["-XXLanguage:+InlineClasses"]
-				kotlinOptions.languageVersion = "1.2"
+				kotlinOptions.languageVersion = ext.kotlinLangVersion
 			}
 		}
 
 		if (isCommon) {
 			[compileKotlinCommon, compileTestKotlinCommon]*.configure {
 				kotlinOptions.freeCompilerArgs = ["-XXLanguage:+InlineClasses"]
-				kotlinOptions.languageVersion = "1.2"
+				kotlinOptions.languageVersion = ext.kotlinLangVersion
 			}
 		}
 	}

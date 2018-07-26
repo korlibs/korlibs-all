@@ -10,8 +10,8 @@ import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
 import com.soywiz.korma.math.*
-import com.soywiz.korma.random.BaseRand.random
 import kotlin.math.*
+import kotlin.random.*
 
 suspend fun VfsFile.readMod() = MOD().apply { read(readAll().openSync()) }
 
@@ -39,7 +39,7 @@ class MOD {
 					0 -> 127 * sin(PI * 2 * (i / 64))
 					1 -> (127 - 4 * i).toDouble()
 					2 -> if (i < 32) 127.0 else -127.0
-					3 -> (1 - 2 * random()) * 127
+					3 -> (1 - 2 * Random.nextDouble()) * 127
 					else -> invalidOp
 				}
 			}

@@ -10,7 +10,8 @@ import com.soywiz.korim.color.*
 import com.soywiz.korim.color.RGBA.Companion.blendRGBA
 import com.soywiz.korma.geom.*
 import com.soywiz.korma.interpolation.*
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.*
+import kotlin.coroutines.*
 import kotlin.reflect.*
 
 class TweenComponent(

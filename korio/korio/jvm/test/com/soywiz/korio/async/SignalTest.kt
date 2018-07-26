@@ -1,8 +1,8 @@
 package com.soywiz.korio.async
 
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.*
 import java.util.concurrent.CancellationException
-import kotlin.coroutines.experimental.*
+import kotlin.coroutines.*
 import kotlin.test.*
 
 class SignalTest {

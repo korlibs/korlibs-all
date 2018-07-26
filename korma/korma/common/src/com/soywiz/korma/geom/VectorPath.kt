@@ -398,30 +398,16 @@ open class VectorPath(
 		var intersections = 0
 
 		visitEdges(
-			line = { x0, y0, x1, y1 ->
-				intersections += HorizontalLine.intersectionsWithLine(testx, testy, x0, y0, x1, y1)
-			},
-			quad = { x0, y0, x1, y1, x2, y2 ->
-				intersections += HorizontalLine.interesectionsWithQuadBezier(
-					testx,
-					testy,
-					x0,
-					y0,
-					x1,
-					y1,
-					x2,
-					y2,
-					p1,
-					p2
-				)
-			},
-			cubic = { x0, y0, x1, y1, x2, y2, x3, y3 ->
-				intersections += HorizontalLine.intersectionsWithCubicBezier(
-					testx, testy, x0, y0, x1, y1, x2, y2, x3, y3, p1, p2
-				)
-			},
-			close = {
-			}
+			line = { x0, y0, x1, y1 -> intersections += HorizontalLine.intersectionsWithLine(
+				testx, testy, x0, y0, x1, y1
+			) },
+			quad = { x0, y0, x1, y1, x2, y2 -> intersections += HorizontalLine.interesectionsWithQuadBezier(
+				testx, testy, x0, y0, x1, y1, x2, y2, p1, p2
+			) },
+			cubic = { x0, y0, x1, y1, x2, y2, x3, y3 -> intersections += HorizontalLine.intersectionsWithCubicBezier(
+				testx, testy, x0, y0, x1, y1, x2, y2, x3, y3, p1, p2
+			) },
+			close = {}
 		)
 		return (intersections % 2) != 0
 	}

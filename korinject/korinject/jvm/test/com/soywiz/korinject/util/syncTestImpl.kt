@@ -1,6 +1,10 @@
 package com.soywiz.korinject.util
 
-import kotlin.coroutines.experimental.*
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.coroutines.*
+import kotlin.coroutines.intrinsics.*
 
 actual fun syncTestImpl(ignoreJs: Boolean, block: suspend () -> Unit) {
 	var e: Throwable? = null
@@ -8,8 +12,10 @@ actual fun syncTestImpl(ignoreJs: Boolean, block: suspend () -> Unit) {
 
 	block.startCoroutine(object : Continuation<Unit> {
 		override val context: CoroutineContext = EmptyCoroutineContext
-		override fun resume(value: Unit) = run { done = true }
-		override fun resumeWithException(exception: Throwable) = run { done = true; e = exception }
+		override fun resumeWith(result: SuccessOrFailure<Unit>) {
+			done = true
+			e = result.exceptionOrNull()
+		}
 	})
 
 	while (!done) Thread.sleep(1L)

@@ -10,7 +10,8 @@ import com.soywiz.korio.async.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korui.event.*
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.*
+import kotlin.coroutines.*
 
 class LipSync(val lipsync: String) {
 	val timeMs: Int get() = lipsync.length * 16

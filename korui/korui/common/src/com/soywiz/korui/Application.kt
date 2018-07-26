@@ -8,7 +8,7 @@ import com.soywiz.korui.event.*
 import com.soywiz.korui.geom.len.*
 import com.soywiz.korui.light.*
 import com.soywiz.korui.ui.*
-import kotlin.coroutines.experimental.*
+import kotlin.coroutines.*
 
 interface ApplicationAware {
 	val app: Application
