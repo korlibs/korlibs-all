@@ -24,6 +24,7 @@ package com.dragonbones.parser
 
 import com.dragonbones.core.*
 import com.dragonbones.model.*
+import com.soywiz.korio.serialization.json.*
 
 /**
  * @private
@@ -293,6 +294,10 @@ abstract class DataParser {
 				"sound" -> ActionType.Sound
 				else -> ActionType.Play
 			}
+		}
+
+		fun parseDragonBonesDataJson(data: String, scale: Double = 1.0): DragonBonesData? {
+			return ObjectDataParser().parseDragonBonesData(Json.parse(data), scale)
 		}
 	}
 

@@ -2366,7 +2366,7 @@ open class ObjectDataParser : DataParser() {
 				this._data = data
 				this._parseArray(rawData)
 
-				val rawArmatures = rawData[DataParser.ARMATURE] as Array<Any?>
+				val rawArmatures = rawData[DataParser.ARMATURE] as List<Any?>
 				for (rawArmature in rawArmatures) {
 					data.addArmature(this._parseArmature(rawArmature, scale))
 				}
@@ -2399,10 +2399,6 @@ open class ObjectDataParser : DataParser() {
 		}
 
 		return null
-	}
-
-	fun parseDragonBonesDataJson(data: String, scale: Double = 1.0): DragonBonesData? {
-		return parseDragonBonesData(Json.parse(data), scale)
 	}
 
 	override fun parseTextureAtlasData(rawData: Any?, textureAtlasData: TextureAtlasData, scale: Double): Boolean {
