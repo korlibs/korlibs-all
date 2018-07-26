@@ -20,8 +20,8 @@ open class RectBase(
 	protected open val bwidth get() = width
 	protected open val bheight get() = height
 
-	private val sLeft get() = -bwidth * anchorX
-	private val sTop get() = -bheight * anchorY
+	protected open val sLeft get() = -bwidth * anchorX
+	protected open val sTop get() = -bheight * anchorY
 
 	private val vertices = TexturedVertexArray(4, TexturedVertexArray.QUAD_INDICES)
 

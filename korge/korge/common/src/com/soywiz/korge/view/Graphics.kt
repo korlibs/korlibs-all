@@ -7,10 +7,12 @@ import com.soywiz.korim.vector.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 
-class Graphics : Container() {
-	private val img = Image(Bitmaps.transparent)
+inline fun Container.graphics(callback: Graphics.() -> Unit = {}): Graphics = Graphics().addTo(this).apply(callback)
+
+class Graphics : Image(Bitmaps.transparent) {
 	private val shapes = arrayListOf<Shape>()
 	private var currentPath = GraphicsPath()
+	private var fill: Context2d.Paint? = null
 	@PublishedApi
 	internal var dirty = true
 
@@ -34,7 +36,10 @@ class Graphics : Container() {
 		currentPath.lineTo(x, y)
 	}
 
-	fun beginFill(i: Int, d: Double) = dirty {
+	fun beginFill(color: RGBAInt, alpha: Double) = beginFill(RGBA(color), alpha)
+
+	fun beginFill(color: RGBA, alpha: Double) = dirty {
+		fill = Context2d.Color(RGBAInt(color.r, color.g, color.b, (alpha * 255).toInt()))
 		currentPath = GraphicsPath()
 	}
 
@@ -51,9 +56,12 @@ class Graphics : Container() {
 	}
 
 	fun endFill() = dirty {
-		shapes += FillShape(currentPath, null, Context2d.Color(Colors.RED), Matrix2d())
+		shapes += FillShape(currentPath, null, fill ?: Context2d.Color(Colors.RED), Matrix2d())
 		currentPath = GraphicsPath()
 	}
+
+	override var sLeft = 0.0
+	override var sTop = 0.0
 
 	override fun render(ctx: RenderContext) {
 		if (dirty) {
@@ -65,8 +73,19 @@ class Graphics : Container() {
 					shape.draw(this)
 				}
 			}
-			img.position(bounds.x, bounds.y).bitmap = image.slice()
+			this.bitmap = image.slice()
+			sLeft = bounds.x
+			sTop = bounds.y
 		}
 		super.render(ctx)
+	}
+
+	override fun hitTestInternal(x: Double, y: Double): View? {
+		val lx = globalToLocalX(x, y)
+		val ly = globalToLocalY(x, y)
+		for (shape in shapes) {
+			if (shape.containsPoint(lx, ly)) return this
+		}
+		return null
 	}
 }
