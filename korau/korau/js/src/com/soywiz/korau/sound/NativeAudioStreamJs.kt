@@ -1,6 +1,7 @@
 package com.soywiz.korau.sound
 
 import com.soywiz.kds.*
+import com.soywiz.klock.*
 import com.soywiz.klogger.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.lang.*
@@ -111,7 +112,7 @@ actual class NativeAudioStream actual constructor(val freq: Int) {
 			// Delay simulating consuming samples
 			val sampleCount = (size / 2)
 			val timeSeconds = sampleCount.toDouble() / 41_000.0
-			coroutineContext.delay((timeSeconds * 1000).toInt())
+			coroutineContext.delay(timeSeconds.seconds)
 		} else {
 			ensureRunning()
 

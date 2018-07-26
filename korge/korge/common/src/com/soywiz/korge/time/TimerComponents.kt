@@ -53,11 +53,11 @@ class TimerComponent(override val view: View, val totalMs: Double, val callback:
 }
 
 val View.timers get() = this.getOrCreateComponent { TimerComponents(this) }
-suspend fun View.wait(time: Int) = this.timers.waitMilliseconds(time)
+suspend fun View.waitMs(time: Int) = this.timers.waitMilliseconds(time)
 suspend fun View.wait(time: TimeSpan) = this.timers.wait(time)
 suspend fun View.waitFrame() = this.timers.waitFrame()
 
-suspend fun View.sleep(time: Int) = this.timers.waitMilliseconds(time)
+suspend fun View.sleepMs(time: Int) = this.timers.waitMilliseconds(time)
 suspend fun View.sleep(time: TimeSpan) = this.timers.wait(time)
 suspend fun View.sleepFrame() = this.timers.waitFrame()
 

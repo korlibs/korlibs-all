@@ -53,7 +53,7 @@ suspend fun CoroutineContext.delayNextFrame() {
 	delayFrame.delayFrame()
 }
 
-suspend fun CoroutineContext.delay(time: Int) {
+suspend fun CoroutineContext.delayMs(time: Int) {
 	withContext(this) {
 		kotlinx.coroutines.delay(time)
 	}
@@ -61,7 +61,7 @@ suspend fun CoroutineContext.delay(time: Int) {
 
 suspend fun delay(time: TimeSpan) = delay(time.milliseconds)
 
-suspend fun CoroutineContext.delay(time: TimeSpan) = delay(time.milliseconds)
+suspend fun CoroutineContext.delay(time: TimeSpan) = delayMs(time.milliseconds)
 
 fun CoroutineContext.animationFrameLoop(callback: suspend (Closeable) -> Unit): Closeable {
 	var running = true

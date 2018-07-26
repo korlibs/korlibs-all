@@ -26,4 +26,12 @@ class TimeTest {
 		//new Date(1507935509943 - 1000 * 3600 * 2).toGMTString()
 		//"Fri, 13 Oct 2017 20:58:29 GMT"
 	}
+
+	@kotlin.test.Test
+	fun testTimespan() {
+		assertEquals(1.5, (1.seconds + 500.milliseconds).seconds)
+		assertEquals("10", 10.seconds.toTimeString(components = 1, addMilliseconds = false))
+		assertEquals("00:10", 10.5.seconds.toTimeString(components = 2, addMilliseconds = false))
+		assertEquals("00:10.500", 10.5.seconds.toTimeString(components = 2, addMilliseconds = true))
+	}
 }

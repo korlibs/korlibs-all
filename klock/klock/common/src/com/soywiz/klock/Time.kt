@@ -447,8 +447,8 @@ inline val Number.minutes get() = TimeDistance(minutes = this.toDouble())
 
 @Suppress("DataClassPrivateConstructor")
 //data class TimeSpan private constructor(val ms: Int) : Comparable<TimeSpan> {
-data class TimeSpan(val ms: Int) : Comparable<TimeSpan> {
-//inline class TimeSpan(val ms: Int) : Comparable<TimeSpan> {
+//data class TimeSpan(val ms: Int) : Comparable<TimeSpan> {
+inline class TimeSpan(val ms: Int) : Comparable<TimeSpan> {
 	val milliseconds: Int get() = this.ms
 	val seconds: Double get() = this.ms.toDouble() / 1000.0
 
@@ -494,9 +494,14 @@ data class TimeSpan(val ms: Int) : Comparable<TimeSpan> {
 	operator fun times(scale: Int): TimeSpan = TimeSpan(this.ms * scale)
 	operator fun times(scale: Double): TimeSpan = TimeSpan((this.ms * scale).toInt())
 
-	fun toTimeString(components: Int = 3, addMilliseconds: Boolean = false): String =
-		toTimeString(milliseconds, components, addMilliseconds)
+	// @TODO: inline BUG
+	//fun toTimeString(components: Int = 3, addMilliseconds: Boolean = false): String =
+	//	TimeSpan.toTimeString(milliseconds, components, addMilliseconds)
 }
+
+// @TODO: circumvent inline BUG
+fun TimeSpan.toTimeString(components: Int = 3, addMilliseconds: Boolean = false): String =
+	TimeSpan.toTimeString(milliseconds, components, addMilliseconds)
 
 inline val Number.milliseconds get() = TimeSpan.fromMilliseconds(this.toInt())
 inline val Number.seconds get() = TimeSpan.fromMilliseconds((this.toDouble() * 1000.0).toInt())
