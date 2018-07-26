@@ -26,6 +26,7 @@ import com.dragonbones.core.*
 import com.dragonbones.geom.*
 import com.dragonbones.util.*
 import com.soywiz.kds.*
+import kotlin.math.*
 
 /**
  * - The base class of bounding box data.
@@ -218,7 +219,7 @@ class RectangleBoundingBoxData : BoundingBoxData() {
 					y = yMin
 
 					if (normalRadians != null) {
-						normalRadian = -Math.PI * 0.5
+						normalRadian = -PI * 0.5
 					}
 				} else if ((outcodeOut and OutCode.Bottom) != 0) {
 					// point is below the clip rectangle
@@ -226,7 +227,7 @@ class RectangleBoundingBoxData : BoundingBoxData() {
 					y = yMax
 
 					if (normalRadians != null) {
-						normalRadian = Math.PI * 0.5
+						normalRadian = PI * 0.5
 					}
 				} else if ((outcodeOut and OutCode.Right) != 0) {
 					// point is to the right of clip rectangle
@@ -242,7 +243,7 @@ class RectangleBoundingBoxData : BoundingBoxData() {
 					x = xMin
 
 					if (normalRadians != null) {
-						normalRadian = Math.PI
+						normalRadian = PI
 					}
 				}
 
@@ -282,7 +283,7 @@ class RectangleBoundingBoxData : BoundingBoxData() {
 					}
 
 					if (normalRadians != null) {
-						normalRadians.x = normalRadians.y + Math.PI
+						normalRadians.x = normalRadians.y + PI
 					}
 				} else if (inSideB) {
 					intersectionCount = 1 // 01
@@ -298,7 +299,7 @@ class RectangleBoundingBoxData : BoundingBoxData() {
 					}
 
 					if (normalRadians != null) {
-						normalRadians.y = normalRadians.x + Math.PI
+						normalRadians.y = normalRadians.x + PI
 					}
 				} else {
 					intersectionCount = 3 // 11
@@ -397,7 +398,7 @@ class EllipseBoundingBoxData : BoundingBoxData() {
 
 			val dX = xB - xA
 			val dY = yB - yA
-			val lAB = Math.sqrt(dX * dX + dY * dY)
+			val lAB = sqrt(dX * dX + dY * dY)
 			val xD = dX / lAB
 			val yD = dY / lAB
 			val a = (xC - xA) * xD + (yC - yA) * yD
@@ -408,7 +409,7 @@ class EllipseBoundingBoxData : BoundingBoxData() {
 			var intersectionCount = 0
 
 			if (dR >= 0.0) {
-				val dT = Math.sqrt(dR)
+				val dT = sqrt(dR)
 				val sA = a - dT
 				val sB = a + dT
 				val inSideA = if (sA < 0.0) -1 else if (sA <= lAB) 0 else 1
@@ -434,8 +435,8 @@ class EllipseBoundingBoxData : BoundingBoxData() {
 						}
 
 						if (normalRadians != null) {
-							normalRadians.x = Math.atan2(yB / rr * dd, xB / rr)
-							normalRadians.y = normalRadians.x + Math.PI
+							normalRadians.x = atan2(yB / rr * dd, xB / rr)
+							normalRadians.y = normalRadians.x + PI
 						}
 					} else if (inSideB == 1) {
 						intersectionCount = 1 // 01
@@ -453,8 +454,8 @@ class EllipseBoundingBoxData : BoundingBoxData() {
 						}
 
 						if (normalRadians != null) {
-							normalRadians.x = Math.atan2(yA / rr * dd, xA / rr)
-							normalRadians.y = normalRadians.x + Math.PI
+							normalRadians.x = atan2(yA / rr * dd, xA / rr)
+							normalRadians.y = normalRadians.x + PI
 						}
 					} else {
 						intersectionCount = 3 // 11
@@ -464,7 +465,7 @@ class EllipseBoundingBoxData : BoundingBoxData() {
 							intersectionPointA.y = (yA + sA * yD) / d
 
 							if (normalRadians != null) {
-								normalRadians.x = Math.atan2(intersectionPointA.y / rr * dd, intersectionPointA.x / rr)
+								normalRadians.x = atan2(intersectionPointA.y / rr * dd, intersectionPointA.x / rr)
 							}
 						}
 
@@ -473,7 +474,7 @@ class EllipseBoundingBoxData : BoundingBoxData() {
 							intersectionPointB.y = (yA + sB * yD) / d
 
 							if (normalRadians != null) {
-								normalRadians.y = Math.atan2(intersectionPointB.y / rr * dd, intersectionPointB.x / rr)
+								normalRadians.y = atan2(intersectionPointB.y / rr * dd, intersectionPointB.x / rr)
 							}
 						}
 					}
@@ -500,7 +501,7 @@ class EllipseBoundingBoxData : BoundingBoxData() {
 			val heightH = this.height * 0.5
 			if (pY >= -heightH && pY <= heightH) {
 				pY *= widthH / heightH
-				return Math.sqrt(pX * pX + pY * pY) <= widthH
+				return sqrt(pX * pX + pY * pY) <= widthH
 			}
 		}
 
@@ -605,7 +606,7 @@ class PolygonBoundingBoxData : BoundingBoxData() {
 							yMax = y
 
 							if (normalRadians != null) {
-								normalRadians.x = Math.atan2(yD - yC, xD - xC) - Math.PI * 0.5
+								normalRadians.x = atan2(yD - yC, xD - xC) - PI * 0.5
 								normalRadians.y = normalRadians.x
 							}
 						} else {
@@ -615,7 +616,7 @@ class PolygonBoundingBoxData : BoundingBoxData() {
 								yMin = y
 
 								if (normalRadians != null) {
-									normalRadians.x = Math.atan2(yD - yC, xD - xC) - Math.PI * 0.5
+									normalRadians.x = atan2(yD - yC, xD - xC) - PI * 0.5
 								}
 							}
 
@@ -625,7 +626,7 @@ class PolygonBoundingBoxData : BoundingBoxData() {
 								yMax = y
 
 								if (normalRadians != null) {
-									normalRadians.y = Math.atan2(yD - yC, xD - xC) - Math.PI * 0.5
+									normalRadians.y = atan2(yD - yC, xD - xC) - PI * 0.5
 								}
 							}
 						}
@@ -639,7 +640,7 @@ class PolygonBoundingBoxData : BoundingBoxData() {
 						intersectionCount++
 
 						if (normalRadians != null) {
-							normalRadians.x = Math.atan2(yD - yC, xD - xC) - Math.PI * 0.5
+							normalRadians.x = atan2(yD - yC, xD - xC) - PI * 0.5
 							normalRadians.y = normalRadians.x
 						}
 						break
@@ -663,7 +664,7 @@ class PolygonBoundingBoxData : BoundingBoxData() {
 			}
 
 			if (normalRadians != null) {
-				normalRadians.y = normalRadians.x + Math.PI
+				normalRadians.y = normalRadians.x + PI
 			}
 		} else if (intersectionCount > 1) {
 			intersectionCount++

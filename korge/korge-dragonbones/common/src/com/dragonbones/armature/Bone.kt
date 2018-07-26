@@ -26,6 +26,7 @@ import com.dragonbones.core.*
 import com.dragonbones.geom.*
 import com.dragonbones.model.*
 import com.soywiz.kds.*
+import kotlin.math.*
 
 /**
  * - Bone is one of the most important logical units in the armature animation system,
@@ -208,10 +209,10 @@ open class Bone :  TransformObject() {
 						parent.updateGlobalTransform()
 
 						if (flipX && flipY) {
-							rotation = global.rotation - (parent.global.rotation + Math.PI)
+							rotation = global.rotation - (parent.global.rotation + PI)
 						}
 						else if (flipX) {
-							rotation = global.rotation + parent.global.rotation + Math.PI
+							rotation = global.rotation + parent.global.rotation + PI
 						}
 						else if (flipY) {
 							rotation = global.rotation + parent.global.rotation
@@ -264,7 +265,7 @@ open class Bone :  TransformObject() {
 					parent.updateGlobalTransform()
 
 					if (parent.global.scaleX < 0.0) {
-						rotation = global.rotation + parent.global.rotation + Math.PI
+						rotation = global.rotation + parent.global.rotation + PI
 					}
 					else {
 						rotation = global.rotation + parent.global.rotation
@@ -274,7 +275,7 @@ open class Bone :  TransformObject() {
 						rotation -= global.rotation * 2.0
 
 						if (flipX != flipY || boneData.inheritReflection) {
-							global.skew += Math.PI
+							global.skew += PI
 						}
 
 						if (!DragonBones.yDown) {
@@ -286,17 +287,17 @@ open class Bone :  TransformObject() {
 				}
 				else if (flipX || flipY) {
 					if (flipX && flipY) {
-						rotation = global.rotation + Math.PI
+						rotation = global.rotation + PI
 					}
 					else {
 						if (flipX) {
-							rotation = Math.PI - global.rotation
+							rotation = PI - global.rotation
 						}
 						else {
 							rotation = -global.rotation
 						}
 
-						global.skew += Math.PI
+						global.skew += PI
 					}
 
 					global.rotation = rotation
@@ -316,17 +317,17 @@ open class Bone :  TransformObject() {
 				}
 
 				if (flipX && flipY) {
-					rotation = global.rotation + Math.PI
+					rotation = global.rotation + PI
 				}
 				else {
 					if (flipX) {
-						rotation = Math.PI - global.rotation
+						rotation = PI - global.rotation
 					}
 					else {
 						rotation = -global.rotation
 					}
 
-					global.skew += Math.PI
+					global.skew += PI
 				}
 
 				global.rotation = rotation

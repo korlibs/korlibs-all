@@ -28,6 +28,7 @@ import com.dragonbones.model.*
 import com.dragonbones.util.*
 import com.soywiz.kds.*
 import com.soywiz.kmem.*
+import kotlin.math.*
 
 /**
  * @internal
@@ -87,15 +88,15 @@ class Surface  :  Bone() {
 		val dacX = cX - aX
 		val dacY = cY - aY
 
-		transform.rotation = Math.atan2(dabY, dabX)
-		transform.skew = Math.atan2(dacY, dacX) - Math.PI * 0.5 - transform.rotation
+		transform.rotation = atan2(dabY, dabX)
+		transform.skew = atan2(dacY, dacX) - PI * 0.5 - transform.rotation
 
 		if (isDown) {
-			transform.rotation += Math.PI
+			transform.rotation += PI
 		}
 
-		transform.scaleX = Math.sqrt(dabX * dabX + dabY * dabY) / lX
-		transform.scaleY = Math.sqrt(dacX * dacX + dacY * dacY) / lY
+		transform.scaleX = sqrt(dabX * dabX + dabY * dabY) / lX
+		transform.scaleY = sqrt(dacX * dacX + dacY * dacY) / lY
 		transform.toMatrix(matrix)
 		val rx = aX - (matrix.a * x + matrix.c * y)
 		transform.x = rx
@@ -197,8 +198,8 @@ class Surface  :  Bone() {
 		val segmentXD = surfaceData.segmentX * 2
 		val dX = this._dX
 		val dY = this._dY
-		val indexX = Math.floor((x + lA) / dX).toInt() // -1 ~ segmentX - 1
-		val indexY = Math.floor((y + lA) / dY).toInt() // -1 ~ segmentY - 1
+		val indexX = floor((x + lA) / dX).toInt() // -1 ~ segmentX - 1
+		val indexY = floor((y + lA) / dY).toInt() // -1 ~ segmentY - 1
 		val matrixIndex: Int
 		val pX = indexX * dX - lA
 		val pY = indexY * dY - lA

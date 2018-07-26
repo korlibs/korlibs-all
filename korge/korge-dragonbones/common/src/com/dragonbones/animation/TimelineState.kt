@@ -9,10 +9,10 @@
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
  * the Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
@@ -30,11 +30,13 @@ import com.dragonbones.model.*
 import com.dragonbones.util.*
 import com.soywiz.kmem.*
 import com.soywiz.korio.ds.*
+import com.soywiz.korma.math.*
+import kotlin.math.*
 
 /**
  * @internal
  */
-class ActionTimelineState  :  TimelineState() {
+class ActionTimelineState : TimelineState() {
 	override fun toString(): String {
 		return "[class dragonBones.ActionTimelineState]"
 	}
@@ -42,9 +44,11 @@ class ActionTimelineState  :  TimelineState() {
 	private fun _onCrossFrame(frameIndex: Int) {
 		val eventDispatcher = this._armature!!.eventDispatcher
 		if (this._animationState!!.actionEnabled) {
-			val frameOffset = this._animationData!!.frameOffset + this._timelineArray!![(this._timelineData as TimelineData).offset + BinaryOffset.TimelineFrameOffset.index + frameIndex].toInt()
+			val frameOffset =
+				this._animationData!!.frameOffset + this._timelineArray!![(this._timelineData as TimelineData).offset + BinaryOffset.TimelineFrameOffset.index + frameIndex].toInt()
 			val actionCount = this._frameArray!![frameOffset + 1].toInt()
-			val actions = this._animationData!!.parent!!.actions // May be the animaton data not belong to this armature data.
+			val actions =
+				this._animationData!!.parent!!.actions // May be the animaton data not belong to this armature data.
 
 			//for (var i = 0; i < actionCount; ++i) {
 			for (i in 0 until actionCount) {
@@ -58,9 +62,9 @@ class ActionTimelineState  :  TimelineState() {
 					eventObject.animationState = this._animationState!!
 					EventObject.actionDataToInstance(action, eventObject, this._armature!!)
 					this._armature!!._bufferAction(eventObject, true)
-				}
-				else {
-					val eventType = if (action.type == ActionType.Frame) EventObject.FRAME_EVENT else EventObject.SOUND_EVENT
+				} else {
+					val eventType =
+						if (action.type == ActionType.Frame) EventObject.FRAME_EVENT else EventObject.SOUND_EVENT
 					if (action.type == ActionType.Sound || eventDispatcher.hasDBEventListener(eventType)) {
 						val eventObject = BaseObject.borrowObject<EventObject>()
 						// eventObject.time = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
@@ -74,8 +78,8 @@ class ActionTimelineState  :  TimelineState() {
 		}
 	}
 
-	override fun _onArriveAtFrame() { }
-	override fun _onUpdateFrame() { }
+	override fun _onArriveAtFrame() {}
+	override fun _onUpdateFrame() {}
 
 	override fun update(passedTime: Double) {
 		val prevState = this.playState
@@ -100,8 +104,7 @@ class ActionTimelineState  :  TimelineState() {
 						eventObject.animationState = this._animationState!!
 						this._armature?._dragonBones?.bufferEvent(eventObject)
 					}
-				}
-				else {
+				} else {
 					return
 				}
 			}
@@ -130,7 +133,7 @@ class ActionTimelineState  :  TimelineState() {
 
 			if (this._frameCount > 1) {
 				val timelineData = this._timelineData as TimelineData
-				val timelineFrameIndex = Math.floor(this._currentTime * this._frameRate).toInt() // uint
+				val timelineFrameIndex = floor(this._currentTime * this._frameRate).toInt() // uint
 				val frameIndex = this._frameIndices!![timelineData.frameIndicesOffset + timelineFrameIndex]
 
 				if (this._frameIndex != frameIndex) { // Arrive at frame.
@@ -138,12 +141,14 @@ class ActionTimelineState  :  TimelineState() {
 					this._frameIndex = frameIndex
 
 					if (this._timelineArray != null) {
-						this._frameOffset = this._animationData!!.frameOffset + this._timelineArray!![timelineData.offset + BinaryOffset.TimelineFrameOffset.index + this._frameIndex].toInt()
+						this._frameOffset = this._animationData!!.frameOffset +
+								this._timelineArray!![timelineData.offset + BinaryOffset.TimelineFrameOffset.index + this._frameIndex].toInt()
 
 						if (isReverse) {
 							if (crossedFrameIndex < 0) {
-								val prevFrameIndex = Math.floor(prevTime * this._frameRate).toInt()
-								crossedFrameIndex = this._frameIndices!!.getInt(timelineData.frameIndicesOffset + prevFrameIndex)
+								val prevFrameIndex = floor(prevTime * this._frameRate).toInt()
+								crossedFrameIndex =
+										this._frameIndices!!.getInt(timelineData.frameIndicesOffset + prevFrameIndex)
 
 								if (this.currentPlayTimes == prevPlayTimes) { // Start.
 									if (crossedFrameIndex == frameIndex) { // Uncrossed.
@@ -153,7 +158,8 @@ class ActionTimelineState  :  TimelineState() {
 							}
 
 							while (crossedFrameIndex >= 0) {
-								val frameOffset = this._animationData!!.frameOffset + this._timelineArray!![timelineData.offset + BinaryOffset.TimelineFrameOffset.index + crossedFrameIndex].toInt()
+								val frameOffset =
+									this._animationData!!.frameOffset + this._timelineArray!![timelineData.offset + BinaryOffset.TimelineFrameOffset.index + crossedFrameIndex].toInt()
 								// val framePosition = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
 								val framePosition = this._frameArray!![frameOffset] / this._frameRate
 
@@ -171,8 +177,7 @@ class ActionTimelineState  :  TimelineState() {
 
 								if (crossedFrameIndex > 0) {
 									crossedFrameIndex--
-								}
-								else {
+								} else {
 									crossedFrameIndex = this._frameCount - 1
 								}
 
@@ -180,12 +185,13 @@ class ActionTimelineState  :  TimelineState() {
 									break
 								}
 							}
-						}
-						else {
+						} else {
 							if (crossedFrameIndex < 0) {
-								val prevFrameIndex = Math.floor(prevTime * this._frameRate).toInt()
-								crossedFrameIndex = this._frameIndices!!.getInt(timelineData.frameIndicesOffset + prevFrameIndex)
-								val frameOffset = this._animationData!!.frameOffset + this._timelineArray!![timelineData.offset + BinaryOffset.TimelineFrameOffset.index + crossedFrameIndex].toInt()
+								val prevFrameIndex = floor(prevTime * this._frameRate).toInt()
+								crossedFrameIndex =
+										this._frameIndices!!.getInt(timelineData.frameIndicesOffset + prevFrameIndex)
+								val frameOffset =
+									this._animationData!!.frameOffset + this._timelineArray!![timelineData.offset + BinaryOffset.TimelineFrameOffset.index + crossedFrameIndex].toInt()
 								// val framePosition = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
 								val framePosition = this._frameArray!![frameOffset].toDouble() / this._frameRate
 
@@ -193,12 +199,10 @@ class ActionTimelineState  :  TimelineState() {
 									if (prevTime <= framePosition) { // Crossed.
 										if (crossedFrameIndex > 0) {
 											crossedFrameIndex--
-										}
-										else {
+										} else {
 											crossedFrameIndex = this._frameCount - 1
 										}
-									}
-									else if (crossedFrameIndex == frameIndex) { // Uncrossed.
+									} else if (crossedFrameIndex == frameIndex) { // Uncrossed.
 										crossedFrameIndex = -1
 									}
 								}
@@ -207,12 +211,12 @@ class ActionTimelineState  :  TimelineState() {
 							while (crossedFrameIndex >= 0) {
 								if (crossedFrameIndex < this._frameCount - 1) {
 									crossedFrameIndex++
-								}
-								else {
+								} else {
 									crossedFrameIndex = 0
 								}
 
-								val frameOffset = this._animationData!!.frameOffset + this._timelineArray!![timelineData.offset + BinaryOffset.TimelineFrameOffset.index + crossedFrameIndex].toInt()
+								val frameOffset =
+									this._animationData!!.frameOffset + this._timelineArray!![timelineData.offset + BinaryOffset.TimelineFrameOffset.index + crossedFrameIndex].toInt()
 								// val framePosition = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
 								val framePosition = this._frameArray!![frameOffset].toDouble() / this._frameRate
 
@@ -235,11 +239,11 @@ class ActionTimelineState  :  TimelineState() {
 						}
 					}
 				}
-			}
-			else if (this._frameIndex < 0) {
+			} else if (this._frameIndex < 0) {
 				this._frameIndex = 0
 				if (this._timelineData != null) {
-					this._frameOffset = this._animationData!!.frameOffset + this._timelineArray!![this._timelineData!!.offset + BinaryOffset.TimelineFrameOffset.index].toInt()
+					this._frameOffset = this._animationData!!.frameOffset +
+							this._timelineArray!![this._timelineData!!.offset + BinaryOffset.TimelineFrameOffset.index].toInt()
 					// Arrive at frame.
 					val framePosition = this._frameArray!![this._frameOffset].toDouble() / this._frameRate
 
@@ -247,8 +251,7 @@ class ActionTimelineState  :  TimelineState() {
 						if (prevTime <= framePosition) {
 							this._onCrossFrame(this._frameIndex)
 						}
-					}
-					else if (this._position <= framePosition) { // Loop complete.
+					} else if (this._position <= framePosition) { // Loop complete.
 						if (!isReverse && loopCompleteEvent != null) { // Add loop complete event before first frame.
 							this._armature?._dragonBones?.bufferEvent(loopCompleteEvent)
 							loopCompleteEvent = null
@@ -274,10 +277,11 @@ class ActionTimelineState  :  TimelineState() {
 		this._frameIndex = -1
 	}
 }
+
 /**
  * @internal
  */
-class ZOrderTimelineState  :  TimelineState() {
+class ZOrderTimelineState : TimelineState() {
 	override fun toString(): String {
 		return "[class dragonBones.ZOrderTimelineState]"
 	}
@@ -287,19 +291,19 @@ class ZOrderTimelineState  :  TimelineState() {
 			val count = this._frameArray!![this._frameOffset + 1].toInt()
 			if (count > 0) {
 				this._armature?._sortZOrder(this._frameArray!!.raw, this._frameOffset + 2)
-			}
-			else {
+			} else {
 				this._armature?._sortZOrder(null, 0)
 			}
 		}
 	}
 
-	override fun _onUpdateFrame() { }
+	override fun _onUpdateFrame() {}
 }
+
 /**
  * @internal
  */
-class BoneAllTimelineState  :  MutilpleValueTimelineState() {
+class BoneAllTimelineState : MutilpleValueTimelineState() {
 	override fun toString(): String {
 		return "[class dragonBones.BoneAllTimelineState]"
 	}
@@ -348,8 +352,7 @@ class BoneAllTimelineState  :  MutilpleValueTimelineState() {
 			result.skew += rd[3] * blendWeight
 			result.scaleX += (rd[4] - 1.0) * blendWeight
 			result.scaleY += (rd[5] - 1.0) * blendWeight
-		}
-		else {
+		} else {
 			result.x = rd[0] * blendWeight * valueScale
 			result.y = rd[1] * blendWeight * valueScale
 			result.rotation = rd[2] * blendWeight
@@ -364,10 +367,11 @@ class BoneAllTimelineState  :  MutilpleValueTimelineState() {
 		}
 	}
 }
+
 /**
  * @internal
  */
-class BoneTranslateTimelineState  :  DoubleValueTimelineState() {
+class BoneTranslateTimelineState : DoubleValueTimelineState() {
 	override fun toString(): String {
 		return "[class dragonBones.BoneTranslateTimelineState]"
 	}
@@ -407,10 +411,11 @@ class BoneTranslateTimelineState  :  DoubleValueTimelineState() {
 		}
 	}
 }
+
 /**
  * @internal
  */
-class BoneRotateTimelineState  :  DoubleValueTimelineState() {
+class BoneRotateTimelineState : DoubleValueTimelineState() {
 	override fun toString(): String {
 		return "[class dragonBones.BoneRotateTimelineState]"
 	}
@@ -464,10 +469,11 @@ class BoneRotateTimelineState  :  DoubleValueTimelineState() {
 		}
 	}
 }
+
 /**
  * @internal
  */
-class BoneScaleTimelineState  :  DoubleValueTimelineState() {
+class BoneScaleTimelineState : DoubleValueTimelineState() {
 	override fun toString(): String {
 		return "[class dragonBones.BoneScaleTimelineState]"
 	}
@@ -515,10 +521,11 @@ class BoneScaleTimelineState  :  DoubleValueTimelineState() {
 		}
 	}
 }
+
 /**
  * @internal
  */
-class SurfaceTimelineState  :  MutilpleValueTimelineState() {
+class SurfaceTimelineState : MutilpleValueTimelineState() {
 	override fun toString(): String {
 		return "[class dragonBones.SurfaceTimelineState]"
 	}
@@ -541,17 +548,18 @@ class SurfaceTimelineState  :  MutilpleValueTimelineState() {
 		if (this._timelineData != null) {
 			val dragonBonesData = this._animationData!!.parent!!.parent
 			val frameIntArray = dragonBonesData!!.frameIntArray!!
-			val frameIntOffset = this._animationData!!.frameIntOffset + this._timelineArray!![this._timelineData!!.offset + BinaryOffset.TimelineFrameValueCount.index].toInt()
+			val frameIntOffset =
+				this._animationData!!.frameIntOffset + this._timelineArray!![this._timelineData!!.offset + BinaryOffset.TimelineFrameValueCount.index].toInt()
 			this._valueOffset = this._animationData!!.frameFloatOffset
 			this._valueCount = frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount.index].toInt()
 			this._deformCount = frameIntArray[frameIntOffset + BinaryOffset.DeformCount.index].toInt()
 			this._deformOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformValueOffset.index].toInt()
-			this._sameValueOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset.index] + this._animationData!!.frameFloatOffset
+			this._sameValueOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset.index] +
+					this._animationData!!.frameFloatOffset
 			this._valueScale = this._armature!!.armatureData.scale
 			this._valueArray = dragonBonesData.frameFloatArray!!.raw
 			this._rd.length = this._valueCount * 2
-		}
-		else {
+		} else {
 			this._deformCount = ((this.target as BlendState).target as Surface)._deformVertices.length
 		}
 	}
@@ -582,13 +590,11 @@ class SurfaceTimelineState  :  MutilpleValueTimelineState() {
 
 				if (blendState.dirty > 1) {
 					result[i] += value * blendWeight
-				}
-				else {
+				} else {
 					result[i] = value * blendWeight
 				}
 			}
-		}
-		else if (blendState.dirty == 1) {
+		} else if (blendState.dirty == 1) {
 			for (i in 0 until this._deformCount) {
 				result[i] = 0.0
 			}
@@ -600,10 +606,11 @@ class SurfaceTimelineState  :  MutilpleValueTimelineState() {
 		}
 	}
 }
+
 /**
  * @internal
  */
-class AlphaTimelineState  :  SingleValueTimelineState() {
+class AlphaTimelineState : SingleValueTimelineState() {
 	override fun toString(): String {
 		return "[class dragonBones.AlphaTimelineState]"
 	}
@@ -634,8 +641,7 @@ class AlphaTimelineState  :  SingleValueTimelineState() {
 			if (alphaTarget._alpha > 1.0) {
 				alphaTarget._alpha = 1.0
 			}
-		}
-		else {
+		} else {
 			alphaTarget._alpha = this._result * blendWeight
 		}
 
@@ -645,10 +651,11 @@ class AlphaTimelineState  :  SingleValueTimelineState() {
 		}
 	}
 }
+
 /**
  * @internal
  */
-class SlotDisplayTimelineState  :  TimelineState() {
+class SlotDisplayTimelineState : TimelineState() {
 	override fun toString(): String {
 		return "[class dragonBones.SlotDisplayTimelineState]"
 	}
@@ -656,7 +663,8 @@ class SlotDisplayTimelineState  :  TimelineState() {
 	override fun _onArriveAtFrame() {
 		if (this.playState >= 0) {
 			val slot = this.target as Slot
-			val displayIndex: Int = if (this._timelineData != null) this._frameArray!![this._frameOffset + 1].toInt() else slot._slotData!!.displayIndex
+			val displayIndex: Int =
+				if (this._timelineData != null) this._frameArray!![this._frameOffset + 1].toInt() else slot._slotData!!.displayIndex
 
 			if (slot.displayIndex != displayIndex) {
 				slot._setDisplayIndex(displayIndex, true)
@@ -667,17 +675,18 @@ class SlotDisplayTimelineState  :  TimelineState() {
 	override fun _onUpdateFrame() {
 	}
 }
+
 /**
  * @internal
  */
-class SlotColorTimelineState  :  TweenTimelineState() {
+class SlotColorTimelineState : TweenTimelineState() {
 	override fun toString(): String {
 		return "[class dragonBones.SlotColorTimelineState]"
 	}
 
-	private val _current:  IntArray = intArrayOf(0, 0, 0, 0, 0, 0, 0, 0)
-	private val _difference:  IntArray = intArrayOf(0, 0, 0, 0, 0, 0, 0, 0)
-	private val _result:  DoubleArray = doubleArrayOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+	private val _current: IntArray = intArrayOf(0, 0, 0, 0, 0, 0, 0, 0)
+	private val _difference: IntArray = intArrayOf(0, 0, 0, 0, 0, 0, 0, 0)
+	private val _result: DoubleArray = doubleArrayOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
 
 	@Suppress("UNUSED_CHANGED_VALUE")
 	override fun _onArriveAtFrame() {
@@ -722,8 +731,7 @@ class SlotColorTimelineState  :  TweenTimelineState() {
 				this._difference[5] = colorArray[colorOffset++] - this._current[5]
 				this._difference[6] = colorArray[colorOffset++] - this._current[6]
 				this._difference[7] = colorArray[colorOffset++] - this._current[7]
-			}
-			else {
+			} else {
 				this._result[0] = colorArray[colorOffset++] * 0.01
 				this._result[1] = colorArray[colorOffset++] * 0.01
 				this._result[2] = colorArray[colorOffset++] * 0.01
@@ -733,8 +741,7 @@ class SlotColorTimelineState  :  TweenTimelineState() {
 				this._result[6] = colorArray[colorOffset++].toDouble()
 				this._result[7] = colorArray[colorOffset++].toDouble()
 			}
-		}
-		else { // Pose.
+		} else { // Pose.
 			val slot = this.target as Slot
 			val color = slot.slotData.color!!
 			this._result[0] = color.alphaMultiplier
@@ -785,7 +792,7 @@ class SlotColorTimelineState  :  TweenTimelineState() {
 					result.greenOffset != this._result[6].toInt() ||
 					result.blueOffset != this._result[7].toInt()
 				) {
-					val fadeProgress = Math.pow(this._animationState!!._fadeProgress, 4.0)
+					val fadeProgress = pow(this._animationState!!._fadeProgress, 4.0)
 					result.alphaMultiplier += (this._result[0] - result.alphaMultiplier) * fadeProgress
 					result.redMultiplier += (this._result[1] - result.redMultiplier) * fadeProgress
 					result.greenMultiplier += (this._result[2] - result.greenMultiplier) * fadeProgress
@@ -796,8 +803,7 @@ class SlotColorTimelineState  :  TweenTimelineState() {
 					result.blueOffset += ((this._result[7] - result.blueOffset) * fadeProgress).toInt()
 					slot._colorDirty = true
 				}
-			}
-			else if (this.dirty) {
+			} else if (this.dirty) {
 				this.dirty = false
 
 				if (
@@ -824,10 +830,11 @@ class SlotColorTimelineState  :  TweenTimelineState() {
 		}
 	}
 }
+
 /**
  * @internal
  */
-class SlotZIndexTimelineState  :  SingleValueTimelineState() {
+class SlotZIndexTimelineState : SingleValueTimelineState() {
 	override fun toString(): String {
 		return "[class dragonBones.SlotZIndexTimelineState]"
 	}
@@ -857,8 +864,7 @@ class SlotZIndexTimelineState  :  SingleValueTimelineState() {
 		if (blendState.dirty > 1) {
 			// @TODO: Kotlin conversion original (no toInt): slot._zIndex += this._result * blendWeight
 			slot._zIndex += (this._result * blendWeight).toInt()
-		}
-		else {
+		} else {
 			// @TODO: Kotlin conversion original (no toInt): slot._zIndex = this._result * blendWeight
 			slot._zIndex = (this._result * blendWeight).toInt()
 		}
@@ -869,10 +875,11 @@ class SlotZIndexTimelineState  :  SingleValueTimelineState() {
 		}
 	}
 }
+
 /**
  * @internal
  */
-class DeformTimelineState  :  MutilpleValueTimelineState() {
+class DeformTimelineState : MutilpleValueTimelineState() {
 	override fun toString(): String {
 		return "[class dragonBones.DeformTimelineState]"
 	}
@@ -899,7 +906,8 @@ class DeformTimelineState  :  MutilpleValueTimelineState() {
 		super.init(armature, animationState, timelineData)
 
 		if (this._timelineData != null) {
-			val frameIntOffset = this._animationData!!.frameIntOffset + this._timelineArray!![this._timelineData!!.offset + BinaryOffset.TimelineFrameValueCount.index]
+			val frameIntOffset =
+				this._animationData!!.frameIntOffset + this._timelineArray!![this._timelineData!!.offset + BinaryOffset.TimelineFrameValueCount.index]
 			val dragonBonesData = this._animationData?.parent?.parent
 			val frameIntArray = dragonBonesData!!.frameIntArray
 			val slot = (this.target as BlendState).target as Slot
@@ -929,12 +937,12 @@ class DeformTimelineState  :  MutilpleValueTimelineState() {
 			this._valueCount = frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount.index].toInt()
 			this._deformCount = frameIntArray[frameIntOffset + BinaryOffset.DeformCount.index].toInt()
 			this._deformOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformValueOffset.index].toInt()
-			this._sameValueOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset.index] + this._animationData!!.frameFloatOffset
+			this._sameValueOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset.index] +
+					this._animationData!!.frameFloatOffset
 			this._valueScale = this._armature!!.armatureData.scale
 			this._valueArray = dragonBonesData.frameFloatArray!!.raw
 			this._rd.size = this._valueCount * 2
-		}
-		else {
+		} else {
 			this._deformCount = this.displayFrame!!.deformVertices.size
 		}
 	}
@@ -963,13 +971,11 @@ class DeformTimelineState  :  MutilpleValueTimelineState() {
 
 				if (blendState.dirty > 1) {
 					result[i] += value * blendWeight
-				}
-				else {
+				} else {
 					result[i] = value * blendWeight
 				}
 			}
-		}
-		else if (blendState.dirty == 1) {
+		} else if (blendState.dirty == 1) {
 			//for (var i = 0; i < this._deformCount; ++i) {
 			for (i in 0 until this._deformCount) {
 				result[i] = 0.0
@@ -985,10 +991,11 @@ class DeformTimelineState  :  MutilpleValueTimelineState() {
 		}
 	}
 }
+
 /**
  * @internal
  */
-class IKConstraintTimelineState  :  DoubleValueTimelineState() {
+class IKConstraintTimelineState : DoubleValueTimelineState() {
 	override fun toString(): String {
 		return "[class dragonBones.IKConstraintTimelineState]"
 	}
@@ -1001,8 +1008,7 @@ class IKConstraintTimelineState  :  DoubleValueTimelineState() {
 		if (this._timelineData != null) {
 			ikConstraint._bendPositive = this._currentA > 0.0
 			ikConstraint._weight = this._currentB
-		}
-		else {
+		} else {
 			val ikConstraintData = ikConstraint._constraintData as IKConstraintData
 			ikConstraint._bendPositive = ikConstraintData.bendPositive
 			ikConstraint._weight = ikConstraintData.weight
@@ -1020,10 +1026,11 @@ class IKConstraintTimelineState  :  DoubleValueTimelineState() {
 		this._valueArray = this._animationData!!.parent!!.parent!!.frameIntArray!!.raw
 	}
 }
+
 /**
  * @internal
  */
-class AnimationProgressTimelineState  :  SingleValueTimelineState() {
+class AnimationProgressTimelineState : SingleValueTimelineState() {
 	override fun toString(): String {
 		return "[class dragonBones.AnimationProgressTimelineState]"
 	}
@@ -1047,10 +1054,11 @@ class AnimationProgressTimelineState  :  SingleValueTimelineState() {
 		this._valueArray = this._animationData!!.parent!!.parent!!.frameIntArray!!.raw
 	}
 }
+
 /**
  * @internal
  */
-class AnimationWeightTimelineState  :  SingleValueTimelineState() {
+class AnimationWeightTimelineState : SingleValueTimelineState() {
 	override fun toString(): String {
 		return "[class dragonBones.AnimationWeightTimelineState]"
 	}
@@ -1074,11 +1082,12 @@ class AnimationWeightTimelineState  :  SingleValueTimelineState() {
 		this._valueArray = this._animationData!!.parent!!.parent!!.frameIntArray!!.raw
 	}
 }
+
 /**
  * @internal
  */
-class AnimationParametersTimelineState  :  DoubleValueTimelineState() {
-	override fun  toString(): String {
+class AnimationParametersTimelineState : DoubleValueTimelineState() {
+	override fun toString(): String {
 		return "[class dragonBones.AnimationParametersTimelineState]"
 	}
 

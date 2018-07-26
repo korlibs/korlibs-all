@@ -28,6 +28,7 @@ import com.dragonbones.model.*
 import com.dragonbones.util.*
 import com.soywiz.kds.*
 import com.soywiz.kmem.*
+import kotlin.math.*
 
 /**
  * @internal
@@ -100,9 +101,9 @@ class IKConstraint  :  Constraint() {
 		val global = this._root.global
 		val globalTransformMatrix = this._root.globalTransformMatrix
 
-		var radian = Math.atan2(ikGlobal.y - global.y, ikGlobal.x - global.x)
+		var radian = atan2(ikGlobal.y - global.y, ikGlobal.x - global.x)
 		if (global.scaleX < 0.0) {
-			radian += Math.PI
+			radian += PI
 		}
 
 		global.rotation += Transform.normalizeRadian(radian - global.rotation) * this._weight
@@ -120,32 +121,32 @@ class IKConstraint  :  Constraint() {
 		val x = globalTransformMatrix.a * boneLength
 		val y = globalTransformMatrix.b * boneLength
 		val lLL = x * x + y * y
-		val lL = Math.sqrt(lLL)
+		val lL = sqrt(lLL)
 		var dX = global.x - parentGlobal.x
 		var dY = global.y - parentGlobal.y
 		val lPP = dX * dX + dY * dY
-		val lP = Math.sqrt(lPP)
+		val lP = sqrt(lPP)
 		val rawRadian = global.rotation
 		val rawParentRadian = parentGlobal.rotation
-		val rawRadianA = Math.atan2(dY, dX)
+		val rawRadianA = atan2(dY, dX)
 
 		dX = ikGlobal.x - parentGlobal.x
 		dY = ikGlobal.y - parentGlobal.y
 		val lTT = dX * dX + dY * dY
-		val lT = Math.sqrt(lTT)
+		val lT = sqrt(lTT)
 
 		var radianA: Double
 		if (lL + lP <= lT || lT + lL <= lP || lT + lP <= lL) {
-			radianA = Math.atan2(ikGlobal.y - parentGlobal.y, ikGlobal.x - parentGlobal.x)
+			radianA = atan2(ikGlobal.y - parentGlobal.y, ikGlobal.x - parentGlobal.x)
 			if (lL + lP <= lT) {
 			}
 			else if (lP < lL) {
-				radianA += Math.PI
+				radianA += PI
 			}
 		}
 		else {
 			val h = (lPP - lLL + lTT) / (2.0 * lTT)
-			val r = Math.sqrt(lPP - h * h * lTT) / lT
+			val r = sqrt(lPP - h * h * lTT) / lT
 			val hX = parentGlobal.x + (dX * h)
 			val hY = parentGlobal.y + (dY * h)
 			val rX = -dY * r
@@ -167,7 +168,7 @@ class IKConstraint  :  Constraint() {
 				global.y = hY + rY
 			}
 
-			radianA = Math.atan2(global.y - parentGlobal.y, global.x - parentGlobal.x)
+			radianA = atan2(global.y - parentGlobal.y, global.x - parentGlobal.x)
 		}
 
 		val dR = Transform.normalizeRadian(radianA - rawRadianA)
@@ -175,12 +176,12 @@ class IKConstraint  :  Constraint() {
 		parentGlobal.toMatrix(parent.globalTransformMatrix)
 		//
 		val currentRadianA = rawRadianA + dR * this._weight
-		global.x = parentGlobal.x + Math.cos(currentRadianA) * lP
-		global.y = parentGlobal.y + Math.sin(currentRadianA) * lP
+		global.x = parentGlobal.x + cos(currentRadianA) * lP
+		global.y = parentGlobal.y + sin(currentRadianA) * lP
 		//
-		var radianB = Math.atan2(ikGlobal.y - global.y, ikGlobal.x - global.x)
+		var radianB = atan2(ikGlobal.y - global.y, ikGlobal.x - global.x)
 		if (global.scaleX < 0.0) {
-			radianB += Math.PI
+			radianB += PI
 		}
 
 		global.rotation = parentGlobal.rotation + rawRadian - rawParentRadian + Transform.normalizeRadian(radianB - dR - rawRadian) * this._weight
@@ -522,18 +523,18 @@ class PathConstraint  :  Constraint() {
 			ddfy = tmpy * 2 + dddfy
 			dfx = (cx1 - x1) * 0.75 + tmpx + dddfx * 0.16666667
 			dfy = (cy1 - y1) * 0.75 + tmpy + dddfy * 0.16666667
-			pathLength += Math.sqrt(dfx * dfx + dfy * dfy)
+			pathLength += sqrt(dfx * dfx + dfy * dfy)
 			dfx += ddfx
 			dfy += ddfy
 			ddfx += dddfx
 			ddfy += dddfy
-			pathLength += Math.sqrt(dfx * dfx + dfy * dfy)
+			pathLength += sqrt(dfx * dfx + dfy * dfy)
 			dfx += ddfx
 			dfy += ddfy
-			pathLength += Math.sqrt(dfx * dfx + dfy * dfy)
+			pathLength += sqrt(dfx * dfx + dfy * dfy)
 			dfx += ddfx + dddfx
 			dfy += ddfy + dddfy
-			pathLength += Math.sqrt(dfx * dfx + dfy * dfy)
+			pathLength += sqrt(dfx * dfx + dfy * dfy)
 			curves[i] = pathLength
 			x1 = x2
 			y1 = y2
@@ -616,7 +617,7 @@ class PathConstraint  :  Constraint() {
 				ddfy = tmpy * 2 + dddfy
 				dfx = (cx1 - x1) * 0.3 + tmpx + dddfx * 0.16666667
 				dfy = (cy1 - y1) * 0.3 + tmpy + dddfy * 0.16666667
-				curveLength = Math.sqrt(dfx * dfx + dfy * dfy)
+				curveLength = sqrt(dfx * dfx + dfy * dfy)
 				segments[0] = curveLength
 				//for (ii = 1; ii < 8; ii++) {
 				for (@Suppress("NAME_SHADOWING") ii in  1 until 8) {
@@ -624,16 +625,16 @@ class PathConstraint  :  Constraint() {
 					dfy += ddfy
 					ddfx += dddfx
 					ddfy += dddfy
-					curveLength += Math.sqrt(dfx * dfx + dfy * dfy)
+					curveLength += sqrt(dfx * dfx + dfy * dfy)
 					segments[ii] = curveLength
 				}
 				dfx += ddfx
 				dfy += ddfy
-				curveLength += Math.sqrt(dfx * dfx + dfy * dfy)
+				curveLength += sqrt(dfx * dfx + dfy * dfy)
 				segments[8] = curveLength
 				dfx += ddfx + dddfx
 				dfy += ddfy + dddfy
-				curveLength += Math.sqrt(dfx * dfx + dfy * dfy)
+				curveLength += sqrt(dfx * dfx + dfy * dfy)
 				segments[9] = curveLength
 				segment = 0
 			}
@@ -702,7 +703,7 @@ class PathConstraint  :  Constraint() {
 		out[offset + 1] = y
 		if (tangents) {
 			//Calculates the curve tangent at the specified t value
-			out[offset + 2] = Math.atan2(y - (a * y1 + b * cy1 + c * cy2), x - (a * x1 + b * cx1 + c * cx2))
+			out[offset + 2] = atan2(y - (a * y1 + b * cy1 + c * cy2), x - (a * x1 + b * cx1 + c * cx2))
 		}
 		else {
 			out[offset + 2] = 0.0
@@ -803,7 +804,7 @@ class PathConstraint  :  Constraint() {
 				val x = boneLength * matrix.a
 				val y = boneLength * matrix.b
 
-				val len = Math.sqrt(x * x + y * y)
+				val len = sqrt(x * x + y * y)
 				if (isChainScaleMode) {
 					this._boneLengths[i] = len
 				}
@@ -856,7 +857,7 @@ class PathConstraint  :  Constraint() {
 			if (isChainScaleMode) {
 				val lenght = this._boneLengths[i]
 
-				val s = (Math.sqrt(dx * dx + dy * dy) / lenght - 1) * rotateMix + 1
+				val s = (sqrt(dx * dx + dy * dy) / lenght - 1) * rotateMix + 1
 				matrix.a *= s
 				matrix.b *= s
 			}
@@ -874,14 +875,14 @@ class PathConstraint  :  Constraint() {
 				r = if (isTangentMode) {
 					positions[p - 1]
 				} else {
-					Math.atan2(dy, dx)
+					atan2(dy, dx)
 				}
 
-				r -= Math.atan2(b, a)
+				r -= atan2(b, a)
 
 				if (tip) {
-					cos = Math.cos(r)
-					sin = Math.sin(r)
+					cos = cos(r)
+					sin = sin(r)
 
 					val length = bone._boneData!!.length
 					boneX += (length * (cos * a - sin * b) - dx) * rotateMix
@@ -900,8 +901,8 @@ class PathConstraint  :  Constraint() {
 
 				r *= rotateMix
 
-				cos = Math.cos(r)
-				sin = Math.sin(r)
+				cos = cos(r)
+				sin = sin(r)
 
 				matrix.a = cos * a - sin * b
 				matrix.b = sin * a + cos * b

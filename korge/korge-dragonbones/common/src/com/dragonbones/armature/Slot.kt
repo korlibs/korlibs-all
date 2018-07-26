@@ -31,6 +31,7 @@ import com.dragonbones.model.*
 import com.dragonbones.util.*
 import com.soywiz.kds.*
 import com.soywiz.kmem.*
+import kotlin.math.*
 
 /**
  * @private
@@ -1072,11 +1073,11 @@ abstract class Slot  :  TransformObject() {
 			}
 
 			if (normalRadians != null) {
-				this.globalTransformMatrix.transformPoint(Math.cos(normalRadians.x), Math.sin(normalRadians.x), Slot._helpPoint, true)
-				normalRadians.x = Math.atan2(Slot._helpPoint.y, Slot._helpPoint.x)
+				this.globalTransformMatrix.transformPoint(cos(normalRadians.x), sin(normalRadians.x), Slot._helpPoint, true)
+				normalRadians.x = atan2(Slot._helpPoint.y, Slot._helpPoint.x)
 
-				this.globalTransformMatrix.transformPoint(Math.cos(normalRadians.y), Math.sin(normalRadians.y), Slot._helpPoint, true)
-				normalRadians.y = Math.atan2(Slot._helpPoint.y, Slot._helpPoint.x)
+				this.globalTransformMatrix.transformPoint(cos(normalRadians.y), sin(normalRadians.y), Slot._helpPoint, true)
+				normalRadians.y = atan2(Slot._helpPoint.y, Slot._helpPoint.x)
 			}
 		}
 

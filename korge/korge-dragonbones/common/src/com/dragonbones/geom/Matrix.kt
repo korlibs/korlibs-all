@@ -1,6 +1,7 @@
 package com.dragonbones.geom
 
 import com.soywiz.kds.*
+import kotlin.math.*
 
 /**
  * The MIT License (MIT)
@@ -360,8 +361,8 @@ class Matrix {
 			x3 = tmp
 		}
 
-		rectangle.x = Math.floor(if (x0 < x2) x0 else x2)
-		rectangle.width = Math.ceil((if (x1 > x3) x1 else x3) - rectangle.x)
+		rectangle.x = floor(if (x0 < x2) x0 else x2)
+		rectangle.width = ceil((if (x1 > x3) x1 else x3) - rectangle.x)
 
 		if (y0 > y1) {
 			tmp = y0
@@ -374,7 +375,7 @@ class Matrix {
 			y3 = tmp
 		}
 
-		rectangle.y = Math.floor(if (y0 < y2) y0 else y2)
-		rectangle.height = Math.ceil((if (y1 > y3) y1 else y3) - rectangle.y)
+		rectangle.y = floor(if (y0 < y2) y0 else y2)
+		rectangle.height = ceil((if (y1 > y3) y1 else y3) - rectangle.y)
 	}
 }

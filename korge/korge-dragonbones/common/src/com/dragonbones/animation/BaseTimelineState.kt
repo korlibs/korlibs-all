@@ -32,6 +32,8 @@ import com.dragonbones.model.*
 import com.soywiz.kds.*
 import com.soywiz.kmem.*
 import com.soywiz.korio.ds.*
+import com.soywiz.korma.math.*
+import kotlin.math.*
 
 abstract class TimelineState  : BaseObject() {
 	var dirty: Boolean = false
@@ -152,11 +154,11 @@ abstract class TimelineState  : BaseObject() {
 
 				if (passedTime < 0.0) {
 					passedTime = -passedTime
-					this.currentPlayTimes = Math.floor(passedTime / this._duration).toInt()
+					this.currentPlayTimes = floor(passedTime / this._duration).toInt()
 					this._currentTime = this._duration - (passedTime % this._duration)
 				}
 				else {
-					this.currentPlayTimes = Math.floor(passedTime / this._duration).toInt()
+					this.currentPlayTimes = floor(passedTime / this._duration).toInt()
 					this._currentTime = passedTime % this._duration
 				}
 			}
@@ -222,7 +224,7 @@ abstract class TimelineState  : BaseObject() {
 	open fun update(passedTime: Double) {
 		if (this._setCurrentTime(passedTime)) {
 			if (this._frameCount > 1) {
-				val timelineFrameIndex = Math.floor(this._currentTime * this._frameRate).toInt() // uint
+				val timelineFrameIndex = floor(this._currentTime * this._frameRate).toInt() // uint
 				val frameIndex = this._frameIndices!![(this._timelineData as TimelineData).frameIndicesOffset + timelineFrameIndex]
 
 				if (this._frameIndex != frameIndex) {
@@ -260,9 +262,9 @@ abstract class TweenTimelineState  :  TimelineState() {
 			var value = progress
 
 			when (tweenType) {
-				TweenType.QuadIn -> value = Math.pow(progress, 2.0)
-				TweenType.QuadOut -> value = 1.0 - Math.pow(1.0 - progress, 2.0)
-				TweenType.QuadInOut -> value = 0.5 * (1.0 - Math.cos(progress * Math.PI))
+				TweenType.QuadIn -> value = pow(progress, 2.0)
+				TweenType.QuadOut -> value = 1.0 - pow(1.0 - progress, 2.0)
+				TweenType.QuadInOut -> value = 0.5 * (1.0 - cos(progress * PI))
 				else -> {
 				}
 			}
@@ -280,7 +282,7 @@ abstract class TweenTimelineState  :  TimelineState() {
 
 			val isOmited = count > 0
 			val segmentCount = count + 1 // + 2 - 1
-			val valueIndex = Math.floor(progress * segmentCount).toInt()
+			val valueIndex = floor(progress * segmentCount).toInt()
 			val fromValue: Double
 			val toValue: Double
 

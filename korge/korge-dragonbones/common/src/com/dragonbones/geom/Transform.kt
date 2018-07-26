@@ -1,4 +1,7 @@
 package com.dragonbones.geom
+
+import kotlin.math.*
+
 /**
  * The MIT License (MIT)
  *
@@ -37,34 +40,34 @@ class Transform : XY {
 		/**
 		 * @private
 		 */
-		val PI: Double = Math.PI
+		val PI: Double = kotlin.math.PI
 		/**
 		 * @private
 		 */
-		val PI_D: Double = Math.PI * 2.0
+		val PI_D: Double = PI * 2.0
 		/**
 		 * @private
 		 */
-		val PI_H: Double = Math.PI / 2.0
+		val PI_H: Double = PI / 2.0
 		/**
 		 * @private
 		 */
-		val PI_Q: Double = Math.PI / 4.0
+		val PI_Q: Double = PI / 4.0
 		/**
 		 * @private
 		 */
-		val RAD_DEG: Double = 180.0 / Math.PI
+		val RAD_DEG: Double = 180.0 / PI
 		/**
 		 * @private
 		 */
-		val DEG_RAD: Double = Math.PI / 180.0
+		val DEG_RAD: Double = PI / 180.0
 
 		/**
 		 * @private
 		 */
 		fun normalizeRadian(value: Double): Double {
-			var value = (value + Math.PI) % (Math.PI * 2.0)
-			value += if (value > 0.0) -Math.PI else Math.PI
+			var value = (value + PI) % (PI * 2.0)
+			value += if (value > 0.0) -PI else PI
 
 			return value
 		}
@@ -149,7 +152,7 @@ class Transform : XY {
 	}
 
 	override fun toString(): String {
-		return "[object dragonBones.Transform] x:" + this.x + " y:" + this.y + " skewX:" + this.skew * 180.0 / Math.PI + " skewY:" + this.rotation * 180.0 / Math.PI + " scaleX:" + this.scaleX + " scaleY:" + this.scaleY
+		return "[object dragonBones.Transform] x:" + this.x + " y:" + this.y + " skewX:" + this.skew * 180.0 / PI + " skewY:" + this.rotation * 180.0 / PI + " scaleX:" + this.scaleX + " scaleY:" + this.scaleY
 	}
 
 	/**
@@ -218,20 +221,20 @@ class Transform : XY {
 
 		this.x = matrix.tx
 		this.y = matrix.ty
-		this.rotation = Math.atan(matrix.b / matrix.a)
-		var skewX = Math.atan(-matrix.c / matrix.d)
+		this.rotation = atan(matrix.b / matrix.a)
+		var skewX = atan(-matrix.c / matrix.d)
 
-		this.scaleX = if (this.rotation > -PI_Q && this.rotation < PI_Q) matrix.a / Math.cos(this.rotation) else matrix.b / Math.sin(this.rotation)
-		this.scaleY = if (skewX > -PI_Q && skewX < PI_Q) matrix.d / Math.cos(skewX) else -matrix.c / Math.sin(skewX)
+		this.scaleX = if (this.rotation > -PI_Q && this.rotation < PI_Q) matrix.a / cos(this.rotation) else matrix.b / sin(this.rotation)
+		this.scaleY = if (skewX > -PI_Q && skewX < PI_Q) matrix.d / cos(skewX) else -matrix.c / sin(skewX)
 
 		if (backupScaleX >= 0.0 && this.scaleX < 0.0) {
 			this.scaleX = -this.scaleX
-			this.rotation = this.rotation - Math.PI
+			this.rotation = this.rotation - PI
 		}
 
 		if (backupScaleY >= 0.0 && this.scaleY < 0.0) {
 			this.scaleY = -this.scaleY
-			skewX = skewX - Math.PI
+			skewX = skewX - PI
 		}
 
 		this.skew = skewX - this.rotation
@@ -248,8 +251,8 @@ class Transform : XY {
 			matrix.b = 0.0
 		}
 		else {
-			matrix.a = Math.cos(this.rotation)
-			matrix.b = Math.sin(this.rotation)
+			matrix.a = cos(this.rotation)
+			matrix.b = sin(this.rotation)
 		}
 
 		if (this.skew == 0.0) {
@@ -257,8 +260,8 @@ class Transform : XY {
 			matrix.d = matrix.a
 		}
 		else {
-			matrix.c = -Math.sin(this.skew + this.rotation)
-			matrix.d = Math.cos(this.skew + this.rotation)
+			matrix.c = -sin(this.skew + this.rotation)
+			matrix.d = cos(this.skew + this.rotation)
 		}
 
 		if (this.scaleX != 1.0) {
