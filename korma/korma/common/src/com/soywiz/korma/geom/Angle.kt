@@ -3,26 +3,25 @@ package com.soywiz.korma.geom
 import com.soywiz.kds.*
 import kotlin.math.*
 
-// @TODO: inline class
-data class Angle private constructor(val radians: Double) {
+inline class Angle(val radians: Double) {
 	val degrees get() = rad2deg(radians)
 
-	val normalizedRadians get() = KdsExt { radians umod MAX_RADIANS }
-	val normalizedDegrees get() = KdsExt { degrees umod MAX_DEGREES }
+	val normalizedRadians get() = KdsExt { radians umod Angle.MAX_RADIANS }
+	val normalizedDegrees get() = KdsExt { degrees umod Angle.MAX_DEGREES }
+	val absoluteValue: Angle get() = Angle.fromRadians(radians.absoluteValue)
 
-	fun shortDistanceTo(other: Angle): Angle = Angle(shortRadDistanceTo(this.radians, other.radians))
+	fun shortDistanceTo(other: Angle): Angle = Angle(Angle.shortRadDistanceTo(this.radians, other.radians))
 
-	operator fun times(scale: Double) = Angle(this.radians * scale)
-	operator fun div(scale: Double) = Angle(this.radians / scale)
-	operator fun plus(other: Angle) = Angle(this.radians + other.radians)
-	operator fun minus(other: Angle) = shortDistanceTo(other)
-	val absoluteValue: Angle get() = fromRadians(radians.absoluteValue)
+	inline operator fun times(scale: Number): Angle = Angle(this.radians * scale.toDouble())
+	inline operator fun div(scale: Number): Angle = Angle(this.radians / scale.toDouble())
+	operator fun plus(other: Angle): Angle = Angle(this.radians + other.radians)
+	operator fun minus(other: Angle): Angle = shortDistanceTo(other)
 
 	override fun toString(): String = "Angle($degrees)"
 
 	companion object {
-		fun fromRadians(rad: Double) = Angle(rad)
-		fun fromDegrees(deg: Double) = Angle(deg2rad(deg))
+		fun fromRadians(rad: Double): Angle = Angle(rad)
+		fun fromDegrees(deg: Double): Angle = Angle(deg2rad(deg))
 
 		inline fun fromRadians(rad: Number) = fromRadians(rad.toDouble())
 		inline fun fromDegrees(deg: Number) = fromDegrees(deg.toDouble())
@@ -68,12 +67,16 @@ data class Angle private constructor(val radians: Double) {
 			return if (angle < 0) angle + 2 * PI else angle
 		}
 
-		fun between(x0: Double, y0: Double, x1: Double, y1: Double): Angle = Angle.fromRadians(betweenRad(x0, y0, x1, y1))
+		fun between(x0: Double, y0: Double, x1: Double, y1: Double): Angle =
+			Angle.fromRadians(betweenRad(x0, y0, x1, y1))
 
 		fun betweenRad(p0: Point2d, p1: Point2d): Double = betweenRad(p0.x, p0.y, p1.x, p1.y)
 		fun between(p0: Point2d, p1: Point2d): Angle = Angle.fromRadians(betweenRad(p0, p1))
 	}
 }
+
+//val Angle.normalizedRadians get() = KdsExt { radians umod Angle.MAX_RADIANS }
+//val Angle.normalizedDegrees get() = KdsExt { degrees umod Angle.MAX_DEGREES }
 
 inline val Number.degrees get() = Angle.fromDegrees(this)
 inline val Number.radians get() = Angle.fromRadians(this)
