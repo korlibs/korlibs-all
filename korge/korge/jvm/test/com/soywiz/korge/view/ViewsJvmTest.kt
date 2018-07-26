@@ -29,10 +29,10 @@ class ViewsJvmTest : ViewsForTesting() {
 				createBuffer(VERTEX):0
 				createBuffer(INDEX):1
 				resized()
-				clear(0, 0.0, 0, true, true, true)
+				clear(#00000000, 0.0, 0, true, true, true)
 				disposeTemporalPerFrameStuff()
 				flipInternal()
-				clear(-16777216, 0.0, 0, true, true, true)
+				clear(#000000ff, 0.0, 0, true, true, true)
 				createTexture():0
 				Texture[0].uploadedBitmap(SyncBitmapSource(rgba=true, width=10, height=10), 10, 10)
 				Buffer[0].afterSetMem(mem[96000])

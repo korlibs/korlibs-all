@@ -13,6 +13,6 @@ class PSDTest : BaseImageFormatTest() {
 		val output = ResourcesVfs["small.psd"].readBitmapNoNative(formats)
 		val expected = ResourcesVfs["small.psd.png"].readBitmapNoNative(formats)
 		//showImageAndWait(output)
-		assertTrue(output.matchContents(expected))
+		assertEquals(0, output.matchContentsDistinctCount(expected))
 	}
 }

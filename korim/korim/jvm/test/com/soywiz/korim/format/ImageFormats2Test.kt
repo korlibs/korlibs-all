@@ -86,7 +86,7 @@ class ImageFormats2Test {
 	fun pngInterlaced() = imgTest {
 		val bitmap1 = root["icon0.png"].readBitmapNoNative(formats)
 		val bitmap2 = root["icon0.deinterlaced.png"].readBitmapNoNative(formats)
-		assertTrue(bitmap1.matchContents(bitmap2))
+		assertEquals(0, bitmap1.matchContentsDistinctCount(bitmap2))
 		//bitmap1.writeTo(LocalVfs("c:/temp/demo1.png"), formats = formats)
 		//bitmap2.writeTo(LocalVfs("c:/temp/demo2.png"), formats = formats)
 	}

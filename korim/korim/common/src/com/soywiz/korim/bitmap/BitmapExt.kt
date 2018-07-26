@@ -1,21 +1,24 @@
 package com.soywiz.korim.bitmap
 
 import com.soywiz.korim.color.*
-import com.soywiz.korma.geom.*
 
-fun Bitmap.matchContents(that: Bitmap): Boolean {
-	if (this.width != that.width || this.height != that.height) return false
+// -1 if dimensions do not match
+fun Bitmap.matchContentsDistinctCount(that: Bitmap): Int {
+	if (this.width != that.width || this.height != that.height) return -1
 	val l = this.toBMP32().depremultipliedIfRequired()
 	val r = that.toBMP32().depremultipliedIfRequired()
 	val width = l.width
 	val height = l.height
+	var count = 0
 	for (y in 0 until height) {
 		for (x in 0 until width) {
-			if (l.get32(x, y) != r.get32(x, y)) return false
+			if (l.get32(x, y) != r.get32(x, y)) count++
 		}
 	}
-	return true
+	return count
 }
+
+fun Bitmap.matchContents(that: Bitmap): Boolean = matchContentsDistinctCount(that) == 0
 
 fun Bitmap32.setAlpha(value: Int) {
 	for (n in 0 until this.data.size) this.data[n] = RGBA(this.data[n].rgb, value)

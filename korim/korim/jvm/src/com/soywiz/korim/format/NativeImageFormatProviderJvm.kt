@@ -12,6 +12,13 @@ import kotlin.math.*
 actual val nativeImageFormatProvider: NativeImageFormatProvider = AwtNativeImageFormatProvider
 
 object AwtNativeImageFormatProvider : NativeImageFormatProvider() {
+	init {
+		// Try to detect junit and run then in headless mode
+		if (Thread.currentThread()!!.stackTrace!!.contentDeepToString().contains("org.junit")) {
+			System.setProperty("java.awt.headless", "true")
+		}
+	}
+
 	override suspend fun decode(data: ByteArray): NativeImage = AwtNativeImage(awtReadImageInWorker(data))
 
 	override suspend fun decode(vfs: Vfs, path: String): NativeImage {

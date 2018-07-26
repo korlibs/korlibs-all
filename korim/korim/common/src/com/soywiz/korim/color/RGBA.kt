@@ -1,9 +1,12 @@
 package com.soywiz.korim.color
 
 import com.soywiz.kmem.*
+import com.soywiz.korio.ds.*
+import com.soywiz.korio.error.*
 import com.soywiz.korio.lang.*
 
-inline class RGBA(val rgba: Int) {
+inline class RGBA(val rgba: Int) : Comparable<RGBA> {
+//data class RGBA(val rgba: Int) { // @TODO: SUPER Extremely slow! Mark class as inline once fixes are ready
 	val r: Int get() = (rgba ushr 0) and 0xFF
 	val g: Int get() = (rgba ushr 8) and 0xFF
 	val b: Int get() = (rgba ushr 16) and 0xFF
@@ -33,9 +36,18 @@ inline class RGBA(val rgba: Int) {
 	val htmlColor: String get() = "rgba($r, $g, $b, $af)"
 	val htmlStringSimple: String get() = "#%02x%02x%02x".format(r, g, b)
 
+	override fun toString(): String = hexString
+
 	operator fun plus(other: RGBA): RGBA = RGBA(this.r + other.r, this.g + other.g, this.b + other.b, this.a + other.a)
 	operator fun minus(other: RGBA): RGBA =
 		RGBA(this.r - other.r, this.g - other.g, this.b - other.b, this.a - other.a)
+
+
+	// @TODO: Is c1 == c2 slow?
+	override operator fun compareTo(other: RGBA): Int = this.rgba.compareTo(other.rgba)
+	override fun hashCode(): Int = rgba
+	override fun equals(other: Any?): Boolean = if (other is RGBA) other.rgba == this.rgba else false
+	fun equals(other: RGBA): Boolean = other.rgba == this.rgba
 
 	companion object : ColorFormat32() {
 		//@JvmStatic
@@ -362,50 +374,71 @@ inline class RGBA(val rgba: Int) {
 
 
 //inline class RgbaArray(val array: IntArray) {
-inline class RgbaArray(val array: IntArray) : List<RGBA> {
+//inline class RgbaArray(val array: IntArray) : List<RGBA> {
+class RgbaArray(val array: IntArray) : List<RGBA> {
+	override fun subList(fromIndex: Int, toIndex: Int): List<RGBA> = SubListGeneric(this, fromIndex, toIndex)
 	override fun contains(element: RGBA): Boolean = array.contains(element.rgba)
 	override fun containsAll(elements: Collection<RGBA>): Boolean = elements.all { contains(it) }
 	override fun indexOf(element: RGBA): Int = array.indexOf(element.rgba)
-
-	override fun isEmpty(): Boolean {
-		TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-	}
-
-	override fun iterator(): Iterator<RGBA> {
-		TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-	}
-
-	override fun lastIndexOf(element: RGBA): Int {
-		TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-	}
-
-	override fun listIterator(): ListIterator<RGBA> {
-		TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-	}
-
-	override fun listIterator(index: Int): ListIterator<RGBA> {
-		TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-	}
-
-	override fun subList(fromIndex: Int, toIndex: Int): List<RGBA> {
-		TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-	}
+	override fun lastIndexOf(element: RGBA): Int = array.lastIndexOf(element.rgba)
+	override fun isEmpty(): Boolean = array.isEmpty()
+	override fun iterator(): Iterator<RGBA> = listIterator(0)
+	override fun listIterator(): ListIterator<RGBA> = listIterator(0)
+	override fun listIterator(index: Int): ListIterator<RGBA> = GenericListIterator(this, index)
 
 	//constructor(size: Int) : this(IntArray(size))
 	companion object {
 		operator fun invoke(size: Int): RgbaArray = RgbaArray(IntArray(size))
 		operator fun invoke(size: Int, callback: (index: Int) -> RGBA): RgbaArray = RgbaArray(IntArray(size)).apply { for (n in 0 until size) this[n] = callback(n) }
+
+		/**
+		 * java.lang.VerifyError: Bad type on operand stack
+		 * Exception Details:
+		 * Location:
+		 */
+		//inline operator fun invoke(size: Int, callback: (index: Int) -> RGBA): RgbaArray = RgbaArray(IntArray(size)).apply { for (n in 0 until size) this[n] = callback(n) }
 	}
 
 	override val size get() = array.size
 	override operator fun get(index: Int): RGBA = RGBA(array[index])
 	operator fun set(index: Int, color: RGBA) = run { array[index] = color.rgba }
 	fun fill(value: RGBA, start: Int = 0, end: Int = this.size): Unit = array.fill(value.rgba, start, end)
+
+	override fun toString(): String = "RgbaArray($size)"
 }
 
-public fun Collection<RGBA>.toRgbaArray(): RgbaArray = RgbaArray(this.size).apply {
-	for ((index, it) in this@toRgbaArray.withIndex()) this[index] = it
-}
+/*
+java.lang.VerifyError: Bad type on operand stack
+Exception Details:
+  Location:
+    com/soywiz/korim/color/RGBAKt$toRgbaArray$2.invoke(I)I @6: invokevirtual
+  Reason:
+    Type 'com/soywiz/korim/color/RGBA' (current frame, stack[0]) is not assignable to 'java/lang/Integer'
+  Current Frame:
+    bci: @6
+    flags: { }
+    locals: { 'com/soywiz/korim/color/RGBAKt$toRgbaArray$2', integer }
+    stack: { 'com/soywiz/korim/color/RGBA' }
+  Bytecode:
+ */
+//fun Collection<RGBA>.toRgbaArray(): RgbaArray = RgbaArray(this.size).apply {
+//	for ((index, it) in this@toRgbaArray.withIndex()) this[index] = it
+//}
+
+
+//fun Collection<RGBA>.toRgbaArray(): RgbaArray {
+//	val out = RgbaArray(this.size)
+//	for ((index, it) in this@toRgbaArray.withIndex()) out[index] = it
+//	return out
+//}
+
+//un List<RGBA>.toRgbaArray(): RgbaArray {
+//	val out = RgbaArray(IntArray(this.size))
+//	for (n in 0 until size) out[n] = this[n]
+//	return out
+//
+
+fun List<RGBA>.toRgbaArray(): RgbaArray = RgbaArray(IntArray(this.size) { this@toRgbaArray[it].rgba })
 
 fun arraycopy(src: RgbaArray, srcPos: Int, dst: RgbaArray, dstPos: Int, size: Int): Unit = arraycopy(src.array, srcPos, dst.array, dstPos, size)
 
@@ -424,7 +457,25 @@ fun RGBA.Companion.toHtmlColor(v: RGBA): String = v.htmlColor
 fun RGBA.Companion.depremultiplyFaster(v: RGBA): RGBA = RGBA(RGBA.depremultiplyFaster(v.toInt()))
 fun RGBA.Companion.depremultiplyFastest(v: RGBA): RGBA = RGBA(RGBA.depremultiplyFastest(v.toInt()))
 
+/**
+ * java.lang.VerifyError: Bad type on operand stack
+ * Exception Details:
+ * Location:
+ * com/soywiz/korim/color/RGBAKt$toRgbaArray$1.invoke(I)I @6: invokevirtual
+ */
 fun Array<RGBA>.toRgbaArray() = RgbaArray(this.size) { this@toRgbaArray[it] }
+
+/**
+ * java.lang.VerifyError: Bad type on operand stack
+ * Exception Details:
+ * Location:
+ * com/soywiz/korim/color/RGBAKt.toRgbaArray([Lcom/soywiz/korim/color/RGBA;)Lcom/soywiz/korim/color/RgbaArray; @30: invokevirtual
+ */
+//fun Array<RGBA>.toRgbaArray(): RgbaArray {
+//	val out = RgbaArray(this.size)
+//	for (n in 0 until size) out[n] = this[n]
+//	return out
+//}
 
 /*
 inline class Rgba(val rgba: Int) {

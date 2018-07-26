@@ -8,7 +8,9 @@ class Bitmap32Test {
 	fun name() {
 		val c = Bitmap32(1, 1)
 		c[0, 0] = Colors.WHITE
-		assertEquals(Colors.WHITE, c[0, 0])
+		// @TODO: RGBA inline java.lang.AssertionError: expected:<-1> but was:<#ffffffff>
+		//assertEquals(Colors.WHITE, c[0, 0])
+		assertEquals(Colors.WHITE.hexString, c[0, 0].hexString)
 	}
 
 	@kotlin.test.Test

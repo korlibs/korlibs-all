@@ -5,6 +5,7 @@ import com.soywiz.korge.tests.*
 import com.soywiz.korge.util.*
 import com.soywiz.korge.view.tiles.*
 import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.color.*
 import com.soywiz.korim.format.*
 import com.soywiz.korio.async.*
 import kotlin.test.*
@@ -37,7 +38,7 @@ class TiledMapTest : ViewsForTesting() {
 		val tileset = TileSet(Bitmap32(32, 32).slice(), 32, 32)
 		val map = TileMap(IntArray2(200, 200), tileset)
 		views.stage += map
-		views.frameUpdateAndRender(false, 0)
+		views.frameUpdateAndRender(false, Colors.TRANSPARENT_BLACK)
 		assertEquals(640, views.actualVirtualWidth)
 		assertEquals(480, views.actualVirtualHeight)
 		//assertEquals(300, count)
