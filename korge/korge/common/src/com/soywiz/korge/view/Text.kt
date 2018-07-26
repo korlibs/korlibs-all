@@ -5,7 +5,6 @@ import com.soywiz.korge.html.*
 import com.soywiz.korge.render.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
-import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 
 inline fun Container.text(
@@ -115,7 +114,7 @@ class Text : View(), IText, IHtml {
 			//val x = textBounds.x + (textBounds.width) * anchor.sx
 			val py = textBounds.y + (textBounds.height - tempRect.height) * anchor.sy
 
-			if (RGBA.getA(bgcolor) != 0) {
+			if (bgcolor.a != 0) {
 				ctx.batch.drawQuad(
 					ctx.getTex(Bitmaps.white),
 					x = textBounds.x.toFloat(),

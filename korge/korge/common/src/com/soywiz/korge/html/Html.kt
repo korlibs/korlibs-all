@@ -52,7 +52,14 @@ object Html {
 		var kerning: Int? = null,
 		var align: Alignment? = null
 	) : Computed.WithParent<Format> {
-		val computedColor by Computed(Format::color) { Colors.WHITE }
+		//java.lang.ClassCastException: com.soywiz.korim.color.RGBA cannot be cast to java.lang.Number
+		//	at com.soywiz.korge.html.Html$Format.getComputedColor(Html.kt)
+		//	at com.soywiz.korge.view.Text.render(Text.kt:134)
+		//	at com.soywiz.korge.view.TextTest.testRender(TextTest.kt:12)
+		//val computedColor by Computed(Format::color) { Colors.WHITE }
+
+		val computedColor: RGBA get() = parent?.computedColor ?: color ?: Colors.WHITE
+
 		val computedFace by Computed(Format::face) { FontFace.Named("Arial") }
 		val computedSize by Computed(Format::size) { 16 }
 		val computedLetterSpacing by Computed(Format::letterSpacing) { 0.0 }

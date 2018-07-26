@@ -1,5 +1,6 @@
 package com.soywiz.korim.awt
 
+import com.soywiz.kmem.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
 import com.soywiz.korio.async.*
@@ -73,7 +74,7 @@ fun awtConvertImageIfRequired(image: BufferedImage): BufferedImage =
 
 fun Bitmap32.transferTo(out: BufferedImage): BufferedImage {
 	val ints = (out.raster.dataBuffer as DataBufferInt).data
-	System.arraycopy(this.data, 0, ints, 0, this.width * this.height)
+	arraycopy(this.data.array, 0, ints, 0, this.width * this.height)
 	for (n in 0 until area) ints[n] = RGBA.rgbaToBgra(ints[n])
 	out.flush()
 	return out
