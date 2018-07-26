@@ -77,6 +77,7 @@ inline class Angle(val radians: Double) {
 
 val Angle.normalizedRadians get() = KdsExt { radians umod Angle.MAX_RADIANS }
 val Angle.normalizedDegrees get() = KdsExt { degrees umod Angle.MAX_DEGREES }
+val Angle.normalized get() = KdsExt { Angle(radians umod Angle.MAX_RADIANS) }
 
 inline val Number.degrees get() = Angle.fromDegrees(this)
 inline val Number.radians get() = Angle.fromRadians(this)
