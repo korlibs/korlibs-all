@@ -46,6 +46,12 @@ import kotlin.math.*
  * @language zh_CN
  */
 class DragonbonesSlot : Slot() {
+	companion object {
+		init {
+			BaseObject.register { DragonbonesTextureAtlasData() }
+		}
+	}
+
 	override fun toString(): String {
 		return "[class DragonbonesSlot]"
 	}

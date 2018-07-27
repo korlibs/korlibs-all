@@ -377,6 +377,31 @@ abstract class BaseFactory {
 
 		return dragonBonesData
 	}
+
+	fun parseDragonBonesDataJson(json: String, name: String? = null, scale: Double = 1.0): DragonBonesData? {
+		/*
+		val dragonBonesData = DataParser.parseDragonBonesDataJson(json)
+
+		while (true) {
+			val textureAtlasData = this._buildTextureAtlasData(null, null)
+			if (dataParser.parseTextureAtlasData(null, textureAtlasData, scale)) {
+				this.addTextureAtlasData(textureAtlasData, name)
+			}
+			else {
+				textureAtlasData.returnToPool()
+				break
+			}
+		}
+
+		if (dragonBonesData != null) {
+			this.addDragonBonesData(dragonBonesData, name)
+		}
+
+		return dragonBonesData
+		*/
+		return parseDragonBonesData(json, name, scale)
+	}
+
 	/**
 	 * - Parse the raw texture atlas data and the texture atlas object to a TextureAtlasData instance and cache it to the factory.
 	 * @param rawData - The raw texture atlas data.
@@ -697,8 +722,10 @@ abstract class BaseFactory {
 	 */
 	fun buildArmature(armatureName: String, dragonBonesName: String = "", skinName: String = "", textureAtlasName: String = ""): Armature? {
 		val dataPackage = BuildArmaturePackage()
-		if (!this._fillBuildArmaturePackage(dataPackage, dragonBonesName ?: "", armatureName, skinName ?: "", textureAtlasName ?: "")) {
-			console.warn("No armature data: " + armatureName + ", " + (dragonBonesName ?: ""))
+		if (!this._fillBuildArmaturePackage(dataPackage, dragonBonesName, armatureName, skinName,
+				textureAtlasName
+			)) {
+			console.warn("No armature data: $armatureName, $dragonBonesName")
 			return null
 		}
 

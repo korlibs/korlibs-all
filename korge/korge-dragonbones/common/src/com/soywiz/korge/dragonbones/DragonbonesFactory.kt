@@ -45,6 +45,11 @@ import com.soywiz.korim.bitmap.*
 open class DragonbonesFactory(dataParser: DataParser? = null) : BaseFactory(dataParser) {
 	companion object : DragonbonesFactory() {
 		val factory = this
+		init {
+			BaseObject.register { DragonbonesSlot() }
+			BaseObject.register { DragonbonesTextureAtlasData() }
+
+		}
 	}
 
 	val eventManager = DragonbonesArmatureDisplay()

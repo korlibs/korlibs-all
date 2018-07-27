@@ -1763,7 +1763,9 @@ open class ObjectDataParser : DataParser() {
 
 		if (DataParser.VALUE in rawData || DataParser.COLOR in rawData) {
 			val rawColor = rawData[DataParser.VALUE] ?: rawData[DataParser.COLOR]
-			for (k in (rawColor as List<Any?>)) { // Detects the presence of color.
+			// @TODO: Kotlin-JS: Caused by: java.lang.IllegalStateException: Value at LOOP_RANGE_ITERATOR_RESOLVED_CALL must not be null for BINARY_WITH_TYPE
+			//for (k in (rawColor as List<Any?>)) { // Detects the presence of color.
+			for (k in rawColor!! as List<Any>) { // Detects the presence of color.
 				this._parseColorTransform(rawColor, this._helpColorTransform)
 				colorOffset = this._colorArray.length
 				this._colorArray.length += 8

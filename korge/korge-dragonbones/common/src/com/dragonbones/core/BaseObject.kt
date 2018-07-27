@@ -9,10 +9,10 @@
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
  * the Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
@@ -27,7 +27,6 @@ import com.dragonbones.armature.*
 import com.dragonbones.event.*
 import com.dragonbones.model.*
 import com.dragonbones.util.*
-import com.soywiz.korma.geom.*
 import kotlin.reflect.*
 
 /**
@@ -46,6 +45,12 @@ abstract class BaseObject {
 	override fun toString(): String = "BaseObject.Unknown"
 
 	companion object {
+		private var __hashCode: Int = 0
+		private var _defaultMaxCount: Int = 3000
+		private val _maxCountMap: LinkedHashMap<KClass<*>, Int> = LinkedHashMap()
+		private val _poolsMap: LinkedHashMap<KClass<*>, ArrayList<BaseObject>> = LinkedHashMap()
+		private val factories = LinkedHashMap<KClass<*>, () -> BaseObject>()
+
 		private fun <T : BaseObject> _returnObject(obj: T) {
 			val classType = obj::class
 			val maxCount = BaseObject._maxCountMap[classType] ?: BaseObject._defaultMaxCount
@@ -54,19 +59,12 @@ abstract class BaseObject {
 				if (!obj._isInPool) {
 					obj._isInPool = true
 					(pool as ArrayList<BaseObject>).add(obj)
-				}
-				else {
+				} else {
 					console.warn("The object is already in the pool.")
 				}
-			}
-			else {
+			} else {
 			}
 		}
-
-		private var _hashCode: Int = 0
-		private var _defaultMaxCount: Int = 3000
-		private val _maxCountMap: LinkedHashMap<KClass<*>, Int> = LinkedHashMap()
-		private val _poolsMap: LinkedHashMap<KClass<*>, ArrayList<BaseObject>> = LinkedHashMap()
 
 		internal fun <T : BaseObject> getPool(clazz: KClass<T>): ArrayList<T> {
 			return _poolsMap.getOrPut(clazz) { arrayListOf() } as ArrayList<T>
@@ -160,7 +158,7 @@ abstract class BaseObject {
 		 * @version DragonBones 4.5
 		 * @language zh_CN
 		 */
-		fun <T  :  BaseObject> borrowObject(clazz: KClass<T>): T {
+		fun <T : BaseObject> borrowObject(clazz: KClass<T>): T {
 			val pool = getPool(clazz)
 			val obj = if (pool.isNotEmpty()) pool.removeAt(pool.size - 1) else createInstance(clazz)
 			obj._onClear()
@@ -179,60 +177,70 @@ abstract class BaseObject {
 			//return obj
 		}
 
-		inline fun <reified T  :  BaseObject> borrowObject(): T = borrowObject(T::class)
+		inline fun <reified T : BaseObject> borrowObject(): T = borrowObject(T::class)
 
 		@Suppress("UNCHECKED_CAST")
-		private fun <T  :  BaseObject> createInstance(clazz: KClass<T>): T {
-			return when (clazz) {
-				Animation::class -> Animation() as T
-				EventObject::class -> EventObject() as T
-				DisplayFrame::class -> DisplayFrame() as T
-				AnimationConfig::class -> AnimationConfig() as T
-				BlendState::class -> BlendState() as T
-				IKConstraintTimelineState::class -> IKConstraintTimelineState() as T
-				BoneAllTimelineState::class -> BoneAllTimelineState() as T
-				BoneTranslateTimelineState::class -> BoneTranslateTimelineState() as T
-				BoneRotateTimelineState::class -> BoneRotateTimelineState() as T
-				BoneScaleTimelineState::class -> BoneScaleTimelineState() as T
-				SlotDisplayTimelineState::class -> SlotDisplayTimelineState() as T
-				SlotZIndexTimelineState::class -> SlotZIndexTimelineState() as T
-				SlotColorTimelineState::class -> SlotColorTimelineState() as T
-				DeformTimelineState::class -> DeformTimelineState() as T
-				AlphaTimelineState::class -> AlphaTimelineState() as T
-				ZOrderTimelineState::class -> ZOrderTimelineState() as T
-				SurfaceTimelineState::class -> SurfaceTimelineState() as T
-				AnimationProgressTimelineState::class -> AnimationProgressTimelineState() as T
-				AnimationWeightTimelineState::class -> AnimationWeightTimelineState() as T
-				AnimationParametersTimelineState::class -> AnimationParametersTimelineState() as T
-				ArmatureData::class -> ArmatureData() as T
-				CanvasData::class -> CanvasData() as T
-				BoneData::class -> BoneData() as T
-				SurfaceData::class -> SurfaceData() as T
-				Surface::class -> Surface() as T
-				Bone::class -> Bone() as T
-				IKConstraint::class -> IKConstraint() as T
-				PathConstraint::class -> PathConstraint() as T
-				IKConstraintData::class -> IKConstraintData() as T
-				PathConstraintData::class -> PathConstraintData() as T
-				SlotData::class -> SlotData() as T
-				SkinData::class -> SkinData() as T
-				ImageDisplayData::class -> ImageDisplayData() as T
-				ArmatureDisplayData::class -> ArmatureDisplayData() as T
-				MeshDisplayData::class -> MeshDisplayData() as T
-				BoundingBoxDisplayData::class -> BoundingBoxDisplayData() as T
-				PathDisplayData::class -> PathDisplayData() as T
-				RectangleBoundingBoxData::class -> RectangleBoundingBoxData() as T
-				EllipseBoundingBoxData::class -> EllipseBoundingBoxData() as T
-				PolygonBoundingBoxData::class -> PolygonBoundingBoxData() as T
-				AnimationData::class -> AnimationData() as T
-				AnimationTimelineData::class -> AnimationTimelineData() as T
-				TimelineData::class -> TimelineData() as T
-				ActionData::class -> ActionData() as T
-				UserData::class -> UserData() as T
-				WeightData::class -> WeightData() as T
-				DragonBonesData::class -> DragonBonesData() as T
-				else -> TODO("Missing createInstance $clazz")
-			}
+		private fun <T : BaseObject> createInstance(clazz: KClass<T>): T {
+			val factory = factories[clazz] ?: TODO("Missing createInstance $clazz")
+			return factory() as T
+		}
+
+		fun <T : BaseObject> register(clazz: KClass<T>, factory: () -> T) = run {
+			factories[clazz] = factory
+		}
+
+		inline fun <reified T : BaseObject> register(noinline factory: () -> T) = register(T::class, factory)
+
+
+		init {
+			register { Animation() }
+			register { EventObject() }
+			register { DisplayFrame() }
+			register { AnimationConfig() }
+			register { BlendState() }
+			register { IKConstraintTimelineState() }
+			register { BoneAllTimelineState() }
+			register { BoneTranslateTimelineState() }
+			register { BoneRotateTimelineState() }
+			register { BoneScaleTimelineState() }
+			register { SlotDisplayTimelineState() }
+			register { SlotZIndexTimelineState() }
+			register { SlotColorTimelineState() }
+			register { DeformTimelineState() }
+			register { AlphaTimelineState() }
+			register { ZOrderTimelineState() }
+			register { SurfaceTimelineState() }
+			register { AnimationProgressTimelineState() }
+			register { AnimationWeightTimelineState() }
+			register { AnimationParametersTimelineState() }
+			register { ArmatureData() }
+			register { CanvasData() }
+			register { BoneData() }
+			register { SurfaceData() }
+			register { Surface() }
+			register { Bone() }
+			register { IKConstraint() }
+			register { PathConstraint() }
+			register { IKConstraintData() }
+			register { PathConstraintData() }
+			register { SlotData() }
+			register { SkinData() }
+			register { ImageDisplayData() }
+			register { ArmatureDisplayData() }
+			register { MeshDisplayData() }
+			register { BoundingBoxDisplayData() }
+			register { PathDisplayData() }
+			register { RectangleBoundingBoxData() }
+			register { EllipseBoundingBoxData() }
+			register { PolygonBoundingBoxData() }
+			register { AnimationData() }
+			register { AnimationTimelineData() }
+			register { TimelineData() }
+			register { ActionData() }
+			register { UserData() }
+			register { WeightData() }
+			register { DragonBonesData() }
+			register { Armature() }
 		}
 	}
 
@@ -247,7 +255,7 @@ abstract class BaseObject {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	val hashCode: Int = BaseObject._hashCode++
+	val _hashCode: Int = BaseObject.__hashCode++ // @TODO: Kotlin.JS hashCode produces a compiler error in JS
 	private var _isInPool: Boolean = false
 
 	protected abstract fun _onClear(): Unit

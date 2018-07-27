@@ -22,6 +22,7 @@ buildscript {
 					//"com.soywiz:korio{SUFFIX}:$korgeVersion",
 					//"com.soywiz:korim{SUFFIX}:$korgeVersion",
 					"com.soywiz:korge{SUFFIX}:$korgeVersion",
+					"com.soywiz:korge-dragonbones{SUFFIX}:$korgeVersion",
 			],
 			"sample2": [
 					"com.soywiz:korui{SUFFIX}:$korgeVersion",

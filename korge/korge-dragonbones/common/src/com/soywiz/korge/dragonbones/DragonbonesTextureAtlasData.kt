@@ -39,6 +39,13 @@ import com.soywiz.korma.geom.*
  * @language zh_CN
  */
 class DragonbonesTextureAtlasData : TextureAtlasData() {
+	companion object {
+		init {
+			//BaseObject.register(TextureData::class) { DragonbonesTextureData() }
+			BaseObject.register<TextureData> { DragonbonesTextureData() }
+		}
+	}
+
 	override fun toString(): String {
 		return "[class DragonbonesTextureAtlasData]"
 	}
