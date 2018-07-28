@@ -449,6 +449,24 @@ class TexturedVertexArray(val vcount: Int, val indices: IntArray) {
 	fun uv(tx: Float, ty: Float) = setU(tx).setV(ty)
 	fun cols(colMul: RGBA, colAdd: Int) = setCMul(colMul).setCAdd(colAdd)
 
+	val x: Float get() = Float.fromBits(data[offset + 0])
+	val y: Float get() = Float.fromBits(data[offset + 1])
+	val u: Float get() = Float.fromBits(data[offset + 2])
+	val v: Float get() = Float.fromBits(data[offset + 3])
+	val cMul: Int get() = data[offset + 4]
+	val cAdd: Int get() = data[offset + 5]
+
+	val vertexString: String get() = "V(xy=($x, $y),uv=$u, $v,cMul=$cMul,cAdd=$cAdd)"
+
+	fun str(index: Int): String {
+		val old = this.offset
+		try {
+			return select(index).vertexString
+		} finally {
+			this.offset = old
+		}
+	}
+
 	//class Item(private val data: IntArray, index: Int) {
 	//	val offset = index * COMPONENTS_PER_VERTEX
 	//	var x: Float; get() = Float.fromBits(data[offset + 0]); set(v) = run { data[offset + 0] = v.toBits() }

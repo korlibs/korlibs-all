@@ -40,11 +40,7 @@ open class Image(
 
 	override fun createInstance(): View = Image(bitmap, anchorX, anchorY, hitShape, smoothing)
 
-	override fun toString(): String {
-		var out = super.toString()
-		if (anchorX != 0.0 || anchorY != 0.0) out += ":anchor=(${anchorX.str}, ${anchorY.str})"
-		return super.toString() + ":bitmap=$bitmap"
-	}
+	override fun toString(): String = super.toString() + ":bitmap=$bitmap"
 
 }
 

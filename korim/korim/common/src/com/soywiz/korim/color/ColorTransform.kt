@@ -38,7 +38,7 @@ data class ColorTransform(
 	@Transient
 	private var dirty = true
 
-	private var _colorMul: RGBA = RGBA(0)
+	private var _colorMul: RGBA = Colors.WHITE
 	private var _colorAdd: Int = 0
 
 	private fun computeColors() = this.apply {

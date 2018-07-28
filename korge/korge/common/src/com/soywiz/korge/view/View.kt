@@ -248,11 +248,13 @@ abstract class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by Eve
 	fun setMatrix(matrix: Matrix2d) {
 		this._localMatrix.copyFrom(matrix)
 		this.validLocalProps = false
+		invalidate()
 	}
 
 	fun setMatrixInterpolated(ratio: Double, l: Matrix2d, r: Matrix2d) {
 		this._localMatrix.setToInterpolated(ratio, l, r)
 		this.validLocalProps = false
+		invalidate()
 	}
 
 	fun setComputedTransform(transform: Matrix2d.Computed) {
@@ -281,7 +283,7 @@ abstract class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by Eve
 	}
 
 	fun setTransform(x: Double, y: Double, sx: Double, sy: Double, angle: Double, skewX: Double, skewY: Double, pivotX: Double = 0.0, pivotY: Double = 0.0) =
-		setTransform(tempTransform.setTo(x, y, sx, sy, skewX, skewY, rotation))
+		setTransform(tempTransform.setTo(x, y, sx, sy, skewX, skewY, angle))
 
 	private var _localMatrix = Matrix2d()
 	var _globalMatrix = Matrix2d()
@@ -434,6 +436,10 @@ abstract class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by Eve
 		if (rotation != 0.0) out += ":rotation=(${rotationDegrees.str}º)"
 		if (name != null) out += ":name=($name)"
 		if (blendMode != BlendMode.INHERIT) out += ":blendMode=($blendMode)"
+		if (!visible) out += ":visible=$visible"
+		if (alpha != 1.0) out += ":alpha=$alpha"
+		if (colorMul.rgb != Colors.WHITE.rgb) out += ":colorMul=${colorMul.hexString}"
+		if (colorAdd != 0) out += ":colorAdd=$colorAdd"
 		return out
 	}
 

@@ -1,15 +1,17 @@
 package example2
 
-import com.dragonbones.core.*
 import com.dragonbones.model.*
+import com.soywiz.klock.*
 import com.soywiz.korge.*
 import com.soywiz.korge.dragonbones.*
 import com.soywiz.korge.scene.*
+import com.soywiz.korge.time.*
 import com.soywiz.korge.view.*
-import com.soywiz.korim.color.*
 import com.soywiz.korim.format.*
 import com.soywiz.korinject.*
+import com.soywiz.korio.async.*
 import com.soywiz.korio.serialization.json.*
+import com.soywiz.korma.geom.*
 
 //fun main(args: Array<String>): Unit = Korio {
 //    val vfs = MemoryVfsMix("hello" to "WORLD")
@@ -33,11 +35,15 @@ object MyModule : Module() {
         injector
             .mapPrototype { MyScene() }
     }
+
+    override val size: SizeInt = SizeInt(2048, 2048)
+    override val windowSize: SizeInt = SizeInt(768, 768)
 }
 
 class MyScene : Scene() {
+
     override suspend fun Container.sceneInit() {
-        DragonBones.debugDraw = true
+        //DragonBones.debugDraw = true
         val factory = KorgeDbFactory()
         val data = factory.parseDragonBonesData(Json.parse(resourcesRoot["Dragon/Dragon_ske.json"].readString())!!)
         val atlas = factory.parseTextureAtlasData(
@@ -47,6 +53,7 @@ class MyScene : Scene() {
         )
         checkData(data, atlas)
         val armatureDisplay = factory.buildArmatureDisplay("Dragon", "Dragon")!!.position(300, 300)
+        //val armatureDisplay = factory.buildArmatureDisplay("Dragon", "Dragon")!!.position(150, 150)
         /*
         for (tex in atlas.textures.entries) {
             val bmp = ((tex.value as DragonbonesTextureData).renderTexture!! as BitmapSlice<Bitmap>)
@@ -59,14 +66,56 @@ class MyScene : Scene() {
         }
         */
 
+        //image(Bitmaps.transparent) {
+        //    position(150, 150)
+        //    solidRect(100, 100, Colors.RED) {
+        //        mouse {
+        //            click {
+        //                println("click!")
+        //            }
+        //        }
+        //    }
+        //}
+
         this.containerRoot.dump()
 
         println(armatureDisplay.animation.animationNames)
         armatureDisplay.animation.gotoAndPlayByTime("walk")
+        println(atlas.textures.keys)
+        //image((atlas.getTexture("parts/tailTip") as KorgeDbTextureData).renderTexture!!)
+
+        //solidRect(50, 50, Colors.RED)
 
         this += armatureDisplay
+        //armatureDisplay.apply {
+        //    image((atlas.getTexture("parts/tailTip") as KorgeDbTextureData).renderTexture!!)
+        //    val tex = this@sceneInit["parts/handL"] as Image
+//
+        //    //val hand = image((atlas.getTexture("parts/handL") as KorgeDbTextureData).renderTexture!!) {
+        //    val hand = image(tex.bitmap) {
+        //        //Image:pos=(-179.96,179.01):scale=(1,1):name=(parts/handL):bitmap=BitmapSlice(parts/handL:SizeInt(width=96, height=78))
+//
+        //        position(-179.96,179.01).scale(1.001, 1.001)
+        //        name = "parts/handL"
+        //    }
+        //    this.addChildAt(hand, 0)
+        //}
+
+        //solidRect(30, 30, Colors.BLUE)
 
 
+        this.containerRoot.dump()
+        launchImmediately {
+            delay(0.3.seconds)
+            this.containerRoot.dump()
+            //this.alpha = 0.3
+        }
+
+        /*
+        timer(1.seconds) {
+            this.containerRoot.dump()
+        }
+        */
 
         /*
         graphics() {

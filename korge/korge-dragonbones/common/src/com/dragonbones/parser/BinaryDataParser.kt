@@ -191,7 +191,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 		return timeline
 	}
 
-	protected fun _parseAnimation(rawData: LinkedHashMap<String, Any?>): AnimationData {
+	override fun _parseAnimation(rawData: Any?): AnimationData {
 		val animation: AnimationData = BaseObject.borrowObject<AnimationData>()
 		animation.blendType = DataParser._getAnimationBlendType(ObjectDataParser._getString(rawData, DataParser.BLEND_TYPE, ""))
 		animation.frameCount = ObjectDataParser._getInt(rawData, DataParser.DURATION, 0)
@@ -327,7 +327,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 		return animation
 	}
 
-	protected override fun _parseGeometry(rawData: Any?, geometry: GeometryData): Unit {
+	override fun _parseGeometry(rawData: Any?, geometry: GeometryData): Unit {
 		geometry.offset = rawData[DataParser.OFFSET] as Int
 		geometry.data = this._data
 
@@ -356,7 +356,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 		}
 	}
 
-	protected fun _parseArray(rawData: Map<String, Any?>): Unit {
+	override fun _parseArray(rawData: Any?): Unit {
 		val offsets = rawData[DataParser.OFFSET] as  IntArrayList
 		val l1 = offsets[1]
 		val l2 = offsets[3]
@@ -365,7 +365,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 		val l5 = offsets[9]
 		val l6 = offsets[11]
 		val l7 = if (offsets.size > 12) offsets[13] else 0 // Color.
-		val binary = this._binary!!
+		val binary = this._binary
 		val intArray = binary.sliceInt16Buffer(this._binaryOffset + offsets[0], l1 / Int16Buffer_BYTES_PER_ELEMENT)
 		val floatArray = binary.sliceFloat32Buffer(this._binaryOffset + offsets[2], l2 / Float32Buffer_BYTES_PER_ELEMENT)
 		val frameIntArray = binary.sliceInt16Buffer(this._binaryOffset + offsets[4], l3 / Int16Buffer_BYTES_PER_ELEMENT)

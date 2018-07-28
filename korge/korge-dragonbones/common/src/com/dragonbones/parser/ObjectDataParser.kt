@@ -876,7 +876,7 @@ open class ObjectDataParser : DataParser() {
 		return polygonBoundingBox
 	}
 
-	protected fun _parseAnimation(rawData: Any?): AnimationData {
+	protected open fun _parseAnimation(rawData: Any?): AnimationData {
 		val animation = BaseObject.borrowObject<AnimationData>()
 		animation.blendType =
 				DataParser._getAnimationBlendType(ObjectDataParser._getString(rawData, DataParser.BLEND_TYPE, ""))
@@ -2250,7 +2250,7 @@ open class ObjectDataParser : DataParser() {
 		}
 	}
 
-	protected fun _parseArray(@Suppress("UNUSED_PARAMETER") rawData: Any?) {
+	protected open fun _parseArray(@Suppress("UNUSED_PARAMETER") rawData: Any?) {
 		this._intArray.length = 0
 		this._floatArray.length = 0
 		this._frameIntArray.length = 0
@@ -2293,13 +2293,13 @@ open class ObjectDataParser : DataParser() {
 		val lTotal = l1 + l2 + l3 + l4 + l5 + l6 + l7
 		//
 		val binary = MemBufferAlloc(lTotal)
-		val intArray = binary.sliceInt16Buffer(0, this._intArray.length)
-		val floatArray = binary.sliceFloat32Buffer(l1, this._floatArray.length)
-		val frameIntArray = binary.sliceInt16Buffer(l1 + l2, this._frameIntArray.length)
-		val frameFloatArray = binary.sliceFloat32Buffer(l1 + l2 + l3, this._frameFloatArray.length)
-		val frameArray = binary.sliceInt16Buffer(l1 + l2 + l3 + l4, this._frameArray.length)
-		val timelineArray = binary.sliceUint16Buffer(l1 + l2 + l3 + l4 + l5, this._timelineArray.length)
-		val colorArray = binary.sliceInt16Buffer(l1 + l2 + l3 + l4 + l5 + l6, this._colorArray.length)
+		val intArray = binary.sliceInt16BufferByteOffset(0, this._intArray.length)
+		val floatArray = binary.sliceFloat32BufferByteOffset(l1, this._floatArray.length)
+		val frameIntArray = binary.sliceInt16BufferByteOffset(l1 + l2, this._frameIntArray.length)
+		val frameFloatArray = binary.sliceFloat32BufferByteOffset(l1 + l2 + l3, this._frameFloatArray.length)
+		val frameArray = binary.sliceInt16BufferByteOffset(l1 + l2 + l3 + l4, this._frameArray.length)
+		val timelineArray = binary.sliceUint16BufferByteOffset(l1 + l2 + l3 + l4 + l5, this._timelineArray.length)
+		val colorArray = binary.sliceInt16BufferByteOffset(l1 + l2 + l3 + l4 + l5 + l6, this._colorArray.length)
 
 		for (i in 0 until this._intArray.length) {
 			intArray[i] = this._intArray[i].toShort()
@@ -2373,7 +2373,7 @@ open class ObjectDataParser : DataParser() {
 					data.addArmature(this._parseArmature(rawArmature, scale))
 				}
 
-				if (this._data?.binary != null) { // DragonBones.webAssembly ? 0 : null;
+				if (this._data?.binary == null) { // DragonBones.webAssembly ? 0 : null;
 					this._modifyArray()
 				}
 

@@ -32,6 +32,7 @@ import com.soywiz.korge.view.*
 import com.soywiz.korge.view.BlendMode
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
+import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 import kotlin.math.*
 
@@ -58,9 +59,6 @@ class KorgeDbSlot : Slot() {
 
 	private var _textureScale: Double = 1.0
 	private var _renderDisplay: DisplayObject? = null
-		set(value) {
-			field = value
-		}
 
 	override fun _onClear() {
 		super._onClear()
@@ -120,7 +118,7 @@ class KorgeDbSlot : Slot() {
 	override fun _updateBlendMode() {
 		if (this._renderDisplay is Container) {
 			when (this._blendMode) {
-				com.dragonbones.core.BlendMode.Normal -> this._renderDisplay?.blendMode = BlendMode.NORMAL
+				com.dragonbones.core.BlendMode.Normal -> this._renderDisplay?.blendMode = BlendMode.INHERIT
 				com.dragonbones.core.BlendMode.Add -> this._renderDisplay?.blendMode = BlendMode.ADD
 				com.dragonbones.core.BlendMode.Darken -> this._renderDisplay?.blendMode = BlendMode.DARKEN
 				com.dragonbones.core.BlendMode.Difference -> this._renderDisplay?.blendMode = BlendMode.DIFFERENCE
@@ -137,13 +135,16 @@ class KorgeDbSlot : Slot() {
 
 	override fun _updateColor() {
 		val alpha = this._colorTransform.alphaMultiplier * this._globalAlpha
-		this._renderDisplay?.alpha = alpha
+		//this._renderDisplay?.alpha = alpha
+		//this._renderDisplay?.alpha = 1.0
 
 		if (this._renderDisplay is Image || this._renderDisplay is Mesh) {
 			val color = (round(this._colorTransform.redMultiplier * 0xFF).toInt() shl 16) +
 					(round(this._colorTransform.greenMultiplier * 0xFF).toInt() shl 8) +
 					round(this._colorTransform.blueMultiplier * 0xFF).toInt()
-			this._renderDisplay?.tint = RGBA(color)
+			this._renderDisplay?.tint = RGBA(color, (alpha * 255.0).toInt())
+		} else {
+			this._renderDisplay?.alpha = alpha
 		}
 		// TODO child armature.
 	}
@@ -224,6 +225,7 @@ class KorgeDbSlot : Slot() {
 
 					this._textureScale = 1.0
 					meshDisplay.texture = renderTexture
+					meshDisplay.name = renderTexture.name
 					meshDisplay.dirty++
 					meshDisplay.indexDirty++
 
@@ -236,7 +238,7 @@ class KorgeDbSlot : Slot() {
 					this._textureScale = currentTextureData.parent!!.scale * this._armature!!._armatureData!!.scale
 					val normalDisplay = this._renderDisplay as Image
 					normalDisplay?.texture = renderTexture
-					println("SET $renderTexture")
+					normalDisplay.name = renderTexture.name
 				}
 
 				this._visibleDirty = true
@@ -329,8 +331,8 @@ class KorgeDbSlot : Slot() {
 				vertexOffset += 65536 // Fixed out of bouds bug.
 			}
 
+			//for (let i = 0, l = vertexCount * 2; i < l; i += 2) {
 			for (i in 0 until vertexCount * 2 step 2) {
-				//for (let i = 0, l = vertexCount * 2; i < l; i += 2) {
 				var x: Double = floatArray[vertexOffset + i] * scale
 				var y: Double = floatArray[vertexOffset + i + 1] * scale
 
@@ -351,30 +353,26 @@ class KorgeDbSlot : Slot() {
 		}
 	}
 
+	private val m = Matrix2d()
+
 	override fun _updateTransform() {
 		this.updateGlobalTransform() // Update transform.
 
 		val transform = this.global
 
-		val _renderDisplay = this._renderDisplay ?: return
+		val _renderDisplay = this._renderDisplay as? Image? ?: return
 
 		if (_renderDisplay === this._rawDisplay || _renderDisplay === this._meshDisplay) {
-			val x =
-				transform.x - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY)
-			val y =
-				transform.y - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY)
-			_renderDisplay.setTransform(
-				x,
-				y,
-				transform.scaleX * this._textureScale, transform.scaleY * this._textureScale,
-				transform.rotation,
-				transform.skew, 0.0
-			)
+			globalTransformMatrix.toMatrix2d(m)
+			_renderDisplay.setMatrix(m)
+			_renderDisplay.anchor(_pivotX / _renderDisplay.width, _pivotY / _renderDisplay.height)
 		} else {
 			_renderDisplay
 				.position(transform.x, transform.y).rotation(transform.rotation.radians)
 				.skew(transform.skew, 0.0).scale(transform.scaleX, transform.scaleY)
 		}
+		//val rb = _renderDisplay as? RectBase?
+		//rb?.anchor(_pivotX / rb.width, _pivotY / rb.height)
 	}
 
 	override fun _identityTransform() {

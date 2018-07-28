@@ -57,9 +57,7 @@ class KorgeDbArmatureDisplay : Image(Bitmaps.transparent), IArmatureProxy {
 	init {
 		addUpdatable {
 			_armature?.advanceTime(it.toDouble() / 1000.0)
-			if (_armature != null) {
-				dbUpdate()
-			}
+			//if (_armature != null) dbUpdate()
 		}
 	}
 

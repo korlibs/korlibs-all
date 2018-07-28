@@ -6,11 +6,17 @@ package com.soywiz.kmem
 import java.nio.*
 import java.util.*
 
-fun ByteBuffer.slice(offset: Int, size: Int): ByteBuffer = run { val out = this.duplicate(); out.position(this.position() + offset); out.limit(out.position() + size); return out }
-fun ShortBuffer.slice(offset: Int, size: Int): ShortBuffer = run { val out = this.duplicate(); out.position(this.position() + offset); out.limit(out.position() + size); return out }
-fun IntBuffer.slice(offset: Int, size: Int): IntBuffer = run { val out = this.duplicate(); out.position(this.position() + offset); out.limit(out.position() + size); return out }
-fun FloatBuffer.slice(offset: Int, size: Int): FloatBuffer = run { val out = this.duplicate(); out.position(this.position() + offset); out.limit(out.position() + size); return out }
-fun DoubleBuffer.slice(offset: Int, size: Int): DoubleBuffer = run { val out = this.duplicate(); out.position(this.position() + offset); out.limit(out.position() + size); return out }
+private fun Buffer.checkSliceBounds(offset: Int, size: Int) {
+	//val end = offset + size - 1
+	//if (offset !in 0 until this.capacity()) error("offset=$offset, size=$size not inside ${this.capacity()}")
+	//if (end !in 0 until this.capacity()) error("offset=$offset, size=$size not inside ${this.capacity()}")
+}
+
+fun ByteBuffer.slice(offset: Int, size: Int): ByteBuffer = run { checkSliceBounds(offset, size); val out = this.duplicate(); out.position(this.position() + offset); out.limit(out.position() + size); return out }
+fun ShortBuffer.slice(offset: Int, size: Int): ShortBuffer = run { checkSliceBounds(offset, size); val out = this.duplicate(); out.position(this.position() + offset); out.limit(out.position() + size); return out }
+fun IntBuffer.slice(offset: Int, size: Int): IntBuffer = run { checkSliceBounds(offset, size); val out = this.duplicate(); out.position(this.position() + offset); out.limit(out.position() + size); return out }
+fun FloatBuffer.slice(offset: Int, size: Int): FloatBuffer = run { checkSliceBounds(offset, size); val out = this.duplicate(); out.position(this.position() + offset); out.limit(out.position() + size); return out }
+fun DoubleBuffer.slice(offset: Int, size: Int): DoubleBuffer = run { checkSliceBounds(offset, size); val out = this.duplicate(); out.position(this.position() + offset); out.limit(out.position() + size); return out }
 actual class MemBuffer(val buffer: ByteBuffer, val size: Int)
 actual fun MemBufferAlloc(size: Int): MemBuffer = MemBuffer(ByteBuffer.allocateDirect((size + 0xF) and 0xF.inv()).order(ByteOrder.nativeOrder()), size)
 actual fun MemBufferWrap(array: ByteArray): MemBuffer = MemBuffer(ByteBuffer.wrap(array).order(ByteOrder.nativeOrder()), array.size)

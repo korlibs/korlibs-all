@@ -45,8 +45,11 @@ open class RectBase(
 	override fun render(ctx: RenderContext) {
 		if (!visible) return
 		super.render(ctx)
-		computeVertexIfRequired()
-		ctx.batch.drawVertices(vertices, ctx.getTex(baseBitmap).base, smoothing, computedBlendMode.factors)
+		if (baseBitmap !== Bitmaps.transparent) {
+			computeVertexIfRequired()
+			//println("$name: ${vertices.str(0)}, ${vertices.str(1)}, ${vertices.str(2)}, ${vertices.str(3)}")
+			ctx.batch.drawVertices(vertices, ctx.getTex(baseBitmap).base, smoothing, computedBlendMode.factors)
+		}
 	}
 
 	override fun getLocalBoundsInternal(out: Rectangle) {
@@ -60,4 +63,14 @@ open class RectBase(
 			(hitShape?.containsPoint(globalToLocalX(x, y), globalToLocalY(x, y)) != false)
 		) this else null
 	}
+
+	override fun toString(): String {
+		var out = super.toString()
+		if (anchorX != 0.0 || anchorY != 0.0) out += ":anchor=(${anchorX.str}, ${anchorY.str})"
+		return out
+	}
 }
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun <T : RectBase> T.anchor(ax: Number, ay: Number): T =
+	this.apply { this.anchorX = ax.toDouble() }.apply { this.anchorY = ay.toDouble() }

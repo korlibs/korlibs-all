@@ -1,5 +1,6 @@
 package com.dragonbones.geom
 
+import com.soywiz.korma.*
 import kotlin.math.*
 
 /**
@@ -232,6 +233,41 @@ class Transform
 	 * @private
 	 */
 	fun toMatrix(matrix: Matrix): Transform {
+		if (this.rotation == 0.0) {
+			matrix.a = 1.0
+			matrix.b = 0.0
+		}
+		else {
+			matrix.a = cos(this.rotation)
+			matrix.b = sin(this.rotation)
+		}
+
+		if (this.skew == 0.0) {
+			matrix.c = -matrix.b
+			matrix.d = matrix.a
+		}
+		else {
+			matrix.c = -sin(this.skew + this.rotation)
+			matrix.d = cos(this.skew + this.rotation)
+		}
+
+		if (this.scaleX != 1.0) {
+			matrix.a *= this.scaleX
+			matrix.b *= this.scaleX
+		}
+
+		if (this.scaleY != 1.0) {
+			matrix.c *= this.scaleY
+			matrix.d *= this.scaleY
+		}
+
+		matrix.tx = this.x
+		matrix.ty = this.y
+
+		return this
+	}
+
+	fun toMatrix2d(matrix: Matrix2d): Transform {
 		if (this.rotation == 0.0) {
 			matrix.a = 1.0
 			matrix.b = 0.0

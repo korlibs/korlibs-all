@@ -158,7 +158,7 @@ class DragonBonesData  : BaseObject() {
 	 */
 	var userData: UserData? = null // Initial value.
 
-	protected override fun _onClear(): Unit {
+	override fun _onClear(): Unit {
 		for (a in this.armatures.values) a.returnToPool()
 		this.armatures.clear()
 
@@ -186,7 +186,7 @@ class DragonBonesData  : BaseObject() {
 	/**
 	 * @internal
 	 */
-	fun addArmature(value: ArmatureData): Unit {
+	fun addArmature(value: ArmatureData) {
 		if (value.name in this.armatures) {
 			console.warn("Same armature: " + value.name)
 			return

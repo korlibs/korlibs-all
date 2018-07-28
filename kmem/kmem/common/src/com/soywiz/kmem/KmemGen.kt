@@ -13,20 +13,27 @@ expect fun MemBuffer._sliceInt32Buffer(offset: Int, size: Int): Int32Buffer
 expect fun MemBuffer._sliceFloat32Buffer(offset: Int, size: Int): Float32Buffer
 expect fun MemBuffer._sliceFloat64Buffer(offset: Int, size: Int): Float64Buffer
 
-inline fun MemBuffer.sliceInt8Buffer(offset: Int = 0, size: Int = (this.size / 1) - offset): Int8Buffer = this._sliceInt8Buffer(offset, size)
-inline fun MemBuffer.sliceInt16Buffer(offset: Int = 0, size: Int = (this.size / 2) - offset): Int16Buffer = this._sliceInt16Buffer(offset, size)
-inline fun MemBuffer.sliceInt32Buffer(offset: Int = 0, size: Int = (this.size / 4) - offset): Int32Buffer = this._sliceInt32Buffer(offset, size)
-inline fun MemBuffer.sliceFloat32Buffer(offset: Int = 0, size: Int = (this.size / 4) - offset): Float32Buffer = this._sliceFloat32Buffer(offset, size)
-inline fun MemBuffer.sliceFloat64Buffer(offset: Int = 0, size: Int = (this.size / 8) - offset): Float64Buffer = this._sliceFloat64Buffer(offset, size)
+fun MemBuffer.sliceInt8Buffer(offset: Int = 0, size: Int = (this.size / 1) - offset): Int8Buffer = this._sliceInt8Buffer(offset, size)
+fun MemBuffer.sliceInt16Buffer(offset: Int = 0, size: Int = (this.size / 2) - offset): Int16Buffer = this._sliceInt16Buffer(offset, size)
+fun MemBuffer.sliceInt32Buffer(offset: Int = 0, size: Int = (this.size / 4) - offset): Int32Buffer = this._sliceInt32Buffer(offset, size)
+fun MemBuffer.sliceFloat32Buffer(offset: Int = 0, size: Int = (this.size / 4) - offset): Float32Buffer = this._sliceFloat32Buffer(offset, size)
+fun MemBuffer.sliceFloat64Buffer(offset: Int = 0, size: Int = (this.size / 8) - offset): Float64Buffer = this._sliceFloat64Buffer(offset, size)
+fun MemBuffer.sliceUint8Buffer(offset: Int = 0, size: Int = (this.size / 2) - offset): Uint8Buffer = Uint8Buffer(_sliceInt8Buffer(offset, size))
+fun MemBuffer.sliceUint16Buffer(offset: Int = 0, size: Int = (this.size / 2) - offset): Uint16Buffer = Uint16Buffer(_sliceInt16Buffer(offset, size))
 
-inline fun MemBuffer.sliceUint8Buffer(offset: Int = 0, size: Int = (this.size / 2) - offset): Uint8Buffer = Uint8Buffer(_sliceInt8Buffer(offset, size))
-inline fun MemBuffer.sliceUint16Buffer(offset: Int = 0, size: Int = (this.size / 2) - offset): Uint16Buffer = Uint16Buffer(_sliceInt16Buffer(offset, size))
+fun MemBuffer.sliceInt8BufferByteOffset(byteOffset: Int = 0, size: Int = (this.size / 1) - byteOffset / 1): Int8Buffer = this._sliceInt8Buffer(byteOffset / 1, size)
+fun MemBuffer.sliceInt16BufferByteOffset(byteOffset: Int = 0, size: Int = (this.size / 2) - byteOffset / 2): Int16Buffer = this._sliceInt16Buffer(byteOffset / 2, size)
+fun MemBuffer.sliceInt32BufferByteOffset(byteOffset: Int = 0, size: Int = (this.size / 4) - byteOffset / 4): Int32Buffer = this._sliceInt32Buffer(byteOffset / 4, size)
+fun MemBuffer.sliceFloat32BufferByteOffset(byteOffset: Int = 0, size: Int = (this.size / 4) - byteOffset / 4): Float32Buffer = this._sliceFloat32Buffer(byteOffset / 4, size)
+fun MemBuffer.sliceFloat64BufferByteOffset(byteOffset: Int = 0, size: Int = (this.size / 8) - byteOffset / 8): Float64Buffer = this._sliceFloat64Buffer(byteOffset / 8, size)
+fun MemBuffer.sliceUint8BufferByteOffset(byteOffset: Int = 0, size: Int = (this.size / 2) - byteOffset / 2): Uint8Buffer = Uint8Buffer(_sliceInt8Buffer(byteOffset / 2, size))
+fun MemBuffer.sliceUint16BufferByteOffset(byteOffset: Int = 0, size: Int = (this.size / 2) - byteOffset / 2): Uint16Buffer = Uint16Buffer(_sliceInt16Buffer(byteOffset / 2, size))
 
-inline fun MemBuffer.asInt8Buffer(): Int8Buffer = this.sliceInt8Buffer()
-inline fun MemBuffer.asInt16Buffer(): Int16Buffer = this.sliceInt16Buffer()
-inline fun MemBuffer.asInt32Buffer(): Int32Buffer = this.sliceInt32Buffer()
-inline fun MemBuffer.asFloat32Buffer(): Float32Buffer = this.sliceFloat32Buffer()
-inline fun MemBuffer.asFloat64Buffer(): Float64Buffer = this.sliceFloat64Buffer()
+fun MemBuffer.asInt8Buffer(): Int8Buffer = this.sliceInt8Buffer()
+fun MemBuffer.asInt16Buffer(): Int16Buffer = this.sliceInt16Buffer()
+fun MemBuffer.asInt32Buffer(): Int32Buffer = this.sliceInt32Buffer()
+fun MemBuffer.asFloat32Buffer(): Float32Buffer = this.sliceFloat32Buffer()
+fun MemBuffer.asFloat64Buffer(): Float64Buffer = this.sliceFloat64Buffer()
 
 expect class DataBuffer
 expect fun MemBuffer.getData(): DataBuffer

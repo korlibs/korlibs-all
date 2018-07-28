@@ -48,7 +48,13 @@ class DoubleArrayList(capacity: Int = 7) : NumberArrayList(), Collection<Double>
 	fun add(values: Iterable<Double>) = run { for (v in values) add(v) }
 
 	operator fun get(index: Int) = data[index]
-	operator fun set(index: Int, value: Double) = run { data[index] = value }
+	operator fun set(index: Int, value: Double) = run {
+		if (index >= length) {
+			ensure(index + 1)
+			length = index + 1
+		}
+		data[index] = value
+	}
 
 	override fun iterator(): Iterator<Double> = data.take(length).iterator()
 

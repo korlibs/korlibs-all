@@ -48,7 +48,13 @@ class IntArrayList(capacity: Int = 7) : NumberArrayList(), Collection<Int> {
 	fun add(values: Iterable<Int>) = run { for (v in values) add(v) }
 
 	operator fun get(index: Int) = data[index]
-	operator fun set(index: Int, value: Int) = run { data[index] = value }
+	operator fun set(index: Int, value: Int) = run {
+		if (index >= length) {
+			ensure(index + 1)
+			length = index + 1
+		}
+		data[index] = value
+	}
 
 	override fun iterator(): Iterator<Int> = data.take(length).iterator()
 
