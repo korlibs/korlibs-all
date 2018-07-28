@@ -393,12 +393,15 @@ class Context2d(val renderer: Renderer) : Disposable {
 	fun getTextBounds(text: String, out: TextMetrics = TextMetrics()): TextMetrics =
 		out.apply { renderer.getBounds(font, text, out) }
 
+	@Suppress("NOTHING_TO_INLINE") // Number inlining
 	inline fun fillText(text: String, x: Number, y: Number): Unit =
 		renderText(text, x.toDouble(), y.toDouble(), fill = true)
 
+	@Suppress("NOTHING_TO_INLINE") // Number inlining
 	inline fun strokeText(text: String, x: Number, y: Number): Unit =
 		renderText(text, x.toDouble(), y.toDouble(), fill = false)
 
+	@Suppress("NOTHING_TO_INLINE") // Number inlining
 	inline fun fillText(
 		text: String,
 		x: Number,

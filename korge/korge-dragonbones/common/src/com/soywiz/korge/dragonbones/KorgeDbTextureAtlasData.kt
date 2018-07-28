@@ -38,11 +38,11 @@ import com.soywiz.korma.geom.*
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class DragonbonesTextureAtlasData : TextureAtlasData() {
+class KorgeDbTextureAtlasData : TextureAtlasData() {
 	companion object {
 		init {
 			//BaseObject.register(TextureData::class) { DragonbonesTextureData() }
-			BaseObject.register<TextureData> { DragonbonesTextureData() }
+			BaseObject.register<TextureData> { KorgeDbTextureData() }
 		}
 	}
 
@@ -87,20 +87,21 @@ class DragonbonesTextureAtlasData : TextureAtlasData() {
 
 			if (this._renderTexture !== null) {
 				for (k in this.textures.keys) {
-					val textureData = this.textures[k] as DragonbonesTextureData
+					val textureData = this.textures[k] as KorgeDbTextureData
 
 					textureData.renderTexture = BitmapSliceCompat(
 						this._renderTexture!!,
 						Rectangle(textureData.region.x, textureData.region.y, textureData.region.width, textureData.region.height),
 						Rectangle(textureData.region.x, textureData.region.y, textureData.region.width, textureData.region.height),
 						Rectangle(0, 0, textureData.region.width, textureData.region.height),
-						textureData.rotated
+						textureData.rotated,
+						name = k
 					)
 				}
 			}
 			else {
 				for (k in this.textures.keys) {
-					val textureData = this.textures[k] as DragonbonesTextureData
+					val textureData = this.textures[k] as KorgeDbTextureData
 					textureData.renderTexture = null
 				}
 			}
@@ -109,7 +110,7 @@ class DragonbonesTextureAtlasData : TextureAtlasData() {
 /**
  * @internal
  */
-class DragonbonesTextureData : TextureData() {
+class KorgeDbTextureData : TextureData() {
 	override fun toString(): String = "[class DragonbonesTextureData]"
 
 	var renderTexture: Tex? = null // Initial value.

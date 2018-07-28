@@ -842,22 +842,18 @@ class Armature  : BaseObject(), IAnimatable {
 	/**
 	 * @private
 	 */
-	var replacedTexture: Any get() = this._replacedTexture!!
+	var replacedTexture: Any? get() = this._replacedTexture
 		set (value) {
-			if (this._replacedTexture == value) {
-				return
-			}
-
-			if (this._replaceTextureAtlasData != null) {
+			if (this._replacedTexture != value) {
 				this._replaceTextureAtlasData?.returnToPool()
 				this._replaceTextureAtlasData = null
-			}
 
-			this._replacedTexture = value
+				this._replacedTexture = value
 
-			for (slot in this._slots) {
-				slot.invalidUpdate()
-				slot.update(-1)
+				for (slot in this._slots) {
+					slot.invalidUpdate()
+					slot.update(-1)
+				}
 			}
 		}
 	/**

@@ -85,7 +85,7 @@ abstract class Bitmap(
 	open fun getContext2d(antialiasing: Boolean = true): Context2d =
 		throw UnsupportedOperationException("Not implemented context2d on Bitmap, please use NativeImage instead")
 
-	open fun createWithThisFormat(width: Int, height: Int): Bitmap = invalidOp("Unsupported createWithThisFormat")
+	open fun createWithThisFormat(width: Int, height: Int): Bitmap = invalidOp("Unsupported createWithThisFormat ($this)")
 
 	fun toBMP32(): Bitmap32 = when (this) {
 		is Bitmap32 -> this

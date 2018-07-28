@@ -177,17 +177,6 @@ class Views(
 		agBitmapTextureManager.afterRender()
 	}
 
-	fun dump(emit: (String) -> Unit = ::println) = dumpView(stage, emit)
-
-	fun dumpView(view: View, emit: (String) -> Unit = ::println, indent: String = "") {
-		emit("$indent$view")
-		if (view is Container) {
-			for (child in view.children) {
-				dumpView(child, emit, "$indent ")
-			}
-		}
-	}
-
 	fun frameUpdateAndRender(clear: Boolean, clearColor: RGBA, fixedSizeStep: Int? = null) {
 		views.stats.startFrame()
 		Korge.logger.trace { "ag.onRender" }

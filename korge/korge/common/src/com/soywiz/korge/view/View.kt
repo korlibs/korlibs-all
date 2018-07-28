@@ -437,7 +437,7 @@ abstract class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by Eve
 		return out
 	}
 
-	private val Double.str get() = this.toString(2, skipTrailingZeros = true)
+	protected val Double.str get() = this.toString(2, skipTrailingZeros = true)
 
 	fun globalToLocal(p: Point2d, out: MPoint2d = MPoint2d()): MPoint2d = globalToLocalXY(p.x, p.y, out)
 	fun globalToLocalXY(x: Double, y: Double, out: MPoint2d = MPoint2d()): MPoint2d =
@@ -638,14 +638,19 @@ fun View?.ancestorsUpTo(target: View?): List<View> {
 
 val View?.ancestors: List<View> get() = ancestorsUpTo(null)
 
-fun View?.dump(views: Views, emit: (String) -> Unit = ::println) {
-	if (this != null) views.dumpView(this, emit)
+fun View?.dump(indent: String = "", emit: (String) -> Unit = ::println) {
+	emit("$indent$this")
+	if (this is Container) {
+		for (child in this.children) {
+			child.dump("$indent ", emit)
+		}
+	}
 }
 
-fun View?.dumpToString(views: Views): String {
+fun View?.dumpToString(): String {
 	if (this == null) return ""
 	val out = arrayListOf<String>()
-	dump(views) { out += it }
+	dump { out += it }
 	return out.joinToString("\n")
 }
 
@@ -722,24 +727,31 @@ fun View?.descendantsWith(out: ArrayList<View> = arrayListOf(), check: (View) ->
 inline fun <T : View> T.xy(x: Number, y: Number): T =
 	this.apply { this.x = x.toDouble() }.apply { this.y = y.toDouble() }
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun <T : View> T.position(x: Number, y: Number): T =
 	this.apply { this.x = x.toDouble() }.apply { this.y = y.toDouble() }
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun <T : View> T.rotation(rot: Angle): T =
 	this.apply { this.rotation = rot.radians }
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun <T : View> T.rotation(rot: Number): T =
 	this.apply { this.rotation = rot.toDouble() }
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun <T : View> T.rotationDegrees(degs: Number): T =
 	this.apply { this.rotationDegrees = degs.toDouble() }
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun <T : View> T.skew(sx: Number, sy: Number): T =
 	this.apply { this.skewX = sx.toDouble() }.apply { this.skewY = sy.toDouble() }
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun <T : View> T.scale(sx: Number, sy: Number = sx): T =
 	this.apply { this.scaleX = sx.toDouble() }.apply { this.scaleY = sy.toDouble() }
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun <T : View> T.alpha(alpha: Number): T =
 	this.apply { this.alpha = alpha.toDouble() }
 

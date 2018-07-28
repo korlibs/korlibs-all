@@ -9,7 +9,7 @@ open class RectBase(
 	anchorY: Double = anchorX,
 	var hitShape: VectorPath? = null,
 	var smoothing: Boolean = true
-) : View() {
+) : Container() {
 	//abstract val width: Double
 	//abstract val height: Double
 
@@ -44,6 +44,7 @@ open class RectBase(
 
 	override fun render(ctx: RenderContext) {
 		if (!visible) return
+		super.render(ctx)
 		computeVertexIfRequired()
 		ctx.batch.drawVertices(vertices, ctx.getTex(baseBitmap).base, smoothing, computedBlendMode.factors)
 	}

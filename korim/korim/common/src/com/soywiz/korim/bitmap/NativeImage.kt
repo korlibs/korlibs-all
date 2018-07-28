@@ -12,6 +12,7 @@ abstract class NativeImage(width: Int, height: Int, val data: Any?, premultiplie
 	override fun swapRows(y0: Int, y1: Int) = throw UnsupportedOperationException()
 	fun toBmp32(): Bitmap32 = toNonNativeBmp().toBMP32()
 	open fun toUri(): String = "data:image/png;base64," + Base64.encode(PNG.encode(this, ImageEncodingProps("out.png")))
+	override fun createWithThisFormat(width: Int, height: Int): Bitmap = NativeImage(width, height)
 
 	override fun toString(): String = "$name($width, $height)"
 }

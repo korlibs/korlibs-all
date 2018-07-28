@@ -71,6 +71,8 @@ class BitmapSlice<out T : Bitmap>(override val bmp: T, val bounds: RectangleInt,
 
 	override val rotated: Boolean = false
 	override val rotatedAngle: Int = 0
+
+	override fun toString(): String = "BitmapSlice($name:${bounds.size})"
 }
 
 // http://pixijs.download/dev/docs/PIXI.Texture.html#Texture
@@ -79,11 +81,11 @@ fun BitmapSliceCompat(
 	frame: Rectangle,
 	orig: Rectangle,
 	trim: Rectangle,
-	rotated: Boolean
-) = BitmapSlice(bmp, frame.toInt())
+	rotated: Boolean,
+	name: String = "unknown"
+) = BitmapSlice(bmp, frame.toInt(), name = name)
 
-fun <T : Bitmap> T.slice(): BitmapSlice<T> = BitmapSlice(this, RectangleInt(0, 0, width, height))
-fun <T : Bitmap> T.slice(bounds: RectangleInt): BitmapSlice<T> = BitmapSlice<T>(this, bounds)
+fun <T : Bitmap> T.slice(bounds: RectangleInt = RectangleInt(0, 0, width, height), name: String = "unknown"): BitmapSlice<T> = BitmapSlice<T>(this, bounds, name)
 fun <T : Bitmap> T.sliceWithBounds(left: Int, top: Int, right: Int, bottom: Int): BitmapSlice<T> =
 	BitmapSlice<T>(this, RectangleInt(left, top, right - left, bottom - top))
 

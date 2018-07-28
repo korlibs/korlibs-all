@@ -206,7 +206,7 @@ abstract class TimelineState  : BaseObject() {
 		val _timelineData = this._timelineData
 		if (_timelineData != null) {
 			val dragonBonesData = this._animationData!!.parent!!.parent!! // May by the animation data is not belone to this armature data.
-			this._frameArray = dragonBonesData.frameArray!!
+			this._frameArray = dragonBonesData.frameArray
 			this._timelineArray = dragonBonesData.timelineArray
 			this._frameIndices = dragonBonesData.frameIndices
 			//

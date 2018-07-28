@@ -12,7 +12,7 @@ class TileSet(
 	val textures: List<BmpSlice?>,
 	val width: Int,
 	val height: Int,
-	val base: Bitmap = textures.filterNotNull().firstOrNull()?.bmp ?: Bitmaps.transparentBitmap
+	val base: Bitmap = textures.filterNotNull().firstOrNull()?.bmp ?: Bitmaps.transparent.bmp
 ) {
 	init {
 		if (textures.any { if (it != null) it.bmp != base else false }) {

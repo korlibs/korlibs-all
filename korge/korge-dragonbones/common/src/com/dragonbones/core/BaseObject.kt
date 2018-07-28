@@ -241,6 +241,8 @@ abstract class BaseObject {
 			register { WeightData() }
 			register { DragonBonesData() }
 			register { Armature() }
+			register { AnimationState() }
+			register { ActionTimelineState() }
 		}
 	}
 

@@ -42,17 +42,17 @@ import com.soywiz.korim.bitmap.*
  * @version DragonBones 3.0
  * @language zh_CN
  */
-open class DragonbonesFactory(dataParser: DataParser? = null) : BaseFactory(dataParser) {
-	companion object : DragonbonesFactory() {
+open class KorgeDbFactory(dataParser: DataParser? = null) : BaseFactory(dataParser) {
+	companion object : KorgeDbFactory() {
 		val factory = this
 		init {
-			BaseObject.register { DragonbonesSlot() }
-			BaseObject.register { DragonbonesTextureAtlasData() }
+			BaseObject.register { KorgeDbSlot() }
+			BaseObject.register { KorgeDbTextureAtlasData() }
 
 		}
 	}
 
-	val eventManager = DragonbonesArmatureDisplay()
+	val eventManager = KorgeDbArmatureDisplay()
 	private val _dragonBonesInstance: DragonBones = DragonBones(eventManager)
 	private fun _clockHandler(passedTime: Double) {
 		this._dragonBonesInstance.advanceTime(Klock.currentTimeMillisDouble() * passedTime * 0.001)
@@ -78,17 +78,17 @@ open class DragonbonesFactory(dataParser: DataParser? = null) : BaseFactory(data
 
 	}
 
-	protected override fun _buildTextureAtlasData(
+	override fun _buildTextureAtlasData(
 		textureAtlasData: TextureAtlasData?,
 		textureAtlas: Any?
-	): DragonbonesTextureAtlasData {
-		var textureAtlasData = textureAtlasData as? DragonbonesTextureAtlasData?
+	): KorgeDbTextureAtlasData {
+		var textureAtlasData = textureAtlasData as? KorgeDbTextureAtlasData?
 		val textureAtlas = textureAtlas as? Bitmap?
 
 		if (textureAtlasData != null) {
 			textureAtlasData.renderTexture = textureAtlas
 		} else {
-			textureAtlasData = BaseObject.borrowObject<DragonbonesTextureAtlasData>()
+			textureAtlasData = BaseObject.borrowObject<KorgeDbTextureAtlasData>()
 		}
 
 		return textureAtlasData
@@ -96,7 +96,7 @@ open class DragonbonesFactory(dataParser: DataParser? = null) : BaseFactory(data
 
 	override fun _buildArmature(dataPackage: BuildArmaturePackage): Armature {
 		val armature = BaseObject.borrowObject<Armature>()
-		val armatureDisplay = DragonbonesArmatureDisplay()
+		val armatureDisplay = KorgeDbArmatureDisplay()
 
 		armature.init(
 			dataPackage.armature!!,
@@ -106,11 +106,11 @@ open class DragonbonesFactory(dataParser: DataParser? = null) : BaseFactory(data
 		return armature
 	}
 
-	override fun _buildSlot(_dataPackage: BuildArmaturePackage, slotData: SlotData, armature: Armature): Slot {
-		val slot = BaseObject.borrowObject<DragonbonesSlot>()
+	override fun _buildSlot(dataPackage: BuildArmaturePackage, slotData: SlotData, armature: Armature): Slot {
+		val slot = BaseObject.borrowObject<KorgeDbSlot>()
 		slot.init(
 			slotData, armature,
-			Container(), Mesh(drawMode = Mesh.DrawModes.Triangles)
+			Image(Bitmaps.transparent), Mesh(drawMode = Mesh.DrawModes.Triangles)
 		)
 
 		return slot
@@ -152,12 +152,12 @@ open class DragonbonesFactory(dataParser: DataParser? = null) : BaseFactory(data
 		dragonBonesName: String = "",
 		skinName: String = "",
 		textureAtlasName: String = ""
-	): DragonbonesArmatureDisplay? {
+	): KorgeDbArmatureDisplay? {
 		val armature = this.buildArmature(armatureName, dragonBonesName, skinName, textureAtlasName)
 		if (armature !== null) {
 			this._dragonBones.clock.add(armature)
 
-			return armature.display as DragonbonesArmatureDisplay
+			return armature.display as KorgeDbArmatureDisplay
 		}
 
 		return null
@@ -180,7 +180,7 @@ open class DragonbonesFactory(dataParser: DataParser? = null) : BaseFactory(data
 		val textureData = this._getTextureData(
 			if (textureAtlasName !== null) textureAtlasName else "",
 			textureName
-		) as? DragonbonesTextureData?
+		) as? KorgeDbTextureData?
 		if (textureData != null && textureData.renderTexture !== null) {
 			return Image(textureData.renderTexture!!)
 		}
@@ -199,8 +199,8 @@ open class DragonbonesFactory(dataParser: DataParser? = null) : BaseFactory(data
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	val soundEventManager: DragonbonesArmatureDisplay
+	val soundEventManager: KorgeDbArmatureDisplay
 		get() {
-			return this._dragonBones.eventManager as DragonbonesArmatureDisplay
+			return this._dragonBones.eventManager as KorgeDbArmatureDisplay
 		}
 }

@@ -9,10 +9,10 @@
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
  * the Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
@@ -45,10 +45,10 @@ import kotlin.math.*
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class DragonbonesSlot : Slot() {
+class KorgeDbSlot : Slot() {
 	companion object {
 		init {
-			BaseObject.register { DragonbonesTextureAtlasData() }
+			BaseObject.register { KorgeDbTextureAtlasData() }
 		}
 	}
 
@@ -58,6 +58,9 @@ class DragonbonesSlot : Slot() {
 
 	private var _textureScale: Double = 1.0
 	private var _renderDisplay: DisplayObject? = null
+		set(value) {
+			field = value
+		}
 
 	override fun _onClear() {
 		super._onClear()
@@ -80,12 +83,12 @@ class DragonbonesSlot : Slot() {
 	}
 
 	override fun _addDisplay() {
-		val container = this._armature?.display as DragonbonesArmatureDisplay
+		val container = this._armature?.display as KorgeDbArmatureDisplay
 		container.addChild(this._renderDisplay!!)
 	}
 
 	override fun _replaceDisplay(value: Any) {
-		val container = this._armature?.display as DragonbonesArmatureDisplay
+		val container = this._armature?.display as KorgeDbArmatureDisplay
 		val prevDisplay = value as DisplayObject
 		container.addChild(this._renderDisplay!!)
 		container.swapChildren(this._renderDisplay!!, prevDisplay)
@@ -98,7 +101,7 @@ class DragonbonesSlot : Slot() {
 	}
 
 	override fun _updateZOrder() {
-		val container = this._armature?.display as DragonbonesArmatureDisplay
+		val container = this._armature?.display as KorgeDbArmatureDisplay
 		val index = container.getChildIndex(this._renderDisplay!!)
 		if (index == this._zOrder) {
 			return
@@ -146,23 +149,22 @@ class DragonbonesSlot : Slot() {
 	}
 
 	override fun _updateFrame() {
-		var currentTextureData = this._textureData as DragonbonesTextureData?
+		var currentTextureData = this._textureData as KorgeDbTextureData?
 
 		if (this._displayIndex >= 0 && this._display !== null && currentTextureData !== null) {
-			var currentTextureAtlasData = currentTextureData.parent as DragonbonesTextureAtlasData
+			var currentTextureAtlasData = currentTextureData.parent as KorgeDbTextureAtlasData
 
 			if (this._armature?.replacedTexture != null) { // Update replaced texture atlas.
 				if (this._armature?._replaceTextureAtlasData === null) {
-					currentTextureAtlasData = BaseObject.borrowObject<DragonbonesTextureAtlasData>()
-					currentTextureAtlasData.copyFrom(currentTextureData.parent as DragonbonesTextureAtlasData)
+					currentTextureAtlasData = BaseObject.borrowObject<KorgeDbTextureAtlasData>()
+					currentTextureAtlasData.copyFrom(currentTextureData.parent as KorgeDbTextureAtlasData)
 					currentTextureAtlasData.renderTexture = this._armature?.replacedTexture as? Bitmap?
 					this._armature?._replaceTextureAtlasData = currentTextureAtlasData
-				}
-				else {
-					currentTextureAtlasData = this._armature?._replaceTextureAtlasData as DragonbonesTextureAtlasData
+				} else {
+					currentTextureAtlasData = this._armature?._replaceTextureAtlasData as KorgeDbTextureAtlasData
 				}
 
-				currentTextureData = currentTextureAtlasData.getTexture(currentTextureData.name) as DragonbonesTextureData
+				currentTextureData = currentTextureAtlasData.getTexture(currentTextureData.name) as KorgeDbTextureData
 			}
 
 			val renderTexture = currentTextureData.renderTexture
@@ -171,9 +173,12 @@ class DragonbonesSlot : Slot() {
 					val data = this._geometryData!!.data!!
 					val intArray = data.intArray!!
 					val floatArray = data.floatArray!!
-					val vertexCount = intArray[this._geometryData!!.offset + BinaryOffset.GeometryVertexCount.index].toInt()
-					val triangleCount = intArray[this._geometryData!!.offset + BinaryOffset.GeometryTriangleCount.index].toInt()
-					var vertexOffset = intArray[this._geometryData!!.offset + BinaryOffset.GeometryFloatOffset.index].toInt()
+					val vertexCount =
+						intArray[this._geometryData!!.offset + BinaryOffset.GeometryVertexCount.index].toInt()
+					val triangleCount =
+						intArray[this._geometryData!!.offset + BinaryOffset.GeometryTriangleCount.index].toInt()
+					var vertexOffset =
+						intArray[this._geometryData!!.offset + BinaryOffset.GeometryFloatOffset.index].toInt()
 
 					if (vertexOffset < 0) {
 						vertexOffset += 65536 // Fixed out of bouds bug.
@@ -183,8 +188,10 @@ class DragonbonesSlot : Slot() {
 					val scale = this._armature!!._armatureData!!.scale
 
 					val meshDisplay = this._renderDisplay as Mesh
-					val textureAtlasWidth = if (currentTextureAtlasData.width > 0.0) currentTextureAtlasData.width else renderTexture.bmp.width
-					val textureAtlasHeight = if (currentTextureAtlasData.height > 0.0) currentTextureAtlasData.height else renderTexture.bmp.height
+					val textureAtlasWidth =
+						if (currentTextureAtlasData.width > 0.0) currentTextureAtlasData.width else renderTexture.bmp.width
+					val textureAtlasHeight =
+						if (currentTextureAtlasData.height > 0.0) currentTextureAtlasData.height else renderTexture.bmp.height
 					val region = currentTextureData.region
 
 					meshDisplay.vertices = Float32BufferAlloc(vertexCount * 2)
@@ -197,7 +204,8 @@ class DragonbonesSlot : Slot() {
 
 					//for (let i = 0; i < triangleCount * 3; ++i) {
 					for (i in 0 until triangleCount * 3) {
-						meshDisplay.indices[i] = intArray[this._geometryData!!.offset + BinaryOffset.GeometryVertexIndices.index + i].toInt()
+						meshDisplay.indices[i] =
+								intArray[this._geometryData!!.offset + BinaryOffset.GeometryVertexIndices.index + i].toInt()
 					}
 
 					//for (let i = 0, l = vertexCount * 2; i < l; i += 2) {
@@ -208,8 +216,7 @@ class DragonbonesSlot : Slot() {
 						if (currentTextureData.rotated) {
 							meshDisplay.uvs[i] = ((region.x + (1.0 - v) * region.width) / textureAtlasWidth).toFloat()
 							meshDisplay.uvs[i + 1] = ((region.y + u * region.height) / textureAtlasHeight).toFloat()
-						}
-						else {
+						} else {
 							meshDisplay.uvs[i] = ((region.x + u * region.width) / textureAtlasWidth).toFloat()
 							meshDisplay.uvs[i + 1] = ((region.y + v * region.height) / textureAtlasHeight).toFloat()
 						}
@@ -225,11 +232,11 @@ class DragonbonesSlot : Slot() {
 					if (isSkinned || isSurface) {
 						this._identityTransform()
 					}
-				}
-				else { // Normal texture.
+				} else { // Normal texture.
 					this._textureScale = currentTextureData.parent!!.scale * this._armature!!._armatureData!!.scale
 					val normalDisplay = this._renderDisplay as Image
-					normalDisplay.texture = renderTexture
+					normalDisplay?.texture = renderTexture
+					println("SET $renderTexture")
 				}
 
 				this._visibleDirty = true
@@ -245,8 +252,7 @@ class DragonbonesSlot : Slot() {
 			meshDisplay.x = 0.0
 			meshDisplay.y = 0.0
 			meshDisplay.visible = false
-		}
-		else {
+		} else {
 			val normalDisplay = this._renderDisplay as Image
 			//normalDisplay.bitmap = null as any
 			normalDisplay.bitmap = Bitmaps.transparent
@@ -311,8 +317,7 @@ class DragonbonesSlot : Slot() {
 				meshDisplay.vertices[iD++] = xG.toFloat()
 				meshDisplay.vertices[iD++] = yG.toFloat()
 			}
-		}
-		else {
+		} else {
 			val isSurface = this._parent?._boneData?.type !== BoneType.Bone
 			val data = geometryData.data!!
 			val intArray = data.intArray!!
@@ -325,7 +330,7 @@ class DragonbonesSlot : Slot() {
 			}
 
 			for (i in 0 until vertexCount * 2 step 2) {
-			//for (let i = 0, l = vertexCount * 2; i < l; i += 2) {
+				//for (let i = 0, l = vertexCount * 2; i < l; i += 2) {
 				var x: Double = floatArray[vertexOffset + i] * scale
 				var y: Double = floatArray[vertexOffset + i + 1] * scale
 
@@ -338,8 +343,7 @@ class DragonbonesSlot : Slot() {
 					val matrix = (this._parent as Surface)._getGlobalTransformMatrix(x, y)
 					meshDisplay.vertices[i] = (matrix.a * x + matrix.c * y + matrix.tx).toFloat()
 					meshDisplay.vertices[i + 1] = (matrix.b * x + matrix.d * y + matrix.ty).toFloat()
-				}
-				else {
+				} else {
 					meshDisplay.vertices[i] = x.toFloat()
 					meshDisplay.vertices[i + 1] = y.toFloat()
 				}
@@ -352,25 +356,28 @@ class DragonbonesSlot : Slot() {
 
 		val transform = this.global
 
-		if (this._renderDisplay === this._rawDisplay || this._renderDisplay === this._meshDisplay) {
-			val x = transform.x - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY)
-			val y = transform.y - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY)
-			this._renderDisplay?.setTransform(
-				x, y,
+		val _renderDisplay = this._renderDisplay ?: return
+
+		if (_renderDisplay === this._rawDisplay || _renderDisplay === this._meshDisplay) {
+			val x =
+				transform.x - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY)
+			val y =
+				transform.y - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY)
+			_renderDisplay.setTransform(
+				x,
+				y,
 				transform.scaleX * this._textureScale, transform.scaleY * this._textureScale,
 				transform.rotation,
 				transform.skew, 0.0
 			)
-		}
-		else {
-			this._renderDisplay?.position(transform.x, transform.y)
-			this._renderDisplay?.rotation(transform.rotation.radians)
-			this._renderDisplay?.skew(transform.skew, 0.0)
-			this._renderDisplay?.scale(transform.scaleX, transform.scaleY)
+		} else {
+			_renderDisplay
+				.position(transform.x, transform.y).rotation(transform.rotation.radians)
+				.skew(transform.skew, 0.0).scale(transform.scaleX, transform.scaleY)
 		}
 	}
 
-	override fun _identityTransform(): Unit {
+	override fun _identityTransform() {
 		this._renderDisplay?.setTransform(0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0)
 	}
 }

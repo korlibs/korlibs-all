@@ -30,12 +30,13 @@ import com.dragonbones.event.*
 import com.dragonbones.model.*
 import com.dragonbones.util.*
 import com.soywiz.korge.view.*
+import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
 
 /**
  * @inheritDoc
  */
-class DragonbonesArmatureDisplay : Container(), IArmatureProxy {
+class KorgeDbArmatureDisplay : Image(Bitmaps.transparent), IArmatureProxy {
 	/**
 	 * @private
 	 */
@@ -50,6 +51,16 @@ class DragonbonesArmatureDisplay : Container(), IArmatureProxy {
 	 */
 	override fun dbInit(armature: Armature) {
 		this._armature = armature
+	}
+
+	// Do not use the time from DragonBones, but the UpdateComponent
+	init {
+		addUpdatable {
+			_armature?.advanceTime(it.toDouble() / 1000.0)
+			if (_armature != null) {
+				dbUpdate()
+			}
+		}
 	}
 
 	/**
@@ -70,12 +81,13 @@ class DragonbonesArmatureDisplay : Container(), IArmatureProxy {
 	 * @inheritDoc
 	 */
 	override fun dbUpdate() {
+		val armature = this._armature ?: return
 		val drawed = DragonBones.debugDraw || this.debugDraw
 		if (drawed || this._debugDraw) {
 			this._debugDraw = drawed
 			if (this._debugDraw) {
 				if (this._debugDrawer === null) {
-					this._debugDrawer = Container()
+					this._debugDrawer = Image(Bitmaps.transparent)
 					val boneDrawer = Graphics()
 					this._debugDrawer?.addChild(boneDrawer)
 				}
@@ -84,7 +96,7 @@ class DragonbonesArmatureDisplay : Container(), IArmatureProxy {
 				val boneDrawer = this._debugDrawer?.getChildAt(0) as Graphics
 				boneDrawer.clear()
 
-				val bones = this._armature!!.getBones()
+				val bones = armature.getBones()
 				//for (let i = 0, l = bones.length; i < l; ++i) {
 				for (i in 0 until bones.length) {
 					val bone = bones[i]
@@ -103,7 +115,7 @@ class DragonbonesArmatureDisplay : Container(), IArmatureProxy {
 					boneDrawer.endFill()
 				}
 
-				val slots = this._armature!!.getSlots()
+				val slots = armature.getSlots()
 				//for (let i = 0, l = slots.length; i < l; ++i) {
 				for (i in 0 until slots.length) {
 					val slot = slots[i]
@@ -166,6 +178,7 @@ class DragonbonesArmatureDisplay : Container(), IArmatureProxy {
 						slot.updateGlobalTransform()
 
 						val transform = slot.global
+						//println("SET TRANSFORM: $transform")
 						child.setTransform(
 							transform.x, transform.y,
 							transform.scaleX, transform.scaleY,

@@ -35,7 +35,78 @@ import kotlin.math.*
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class Transform : XY {
+class Transform
+/**
+ * @private
+ */(
+	/**
+	 * - 水平位移。
+	 * @version DragonBones 3.0
+	 * @language zh_CN
+	 */
+
+	/**
+	 * - Horizontal translate.
+	 * @version DragonBones 3.0
+	 * @language en_US
+	 */
+	override var x: Double = 0.0,
+	/**
+	 * - 垂直位移。
+	 * @version DragonBones 3.0
+	 * @language zh_CN
+	 */
+	/**
+	 * - Vertical translate.
+	 * @version DragonBones 3.0
+	 * @language en_US
+	 */
+	override var y: Double = 0.0,
+	/**
+	 * - 倾斜。 （以弧度为单位）
+	 * @version DragonBones 3.0
+	 * @language zh_CN
+	 */
+	/**
+	 * - Skew. (In radians)
+	 * @version DragonBones 3.0
+	 * @language en_US
+	 */
+	var skew: Double = 0.0,
+	/**
+	 * - 旋转。 （以弧度为单位）
+	 * @version DragonBones 3.0
+	 * @language zh_CN
+	 */
+	/**
+	 * - rotation. (In radians)
+	 * @version DragonBones 3.0
+	 * @language en_US
+	 */
+	var rotation: Double = 0.0,
+	/**
+	 * - 水平缩放。
+	 * @version DragonBones 3.0
+	 * @language zh_CN
+	 */
+	/**
+	 * - Horizontal Scaling.
+	 * @version DragonBones 3.0
+	 * @language en_US
+	 */
+	var scaleX: Double = 1.0,
+	/**
+	 * - 垂直缩放。
+	 * @version DragonBones 3.0
+	 * @language zh_CN
+	 */
+	/**
+	 * - Vertical scaling.
+	 * @version DragonBones 3.0
+	 * @language en_US
+	 */
+	var scaleY: Double = 1.0
+) : XY {
 	companion object {
 		/**
 		 * @private
@@ -73,98 +144,21 @@ class Transform : XY {
 		}
 	}
 
-	/**
-	 * - Horizontal translate.
-	 * @version DragonBones 3.0
-	 * @language en_US
-	 */
-	/**
-	 * - 水平位移。
-	 * @version DragonBones 3.0
-	 * @language zh_CN
-	 */
-	override var x: Double
-	/**
-	 * - Vertical translate.
-	 * @version DragonBones 3.0
-	 * @language en_US
-	 */
-	/**
-	 * - 垂直位移。
-	 * @version DragonBones 3.0
-	 * @language zh_CN
-	 */
-	override var y: Double
-	/**
-	 * - Skew. (In radians)
-	 * @version DragonBones 3.0
-	 * @language en_US
-	 */
-	/**
-	 * - 倾斜。 （以弧度为单位）
-	 * @version DragonBones 3.0
-	 * @language zh_CN
-	 */
-	var skew: Double
-	/**
-	 * - rotation. (In radians)
-	 * @version DragonBones 3.0
-	 * @language en_US
-	 */
-	/**
-	 * - 旋转。 （以弧度为单位）
-	 * @version DragonBones 3.0
-	 * @language zh_CN
-	 */
-	var rotation: Double
-	/**
-	 * - Horizontal Scaling.
-	 * @version DragonBones 3.0
-	 * @language en_US
-	 */
-	/**
-	 * - 水平缩放。
-	 * @version DragonBones 3.0
-	 * @language zh_CN
-	 */
-	var scaleX: Double
-	/**
-	 * - Vertical scaling.
-	 * @version DragonBones 3.0
-	 * @language en_US
-	 */
-	/**
-	 * - 垂直缩放。
-	 * @version DragonBones 3.0
-	 * @language zh_CN
-	 */
-	var scaleY: Double
-	/**
-	 * @private
-	 */
-	constructor(x: Double = 0.0, y: Double = 0.0, skew: Double = 0.0, rotation: Double = 0.0, scaleX: Double = 1.0, scaleY: Double = 1.0) {
+	override fun toString(): String {
+		return "[object dragonBones.Transform] x:" + this.x + " y:" + this.y + " skewX:" + this.skew * 180.0 / PI + " skewY:" + this.rotation * 180.0 / PI + " scaleX:" + this.scaleX + " scaleY:" + this.scaleY
+	}
+
+	fun setTo(x: Double, y: Double, skew: Double, rotation: Double, scaleX: Double, scaleY: Double): Transform {
 		this.x = x
 		this.y = y
 		this.skew = skew
 		this.rotation = rotation
 		this.scaleX = scaleX
 		this.scaleY = scaleY
-	}
 
-	override fun toString(): String {
-		return "[object dragonBones.Transform] x:" + this.x + " y:" + this.y + " skewX:" + this.skew * 180.0 / PI + " skewY:" + this.rotation * 180.0 / PI + " scaleX:" + this.scaleX + " scaleY:" + this.scaleY
-	}
-
-	/**
-	 * @private
-	 */
-	fun copyFrom(value: Transform): Transform {
-		this.x = value.x
-		this.y = value.y
-		this.skew = value.skew
-		this.rotation = value.rotation
-		this.scaleX = value.scaleX
-		this.scaleY = value.scaleY
+		if (x.isNaN() || y.isNaN() || skew.isNaN() || rotation.isNaN() || scaleX.isNaN() || scaleY.isNaN()) {
+			error("WARNING! NaN detected in Transform")
+		}
 
 		return this
 	}
@@ -172,44 +166,36 @@ class Transform : XY {
 	/**
 	 * @private
 	 */
-	fun identity(): Transform {
-		this.x = 0.0
-		this.y = 0.0
-		this.skew = 0.0
-		this.rotation = 0.0
-		this.scaleX = 0.0
-		this.scaleY = 1.0
-
-		return this
-	}
+	fun copyFrom(value: Transform): Transform = value.apply { this@Transform.setTo(x, y, skew, rotation, scaleX, scaleY) }
 
 	/**
 	 * @private
 	 */
-	fun add(value: Transform): Transform {
-		this.x += value.x
-		this.y += value.y
-		this.skew += value.skew
-		this.rotation += value.rotation
-		this.scaleX *= value.scaleX
-		this.scaleY *= value.scaleY
-
-		return this
-	}
+	fun identity(): Transform = setTo(0.0, 0.0, 0.0, 0.0, 1.0, 1.0)
 
 	/**
 	 * @private
 	 */
-	fun minus(value: Transform): Transform {
-		this.x -= value.x
-		this.y -= value.y
-		this.skew -= value.skew
-		this.rotation -= value.rotation
-		this.scaleX /= value.scaleX
-		this.scaleY /= value.scaleY
+	fun add(value: Transform): Transform = setTo(
+		x + value.x,
+		y + value.y,
+		skew + value.skew,
+		rotation + value.rotation,
+		scaleX * value.scaleX,
+		scaleY * value.scaleY
+	)
 
-		return this
-	}
+	/**
+	 * @private
+	 */
+	fun minus(value: Transform): Transform = setTo(
+		x - value.x,
+		y - value.y,
+		skew - value.skew,
+		rotation - value.rotation,
+		scaleX / value.scaleX,
+		scaleY / value.scaleY
+	)
 
 	/**
 	 * @private
@@ -234,7 +220,7 @@ class Transform : XY {
 
 		if (backupScaleY >= 0.0 && this.scaleY < 0.0) {
 			this.scaleY = -this.scaleY
-			skewX = skewX - PI
+			skewX -= PI
 		}
 
 		this.skew = skewX - this.rotation
