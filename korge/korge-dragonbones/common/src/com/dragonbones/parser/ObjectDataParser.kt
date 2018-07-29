@@ -64,19 +64,19 @@ open class ObjectDataParser : DataParser() {
 			if (this is DoubleArray) return this
 			if (this is DoubleArrayList) return this.toDoubleArray()
 			if (this is List<*>) return this.map { (it as Number).toDouble() }.toDoubleArray()
-			error("Can't cast to doubleArray")
+			error("Can't cast '$this' to doubleArray")
 		}
 		internal val Any?.doubleArrayList: DoubleArrayList get() {
 			if (this is DoubleArray) return DoubleArrayList(*this)
 			if (this is DoubleArrayList) return this
 			if (this is List<*>) return DoubleArrayList(*this.map { (it as Number).toDouble() }.toDoubleArray())
-			error("Can't cast to doubleArrayList")
+			error("Can't cast '$this' to doubleArrayList")
 		}
 		internal val Any?.intArrayList: IntArrayList get() {
 			if (this is IntArray) return IntArrayList(*this)
 			if (this is IntArrayList) return this
 			if (this is List<*>) return IntArrayList(*this.map { (it as Number).toInt() }.toIntArray())
-			error("Can't cast to doubleArrayList")
+			error("Can't '$this' cast to intArrayList")
 		}
 
 		fun _getBoolean(rawData: Any?, key: String, defaultValue: Boolean): Boolean {
@@ -1830,7 +1830,7 @@ open class ObjectDataParser : DataParser() {
 	protected fun _parseSlotDeformFrame(rawData: Any?, frameStart: Int, frameCount: Int): Int {
 		val frameFloatOffset = this._frameFloatArray.length
 		val frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount)
-		val rawVertices = rawData[DataParser.VERTICES] as? DoubleArray?
+		val rawVertices = rawData[DataParser.VERTICES].doubleArray
 		val offset = ObjectDataParser._getInt(rawData, DataParser.OFFSET, 0) // uint
 		val vertexCount = this._intArray[this._mesh!!.geometry.offset + BinaryOffset.GeometryVertexCount.index]
 		val meshName = "" + this._mesh?.parent?.name + "_" + this._slot?.name + "_" + this._mesh?.name
@@ -2015,8 +2015,8 @@ open class ObjectDataParser : DataParser() {
 		val frameFloatOffset = this._frameFloatArray.length
 		val frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount)
 		val rawVertices = if (DataParser.VERTICES in rawData)
-			rawData[DataParser.VERTICES] as? DoubleArrayList? else
-			rawData[DataParser.VALUE] as? DoubleArrayList?
+			rawData[DataParser.VERTICES]?.doubleArrayList else
+			rawData[DataParser.VALUE]?.doubleArrayList
 		val offset = ObjectDataParser._getNumber(rawData, DataParser.OFFSET, 0.0).toInt() // uint
 		val vertexCount = this._intArray[this._geometry!!.offset + BinaryOffset.GeometryVertexCount.index]
 		val weight = this._geometry!!.weight

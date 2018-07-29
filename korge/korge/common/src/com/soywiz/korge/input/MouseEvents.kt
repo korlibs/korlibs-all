@@ -22,6 +22,8 @@ class MouseEvents(override val view: View) : MouseComponent, UpdateComponentWith
 	val upOutside = Signal<MouseEvents>()
 	val upAnywhere = Signal<MouseEvents>()
 	val move = Signal<MouseEvents>()
+	val moveAnywhere = Signal<MouseEvents>()
+	val mouseOutside = Signal<MouseEvents>()
 
 	val onClick = click
 	val onOver = over
@@ -32,6 +34,8 @@ class MouseEvents(override val view: View) : MouseComponent, UpdateComponentWith
 	val onUpOutside = upOutside
 	val onUpAnywhere = upAnywhere
 	val onMove = move
+	val onMoveAnywhere = moveAnywhere
+	val onMoveOutside = mouseOutside
 
 
 	var hitTestType = View.HitTestType.BOUNDING
@@ -171,6 +175,8 @@ class MouseEvents(override val view: View) : MouseComponent, UpdateComponentWith
 		//println("MouseComponent: $hitTest, $over")
 
 		if (!overChanged && over && currentPos != lastPos) onMove(this)
+		if (!overChanged && !over && currentPos != lastPos) onMoveOutside(this)
+		if (currentPos != lastPos) onMoveAnywhere(this)
 		if (overChanged && over) onOver(this)
 		if (overChanged && !over) onOut(this)
 		if (over && pressingChanged && pressing) {

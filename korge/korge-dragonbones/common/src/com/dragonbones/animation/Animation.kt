@@ -465,9 +465,7 @@ class Animation : BaseObject() {
 
 		for (k in animationData.animationTimelines.keys) { // Blend animation node.
 			val childAnimationState = this.fadeIn(k, 0.0, 1, animationState.layer, "", AnimationFadeOutMode.Single)
-			if (childAnimationState == null) {
-				continue
-			}
+					?: continue
 
 			val timelines = animationData.animationTimelines[k]
 			childAnimationState.actionEnabled = false
