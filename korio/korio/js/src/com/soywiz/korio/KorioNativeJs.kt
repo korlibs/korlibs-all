@@ -119,7 +119,7 @@ actual object KorioNative {
 	actual fun localVfs(path: String): VfsFile {
 		return when {
 			isNodeJs -> NodeJsLocalVfs()[path]
-			else -> UrlVfs(path)
+			else -> UrlVfs(document.location?.href ?: ".")[path]
 		}
 	}
 

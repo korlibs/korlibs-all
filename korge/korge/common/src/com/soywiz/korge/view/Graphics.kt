@@ -39,6 +39,15 @@ class Graphics : Image(Bitmaps.transparent) {
 	// Inline Class ERROR: Platform declaration clash: The following declarations have the same JVM signature (beginFill(ID)Lcom/soywiz/korge/view/Graphics;):
 	//fun beginFill(color: Int, alpha: Double) = beginFill(RGBA(color), alpha)
 
+	inline fun fill(color: RGBA, alpha: Number = 1.0, callback: () -> Unit) {
+		beginFill(color, alpha.toDouble())
+		try {
+			callback()
+		} finally {
+			endFill()
+		}
+	}
+
 	fun beginFill(color: RGBA, alpha: Double) = dirty {
 		fill = Context2d.Color(RGBA(color.r, color.g, color.b, (alpha * 255).toInt()))
 		currentPath = GraphicsPath()
@@ -50,6 +59,14 @@ class Graphics : Image(Bitmaps.transparent) {
 
 	fun drawRect(x: Double, y: Double, width: Double, height: Double) = dirty {
 		currentPath.rect(x, y, width, height)
+	}
+
+	fun drawShape(shape: VectorPath) = dirty {
+		currentPath.write(shape)
+	}
+
+	fun drawRoundRect(x: Double, y: Double, width: Double, height: Double, rx: Double, ry: Double) = dirty {
+		currentPath.roundRect(x, y, width, height, rx, ry)
 	}
 
 	fun drawEllipse(x: Double, y: Double, rw: Double, rh: Double) = dirty {
@@ -81,12 +98,12 @@ class Graphics : Image(Bitmaps.transparent) {
 		super.render(ctx)
 	}
 
-	override fun hitTestInternal(x: Double, y: Double): View? {
-		val lx = globalToLocalX(x, y)
-		val ly = globalToLocalY(x, y)
-		for (shape in shapes) {
-			if (shape.containsPoint(lx, ly)) return this
-		}
-		return null
-	}
+	//override fun hitTestInternal(x: Double, y: Double): View? {
+	//	val lx = globalToLocalX(x, y)
+	//	val ly = globalToLocalY(x, y)
+	//	for (shape in shapes) {
+	//		if (shape.containsPoint(lx, ly)) return this
+	//	}
+	//	return null
+	//}
 }

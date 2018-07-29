@@ -8,6 +8,12 @@ import com.soywiz.korinject.*
 import com.soywiz.korio.async.*
 import kotlin.reflect.*
 
+inline fun Container.sceneContainer(
+	views: Views,
+	callback: SceneContainer.() -> Unit = {}
+): SceneContainer = SceneContainer(views).addTo(this).apply(callback)
+
+//typealias Sprite = Image
 class SceneContainer(val views: Views) : Container() {
 	val transitionView = TransitionView()
 	var currentScene: Scene? = null

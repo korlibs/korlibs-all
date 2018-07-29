@@ -7,11 +7,8 @@ import com.soywiz.korio.net.*
 import com.soywiz.korio.net.http.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
-import com.soywiz.korio.file.*
 
-fun UrlVfs(url: String): VfsFile = UrlVfs(URI(url))
-fun UrlVfs(url: String, client: HttpClient): VfsFile =
-	UrlVfs(URI(url), client)
+fun UrlVfs(url: String, client: HttpClient = createHttpClient()): VfsFile = UrlVfs(URI(url), client)
 
 fun UrlVfs(url: URI, client: HttpClient = createHttpClient()): VfsFile =
 	UrlVfs(url.copy(path = "", query = null).fullUri, Unit, client)[url.path]
