@@ -542,7 +542,8 @@ abstract class BaseFactory {
 	fun removeDragonBonesData(name: String, disposeData: Boolean = true): Unit {
 		if (name in this._dragonBonesDataMap) {
 			if (disposeData) {
-				this._dragonBones.bufferObject(this._dragonBonesDataMap[name])
+				//this._dragonBones.bufferObject(this._dragonBonesDataMap[name])
+				this._dragonBonesDataMap[name]?.returnToPool()
 			}
 
 			this._dragonBonesDataMap.remove(name)
@@ -625,7 +626,8 @@ abstract class BaseFactory {
 			val textureAtlasDataList = this._textureAtlasDataMap[name]!!
 			if (disposeData) {
 				for (textureAtlasData in textureAtlasDataList) {
-					this._dragonBones.bufferObject(textureAtlasData)
+					//this._dragonBones.bufferObject(textureAtlasData)
+					textureAtlasData.returnToPool()
 				}
 			}
 
@@ -671,7 +673,8 @@ abstract class BaseFactory {
 	fun clear(disposeData: Boolean = true): Unit {
 		for (k in this._dragonBonesDataMap.keys) {
 			if (disposeData) {
-				this._dragonBones.bufferObject(this._dragonBonesDataMap[k])
+				//this._dragonBones.bufferObject(this._dragonBonesDataMap[k])
+				this._dragonBonesDataMap[k]?.returnToPool()
 			}
 		}
 		this._dragonBonesDataMap.clear()
@@ -680,7 +683,8 @@ abstract class BaseFactory {
 			if (disposeData) {
 				val textureAtlasDataList = this._textureAtlasDataMap!![k]!!
 				for (textureAtlasData in textureAtlasDataList) {
-					this._dragonBones.bufferObject(textureAtlasData)
+					//this._dragonBones.bufferObject(textureAtlasData)
+					textureAtlasData.returnToPool()
 				}
 			}
 		}

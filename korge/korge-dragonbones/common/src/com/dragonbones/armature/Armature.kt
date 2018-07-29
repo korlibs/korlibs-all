@@ -265,7 +265,8 @@ class Armature  : BaseObject(), IAnimatable {
 	fun dispose() {
 		if (this._armatureData != null) {
 			this._lockUpdate = true
-			this._dragonBones?.bufferObject(this)
+			//this._dragonBones?.bufferObject(this)
+			this.returnToPool()
 		}
 	}
 

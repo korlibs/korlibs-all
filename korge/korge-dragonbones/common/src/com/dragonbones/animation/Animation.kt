@@ -204,7 +204,8 @@ class Animation : BaseObject() {
 		if (animationStateCount == 1) {
 			val animationState = this._animationStates[0]
 			if (animationState._fadeState > 0 && animationState._subFadeState > 0) {
-				this._armature?._dragonBones?.bufferObject(animationState)
+				//this._armature?._dragonBones?.bufferObject(animationState)
+				animationState.returnToPool()
 				this._animationStates.length = 0
 				this._lastAnimationState = null
 			}
@@ -245,7 +246,8 @@ class Animation : BaseObject() {
 				val animationState = this._animationStates[i]
 				if (animationState._fadeState > 0 && animationState._subFadeState > 0) {
 					r++
-					this._armature?._dragonBones?.bufferObject(animationState)
+					//this._armature?._dragonBones?.bufferObject(animationState)
+					animationState.returnToPool()
 					this._animationDirty = true
 
 					if (this._lastAnimationState == animationState) { // Update last animation state.
@@ -287,7 +289,7 @@ class Animation : BaseObject() {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	fun reset(): Unit {
+	fun reset() {
 		for (animationState in this._animationStates) {
 			animationState.returnToPool()
 		}
