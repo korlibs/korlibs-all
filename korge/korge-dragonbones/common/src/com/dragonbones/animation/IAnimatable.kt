@@ -51,7 +51,7 @@ interface IAnimatable {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	fun advanceTime(passedTime: Double): Unit
+	fun advanceTime(passedTime: Double)
 	/**
 	 * - The Wordclock instance to which the current belongs.
 	 * @example

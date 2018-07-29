@@ -324,6 +324,9 @@ class Matrix {
 		}
 	}
 
+	fun transformX(x: Double, y: Double): Double = (this.a * x + this.c * y + this.tx)
+	fun transformY(x: Double, y: Double): Double = (this.b * x + this.d * y + this.ty)
+
 	/**
 	 * @private
 	 */

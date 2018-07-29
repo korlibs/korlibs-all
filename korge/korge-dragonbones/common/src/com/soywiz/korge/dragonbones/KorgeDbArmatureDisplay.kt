@@ -32,6 +32,7 @@ import com.dragonbones.util.*
 import com.soywiz.korge.view.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
+import com.soywiz.korma.*
 
 /**
  * @inheritDoc
@@ -56,7 +57,8 @@ class KorgeDbArmatureDisplay : Image(Bitmaps.transparent), IArmatureProxy {
 	// Do not use the time from DragonBones, but the UpdateComponent
 	init {
 		addUpdatable {
-			_armature?.advanceTimeForChildren(it.toDouble() / 1000.0)
+			//_armature?.advanceTimeForChildren(it.toDouble() / 1000.0)
+			_armature?.advanceTime(it.toDouble() / 1000.0)
 		}
 	}
 
@@ -175,14 +177,10 @@ class KorgeDbArmatureDisplay : Image(Bitmaps.transparent), IArmatureProxy {
 						slot.updateGlobalTransform()
 
 						val transform = slot.global
+						val m = Matrix2d()
+						slot.globalTransformMatrix.toMatrix2d(m)
 						//println("SET TRANSFORM: $transform")
-						child.setTransform(
-							transform.x, transform.y,
-							transform.scaleX, transform.scaleY,
-							transform.rotation,
-							transform.skew, 0.0,
-							slot._pivotX, slot._pivotY
-						)
+						child.setMatrix(m)
 					} else {
 						val child = this._debugDrawer?.getChildByName(slot.name)
 						if (child != null) {

@@ -283,8 +283,8 @@ abstract class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by Eve
 		invalidate()
 	}
 
-	fun setTransform(x: Double, y: Double, sx: Double, sy: Double, angle: Double, skewX: Double, skewY: Double, pivotX: Double = 0.0, pivotY: Double = 0.0) =
-		setTransform(tempTransform.setTo(x, y, sx, sy, skewX, skewY, angle))
+	//fun setTransform(x: Double, y: Double, sx: Double, sy: Double, angle: Double, skewX: Double, skewY: Double, pivotX: Double = 0.0, pivotY: Double = 0.0) =
+	//	setTransform(tempTransform.setTo(x, y, sx, sy, skewX, skewY, angle))
 
 	private var _localMatrix = Matrix2d()
 	var _globalMatrix = Matrix2d()

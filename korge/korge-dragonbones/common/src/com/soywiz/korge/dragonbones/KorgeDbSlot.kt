@@ -33,7 +33,6 @@ import com.soywiz.korge.view.BlendMode
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
 import com.soywiz.korma.*
-import com.soywiz.korma.geom.*
 import kotlin.math.*
 
 /**
@@ -227,6 +226,7 @@ class KorgeDbSlot : Slot() {
 					meshDisplay.texture = renderTexture
 					meshDisplay.dirty++
 					meshDisplay.indexDirty++
+					meshDisplay.name = this.name
 
 					val isSkinned = this._geometryData!!.weight !== null
 					val isSurface = this._parent?._boneData?.type != BoneType.Bone
@@ -236,8 +236,9 @@ class KorgeDbSlot : Slot() {
 				} else { // Normal texture.
 					this._textureScale = currentTextureData.parent!!.scale * this._armature!!._armatureData!!.scale
 					val normalDisplay = this._renderDisplay as Image
-					normalDisplay?.texture = renderTexture
-					normalDisplay.name = renderTexture.name
+					normalDisplay.texture = renderTexture
+					//normalDisplay.name = renderTexture.name
+					normalDisplay.name = this.name
 				}
 
 				this._visibleDirty = true
@@ -264,7 +265,6 @@ class KorgeDbSlot : Slot() {
 	}
 
 	override fun _updateMesh() {
-		println("_updateMesh:" + this.name)
 		val scale = this._armature!!._armatureData!!.scale
 		val deformVertices = (this._displayFrame as DisplayFrame).deformVertices
 		val bones = this._geometryBones
@@ -273,6 +273,8 @@ class KorgeDbSlot : Slot() {
 
 		val hasDeform = deformVertices.length > 0 && geometryData.inheritDeform
 		val meshDisplay = this._renderDisplay as Mesh
+
+		//println("_updateMesh:" + this.name + ", hasDeform=$hasDeform, weightData=${weightData?.count}, deformVertices=${deformVertices.size}")
 
 		if (weightData !== null) {
 			val data = geometryData.data!!
@@ -298,22 +300,20 @@ class KorgeDbSlot : Slot() {
 				//for (let j = 0; j < boneCount; ++j) {
 				for (j in 0 until boneCount) {
 					val boneIndex = intArray[iB++].toInt()
-					val bone = bones[boneIndex]
+					val bone = bones[boneIndex] ?: continue
 
-					if (bone !== null) {
-						val matrix = bone.globalTransformMatrix
-						val weight = floatArray[iV++]
-						var xL = floatArray[iV++] * scale
-						var yL = floatArray[iV++] * scale
+					val matrix = bone.globalTransformMatrix
+					val weight = floatArray[iV++]
+					var xL = floatArray[iV++] * scale
+					var yL = floatArray[iV++] * scale
 
-						if (hasDeform) {
-							xL += deformVertices[iF++]
-							yL += deformVertices[iF++]
-						}
-
-						xG += (matrix.a * xL + matrix.c * yL + matrix.tx) * weight
-						yG += (matrix.b * xL + matrix.d * yL + matrix.ty) * weight
+					if (hasDeform) {
+						xL += deformVertices[iF++]
+						yL += deformVertices[iF++]
 					}
+
+					xG += matrix.transformX(xL, yL) * weight
+					yG += matrix.transformY(xL, yL) * weight
 				}
 
 				meshDisplay.vertices[iD++] = xG.toFloat()
@@ -345,8 +345,9 @@ class KorgeDbSlot : Slot() {
 
 				if (isSurface) {
 					val matrix = (this._parent as Surface)._getGlobalTransformMatrix(x, y)
-					meshDisplay.vertices[i + 0] = (matrix.a * x + matrix.c * y + matrix.tx).toFloat()
-					meshDisplay.vertices[i + 1] = (matrix.b * x + matrix.d * y + matrix.ty).toFloat()
+
+					meshDisplay.vertices[i + 0] = matrix.transformX(x, y).toFloat()
+					meshDisplay.vertices[i + 1] = matrix.transformY(x, y).toFloat()
 				} else {
 					meshDisplay.vertices[i + 0] = x.toFloat()
 					meshDisplay.vertices[i + 1] = y.toFloat()
@@ -362,27 +363,27 @@ class KorgeDbSlot : Slot() {
 
 		val transform = this.global
 
-		val _renderDisplay = this._renderDisplay ?: return
-
-		if (_renderDisplay === this._rawDisplay || _renderDisplay === this._meshDisplay) {
-			globalTransformMatrix.toMatrix2d(m)
-			_renderDisplay.setMatrix(m)
-			(_renderDisplay as? Image?)?.anchor(_pivotX / _renderDisplay.width, _pivotY / _renderDisplay.height)
-			(_renderDisplay as? Mesh?)?.pivot(_pivotX, _pivotY)
+		if (this._renderDisplay === this._rawDisplay || this._renderDisplay === this._meshDisplay) {
+			val x =
+				transform.x - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY)
+			val y =
+				transform.y - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY)
+			this._renderDisplay
+				?.position(x, y)
+				?.scale(transform.scaleX * this._textureScale, transform.scaleY * this._textureScale)
+				?.rotation(transform.rotation)
+				?.skew(-transform.skew, 0.0)
 		} else {
-			globalTransformMatrix.toMatrix2d(m)
-			_renderDisplay.setMatrix(m)
-			/*
-			_renderDisplay
-				.position(transform.x, transform.y).rotation(transform.rotation.radians)
-				.skew(transform.skew, 0.0).scale(transform.scaleX, transform.scaleY)
-				*/
+			this._renderDisplay
+				?.position(transform.x, transform.y)
+				?.scale(transform.scaleX, transform.scaleY)
+				?.rotation(transform.rotation)
+				?.skew(-transform.skew, 0.0)
 		}
-		//val rb = _renderDisplay as? RectBase?
-		//rb?.anchor(_pivotX / rb.width, _pivotY / rb.height)
 	}
 
 	override fun _identityTransform() {
-		this._renderDisplay?.setTransform(0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0)
+		m.setToIdentity()
+		this._renderDisplay?.setMatrix(m)
 	}
 }

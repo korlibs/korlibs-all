@@ -177,6 +177,7 @@ class Animation : BaseObject() {
 	 * @internal
 	 */
 	fun advanceTime(passedTime: Double): Unit {
+		//println(this.animationNames)
 		var passedTime = passedTime
 		if (passedTime < 0.0) { // Only animationState can reverse play.
 			passedTime = -passedTime

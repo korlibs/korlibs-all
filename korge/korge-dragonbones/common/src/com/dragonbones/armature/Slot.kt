@@ -405,6 +405,7 @@ abstract class Slot  :  TransformObject() {
 	}
 
 	protected fun _updateDisplayData(): Unit {
+		//println("_updateDisplayData:$name,_displayIndex=$_displayIndex")
 		val prevDisplayFrame = this._displayFrame
 		val prevGeometryData = this._geometryData
 		val prevTextureData = _textureData
