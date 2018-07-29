@@ -125,10 +125,10 @@ class HelloWorldScene : BaseDbScene() {
     val SCALE = 1.6
     override suspend fun Container.sceneInit() {
         val data =
-            factory.parseDragonBonesData(Json.parse(resourcesRoot["mecha_1002_101d_show/mecha_1002_101d_show_ske.json"].readString())!!)
+            factory.parseDragonBonesData(Json.parse(resources["mecha_1002_101d_show/mecha_1002_101d_show_ske.json"].readString())!!)
         val atlas = factory.parseTextureAtlasData(
-            Json.parse(resourcesRoot["mecha_1002_101d_show/mecha_1002_101d_show_tex.json"].readString())!!,
-            resourcesRoot["mecha_1002_101d_show/mecha_1002_101d_show_tex.png"].readBitmapOptimized()
+            Json.parse(resources["mecha_1002_101d_show/mecha_1002_101d_show_tex.json"].readString())!!,
+            resources["mecha_1002_101d_show/mecha_1002_101d_show_tex.png"].readBitmapOptimized()
         )
         val armatureDisplay = factory.buildArmatureDisplay("mecha_1002_101d")!!
             .position(0, 300).scale(SCALE)
@@ -144,10 +144,10 @@ class ClassicDragonScene : BaseDbScene() {
     override suspend fun Container.sceneInit() {
         //val scale = 0.3
         val scale = 0.8
-        val data = factory.parseDragonBonesData(Json.parse(resourcesRoot["Dragon/Dragon_ske.json"].readString())!!)
+        val data = factory.parseDragonBonesData(Json.parse(resources["Dragon/Dragon_ske.json"].readString())!!)
         val atlas = factory.parseTextureAtlasData(
-            Json.parse(resourcesRoot["Dragon/Dragon_tex.json"].readString())!!,
-            resourcesRoot["Dragon/Dragon_tex.png"].readBitmapOptimized()
+            Json.parse(resources["Dragon/Dragon_tex.json"].readString())!!,
+            resources["Dragon/Dragon_tex.png"].readBitmapOptimized()
         )
         val armatureDisplay = factory.buildArmatureDisplay("Dragon", "Dragon")!!.position(0, 200).scale(scale)
         armatureDisplay.animation.play("walk")
@@ -172,15 +172,15 @@ class EyeTrackingScene : BaseDbScene() {
             "PARAM_BREATH"
         )
         factory.parseDragonBonesData(
-            Json.parse(resourcesRoot["shizuku/shizuku_ske.json"].readString())!!,
+            Json.parse(resources["shizuku/shizuku_ske.json"].readString())!!,
             "shizuku"
         )
         factory.updateTextureAtlases(
             arrayOf(
-                resourcesRoot["shizuku/shizuku.1024/texture_00.png"].readBitmapOptimized().mipmaps(),
-                resourcesRoot["shizuku/shizuku.1024/texture_01.png"].readBitmapOptimized().mipmaps(),
-                resourcesRoot["shizuku/shizuku.1024/texture_02.png"].readBitmapOptimized().mipmaps(),
-                resourcesRoot["shizuku/shizuku.1024/texture_03.png"].readBitmapOptimized().mipmaps()
+                resources["shizuku/shizuku.1024/texture_00.png"].readBitmapOptimized().mipmaps(),
+                resources["shizuku/shizuku.1024/texture_01.png"].readBitmapOptimized().mipmaps(),
+                resources["shizuku/shizuku.1024/texture_02.png"].readBitmapOptimized().mipmaps(),
+                resources["shizuku/shizuku.1024/texture_03.png"].readBitmapOptimized().mipmaps()
             ), "shizuku"
         )
         val armatureDisplay = factory.buildArmatureDisplay("shizuku", "shizuku")!!
@@ -280,11 +280,11 @@ class SkinChangingScene : BaseDbScene() {
         )
 
         factory.parseDragonBonesData(
-            Json.parse(resourcesRoot["you_xin/body/body_ske.json"].readString())!!
+            Json.parse(resources["you_xin/body/body_ske.json"].readString())!!
         )
         val atlas = factory.parseTextureAtlasData(
-            Json.parse(resourcesRoot["you_xin/body/body_tex.json"].readString())!!,
-            resourcesRoot["you_xin/body/body_tex.png"].readBitmapOptimized()
+            Json.parse(resources["you_xin/body/body_tex.json"].readString())!!,
+            resources["you_xin/body/body_tex.png"].readBitmapOptimized()
         )
 
         for ((i, suitConfig) in suitConfigs.withIndex()) {
@@ -295,10 +295,10 @@ class SkinChangingScene : BaseDbScene() {
                 val textureAtlasJSONPath = path + "_tex.json"
                 val textureAtlasPath = path + "_tex.png"
                 //
-                factory.parseDragonBonesData(Json.parse(resourcesRoot[dragonBonesJSONPath].readString())!!)
+                factory.parseDragonBonesData(Json.parse(resources[dragonBonesJSONPath].readString())!!)
                 factory.parseTextureAtlasData(
-                    Json.parse(resourcesRoot[textureAtlasJSONPath].readString())!!,
-                    resourcesRoot[textureAtlasPath].readBitmapOptimized()
+                    Json.parse(resources[textureAtlasJSONPath].readString())!!,
+                    resources[textureAtlasPath].readBitmapOptimized()
                 )
             }
         }
@@ -355,5 +355,6 @@ class SkinChangingScene : BaseDbScene() {
 }
 
 abstract class BaseDbScene : Scene() {
+    val resources = ResourcesVfs 
     val factory = KorgeDbFactory()
 }
