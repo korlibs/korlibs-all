@@ -1,17 +1,20 @@
 package example2
 
+import com.dragonbones.event.*
 import com.dragonbones.model.*
+import com.dragonbones.util.*
+import com.soywiz.kds.*
 import com.soywiz.korge.*
-import com.soywiz.korge.animate.*
 import com.soywiz.korge.dragonbones.*
 import com.soywiz.korge.input.*
-import com.soywiz.korge.render.*
 import com.soywiz.korge.scene.*
 import com.soywiz.korge.view.*
 import com.soywiz.korim.format.*
 import com.soywiz.korinject.*
 import com.soywiz.korio.serialization.json.*
 import com.soywiz.korma.geom.*
+import com.soywiz.korma.random.*
+import com.soywiz.korui.event.*
 import kotlin.math.*
 
 //fun main(args: Array<String>): Unit = Korio {
@@ -43,20 +46,6 @@ object MyModule : Module() {
 }
 
 class MyScene : Scene() {
-    val _animationNames = listOf(
-        "PARAM_ANGLE_X",
-        "PARAM_ANGLE_Y",
-        "PARAM_ANGLE_Z",
-        "PARAM_EYE_BALL_X",
-        "PARAM_EYE_BALL_Y",
-        "PARAM_BODY_X",
-        "PARAM_BODY_Y",
-        "PARAM_BODY_Z",
-        "PARAM_BODY_ANGLE_X",
-        "PARAM_BODY_ANGLE_Y",
-        "PARAM_BODY_ANGLE_Z",
-        "PARAM_BREATH"
-    )
 
     var totalTime = 0.0
 
@@ -67,103 +56,213 @@ class MyScene : Scene() {
         this.x = views.actualVirtualWidth.toDouble() / 2.0
         this.y = views.actualVirtualHeight.toDouble() / 2.0
 
-        //run {
-        //    val scale = 0.3
-        //    factory.parseDragonBonesData(
-        //        Json.parse(resourcesRoot["you_xin/body/body_ske.json"].readString())!!,
-        //        "you_xin"
-        //    )
-        //        val atlas = factory.parseTextureAtlasData(
-        //            Json.parse(resourcesRoot["you_xin/body/body_tex.json"].readString())!!,
-        //            resourcesRoot["you_xin/body/body_tex.png"].readBitmapOptimized()
-        //        )
-        //    val armatureDisplay = factory.buildArmatureDisplay("body", "you_xin")!!.position(0, 200).scale(scale)
-        //    this += armatureDisplay
-        //
-        //    println(armatureDisplay.animation.animationNames)
-        //    //armatureDisplay.animation.play("idle_00")
-        //}
+        val random = Rand()
 
         run {
+            val suitConfigs = listOf(
+                listOf(
+                    "2010600a",
+                    "2010600a_1",
+                    "20208003",
+                    "20208003_1",
+                    "20208003_2",
+                    "20208003_3",
+                    "20405006",
+                    "20509005",
+                    "20703016",
+                    "20703016_1",
+                    "2080100c",
+                    "2080100e",
+                    "2080100e_1",
+                    "20803005",
+                    "2080500b",
+                    "2080500b_1"
+                ),
+                listOf(
+                    "20106010",
+                    "20106010_1",
+                    "20208006",
+                    "20208006_1",
+                    "20208006_2",
+                    "20208006_3",
+                    "2040600b",
+                    "2040600b_1",
+                    "20509007",
+                    "20703020",
+                    "20703020_1",
+                    "2080b003",
+                    "20801015"
+                )
+            )
+
             val scale = 0.3
             factory.parseDragonBonesData(
-                Json.parse(resourcesRoot["shizuku/shizuku_ske.json"].readString())!!,
-                "shizuku"
+                Json.parse(resourcesRoot["you_xin/body/body_ske.json"].readString())!!
             )
-            factory.updateTextureAtlases(arrayOf(
-                resourcesRoot["shizuku/shizuku.1024/texture_00.png"].readBitmapOptimized().mipmaps(),
-                resourcesRoot["shizuku/shizuku.1024/texture_01.png"].readBitmapOptimized().mipmaps(),
-                resourcesRoot["shizuku/shizuku.1024/texture_02.png"].readBitmapOptimized().mipmaps(),
-                resourcesRoot["shizuku/shizuku.1024/texture_03.png"].readBitmapOptimized().mipmaps()
-            ), "shizuku")
-            val armatureDisplay = factory.buildArmatureDisplay("shizuku", "shizuku")!!.position(0, 200).scale(scale)
+            val atlas = factory.parseTextureAtlasData(
+                Json.parse(resourcesRoot["you_xin/body/body_tex.json"].readString())!!,
+                resourcesRoot["you_xin/body/body_tex.png"].readBitmapOptimized()
+            )
+
+            for ((i, suitConfig) in suitConfigs.withIndex()) {
+                for (partArmatureName in suitConfig) {
+                    // resource/you_xin/suit1/2010600a/xxxxxx
+                    val path = "you_xin/" + "suit" + (i + 1) + "/" + partArmatureName + "/" + partArmatureName
+                    val dragonBonesJSONPath = path + "_ske.json"
+                    val textureAtlasJSONPath = path + "_tex.json"
+                    val textureAtlasPath = path + "_tex.png"
+                    //
+                    factory.parseDragonBonesData(Json.parse(resourcesRoot[dragonBonesJSONPath].readString())!!)
+                    factory.parseTextureAtlasData(
+                        Json.parse(resourcesRoot[textureAtlasJSONPath].readString())!!,
+                        resourcesRoot[textureAtlasPath].readBitmapOptimized()
+                    )
+                }
+            }
+
+            val armatureDisplay = factory.buildArmatureDisplay("body")!!.position(0, 200).scale(scale)
             this += armatureDisplay
 
             println(armatureDisplay.animation.animationNames)
-            //armatureDisplay.play("idle_00")
-            armatureDisplay.animation.play("idle_00")
+            //armatureDisplay.animation.play("idle_00")
+            armatureDisplay.on(EventObject.LOOP_COMPLETE) {
+                //println("LOOP!")
+                // Random animation index.
+                val nextAnimationName = random[armatureDisplay.animation.animationNames]
+                armatureDisplay.animation.fadeIn(nextAnimationName, 0.3, 0)
+            }
+            armatureDisplay.animation.play("idle", 0)
+            //armatureDisplay.animation.play("speak")
 
-            val target = MPoint()
+            for (part in suitConfigs[0]) {
+                val partArmatureData = factory.getArmatureData(part)
+                factory.replaceSkin(armatureDisplay.armature, partArmatureData!!.defaultSkin!!)
+            }
+            val _replaceSuitParts = arrayListOf<String>()
+            var _replaceSuitIndex = 0
 
             mouse {
-                moveAnywhere {
-                    val mx = localMouseX(views)
-                    val my = localMouseY(views)
-                    //target.x = ((mx - this@sceneInit.x - armatureDisplay.x) / scale)
-                    //target.y = ((my - this@sceneInit.y - armatureDisplay.y) / scale)
-                    target.x = (mx - armatureDisplay.x) / scale
-                    target.y = (my - armatureDisplay.y) / scale
-                    //println("target:$target")
-                }
-            }
+                onUpAnywhere {
+                    // This suit has been replaced, next suit.
+                    if (_replaceSuitParts.size == 0) {
+                        _replaceSuitIndex++
 
-            addUpdatable {
-                totalTime += it
-                //val x = containerRoot.globalToLocalX(views.input.mouse.x, views.input.mouse.y) / scale
-                //val y = containerRoot.globalToLocalY(views.input.mouse.x, views.input.mouse.y) / scale
+                        if (_replaceSuitIndex >= suitConfigs.size) {
+                            _replaceSuitIndex = 0
+                        }
 
-                //target.x = x
-                //target.y = y
-
-                val armature = armatureDisplay.armature
-                val animation = armatureDisplay.animation
-                val canvas = armature.armatureData.canvas!!
-
-                var p = 0.0
-                val pX = max(min((target.x - canvas.x) / (canvas.width * 0.5), 1.0), -1.0)
-                val pY = -max(min((target.y - canvas.y) / (canvas.height * 0.5), 1.0), -1.0)
-                for (animationName in _animationNames) {
-                    if (!animation.hasAnimation(animationName)) {
-                        continue
-                    }
-
-                    var animationState = animation.getState(animationName, 1)
-                    if (animationState == null) {
-                        animationState = animation.fadeIn(animationName, 0.1, 1, 1, animationName)
-                        if (animationState != null) {
-                            animationState.resetToPose = false
-                            animationState.stop()
+                        // Refill the unset parits.
+                        for (partArmatureName in suitConfigs[_replaceSuitIndex]) {
+                            _replaceSuitParts.push(partArmatureName)
                         }
                     }
 
-                    if (animationState == null) {
-                        continue
-                    }
-
-                    when (animationName) {
-                        "PARAM_ANGLE_X", "PARAM_EYE_BALL_X" -> p = (pX + 1.0) * 0.5
-                        "PARAM_ANGLE_Y", "PARAM_EYE_BALL_Y" -> p = (pY + 1.0) * 0.5
-                        "PARAM_ANGLE_Z" -> p = (-pX * pY + 1.0) * 0.5
-                        "PARAM_BODY_X", "PARAM_BODY_ANGLE_X" -> p = (pX + 1.0) * 0.5
-                        "PARAM_BODY_Y", "PARAM_BODY_ANGLE_Y" -> p = (-pX * pY + 1.0) * 0.5
-                        "PARAM_BODY_Z", "PARAM_BODY_ANGLE_Z" -> p = (-pX * pY + 1.0) * 0.5
-                        "PARAM_BREATH" -> p = (sin(totalTime / 1000.0) + 1.0) * 0.5
-                    }
-
-                    animationState.currentTime = p * animationState.totalTime
+                    // Random one part in this suit.
+                    val partIndex: Int = floor(random.nextDouble() * _replaceSuitParts.length).toInt()
+                    val partArmatureName = _replaceSuitParts[partIndex]
+                    val partArmatureData = factory.getArmatureData(partArmatureName)
+                    // Replace skin.
+                    factory.replaceSkin(armatureDisplay.armature, partArmatureData!!.defaultSkin!!)
+                    // Remove has been replaced
+                    _replaceSuitParts.splice(partIndex, 1)
                 }
             }
         }
+
+        //run {
+        //  val _animationNames = listOf(
+        //      "PARAM_ANGLE_X",
+        //      "PARAM_ANGLE_Y",
+        //      "PARAM_ANGLE_Z",
+        //      "PARAM_EYE_BALL_X",
+        //      "PARAM_EYE_BALL_Y",
+        //      "PARAM_BODY_X",
+        //      "PARAM_BODY_Y",
+        //      "PARAM_BODY_Z",
+        //      "PARAM_BODY_ANGLE_X",
+        //      "PARAM_BODY_ANGLE_Y",
+        //      "PARAM_BODY_ANGLE_Z",
+        //      "PARAM_BREATH"
+        //  )
+        //    val scale = 0.3
+        //    factory.parseDragonBonesData(
+        //        Json.parse(resourcesRoot["shizuku/shizuku_ske.json"].readString())!!,
+        //        "shizuku"
+        //    )
+        //    factory.updateTextureAtlases(arrayOf(
+        //        resourcesRoot["shizuku/shizuku.1024/texture_00.png"].readBitmapOptimized().mipmaps(),
+        //        resourcesRoot["shizuku/shizuku.1024/texture_01.png"].readBitmapOptimized().mipmaps(),
+        //        resourcesRoot["shizuku/shizuku.1024/texture_02.png"].readBitmapOptimized().mipmaps(),
+        //        resourcesRoot["shizuku/shizuku.1024/texture_03.png"].readBitmapOptimized().mipmaps()
+        //    ), "shizuku")
+        //    val armatureDisplay = factory.buildArmatureDisplay("shizuku", "shizuku")!!.position(0, 200).scale(scale)
+        //    this += armatureDisplay
+//
+        //    println(armatureDisplay.animation.animationNames)
+        //    //armatureDisplay.play("idle_00")
+        //    armatureDisplay.animation.play("idle_00")
+//
+        //    val target = MPoint()
+//
+        //    mouse {
+        //        moveAnywhere {
+        //            val mx = localMouseX(views)
+        //            val my = localMouseY(views)
+        //            //target.x = ((mx - this@sceneInit.x - armatureDisplay.x) / scale)
+        //            //target.y = ((my - this@sceneInit.y - armatureDisplay.y) / scale)
+        //            target.x = (mx - armatureDisplay.x) / scale
+        //            target.y = (my - armatureDisplay.y) / scale
+        //            //println("target:$target")
+        //        }
+        //    }
+//
+        //    addUpdatable {
+        //        totalTime += it
+        //        //val x = containerRoot.globalToLocalX(views.input.mouse.x, views.input.mouse.y) / scale
+        //        //val y = containerRoot.globalToLocalY(views.input.mouse.x, views.input.mouse.y) / scale
+//
+        //        //target.x = x
+        //        //target.y = y
+//
+        //        val armature = armatureDisplay.armature
+        //        val animation = armatureDisplay.animation
+        //        val canvas = armature.armatureData.canvas!!
+//
+        //        var p = 0.0
+        //        val pX = max(min((target.x - canvas.x) / (canvas.width * 0.5), 1.0), -1.0)
+        //        val pY = -max(min((target.y - canvas.y) / (canvas.height * 0.5), 1.0), -1.0)
+        //        for (animationName in _animationNames) {
+        //            if (!animation.hasAnimation(animationName)) {
+        //                continue
+        //            }
+//
+        //            var animationState = animation.getState(animationName, 1)
+        //            if (animationState == null) {
+        //                animationState = animation.fadeIn(animationName, 0.1, 1, 1, animationName)
+        //                if (animationState != null) {
+        //                    animationState.resetToPose = false
+        //                    animationState.stop()
+        //                }
+        //            }
+//
+        //            if (animationState == null) {
+        //                continue
+        //            }
+//
+        //            when (animationName) {
+        //                "PARAM_ANGLE_X", "PARAM_EYE_BALL_X" -> p = (pX + 1.0) * 0.5
+        //                "PARAM_ANGLE_Y", "PARAM_EYE_BALL_Y" -> p = (pY + 1.0) * 0.5
+        //                "PARAM_ANGLE_Z" -> p = (-pX * pY + 1.0) * 0.5
+        //                "PARAM_BODY_X", "PARAM_BODY_ANGLE_X" -> p = (pX + 1.0) * 0.5
+        //                "PARAM_BODY_Y", "PARAM_BODY_ANGLE_Y" -> p = (-pX * pY + 1.0) * 0.5
+        //                "PARAM_BODY_Z", "PARAM_BODY_ANGLE_Z" -> p = (-pX * pY + 1.0) * 0.5
+        //                "PARAM_BREATH" -> p = (sin(totalTime / 1000.0) + 1.0) * 0.5
+        //            }
+//
+        //            animationState.currentTime = p * animationState.totalTime
+        //        }
+        //    }
+        //}
 
         //val data = factory.parseDragonBonesData(Json.parse(resourcesRoot["Dragon/Dragon_ske.json"].readString())!!)
         //val atlas = factory.parseTextureAtlasData(

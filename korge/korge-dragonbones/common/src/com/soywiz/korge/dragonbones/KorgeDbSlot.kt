@@ -293,6 +293,8 @@ class KorgeDbSlot : Slot() {
 			var iV = weightFloatOffset
 			var iF = 0
 			for (i in 0 until vertexCount) {
+				if (iD >= meshDisplay.vertices.size) break // @TODO: This shouldn't be required!
+
 				val boneCount = intArray[iB++]
 				var xG = 0.0
 				var yG = 0.0
@@ -333,7 +335,7 @@ class KorgeDbSlot : Slot() {
 
 			//for (let i = 0, l = vertexCount * 2; i < l; i += 2) {
 			for (i in 0 until vertexCount * 2 step 2) {
-				if (i + 1 >= meshDisplay.vertices.size) continue // @TODO: This shouldn't be required!
+				if (i + 1 >= meshDisplay.vertices.size) break // @TODO: This shouldn't be required!
 
 				var x: Double = floatArray[vertexOffset + i + 0] * scale
 				var y: Double = floatArray[vertexOffset + i + 1] * scale

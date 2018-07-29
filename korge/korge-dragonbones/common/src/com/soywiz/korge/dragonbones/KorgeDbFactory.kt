@@ -54,9 +54,9 @@ open class KorgeDbFactory(dataParser: DataParser? = null) : BaseFactory(dataPars
 
 	val eventManager = KorgeDbArmatureDisplay()
 	private val _dragonBonesInstance: DragonBones = DragonBones(eventManager)
-	private fun _clockHandler(passedTime: Double) {
-		this._dragonBonesInstance.advanceTime(Klock.currentTimeMillisDouble() * passedTime * 0.001)
-	}
+	//private fun _clockHandler(passedTime: Double) {
+	//	this._dragonBonesInstance.advanceTime(Klock.currentTimeMillisDouble() * passedTime * 0.001)
+	//}
 	/**
 	 * - A global factory instance that can be used directly.
 	 * @version DragonBones 4.7

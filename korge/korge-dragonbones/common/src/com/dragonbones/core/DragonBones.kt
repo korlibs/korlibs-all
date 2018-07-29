@@ -329,55 +329,59 @@ class DragonBones(eventManager: IEventDispatcher) {
 	}
 
 	private val _clock: WorldClock = WorldClock()
-	private val _events: ArrayList<EventObject> = arrayListOf()
-	private val _objects: ArrayList<BaseObject> = arrayListOf()
+	//private val _events: ArrayList<EventObject> = arrayListOf()
+	//private val _objects: ArrayList<BaseObject> = arrayListOf()
 	private var _eventManager: IEventDispatcher = eventManager
 
-	init {
-		println("DragonBones: ${DragonBones.VERSION}\nWebsite: http://dragonbones.com/\nSource and Demo: https://github.com/DragonBones/")
-	}
+	//init {
+	//	println("DragonBones: ${DragonBones.VERSION}\nWebsite: http://dragonbones.com/\nSource and Demo: https://github.com/DragonBones/")
+	//}
 
-	fun advanceTime(passedTime: Double): Unit {
-		if (this._objects.size > 0) {
-			for (obj in this._objects) {
-				obj.returnToPool()
-			}
+	//fun advanceTime(passedTime: Double): Unit {
+	//	if (this._objects.size > 0) {
+	//		for (obj in this._objects) {
+	//			obj.returnToPool()
+	//		}
+//
+	//		this._objects.clear()
+	//	}
+//
+	//	this._clock.advanceTime(passedTime)
+//
+	//	flushEvents()
+	//}
 
-			this._objects.clear()
-		}
+	//fun flushEvents() {
+	//	if (this._events.size > 0) {
+	//		for (i in 0 until this._events.size) {
+	//			val eventObject = this._events[i]
+	//			val armature = eventObject.armature
+//
+	//			if (armature._armatureData != null) { // May be armature disposed before advanceTime.
+	//				armature.eventDispatcher.dispatchDBEvent(eventObject.type, eventObject)
+	//				if (eventObject.type == EventObject.SOUND_EVENT) {
+	//					this._eventManager.dispatchDBEvent(eventObject.type, eventObject)
+	//				}
+	//			}
+//
+	//			this.bufferObject(eventObject)
+	//		}
+//
+	//		this._events.lengthSet = 0
+	//	}
+	//}
 
-		this._clock.advanceTime(passedTime)
+	//fun bufferEvent(value: EventObject) {
+	//	if (this._events.indexOf(value) < 0) {
+	//		this._events.add(value)
+	//	}
+	//}
 
-		if (this._events.size > 0) {
-			for (i in 0 until this._events.size) {
-				val eventObject = this._events[i]
-				val armature = eventObject.armature
-
-				if (armature._armatureData != null) { // May be armature disposed before advanceTime.
-					armature.eventDispatcher.dispatchDBEvent(eventObject.type, eventObject)
-					if (eventObject.type == EventObject.SOUND_EVENT) {
-						this._eventManager.dispatchDBEvent(eventObject.type, eventObject)
-					}
-				}
-
-				this.bufferObject(eventObject)
-			}
-
-			this._events.lengthSet = 0
-		}
-	}
-
-	fun bufferEvent(value: EventObject) {
-		if (this._events.indexOf(value) < 0) {
-			this._events.add(value)
-		}
-	}
-
-	fun bufferObject(obj: BaseObject?) {
-		if (this._objects.indexOf(obj) < 0) {
-			if (obj != null) this._objects.add(obj)
-		}
-	}
+	//fun bufferObject(obj: BaseObject?) {
+	//	if (this._objects.indexOf(obj) < 0) {
+	//		if (obj != null) this._objects.add(obj)
+	//	}
+	//}
 
 	val clock: WorldClock get() = this._clock
 

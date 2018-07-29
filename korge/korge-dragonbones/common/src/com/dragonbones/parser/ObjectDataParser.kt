@@ -1830,7 +1830,7 @@ open class ObjectDataParser : DataParser() {
 	protected fun _parseSlotDeformFrame(rawData: Any?, frameStart: Int, frameCount: Int): Int {
 		val frameFloatOffset = this._frameFloatArray.length
 		val frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount)
-		val rawVertices = rawData[DataParser.VERTICES].doubleArray
+		val rawVertices = rawData[DataParser.VERTICES]?.doubleArray
 		val offset = ObjectDataParser._getInt(rawData, DataParser.OFFSET, 0) // uint
 		val vertexCount = this._intArray[this._mesh!!.geometry.offset + BinaryOffset.GeometryVertexCount.index]
 		val meshName = "" + this._mesh?.parent?.name + "_" + this._slot?.name + "_" + this._mesh?.name

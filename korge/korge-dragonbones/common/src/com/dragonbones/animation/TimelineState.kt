@@ -71,7 +71,7 @@ class ActionTimelineState : TimelineState() {
 						eventObject.time = this._frameArray!![frameOffset].toDouble() / this._frameRate
 						eventObject.animationState = this._animationState!!
 						EventObject.actionDataToInstance(action, eventObject, this._armature!!)
-						this._armature?._dragonBones?.bufferEvent(eventObject)
+						this._armature?.eventDispatcher?.queueEvent(eventObject)
 					}
 				}
 			}
@@ -102,7 +102,7 @@ class ActionTimelineState : TimelineState() {
 						eventObject.type = EventObject.START
 						eventObject.armature = this._armature!!
 						eventObject.animationState = this._animationState!!
-						this._armature?._dragonBones?.bufferEvent(eventObject)
+						this._armature?.eventDispatcher?.queueEvent(eventObject)
 					}
 				} else {
 					return
@@ -171,7 +171,7 @@ class ActionTimelineState : TimelineState() {
 								}
 
 								if (loopCompleteEvent != null && crossedFrameIndex == 0) { // Add loop complete event after first frame.
-									this._armature?._dragonBones?.bufferEvent(loopCompleteEvent)
+									this._armature?.eventDispatcher?.queueEvent(loopCompleteEvent)
 									loopCompleteEvent = null
 								}
 
@@ -228,7 +228,7 @@ class ActionTimelineState : TimelineState() {
 								}
 
 								if (loopCompleteEvent != null && crossedFrameIndex == 0) { // Add loop complete event before first frame.
-									this._armature?._dragonBones?.bufferEvent(loopCompleteEvent)
+									this._armature?.eventDispatcher?.queueEvent(loopCompleteEvent)
 									loopCompleteEvent = null
 								}
 
@@ -253,7 +253,7 @@ class ActionTimelineState : TimelineState() {
 						}
 					} else if (this._position <= framePosition) { // Loop complete.
 						if (!isReverse && loopCompleteEvent != null) { // Add loop complete event before first frame.
-							this._armature?._dragonBones?.bufferEvent(loopCompleteEvent)
+							this._armature?.eventDispatcher?.queueEvent(loopCompleteEvent)
 							loopCompleteEvent = null
 						}
 
@@ -263,11 +263,11 @@ class ActionTimelineState : TimelineState() {
 			}
 
 			if (loopCompleteEvent != null) {
-				this._armature?._dragonBones?.bufferEvent(loopCompleteEvent)
+				this._armature?.eventDispatcher?.queueEvent(loopCompleteEvent)
 			}
 
 			if (completeEvent != null) {
-				this._armature?._dragonBones?.bufferEvent(completeEvent)
+				this._armature?.eventDispatcher?.queueEvent(completeEvent)
 			}
 		}
 	}

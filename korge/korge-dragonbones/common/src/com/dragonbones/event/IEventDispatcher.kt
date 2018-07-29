@@ -53,7 +53,7 @@ interface IEventDispatcher {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	fun hasDBEventListener(type: EventStringType): Boolean;
+	fun hasDBEventListener(type: EventStringType): Boolean
 	/**
 	 * - Dispatches an event into the event flow.
 	 * @param type - Event type.
@@ -70,7 +70,7 @@ interface IEventDispatcher {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	fun dispatchDBEvent(type: EventStringType, eventObject: EventObject): Unit;
+	fun dispatchDBEvent(type: EventStringType, eventObject: EventObject)
 	/**
 	 * - Add an event listener object so that the listener receives notification of an event.
 	 * @param type - Event type.
@@ -87,7 +87,7 @@ interface IEventDispatcher {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	fun addDBEventListener(type: EventStringType, listener: (event: EventObject) -> Unit, thisObject: Any): Unit;
+	fun addDBEventListener(type: EventStringType, listener: (event: EventObject) -> Unit)
 	/**
 	 * - Removes a listener from the object.
 	 * @param type - Event type.
@@ -104,5 +104,7 @@ interface IEventDispatcher {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	fun removeDBEventListener(type: EventStringType, listener: (event: EventObject) -> Unit, thisObject: Any): Unit;
+	fun removeDBEventListener(type: EventStringType, listener: (event: EventObject) -> Unit)
+
+	fun queueEvent(value: EventObject)
 }

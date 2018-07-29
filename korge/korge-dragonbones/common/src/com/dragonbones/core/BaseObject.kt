@@ -162,19 +162,8 @@ abstract class BaseObject {
 			val pool = getPool(clazz)
 			val obj = if (pool.isNotEmpty()) pool.removeAt(pool.size - 1) else createInstance(clazz)
 			obj._onClear()
+			obj._isInPool = false
 			return obj
-
-			//val classType = String(objectConstructor)
-			//val pool = classType in BaseObject._poolsMap ? BaseObject._poolsMap[classType] : null
-			//if (pool != null && pool.length > 0) {
-			//	val object = pool.pop() as T
-			//	object._isInPool = false
-			//	return object
-			//}
-			//
-			//val obj = objectConstructor()
-			//obj._onClear()
-			//return obj
 		}
 
 		inline fun <reified T : BaseObject> borrowObject(): T = borrowObject(T::class)

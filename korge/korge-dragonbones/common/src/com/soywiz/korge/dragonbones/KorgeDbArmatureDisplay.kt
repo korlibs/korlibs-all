@@ -38,6 +38,9 @@ import com.soywiz.korma.*
  * @inheritDoc
  */
 class KorgeDbArmatureDisplay : Image(Bitmaps.transparent), IArmatureProxy {
+	private val _events = arrayListOf<EventObject>()
+	private val _eventsReturnQueue: ArrayList<BaseObject> = arrayListOf()
+
 	/**
 	 * @private
 	 */
@@ -57,8 +60,10 @@ class KorgeDbArmatureDisplay : Image(Bitmaps.transparent), IArmatureProxy {
 	// Do not use the time from DragonBones, but the UpdateComponent
 	init {
 		addUpdatable {
+			returnEvents()
 			//_armature?.advanceTimeForChildren(it.toDouble() / 1000.0)
 			_armature?.advanceTime(it.toDouble() / 1000.0)
+			dispatchQueuedEvents()
 		}
 	}
 
@@ -211,36 +216,83 @@ class KorgeDbArmatureDisplay : Image(Bitmaps.transparent), IArmatureProxy {
 		//this.dispose() // Note: Korge doesn't require this!
 	}
 
+	private var eventListeners = LinkedHashMap<EventStringType, ArrayList<(EventObject) -> Unit>>()
+
 	/**
 	 * @private
 	 */
 	override fun dispatchDBEvent(type: EventStringType, eventObject: EventObject) {
-		println("TODO: dispatchDBEvent: $type, $eventObject")
-		//this.emit(type, eventObject)
+		//println("dispatchDBEvent:$type")
+		val listeners = eventListeners[type]
+		if (listeners != null) {
+			for (listener in listeners) {
+				listener(eventObject)
+			}
+		}
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	override fun hasDBEventListener(type: EventStringType): Boolean {
-		//return this.listeners(type, true) as boolean // .d.ts bug
-		return false
+		return eventListeners.containsKey(type).apply {
+			//println("hasDBEventListener:$type:$this")
+		}
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	override fun addDBEventListener(type: EventStringType, listener: (event: EventObject) -> Unit, thisObject: Any) {
-		println("TODO: addDBEventListener: $type")
-		//this.addListener(type as any, listener as any, thisObject)
+	override fun addDBEventListener(type: EventStringType, listener: (event: EventObject) -> Unit) {
+		//println("addDBEventListener:$type")
+		eventListeners.getOrPut(type) { arrayListOf() } += listener
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	override fun removeDBEventListener(type: EventStringType, listener: (event: EventObject) -> Unit, thisObject: Any) {
-		println("TODO: removeDBEventListener: $type")
-		//this.removeListener(type as any, listener as any, thisObject)
+	override fun removeDBEventListener(type: EventStringType, listener: (event: EventObject) -> Unit) {
+		//println("removeDBEventListener:$type")
+		eventListeners[type]?.remove(listener)
+	}
+
+	override fun queueEvent(value: EventObject) {
+		if (!this._events.contains(value)) {
+			this._events.add(value)
+		}
+	}
+
+	private fun queueReturnEvent(obj: BaseObject?) {
+		if (obj != null && !this._eventsReturnQueue.contains(obj)) this._eventsReturnQueue.add(obj)
+	}
+
+	private fun dispatchQueuedEvents() {
+		if (this._events.size <= 0) return
+		for (i in 0 until this._events.size) {
+			val eventObject = this._events[i]
+			val armature = eventObject.armature
+
+			if (armature._armatureData != null) { // May be armature disposed before advanceTime.
+				armature.eventDispatcher.dispatchDBEvent(eventObject.type, eventObject)
+				if (eventObject.type == EventObject.SOUND_EVENT) {
+					dispatchDBEvent(eventObject.type, eventObject)
+				}
+			}
+
+			queueReturnEvent(eventObject)
+		}
+
+		this._events.clear()
+	}
+
+	private fun returnEvents() {
+		if (this._eventsReturnQueue.size <= 0) return
+		for (obj in this._eventsReturnQueue) obj.returnToPool()
+		this._eventsReturnQueue.clear()
+	}
+
+	fun on(type: EventStringType, listener: (event: EventObject) -> Unit) {
+		addDBEventListener(type, listener)
 	}
 
 	/**

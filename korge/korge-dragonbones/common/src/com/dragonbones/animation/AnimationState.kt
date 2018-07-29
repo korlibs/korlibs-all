@@ -675,7 +675,7 @@ class AnimationState : BaseObject() {
 					eventObject.type = eventType
 					eventObject.armature = this._armature!!
 					eventObject.animationState = this
-					this._armature!!._dragonBones!!.bufferEvent(eventObject)
+					this._armature!!.eventDispatcher!!.queueEvent(eventObject)
 				}
 			}
 		}
@@ -710,7 +710,7 @@ class AnimationState : BaseObject() {
 					eventObject.type = eventType
 					eventObject.armature = this._armature!!
 					eventObject.animationState = this
-					this._armature!!._dragonBones!!.bufferEvent(eventObject)
+					this._armature!!.eventDispatcher!!.queueEvent(eventObject)
 				}
 			}
 		}
