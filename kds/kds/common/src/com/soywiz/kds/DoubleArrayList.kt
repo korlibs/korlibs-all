@@ -47,7 +47,7 @@ class DoubleArrayList(capacity: Int = 7) : NumberArrayList(), Collection<Double>
 	fun add(values: DoubleArrayList) = add(values.data, 0, values.length)
 	fun add(values: Iterable<Double>) = run { for (v in values) add(v) }
 
-	operator fun get(index: Int) = data[index]
+	operator fun get(index: Int): Double = if (index in 0 until length) data[index] else 0.0
 	operator fun set(index: Int, value: Double) = run {
 		if (index >= length) {
 			ensure(index + 1)
@@ -86,6 +86,8 @@ class DoubleArrayList(capacity: Int = 7) : NumberArrayList(), Collection<Double>
 
 	override fun getDouble(index: Int): Double = this[index]
 	override fun setDouble(index: Int, value: Double) = run { this[index] = value }
+
+	fun toDoubleArray() = this.data.copyOf(length)
 }
 
 fun DoubleArrayList.binarySearch(value: Double) = data.binarySearch(value, 0, size)

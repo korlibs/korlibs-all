@@ -291,6 +291,13 @@ class Armature  : BaseObject(), IAnimatable {
 		this._animation?.animations = this._armatureData?.animations!!
 	}
 
+	fun advanceTimeForChildren(passedTime: Double) {
+		advanceTime(passedTime)
+		for (slot in _slots) {
+			slot.childArmature?.advanceTimeForChildren(passedTime)
+		}
+	}
+
 	/**
 	 * @inheritDoc
 	 */

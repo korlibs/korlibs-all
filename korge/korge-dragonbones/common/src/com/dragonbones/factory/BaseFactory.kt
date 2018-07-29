@@ -149,7 +149,7 @@ abstract class BaseFactory {
 			dataPackage.armature = armatureData
 			dataPackage.skin = null
 
-			if (skinName.length > 0) {
+			if (skinName.isNotEmpty()) {
 				dataPackage.skin = armatureData.getSkin(skinName)
 				if (dataPackage.skin == null && this.autoSearch) {
 					for (k in this._dragonBonesDataMap.keys) {

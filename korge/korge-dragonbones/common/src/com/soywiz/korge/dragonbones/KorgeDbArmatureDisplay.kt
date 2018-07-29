@@ -56,8 +56,7 @@ class KorgeDbArmatureDisplay : Image(Bitmaps.transparent), IArmatureProxy {
 	// Do not use the time from DragonBones, but the UpdateComponent
 	init {
 		addUpdatable {
-			_armature?.advanceTime(it.toDouble() / 1000.0)
-			//if (_armature != null) dbUpdate()
+			_armature?.advanceTimeForChildren(it.toDouble() / 1000.0)
 		}
 	}
 

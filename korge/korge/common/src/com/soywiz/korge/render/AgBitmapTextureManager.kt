@@ -5,6 +5,8 @@ import com.soywiz.korag.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korma.geom.*
 
+var Bitmap.texMipmaps: Boolean by Extra.Property { false }
+
 class AgBitmapTextureManager(val ag: AG) {
 	val referencedBitmapsSinceGC = LinkedHashSet<Bitmap>()
 	var referencedBitmaps = setOf<Bitmap>()
@@ -16,7 +18,7 @@ class AgBitmapTextureManager(val ag: AG) {
 	fun getTextureBase(bitmap: Bitmap): Texture.Base {
 		referencedBitmapsSinceGC += bitmap
 		if (bitmap._textureBase == null) {
-			bitmap._textureBase = Texture.Base(ag.createTexture(bitmap), bitmap.width, bitmap.height)
+			bitmap._textureBase = Texture.Base(ag.createTexture(bitmap, bitmap.texMipmaps, bitmap.premult), bitmap.width, bitmap.height)
 		}
 		return bitmap._textureBase!!
 	}

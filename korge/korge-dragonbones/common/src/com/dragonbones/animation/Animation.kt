@@ -801,8 +801,7 @@ class Animation : BaseObject() {
 	 * @language zh_CN
 	 */
 	fun getState(animationName: String, layer: Int = -1): AnimationState? {
-		var i = this._animationStates.size
-		while (i-- >= 0) {
+		for (i in this._animationStates.size - 1 downTo 0) {
 			val animationState = this._animationStates[i]
 			if (animationState.name == animationName && (layer < 0 || animationState.layer == layer)) {
 				return animationState

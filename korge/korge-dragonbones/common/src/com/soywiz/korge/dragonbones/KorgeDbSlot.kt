@@ -182,7 +182,7 @@ class KorgeDbSlot : Slot() {
 						intArray[this._geometryData!!.offset + BinaryOffset.GeometryFloatOffset.index].toInt()
 
 					if (vertexOffset < 0) {
-						vertexOffset += 65536 // Fixed out of bouds bug.
+						vertexOffset += 65536 // Fixed out of bounds bug.
 					}
 
 					val uvOffset = vertexOffset + vertexCount * 2
@@ -225,7 +225,6 @@ class KorgeDbSlot : Slot() {
 
 					this._textureScale = 1.0
 					meshDisplay.texture = renderTexture
-					meshDisplay.name = renderTexture.name
 					meshDisplay.dirty++
 					meshDisplay.indexDirty++
 
@@ -265,6 +264,7 @@ class KorgeDbSlot : Slot() {
 	}
 
 	override fun _updateMesh() {
+		println("_updateMesh:" + this.name)
 		val scale = this._armature!!._armatureData!!.scale
 		val deformVertices = (this._displayFrame as DisplayFrame).deformVertices
 		val bones = this._geometryBones
@@ -282,7 +282,7 @@ class KorgeDbSlot : Slot() {
 			var weightFloatOffset = intArray[weightData.offset + BinaryOffset.WeigthFloatOffset.index].toInt()
 
 			if (weightFloatOffset < 0) {
-				weightFloatOffset += 65536 // Fixed out of bouds bug.
+				weightFloatOffset += 65536 // Fixed out of bounds bug.
 			}
 
 			//for (let i = 0, iD = 0, iB = weightData.offset + BinaryOffset.WeigthBoneIndices + bones.length, iV = weightFloatOffset, iF = 0;i < vertexCount;++i) {
@@ -328,25 +328,27 @@ class KorgeDbSlot : Slot() {
 			var vertexOffset = intArray[geometryData.offset + BinaryOffset.GeometryFloatOffset.index].toInt()
 
 			if (vertexOffset < 0) {
-				vertexOffset += 65536 // Fixed out of bouds bug.
+				vertexOffset += 65536 // Fixed out of bounds bug.
 			}
 
 			//for (let i = 0, l = vertexCount * 2; i < l; i += 2) {
 			for (i in 0 until vertexCount * 2 step 2) {
-				var x: Double = floatArray[vertexOffset + i] * scale
+				if (i + 1 >= meshDisplay.vertices.size) continue // @TODO: This shouldn't be required!
+
+				var x: Double = floatArray[vertexOffset + i + 0] * scale
 				var y: Double = floatArray[vertexOffset + i + 1] * scale
 
 				if (hasDeform) {
-					x += deformVertices[i]
+					x += deformVertices[i + 0]
 					y += deformVertices[i + 1]
 				}
 
 				if (isSurface) {
 					val matrix = (this._parent as Surface)._getGlobalTransformMatrix(x, y)
-					meshDisplay.vertices[i] = (matrix.a * x + matrix.c * y + matrix.tx).toFloat()
+					meshDisplay.vertices[i + 0] = (matrix.a * x + matrix.c * y + matrix.tx).toFloat()
 					meshDisplay.vertices[i + 1] = (matrix.b * x + matrix.d * y + matrix.ty).toFloat()
 				} else {
-					meshDisplay.vertices[i] = x.toFloat()
+					meshDisplay.vertices[i + 0] = x.toFloat()
 					meshDisplay.vertices[i + 1] = y.toFloat()
 				}
 			}
@@ -360,16 +362,21 @@ class KorgeDbSlot : Slot() {
 
 		val transform = this.global
 
-		val _renderDisplay = this._renderDisplay as? Image? ?: return
+		val _renderDisplay = this._renderDisplay ?: return
 
 		if (_renderDisplay === this._rawDisplay || _renderDisplay === this._meshDisplay) {
 			globalTransformMatrix.toMatrix2d(m)
 			_renderDisplay.setMatrix(m)
-			_renderDisplay.anchor(_pivotX / _renderDisplay.width, _pivotY / _renderDisplay.height)
+			(_renderDisplay as? Image?)?.anchor(_pivotX / _renderDisplay.width, _pivotY / _renderDisplay.height)
+			(_renderDisplay as? Mesh?)?.pivot(_pivotX, _pivotY)
 		} else {
+			globalTransformMatrix.toMatrix2d(m)
+			_renderDisplay.setMatrix(m)
+			/*
 			_renderDisplay
 				.position(transform.x, transform.y).rotation(transform.rotation.radians)
 				.skew(transform.skew, 0.0).scale(transform.scaleX, transform.scaleY)
+				*/
 		}
 		//val rb = _renderDisplay as? RectBase?
 		//rb?.anchor(_pivotX / rb.width, _pivotY / rb.height)

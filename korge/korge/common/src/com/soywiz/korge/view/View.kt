@@ -4,6 +4,7 @@ import com.soywiz.kds.*
 import com.soywiz.korge.component.*
 import com.soywiz.korge.render.*
 import com.soywiz.korim.color.*
+import com.soywiz.korio.crypto.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.util.*
@@ -439,7 +440,7 @@ abstract class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by Eve
 		if (!visible) out += ":visible=$visible"
 		if (alpha != 1.0) out += ":alpha=$alpha"
 		if (colorMul.rgb != Colors.WHITE.rgb) out += ":colorMul=${colorMul.hexString}"
-		if (colorAdd != 0) out += ":colorAdd=$colorAdd"
+		if (colorAdd != 0x7f7f7f7f) out += ":colorAdd=${colorAdd.shex}"
 		return out
 	}
 

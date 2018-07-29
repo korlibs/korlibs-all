@@ -352,7 +352,7 @@ open class Bone :  TransformObject() {
 	/**
 	 * @internal
 	 */
-	fun init(boneData: BoneData, armatureValue: Armature) {
+	open fun init(boneData: BoneData, armatureValue: Armature) {
 		if (this._boneData != null) {
 			return
 		}

@@ -191,6 +191,7 @@ data class ColorTransform(
 	}
 }
 
+@Suppress("NOTHING_TO_INLINE")
 inline fun ColorTransform(
 	mR: Number,
 	mG: Number,

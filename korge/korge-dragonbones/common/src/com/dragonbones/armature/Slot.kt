@@ -1042,11 +1042,11 @@ abstract class Slot  :  TransformObject() {
 		Slot._helpMatrix.copyFrom(this.globalTransformMatrix)
 		Slot._helpMatrix.invert()
 		Slot._helpMatrix.transformPoint(xA, yA, Slot._helpPoint)
-		var xA = Slot._helpPoint.x
-		var yA = Slot._helpPoint.y
+		val xA = Slot._helpPoint.x
+		val yA = Slot._helpPoint.y
 		Slot._helpMatrix.transformPoint(xB, yB, Slot._helpPoint)
-		var xB = Slot._helpPoint.x
-		var yB = Slot._helpPoint.y
+		val xB = Slot._helpPoint.x
+		val yB = Slot._helpPoint.y
 
 		val intersectionCount = this._boundingBoxData!!.intersectsSegment(xA, yA, xB, yB, intersectionPointA, intersectionPointB, normalRadians)
 		if (intersectionCount > 0) {
@@ -1119,7 +1119,7 @@ abstract class Slot  :  TransformObject() {
 	var displayFrameCount: Int get() {
 		return this._displayFrames.lengthSet
 	}
-	set(value: Int) {
+	set(value) {
 		val prevCount = this._displayFrames.lengthSet
 		if (prevCount < value) {
 			this._displayFrames.lengthSet = value

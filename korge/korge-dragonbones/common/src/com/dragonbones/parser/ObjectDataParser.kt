@@ -25,6 +25,7 @@ package com.dragonbones.parser
 import com.dragonbones.core.*
 import com.dragonbones.geom.*
 import com.dragonbones.model.*
+import com.dragonbones.parser.ObjectDataParser.Companion.doubleArray
 import com.dragonbones.util.*
 import com.soywiz.kds.*
 import com.soywiz.kmem.*
@@ -59,6 +60,24 @@ open class ObjectDataParser : DataParser() {
 		internal val Any?.keys get() = (this as Map<String, Any?>).keys
 		internal val Any?.values get() = (this as Map<String, Any?>).values
 		internal val Any?.list get() = Dynamic.toList(this)
+		internal val Any?.doubleArray: DoubleArray get() {
+			if (this is DoubleArray) return this
+			if (this is DoubleArrayList) return this.toDoubleArray()
+			if (this is List<*>) return this.map { (it as Number).toDouble() }.toDoubleArray()
+			error("Can't cast to doubleArray")
+		}
+		internal val Any?.doubleArrayList: DoubleArrayList get() {
+			if (this is DoubleArray) return DoubleArrayList(*this)
+			if (this is DoubleArrayList) return this
+			if (this is List<*>) return DoubleArrayList(*this.map { (it as Number).toDouble() }.toDoubleArray())
+			error("Can't cast to doubleArrayList")
+		}
+		internal val Any?.intArrayList: IntArrayList get() {
+			if (this is IntArray) return IntArrayList(*this)
+			if (this is IntArrayList) return this
+			if (this is List<*>) return IntArrayList(*this.map { (it as Number).toInt() }.toIntArray())
+			error("Can't cast to doubleArrayList")
+		}
 
 		fun _getBoolean(rawData: Any?, key: String, defaultValue: Boolean): Boolean {
 			val value = rawData[key]
@@ -739,7 +758,7 @@ open class ObjectDataParser : DataParser() {
 				}
 			}
 			DisplayType.Path -> {
-				val rawCurveLengths = rawData[DataParser.LENGTHS] as DoubleArray
+				val rawCurveLengths = rawData[DataParser.LENGTHS].doubleArray
 				val pathDisplay = BaseObject.borrowObject<PathDisplayData>()
 				display = pathDisplay
 				pathDisplay.closed = ObjectDataParser._getBoolean(rawData, DataParser.CLOSED, false)
@@ -785,8 +804,8 @@ open class ObjectDataParser : DataParser() {
 		this._parseGeometry(rawData, mesh.geometry)
 
 		if (DataParser.WEIGHTS in rawData) { // Cache pose data.
-			val rawSlotPose = rawData[DataParser.SLOT_POSE] as DoubleArrayList
-			val rawBonePoses = rawData[DataParser.BONE_POSE] as DoubleArrayList
+			val rawSlotPose = rawData[DataParser.SLOT_POSE].doubleArrayList
+			val rawBonePoses = rawData[DataParser.BONE_POSE].doubleArrayList
 			val meshName = "" + this._skin?.name + "_" + this._slot?.name + "_" + mesh.name
 			this._weightSlotPose[meshName] = rawSlotPose
 			this._weightBonePoses[meshName] = rawBonePoses
@@ -835,7 +854,7 @@ open class ObjectDataParser : DataParser() {
 
 		if (DataParser.VERTICES in rawData) {
 			val scale = this._armature!!.scale
-			val rawVertices = rawData[DataParser.VERTICES] as DoubleArray
+			val rawVertices = rawData[DataParser.VERTICES] .doubleArray
 			val vertices = polygonBoundingBox.vertices
 			vertices.length = rawVertices.size
 
@@ -1434,7 +1453,7 @@ open class ObjectDataParser : DataParser() {
 			if (DataParser.CURVE in rawData) {
 				val sampleCount = frameCount + 1
 				this._helpArray.length = sampleCount
-				val isOmited = this._samplingEasingCurve(rawData[DataParser.CURVE] as DoubleArrayList, this._helpArray)
+				val isOmited = this._samplingEasingCurve(rawData[DataParser.CURVE].doubleArrayList, this._helpArray)
 
 				this._frameArray.length += 1 + 1 + this._helpArray.length
 				this._frameArray[frameOffset + BinaryOffset.FrameTweenType.index] = TweenType.Curve.id.toDouble()
@@ -1597,7 +1616,7 @@ open class ObjectDataParser : DataParser() {
 		val frameOffset = this._parseFrame(rawData, frameStart, frameCount)
 
 		if (DataParser.Z_ORDER in rawData) {
-			val rawZOrder = rawData[DataParser.Z_ORDER] as DoubleArray
+			val rawZOrder = rawData[DataParser.Z_ORDER] .doubleArray
 			if (rawZOrder.size > 0) {
 				val slotCount = this._armature!!.sortedSlots.length
 				val unchanged = IntArray(slotCount - rawZOrder.size / 2)
@@ -1765,7 +1784,8 @@ open class ObjectDataParser : DataParser() {
 			val rawColor = rawData[DataParser.VALUE] ?: rawData[DataParser.COLOR]
 			// @TODO: Kotlin-JS: Caused by: java.lang.IllegalStateException: Value at LOOP_RANGE_ITERATOR_RESOLVED_CALL must not be null for BINARY_WITH_TYPE
 			//for (k in (rawColor as List<Any?>)) { // Detects the presence of color.
-			for (k in rawColor!! as List<Any>) { // Detects the presence of color.
+			//for (let k in rawColor) { // Detects the presence of color.
+			for (k in rawColor.keys) { // Detects the presence of color.
 				this._parseColorTransform(rawColor, this._helpColorTransform)
 				colorOffset = this._colorArray.length
 				this._colorArray.length += 8
@@ -1955,7 +1975,7 @@ open class ObjectDataParser : DataParser() {
 						userData = BaseObject.borrowObject<UserData>()
 					}
 
-					val rawInts = rawAction[DataParser.INTS] as IntArrayList
+					val rawInts = rawAction[DataParser.INTS] .intArrayList
 					for (rawValue in rawInts) {
 						userData.addInt(rawValue)
 					}
@@ -1966,7 +1986,7 @@ open class ObjectDataParser : DataParser() {
 						userData = BaseObject.borrowObject<UserData>()
 					}
 
-					val rawFloats = rawAction[DataParser.FLOATS] as DoubleArrayList
+					val rawFloats = rawAction[DataParser.FLOATS].doubleArrayList
 					for (rawValue in rawFloats) {
 						userData.addFloat(rawValue)
 					}
@@ -2102,7 +2122,7 @@ open class ObjectDataParser : DataParser() {
 	}
 
 	open protected fun _parseGeometry(rawData: Any?, geometry: GeometryData) {
-		val rawVertices = rawData[DataParser.VERTICES] as DoubleArray
+		val rawVertices = rawData[DataParser.VERTICES] .doubleArray
 		val vertexCount: Int = rawVertices.size / 2 // uint
 		var triangleCount = 0
 		val geometryOffset = this._intArray.length
@@ -2123,7 +2143,7 @@ open class ObjectDataParser : DataParser() {
 		}
 
 		if (DataParser.TRIANGLES in rawData) {
-			val rawTriangles = rawData[DataParser.TRIANGLES] as DoubleArray
+			val rawTriangles = rawData[DataParser.TRIANGLES] .doubleArray
 			triangleCount = rawTriangles.size / 3 // uint
 			//
 			this._intArray.length += triangleCount * 3
@@ -2136,7 +2156,7 @@ open class ObjectDataParser : DataParser() {
 		this._intArray[geometryOffset + BinaryOffset.GeometryTriangleCount.index] = triangleCount
 
 		if (DataParser.UVS in rawData) {
-			val rawUVs = rawData[DataParser.UVS] as DoubleArray
+			val rawUVs = rawData[DataParser.UVS] .doubleArray
 			val uvOffset = verticesOffset + vertexCount * 2
 			this._floatArray.length += vertexCount * 2
 			//for (var i = 0, l = vertexCount * 2; i < l; ++i) {
@@ -2146,7 +2166,7 @@ open class ObjectDataParser : DataParser() {
 		}
 
 		if (DataParser.WEIGHTS in rawData) {
-			val rawWeights = rawData[DataParser.WEIGHTS] as DoubleArray
+			val rawWeights = rawData[DataParser.WEIGHTS] .doubleArray
 			val weightCount = (rawWeights.size - vertexCount) / 2 // uint
 			val weightOffset = this._intArray.length
 			val floatOffset = this._floatArray.length
@@ -2160,8 +2180,8 @@ open class ObjectDataParser : DataParser() {
 			this._intArray[weightOffset + BinaryOffset.WeigthFloatOffset.index] = floatOffset
 
 			if (DataParser.BONE_POSE in rawData) {
-				val rawSlotPose = rawData[DataParser.SLOT_POSE] as DoubleArray
-				val rawBonePoses = rawData[DataParser.BONE_POSE] as DoubleArray
+				val rawSlotPose = rawData[DataParser.SLOT_POSE] .doubleArray
+				val rawBonePoses = rawData[DataParser.BONE_POSE] .doubleArray
 				val weightBoneIndices = IntArrayList()
 
 				weightBoneCount = (rawBonePoses.size / 7) // uint
@@ -2209,7 +2229,7 @@ open class ObjectDataParser : DataParser() {
 					}
 				}
 			} else {
-				val rawBones = rawData[DataParser.BONES] as DoubleArray
+				val rawBones = rawData[DataParser.BONES] .doubleArray
 				weightBoneCount = rawBones.size
 
 				//for (var i = 0; i < weightBoneCount; i++) {

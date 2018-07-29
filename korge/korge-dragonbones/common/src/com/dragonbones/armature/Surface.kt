@@ -200,6 +200,7 @@ class Surface  :  Bone() {
 		val dY = this._dY
 		val indexX = floor((x + lA) / dX).toInt() // -1 ~ segmentX - 1
 		val indexY = floor((y + lA) / dY).toInt() // -1 ~ segmentY - 1
+		//println("x=" + x + "lA=" + lA + "dX=" + dX);
 		val matrixIndex: Int
 		val pX = indexX * dX - lA
 		val pY = indexY * dY - lA
@@ -458,6 +459,15 @@ class Surface  :  Bone() {
 		return helpMatrix
 	}
 
+	// Required for Kotlin/JVM
+	override fun init(boneData: BoneData, armatureValue: Armature) {
+		if (boneData is SurfaceData) {
+			init(boneData, armatureValue)
+		} else {
+			super.init(boneData, armatureValue)
+		}
+	}
+
 	/**
 	 * @internal
 	 * @private
@@ -478,6 +488,7 @@ class Surface  :  Bone() {
 		//
 		this._dX = lA * 2.0 / segmentX
 		this._dY = lA * 2.0 / segmentY
+		//println("Surface.Init: dX=$_dX, dY=$_dY")
 		this._k = -this._dY / this._dX
 		this._kX = -this._dY / (lB - lA)
 		this._kY = -(lB - lA) / this._dX
