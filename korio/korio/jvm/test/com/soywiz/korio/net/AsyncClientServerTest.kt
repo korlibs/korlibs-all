@@ -2,9 +2,9 @@ package com.soywiz.korio.net
 
 import com.soywiz.korio.async.*
 import com.soywiz.korio.stream.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.experimental.*
 import java.util.*
-import kotlin.coroutines.*
+import kotlin.coroutines.experimental.*
 import kotlin.test.*
 
 class AsyncClientServerTest {

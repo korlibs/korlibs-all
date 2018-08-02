@@ -17,14 +17,14 @@ import platform.Foundation.NSTimer
 import platform.darwin.NSObject
 import platform.posix.PATH_MAX
 import platform.posix.realpath
-import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.experimental.CoroutineContext
 import kotlin.reflect.KClass
 import com.soywiz.korio.async.*
 import com.soywiz.klock.*
 import com.soywiz.kmem.*
-import kotlinx.coroutines.*
-import kotlin.coroutines.*
-import kotlinx.coroutines.timeunit.*
+import kotlinx.coroutines.experimental.*
+import kotlin.coroutines.experimental.*
+import kotlinx.coroutines.experimental.timeunit.*
 
 actual val KoruiDispatcher: CoroutineDispatcher get() = MyNativeDispatcher
 

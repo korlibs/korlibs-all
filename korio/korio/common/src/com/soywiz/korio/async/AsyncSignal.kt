@@ -1,8 +1,8 @@
 package com.soywiz.korio.async
 
 import com.soywiz.korio.lang.*
-import kotlinx.coroutines.*
-import kotlin.coroutines.*
+import kotlinx.coroutines.experimental.*
+import kotlin.coroutines.experimental.*
 
 class AsyncSignal<T>(val onRegister: () -> Unit = {}) { //: AsyncSequence<T> {
 	inner class Node(val once: Boolean, val item: suspend (T) -> Unit) : Closeable {

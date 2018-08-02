@@ -5,9 +5,10 @@ import com.soywiz.klock.*
 import com.soywiz.korio.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.util.*
-import kotlinx.coroutines.*
-import kotlinx.coroutines.timeunit.*
-import kotlin.coroutines.*
+import com.soywiz.std.coroutine.*
+import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.timeunit.*
+import kotlin.coroutines.experimental.*
 
 // @TODO: BUG: kotlin-js bug :: Uncaught ReferenceError: CoroutineImpl is not defined
 //Coroutine$await$lambda.$metadata$ = {kind: Kotlin.Kind.CLASS, simpleName: null, interfaces: [CoroutineImpl]};
@@ -55,7 +56,7 @@ suspend fun CoroutineContext.delayNextFrame() {
 
 suspend fun CoroutineContext.delayMs(time: Int) {
 	withContext(this) {
-		kotlinx.coroutines.delay(time)
+		kotlinx.coroutines.experimental.delay(time)
 	}
 }
 
@@ -94,15 +95,15 @@ class TestCoroutineDispatcher(val frameTime: Int = 16) :
 	val tasks = PriorityQueue<TimedTask>(Comparator { a, b -> a.time.compareTo(b.time) })
 
 	override fun <T> interceptContinuation(continuation: Continuation<T>): Continuation<T> {
-		return object : Continuation<T> {
+		return object : OldContinuationAdaptor<T>() {
 			override val context: CoroutineContext = continuation.context
 
-			override fun resumeWith(result: SuccessOrFailure<T>) {
-				if (result.isSuccess) {
-					continuation.resume(result.getOrThrow())
-				} else {
-					continuation.resumeWithException(result.exceptionOrNull()!!)
-				}
+			override fun resume(value: T) {
+				continuation.resume(value)
+			}
+
+			override fun resumeWithException(exception: Throwable) {
+				continuation.resumeWithException(exception)
 			}
 		}
 	}
@@ -134,28 +135,30 @@ class TestCoroutineDispatcher(val frameTime: Int = 16) :
 			val task = tasks.removeHead()
 			this.time = task.time
 			//println("RUN: $task")
-			task.callback.startCoroutine(object : Continuation<Unit> {
+			task.callback.startCoroutine(object : OldContinuationAdaptor<Unit>() {
 				override val context: CoroutineContext = this@TestCoroutineDispatcher
-				override fun resumeWith(result: SuccessOrFailure<Unit>) {
-					val exception = result.exceptionOrNull()
-					if (exception != null) {
-						exception.printStackTrace()
-						this@TestCoroutineDispatcher.exception = exception
-					}
+
+				override fun resume(value: Unit) {
+				}
+
+				override fun resumeWithException(exception: Throwable) {
+					exception.printStackTrace()
+					this@TestCoroutineDispatcher.exception = exception
 				}
 			})
 		}
 	}
 
 	fun loop(entry: suspend () -> Unit) {
-		entry.startCoroutine(object : Continuation<Unit> {
+		entry.startCoroutine(object : OldContinuationAdaptor<Unit>() {
 			override val context: CoroutineContext = this@TestCoroutineDispatcher
-			override fun resumeWith(result: SuccessOrFailure<Unit>) {
-				val exception = result.exceptionOrNull()
-				if (exception != null) {
-					exception.printStackTrace()
-					this@TestCoroutineDispatcher.exception = exception
-				}
+
+			override fun resume(value: Unit) {
+			}
+
+			override fun resumeWithException(exception: Throwable) {
+				exception.printStackTrace()
+				this@TestCoroutineDispatcher.exception = exception
 			}
 		})
 		loop()

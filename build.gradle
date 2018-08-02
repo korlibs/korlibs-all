@@ -238,27 +238,27 @@ allprojects {
 	}
 
 	// Inline classes
-	//def inlineClasses = true
-	def inlineClasses = false
+	def inlineClasses = true
+	//def inlineClasses = false
 	if (inlineClasses) {
 		if (isJvm) {
 			[compileKotlin, compileTestKotlin]*.configure {
 				kotlinOptions.freeCompilerArgs = ["-XXLanguage:+InlineClasses"]
-				kotlinOptions.languageVersion = ext.kotlinLangVersion
+				kotlinOptions.languageVersion = kotlinLangVersion
 			}
 		}
 
 		if (isJs) {
 			[compileKotlin2Js, compileTestKotlin2Js]*.configure {
 				kotlinOptions.freeCompilerArgs = ["-XXLanguage:+InlineClasses"]
-				kotlinOptions.languageVersion = ext.kotlinLangVersion
+				kotlinOptions.languageVersion = kotlinLangVersion
 			}
 		}
 
 		if (isCommon) {
 			[compileKotlinCommon, compileTestKotlinCommon]*.configure {
 				kotlinOptions.freeCompilerArgs = ["-XXLanguage:+InlineClasses"]
-				kotlinOptions.languageVersion = ext.kotlinLangVersion
+				kotlinOptions.languageVersion = kotlinLangVersion
 			}
 		}
 	}

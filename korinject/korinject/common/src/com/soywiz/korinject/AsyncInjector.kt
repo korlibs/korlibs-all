@@ -1,6 +1,7 @@
 package com.soywiz.korinject
 
-import kotlin.coroutines.*
+import com.soywiz.std.coroutine.*
+import kotlin.coroutines.experimental.*
 import kotlin.reflect.*
 
 //import kotlin.reflect.KClass
@@ -138,14 +139,14 @@ class AsyncInjector(val parent: AsyncInjector? = null, val level: Int = 0) {
 		var rexception: Throwable? = null
 		suspend {
 			get(clazz, ctx)
-		}.startCoroutine(object : Continuation<T> {
+		}.startCoroutine(object : OldContinuationAdaptor<T>() {
 			override val context: CoroutineContext = EmptyCoroutineContext
-			override fun resumeWith(result: SuccessOrFailure<T>) {
-				if (result.isSuccess) {
-					rresult = result.getOrThrow()
-				} else {
-					rexception = result.exceptionOrNull()!!
-				}
+			override fun resume(value: T) {
+				rresult = value
+			}
+
+			override fun resumeWithException(exception: Throwable) {
+				rexception = exception
 			}
 		})
 		if (rexception != null) throw rexception!!

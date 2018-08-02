@@ -7,7 +7,7 @@ import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.Closeable
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.experimental.*
 import java.io.*
 import java.nio.*
 import java.nio.channels.*
@@ -15,7 +15,7 @@ import java.nio.channels.CompletionHandler
 import java.nio.file.*
 import java.nio.file.Path
 import java.util.concurrent.*
-import kotlin.coroutines.*
+import kotlin.coroutines.experimental.*
 
 val ioContext by lazy { newFixedThreadPoolContext(2, "korioThreadPool") }
 //suspend fun <T> executeIo(callback: suspend () -> T): T = withContext(ioContext) { callback() }

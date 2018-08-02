@@ -10,8 +10,8 @@ import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
 import com.soywiz.korma.math.*
+import com.soywiz.std.random.*
 import kotlin.math.*
-import kotlin.random.*
 
 suspend fun VfsFile.readMod() = MOD().apply { read(readAll().openSync()) }
 

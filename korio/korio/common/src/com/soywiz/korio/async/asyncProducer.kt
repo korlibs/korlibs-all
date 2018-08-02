@@ -5,9 +5,9 @@ import com.soywiz.kmem.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
-import kotlinx.coroutines.*
-import kotlinx.coroutines.intrinsics.*
-import kotlin.coroutines.*
+import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.intrinsics.*
+import kotlin.coroutines.experimental.*
 import kotlin.math.*
 
 typealias CancelHandler = Signal<Unit>

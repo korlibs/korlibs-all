@@ -404,6 +404,10 @@ abstract class AGOpengl : AG() {
 		}
 	}
 
+	// @TODO: Kotlin inline bug
+	//Back-end (JVM) Internal error: wrong code generated
+	//org.jetbrains.kotlin.codegen.CompilationException Back-end (JVM) Internal error: Couldn't transform method node:
+	//clear (IFIZZZ)V:
 	override fun clear(
 		color: RGBA,
 		depth: Float,

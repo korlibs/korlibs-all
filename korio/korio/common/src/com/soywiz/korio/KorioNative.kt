@@ -9,8 +9,8 @@ import com.soywiz.korio.net.*
 import com.soywiz.korio.net.http.*
 import com.soywiz.korio.net.ws.*
 import com.soywiz.korio.stream.*
-import kotlinx.coroutines.*
-import kotlin.coroutines.*
+import kotlinx.coroutines.experimental.*
+import kotlin.coroutines.experimental.*
 import kotlin.math.*
 import kotlin.reflect.*
 

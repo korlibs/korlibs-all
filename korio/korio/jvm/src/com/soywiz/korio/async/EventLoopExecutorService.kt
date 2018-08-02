@@ -1,8 +1,8 @@
 package com.soywiz.korio.async
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.experimental.*
 import java.util.concurrent.*
-import kotlin.coroutines.*
+import kotlin.coroutines.experimental.*
 
 class EventLoopExecutorService(val context: CoroutineContext) : ExecutorService {
 	var shutdown = false

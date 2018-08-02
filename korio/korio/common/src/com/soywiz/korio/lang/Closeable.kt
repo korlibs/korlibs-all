@@ -1,6 +1,6 @@
 package com.soywiz.korio.lang
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.experimental.*
 
 interface Disposable {
 	fun dispose()

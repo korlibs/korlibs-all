@@ -1,7 +1,6 @@
 package com.soywiz.korma.random
 
 import com.soywiz.korma.math.*
-import kotlin.random.*
 
 class MtRand private constructor(dummy: Boolean) : Rand {
 	companion object {
@@ -17,7 +16,7 @@ class MtRand private constructor(dummy: Boolean) : Rand {
 
 	private var state = IntArray(N)
 
-	constructor() : this(kotlin.random.Random.nextBits(31))
+	constructor() : this(com.soywiz.std.random.Random.nextInt())
 
 	constructor(s: Int) : this(false) {
 		seed(s)

@@ -56,7 +56,7 @@ class OggFile : Closeable {
 	protected val unusedSerialNumber: Int
 		get() {
 			while (true) {
-				val sid = (kotlin.random.Random.nextDouble() * Short.MAX_VALUE).toInt()
+				val sid = (com.soywiz.std.random.Random.nextDouble() * Short.MAX_VALUE).toInt()
 				if (!seenSIDs.contains(sid)) {
 					return sid
 				}

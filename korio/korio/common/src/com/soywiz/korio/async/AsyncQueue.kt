@@ -1,7 +1,7 @@
 package com.soywiz.korio.async
 
-import kotlinx.coroutines.*
-import kotlin.coroutines.*
+import kotlinx.coroutines.experimental.*
+import kotlin.coroutines.experimental.*
 
 //class AsyncQueue(val context: CoroutineContext) {
 class AsyncQueue() {

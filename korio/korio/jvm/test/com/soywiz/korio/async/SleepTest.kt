@@ -1,7 +1,7 @@
 package com.soywiz.korio.async
 
 import com.soywiz.klock.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.experimental.*
 import kotlin.test.*
 
 class SleepTest {

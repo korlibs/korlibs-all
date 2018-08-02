@@ -8,9 +8,9 @@ import com.soywiz.korio.lang.*
 import com.soywiz.korio.net.*
 import com.soywiz.korio.net.http.*
 import com.soywiz.korio.stream.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.experimental.*
 import org.khronos.webgl.*
-import kotlin.coroutines.*
+import kotlin.coroutines.experimental.*
 
 internal external fun require(name: String): dynamic
 

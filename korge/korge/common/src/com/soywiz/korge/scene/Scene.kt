@@ -9,7 +9,7 @@ import com.soywiz.korge.view.*
 import com.soywiz.korinject.*
 import com.soywiz.korio.async.*
 import com.soywiz.korma.geom.*
-import kotlin.coroutines.*
+import kotlin.coroutines.experimental.*
 
 abstract class Scene : InjectorAsyncDependency, ViewsContainer, CoroutineContextHolder {
 	lateinit var injector: AsyncInjector

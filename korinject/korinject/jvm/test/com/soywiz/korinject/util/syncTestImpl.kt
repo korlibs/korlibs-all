@@ -1,20 +1,21 @@
 package com.soywiz.korinject.util
 
-import kotlin.coroutines.Continuation
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.coroutines.*
-import kotlin.coroutines.intrinsics.*
+import com.soywiz.std.coroutine.*
+import kotlin.coroutines.experimental.*
 
 actual fun syncTestImpl(ignoreJs: Boolean, block: suspend () -> Unit) {
 	var e: Throwable? = null
 	var done = false
 
-	block.startCoroutine(object : Continuation<Unit> {
+	block.startCoroutine(object : OldContinuationAdaptor<Unit>() {
 		override val context: CoroutineContext = EmptyCoroutineContext
-		override fun resumeWith(result: SuccessOrFailure<Unit>) {
+		override fun resume(value: Unit) {
 			done = true
-			e = result.exceptionOrNull()
+		}
+
+		override fun resumeWithException(exception: Throwable) {
+			done = true
+			e = exception
 		}
 	})
 

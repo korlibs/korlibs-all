@@ -10,8 +10,8 @@ import com.soywiz.korio.util.*
 import com.soywiz.korma.geom.*
 import com.soywiz.korui.event.*
 import com.soywiz.korui.input.*
-import kotlinx.coroutines.*
-import kotlinx.coroutines.timeunit.*
+import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.timeunit.*
 
 open class ViewsForTesting(val frameTime: Int = 10) {
 	var time = 0L

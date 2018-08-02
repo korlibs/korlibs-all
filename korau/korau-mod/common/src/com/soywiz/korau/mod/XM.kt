@@ -6,8 +6,8 @@ import com.soywiz.korau.format.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.file.*
 import com.soywiz.korma.math.*
+import com.soywiz.std.random.*
 import kotlin.math.*
-import kotlin.random.*
 
 /*
   fast tracker 2 module player for web audio api

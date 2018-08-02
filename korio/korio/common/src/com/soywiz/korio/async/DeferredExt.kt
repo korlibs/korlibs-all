@@ -1,18 +1,19 @@
 package com.soywiz.korio.async
 
-import kotlinx.coroutines.*
-import kotlin.coroutines.*
+import com.soywiz.std.coroutine.*
+import kotlinx.coroutines.experimental.*
+import kotlin.coroutines.experimental.*
 
 fun <T> CompletableDeferred<T>.toContinuation(context: CoroutineContext, job: Job? = null): Continuation<T> {
 	val deferred = CompletableDeferred<T>(job)
-	return object : Continuation<T> {
+	return object : OldContinuationAdaptor<T>() {
 		override val context: CoroutineContext = context
-		override fun resumeWith(result: SuccessOrFailure<T>) {
-			if (result.isSuccess) {
-				deferred.complete(result.getOrThrow())
-			} else {
-				deferred.completeExceptionally(result.exceptionOrNull()!!)
-			}
+		override fun resume(value: T) {
+			deferred.complete(value)
+		}
+
+		override fun resumeWithException(exception: Throwable) {
+			deferred.completeExceptionally(exception)
 		}
 	}
 }

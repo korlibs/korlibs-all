@@ -4,7 +4,7 @@ import com.soywiz.klock.*
 import com.soywiz.korau.format.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.file.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.experimental.*
 
 expect val nativeSoundProvider: NativeSoundProvider
 

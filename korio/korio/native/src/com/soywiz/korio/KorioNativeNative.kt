@@ -17,8 +17,8 @@ import com.soywiz.korio.util.*
 import kotlin.collections.set
 import kotlin.reflect.*
 import com.soywiz.std.*
-import kotlin.coroutines.*
-import kotlinx.coroutines.*
+import kotlin.coroutines.experimental.*
+import kotlinx.coroutines.experimental.*
 
 import kotlinx.cinterop.*
 import platform.posix.*

@@ -5,8 +5,8 @@ import com.soywiz.korio.ds.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.lang.*
 
-inline class RGBA(val rgba: Int) : Comparable<RGBA> {
-//data class RGBA(val rgba: Int) { // @TODO: SUPER Extremely slow! Mark class as inline once fixes are ready
+// inline // @TODO: class inline or slow
+data class RGBA(val rgba: Int) : Comparable<RGBA> {// @TODO: SUPER Extremely slow! Mark class as inline once fixes are ready
 	val r: Int get() = (rgba ushr 0) and 0xFF
 	val g: Int get() = (rgba ushr 8) and 0xFF
 	val b: Int get() = (rgba ushr 16) and 0xFF
@@ -373,8 +373,7 @@ inline class RGBA(val rgba: Int) : Comparable<RGBA> {
 }
 
 
-//inline class RgbaArray(val array: IntArray) {
-//inline class RgbaArray(val array: IntArray) : List<RGBA> {
+//inline // @TODO: class inline or slow!
 class RgbaArray(val array: IntArray) : List<RGBA> {
 	override fun subList(fromIndex: Int, toIndex: Int): List<RGBA> = SubListGeneric(this, fromIndex, toIndex)
 	override fun contains(element: RGBA): Boolean = array.contains(element.rgba)

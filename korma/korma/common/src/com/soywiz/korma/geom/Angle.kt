@@ -3,7 +3,8 @@ package com.soywiz.korma.geom
 import com.soywiz.kds.*
 import kotlin.math.*
 
-inline class Angle(val radians: Double) {
+//inline // @TODO: class inline!
+class Angle(val radians: Double) {
 	val degrees get() = rad2deg(radians)
 
 	//val normalizedRadians get() = KdsExt { radians umod Angle.MAX_RADIANS }

@@ -8,7 +8,7 @@ import com.soywiz.korio.net.*
 import com.soywiz.korio.serialization.json.*
 import com.soywiz.korio.stream.*
 import com.soywiz.std.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.experimental.*
 
 abstract class HttpClient protected constructor() {
 	var ignoreSslCertificates = false

@@ -4,11 +4,11 @@ import com.soywiz.klock.*
 import com.soywiz.korge.component.*
 import com.soywiz.korge.view.*
 import com.soywiz.korio.lang.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.experimental.*
 import kotlin.collections.arrayListOf
 import kotlin.collections.minusAssign
 import kotlin.collections.plusAssign
-import kotlin.coroutines.*
+import kotlin.coroutines.experimental.*
 
 class TimerComponents(override val view: View) : UpdateComponent {
 	internal val timers = arrayListOf<(Int) -> Unit>()

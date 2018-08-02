@@ -5,8 +5,8 @@ import com.soywiz.korio.async.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.file.std.*
-import kotlinx.coroutines.*
-import kotlin.coroutines.*
+import kotlinx.coroutines.experimental.*
+import kotlin.coroutines.experimental.*
 
 class HtmlNativeSoundProvider : NativeSoundProvider() {
 	private val log = Logger("HtmlNativeSoundProvider")

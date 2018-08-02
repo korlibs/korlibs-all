@@ -3,8 +3,9 @@
 package com.soywiz.korio.async
 
 import com.soywiz.kds.*
-import kotlinx.coroutines.*
-import kotlin.coroutines.*
+import com.soywiz.std.coroutine.*
+import kotlinx.coroutines.experimental.*
+import kotlin.coroutines.experimental.*
 
 interface SuspendingSequenceBuilder<in T> {
 	suspend fun yield(value: T)
@@ -39,7 +40,7 @@ fun <T> suspendingIterator(
 
 class SuspendingIteratorCoroutine<T>(
 	override val context: CoroutineContext
-) : SuspendingIterator<T>, SuspendingSequenceBuilder<T>, Continuation<Unit> {
+) : SuspendingIterator<T>, SuspendingSequenceBuilder<T>, OldContinuationAdaptor<Unit>() {
 	enum class State { INITIAL, COMPUTING_HAS_NEXT, COMPUTING_NEXT, COMPUTED, DONE }
 
 	var state: State = State.INITIAL
@@ -98,17 +99,15 @@ class SuspendingIteratorCoroutine<T>(
 		}
 	}
 
+	override fun resume(value: Unit) {
+		nextStep = null
+		resumeIterator(false)
+	}
 
-	// Completion continuation implementation
-	override fun resumeWith(result: SuccessOrFailure<Unit>) {
-		if (result.isSuccess) {
-			nextStep = null
-			resumeIterator(false)
-		} else {
-			nextStep = null
-			state = State.DONE
-			computeContinuation!!.resumeWithException(result.exceptionOrNull()!!)
-		}
+	override fun resumeWithException(exception: Throwable) {
+		nextStep = null
+		state = State.DONE
+		computeContinuation!!.resumeWithException(exception)
 	}
 
 	// Generator implementation

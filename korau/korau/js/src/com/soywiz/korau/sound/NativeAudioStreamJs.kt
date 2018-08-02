@@ -7,7 +7,7 @@ import com.soywiz.korio.async.*
 import com.soywiz.korio.lang.*
 import org.khronos.webgl.*
 import kotlin.browser.*
-import kotlin.coroutines.*
+import kotlin.coroutines.experimental.*
 
 
 actual val nativeSoundProvider: NativeSoundProvider by lazy { HtmlNativeSoundProvider() }

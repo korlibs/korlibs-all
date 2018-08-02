@@ -9,7 +9,7 @@ import com.soywiz.korio.async.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korui.event.*
-import kotlin.coroutines.*
+import kotlin.coroutines.experimental.*
 import kotlin.reflect.*
 
 internal val lightLog = Logger("light")

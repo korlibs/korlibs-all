@@ -1,6 +1,7 @@
 package com.soywiz.korinject.util
 
-import kotlin.coroutines.*
+import com.soywiz.std.coroutine.*
+import kotlin.coroutines.experimental.*
 
 val global = js("(typeof global !== 'undefined') ? global : window")
 
@@ -8,15 +9,10 @@ actual fun syncTestImpl(ignoreJs: Boolean, block: suspend () -> Unit) {
 	if (ignoreJs) return
 
 	global.testPromise = kotlin.js.Promise<Unit> { resolve, reject ->
-		block.startCoroutine(object : Continuation<Unit> {
+		block.startCoroutine(object : OldContinuationAdaptor<Unit>() {
 			override val context: CoroutineContext = EmptyCoroutineContext
-			override fun resumeWith(result: SuccessOrFailure<Unit>) {
-				if (result.isSuccess) {
-					resolve(Unit)
-				} else {
-					reject(result.exceptionOrNull()!!)
-				}
-			}
+			override fun resume(value: Unit) = resolve(value)
+			override fun resumeWithException(exception: Throwable) = reject(exception)
 		})
 	}
 }

@@ -8,8 +8,8 @@ import com.soywiz.korio.lang.*
 import com.soywiz.korio.net.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
-import kotlinx.coroutines.*
-import kotlin.coroutines.*
+import kotlinx.coroutines.experimental.*
+import kotlin.coroutines.experimental.*
 
 open class HttpServer protected constructor() : AsyncCloseable {
 	companion object {

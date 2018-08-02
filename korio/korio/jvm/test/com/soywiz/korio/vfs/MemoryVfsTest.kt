@@ -2,7 +2,7 @@ package com.soywiz.korio.vfs
 
 import com.soywiz.korio.async.*
 import com.soywiz.korio.file.std.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.experimental.*
 import kotlin.test.*
 
 class MemoryVfsTest {

@@ -1,7 +1,8 @@
 package com.soywiz.korio.async
 
 import com.soywiz.korio.lang.*
-import kotlin.coroutines.*
+import com.soywiz.std.coroutine.*
+import kotlin.coroutines.experimental.*
 
 open class EmptyContinuation(override val context: CoroutineContext) : OldContinuationAdaptor<Unit>() {
 	override fun resume(value: Unit) = Unit

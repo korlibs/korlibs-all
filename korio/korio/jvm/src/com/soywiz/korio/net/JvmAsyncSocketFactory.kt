@@ -2,13 +2,13 @@ package com.soywiz.korio.net
 
 import com.soywiz.korio.async.*
 import com.soywiz.korio.lang.Closeable
-import kotlinx.coroutines.*
+import kotlinx.coroutines.experimental.*
 import java.io.*
 import java.net.*
 import java.nio.*
 import java.nio.channels.*
 import java.nio.channels.CompletionHandler
-import kotlin.coroutines.*
+import kotlin.coroutines.experimental.*
 
 class JvmAsyncSocketFactory : AsyncSocketFactory() {
 	override suspend fun createClient(): AsyncClient = JvmAsyncClient()

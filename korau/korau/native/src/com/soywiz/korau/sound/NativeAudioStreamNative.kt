@@ -4,8 +4,8 @@ import com.soywiz.kds.*
 import com.soywiz.klogger.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.lang.*
-import kotlin.coroutines.*
-import kotlinx.coroutines.*
+import kotlin.coroutines.experimental.*
+import kotlinx.coroutines.experimental.*
 
 actual val nativeSoundProvider: NativeSoundProvider by lazy { DummyNativeSoundProvider() }
 

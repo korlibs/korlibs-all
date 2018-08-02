@@ -5,7 +5,7 @@ import com.soywiz.klogger.*
 import com.soywiz.korio.async.*
 import java.nio.*
 import javax.sound.sampled.*
-import kotlin.coroutines.*
+import kotlin.coroutines.experimental.*
 
 data class SampleBuffer(val timestamp: Long, val data: ShortArray)
 
