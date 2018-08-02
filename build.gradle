@@ -238,8 +238,8 @@ allprojects {
 	}
 
 	// Inline classes
-	def inlineClasses = true
-	//def inlineClasses = false
+	//def inlineClasses = true
+	def inlineClasses = false
 	if (inlineClasses) {
 		if (isJvm) {
 			[compileKotlin, compileTestKotlin]*.configure {
