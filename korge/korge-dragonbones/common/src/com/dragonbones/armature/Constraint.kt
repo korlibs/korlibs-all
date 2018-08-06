@@ -289,8 +289,8 @@ class PathConstraint  :  Constraint() {
 		val floatArray = dragonBonesData.floatArray!!
 
 		val pathOffset = verticesData.offset
-		val pathVertexCount = intArray[pathOffset + BinaryOffset.GeometryVertexCount.index]
-		val pathVertexOffset = intArray[pathOffset + BinaryOffset.GeometryFloatOffset.index]
+		val pathVertexCount = intArray[pathOffset + BinaryOffset.GeometryVertexCount]
+		val pathVertexOffset = intArray[pathOffset + BinaryOffset.GeometryFloatOffset]
 
 		this._pathGlobalVertices.lengthSet = pathVertexCount * 2
 
@@ -322,10 +322,10 @@ class PathConstraint  :  Constraint() {
 		val weightBoneCount = weightData.bones.size
 
 		val weightOffset = weightData.offset
-		val floatOffset = intArray[weightOffset + BinaryOffset.WeigthFloatOffset.index].toInt()
+		val floatOffset = intArray[weightOffset + BinaryOffset.WeigthFloatOffset].toInt()
 
 		var iV = floatOffset
-		var iB = weightOffset + BinaryOffset.WeigthBoneIndices.index + weightBoneCount
+		var iB = weightOffset + BinaryOffset.WeigthBoneIndices + weightBoneCount
 
 		var iW = 0
 		for (i in 0 until pathVertexCount) {
@@ -364,7 +364,7 @@ class PathConstraint  :  Constraint() {
 		//计算当前的骨骼在曲线上的位置
 		val armature = this._armature
 		val intArray = armature.armatureData.parent!!.intArray!!
-		val vertexCount = intArray[pathDisplayDta.geometry.offset + BinaryOffset.GeometryVertexCount.index].toInt()
+		val vertexCount = intArray[pathDisplayDta.geometry.offset + BinaryOffset.GeometryVertexCount].toInt()
 
 		val positions = this._positions
 		val spaces = this._spaces

@@ -506,15 +506,15 @@ open class ObjectDataParser : DataParser() {
 	}
 
 	protected fun _parseBone(rawData: Any?): BoneData {
-		val type: BoneType
+		val isSurface: Boolean
 
 		if (DataParser.TYPE in rawData && rawData[DataParser.TYPE] is String) {
-			type = DataParser._getBoneType(rawData[DataParser.TYPE]?.toString())
+			isSurface = DataParser._getBoneTypeIsSurface(rawData[DataParser.TYPE]?.toString())
 		} else {
-			type = BoneType[ObjectDataParser._getInt(rawData, DataParser.TYPE, BoneType.Bone.id)]
+			isSurface = ObjectDataParser._getInt(rawData, DataParser.TYPE, 0) == 1
 		}
 
-		if (type == BoneType.Bone) {
+		if (!isSurface) {
 			val scale = this._armature!!.scale
 			val bone = BaseObject.borrowObject<BoneData>()
 			bone.inheritTranslation = ObjectDataParser._getBoolean(rawData, DataParser.INHERIT_TRANSLATION, true)
@@ -530,16 +530,17 @@ open class ObjectDataParser : DataParser() {
 			}
 
 			return bone
+		} else {
+
+			val surface = BaseObject.borrowObject<SurfaceData>()
+			surface.alpha = ObjectDataParser._getNumber(rawData, DataParser.ALPHA, 1.0)
+			surface.name = ObjectDataParser._getString(rawData, DataParser.NAME, "")
+			surface.segmentX = ObjectDataParser._getInt(rawData, DataParser.SEGMENT_X, 0)
+			surface.segmentY = ObjectDataParser._getInt(rawData, DataParser.SEGMENT_Y, 0)
+			this._parseGeometry(rawData, surface.geometry)
+
+			return surface
 		}
-
-		val surface = BaseObject.borrowObject<SurfaceData>()
-		surface.alpha = ObjectDataParser._getNumber(rawData, DataParser.ALPHA, 1.0)
-		surface.name = ObjectDataParser._getString(rawData, DataParser.NAME, "")
-		surface.segmentX = ObjectDataParser._getInt(rawData, DataParser.SEGMENT_X, 0)
-		surface.segmentY = ObjectDataParser._getInt(rawData, DataParser.SEGMENT_Y, 0)
-		this._parseGeometry(rawData, surface.geometry)
-
-		return surface
 	}
 
 	protected fun _parseIKConstraint(rawData: Any?): ConstraintData? {
@@ -1119,7 +1120,7 @@ open class ObjectDataParser : DataParser() {
 					}
 
 					TimelineType.Surface -> {
-						val surface = this._armature?.getBone(timelineName) as? SurfaceData? ?: continue@loop
+						val surface = this._armature?.getBone(timelineName) ?: continue@loop
 
 						this._geometry = surface.geometry
 						timeline = this._parseTimeline(
@@ -1252,37 +1253,37 @@ open class ObjectDataParser : DataParser() {
 		this._timelineArray.length += 1 + 1 + 1 + 1 + 1 + keyFrameCount
 
 		if (rawData != null) {
-			this._timelineArray[timelineOffset + BinaryOffset.TimelineScale.index] =
+			this._timelineArray[timelineOffset + BinaryOffset.TimelineScale] =
 					round(ObjectDataParser._getNumber(rawData, DataParser.SCALE, 1.0) * 100)
-			this._timelineArray[timelineOffset + BinaryOffset.TimelineOffset.index] =
+			this._timelineArray[timelineOffset + BinaryOffset.TimelineOffset] =
 					round(ObjectDataParser._getNumber(rawData, DataParser.OFFSET, 0.0) * 100)
 		} else {
-			this._timelineArray[timelineOffset + BinaryOffset.TimelineScale.index] = 100.0
-			this._timelineArray[timelineOffset + BinaryOffset.TimelineOffset.index] = 0.0
+			this._timelineArray[timelineOffset + BinaryOffset.TimelineScale] = 100.0
+			this._timelineArray[timelineOffset + BinaryOffset.TimelineOffset] = 0.0
 		}
 
-		this._timelineArray[timelineOffset + BinaryOffset.TimelineKeyFrameCount.index] = keyFrameCount.toDouble()
-		this._timelineArray[timelineOffset + BinaryOffset.TimelineFrameValueCount.index] = frameValueCount.toDouble()
+		this._timelineArray[timelineOffset + BinaryOffset.TimelineKeyFrameCount] = keyFrameCount.toDouble()
+		this._timelineArray[timelineOffset + BinaryOffset.TimelineFrameValueCount] = frameValueCount.toDouble()
 
 		when (this._frameValueType) {
 			FrameValueType.STEP -> {
-				this._timelineArray[timelineOffset + BinaryOffset.TimelineFrameValueOffset.index] = 0.0
+				this._timelineArray[timelineOffset + BinaryOffset.TimelineFrameValueOffset] = 0.0
 			}
 
 			FrameValueType.INT -> {
-				this._timelineArray[timelineOffset + BinaryOffset.TimelineFrameValueOffset.index] =
+				this._timelineArray[timelineOffset + BinaryOffset.TimelineFrameValueOffset] =
 						(frameIntArrayLength - this._animation!!.frameIntOffset).toDouble()
 			}
 
 			FrameValueType.FLOAT -> {
-				this._timelineArray[timelineOffset + BinaryOffset.TimelineFrameValueOffset.index] =
+				this._timelineArray[timelineOffset + BinaryOffset.TimelineFrameValueOffset] =
 						(frameFloatArrayLength - this._animation!!.frameFloatOffset).toDouble()
 			}
 		}
 
 		if (keyFrameCount == 1) { // Only one frame.
 			timeline.frameIndicesOffset = -1
-			this._timelineArray[timelineOffset + BinaryOffset.TimelineFrameOffset.index + 0] =
+			this._timelineArray[timelineOffset + BinaryOffset.TimelineFrameOffset + 0] =
 					(frameParser(rawFrames[0], 0, 0) - this._animation!!.frameOffset).toDouble()
 		} else {
 			val totalFrameCount = this._animation!!.frameCount + 1 // One more frame than animation.
@@ -1310,7 +1311,7 @@ open class ObjectDataParser : DataParser() {
 						}
 					}
 
-					this._timelineArray[timelineOffset + BinaryOffset.TimelineFrameOffset.index + iK] =
+					this._timelineArray[timelineOffset + BinaryOffset.TimelineFrameOffset + iK] =
 							(frameParser(rawFrame, frameStart, frameCount) - this._animation!!.frameOffset).toDouble()
 					iK++
 				}
@@ -1438,7 +1439,7 @@ open class ObjectDataParser : DataParser() {
 	protected fun _parseFrame(rawData: Any?, frameStart: Int, frameCount: Int): Int {
 		val frameOffset = this._frameArray.length
 		this._frameArray.length += 1
-		this._frameArray[frameOffset + BinaryOffset.FramePosition.index] = frameStart.toDouble()
+		this._frameArray[frameOffset + BinaryOffset.FramePosition] = frameStart.toDouble()
 
 		return frameOffset
 	}
@@ -1453,12 +1454,12 @@ open class ObjectDataParser : DataParser() {
 				val isOmited = this._samplingEasingCurve(rawData[DataParser.CURVE].doubleArrayList, this._helpArray)
 
 				this._frameArray.length += 1 + 1 + this._helpArray.length
-				this._frameArray[frameOffset + BinaryOffset.FrameTweenType.index] = TweenType.Curve.id.toDouble()
-				this._frameArray[frameOffset + BinaryOffset.FrameTweenEasingOrCurveSampleCount.index] =
+				this._frameArray[frameOffset + BinaryOffset.FrameTweenType] = TweenType.Curve.id.toDouble()
+				this._frameArray[frameOffset + BinaryOffset.FrameTweenEasingOrCurveSampleCount] =
 						(if (isOmited) sampleCount else -sampleCount).toDouble()
 				//for (var i = 0; i < sampleCount; ++i) {
 				for (i in 0 until sampleCount) {
-					this._frameArray[frameOffset + BinaryOffset.FrameCurveSamples.index + i] =
+					this._frameArray[frameOffset + BinaryOffset.FrameCurveSamples + i] =
 							round(this._helpArray[i] * 10000.0)
 				}
 			} else {
@@ -1470,31 +1471,31 @@ open class ObjectDataParser : DataParser() {
 
 				if (tweenEasing == noTween) {
 					this._frameArray.length += 1
-					this._frameArray[frameOffset + BinaryOffset.FrameTweenType.index] = TweenType.None.id.toDouble()
+					this._frameArray[frameOffset + BinaryOffset.FrameTweenType] = TweenType.None.id.toDouble()
 				} else if (tweenEasing == 0.0) {
 					this._frameArray.length += 1
-					this._frameArray[frameOffset + BinaryOffset.FrameTweenType.index] = TweenType.Line.id.toDouble()
+					this._frameArray[frameOffset + BinaryOffset.FrameTweenType] = TweenType.Line.id.toDouble()
 				} else if (tweenEasing < 0.0) {
 					this._frameArray.length += 1 + 1
-					this._frameArray[frameOffset + BinaryOffset.FrameTweenType.index] = TweenType.QuadIn.id.toDouble()
-					this._frameArray[frameOffset + BinaryOffset.FrameTweenEasingOrCurveSampleCount.index] =
+					this._frameArray[frameOffset + BinaryOffset.FrameTweenType] = TweenType.QuadIn.id.toDouble()
+					this._frameArray[frameOffset + BinaryOffset.FrameTweenEasingOrCurveSampleCount] =
 							round(-tweenEasing * 100.0)
 				} else if (tweenEasing <= 1.0) {
 					this._frameArray.length += 1 + 1
-					this._frameArray[frameOffset + BinaryOffset.FrameTweenType.index] = TweenType.QuadOut.id.toDouble()
-					this._frameArray[frameOffset + BinaryOffset.FrameTweenEasingOrCurveSampleCount.index] =
+					this._frameArray[frameOffset + BinaryOffset.FrameTweenType] = TweenType.QuadOut.id.toDouble()
+					this._frameArray[frameOffset + BinaryOffset.FrameTweenEasingOrCurveSampleCount] =
 							round(tweenEasing * 100.0)
 				} else {
 					this._frameArray.length += 1 + 1
-					this._frameArray[frameOffset + BinaryOffset.FrameTweenType.index] =
+					this._frameArray[frameOffset + BinaryOffset.FrameTweenType] =
 							TweenType.QuadInOut.id.toDouble()
-					this._frameArray[frameOffset + BinaryOffset.FrameTweenEasingOrCurveSampleCount.index] =
+					this._frameArray[frameOffset + BinaryOffset.FrameTweenEasingOrCurveSampleCount] =
 							round(tweenEasing * 100.0 - 100.0)
 				}
 			}
 		} else {
 			this._frameArray.length += 1
-			this._frameArray[frameOffset + BinaryOffset.FrameTweenType.index] = TweenType.None.id.toDouble()
+			this._frameArray[frameOffset + BinaryOffset.FrameTweenType] = TweenType.None.id.toDouble()
 		}
 
 		return frameOffset
@@ -1597,12 +1598,12 @@ open class ObjectDataParser : DataParser() {
 		val frameOffset = this._frameArray.length
 		val actionCount = frame.actions.length
 		this._frameArray.length += 1 + 1 + actionCount
-		this._frameArray[frameOffset + BinaryOffset.FramePosition.index] = frameStart.toDouble()
-		this._frameArray[frameOffset + BinaryOffset.FramePosition.index + 1] = actionCount.toDouble() // Action count.
+		this._frameArray[frameOffset + BinaryOffset.FramePosition] = frameStart.toDouble()
+		this._frameArray[frameOffset + BinaryOffset.FramePosition + 1] = actionCount.toDouble() // Action count.
 
 		//for (var i = 0; i < actionCount; ++i) { // Action offsets.
 		for (i in 0 until actionCount) { // Action offsets.
-			this._frameArray[frameOffset + BinaryOffset.FramePosition.index + 2 + i] = frame.actions[i].toDouble()
+			this._frameArray[frameOffset + BinaryOffset.FramePosition + 2 + i] = frame.actions[i].toDouble()
 		}
 
 		return frameOffset
@@ -1829,7 +1830,7 @@ open class ObjectDataParser : DataParser() {
 		val frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount)
 		val rawVertices = rawData[DataParser.VERTICES]?.doubleArray
 		val offset = ObjectDataParser._getInt(rawData, DataParser.OFFSET, 0) // uint
-		val vertexCount = this._intArray[this._mesh!!.geometry.offset + BinaryOffset.GeometryVertexCount.index]
+		val vertexCount = this._intArray[this._mesh!!.geometry.offset + BinaryOffset.GeometryVertexCount]
 		val meshName = "" + this._mesh?.parent?.name + "_" + this._slot?.name + "_" + this._mesh?.name
 		val weight = this._mesh?.geometry!!.weight
 
@@ -1841,7 +1842,7 @@ open class ObjectDataParser : DataParser() {
 			val rawSlotPose = this._weightSlotPose[meshName]
 			this._helpMatrixA.copyFromArray(rawSlotPose!!.data, 0)
 			this._frameFloatArray.length += weight.count * 2
-			iB = weight.offset + BinaryOffset.WeigthBoneIndices.index + weight.bones.length
+			iB = weight.offset + BinaryOffset.WeigthBoneIndices + weight.bones.length
 		} else {
 			this._frameFloatArray.length += vertexCount * 2
 		}
@@ -1892,15 +1893,15 @@ open class ObjectDataParser : DataParser() {
 		if (frameStart == 0) {
 			val frameIntOffset = this._frameIntArray.length
 			this._frameIntArray.length += 1 + 1 + 1 + 1 + 1
-			this._frameIntArray[frameIntOffset + BinaryOffset.DeformVertexOffset.index] = this._mesh!!.geometry.offset
-			this._frameIntArray[frameIntOffset + BinaryOffset.DeformCount.index] = this._frameFloatArray.length -
+			this._frameIntArray[frameIntOffset + BinaryOffset.DeformVertexOffset] = this._mesh!!.geometry.offset
+			this._frameIntArray[frameIntOffset + BinaryOffset.DeformCount] = this._frameFloatArray.length -
 					frameFloatOffset
-			this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount.index] = this._frameFloatArray.length -
+			this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount] = this._frameFloatArray.length -
 					frameFloatOffset
-			this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueOffset.index] = 0
-			this._frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset.index] = frameFloatOffset -
+			this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueOffset] = 0
+			this._frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset] = frameFloatOffset -
 					this._animation!!.frameFloatOffset
-			this._timelineArray[this._timeline!!.offset + BinaryOffset.TimelineFrameValueCount.index] =
+			this._timelineArray[this._timeline!!.offset + BinaryOffset.TimelineFrameValueCount] =
 					(frameIntOffset - this._animation!!.frameIntOffset).toDouble()
 		}
 
@@ -2015,7 +2016,7 @@ open class ObjectDataParser : DataParser() {
 			rawData[DataParser.VERTICES]?.doubleArrayList else
 			rawData[DataParser.VALUE]?.doubleArrayList
 		val offset = ObjectDataParser._getNumber(rawData, DataParser.OFFSET, 0.0).toInt() // uint
-		val vertexCount = this._intArray[this._geometry!!.offset + BinaryOffset.GeometryVertexCount.index]
+		val vertexCount = this._intArray[this._geometry!!.offset + BinaryOffset.GeometryVertexCount]
 		val weight = this._geometry!!.weight
 		var x: Double
 		var y: Double
@@ -2052,15 +2053,15 @@ open class ObjectDataParser : DataParser() {
 		if (frameStart == 0) {
 			val frameIntOffset = this._frameIntArray.length
 			this._frameIntArray.length += 1 + 1 + 1 + 1 + 1
-			this._frameIntArray[frameIntOffset + BinaryOffset.DeformVertexOffset.index] = this._geometry!!.offset
-			this._frameIntArray[frameIntOffset + BinaryOffset.DeformCount.index] = this._frameFloatArray.length -
+			this._frameIntArray[frameIntOffset + BinaryOffset.DeformVertexOffset] = this._geometry!!.offset
+			this._frameIntArray[frameIntOffset + BinaryOffset.DeformCount] = this._frameFloatArray.length -
 					frameFloatOffset
-			this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount.index] = this._frameFloatArray.length -
+			this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount] = this._frameFloatArray.length -
 					frameFloatOffset
-			this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueOffset.index] = 0
-			this._frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset.index] = frameFloatOffset -
+			this._frameIntArray[frameIntOffset + BinaryOffset.DeformValueOffset] = 0
+			this._frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset] = frameFloatOffset -
 					this._animation!!.frameFloatOffset
-			this._timelineArray[this._timeline!!.offset + BinaryOffset.TimelineFrameValueCount.index] =
+			this._timelineArray[this._timeline!!.offset + BinaryOffset.TimelineFrameValueCount] =
 					(frameIntOffset - this._animation!!.frameIntOffset).toDouble()
 		}
 
@@ -2129,9 +2130,9 @@ open class ObjectDataParser : DataParser() {
 		geometry.data = this._data
 		//
 		this._intArray.length += 1 + 1 + 1 + 1
-		this._intArray[geometryOffset + BinaryOffset.GeometryVertexCount.index] = vertexCount
-		this._intArray[geometryOffset + BinaryOffset.GeometryFloatOffset.index] = verticesOffset
-		this._intArray[geometryOffset + BinaryOffset.GeometryWeightOffset.index] = -1 //
+		this._intArray[geometryOffset + BinaryOffset.GeometryVertexCount] = vertexCount
+		this._intArray[geometryOffset + BinaryOffset.GeometryFloatOffset] = verticesOffset
+		this._intArray[geometryOffset + BinaryOffset.GeometryWeightOffset] = -1 //
 		//
 		this._floatArray.length += vertexCount * 2
 		//for (var i = 0, l = vertexCount * 2; i < l; ++i) {
@@ -2146,11 +2147,11 @@ open class ObjectDataParser : DataParser() {
 			this._intArray.length += triangleCount * 3
 			//for (var i = 0, l = triangleCount * 3; i < l; ++i) {
 			for (i in 0 until triangleCount * 3) {
-				this._intArray[geometryOffset + BinaryOffset.GeometryVertexIndices.index + i] = rawTriangles[i].toInt()
+				this._intArray[geometryOffset + BinaryOffset.GeometryVertexIndices + i] = rawTriangles[i].toInt()
 			}
 		}
 		// Fill triangle count.
-		this._intArray[geometryOffset + BinaryOffset.GeometryTriangleCount.index] = triangleCount
+		this._intArray[geometryOffset + BinaryOffset.GeometryTriangleCount] = triangleCount
 
 		if (DataParser.UVS in rawData) {
 			val rawUVs = rawData[DataParser.UVS] .doubleArray
@@ -2174,7 +2175,7 @@ open class ObjectDataParser : DataParser() {
 			weight.offset = weightOffset
 
 			this._intArray.length += 1 + 1 + weightBoneCount + vertexCount + weightCount
-			this._intArray[weightOffset + BinaryOffset.WeigthFloatOffset.index] = floatOffset
+			this._intArray[weightOffset + BinaryOffset.WeigthFloatOffset] = floatOffset
 
 			if (DataParser.BONE_POSE in rawData) {
 				val rawSlotPose = rawData[DataParser.SLOT_POSE] .doubleArray
@@ -2190,7 +2191,7 @@ open class ObjectDataParser : DataParser() {
 					val bone = this._rawBones[rawBoneIndex]
 					weight.addBone(bone)
 					weightBoneIndices[i] = rawBoneIndex
-					this._intArray[weightOffset + BinaryOffset.WeigthBoneIndices.index + i] =
+					this._intArray[weightOffset + BinaryOffset.WeigthBoneIndices + i] =
 							sortedBones!!.indexOf(bone)
 				}
 
@@ -2199,7 +2200,7 @@ open class ObjectDataParser : DataParser() {
 
 				// for (var i = 0, iW = 0, iB = weightOffset + BinaryOffset.WeigthBoneIndices + weightBoneCount, iV = floatOffset; i < vertexCount; ++i) {
 				var iW = 0
-				var iB = weightOffset + BinaryOffset.WeigthBoneIndices.index + weightBoneCount
+				var iB = weightOffset + BinaryOffset.WeigthBoneIndices + weightBoneCount
 				var iV = floatOffset
 				for (i in 0 until vertexCount) {
 					val iD = i * 2
@@ -2234,7 +2235,7 @@ open class ObjectDataParser : DataParser() {
 					val rawBoneIndex = rawBones[i].toInt()
 					val bone = this._rawBones[rawBoneIndex]
 					weight.addBone(bone)
-					this._intArray[weightOffset + BinaryOffset.WeigthBoneIndices.index + i] =
+					this._intArray[weightOffset + BinaryOffset.WeigthBoneIndices + i] =
 							sortedBones!!.indexOf(bone)
 				}
 
@@ -2242,7 +2243,7 @@ open class ObjectDataParser : DataParser() {
 				//for (var i = 0, iW = 0, iV = 0, iB = weightOffset + BinaryOffset.WeigthBoneIndices + weightBoneCount, iF = floatOffset; i < weightCount; i++) {
 				var iW = 0
 				var iV = 0
-				var iB = weightOffset + BinaryOffset.WeigthBoneIndices.index + weightBoneCount
+				var iB = weightOffset + BinaryOffset.WeigthBoneIndices + weightBoneCount
 				var iF = floatOffset
 				for (i in 0 until weightCount) {
 					val vertexBoneCount = rawWeights[iW++].toInt()

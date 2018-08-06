@@ -174,11 +174,11 @@ class KorgeDbSlot : Slot() {
 					val intArray = data.intArray!!
 					val floatArray = data.floatArray!!
 					val vertexCount =
-						intArray[this._geometryData!!.offset + BinaryOffset.GeometryVertexCount.index].toInt()
+						intArray[this._geometryData!!.offset + BinaryOffset.GeometryVertexCount].toInt()
 					val triangleCount =
-						intArray[this._geometryData!!.offset + BinaryOffset.GeometryTriangleCount.index].toInt()
+						intArray[this._geometryData!!.offset + BinaryOffset.GeometryTriangleCount].toInt()
 					var vertexOffset =
-						intArray[this._geometryData!!.offset + BinaryOffset.GeometryFloatOffset.index].toInt()
+						intArray[this._geometryData!!.offset + BinaryOffset.GeometryFloatOffset].toInt()
 
 					if (vertexOffset < 0) {
 						vertexOffset += 65536 // Fixed out of bounds bug.
@@ -209,7 +209,7 @@ class KorgeDbSlot : Slot() {
 					//for (let i = 0; i < triangleCount * 3; ++i) {
 					for (i in 0 until triangleCount * 3) {
 						meshDisplay.indices[i] =
-								intArray[this._geometryData!!.offset + BinaryOffset.GeometryVertexIndices.index + i].toInt()
+								intArray[this._geometryData!!.offset + BinaryOffset.GeometryVertexIndices + i].toInt()
 					}
 
 					//for (let i = 0, l = vertexCount * 2; i < l; i += 2) {
@@ -233,7 +233,7 @@ class KorgeDbSlot : Slot() {
 					meshDisplay.name = this.name
 
 					val isSkinned = this._geometryData!!.weight !== null
-					val isSurface = this._parent?._boneData?.type != BoneType.Bone
+					val isSurface = this._parent?._boneData?.isSurface ?: false
 					if (isSkinned || isSurface) {
 						this._identityTransform()
 					}
@@ -284,8 +284,8 @@ class KorgeDbSlot : Slot() {
 			val data = geometryData.data!!
 			val intArray = data.intArray!!
 			val floatArray = data.floatArray!!
-			val vertexCount = intArray[geometryData.offset + BinaryOffset.GeometryVertexCount.index].toInt()
-			var weightFloatOffset = intArray[weightData.offset + BinaryOffset.WeigthFloatOffset.index].toInt()
+			val vertexCount = intArray[geometryData.offset + BinaryOffset.GeometryVertexCount].toInt()
+			var weightFloatOffset = intArray[weightData.offset + BinaryOffset.WeigthFloatOffset].toInt()
 
 			if (weightFloatOffset < 0) {
 				weightFloatOffset += 65536 // Fixed out of bounds bug.
@@ -293,7 +293,7 @@ class KorgeDbSlot : Slot() {
 
 			//for (let i = 0, iD = 0, iB = weightData.offset + BinaryOffset.WeigthBoneIndices + bones.length, iV = weightFloatOffset, iF = 0;i < vertexCount;++i) {
 			var iD = 0
-			var iB = weightData.offset + BinaryOffset.WeigthBoneIndices.index + bones.length
+			var iB = weightData.offset + BinaryOffset.WeigthBoneIndices + bones.length
 			var iV = weightFloatOffset
 			var iF = 0
 			for (i in 0 until vertexCount) {
@@ -326,12 +326,12 @@ class KorgeDbSlot : Slot() {
 				meshDisplay.vertices[iD++] = yG.toFloat()
 			}
 		} else {
-			val isSurface = this._parent?._boneData?.type !== BoneType.Bone
+			val isSurface = this._parent?._boneData?.isSurface ?: false
 			val data = geometryData.data!!
 			val intArray = data.intArray!!
 			val floatArray = data.floatArray!!
-			val vertexCount = intArray[geometryData.offset + BinaryOffset.GeometryVertexCount.index].toInt()
-			var vertexOffset = intArray[geometryData.offset + BinaryOffset.GeometryFloatOffset.index].toInt()
+			val vertexCount = intArray[geometryData.offset + BinaryOffset.GeometryVertexCount].toInt()
+			var vertexOffset = intArray[geometryData.offset + BinaryOffset.GeometryFloatOffset].toInt()
 
 			if (vertexOffset < 0) {
 				vertexOffset += 65536 // Fixed out of bounds bug.

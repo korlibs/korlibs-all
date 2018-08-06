@@ -40,34 +40,34 @@ open class IntEnumCompanion<T : IntEnum>(private val rawValues: Array<T>) {
 /**
  * @private
  */
-enum class BinaryOffset(val index: Int) {
-	WeigthBoneCount(0),
-	WeigthFloatOffset(1),
-	WeigthBoneIndices(2),
+object BinaryOffset {
+	const val WeigthBoneCount = 0
+	const val WeigthFloatOffset = 1
+	const val WeigthBoneIndices = 2
 
-	GeometryVertexCount(0),
-	GeometryTriangleCount(1),
-	GeometryFloatOffset(2),
-	GeometryWeightOffset(3),
-	GeometryVertexIndices(4),
+	const val GeometryVertexCount = 0
+	const val GeometryTriangleCount = 1
+	const val GeometryFloatOffset = 2
+	const val GeometryWeightOffset = 3
+	const val GeometryVertexIndices = 4
 
-	TimelineScale(0),
-	TimelineOffset(1),
-	TimelineKeyFrameCount(2),
-	TimelineFrameValueCount(3),
-	TimelineFrameValueOffset(4),
-	TimelineFrameOffset(5),
+	const val TimelineScale = 0
+	const val TimelineOffset = 1
+	const val TimelineKeyFrameCount = 2
+	const val TimelineFrameValueCount = 3
+	const val TimelineFrameValueOffset = 4
+	const val TimelineFrameOffset = 5
 
-	FramePosition(0),
-	FrameTweenType(1),
-	FrameTweenEasingOrCurveSampleCount(2),
-	FrameCurveSamples(3),
+	const val FramePosition = 0
+	const val FrameTweenType = 1
+	const val FrameTweenEasingOrCurveSampleCount = 2
+	const val FrameCurveSamples = 3
 
-	DeformVertexOffset(0),
-	DeformCount(1),
-	DeformValueCount(2),
-	DeformValueOffset(3),
-	DeformFloatOffset(4)
+	const val DeformVertexOffset = 0
+	const val DeformCount = 1
+	const val DeformValueCount = 2
+	const val DeformValueOffset = 3
+	const val DeformFloatOffset = 4
 }
 /**
  * @private
@@ -78,15 +78,6 @@ enum class ArmatureType(override val id: Int) : IntEnum {
 	Stage(2);
 
 	companion object : IntEnumCompanion<ArmatureType>(values())
-}
-/**
- * @private
- */
-enum class BoneType(override val id: Int) : IntEnum {
-	Bone(0),
-	Surface(1);
-
-	companion object : IntEnumCompanion<BoneType>(values())
 }
 /**
  * @private

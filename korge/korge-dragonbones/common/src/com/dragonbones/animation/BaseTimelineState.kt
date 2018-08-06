@@ -210,10 +210,10 @@ abstract class TimelineState  : BaseObject() {
 			this._timelineArray = dragonBonesData.timelineArray
 			this._frameIndices = dragonBonesData.frameIndices
 			//
-			this._frameCount = this._timelineArray!![_timelineData.offset + BinaryOffset.TimelineKeyFrameCount.index]
-			this._frameValueOffset = this._timelineArray!![_timelineData.offset + BinaryOffset.TimelineFrameValueOffset.index]
-			this._timeScale = 100.0 / this._timelineArray!![_timelineData.offset + BinaryOffset.TimelineScale.index]
-			this._timeOffset = this._timelineArray!![_timelineData.offset + BinaryOffset.TimelineOffset.index] * 0.01
+			this._frameCount = this._timelineArray!![_timelineData.offset + BinaryOffset.TimelineKeyFrameCount]
+			this._frameValueOffset = this._timelineArray!![_timelineData.offset + BinaryOffset.TimelineFrameValueOffset]
+			this._timeScale = 100.0 / this._timelineArray!![_timelineData.offset + BinaryOffset.TimelineScale]
+			this._timeOffset = this._timelineArray!![_timelineData.offset + BinaryOffset.TimelineOffset] * 0.01
 		}
 	}
 
@@ -229,7 +229,7 @@ abstract class TimelineState  : BaseObject() {
 
 				if (this._frameIndex != frameIndex) {
 					this._frameIndex = frameIndex
-					this._frameOffset = this._animationData!!.frameOffset + this._timelineArray!![(this._timelineData as TimelineData).offset + BinaryOffset.TimelineFrameOffset.index + this._frameIndex]
+					this._frameOffset = this._animationData!!.frameOffset + this._timelineArray!![(this._timelineData as TimelineData).offset + BinaryOffset.TimelineFrameOffset + this._frameIndex]
 
 					this._onArriveAtFrame()
 				}
@@ -238,7 +238,7 @@ abstract class TimelineState  : BaseObject() {
 				this._frameIndex = 0
 
 				if (this._timelineData != null) { // May be pose timeline.
-					this._frameOffset = this._animationData!!.frameOffset + this._timelineArray!![this._timelineData!!.offset + BinaryOffset.TimelineFrameOffset.index]
+					this._frameOffset = this._animationData!!.frameOffset + this._timelineArray!![this._timelineData!!.offset + BinaryOffset.TimelineFrameOffset]
 				}
 
 				this._onArriveAtFrame()
@@ -328,15 +328,15 @@ abstract class TweenTimelineState  :  TimelineState() {
 				this._animationState!!.currentPlayTimes < this._animationState!!.playTimes - 1
 			)
 		) {
-			this._tweenType = TweenType[this._frameArray!![this._frameOffset + BinaryOffset.FrameTweenType.index].toInt()]
+			this._tweenType = TweenType[this._frameArray!![this._frameOffset + BinaryOffset.FrameTweenType].toInt()]
 			this._isTween = this._tweenType != TweenType.None
 
 			if (this._isTween) {
 				if (this._tweenType == TweenType.Curve) {
-					this._curveCount = this._frameArray!![this._frameOffset + BinaryOffset.FrameTweenEasingOrCurveSampleCount.index].toInt()
+					this._curveCount = this._frameArray!![this._frameOffset + BinaryOffset.FrameTweenEasingOrCurveSampleCount].toInt()
 				}
 				else if (this._tweenType != TweenType.None && this._tweenType != TweenType.Line) {
-					this._tweenEasing = this._frameArray!![this._frameOffset + BinaryOffset.FrameTweenEasingOrCurveSampleCount.index] * 0.01
+					this._tweenEasing = this._frameArray!![this._frameOffset + BinaryOffset.FrameTweenEasingOrCurveSampleCount] * 0.01
 				}
 			}
 			else {
@@ -349,7 +349,7 @@ abstract class TweenTimelineState  :  TimelineState() {
 				this._frameDurationR = 1.0 / (this._animationData!!.duration - this._framePosition)
 			}
 			else {
-				val nextFrameOffset = this._animationData!!.frameOffset + this._timelineArray!![(this._timelineData as TimelineData).offset + BinaryOffset.TimelineFrameOffset.index + this._frameIndex + 1]
+				val nextFrameOffset = this._animationData!!.frameOffset + this._timelineArray!![(this._timelineData as TimelineData).offset + BinaryOffset.TimelineFrameOffset + this._frameIndex + 1]
 				val frameDuration = this._frameArray!![nextFrameOffset] * this._frameRateR - this._framePosition
 
 				if (frameDuration > 0) {
@@ -372,7 +372,7 @@ abstract class TweenTimelineState  :  TimelineState() {
 			this._tweenProgress = (this._currentTime - this._framePosition) * this._frameDurationR
 
 			if (this._tweenType == TweenType.Curve) {
-				this._tweenProgress = TweenTimelineState._getEasingCurveValue(this._tweenProgress, this._frameArray!!.raw.asDouble(), this._curveCount, this._frameOffset + BinaryOffset.FrameCurveSamples.index)
+				this._tweenProgress = TweenTimelineState._getEasingCurveValue(this._tweenProgress, this._frameArray!!.raw.asDouble(), this._curveCount, this._frameOffset + BinaryOffset.FrameCurveSamples)
 			}
 			else if (this._tweenType != TweenType.Line) {
 				this._tweenProgress = TweenTimelineState._getEasingValue(this._tweenType, this._tweenProgress, this._tweenEasing)

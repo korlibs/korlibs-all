@@ -45,7 +45,7 @@ class ActionTimelineState : TimelineState() {
 		val eventDispatcher = this._armature!!.eventDispatcher
 		if (this._animationState!!.actionEnabled) {
 			val frameOffset =
-				this._animationData!!.frameOffset + this._timelineArray!![(this._timelineData as TimelineData).offset + BinaryOffset.TimelineFrameOffset.index + frameIndex].toInt()
+				this._animationData!!.frameOffset + this._timelineArray!![(this._timelineData as TimelineData).offset + BinaryOffset.TimelineFrameOffset + frameIndex].toInt()
 			val actionCount = this._frameArray!![frameOffset + 1].toInt()
 			val actions =
 				this._animationData!!.parent!!.actions // May be the animaton data not belong to this armature data.
@@ -142,7 +142,7 @@ class ActionTimelineState : TimelineState() {
 
 					if (this._timelineArray != null) {
 						this._frameOffset = this._animationData!!.frameOffset +
-								this._timelineArray!![timelineData.offset + BinaryOffset.TimelineFrameOffset.index + this._frameIndex].toInt()
+								this._timelineArray!![timelineData.offset + BinaryOffset.TimelineFrameOffset + this._frameIndex].toInt()
 
 						if (isReverse) {
 							if (crossedFrameIndex < 0) {
@@ -159,7 +159,7 @@ class ActionTimelineState : TimelineState() {
 
 							while (crossedFrameIndex >= 0) {
 								val frameOffset =
-									this._animationData!!.frameOffset + this._timelineArray!![timelineData.offset + BinaryOffset.TimelineFrameOffset.index + crossedFrameIndex].toInt()
+									this._animationData!!.frameOffset + this._timelineArray!![timelineData.offset + BinaryOffset.TimelineFrameOffset + crossedFrameIndex].toInt()
 								// val framePosition = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
 								val framePosition = this._frameArray!![frameOffset] / this._frameRate
 
@@ -191,7 +191,7 @@ class ActionTimelineState : TimelineState() {
 								crossedFrameIndex =
 										this._frameIndices!!.getInt(timelineData.frameIndicesOffset + prevFrameIndex)
 								val frameOffset =
-									this._animationData!!.frameOffset + this._timelineArray!![timelineData.offset + BinaryOffset.TimelineFrameOffset.index + crossedFrameIndex].toInt()
+									this._animationData!!.frameOffset + this._timelineArray!![timelineData.offset + BinaryOffset.TimelineFrameOffset + crossedFrameIndex].toInt()
 								// val framePosition = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
 								val framePosition = this._frameArray!![frameOffset].toDouble() / this._frameRate
 
@@ -216,7 +216,7 @@ class ActionTimelineState : TimelineState() {
 								}
 
 								val frameOffset =
-									this._animationData!!.frameOffset + this._timelineArray!![timelineData.offset + BinaryOffset.TimelineFrameOffset.index + crossedFrameIndex].toInt()
+									this._animationData!!.frameOffset + this._timelineArray!![timelineData.offset + BinaryOffset.TimelineFrameOffset + crossedFrameIndex].toInt()
 								// val framePosition = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
 								val framePosition = this._frameArray!![frameOffset].toDouble() / this._frameRate
 
@@ -243,7 +243,7 @@ class ActionTimelineState : TimelineState() {
 				this._frameIndex = 0
 				if (this._timelineData != null) {
 					this._frameOffset = this._animationData!!.frameOffset +
-							this._timelineArray!![this._timelineData!!.offset + BinaryOffset.TimelineFrameOffset.index].toInt()
+							this._timelineArray!![this._timelineData!!.offset + BinaryOffset.TimelineFrameOffset].toInt()
 					// Arrive at frame.
 					val framePosition = this._frameArray!![this._frameOffset].toDouble() / this._frameRate
 
@@ -549,12 +549,12 @@ class SurfaceTimelineState : MutilpleValueTimelineState() {
 			val dragonBonesData = this._animationData!!.parent!!.parent
 			val frameIntArray = dragonBonesData!!.frameIntArray!!
 			val frameIntOffset =
-				this._animationData!!.frameIntOffset + this._timelineArray!![this._timelineData!!.offset + BinaryOffset.TimelineFrameValueCount.index].toInt()
+				this._animationData!!.frameIntOffset + this._timelineArray!![this._timelineData!!.offset + BinaryOffset.TimelineFrameValueCount].toInt()
 			this._valueOffset = this._animationData!!.frameFloatOffset
-			this._valueCount = frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount.index].toInt()
-			this._deformCount = frameIntArray[frameIntOffset + BinaryOffset.DeformCount.index].toInt()
-			this._deformOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformValueOffset.index].toInt()
-			this._sameValueOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset.index] +
+			this._valueCount = frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount].toInt()
+			this._deformCount = frameIntArray[frameIntOffset + BinaryOffset.DeformCount].toInt()
+			this._deformOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformValueOffset].toInt()
+			this._sameValueOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset] +
 					this._animationData!!.frameFloatOffset
 			this._valueScale = this._armature!!.armatureData.scale
 			this._valueArray = dragonBonesData.frameFloatArray!!.raw
@@ -907,11 +907,11 @@ class DeformTimelineState : MutilpleValueTimelineState() {
 
 		if (this._timelineData != null) {
 			val frameIntOffset =
-				this._animationData!!.frameIntOffset + this._timelineArray!![this._timelineData!!.offset + BinaryOffset.TimelineFrameValueCount.index]
+				this._animationData!!.frameIntOffset + this._timelineArray!![this._timelineData!!.offset + BinaryOffset.TimelineFrameValueCount]
 			val dragonBonesData = this._animationData?.parent?.parent
 			val frameIntArray = dragonBonesData!!.frameIntArray
 			val slot = (this.target as BlendState).target as Slot
-			this.geometryOffset = frameIntArray!![frameIntOffset + BinaryOffset.DeformVertexOffset.index].toInt()
+			this.geometryOffset = frameIntArray!![frameIntOffset + BinaryOffset.DeformVertexOffset].toInt()
 
 			if (this.geometryOffset < 0) {
 				this.geometryOffset += 65536 // Fixed out of bounds bug.
@@ -934,10 +934,10 @@ class DeformTimelineState : MutilpleValueTimelineState() {
 			}
 
 			this._valueOffset = this._animationData!!.frameFloatOffset
-			this._valueCount = frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount.index].toInt()
-			this._deformCount = frameIntArray[frameIntOffset + BinaryOffset.DeformCount.index].toInt()
-			this._deformOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformValueOffset.index].toInt()
-			this._sameValueOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset.index] +
+			this._valueCount = frameIntArray[frameIntOffset + BinaryOffset.DeformValueCount].toInt()
+			this._deformCount = frameIntArray[frameIntOffset + BinaryOffset.DeformCount].toInt()
+			this._deformOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformValueOffset].toInt()
+			this._sameValueOffset = frameIntArray[frameIntOffset + BinaryOffset.DeformFloatOffset] +
 					this._animationData!!.frameFloatOffset
 			this._valueScale = this._armature!!.armatureData.scale
 			this._valueArray = dragonBonesData.frameFloatArray!!.raw

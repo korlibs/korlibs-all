@@ -60,7 +60,8 @@ class HelloScene : Scene() {
 
 open class MyModule : Module() {
     override val mainScene: KClass<out Scene> = MyScene::class
-    override val quality: LightQuality = LightQuality.QUALITY
+    //override val quality: LightQuality = LightQuality.QUALITY
+    override val quality: LightQuality = LightQuality.PERFORMANCE
 
     override suspend fun init(injector: AsyncInjector) {
         injector

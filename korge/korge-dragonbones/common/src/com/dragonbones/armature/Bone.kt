@@ -179,7 +179,7 @@ open class Bone :  TransformObject() {
 
 		if (inherit) {
 			val parent = parent!!
-			val isSurface = parent._boneData!!.type == BoneType.Surface
+			val isSurface = parent._boneData!!.isSurface
 			val surfaceBone = if (isSurface) (parent as Surface)._bone else null
 			val parentMatrix = if (isSurface) (parent as Surface)._getGlobalTransformMatrix(global.x, global.y) else parent.globalTransformMatrix
 

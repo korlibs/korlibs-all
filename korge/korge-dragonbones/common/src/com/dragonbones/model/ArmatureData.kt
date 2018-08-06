@@ -498,7 +498,7 @@ open class BoneData : BaseObject() {
 	/**
 	 * @private
 	 */
-	var type: BoneType = BoneType.Bone
+	var isSurface = false
 	/**
 	 * - The bone length.
 	 * @version DragonBones 3.0
@@ -545,13 +545,20 @@ open class BoneData : BaseObject() {
 	 */
 	var parent: BoneData? = null
 
+	// SurfaceData
+	var segmentX: Int = 0
+	var segmentY: Int = 0
+	val geometry: GeometryData = GeometryData()
+
+	val isBone get() = !isSurface
+
 	override fun _onClear() {
 		this.userData?.returnToPool()
 		this.inheritTranslation = false
 		this.inheritRotation = false
 		this.inheritScale = false
 		this.inheritReflection = false
-		this.type = BoneType.Bone
+		this.isSurface = false
 		this.length = 0.0
 		this.alpha = 1.0
 		this.name = ""
@@ -569,14 +576,10 @@ class SurfaceData : BoneData() {
 		return "[class dragonBones.SurfaceData]"
 	}
 
-	var segmentX: Int = 0
-	var segmentY: Int = 0
-	val geometry: GeometryData = GeometryData()
-
 	override fun _onClear() {
 		super._onClear()
 
-		this.type = BoneType.Surface
+		this.isSurface = true
 		this.segmentX = 0
 		this.segmentY = 0
 		this.geometry.clear()

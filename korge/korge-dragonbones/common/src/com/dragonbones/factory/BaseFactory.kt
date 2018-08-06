@@ -176,7 +176,7 @@ abstract class BaseFactory {
 
 	protected fun _buildBones(dataPackage: BuildArmaturePackage, armature: Armature): Unit {
 		for (boneData in dataPackage.armature!!.sortedBones) {
-			val bone = if (boneData.type == BoneType.Bone) BaseObject.borrowObject<Bone>() else BaseObject.borrowObject<Surface>()
+			val bone = if (boneData.isBone) BaseObject.borrowObject<Bone>() else BaseObject.borrowObject<Surface>()
 			bone.init(boneData, armature)
 		}
 	}

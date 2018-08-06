@@ -152,7 +152,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 
 		this._timeline = timeline
 
-		val keyFrameCount = this._timelineArrayBuffer[timeline.offset + BinaryOffset.TimelineKeyFrameCount.index]
+		val keyFrameCount = this._timelineArrayBuffer[timeline.offset + BinaryOffset.TimelineKeyFrameCount]
 		if (keyFrameCount == 1) {
 			timeline.frameIndicesOffset = -1
 		}
@@ -169,12 +169,12 @@ class BinaryDataParser  :  ObjectDataParser() {
 			var frameCount = 0
 			for (i in 0 until totalFrameCount) {
 				if (frameStart + frameCount <= i && iK < keyFrameCount) {
-					frameStart = this._frameArrayBuffer[this._animation!!.frameOffset + this._timelineArrayBuffer[timeline.offset + BinaryOffset.TimelineFrameOffset.index + iK]].toInt()
+					frameStart = this._frameArrayBuffer[this._animation!!.frameOffset + this._timelineArrayBuffer[timeline.offset + BinaryOffset.TimelineFrameOffset + iK]].toInt()
 					if (iK == keyFrameCount - 1) {
 						frameCount = this._animation!!.frameCount - frameStart
 					}
 					else {
-						frameCount = this._frameArrayBuffer[this._animation!!.frameOffset + this._timelineArrayBuffer[timeline.offset + BinaryOffset.TimelineFrameOffset.index + iK + 1]] - frameStart
+						frameCount = this._frameArrayBuffer[this._animation!!.frameOffset + this._timelineArrayBuffer[timeline.offset + BinaryOffset.TimelineFrameOffset + iK + 1]] - frameStart
 					}
 
 					iK++
@@ -329,19 +329,19 @@ class BinaryDataParser  :  ObjectDataParser() {
 		geometry.offset = rawData[DataParser.OFFSET] as Int
 		geometry.data = this._data
 
-		val weightOffset = this._intArrayBuffer[geometry.offset + BinaryOffset.GeometryWeightOffset.index].toInt()
+		val weightOffset = this._intArrayBuffer[geometry.offset + BinaryOffset.GeometryWeightOffset].toInt()
 		if (weightOffset >= 0) {
 			val weight = BaseObject.borrowObject<WeightData>()
-			val vertexCount = this._intArrayBuffer[geometry.offset + BinaryOffset.GeometryVertexCount.index]
-			val boneCount = this._intArrayBuffer[weightOffset + BinaryOffset.WeigthBoneCount.index]
+			val vertexCount = this._intArrayBuffer[geometry.offset + BinaryOffset.GeometryVertexCount]
+			val boneCount = this._intArrayBuffer[weightOffset + BinaryOffset.WeigthBoneCount]
 			weight.offset = weightOffset
 
 			for (i in 0 until boneCount) {
-				val boneIndex = this._intArrayBuffer[weightOffset + BinaryOffset.WeigthBoneIndices.index + i].toInt()
+				val boneIndex = this._intArrayBuffer[weightOffset + BinaryOffset.WeigthBoneIndices + i].toInt()
 				weight.addBone(this._rawBones[boneIndex])
 			}
 
-			var boneIndicesOffset = weightOffset + BinaryOffset.WeigthBoneIndices.index + boneCount
+			var boneIndicesOffset = weightOffset + BinaryOffset.WeigthBoneIndices + boneCount
 			var weightCount = 0
 			for (i in 0 until vertexCount) {
 				val vertexBoneCount = this._intArrayBuffer[boneIndicesOffset++]

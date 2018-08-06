@@ -77,7 +77,7 @@ class DisplayFrame  :  BaseObject() {
 			vertexCount = rawGeometryData.weight!!.count * 2
 		}
 		else {
-			vertexCount = rawGeometryData.data!!.intArray!![rawGeometryData.offset + BinaryOffset.GeometryVertexCount.index] * 2
+			vertexCount = rawGeometryData.data!!.intArray!![rawGeometryData.offset + BinaryOffset.GeometryVertexCount] * 2
 		}
 
 		this.deformVertices.length = vertexCount
@@ -610,7 +610,7 @@ abstract class Slot  :  TransformObject() {
 	}
 
 	protected fun _updateGlobalTransformMatrix(isCache: Boolean): Unit {
-		val parentMatrix = if (this._parent!!._boneData!!.type == BoneType.Bone) this._parent!!.globalTransformMatrix else (this._parent as Surface)._getGlobalTransformMatrix(this.global.x, this.global.y)
+		val parentMatrix = if (this._parent!!._boneData!!.isBone) this._parent!!.globalTransformMatrix else (this._parent as Surface)._getGlobalTransformMatrix(this.global.x, this.global.y)
 		this.globalTransformMatrix.copyFrom(this._localMatrix)
 		this.globalTransformMatrix.concat(parentMatrix)
 
@@ -756,7 +756,7 @@ abstract class Slot  :  TransformObject() {
 
 		if (this._geometryData != null && this._display == this._meshDisplay) {
 			val isSkinned = this._geometryData!!.weight != null
-			val isSurface = this._parent!!._boneData?.type != BoneType.Bone
+			val isSurface = this._parent!!._boneData?.isSurface ?: false
 
 			if (
 				this._verticesDirty ||

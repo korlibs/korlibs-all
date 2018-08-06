@@ -196,12 +196,12 @@ abstract class DataParser {
 			}
 		}
 
-		fun _getBoneType(value: String?): BoneType {
+		fun _getBoneTypeIsSurface(value: String?): Boolean {
 			return when (value?.toLowerCase()) {
-				null -> BoneType.Bone
-				"bone" -> BoneType.Bone
-				"surface" -> BoneType.Surface
-				else -> BoneType.Bone
+				null -> false
+				"bone" -> false
+				"surface" -> true
+				else -> false
 			}
 		}
 

@@ -59,12 +59,12 @@ class GeometryData {
 
 	val vertexCount: Int get() {
 		val intArray = this.data!!.intArray
-		return intArray!![this.offset + BinaryOffset.GeometryVertexCount.index].toInt()
+		return intArray!![this.offset + BinaryOffset.GeometryVertexCount].toInt()
 	}
 
 	val triangleCount: Int get() {
 		val intArray = this.data!!.intArray
-		return intArray!![this.offset + BinaryOffset.GeometryTriangleCount.index].toInt()
+		return intArray!![this.offset + BinaryOffset.GeometryTriangleCount].toInt()
 	}
 }
 /**

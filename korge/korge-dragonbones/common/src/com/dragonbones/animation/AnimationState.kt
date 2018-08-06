@@ -462,7 +462,7 @@ class AnimationState : BaseObject() {
 							}
 						}
 					} else if (this.resetToPose) { // Pose timeline.
-						if (bone._boneData?.type == BoneType.Bone) {
+						if (bone._boneData?.isBone == true) {
 							val timeline = BaseObject.borrowObject<BoneAllTimelineState>()
 							timeline.target = blendState
 							timeline.init(this._armature!!, this, null)
