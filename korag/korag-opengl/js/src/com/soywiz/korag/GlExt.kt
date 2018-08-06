@@ -38,18 +38,21 @@ fun jsObject(vararg pairs: Pair<String, Any?>): dynamic {
 class AGWebgl : AGOpengl(), AGContainer {
 	companion object {
 		val log = Logger("AGWebgl")
+
+		//var UNPACK_PREMULTIPLY_ALPHA_WEBGL = document.createElement('canvas').getContext('webgl').UNPACK_PREMULTIPLY_ALPHA_WEBGL
+		const val UNPACK_PREMULTIPLY_ALPHA_WEBGL = 37441
 	}
 
 	override val ag: AG = this
 
 	val canvas = document.createElement("canvas") as HTMLCanvasElement
 	val glOpts = jsObject(
-		"premultipliedAlpha" to false,
+		"premultipliedAlpha" to true,
 		"alpha" to false,
 		"stencil" to true
 	)
 	//val gl: GL = (canvas.getContext("webgl", glOpts) ?: canvas.getContext("experimental-webgl", glOpts)) as GL
-	override val gl = KmlGlJsCanvas(canvas, glOpts)
+	override val gl = KmlGlCached(KmlGlJsCanvas(canvas, glOpts))
 
 	init {
 		(window.asDynamic()).ag = this
@@ -94,4 +97,7 @@ class AGWebgl : AGOpengl(), AGContainer {
 		// https://gist.github.com/mattdesl/9995467
 	}
 
+	override fun prepareUploadNativeTexture(bmp: NativeImage) {
+		gl.pixelStorei(UNPACK_PREMULTIPLY_ALPHA_WEBGL, bmp.premult.toInt())
+	}
 }

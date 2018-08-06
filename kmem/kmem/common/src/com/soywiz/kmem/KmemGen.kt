@@ -4,6 +4,7 @@ package com.soywiz.kmem
 
 expect class MemBuffer
 expect fun MemBufferAlloc(size: Int): MemBuffer
+expect fun MemBufferAllocNoDirect(size: Int): MemBuffer
 expect fun MemBufferWrap(array: ByteArray): MemBuffer
 expect val MemBuffer.size: Int
 

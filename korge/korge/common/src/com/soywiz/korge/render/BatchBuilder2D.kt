@@ -163,7 +163,8 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 		for (idx in 0 until min(icount, array.indices.size)) addIndex(vertexCount + array.indices[idx])
 		//for (p in array.points) addVertex(p.x, p.y, p.tx, p.ty, p.colMul, p.colAdd)
 
-		vertices.setAlignedArrayInt32(vertexPos, array.data, 0, vcount * 6)
+		KmlNativeBuffer.copy(array._data, 0, vertices, vertexPos * 4, vcount * 6 * 4)
+		//vertices.setAlignedArrayInt32(vertexPos, array.data, 0, vcount * 6)
 		vertexCount += vcount
 		vertexPos += vcount * 6
 	}
@@ -411,7 +412,10 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 
 // @TODO: Call this mesh?
 class TexturedVertexArray(val vcount: Int, val indices: IntArray) {
-	internal val data = IntArray(COMPONENTS_PER_VERTEX * vcount)
+	//internal val data = IntArray(COMPONENTS_PER_VERTEX * vcount)
+	internal val _data = KmlNativeBuffer(COMPONENTS_PER_VERTEX * vcount * 4, direct = false)
+	internal val f32 = _data.f32
+	internal val i32 = _data.i32
 	//val points = (0 until vcount).map { Item(data, it) }
 	//val icount = indices.size
 
@@ -438,23 +442,23 @@ class TexturedVertexArray(val vcount: Int, val indices: IntArray) {
 
 	private var offset = 0
 	fun select(i: Int) = this.apply { offset = i * COMPONENTS_PER_VERTEX }
-	fun setX(v: Float) = this.apply { data[offset + 0] = v.toBits() }
-	fun setY(v: Float) = this.apply { data[offset + 1] = v.toBits() }
-	fun setU(v: Float) = this.apply { data[offset + 2] = v.toBits() }
-	fun setV(v: Float) = this.apply { data[offset + 3] = v.toBits() }
-	fun setCMul(v: RGBA) = this.apply { data[offset + 4] = v.rgba }
-	fun setCAdd(v: Int) = this.apply { data[offset + 5] = v }
+	fun setX(v: Float) = this.apply { f32[offset + 0] = v }
+	fun setY(v: Float) = this.apply { f32[offset + 1] = v }
+	fun setU(v: Float) = this.apply { f32[offset + 2] = v }
+	fun setV(v: Float) = this.apply { f32[offset + 3] = v }
+	fun setCMul(v: RGBA) = this.apply { i32[offset + 4] = v.rgba }
+	fun setCAdd(v: Int) = this.apply { i32[offset + 5] = v }
 	fun xy(x: Double, y: Double, matrix: Matrix2d) = setX(matrix.transformX(x, y).toFloat()).setY(matrix.transformY(x, y).toFloat())
 	fun xy(x: Double, y: Double) = setX(x.toFloat()).setY(y.toFloat())
 	fun uv(tx: Float, ty: Float) = setU(tx).setV(ty)
 	fun cols(colMul: RGBA, colAdd: Int) = setCMul(colMul).setCAdd(colAdd)
 
-	val x: Float get() = Float.fromBits(data[offset + 0])
-	val y: Float get() = Float.fromBits(data[offset + 1])
-	val u: Float get() = Float.fromBits(data[offset + 2])
-	val v: Float get() = Float.fromBits(data[offset + 3])
-	val cMul: Int get() = data[offset + 4]
-	val cAdd: Int get() = data[offset + 5]
+	val x: Float get() = f32[offset + 0]
+	val y: Float get() = f32[offset + 1]
+	val u: Float get() = f32[offset + 2]
+	val v: Float get() = f32[offset + 3]
+	val cMul: Int get() = i32[offset + 4]
+	val cAdd: Int get() = i32[offset + 5]
 
 	val vertexString: String get() = "V(xy=($x, $y),uv=$u, $v,cMul=$cMul,cAdd=$cAdd)"
 

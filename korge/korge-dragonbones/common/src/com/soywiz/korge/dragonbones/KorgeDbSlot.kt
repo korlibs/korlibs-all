@@ -196,7 +196,11 @@ class KorgeDbSlot : Slot() {
 
 					meshDisplay.vertices = Float32BufferAlloc(vertexCount * 2)
 					meshDisplay.uvs = Float32BufferAlloc(vertexCount * 2)
-					meshDisplay.indices = Uint16Buffer(Int16BufferAlloc(triangleCount * 3))
+					meshDisplay.indices = Uint16BufferAlloc(triangleCount * 3)
+					meshDisplay.name = name
+
+					//println("Slot[$name]=(vertexCount=$vertexCount,triangleCount=$triangleCount,vertexOffset=$vertexOffset)")
+
 					//for (let i = 0, l = vertexCount * 2; i < l; ++i) {
 					for (i in 0 until vertexCount * 2) {
 						meshDisplay.vertices[i] = (floatArray[vertexOffset + i] * scale).toFloat()

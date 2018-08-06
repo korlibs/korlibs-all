@@ -2,6 +2,7 @@ package example2
 
 import com.dragonbones.event.*
 import com.soywiz.kds.*
+import com.soywiz.kmem.*
 import com.soywiz.korge.*
 import com.soywiz.korge.async.*
 import com.soywiz.korge.dragonbones.*
@@ -35,6 +36,7 @@ fun main(args: Array<String>): Unit {
     //Logger("DefaultShaders").level = Logger.Level.TRACE
     //Logger("RenderContext2D").level = Logger.Level.TRACE
     //Korge(MyModule, debug = true)
+    println("V0")
     Korge(object : MyModule() {
         //override val mainScene: KClass<out Scene> = HelloScene::class
     }, debug = false)
@@ -147,11 +149,12 @@ class HelloWorldScene : BaseDbScene() {
     val SCALE = 1.6
     override suspend fun Container.sceneInit() {
 
-        val skeDeferred = async(KorgeDispatcher) { resources["mecha_1002_101d_show/mecha_1002_101d_show_ske.json"].readString() }
+        val skeDeferred = async(KorgeDispatcher) { Json.parse(resources["mecha_1002_101d_show/mecha_1002_101d_show_ske.json"].readString())!! }
+        //val skeDeferred = async(KorgeDispatcher) { MemBufferWrap(resources["mecha_1002_101d_show/mecha_1002_101d_show_ske.dbbin"].readBytes()) }
         val texDeferred = async(KorgeDispatcher) { resources["mecha_1002_101d_show/mecha_1002_101d_show_tex.json"].readString() }
         val imgDeferred = async(KorgeDispatcher) { resources["mecha_1002_101d_show/mecha_1002_101d_show_tex.png"].readBitmapOptimized().mipmaps() }
 
-        val data = factory.parseDragonBonesData(Json.parse(skeDeferred.await())!!)
+        val data = factory.parseDragonBonesData(skeDeferred.await())
         val atlas = factory.parseTextureAtlasData(Json.parse(texDeferred.await())!!, imgDeferred.await())
 
         val armatureDisplay = factory.buildArmatureDisplay("mecha_1002_101d")!!.position(0, 300).scale(SCALE)
@@ -325,7 +328,7 @@ class SkinChangingScene : BaseDbScene() {
         deferreds += async(KorgeDispatcher) {
             val atlas = factory.parseTextureAtlasData(
                 Json.parse(resources["you_xin/body/body_tex.json"].readString())!!,
-                resources["you_xin/body/body_tex.png"].readBitmapOptimized()
+                resources["you_xin/body/body_tex.png"].readBitmapOptimized().mipmaps()
             )
         }
 
@@ -341,7 +344,7 @@ class SkinChangingScene : BaseDbScene() {
                     factory.parseDragonBonesData(Json.parse(resources[dragonBonesJSONPath].readString())!!)
                     factory.parseTextureAtlasData(
                         Json.parse(resources[textureAtlasJSONPath].readString())!!,
-                        resources[textureAtlasPath].readBitmapOptimized()
+                        resources[textureAtlasPath].readBitmapOptimized().mipmaps()
                     )
                 }
             }

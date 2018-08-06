@@ -3,8 +3,11 @@ object GenGl {
 	fun main(args: Array<String>) {
 		val root = "korag/kgl"
 
-		printToFile("$root/common/src/com/soywiz/kgl/KmlGl.kt") { generateCommon() }
+		println("Generating...")
 		printToFile("$root/common/src/com/soywiz/kgl/KmlGlProxy.kt") { generateProxy() }
+
+		/*
+		printToFile("$root/common/src/com/soywiz/kgl/KmlGl.kt") { generateCommon() }
 		printToFile("$root/common/src/com/soywiz/kgl/KmlGlDummy.kt") { generateDummy() }
 		printToFile("$root/android/src/com/soywiz/kgl/KmlGlAndroid.kt") { generateAndroid() }
 		//printToFile("$root/jvm/src/com/soywiz/kgl/KmlGlJvm.kt") { generateJvmJogl() } // Manually modified
@@ -20,6 +23,8 @@ object GenGl {
 		}
 		//printToConsole { generateCommon() }
 		//printToConsole { generateJvm() }
+		*/
+		println("Done")
 	}
 
 	fun Printer.fileSupress() {
@@ -49,6 +54,17 @@ object GenGl {
 			println("    }")
 		}
 		println("}")
+
+		println("open class KmlGlFastProxy(val parent: KmlGl) : KmlGl() {")
+		println("    open fun before(name: String, params: String): Unit = Unit")
+		println("    open fun after(name: String, params: String, result: String): Unit = Unit")
+		for (func in OpenglDesc.functions) {
+			println("    override fun ${func.unprefixedName}(${func.args.joinToString(", ") { it.name + ": " + it.type.ktname }}): ${func.rettype.ktname} {")
+			println("       return parent.${func.unprefixedName}(${func.args.joinToString(", ") { it.name }})")
+			println("    }")
+		}
+		println("}")
+
 		println("class LogKmlGlProxy(parent: KmlGl) : KmlGlProxy(parent) {")
 		println("   override fun before(name: String, params: String): Unit = run { println(\"before: \$name (\$params)\") }")
 		println("   override fun after(name: String, params: String, result: String): Unit = run { println(\"after: \$name (\$params) = \$result\") }")

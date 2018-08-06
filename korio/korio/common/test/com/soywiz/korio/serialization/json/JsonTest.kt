@@ -60,7 +60,8 @@ class JsonTest {
 	@kotlin.test.Test
 	fun decode1() {
 		assertEquals(lmapOf("a" to 1).toString(), Json.decode("""{"a":1}""").toString())
-		assertEquals(-1e7, Json.decode("""-1e7"""))
+		//assertEquals(-1e7, Json.decode("""-1e7"""))
+		assertEquals(-10000000, Json.decode("""-1e7"""))
 	}
 
 	@kotlin.test.Test

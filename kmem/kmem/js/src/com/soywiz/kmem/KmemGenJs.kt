@@ -5,7 +5,8 @@ package com.soywiz.kmem
 import org.khronos.webgl.*
 
 actual typealias MemBuffer = ArrayBuffer
-actual inline fun MemBufferAlloc(size: Int): MemBuffer = ArrayBuffer((size + 0xF) and 0xF.inv())
+actual inline fun MemBufferAlloc(size: Int): MemBuffer = ArrayBuffer(size)
+actual inline fun MemBufferAllocNoDirect(size: Int): MemBuffer = ArrayBuffer(size)
 actual inline fun MemBufferWrap(array: ByteArray): MemBuffer = array.unsafeCast<Int8Array>().buffer
 actual inline val MemBuffer.size: Int get() = this.byteLength
 

@@ -18,7 +18,8 @@ fun IntBuffer.slice(offset: Int, size: Int): IntBuffer = run { checkSliceBounds(
 fun FloatBuffer.slice(offset: Int, size: Int): FloatBuffer = run { checkSliceBounds(offset, size); val out = this.duplicate(); out.position(this.position() + offset); out.limit(out.position() + size); return out }
 fun DoubleBuffer.slice(offset: Int, size: Int): DoubleBuffer = run { checkSliceBounds(offset, size); val out = this.duplicate(); out.position(this.position() + offset); out.limit(out.position() + size); return out }
 actual class MemBuffer(val buffer: ByteBuffer, val size: Int)
-actual fun MemBufferAlloc(size: Int): MemBuffer = MemBuffer(ByteBuffer.allocateDirect((size + 0xF) and 0xF.inv()).order(ByteOrder.nativeOrder()), size)
+actual fun MemBufferAlloc(size: Int): MemBuffer = MemBuffer(ByteBuffer.allocateDirect(size).order(ByteOrder.nativeOrder()), size)
+actual fun MemBufferAllocNoDirect(size: Int): MemBuffer = MemBuffer(ByteBuffer.allocate(size).order(ByteOrder.nativeOrder()), size)
 actual fun MemBufferWrap(array: ByteArray): MemBuffer = MemBuffer(ByteBuffer.wrap(array).order(ByteOrder.nativeOrder()), array.size)
 actual inline val MemBuffer.size: Int get() = this.size
 

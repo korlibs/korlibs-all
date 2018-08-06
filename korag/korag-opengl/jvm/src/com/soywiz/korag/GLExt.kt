@@ -40,7 +40,7 @@ abstract class AGAwtBase : AGOpengl() {
 	}
 	var initialized = false
 	lateinit var ad: GLAutoDrawable
-	override lateinit var gl: JvmKmlGl
+	override lateinit var gl: KmlGl
 	lateinit var glThread: Thread
 
 	override var devicePixelRatio: Double = 1.0
@@ -48,7 +48,7 @@ abstract class AGAwtBase : AGOpengl() {
 	protected fun setAutoDrawable(d: GLAutoDrawable) {
 		glThread = Thread.currentThread()
 		ad = d
-		gl = JvmKmlGl(d.gl as GL2)
+		gl = KmlGlCached(JvmKmlGl(d.gl as GL2))
 		initialized = true
 	}
 

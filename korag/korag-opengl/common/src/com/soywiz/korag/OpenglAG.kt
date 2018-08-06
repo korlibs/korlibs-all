@@ -1,5 +1,6 @@
 package com.soywiz.korag
 
+import com.soywiz.kds.*
 import com.soywiz.kgl.*
 import com.soywiz.klogger.*
 import com.soywiz.kmem.*
@@ -207,7 +208,7 @@ abstract class AGOpengl : AG() {
 			when (uniform.type) {
 				VarType.TextureUnit -> {
 					val unit = value as TextureUnit
-					checkErrors { gl.activeTexture(gl.TEXTURE0 + textureUnit) }
+					gl.activeTexture(gl.TEXTURE0 + textureUnit)
 					val tex = (unit.texture as GlTexture?)
 					tex?.bindEnsuring()
 					tex?.setFilter(unit.linear)
@@ -262,9 +263,7 @@ abstract class AGOpengl : AG() {
 		gl.frontFace(gl.CW)
 
 		gl.depthMask(renderState.depthMask)
-
 		gl.depthRangef(renderState.depthNear, renderState.depthFar)
-
 		gl.lineWidth(renderState.lineWidth)
 
 		if (renderState.depthFunc != CompareMode.ALWAYS) {
@@ -274,7 +273,7 @@ abstract class AGOpengl : AG() {
 			checkErrors { gl.disable(gl.DEPTH_TEST) }
 		}
 
-		checkErrors { gl.colorMask(colorMask.red, colorMask.green, colorMask.blue, colorMask.alpha) }
+		gl.colorMask(colorMask.red, colorMask.green, colorMask.blue, colorMask.alpha)
 
 		if (stencil.enabled) {
 			checkErrors { gl.enable(gl.STENCIL_TEST) }
@@ -295,7 +294,8 @@ abstract class AGOpengl : AG() {
 		//checkErrors { gl.drawElements(type.glDrawMode, vertexCount, gl.UNSIGNED_SHORT, offset.toLong()) }
 		checkErrors { gl.drawElements(type.glDrawMode, vertexCount, gl.UNSIGNED_SHORT, offset) }
 
-		checkErrors { gl.activeTexture(gl.TEXTURE0) }
+		//glSetActiveTexture(gl.TEXTURE0)
+
 		for (att in vertexLayout.attributes.filter { it.active }) {
 			val loc = checkErrors { glProgram.getAttribLocation(att.name).toInt() }
 			if (loc >= 0) {
@@ -336,7 +336,7 @@ abstract class AGOpengl : AG() {
 		var fragmentShaderId: Int = 0
 		var vertexShaderId: Int = 0
 
-		val cachedAttribLocations = LinkedHashMap<String, Int>()
+		val cachedAttribLocations = FastStringMap<Int>()
 
 		fun getAttribLocation(name: String): Int {
 			return cachedAttribLocations.getOrPut(name) {
@@ -482,6 +482,9 @@ abstract class AGOpengl : AG() {
 		}
 	}
 
+	open fun prepareUploadNativeTexture(bmp: NativeImage) {
+	}
+
 	inner class GlTexture(val gl: KmlGl, override val premultiplied: Boolean) : Texture() {
 		var cachedVersion = -1
 		val texIds = KmlNativeBuffer(4)
@@ -530,6 +533,7 @@ abstract class AGOpengl : AG() {
 			}
 
 			if (bmp is NativeImage) {
+				prepareUploadNativeTexture(bmp)
 				gl.texImage2D(gl.TEXTURE_2D, 0, type, type, gl.UNSIGNED_BYTE, bmp)
 			} else {
 				val buffer = createBufferForBitmap(bmp)

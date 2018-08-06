@@ -1,7 +1,10 @@
 package com.soywiz.kmem
 
 class KmlNativeBuffer(val mem: MemBuffer, val size: Int = mem.size) {
-	constructor(size: Int) : this(MemBufferAlloc(size))
+	constructor(size: Int) : this(MemBufferAlloc(size.sizeAligned()), size)
+	constructor(size: Int, direct: Boolean) : this(if (direct) MemBufferAlloc(size.sizeAligned()) else MemBufferAllocNoDirect(size.sizeAligned()), size)
+
+	//(size + 0xF) and 0xF.inv()
 
 	val buffer get() = mem
 	val data = mem.getData()
@@ -10,7 +13,7 @@ class KmlNativeBuffer(val mem: MemBuffer, val size: Int = mem.size) {
 	val arrayShort = mem.asInt16Buffer()
 	val arrayInt = mem.asInt32Buffer()
 	val arrayFloat = mem.asFloat32Buffer()
-	val arrayDouble = mem.asFloat64Buffer()
+	//val arrayDouble = mem.asFloat64Buffer()
 
 	val i8 get() = arrayByte
 	val i16 get() = arrayShort
@@ -21,23 +24,27 @@ class KmlNativeBuffer(val mem: MemBuffer, val size: Int = mem.size) {
 	fun getShort(index: Int): Short = arrayShort[index]
 	fun getInt(index: Int): Int = arrayInt[index]
 	fun getFloat(index: Int): Float = arrayFloat[index]
-	fun getDouble(index: Int): Double = arrayDouble[index]
+	//fun getDouble(index: Int): Double = arrayDouble[index]
 
 	fun setByte(index: Int, value: Byte): Unit = run { arrayByte[index] = value }
 	fun setShort(index: Int, value: Short): Unit = run { arrayShort[index] = value }
 	fun setInt(index: Int, value: Int): Unit = run { arrayInt[index] = value }
 	fun setFloat(index: Int, value: Float): Unit = run { arrayFloat[index] = value }
-	fun setDouble(index: Int, value: Double): Unit = run { arrayDouble[index] = value }
+	//fun setDouble(index: Int, value: Double): Unit = run { arrayDouble[index] = value }
 
 	fun dispose() = Unit
 
 
 	companion object {
-		fun alloc(size: Int): KmlNativeBuffer = KmlNativeBuffer(MemBufferAlloc((size + 0xF) and 0xF.inv()), size)
+		//const val ALIGNMENT = 4
+		//private fun Int.sizeAligned() = (this + 0xF) and 0xF.inv()
+		private fun Int.sizeAligned() = (this + 0x3) and 0x3.inv()
+
+		fun alloc(size: Int): KmlNativeBuffer = KmlNativeBuffer(MemBufferAlloc(size.sizeAligned()), size)
 		fun wrap(buffer: MemBuffer, size: Int = buffer.size): KmlNativeBuffer = KmlNativeBuffer(buffer, size)
 		fun wrap(array: ByteArray): KmlNativeBuffer = KmlNativeBuffer(MemBufferWrap(array), array.size)
 
-		operator fun invoke(size: Int): KmlNativeBuffer = KmlNativeBuffer(MemBufferAlloc((size + 0xF) and 0xF.inv()), size)
+		operator fun invoke(size: Int): KmlNativeBuffer = KmlNativeBuffer(MemBufferAlloc(size.sizeAligned()), size)
 		operator fun invoke(buffer: MemBuffer, size: Int = buffer.size): KmlNativeBuffer = KmlNativeBuffer(buffer, size)
 		operator fun invoke(array: ByteArray): KmlNativeBuffer = KmlNativeBuffer(MemBufferWrap(array), array.size)
 

@@ -20,7 +20,7 @@ import kotlin.math.*
 actual val nativeImageFormatProvider: NativeImageFormatProvider = HtmlNativeImageFormatProvider
 
 open class HtmlNativeImage(val texSource: TexImageSource, width: Int, height: Int) :
-	NativeImage(width, height, texSource, false) {
+	NativeImage(width, height, texSource, true) {
 	override val name: String = "HtmlNativeImage"
 	val element: HTMLElement get() = texSource as HTMLElement
 

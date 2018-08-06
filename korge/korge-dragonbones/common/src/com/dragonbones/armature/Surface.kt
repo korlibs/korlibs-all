@@ -117,15 +117,16 @@ class Surface  :  Bone() {
 		val animationVertices = this._deformVertices
 
 		if (this._parent != null) {
-			if (this._parent?._boneData?.type == BoneType.Surface) {
+			if (this._parent?._boneData?.type === BoneType.Surface) {
 				//for (var i = 0, l = vertexCount; i < l; ++i) {
+				val surface = this._parent as Surface
 				for (i in 0 until vertexCount) {
 					val iD = i * 2
-					val x = floatArray[verticesOffset + iD] + animationVertices[iD]
+					val x = floatArray[verticesOffset + iD + 0] + animationVertices[iD + 0]
 					val y = floatArray[verticesOffset + iD + 1] + animationVertices[iD + 1]
-					val matrix = (this._parent as Surface)._getGlobalTransformMatrix(x, y)
+					val matrix = surface._getGlobalTransformMatrix(x, y)
 					//
-					vertices[iD] = matrix.a * x + matrix.c * y + matrix.tx
+					vertices[iD + 0] = matrix.a * x + matrix.c * y + matrix.tx
 					vertices[iD + 1] = matrix.b * x + matrix.d * y + matrix.ty
 				}
 			}
@@ -134,10 +135,10 @@ class Surface  :  Bone() {
 				//for (var i = 0, l = vertexCount; i < l; ++i) {
 				for (i in 0 until vertexCount) {
 					val iD = i * 2
-					val x = floatArray[verticesOffset + iD] + animationVertices[iD]
+					val x = floatArray[verticesOffset + iD + 0] + animationVertices[iD + 0]
 					val y = floatArray[verticesOffset + iD + 1] + animationVertices[iD + 1]
 					//
-					vertices[iD] = parentMatrix.a * x + parentMatrix.c * y + parentMatrix.tx
+					vertices[iD + 0] = parentMatrix.a * x + parentMatrix.c * y + parentMatrix.tx
 					vertices[iD + 1] = parentMatrix.b * x + parentMatrix.d * y + parentMatrix.ty
 				}
 			}
@@ -146,7 +147,7 @@ class Surface  :  Bone() {
 			//for (var i = 0, l = vertexCount; i < l; ++i) {
 			for (i in 0 until vertexCount) {
 				val iD = i * 2
-				vertices[iD] = floatArray[verticesOffset + iD] + animationVertices[iD]
+				vertices[iD + 0] = floatArray[verticesOffset + iD + 0] + animationVertices[iD + 0]
 				vertices[iD + 1] = floatArray[verticesOffset + iD + 1] + animationVertices[iD + 1]
 			}
 		}
