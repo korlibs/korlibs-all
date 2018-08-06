@@ -81,7 +81,7 @@ class NinePatch(
 		out.setTo(sLeft, sTop, width, height)
 	}
 
-	override fun hitTestInternal(x: Double, y: Double): View? {
+	override fun hitTest(x: Double, y: Double): View? {
 		val sRight = sLeft + width
 		val sBottom = sTop + height
 		return if (checkGlobalBounds(x, y, sLeft, sTop, sRight, sBottom)) this else null

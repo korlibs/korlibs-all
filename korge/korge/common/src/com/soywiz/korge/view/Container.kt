@@ -92,13 +92,8 @@ open class Container : View() {
 		}
 	}
 
-	override fun hitTestInternal(x: Double, y: Double): View? {
+	override fun hitTest(x: Double, y: Double): View? {
 		for (child in children.reversed().filter(View::visible)) return child.hitTest(x, y) ?: continue
-		return null
-	}
-
-	override fun hitTestBoundingInternal(x: Double, y: Double): View? {
-		for (child in children.reversed().filter(View::visible)) return child.hitTestBounding(x, y) ?: continue
 		return null
 	}
 

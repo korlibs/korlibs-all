@@ -37,9 +37,6 @@ class MouseEvents(override val view: View) : MouseComponent, UpdateComponentWith
 	val onMoveAnywhere = moveAnywhere
 	val onMoveOutside = mouseOutside
 
-
-	var hitTestType = View.HitTestType.BOUNDING
-
 	val startedPos = MPoint2d()
 	val lastPos = MPoint2d()
 	val currentPos = MPoint2d()
@@ -61,7 +58,7 @@ class MouseEvents(override val view: View) : MouseComponent, UpdateComponentWith
 	private fun hitTest(views: Views): View? {
 		if (!views.input.mouseHitSearch) {
 			views.input.mouseHitSearch = true
-			views.input.mouseHitResult = views.stage.hitTest(views.nativeMouseX, views.nativeMouseY, hitTestType)
+			views.input.mouseHitResult = views.stage.hitTest(views.nativeMouseX, views.nativeMouseY)
 			//if (frame.mouseHitResult != null) {
 			//val hitResult = frame.mouseHitResult!!
 			//println("BOUNDS: $hitResult : " + hitResult.getLocalBounds() + " : " + hitResult.getGlobalBounds())

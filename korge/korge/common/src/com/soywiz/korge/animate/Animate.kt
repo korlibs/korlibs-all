@@ -96,19 +96,13 @@ abstract class AnBaseShape(final override val library: AnLibrary, final override
 		}
 	}
 
-	override fun hitTestInternal(x: Double, y: Double): View? {
+	override fun hitTest(x: Double, y: Double): View? {
 		val sLeft = dx.toDouble()
 		val sTop = dy.toDouble()
 		val sRight = sLeft + texWidth
 		val sBottom = sTop + texHeight
-		return if (checkGlobalBounds(
-				x,
-				y,
-				sLeft,
-				sTop,
-				sRight,
-				sBottom
-			) && (symbol.path?.containsPoint(globalToLocalX(x, y), globalToLocalY(x, y)) ?: true)
+		return if (checkGlobalBounds(x, y, sLeft, sTop, sRight, sBottom) &&
+			(symbol.path?.containsPoint(globalToLocalX(x, y), globalToLocalY(x, y)) != false)
 		) this else null
 	}
 

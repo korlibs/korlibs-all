@@ -395,6 +395,7 @@ abstract class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by Eve
 
 	// @TODO: Use matrix from reference instead
 	val renderMatrix: Matrix2d get() = globalMatrix
+	val renderMatrixInv: Matrix2d get() = globalMatrixInv
 
 	val globalColorTransform: ColorTransform get() = run { _ensureGlobal(); _globalColorTransform }
 	val globalColorMul: RGBA get() = globalColorTransform.colorMul
@@ -458,30 +459,16 @@ abstract class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by Eve
 	fun localToGlobalX(x: Double, y: Double): Double = globalMatrix.transformX(x, y)
 	fun localToGlobalY(x: Double, y: Double): Double = globalMatrix.transformY(x, y)
 
-	fun hitTest(x: Double, y: Double, type: HitTestType): View? = when (type) {
-		HitTestType.SHAPE -> hitTest(x, y)
-		HitTestType.BOUNDING -> hitTestBounding(x, y)
-	}
+	open fun hitTest(x: Double, y: Double): View? = null
 
-	fun hitTest(pos: Point2d): View? = hitTest(pos.x, pos.y)
-
-	fun hitTest(x: Double, y: Double): View? {
-		if (!mouseEnabled) return null
-		return hitTestInternal(x, y)
-	}
-
-	fun hitTestBounding(x: Double, y: Double): View? {
-		if (!mouseEnabled) return null
-		return hitTestBoundingInternal(x, y)
-	}
+	//fun hitTest(x: Double, y: Double): View? {
+	//	if (!mouseEnabled) return null
+	//	return hitTestInternal(x, y)
+	//}
 
 	open fun hitTestInternal(x: Double, y: Double): View? {
 		val bounds = getLocalBounds()
-		val sLeft = bounds.left
-		val sTop = bounds.top
-		val sRight = bounds.right
-		val sBottom = bounds.bottom
-		return if (checkGlobalBounds(x, y, sLeft, sTop, sRight, sBottom)) this else null
+		return if (checkGlobalBounds(x, y, bounds.left, bounds.top, bounds.right, bounds.bottom)) this else null
 	}
 
 	open fun hitTestBoundingInternal(x: Double, y: Double): View? {
@@ -608,6 +595,10 @@ abstract class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by Eve
 		this@apply.copyPropsFrom(this@View)
 	}
 }
+
+inline fun View.hitTest(x: Number, y: Number): View? = hitTest(x.toDouble(), y.toDouble())
+fun View.hitTest(pos: Point2d): View? = hitTest(pos.x, pos.y)
+
 
 open class DummyView : View() {
 	override fun createInstance(): View = DummyView()

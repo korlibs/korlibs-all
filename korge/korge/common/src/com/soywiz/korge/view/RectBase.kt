@@ -22,6 +22,8 @@ open class RectBase(
 
 	protected open val sLeft get() = -bwidth * anchorX
 	protected open val sTop get() = -bheight * anchorY
+	val sRight get() = sLeft + bwidth
+	val sBottom get() = sTop + bheight
 
 	private val vertices = TexturedVertexArray(4, TexturedVertexArray.QUAD_INDICES)
 
@@ -56,13 +58,18 @@ open class RectBase(
 		out.setTo(sLeft, sTop, bwidth, bheight)
 	}
 
-	override fun hitTestInternal(x: Double, y: Double): View? {
-		val sRight = sLeft + bwidth
-		val sBottom = sTop + bheight
-		return if (checkGlobalBounds(x, y, sLeft, sTop, sRight, sBottom) &&
+	override fun hitTest(x: Double, y: Double): View? {
+		val lres = if (checkGlobalBounds(x, y, sLeft, sTop, sRight, sBottom) &&
 			(hitShape?.containsPoint(globalToLocalX(x, y), globalToLocalY(x, y)) != false)
 		) this else null
+		return lres ?: super.hitTestInternal(x, y)
 	}
+
+	//override fun hitTestInternal(x: Double, y: Double): View? {
+	//	return if (checkGlobalBounds(x, y, sLeft, sTop, sRight, sBottom) &&
+	//		(hitShape?.containsPoint(globalToLocalX(x, y), globalToLocalY(x, y)) != false)
+	//	) this else null
+	//}
 
 	override fun toString(): String {
 		var out = super.toString()
