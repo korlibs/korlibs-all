@@ -372,7 +372,7 @@ class AnimationState : BaseObject() {
 	private fun _updateBoneAndSlotTimelines(): Unit {
 		run {
 			// Update bone and surface timelines.
-			val boneTimelines: LinkedHashMap<String, ArrayList<TimelineState>> = LinkedHashMap()
+			val boneTimelines: FastStringMap<ArrayList<TimelineState>> = FastStringMap()
 			// Create bone timelines map.
 			for (timeline in this._boneTimelines) {
 				val timelineName = ((timeline.target as BlendState).target as Bone).name
@@ -499,7 +499,7 @@ class AnimationState : BaseObject() {
 
 		run {
 			// Update slot timelines.
-			val slotTimelines: LinkedHashMap<String, ArrayList<TimelineState>> = LinkedHashMap()
+			val slotTimelines: FastStringMap<ArrayList<TimelineState>> = FastStringMap()
 			//val ffdFlags = DoubleArrayList()
 			val ffdFlags = IntArrayList()
 			// Create slot timelines map.

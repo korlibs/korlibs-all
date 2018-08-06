@@ -23,6 +23,7 @@
 package com.dragonbones.model
 
 import com.dragonbones.core.*
+import com.soywiz.kds.*
 
 /**
  * - The skin data, typically a armature data instance contains at least one skinData.
@@ -52,7 +53,7 @@ class SkinData  : BaseObject() {
 	/**
 	 * @private
 	 */
-	val displays: LinkedHashMap<String, ArrayList<DisplayData?>> = LinkedHashMap()
+	val displays: FastStringMap<ArrayList<DisplayData?>> = FastStringMap()
 	/**
 	 * @private
 	 */
@@ -107,5 +108,5 @@ class SkinData  : BaseObject() {
 	/**
 	 * @private
 	 */
-	fun getDisplays(slotName: String?): ArrayList<DisplayData?>? = this.displays[slotName]
+	fun getDisplays(slotName: String?): ArrayList<DisplayData?>? = this.displays.getNull(slotName)
 }

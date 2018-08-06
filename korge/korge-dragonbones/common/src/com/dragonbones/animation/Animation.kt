@@ -69,8 +69,8 @@ class Animation : BaseObject() {
 	private var _inheritTimeScale: Double = 1.0
 	private val _animationNames: ArrayList<String> = arrayListOf()
 	private val _animationStates: ArrayList<AnimationState> = arrayListOf()
-	private val _animations: LinkedHashMap<String, AnimationData> = LinkedHashMap()
-	private val _blendStates: LinkedHashMap<String, LinkedHashMap<String, BlendState>> = LinkedHashMap()
+	private val _animations: FastStringMap<AnimationData> = FastStringMap()
+	private val _blendStates: FastStringMap<FastStringMap<BlendState>> = FastStringMap()
 	private var _armature: Armature? = null
 	private var _animationConfig: AnimationConfig? = null // Initial value.
 	private var _lastAnimationState: AnimationState? = null
@@ -82,8 +82,8 @@ class Animation : BaseObject() {
 
 		this._animations.clear()
 
-		for (blendStates in this._blendStates.values) {
-			for (kB in blendStates.keys) {
+		for (blendStates in this._blendStates.values()) {
+			for (kB in blendStates.keys()) {
 				blendStates[kB]?.returnToPool()
 			}
 		}
@@ -194,8 +194,8 @@ class Animation : BaseObject() {
 			passedTime *= this._inheritTimeScale
 		}
 
-		for (blendStates in this._blendStates.values) {
-			for (state in blendStates.values) {
+		for (blendStates in this._blendStates.values()) {
+			for (state in blendStates.values()) {
 				state.reset()
 			}
 		}
@@ -762,7 +762,7 @@ class Animation : BaseObject() {
 	 */
 	fun getBlendState(type: String, name: String, target: BaseObject): BlendState {
 		if (type !in this._blendStates) {
-			this._blendStates[type] = LinkedHashMap()
+			this._blendStates[type] = FastStringMap()
 		}
 
 		val blendStates = this._blendStates[type]!!
@@ -917,7 +917,7 @@ class Animation : BaseObject() {
 	 * @version DragonBones 4.5
 	 * @language zh_CN
 	 */
-	var animations: LinkedHashMap<String, AnimationData>
+	var animations: FastStringMap<AnimationData>
 		get() {
 			return this._animations
 		}

@@ -40,9 +40,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 	private lateinit var _frameArrayBuffer: Int16Buffer
 	private lateinit var _timelineArrayBuffer: Uint16Buffer
 
-	private fun _inRange(a: Int, min: Int, max: Int): Boolean {
-		return min <= a && a <= max
-	}
+	private fun _inRange(a: Int, min: Int, max: Int): Boolean = a in min..max
 
 	private fun _decodeUTF8(data: Uint8Buffer): String {
 		val EOF_byte = -1
@@ -222,7 +220,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 
 		if (DataParser.BONE in rawData) {
 			val rawTimeliness = rawData[DataParser.BONE]
-			for (k in rawTimeliness.keys) {
+			for (k in rawTimeliness.dynKeys) {
 				val rawTimelines = rawTimeliness[k] as  IntArrayList
 				val bone = this._armature?.getBone(k) ?: continue
 
@@ -237,7 +235,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 
 		if (DataParser.SLOT in rawData) {
 			val rawTimeliness = rawData[DataParser.SLOT]
-			for (k in rawTimeliness.keys) {
+			for (k in rawTimeliness.dynKeys) {
 				val rawTimelines = rawTimeliness[k] as  IntArrayList
 				val slot = this._armature?.getSlot(k) ?: continue
 
@@ -252,7 +250,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 
 		if (DataParser.CONSTRAINT in rawData) {
 			val rawTimeliness = rawData[DataParser.CONSTRAINT]
-			for (k in rawTimeliness.keys) {
+			for (k in rawTimeliness.dynKeys) {
 				val rawTimelines = rawTimeliness[k] as  IntArrayList
 				val constraint = this._armature?.getConstraint(k) ?: continue
 

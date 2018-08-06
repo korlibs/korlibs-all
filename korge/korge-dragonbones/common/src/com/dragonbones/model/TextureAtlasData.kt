@@ -25,6 +25,7 @@ package com.dragonbones.model
 import com.dragonbones.core.*
 import com.dragonbones.geom.*
 import com.dragonbones.util.*
+import com.soywiz.kds.*
 
 /**
  * - The texture atlas data.
@@ -78,7 +79,7 @@ abstract class TextureAtlasData  :  BaseObject() {
 	/**
 	 * @private
 	 */
-	val textures: LinkedHashMap<String, TextureData> = LinkedHashMap()
+	val textures: FastStringMap<TextureData> = FastStringMap()
 
 	override fun _onClear() {
 		for (v in this.textures.values) v.returnToPool()

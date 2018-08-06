@@ -131,29 +131,27 @@ class AnimationData  :  BaseObject() {
 	/**
 	 * @private
 	 */
-	val boneTimelines: LinkedHashMap<String, ArrayList<TimelineData>> = LinkedHashMap()
+	val boneTimelines: FastStringMap<ArrayList<TimelineData>> = FastStringMap()
 	/**
 	 * @private
 	 */
-	val slotTimelines: LinkedHashMap<String, ArrayList<TimelineData>> = LinkedHashMap()
+	val slotTimelines: FastStringMap<ArrayList<TimelineData>> = FastStringMap()
 	/**
 	 * @private
 	 */
-	val constraintTimelines: LinkedHashMap<String, ArrayList<TimelineData>> = LinkedHashMap()
+	val constraintTimelines: FastStringMap<ArrayList<TimelineData>> = FastStringMap()
 	/**
 	 * @private
 	 */
-	val animationTimelines: LinkedHashMap<String, ArrayList<TimelineData>> = LinkedHashMap()
+	val animationTimelines: FastStringMap<ArrayList<TimelineData>> = FastStringMap()
 	/**
 	 * @private
 	 */
-	//public val boneCachedFrameIndices: LinkedHashMap<String, DoubleArrayList> = LinkedHashMap()
-	val boneCachedFrameIndices: LinkedHashMap<String, IntArrayList> = LinkedHashMap()
+	val boneCachedFrameIndices: FastStringMap<IntArrayList> = FastStringMap()
 	/**
 	 * @private
 	 */
-	//public val slotCachedFrameIndices: LinkedHashMap<String, DoubleArrayList> = LinkedHashMap()
-	val slotCachedFrameIndices: LinkedHashMap<String, IntArrayList> = LinkedHashMap()
+	val slotCachedFrameIndices: FastStringMap<IntArrayList> = FastStringMap()
 	/**
 	 * @private
 	 */
@@ -228,7 +226,7 @@ class AnimationData  :  BaseObject() {
 	/**
 	 * @internal
 	 */
-	fun cacheFrames(frameRate: Int): Unit {
+	fun cacheFrames(frameRate: Int) {
 		if (this.cacheFrameRate > 0.0) { // TODO clear cache.
 			return
 		}

@@ -8,9 +8,7 @@ object Dynamic {
 
 	fun set(obj: Any?, key: Any?, value: Any?): Unit = when (obj) {
 		is MutableMap<*, *>, is MutableList<*> -> setUntyped(obj, key, value)
-		else -> {
-			Unit
-		}
+		else -> Unit
 	}
 
 	fun get(obj: Any?, key: Any?): Any? = when (obj) {
@@ -53,7 +51,8 @@ object Dynamic {
 		null -> 0
 		is Boolean -> if (obj) 1 else 0
 		is Number -> obj
-		is String -> (obj.toLongOrNull() as? Number?) ?: obj.toIntOrNull() ?: obj.toDoubleOrNull() ?: 0
+		//is String -> (obj.toLongOrNull() as? Number?) ?: obj.toIntOrNull() ?: obj.toDoubleOrNull() ?: 0
+		is String -> (obj.toIntOrNull() ?: obj.toDoubleOrNull() ?: 0) as Number
 		else -> 0
 	}
 
@@ -70,6 +69,7 @@ object Dynamic {
 
 	fun toByte(obj: Any?): Byte = toNumber(obj).toByte()
 	fun toChar(obj: Any?): Char = when {
+		obj is Char -> obj
 		(obj is String) && (obj.length == 1) -> obj.first()
 		else -> toNumber(obj).toChar()
 	}

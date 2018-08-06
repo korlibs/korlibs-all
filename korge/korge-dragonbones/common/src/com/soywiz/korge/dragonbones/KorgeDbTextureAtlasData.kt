@@ -25,6 +25,7 @@ package com.soywiz.korge.dragonbones
 
 import com.dragonbones.core.*
 import com.dragonbones.model.*
+import com.soywiz.kds.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korma.geom.*
 

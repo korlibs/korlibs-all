@@ -14,7 +14,7 @@ abstract class Charset(val name: String) {
 	}
 }
 
-abstract class UTC8CharsetBase(name: String) : Charset(name) {
+open class UTC8CharsetBase(name: String) : Charset(name) {
 	private fun createByte(codePoint: Int, shift: Int): Int = codePoint shr shift and 0x3F or 0x80
 
 	override fun encode(out: ByteArrayBuilder, src: CharSequence, start: Int, end: Int) {
@@ -43,21 +43,31 @@ abstract class UTC8CharsetBase(name: String) : Charset(name) {
 	}
 
 	override fun decode(out: StringBuilder, src: ByteArray, start: Int, end: Int) {
+		if ((start < 0 || start > src.size) || (end < 0 || end > src.size)) error("Out of bounds")
 		var i = start
 		while (i < end) {
-			val c = src[i++].toInt() and 0xFF
+			// @TODO: kotlin-js generates that looks pretty slow:
+			// val c = src[i++].toInt() and 0xFF
+			//   --->  var c = src[tmp$ = i, i = tmp$ + 1 | 0, tmp$] & 255;
+			val c = src[i].toInt() and 0xFF
 			when (c shr 4) {
 				0, 1, 2, 3, 4, 5, 6, 7 -> {
 					// 0xxxxxxx
 					out.append(c.toChar())
+					i += 1
 				}
 				12, 13 -> {
 					// 110x xxxx   10xx xxxx
-					out.append((c and 0x1F shl 6 or (src[i++].toInt() and 0x3F)).toChar())
+					out.append((c and 0x1F shl 6 or (src[i + 1].toInt() and 0x3F)).toChar())
+					i += 2
 				}
 				14 -> {
 					// 1110 xxxx  10xx xxxx  10xx xxxx
-					out.append((c and 0x0F shl 12 or (src[i++].toInt() and 0x3F shl 6) or (src[i++].toInt() and 0x3F)).toChar())
+					out.append((c and 0x0F shl 12 or (src[i + 1].toInt() and 0x3F shl 6) or (src[i + 2].toInt() and 0x3F)).toChar())
+					i += 3
+				}
+				else -> {
+					i += 1
 				}
 			}
 		}
@@ -83,7 +93,7 @@ open class SingleByteCharset(name: String, val conv: String) : Charset(name) {
 
 object ISO_8859_1 : SingleByteCharset("ISO-8859-1", buildString { for (n in 0 until 256) append(n.toChar()) })
 
-object UTF8 : UTC8CharsetBase("UTF-8")
+expect val UTF8: Charset
 
 class UTF16Charset(val le: Boolean) : Charset("UTF-16-" + (if (le) "LE" else "BE")) {
 	override fun decode(out: StringBuilder, src: ByteArray, start: Int, end: Int) {

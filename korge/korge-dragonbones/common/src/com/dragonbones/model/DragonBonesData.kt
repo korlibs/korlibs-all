@@ -111,7 +111,7 @@ class DragonBonesData  : BaseObject() {
 	/**
 	 * @private
 	 */
-	val armatures: LinkedHashMap<String, ArmatureData> = LinkedHashMap()
+	val armatures: FastStringMap<ArmatureData> = FastStringMap()
 	/**
 	 * @internal
 	 */

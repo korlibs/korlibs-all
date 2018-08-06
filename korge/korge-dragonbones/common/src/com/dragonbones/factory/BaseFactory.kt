@@ -31,6 +31,7 @@ import com.dragonbones.event.*
 import com.dragonbones.model.*
 import com.dragonbones.parser.*
 import com.dragonbones.util.*
+import com.soywiz.kds.*
 import com.soywiz.kmem.*
 
 /**
@@ -66,8 +67,8 @@ abstract class BaseFactory {
 	 */
 	var autoSearch: Boolean = false
 
-	protected val _dragonBonesDataMap: LinkedHashMap<String, DragonBonesData> = LinkedHashMap()
-	protected val _textureAtlasDataMap: LinkedHashMap<String, ArrayList<TextureAtlasData>> = LinkedHashMap()
+	protected val _dragonBonesDataMap: FastStringMap<DragonBonesData> = FastStringMap()
+	protected val _textureAtlasDataMap: FastStringMap<ArrayList<TextureAtlasData>> = FastStringMap()
 	protected lateinit var _dragonBones: DragonBones
 	protected lateinit var _dataParser: DataParser
 	/**
@@ -189,7 +190,7 @@ abstract class BaseFactory {
 			return
 		}
 
-		val skinSlots: LinkedHashMap<String, ArrayList<DisplayData?>> = LinkedHashMap()
+		val skinSlots: FastStringMap<ArrayList<DisplayData?>> = FastStringMap()
 		for (k in defaultSkin.displays.keys) {
 			val displays = defaultSkin.getDisplays(k)
 			skinSlots[k] = displays!!
@@ -979,7 +980,7 @@ abstract class BaseFactory {
 		}
 		else {
 			val rawAnimations = armature.animation.animations
-			val animations: LinkedHashMap<String, AnimationData> = LinkedHashMap()
+			val animations: FastStringMap<AnimationData> = FastStringMap()
 
 			for (k in rawAnimations.keys) {
 				animations[k] = rawAnimations[k]!!
@@ -1018,14 +1019,14 @@ abstract class BaseFactory {
 	/**
 	 * @private
 	 */
-	fun getAllDragonBonesData(): LinkedHashMap<String, DragonBonesData> {
+	fun getAllDragonBonesData(): FastStringMap<DragonBonesData> {
 		return this._dragonBonesDataMap
 	}
 
 	/**
 	 * @private
 	 */
-	fun getAllTextureAtlasData(): LinkedHashMap<String, ArrayList<TextureAtlasData>> {
+	fun getAllTextureAtlasData(): FastStringMap<ArrayList<TextureAtlasData>> {
 		return this._textureAtlasDataMap
 	}
 	/**

@@ -25,6 +25,7 @@ package com.dragonbones.model
 import com.dragonbones.core.*
 import com.dragonbones.geom.*
 import com.dragonbones.util.*
+import com.soywiz.kds.*
 
 /**
  * - The armature data.
@@ -109,23 +110,23 @@ class ArmatureData : BaseObject() {
 	/**
 	 * @private
 	 */
-	val bones: LinkedHashMap<String, BoneData> = LinkedHashMap()
+	val bones: FastStringMap<BoneData> = FastStringMap()
 	/**
 	 * @private
 	 */
-	val slots: LinkedHashMap<String, SlotData> = LinkedHashMap()
+	val slots: FastStringMap<SlotData> = FastStringMap()
 	/**
 	 * @private
 	 */
-	val constraints: LinkedHashMap<String, ConstraintData> = LinkedHashMap()
+	val constraints: FastStringMap<ConstraintData> = FastStringMap()
 	/**
 	 * @private
 	 */
-	val skins: LinkedHashMap<String, SkinData> = LinkedHashMap()
+	val skins: FastStringMap<SkinData> = FastStringMap()
 	/**
 	 * @private
 	 */
-	val animations: LinkedHashMap<String, AnimationData> = LinkedHashMap()
+	val animations: FastStringMap<AnimationData> = FastStringMap()
 	/**
 	 * - The default skin data.
 	 * @version DragonBones 4.5
@@ -408,7 +409,7 @@ class ArmatureData : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	fun getBone(boneName: String?): BoneData? = this.bones[boneName]
+	fun getBone(boneName: String?): BoneData? = this.bones.getNull(boneName)
 	/**
 	 * - Get a specific slot data.
 	 * @param slotName - The slot name.
@@ -421,7 +422,7 @@ class ArmatureData : BaseObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	fun getSlot(slotName: String?): SlotData? = this.slots[slotName]
+	fun getSlot(slotName: String?): SlotData? = this.slots.getNull(slotName)
 
 	/**
 	 * @private

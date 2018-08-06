@@ -25,12 +25,10 @@ package com.dragonbones.parser
 import com.dragonbones.core.*
 import com.dragonbones.geom.*
 import com.dragonbones.model.*
-import com.dragonbones.parser.ObjectDataParser.Companion.doubleArray
 import com.dragonbones.util.*
 import com.soywiz.kds.*
 import com.soywiz.kmem.*
 import com.soywiz.korio.lang.*
-import com.soywiz.korio.serialization.json.*
 import kotlin.math.*
 
 /**
@@ -53,13 +51,12 @@ open class ObjectDataParser : DataParser() {
 			return Dynamic.get(this, key)
 		}
 
-		internal operator fun Any?.contains(key: String): Boolean {
+		internal inline operator fun Any?.contains(key: String): Boolean {
 			return this.get(key) != null
 		}
 
-		internal val Any?.keys get() = (this as Map<String, Any?>).keys
-		internal val Any?.values get() = (this as Map<String, Any?>).values
-		internal val Any?.list get() = Dynamic.toList(this)
+		internal val Any?.dynKeys get() = (this as Map<String, Any?>).keys
+		internal val Any?.dynList get() = Dynamic.toList(this)
 		internal val Any?.doubleArray: DoubleArray get() {
 			if (this is DoubleArray) return this
 			if (this is DoubleArrayList) return this.toDoubleArray()
@@ -80,7 +77,7 @@ open class ObjectDataParser : DataParser() {
 		}
 
 		fun _getBoolean(rawData: Any?, key: String, defaultValue: Boolean): Boolean {
-			val value = rawData[key]
+			val value = rawData.get(key)
 
 			return when (value) {
 				null -> defaultValue
@@ -660,7 +657,7 @@ open class ObjectDataParser : DataParser() {
 			val rawSlots = rawData[DataParser.SLOT]
 			this._skin = skin
 
-			for (rawSlot in rawSlots.list) {
+			for (rawSlot in rawSlots.dynList) {
 				val slotName = ObjectDataParser._getString(rawSlot, DataParser.NAME, "")
 				val slot = this._armature?.getSlot(slotName)
 
@@ -669,7 +666,7 @@ open class ObjectDataParser : DataParser() {
 
 					if (DataParser.DISPLAY in rawSlot) {
 						val rawDisplays = rawSlot[DataParser.DISPLAY]
-						for (rawDisplay in rawDisplays.list) {
+						for (rawDisplay in rawDisplays.dynList) {
 							if (rawDisplay != null) {
 								skin.addDisplay(slotName, this._parseDisplay(rawDisplay))
 							} else {
@@ -1014,7 +1011,7 @@ open class ObjectDataParser : DataParser() {
 
 		if (DataParser.TIMELINE in rawData) {
 			val rawTimelines = rawData[DataParser.TIMELINE]
-			loop@ for (rawTimeline in rawTimelines.list) {
+			loop@ for (rawTimeline in rawTimelines.dynList) {
 				val timelineType =
 					TimelineType[ObjectDataParser._getInt(rawTimeline, DataParser.TYPE, TimelineType.Action.id)]
 				val timelineName = ObjectDataParser._getString(rawTimeline, DataParser.NAME, "")
@@ -1137,9 +1134,9 @@ open class ObjectDataParser : DataParser() {
 					TimelineType.SlotDeform -> {
 						this._geometry = null //
 						for (skinName in this._armature!!.skins.keys) {
-							val skin = this._armature!!.skins[skinName]
+							val skin = this._armature!!.skins.getNull(skinName)
 							for (slontName in skin!!.displays.keys) {
-								val displays = skin.displays[slontName]!!
+								val displays = skin.displays.getNull(slontName)!!
 								for (display in displays) {
 									if (display != null && display.name == timelineName) {
 										this._geometry = (display as MeshDisplayData).geometry
@@ -1256,9 +1253,9 @@ open class ObjectDataParser : DataParser() {
 
 		if (rawData != null) {
 			this._timelineArray[timelineOffset + BinaryOffset.TimelineScale.index] =
-					round(ObjectDataParser._getNumber(rawData, DataParser.SCALE, 1.0) * 100).toDouble()
+					round(ObjectDataParser._getNumber(rawData, DataParser.SCALE, 1.0) * 100)
 			this._timelineArray[timelineOffset + BinaryOffset.TimelineOffset.index] =
-					round(ObjectDataParser._getNumber(rawData, DataParser.OFFSET, 0.0) * 100).toDouble()
+					round(ObjectDataParser._getNumber(rawData, DataParser.OFFSET, 0.0) * 100)
 		} else {
 			this._timelineArray[timelineOffset + BinaryOffset.TimelineScale.index] = 100.0
 			this._timelineArray[timelineOffset + BinaryOffset.TimelineOffset.index] = 0.0
@@ -1462,7 +1459,7 @@ open class ObjectDataParser : DataParser() {
 				//for (var i = 0; i < sampleCount; ++i) {
 				for (i in 0 until sampleCount) {
 					this._frameArray[frameOffset + BinaryOffset.FrameCurveSamples.index + i] =
-							round(this._helpArray[i] * 10000.0).toDouble()
+							round(this._helpArray[i] * 10000.0)
 				}
 			} else {
 				val noTween = -2.0
@@ -1481,18 +1478,18 @@ open class ObjectDataParser : DataParser() {
 					this._frameArray.length += 1 + 1
 					this._frameArray[frameOffset + BinaryOffset.FrameTweenType.index] = TweenType.QuadIn.id.toDouble()
 					this._frameArray[frameOffset + BinaryOffset.FrameTweenEasingOrCurveSampleCount.index] =
-							round(-tweenEasing * 100.0).toDouble()
+							round(-tweenEasing * 100.0)
 				} else if (tweenEasing <= 1.0) {
 					this._frameArray.length += 1 + 1
 					this._frameArray[frameOffset + BinaryOffset.FrameTweenType.index] = TweenType.QuadOut.id.toDouble()
 					this._frameArray[frameOffset + BinaryOffset.FrameTweenEasingOrCurveSampleCount.index] =
-							round(tweenEasing * 100.0).toDouble()
+							round(tweenEasing * 100.0)
 				} else {
 					this._frameArray.length += 1 + 1
 					this._frameArray[frameOffset + BinaryOffset.FrameTweenType.index] =
 							TweenType.QuadInOut.id.toDouble()
 					this._frameArray[frameOffset + BinaryOffset.FrameTweenEasingOrCurveSampleCount.index] =
-							round(tweenEasing * 100.0 - 100.0).toDouble()
+							round(tweenEasing * 100.0 - 100.0)
 				}
 			}
 		} else {
@@ -1785,7 +1782,7 @@ open class ObjectDataParser : DataParser() {
 			// @TODO: Kotlin-JS: Caused by: java.lang.IllegalStateException: Value at LOOP_RANGE_ITERATOR_RESOLVED_CALL must not be null for BINARY_WITH_TYPE
 			//for (k in (rawColor as List<Any?>)) { // Detects the presence of color.
 			//for (let k in rawColor) { // Detects the presence of color.
-			for (k in rawColor.keys) { // Detects the presence of color.
+			for (k in rawColor.dynKeys) { // Detects the presence of color.
 				this._parseColorTransform(rawColor, this._helpColorTransform)
 				colorOffset = this._colorArray.length
 				this._colorArray.length += 8

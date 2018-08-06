@@ -89,7 +89,7 @@ class StrReader(val str: String, val file: String = "file", var pos: Int = 0) {
 		return null
 	}
 
-	fun skipSpaces() = this.apply { this.skipWhile { it.isWhitespace() } }
+	fun skipSpaces() = this.apply { this.skipWhile { it.isWhitespaceFast() } }
 
 	fun matchIdentifier() = matchWhile { it.isLetterDigitOrUnderscore() || it == '-' || it == '~' || it == ':' }
 	fun matchSingleOrDoubleQuoteString(): String? {
@@ -200,6 +200,8 @@ class StrReader(val str: String, val file: String = "file", var pos: Int = 0) {
 		fun displace(offset: Int): TRange = TRange(this.min + offset, this.max + offset, this.reader)
 	}
 }
+
+fun Char.isWhitespaceFast(): Boolean = this == ' ' || this == '\t' || this == '\r' || this == '\n'
 
 fun StrReader.readStringLit(reportErrors: Boolean = true): String {
 	val out = StringBuilder()

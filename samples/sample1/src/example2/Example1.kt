@@ -3,6 +3,7 @@ package example2
 import com.dragonbones.event.*
 import com.soywiz.kds.*
 import com.soywiz.korge.*
+import com.soywiz.korge.async.*
 import com.soywiz.korge.dragonbones.*
 import com.soywiz.korge.input.*
 import com.soywiz.korge.render.*
@@ -16,7 +17,9 @@ import com.soywiz.korio.serialization.json.*
 import com.soywiz.korma.geom.*
 import com.soywiz.korma.random.*
 import com.soywiz.korui.light.*
+import kotlinx.coroutines.experimental.*
 import kotlin.math.*
+import kotlin.reflect.*
 
 //fun main(args: Array<String>): Unit = Korio {
 //    val vfs = MemoryVfsMix("hello" to "WORLD")
@@ -32,15 +35,34 @@ fun main(args: Array<String>): Unit {
     //Logger("DefaultShaders").level = Logger.Level.TRACE
     //Logger("RenderContext2D").level = Logger.Level.TRACE
     //Korge(MyModule, debug = true)
-    Korge(MyModule, debug = false)
+    Korge(object : MyModule() {
+        //override val mainScene: KClass<out Scene> = HelloScene::class
+    }, debug = false)
 }
 
-object MyModule : Module() {
-    override val mainScene = MyScene::class
+class HelloScene : Scene() {
+    override suspend fun Container.sceneInit() {
+        solidRect(100, 100, Colors.RED) {
+            position(100, 100)
+            mouse {
+                over {
+                    alpha(1.0)
+                }
+                out {
+                    alpha(0.5)
+                }
+            }
+        }
+    }
+}
+
+open class MyModule : Module() {
+    override val mainScene: KClass<out Scene> = MyScene::class
     override val quality: LightQuality = LightQuality.QUALITY
 
     override suspend fun init(injector: AsyncInjector) {
         injector
+            .mapPrototype { HelloScene() }
             .mapPrototype { MyScene() }
             .mapPrototype { ClassicDragonScene() }
             .mapPrototype { EyeTrackingScene() }
@@ -124,14 +146,16 @@ class Button(text: String, handler: suspend () -> Unit) : Container() {
 class HelloWorldScene : BaseDbScene() {
     val SCALE = 1.6
     override suspend fun Container.sceneInit() {
-        val data =
-            factory.parseDragonBonesData(Json.parse(resources["mecha_1002_101d_show/mecha_1002_101d_show_ske.json"].readString())!!)
-        val atlas = factory.parseTextureAtlasData(
-            Json.parse(resources["mecha_1002_101d_show/mecha_1002_101d_show_tex.json"].readString())!!,
-            resources["mecha_1002_101d_show/mecha_1002_101d_show_tex.png"].readBitmapOptimized()
-        )
-        val armatureDisplay = factory.buildArmatureDisplay("mecha_1002_101d")!!
-            .position(0, 300).scale(SCALE)
+
+        val skeDeferred = async(KorgeDispatcher) { resources["mecha_1002_101d_show/mecha_1002_101d_show_ske.json"].readString() }
+        val texDeferred = async(KorgeDispatcher) { resources["mecha_1002_101d_show/mecha_1002_101d_show_tex.json"].readString() }
+        val imgDeferred = async(KorgeDispatcher) { resources["mecha_1002_101d_show/mecha_1002_101d_show_tex.png"].readBitmapOptimized().mipmaps() }
+
+        val data = factory.parseDragonBonesData(Json.parse(skeDeferred.await())!!)
+        val atlas = factory.parseTextureAtlasData(Json.parse(texDeferred.await())!!, imgDeferred.await())
+
+        val armatureDisplay = factory.buildArmatureDisplay("mecha_1002_101d")!!.position(0, 300).scale(SCALE)
+
         //armatureDisplay.animation.play("walk")
         println(armatureDisplay.animation.animationNames)
         //armatureDisplay.animation.play("jump")
@@ -144,10 +168,15 @@ class ClassicDragonScene : BaseDbScene() {
     override suspend fun Container.sceneInit() {
         //val scale = 0.3
         val scale = 0.8
-        val data = factory.parseDragonBonesData(Json.parse(resources["Dragon/Dragon_ske.json"].readString())!!)
+        val ske = async(KorgeDispatcher) { resources["Dragon/Dragon_ske.json"].readString() }
+        val tex = async(KorgeDispatcher) { resources["Dragon/Dragon_tex.json"].readString() }
+        val img = async(KorgeDispatcher) { resources["Dragon/Dragon_tex.png"].readBitmapOptimized() }
+
+        val data = factory.parseDragonBonesData(Json.parse(ske.await())!!)
+
         val atlas = factory.parseTextureAtlasData(
-            Json.parse(resources["Dragon/Dragon_tex.json"].readString())!!,
-            resources["Dragon/Dragon_tex.png"].readBitmapOptimized()
+            Json.parse(tex.await())!!,
+            img.await()
         )
         val armatureDisplay = factory.buildArmatureDisplay("Dragon", "Dragon")!!.position(0, 200).scale(scale)
         armatureDisplay.animation.play("walk")
@@ -171,16 +200,23 @@ class EyeTrackingScene : BaseDbScene() {
             "PARAM_BODY_ANGLE_X", "PARAM_BODY_ANGLE_Y", "PARAM_BODY_ANGLE_Z",
             "PARAM_BREATH"
         )
+
+        val skeDeferred = async(KorgeDispatcher) { resources["shizuku/shizuku_ske.json"].readString() }
+        val tex00Deferred = async(KorgeDispatcher) { resources["shizuku/shizuku.1024/texture_00.png"].readBitmapOptimized().mipmaps() }
+        val tex01Deferred = async(KorgeDispatcher) { resources["shizuku/shizuku.1024/texture_01.png"].readBitmapOptimized().mipmaps() }
+        val tex02Deferred = async(KorgeDispatcher) { resources["shizuku/shizuku.1024/texture_02.png"].readBitmapOptimized().mipmaps() }
+        val tex03Deferred = async(KorgeDispatcher) { resources["shizuku/shizuku.1024/texture_03.png"].readBitmapOptimized().mipmaps() }
+
         factory.parseDragonBonesData(
-            Json.parse(resources["shizuku/shizuku_ske.json"].readString())!!,
+            Json.parse(skeDeferred.await())!!,
             "shizuku"
         )
         factory.updateTextureAtlases(
             arrayOf(
-                resources["shizuku/shizuku.1024/texture_00.png"].readBitmapOptimized().mipmaps(),
-                resources["shizuku/shizuku.1024/texture_01.png"].readBitmapOptimized().mipmaps(),
-                resources["shizuku/shizuku.1024/texture_02.png"].readBitmapOptimized().mipmaps(),
-                resources["shizuku/shizuku.1024/texture_03.png"].readBitmapOptimized().mipmaps()
+                tex00Deferred.await(),
+                tex01Deferred.await(),
+                tex02Deferred.await(),
+                tex03Deferred.await()
             ), "shizuku"
         )
         val armatureDisplay = factory.buildArmatureDisplay("shizuku", "shizuku")!!
@@ -279,13 +315,19 @@ class SkinChangingScene : BaseDbScene() {
             )
         )
 
-        factory.parseDragonBonesData(
-            Json.parse(resources["you_xin/body/body_ske.json"].readString())!!
-        )
-        val atlas = factory.parseTextureAtlasData(
-            Json.parse(resources["you_xin/body/body_tex.json"].readString())!!,
-            resources["you_xin/body/body_tex.png"].readBitmapOptimized()
-        )
+        val deferreds = arrayListOf<Deferred<*>>()
+
+        deferreds += async(KorgeDispatcher) {
+            factory.parseDragonBonesData(
+                Json.parse(resources["you_xin/body/body_ske.json"].readString())!!
+            )
+        }
+        deferreds += async(KorgeDispatcher) {
+            val atlas = factory.parseTextureAtlasData(
+                Json.parse(resources["you_xin/body/body_tex.json"].readString())!!,
+                resources["you_xin/body/body_tex.png"].readBitmapOptimized()
+            )
+        }
 
         for ((i, suitConfig) in suitConfigs.withIndex()) {
             for (partArmatureName in suitConfig) {
@@ -295,13 +337,17 @@ class SkinChangingScene : BaseDbScene() {
                 val textureAtlasJSONPath = path + "_tex.json"
                 val textureAtlasPath = path + "_tex.png"
                 //
-                factory.parseDragonBonesData(Json.parse(resources[dragonBonesJSONPath].readString())!!)
-                factory.parseTextureAtlasData(
-                    Json.parse(resources[textureAtlasJSONPath].readString())!!,
-                    resources[textureAtlasPath].readBitmapOptimized()
-                )
+                deferreds += async(KorgeDispatcher) {
+                    factory.parseDragonBonesData(Json.parse(resources[dragonBonesJSONPath].readString())!!)
+                    factory.parseTextureAtlasData(
+                        Json.parse(resources[textureAtlasJSONPath].readString())!!,
+                        resources[textureAtlasPath].readBitmapOptimized()
+                    )
+                }
             }
         }
+
+        deferreds.awaitAll()
 
         val armatureDisplay = factory.buildArmatureDisplay("body")!!
             .position(0, 360).scale(SCALE)

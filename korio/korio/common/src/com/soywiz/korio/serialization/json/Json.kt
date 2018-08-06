@@ -13,6 +13,7 @@ import kotlin.collections.plusAssign
 import kotlin.collections.set
 import kotlin.collections.toList
 import kotlin.collections.withIndex
+import kotlin.math.*
 import kotlin.reflect.*
 
 object Json {
@@ -81,9 +82,9 @@ object Json {
 			}
 			'-', '+', in '0'..'9' -> {
 				unread()
-				val res =
-					readWhile { (it in '0'..'9') || it == '.' || it == 'e' || it == 'E' || it == '-' || it == '+' }
-				return Dynamic.toNumber(res)
+				val res = readWhile { (it in '0'..'9') || it == '.' || it == 'e' || it == 'E' || it == '-' || it == '+' }
+				val dres = res.toDouble()
+				return if (dres.toInt().toDouble() == dres) dres.toInt() else dres
 			}
 			't', 'f', 'n' -> {
 				unread()
