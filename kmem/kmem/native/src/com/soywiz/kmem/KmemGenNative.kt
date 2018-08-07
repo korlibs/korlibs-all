@@ -5,6 +5,7 @@ package com.soywiz.kmem
 
 actual class MemBuffer(val data: ByteArray)
 actual fun MemBufferAlloc(size: Int): MemBuffer = MemBuffer(ByteArray(size))
+actual fun MemBufferAllocNoDirect(size: Int): MemBuffer = MemBuffer(ByteArray(size))
 actual fun MemBufferWrap(array: ByteArray): MemBuffer = MemBuffer(array)
 actual inline val MemBuffer.size: Int get() = data.size
 

@@ -24,6 +24,7 @@ To test bleeding-edge kotlin-native:
 
 ```
 export KONAN_REPO=$PWD/../kotlin-native
+export build_kotlin_native=true
 #pushd $KONAN_REPO && git pull && ./gradlew clean dependencies:update dist distPlatformLibs && popd
 ./gradlew install -Pkonan.home=$KONAN_REPO/dist --include-build $KONAN_REPO/shared --include-build $KONAN_REPO/tools/kotlin-native-gradle-plugin
 ./gradlew :sample1-native:compileDebugKotlinNative -Pkonan.home=$KONAN_REPO/dist --include-build $KONAN_REPO/shared --include-build $KONAN_REPO/tools/kotlin-native-gradle-plugin

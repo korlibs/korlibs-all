@@ -29,7 +29,7 @@ object NativeNativeImageFormatProvider : NativeImageFormatProvider() {
 }
 
 data class BitmapNativeImage(val bitmap: Bitmap32) : NativeImage(bitmap.width, bitmap.height, bitmap, bitmap.premult) {
-	val intData = bitmap.data
+	val intData: IntArray = bitmap.data.array
 
 	constructor(bitmap: Bitmap) : this(bitmap.toBMP32())
 
