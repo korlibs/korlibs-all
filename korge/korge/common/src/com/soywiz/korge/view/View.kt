@@ -239,7 +239,7 @@ abstract class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by Eve
 	}
 
 	val root: View get() = parent?.root ?: this
-	val stage: Stage? get() = root as? Stage?
+	open val stage: Stage? get() = root as? Stage?
 
 	var mouseEnabled: Boolean = true
 	//var mouseChildren: Boolean = false

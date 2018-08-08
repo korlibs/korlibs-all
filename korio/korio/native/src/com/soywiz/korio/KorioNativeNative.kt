@@ -128,7 +128,8 @@ actual object KorioNative {
 
 	actual fun getenv(key: String): String? = platform.posix.getenv(key)?.toKString()
 
-	actual fun asyncEntryPoint(context: CoroutineContext, callback: suspend () -> Unit) = runBlocking(context) { callback() }
+	//actual fun asyncEntryPoint(context: CoroutineContext, callback: suspend () -> Unit) = runBlocking(context) { callback() }
+	actual fun asyncEntryPoint(context: CoroutineContext, callback: suspend () -> Unit) = runBlocking { callback() }
 
 	actual fun suspendTest(callback: suspend () -> Unit): Unit {
 		runBlocking { callback() }

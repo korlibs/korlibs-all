@@ -84,3 +84,7 @@ class atomicLateinit<T>() {
 		this.value.set(v)
 	}
 }
+
+expect val isNative: Boolean
+expect val isJs: Boolean
+expect val isJvm: Boolean

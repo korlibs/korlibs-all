@@ -7,10 +7,12 @@ import kotlin.coroutines.experimental.*
 import com.soywiz.korio.async.*
 
 actual object NativeLightsComponentsFactory : LightComponentsFactory {
-	actual override fun create(context: CoroutineContext): LightComponents = NativeLightComponents(context)
+	actual override fun create(context: CoroutineContext, nativeCtx: Any?): LightComponents = NativeLightComponents(context, nativeCtx)
 }
 
-class NativeLightComponents(val context: CoroutineContext) : LightComponents() {
+class NativeLightComponents(val context: CoroutineContext, val nativeCtx: Any?) : LightComponents() {
+	val nkc = nativeCtx as NativeKoruiContext
+
 	override fun create(type: LightType): LightComponentInfo {
 		var agg: AG? = null
 		@Suppress("REDUNDANT_ELSE_IN_WHEN")
@@ -26,7 +28,7 @@ class NativeLightComponents(val context: CoroutineContext) : LightComponents() {
 			LightType.CHECK_BOX -> Any()
 			LightType.SCROLL_PANE -> Any()
 			LightType.AGCANVAS -> {
-				agg = MyNativeDispatcher.ag
+				agg = nkc.ag
 				agg.nativeComponent
 			}
 			else -> throw UnsupportedOperationException("Type: $type")

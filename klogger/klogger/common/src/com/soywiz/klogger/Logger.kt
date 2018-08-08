@@ -4,25 +4,31 @@ import com.soywiz.std.*
 
 class Logger internal constructor(val name: String, val dummy: Boolean) {
 	//@ThreadLocal // @TODO: kotlin-native bug https://github.com/JetBrains/kotlin-native/issues/1768
+	// @TODO: Some even with this, it produces: Uncaught Kotlin exception: konan.worker.InvalidMutabilityException: mutation attempt of frozen com.soywiz.klogger.Logger@394401d8 (hash is 0x394401d8)
+	/*
+	Undefined symbols for architecture x86_64:
+	  "_kshadowobjref:com.soywiz.klogger.Logger.Companion", referenced from:
+		  ___unnamed_388 in combined.o
+		  ___unnamed_446 in combined.o
+		  ___unnamed_763 in combined.o
+		  ___unnamed_801 in combined.o
+		  ___unnamed_813 in combined.o
+		  ___unnamed_841 in combined.o
+		  ___unnamed_897 in combined.o
+	 */
 	companion object {
 		private var loggers: Map<String, Logger> by atomicRef(mapOf())
 		var defaultLevel: Level? by atomicRef(null)
+		var defaultOutput: Output by atomicRef(ConsoleLogOutput)
 		fun getLogger(name: String): Logger = loggers[name] ?: Logger(name, true)
-
 		fun setLevel(name: String, level: Level) = getLogger(name).apply { this.level = level }
 		fun setOutput(name: String, output: Output) = getLogger(name).apply { this.output = output }
-		var defaultOutput: Output = ConsoleLogOutput
 		operator fun invoke(name: String) = Logger.getLogger(name)
 	}
 
 	enum class Level(val index: Int) {
-		NONE(0),
-		FATAL(1),
-		ERROR(2),
-		WARN(3),
-		INFO(4),
-		DEBUG(5),
-		TRACE(6)
+		NONE(0), FATAL(1), ERROR(2),
+		WARN(3), INFO(4), DEBUG(5), TRACE(6)
 	}
 
 	interface Output {
@@ -40,8 +46,11 @@ class Logger internal constructor(val name: String, val dummy: Boolean) {
 	}
 
 	init {
-		synchronized(Logger.loggers) {
-			Logger.loggers += mapOf(name to this)
+		// @TODO: kotlin-native this produces a freeze error
+		if (!isNative) {
+			synchronized(Logger.loggers) {
+				Logger.loggers += mapOf(name to this)
+			}
 		}
 	}
 

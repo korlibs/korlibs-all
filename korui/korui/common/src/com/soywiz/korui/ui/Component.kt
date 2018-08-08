@@ -291,6 +291,10 @@ class AgCanvas(app: Application) : Component(app, LightType.AGCANVAS), AGContain
 		ag.resized()
 	}
 
+	suspend fun waitReady() {
+		ag.onReady.await()
+	}
+
 	fun onRender(callback: (ag: AG) -> Unit) {
 		ag.onRender { callback(it) }
 	}

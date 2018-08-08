@@ -21,6 +21,7 @@ import com.soywiz.korio.file.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
+import com.soywiz.korui.*
 import com.soywiz.korui.event.*
 import kotlinx.coroutines.experimental.*
 import kotlin.coroutines.experimental.*
@@ -50,7 +51,8 @@ class Views(
 	val injector: AsyncInjector,
 	val input: Input,
 	val timeProvider: TimeProvider,
-	val stats: Stats
+	val stats: Stats,
+	val koruiContext: KoruiContext
 ) : Updatable, Extra by Extra.Mixin(), EventDispatcher by EventDispatcher.Mixin(), CoroutineContextHolder,
 	BoundsProvider {
 	var imageFormats = defaultImageFormats
@@ -279,6 +281,8 @@ class Views(
 }
 
 class Stage(val views: Views) : Container(), View.Reference {
+	override val stage: Stage = this
+
 	override fun getLocalBoundsInternal(out: Rectangle) {
 		out.setTo(views.actualVirtualLeft, views.actualVirtualTop, views.actualVirtualWidth, views.actualVirtualHeight)
 	}
@@ -308,9 +312,10 @@ class ViewsLog(
 	val ag: LogAG = LogAG(),
 	val input: Input = Input(),
 	val timeProvider: TimeProvider = TimeProvider(),
-	val stats: Stats = Stats()
+	val stats: Stats = Stats(),
+	val koruiContext: KoruiContext = KoruiContext()
 ) {
-	val views = Views(coroutineContext, ag, injector, input, timeProvider, stats)
+	val views = Views(coroutineContext, ag, injector, input, timeProvider, stats, koruiContext)
 }
 
 fun Views.texture(bmp: Bitmap, mipmaps: Boolean = false): Texture =

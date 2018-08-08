@@ -15,15 +15,19 @@ import kotlin.reflect.*
 internal val lightLog = Logger("light")
 
 expect object NativeLightsComponentsFactory : LightComponentsFactory {
-	override fun create(context: CoroutineContext): LightComponents
+	override fun create(context: CoroutineContext, nativeCtx: Any?): LightComponents
 }
 
 interface LightComponentsFactory {
-	fun create(context: CoroutineContext): LightComponents
+	fun create(context: CoroutineContext, nativeCtx: Any?): LightComponents
 }
 
 enum class LightQuality {
-	QUALITY, PERFORMANCE
+	QUALITY, PERFORMANCE;
+
+	companion object {
+	    val AUTO = PERFORMANCE
+	}
 }
 
 open class LightComponents {
@@ -95,7 +99,7 @@ open class LightComponents {
 
 val defaultLightFactory: LightComponentsFactory by lazy { NativeLightsComponentsFactory }
 //val defaultLight: LightComponents by lazy { defaultLightFactory.create() }
-fun defaultLight(context: CoroutineContext) = defaultLightFactory.create(context)
+fun defaultLight(context: CoroutineContext, nativeCtx: Any? = null) = defaultLightFactory.create(context, nativeCtx)
 
 enum class LightType {
 	FRAME, CONTAINER, BUTTON, PROGRESS, IMAGE, LABEL, TEXT_FIELD, TEXT_AREA, CHECK_BOX, SCROLL_PANE, AGCANVAS,

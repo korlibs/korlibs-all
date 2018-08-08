@@ -161,3 +161,7 @@ internal abstract class MessageQueue : Queue<Runnable>() {
 		}
 	}
 }
+
+internal actual suspend fun KoruiWrap(entry: suspend (KoruiContext) -> Unit) {
+	entry(KoruiContext())
+}

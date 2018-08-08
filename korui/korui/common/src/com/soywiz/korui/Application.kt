@@ -8,6 +8,7 @@ import com.soywiz.korui.event.*
 import com.soywiz.korui.geom.len.*
 import com.soywiz.korui.light.*
 import com.soywiz.korui.ui.*
+import com.soywiz.std.*
 import kotlin.coroutines.experimental.*
 
 interface ApplicationAware {
@@ -36,7 +37,6 @@ class Application(val coroutineContext: CoroutineContext, val light: LightCompon
 	}
 	val devicePixelRatio: Double get() = light.getDevicePixelRatio()
 
-
 	override fun close() {
 	}
 }
@@ -44,7 +44,7 @@ class Application(val coroutineContext: CoroutineContext, val light: LightCompon
 private val koruiApplicationLog = Logger("korui-application")
 
 fun Application(callback: suspend Application.() -> Unit) =
-	Korui { Application(defaultLightFactory.create(coroutineContext)) { callback() } }
+	Korui { Application(defaultLightFactory.create(coroutineContext, null)) { callback() } }
 
 @PublishedApi
 internal fun Application.framePre(
@@ -111,11 +111,15 @@ suspend fun CanvasApplicationEx(
 	icon: Bitmap? = null,
 	light: LightComponents? = null,
 	quality: LightQuality = LightQuality.PERFORMANCE,
+	koruiContext: KoruiContext,
 	callback: suspend (AgCanvas, Frame) -> Unit = { _, _ -> }
-): Unit {
-	val llight = light ?: defaultLight(coroutineContext)
+) {
+	if (isNative) println("CanvasApplicationEx[0]")
+	val llight = light ?: defaultLight(coroutineContext, koruiContext)
+	if (isNative) println("CanvasApplicationEx[1]")
 	llight.quality = quality
 	val application = Application(coroutineContext, llight)
+	if (isNative) println("CanvasApplicationEx[2]")
 
 	//val loop = coroutineContext.animationFrameLoop {
 	//	var n = 0
@@ -128,10 +132,14 @@ suspend fun CanvasApplicationEx(
 	//	}
 	//}
 	lateinit var canvas: AgCanvas
+	if (isNative) println("CanvasApplicationEx[3]")
 	val frame = application.frame(title, width, height, icon) {
 		canvas = agCanvas().apply { focus() }
 	}
+	if (isNative) println("CanvasApplicationEx[4]")
+	canvas.waitReady()
+	if (isNative) println("CanvasApplicationEx[5]")
 	callback(canvas, frame)
-	Unit
+	if (isNative) println("CanvasApplicationEx[6]")
 }
 

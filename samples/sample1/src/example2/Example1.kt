@@ -2,6 +2,7 @@ package example2
 
 import com.dragonbones.event.*
 import com.soywiz.kds.*
+import com.soywiz.klock.*
 import com.soywiz.kmem.*
 import com.soywiz.korge.*
 import com.soywiz.korge.async.*
@@ -9,10 +10,12 @@ import com.soywiz.korge.dragonbones.*
 import com.soywiz.korge.input.*
 import com.soywiz.korge.render.*
 import com.soywiz.korge.scene.*
+import com.soywiz.korge.tween.*
 import com.soywiz.korge.view.*
 import com.soywiz.korim.color.*
 import com.soywiz.korim.format.*
 import com.soywiz.korinject.*
+import com.soywiz.korio.async.*
 import com.soywiz.korio.file.std.*
 import com.soywiz.korio.serialization.json.*
 import com.soywiz.korma.geom.*
@@ -37,15 +40,39 @@ fun main(args: Array<String>): Unit {
     //Logger("RenderContext2D").level = Logger.Level.TRACE
     //Korge(MyModule, debug = true)
     println("V0")
-    Korge(object : MyModule() {
-        //override val mainScene: KClass<out Scene> = HelloScene::class
-    }, debug = false)
+
+    //Korge(object : MyModule() {
+    //    override val mainScene: KClass<out Scene> = HelloScene::class
+    //}, debug = false)
+
+    Korge {
+        println("HelloScene.sceneInit[0]")
+        solidRect(100, 100, Colors.RED) {
+            position(100, 100)
+            alpha(0.5)
+            mouse {
+                over { alpha(1.0) }
+                out { alpha(0.5) }
+                click { println("clicked box!") }
+            }
+            launchImmediately {
+                while (true) {
+                    tween(this::x[100, 200], time = 1.seconds, easing = Easing.EASE_OUT_ELASTIC)
+                    tween(this::x[200, 100], time = 1.seconds, easing = Easing.EASE_OUT_ELASTIC)
+                }
+            }
+        }
+        println("HelloScene.sceneInit[1]")
+    }
+
 }
 
 class HelloScene : Scene() {
     override suspend fun Container.sceneInit() {
+        println("HelloScene.sceneInit[0]")
         solidRect(100, 100, Colors.RED) {
             position(100, 100)
+            alpha(0.5)
             mouse {
                 over {
                     alpha(1.0)
@@ -55,6 +82,7 @@ class HelloScene : Scene() {
                 }
             }
         }
+        println("HelloScene.sceneInit[1]")
     }
 }
 
@@ -64,6 +92,7 @@ open class MyModule : Module() {
     override val quality: LightQuality = LightQuality.PERFORMANCE
 
     override suspend fun init(injector: AsyncInjector) {
+        println("init[0]")
         injector
             .mapPrototype { HelloScene() }
             .mapPrototype { MyScene() }
@@ -71,6 +100,7 @@ open class MyModule : Module() {
             .mapPrototype { EyeTrackingScene() }
             .mapPrototype { HelloWorldScene() }
             .mapPrototype { SkinChangingScene() }
+        println("init[1]")
     }
 
     override val size: SizeInt = SizeInt(1280, 720)

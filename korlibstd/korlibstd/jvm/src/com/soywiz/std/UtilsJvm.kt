@@ -57,3 +57,7 @@ actual fun AtomicLong.set(value: Long) {
 actual fun AtomicLong.get(): Long {
 	return (this as java.util.concurrent.atomic.AtomicLong).get()
 }
+
+actual val isNative: Boolean = false
+actual val isJs: Boolean = false
+actual val isJvm: Boolean = true

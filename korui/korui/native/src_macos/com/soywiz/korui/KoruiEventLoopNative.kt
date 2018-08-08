@@ -17,7 +17,6 @@ import platform.Foundation.NSTimer
 import platform.darwin.NSObject
 import platform.posix.PATH_MAX
 import platform.posix.realpath
-import kotlin.coroutines.experimental.CoroutineContext
 import kotlin.reflect.KClass
 import com.soywiz.korio.async.*
 import com.soywiz.klock.*
@@ -26,8 +25,79 @@ import kotlinx.coroutines.experimental.*
 import kotlin.coroutines.experimental.*
 import kotlinx.coroutines.experimental.timeunit.*
 
+actual val KoruiDispatcher: CoroutineDispatcher get() = kotlinx.coroutines.experimental.DefaultDispatcher
+
+class NativeKoruiContext(
+	val ag: AG
+	//, val app: NSApplication
+) : KoruiContext()
+
+internal actual suspend fun KoruiWrap(entry: suspend (KoruiContext) -> Unit) {
+	val agNativeComponent = Any()
+	val ag: AG = AGOpenglFactory.create(agNativeComponent).create(agNativeComponent)
+	val listener = KMLWindowListener()
+
+	val ctx = NativeKoruiContext(ag)
+	println("KoruiWrap.pentry[0]")
+	ag.__ready()
+	//launch(KoruiDispatcher) { // Doesn't work!
+	println("KoruiWrap.entry[0]")
+	entry(ctx)
+	println("KoruiWrap.entry[1]")
+	//}
+	println("KoruiWrap.pentry[1]")
+
+	autoreleasepool {
+		val app = NSApplication.sharedApplication()
+		//val ctx = NativeKoruiContext(ag, app)
+		val windowConfig = WindowConfig(640, 480, "Korui")
+
+		app.delegate = MyAppDelegate(ag, windowConfig, object : MyAppHandler {
+			override fun init(context: NSOpenGLContext?) {
+				macTrace("init[a]")
+				macTrace("init[b]")
+				//runInitBlocking(listener)
+			}
+
+			override fun mouseUp(x: Int, y: Int, button: Int) = listener.mouseUpdateButton(button, false)
+			override fun mouseDown(x: Int, y: Int, button: Int) = listener.mouseUpdateButton(button, true)
+			override fun mouseMoved(x: Int, y: Int) = listener.mouseUpdateMove(x, y)
+
+			fun keyChange(keyCode: Char, pressed: Boolean) {
+				println("KEY: $keyCode, ${keyCode.toInt()}, $pressed")
+				//listener.keyUpdate(key, pressed)
+			}
+
+			override fun keyDown(keyCode: Char) = keyChange(keyCode, true)
+			override fun keyUp(keyCode: Char) = keyChange(keyCode, false)
+
+			override fun windowDidResize(width: Int, height: Int, context: NSOpenGLContext?) {
+				macTrace("windowDidResize")
+				listener.resized(width, height)
+				render(context)
+			}
+
+			override fun render(context: NSOpenGLContext?) {
+				//macTrace("render")
+
+				//step()
+
+				//context?.flushBuffer()
+				context?.makeCurrentContext()
+				ag.onRender(ag)
+				context?.flushBuffer()
+			}
+		})
+		app.setActivationPolicy(NSApplicationActivationPolicy.NSApplicationActivationPolicyRegular)
+		app.activateIgnoringOtherApps(true)
+		app.run()
+	}
+}
+
+/*
 actual val KoruiDispatcher: CoroutineDispatcher get() = MyNativeDispatcher
 
+@konan.ThreadLocal
 object MyNativeDispatcher : CoroutineDispatcher(), Delay, DelayFrame {
 	val ag: AG = AGOpenglFactory.create(Any()).create(Any())
 
@@ -49,6 +119,7 @@ object MyNativeDispatcher : CoroutineDispatcher(), Delay, DelayFrame {
 
 	override fun toString() = "MyNativeDispatcher"
 }
+*/
 
 /*
 // @TOOD: kotlin-native if not ThreadLocal by lazy crashes. And If not by lazy, it crashes in depthFirstTraversal/FreezeSubgraph/initSharedInstance
@@ -57,58 +128,20 @@ actual object KoruiEventLoop {
 	actual fun create(): EventLoop = MacosNativeEventLoop
 }
 
+actual val KoruiDispatcher: CoroutineDispatcher get() = MyNativeDispatcher
+
 @ThreadLocal
 //open class MacosNativeEventLoop : EventLoop() {
 object MacosNativeEventLoop : EventLoop() {
 	//var app: NSApplication? by atomicRef<NSApplication?>(null)
 
-	val ag: AG = AGOpenglFactory.create(this).create(this)
-	val listener = KMLWindowListener()
-
 	override fun loop() {
-		autoreleasepool {
-			val app = NSApplication.sharedApplication()
-			val windowConfig = WindowConfig(640, 480, "Korui")
-			app.delegate = MyAppDelegate(ag, windowConfig, object : MyAppHandler {
-				override fun init(context: NSOpenGLContext?) {
-					macTrace("init[a]")
-					//runInitBlocking(listener)
-				}
 
-				override fun mouseUp(x: Int, y: Int, button: Int) = listener.mouseUpdateButton(button, false)
-				override fun mouseDown(x: Int, y: Int, button: Int) = listener.mouseUpdateButton(button, true)
-				override fun mouseMoved(x: Int, y: Int) = listener.mouseUpdateMove(x, y)
-
-				fun keyChange(keyCode: Char, pressed: Boolean) {
-					println("KEY: $keyCode, ${keyCode.toInt()}, $pressed")
-					//listener.keyUpdate(key, pressed)
-				}
-
-				override fun keyDown(keyCode: Char) = keyChange(keyCode, true)
-				override fun keyUp(keyCode: Char) = keyChange(keyCode, false)
-
-				override fun windowDidResize(width: Int, height: Int, context: NSOpenGLContext?) {
-					macTrace("windowDidResize")
-					listener.resized(width, height)
-					render(context)
-				}
-
-				override fun render(context: NSOpenGLContext?) {
-					macTrace("render")
-					step()
-					//context?.flushBuffer()
-					context?.makeCurrentContext()
-					ag.onRender(ag)
-					context?.flushBuffer()
-				}
-			})
-			app.setActivationPolicy(NSApplicationActivationPolicy.NSApplicationActivationPolicyRegular)
-			app.activateIgnoringOtherApps(true)
-			app.run()
-		}
 	}
 }
 */
+
+// AGOpenglFactory.create(Any()).create(Any())
 
 class WindowConfig(val width: Int, val height: Int, val title: String)
 

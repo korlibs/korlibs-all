@@ -105,3 +105,8 @@ actual fun AtomicLong.set(value: Long) {
 actual fun AtomicLong.get(): Long {
 	return (this as konan.worker.AtomicLong).get()
 }
+
+
+actual val isNative: Boolean = true
+actual val isJs: Boolean = false
+actual val isJvm: Boolean = false

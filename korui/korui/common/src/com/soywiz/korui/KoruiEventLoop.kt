@@ -5,6 +5,10 @@ import kotlinx.coroutines.experimental.*
 
 expect val KoruiDispatcher: CoroutineDispatcher
 
-fun Korui(context: CoroutineDispatcher = KoruiDispatcher, entry: suspend () -> Unit): Unit {
-	Korio(context) { entry() }
+open class KoruiContext
+
+fun Korui(context: CoroutineDispatcher = KoruiDispatcher, entry: suspend (KoruiContext) -> Unit) {
+	Korio(context) { KoruiWrap { entry(it) } }
 }
+
+internal expect suspend fun KoruiWrap(entry: suspend (KoruiContext) -> Unit)

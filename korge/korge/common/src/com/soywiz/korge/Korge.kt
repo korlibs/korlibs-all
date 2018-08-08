@@ -8,6 +8,7 @@ import com.soywiz.korge.resources.*
 import com.soywiz.korge.scene.*
 import com.soywiz.korge.stat.*
 import com.soywiz.korge.view.*
+import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
 import com.soywiz.korim.format.*
 import com.soywiz.korim.vector.*
@@ -21,7 +22,9 @@ import com.soywiz.korma.geom.*
 import com.soywiz.korui.*
 import com.soywiz.korui.event.*
 import com.soywiz.korui.input.*
+import com.soywiz.korui.light.*
 import com.soywiz.korui.ui.*
+import com.soywiz.std.*
 import kotlinx.coroutines.experimental.*
 import kotlin.coroutines.experimental.*
 import kotlin.reflect.*
@@ -29,7 +32,7 @@ import kotlin.reflect.*
 object Korge {
 	val logger = Logger("Korge")
 
-	suspend fun setupCanvas(config: Config): SceneContainer {
+	suspend fun setupCanvas(config: Config, koruiContext: KoruiContext): SceneContainer {
 		logger.trace { "Korge.setupCanvas[1]" }
 		val injector = config.injector
 		val frame = config.frame
@@ -49,10 +52,11 @@ object Korge {
 			.mapInstance(Module::class, config.module)
 			.mapInstance(AG::class, ag)
 			.mapInstance(Config::class, config)
+			.mapInstance(KoruiContext::class, koruiContext)
 			// Singletons
 			.mapSingleton(Stats::class) { Stats() }
 			.mapSingleton(Input::class) { Input() }
-			.mapSingleton(Views::class) { Views(get(), get(), get(), get(), get(), get()) }
+			.mapSingleton(Views::class) { Views(get(), get(), get(), get(), get(), get(), get()) }
 			.mapSingleton(ResourcesRoot::class) { ResourcesRoot() }
 			// Prototypes
 			.mapPrototype(EmptyScene::class) { EmptyScene() }
@@ -66,7 +70,7 @@ object Korge {
 
 		@Suppress("RemoveExplicitTypeArguments")
 
-		ag.onReady.await()
+		//ag.onReady.await() // Already done by CanvasApplicationEx
 
 		logger.trace { "Korge.setupCanvas[1c]. ag: $ag" }
 		logger.trace { "Korge.setupCanvas[1d]. debug: ${config.debug}" }
@@ -384,7 +388,7 @@ object Korge {
 		trace: Boolean = false,
 		constructedViews: (Views) -> Unit = {},
 		context: CoroutineDispatcher = KoruiDispatcher
-	) = Korui(context) {
+	) = Korui(context) { koruiContext ->
 		logger.trace { "Korge.invoke" }
 		test(
 			Config(
@@ -399,13 +403,14 @@ object Korge {
 				debug = debug,
 				trace = trace,
 				constructedViews = constructedViews
-			)
+			),
+			koruiContext
 		)
 	}
 
-	operator fun invoke(config: Config) = KorioNative.asyncEntryPoint(config.context) {
+	operator fun invoke(config: Config) = Korui(config.context as CoroutineDispatcher) { koruiContext ->
 		logger.trace { "Korge.invoke(config)" }
-		test(config)
+		test(config, koruiContext)
 	}
 
 	data class Config(
@@ -425,7 +430,7 @@ object Korge {
 		val context: CoroutineContext = KoruiDispatcher
 	)
 
-	suspend fun test(config: Config): SceneContainer {
+	suspend fun test(config: Config, koruiContext: KoruiContext): SceneContainer {
 		if (OS.isJvm) {
 			logger.trace { "!!!! KORGE: if the main window doesn't appear and hangs, check that the VM option -XstartOnFirstThread is set" }
 		}
@@ -459,7 +464,8 @@ object Korge {
 			width = module.windowSize.width,
 			height = module.windowSize.height,
 			icon = icon,
-			quality = module.quality
+			quality = module.quality,
+			koruiContext = KoruiContext()
 		) { container, frame ->
 			logger.trace { "Korge.test [1]" }
 			launchImmediately {
@@ -470,7 +476,8 @@ object Korge {
 							container = container,
 							frame = frame,
 							eventDispatcher = container
-						)
+						),
+						koruiContext
 					)
 				)
 			}
@@ -480,6 +487,69 @@ object Korge {
 	}
 
 	data class ModuleArgs(val args: Array<String>)
+
+	internal fun configureViews() {
+
+	}
+}
+
+// New Korge
+fun Korge(
+	title: String = "Korge",
+	width: Int = 640, height: Int = 480,
+	virtualWidth: Int = width, virtualHeight: Int = height,
+	icon: Bitmap? = null,
+	quality: LightQuality = LightQuality.AUTO,
+	targetFps: Double = 0.0,
+	scaleAnchor: Anchor = Anchor.MIDDLE_CENTER,
+	scaleMode: ScaleMode = ScaleMode.SHOW_ALL,
+	clipBorders: Boolean = true,
+	bgcolor: RGBA? = Colors.BLACK,
+	debug: Boolean = false,
+	args: Array<String> = arrayOf(),
+	entry: suspend Stage.() -> Unit
+) {
+	val coroutineContext = KoruiDispatcher
+	Korui(coroutineContext) { koruiContext ->
+		if (isNative) println("Korui[0]")
+		CanvasApplicationEx(
+			title = title,
+			width = width,
+			height = height,
+			icon = icon,
+			quality = quality,
+			koruiContext = koruiContext
+		) { canvas, frame ->
+			if (isNative) println("CanvasApplicationEx.IN[0]")
+			val injector = AsyncInjector()
+			val input = Input()
+			val stats = Stats()
+			val views = Views(coroutineContext, canvas.ag, injector, input, TimeProvider(), stats, koruiContext)
+			injector
+				.mapInstance(views)
+				.mapInstance(input)
+				.mapInstance(stats)
+				.mapInstance(Korge.ModuleArgs(args))
+			input._isTouchDeviceGen = { AGOpenglFactory.isTouchDevice }
+			views.debugViews = debug
+			views.virtualWidth = virtualWidth
+			views.virtualHeight = virtualHeight
+			views.scaleAnchor = scaleAnchor
+			views.scaleMode = scaleMode
+			views.clipBorders = clipBorders
+			views.targetFps = targetFps
+			Korge.prepareViews(views, canvas, bgcolor != null, bgcolor ?: Colors.TRANSPARENT_BLACK)
+			coroutineContext.animationFrameLoop {
+				Korge.logger.trace { "views.animationFrameLoop" }
+				//println("views.animationFrameLoop")
+				//ag.resized()
+				canvas.repaint()
+			}
+			entry(views.stage)
+			if (isNative) println("CanvasApplicationEx.IN[1]")
+		}
+		if (isNative) println("Korui[1]")
+	}
 }
 
 expect fun Korge.register(views: Views)

@@ -49,3 +49,7 @@ object Swing : CoroutineDispatcher(), Delay, DelayFrame {
 
 	override fun toString() = "Swing"
 }
+
+internal actual suspend fun KoruiWrap(entry: suspend (KoruiContext) -> Unit) {
+	entry(KoruiContext())
+}
