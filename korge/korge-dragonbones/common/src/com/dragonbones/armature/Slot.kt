@@ -36,7 +36,7 @@ import kotlin.math.*
 /**
  * @private
  */
-class DisplayFrame  :  BaseObject() {
+class DisplayFrame(pool: BaseObjectPool) :  BaseObject(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.DisplayFrame]"
 	}
@@ -175,13 +175,7 @@ class DisplayFrame  :  BaseObject() {
  * @version DragonBones 3.0
  * @language zh_CN
  */
-abstract class Slot  :  TransformObject() {
-	companion object {
-		internal val _helpMatrix: Matrix = TransformObject._helpMatrix
-		internal val _helpTransform: Transform = TransformObject._helpTransform
-		internal val _helpPoint: Point = TransformObject._helpPoint
-	}
-
+abstract class Slot(pool: BaseObjectPool) :  TransformObject(pool) {
 	/**
 	 * - Displays the animated state or mixed group name controlled by the object, set to null to be controlled by all animation states.
 	 * @default null
@@ -460,17 +454,17 @@ abstract class Slot  :  TransformObject() {
 
 				// Update replace pivot. TODO
 				if (rawDisplayData != null && imageDisplayData != rawDisplayData) {
-					rawDisplayData.transform.toMatrix(Slot._helpMatrix)
-					Slot._helpMatrix.invert()
-					Slot._helpMatrix.transformPoint(0.0, 0.0, Slot._helpPoint)
-					this._pivotX -= Slot._helpPoint.x
-					this._pivotY -= Slot._helpPoint.y
+					rawDisplayData.transform.toMatrix(_helpMatrix)
+					_helpMatrix.invert()
+					_helpMatrix.transformPoint(0.0, 0.0, _helpPoint)
+					this._pivotX -= _helpPoint.x
+					this._pivotY -= _helpPoint.y
 
-					imageDisplayData.transform.toMatrix(Slot._helpMatrix)
-					Slot._helpMatrix.invert()
-					Slot._helpMatrix.transformPoint(0.0, 0.0, Slot._helpPoint)
-					this._pivotX += Slot._helpPoint.x
-					this._pivotY += Slot._helpPoint.y
+					imageDisplayData.transform.toMatrix(_helpMatrix)
+					_helpMatrix.invert()
+					_helpMatrix.transformPoint(0.0, 0.0, _helpPoint)
+					this._pivotX += _helpPoint.x
+					this._pivotY += _helpPoint.y
 				}
 
 				if (!DragonBones.yDown) {
@@ -594,7 +588,7 @@ abstract class Slot  :  TransformObject() {
 
 						if (actions != null && actions.lengthSet > 0) {
 							for (action in actions) {
-								val eventObject = BaseObject.borrowObject<EventObject>()
+								val eventObject = pool.borrowObject<EventObject>()
 								EventObject.actionDataToInstance(action, eventObject, this._armature!!)
 								eventObject.slot = this
 								this._armature!!._bufferAction(eventObject, false)
@@ -993,11 +987,11 @@ abstract class Slot  :  TransformObject() {
 
 		this.updateTransformAndMatrix()
 
-		Slot._helpMatrix.copyFrom(this.globalTransformMatrix)
-		Slot._helpMatrix.invert()
-		Slot._helpMatrix.transformPoint(x, y, Slot._helpPoint)
+		_helpMatrix.copyFrom(this.globalTransformMatrix)
+		_helpMatrix.invert()
+		_helpMatrix.transformPoint(x, y, _helpPoint)
 
-		return this._boundingBoxData!!.containsPoint(Slot._helpPoint.x, Slot._helpPoint.y)
+		return this._boundingBoxData!!.containsPoint(_helpPoint.x, _helpPoint.y)
 	}
 	/**
 	 * - Check whether a specific segment intersects a custom bounding box for the slot.
@@ -1040,14 +1034,14 @@ abstract class Slot  :  TransformObject() {
 		}
 
 		this.updateTransformAndMatrix()
-		Slot._helpMatrix.copyFrom(this.globalTransformMatrix)
-		Slot._helpMatrix.invert()
-		Slot._helpMatrix.transformPoint(xA, yA, Slot._helpPoint)
-		val xA = Slot._helpPoint.x
-		val yA = Slot._helpPoint.y
-		Slot._helpMatrix.transformPoint(xB, yB, Slot._helpPoint)
-		val xB = Slot._helpPoint.x
-		val yB = Slot._helpPoint.y
+		_helpMatrix.copyFrom(this.globalTransformMatrix)
+		_helpMatrix.invert()
+		_helpMatrix.transformPoint(xA, yA, _helpPoint)
+		val xA = _helpPoint.x
+		val yA = _helpPoint.y
+		_helpMatrix.transformPoint(xB, yB, _helpPoint)
+		val xB = _helpPoint.x
+		val yB = _helpPoint.y
 
 		val intersectionCount = this._boundingBoxData!!.intersectsSegment(xA, yA, xB, yB, intersectionPointA, intersectionPointB, normalRadians)
 		if (intersectionCount > 0) {
@@ -1074,11 +1068,11 @@ abstract class Slot  :  TransformObject() {
 			}
 
 			if (normalRadians != null) {
-				this.globalTransformMatrix.transformPoint(cos(normalRadians.x), sin(normalRadians.x), Slot._helpPoint, true)
-				normalRadians.x = atan2(Slot._helpPoint.y, Slot._helpPoint.x)
+				this.globalTransformMatrix.transformPoint(cos(normalRadians.x), sin(normalRadians.x), _helpPoint, true)
+				normalRadians.x = atan2(_helpPoint.y, _helpPoint.x)
 
-				this.globalTransformMatrix.transformPoint(cos(normalRadians.y), sin(normalRadians.y), Slot._helpPoint, true)
-				normalRadians.y = atan2(Slot._helpPoint.y, Slot._helpPoint.x)
+				this.globalTransformMatrix.transformPoint(cos(normalRadians.y), sin(normalRadians.y), _helpPoint, true)
+				normalRadians.y = atan2(_helpPoint.y, _helpPoint.x)
 			}
 		}
 
@@ -1127,7 +1121,7 @@ abstract class Slot  :  TransformObject() {
 
 			//for (var i = prevCount; i < value; ++i) {
 			for (i in prevCount until value) {
-				this._displayFrames[i] = BaseObject.borrowObject<DisplayFrame>()
+				this._displayFrames[i] = pool.borrowObject<DisplayFrame>()
 			}
 		}
 		else if (prevCount > value) {

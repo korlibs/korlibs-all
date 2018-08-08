@@ -39,7 +39,7 @@ import com.dragonbones.model.*
  * @version DragonBones 4.5
  * @language zh_CN
  */
-class EventObject : BaseObject() {
+class EventObject(pool: BaseObjectPool) : BaseObject(pool) {
 	companion object {
 		/**
 		 * - Animation start play.

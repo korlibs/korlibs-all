@@ -2,6 +2,7 @@ package com.soywiz.korma.geom.bezier
 
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
+import com.soywiz.std.*
 import kotlin.math.*
 
 //(x0,y0) is start point; (x1,y1),(x2,y2) is control points; (x3,y3) is end point.
@@ -30,10 +31,11 @@ interface Bezier {
 			cubicCalc(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, t, target)
 	}
 
+	@ThreadLocal
 	companion object {
-		private val tvalues = DoubleArray(6)
-		private val xvalues = DoubleArray(8)
-		private val yvalues = DoubleArray(8)
+		val tvalues = DoubleArray(6)
+		val xvalues = DoubleArray(8)
+		val yvalues = DoubleArray(8)
 
 		// http://fontforge.github.io/bezier.html
 		//Any quadratic spline can be expressed as a cubic (where the cubic term is zero). The end points of the cubic will be the same as the quadratic's.
@@ -65,17 +67,7 @@ interface Bezier {
 		): Rectangle {
 			// @TODO: Make an optimized version!
 			return quadToCubic(x0, y0, xc, yc, x1, y1) { x0, y0, x1, y1, x2, y2, x3, y3 ->
-				cubicBounds(
-					x0,
-					y0,
-					x1,
-					y1,
-					x2,
-					y2,
-					x3,
-					y3,
-					target
-				)
+				cubicBounds(x0, y0, x1, y1, x2, y2, x3, y3, target)
 			}
 		}
 

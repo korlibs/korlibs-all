@@ -44,7 +44,7 @@ import com.dragonbones.util.*
  * @version DragonBones 5.0
  * @language zh_CN
  */
-class AnimationConfig : BaseObject() {
+class AnimationConfig(pool: BaseObjectPool) : BaseObject(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.AnimationConfig]"
 	}
@@ -282,7 +282,7 @@ class AnimationConfig : BaseObject() {
 	 */
 	val boneMask: ArrayList<String> = arrayListOf()
 
-	override fun _onClear(): Unit {
+	override fun _onClear() {
 		this.pauseFadeOut = true
 		this.fadeOutMode = AnimationFadeOutMode.All
 		this.fadeOutTweenType = TweenType.Line

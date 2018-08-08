@@ -52,7 +52,7 @@ import com.soywiz.korio.ds.*
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class Armature  : BaseObject(), IAnimatable {
+class Armature(pool: BaseObjectPool) : BaseObject(pool), IAnimatable {
 	override fun toString(): String {
 		return "[class dragonBones.Armature]"
 	}
@@ -282,7 +282,7 @@ class Armature  : BaseObject(), IAnimatable {
 		}
 
 		this._armatureData = armatureData
-		this._animation = BaseObject.borrowObject<Animation>()
+		this._animation = pool.borrowObject<Animation>()
 		this._proxy = proxy
 		this._display = display
 		this._dragonBones = dragonBones

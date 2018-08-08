@@ -33,7 +33,7 @@ import kotlin.math.*
 /**
  * @internal
  */
-abstract class Constraint  : BaseObject() {
+abstract class Constraint(pool: BaseObjectPool) : BaseObject(pool) {
 	/**
 	 * - For timeline state.
 	 * @internal
@@ -70,7 +70,7 @@ abstract class Constraint  : BaseObject() {
 /**
  * @internal
  */
-class IKConstraint  :  Constraint() {
+class IKConstraint(pool: BaseObjectPool) :  Constraint(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.IKConstraint]"
 	}
@@ -230,7 +230,7 @@ class IKConstraint  :  Constraint() {
 /**
  * @internal
  */
-class PathConstraint  :  Constraint() {
+class PathConstraint(pool: BaseObjectPool) :  Constraint(pool) {
 
 	var dirty: Boolean = false
 	var pathOffset: Int = 0

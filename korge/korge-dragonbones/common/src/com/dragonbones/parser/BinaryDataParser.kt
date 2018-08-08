@@ -33,7 +33,7 @@ import com.soywiz.korma.math.*
 /**
  * @private
  */
-class BinaryDataParser  :  ObjectDataParser() {
+class BinaryDataParser(pool: BaseObjectPool = BaseObjectPool())  :  ObjectDataParser(pool) {
 	private var _binaryOffset: Int = 0
 	private lateinit var _binary: MemBuffer
 	private lateinit var _intArrayBuffer: Int16Buffer
@@ -146,7 +146,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 	}
 
 	private fun _parseBinaryTimeline(type: TimelineType, offset: Int, timelineData: TimelineData? = null): TimelineData {
-		val timeline: TimelineData = if (timelineData != null) timelineData else BaseObject.borrowObject<TimelineData>()
+		val timeline: TimelineData = if (timelineData != null) timelineData else pool.borrowObject<TimelineData>()
 		timeline.type = type
 		timeline.offset = offset
 
@@ -190,7 +190,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 	}
 
 	override fun _parseAnimation(rawData: Any?): AnimationData {
-		val animation: AnimationData = BaseObject.borrowObject<AnimationData>()
+		val animation: AnimationData = pool.borrowObject<AnimationData>()
 		animation.blendType = DataParser._getAnimationBlendType(ObjectDataParser._getString(rawData, DataParser.BLEND_TYPE, ""))
 		animation.frameCount = ObjectDataParser._getInt(rawData, DataParser.DURATION, 0)
 		animation.playTimes = ObjectDataParser._getInt(rawData, DataParser.PLAY_TIMES, 1)
@@ -273,7 +273,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 					var timeline: TimelineData? = null
 
 					if (timelineType == TimelineType.AnimationProgress && animation.blendType != AnimationBlendType.None) {
-						timeline = BaseObject.borrowObject<AnimationTimelineData>()
+						timeline = pool.borrowObject<AnimationTimelineData>()
 						val animaitonTimeline = timeline
 						animaitonTimeline.x = ObjectDataParser._getNumber(rawTimeline, DataParser.X, 0.0)
 						animaitonTimeline.y = ObjectDataParser._getNumber(rawTimeline, DataParser.Y, 0.0)
@@ -331,7 +331,7 @@ class BinaryDataParser  :  ObjectDataParser() {
 
 		val weightOffset = this._intArrayBuffer[geometry.offset + BinaryOffset.GeometryWeightOffset].toInt()
 		if (weightOffset >= 0) {
-			val weight = BaseObject.borrowObject<WeightData>()
+			val weight = pool.borrowObject<WeightData>()
 			val vertexCount = this._intArrayBuffer[geometry.offset + BinaryOffset.GeometryVertexCount]
 			val boneCount = this._intArrayBuffer[weightOffset + BinaryOffset.WeigthBoneCount]
 			weight.offset = weightOffset
@@ -405,24 +405,24 @@ class BinaryDataParser  :  ObjectDataParser() {
 		return super.parseDragonBonesData(header, scale)
 	}
 
-	companion object {
-		private var _binaryDataParserInstance: BinaryDataParser? = null
-		/**
-		 * - Deprecated, please refer to {@link dragonBones.BaseFactory#parseDragonBonesData()}.
-		 * @deprecated
-		 * @language en_US
-		 */
-		/**
-		 * - 已废弃，请参考 {@link dragonBones.BaseFactory#parseDragonBonesData()}。
-		 * @deprecated
-		 * @language zh_CN
-		 */
-		fun getInstance(): BinaryDataParser {
-			if (BinaryDataParser._binaryDataParserInstance == null) {
-				BinaryDataParser._binaryDataParserInstance = BinaryDataParser()
-			}
-
-			return BinaryDataParser._binaryDataParserInstance!!
-		}
-	}
+	//companion object {
+	//	private var _binaryDataParserInstance: BinaryDataParser? = null
+	//	/**
+	//	 * - Deprecated, please refer to {@link dragonBones.BaseFactory#parseDragonBonesData()}.
+	//	 * @deprecated
+	//	 * @language en_US
+	//	 */
+	//	/**
+	//	 * - 已废弃，请参考 {@link dragonBones.BaseFactory#parseDragonBonesData()}。
+	//	 * @deprecated
+	//	 * @language zh_CN
+	//	 */
+	//	fun getInstance(): BinaryDataParser {
+	//		if (BinaryDataParser._binaryDataParserInstance == null) {
+	//			BinaryDataParser._binaryDataParserInstance = BinaryDataParser()
+	//		}
+//
+	//		return BinaryDataParser._binaryDataParserInstance!!
+	//	}
+	//}
 }

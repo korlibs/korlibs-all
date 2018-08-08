@@ -37,7 +37,7 @@ import com.soywiz.kds.*
  * @version DragonBones 3.0
  * @language zh_CN
  */
-abstract class TextureAtlasData  :  BaseObject() {
+abstract class TextureAtlasData(pool: BaseObjectPool) :  BaseObject(pool) {
 	/**
 	 * @private
 	 */
@@ -144,7 +144,7 @@ abstract class TextureAtlasData  :  BaseObject() {
 /**
  * @private
  */
-abstract class TextureData  : BaseObject() {
+abstract class TextureData(pool: BaseObjectPool) : BaseObject(pool) {
 	companion object {
 		fun createRectangle(): Rectangle {
 			return Rectangle()

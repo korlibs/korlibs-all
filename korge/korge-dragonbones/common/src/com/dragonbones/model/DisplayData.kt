@@ -70,7 +70,7 @@ class GeometryData {
 /**
  * @private
  */
-abstract class DisplayData  : BaseObject() {
+abstract class DisplayData (pool: BaseObjectPool) : BaseObject(pool) {
 	var type: DisplayType = DisplayType.None
 	var name: String = ""
 	var path: String = ""
@@ -87,7 +87,7 @@ abstract class DisplayData  : BaseObject() {
 /**
  * @private
  */
-class ImageDisplayData  :  DisplayData() {
+class ImageDisplayData(pool: BaseObjectPool) :  DisplayData(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.ImageDisplayData]"
 	}
@@ -106,7 +106,7 @@ class ImageDisplayData  :  DisplayData() {
 /**
  * @private
  */
-class ArmatureDisplayData  :  DisplayData() {
+class ArmatureDisplayData(pool: BaseObjectPool) :  DisplayData(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.ArmatureDisplayData]"
 	}
@@ -138,7 +138,7 @@ class ArmatureDisplayData  :  DisplayData() {
 /**
  * @private
  */
-class MeshDisplayData  :  DisplayData() {
+class MeshDisplayData(pool: BaseObjectPool) :  DisplayData(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.MeshDisplayData]"
 	}
@@ -157,7 +157,7 @@ class MeshDisplayData  :  DisplayData() {
 /**
  * @private
  */
-class BoundingBoxDisplayData  :  DisplayData() {
+class BoundingBoxDisplayData(pool: BaseObjectPool) :  DisplayData(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.BoundingBoxDisplayData]"
 	}
@@ -178,7 +178,7 @@ class BoundingBoxDisplayData  :  DisplayData() {
 /**
  * @private
  */
-class PathDisplayData  :  DisplayData() {
+class PathDisplayData(pool: BaseObjectPool) :  DisplayData(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.PathDisplayData]"
 	}
@@ -201,7 +201,7 @@ class PathDisplayData  :  DisplayData() {
 /**
  * @private
  */
-class WeightData  :  BaseObject() {
+class WeightData(pool: BaseObjectPool) :  BaseObject(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.WeightData]"
 	}

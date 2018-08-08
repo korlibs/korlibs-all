@@ -37,7 +37,7 @@ import com.soywiz.kds.*
  * @version DragonBones 5.0
  * @language zh_CN
  */
-class UserData : BaseObject() {
+class UserData(pool: BaseObjectPool) : BaseObject(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.UserData]"
 	}
@@ -141,7 +141,7 @@ class UserData : BaseObject() {
 /**
  * @private
  */
-class ActionData : BaseObject() {
+class ActionData(pool: BaseObjectPool) : BaseObject(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.ActionData]"
 	}

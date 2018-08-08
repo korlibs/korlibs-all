@@ -30,7 +30,7 @@ import com.soywiz.korio.serialization.json.*
  * @private
  */
 @Suppress("unused", "MayBeConstant", "MemberVisibilityCanBePrivate", "FunctionName")
-abstract class DataParser {
+abstract class DataParser(val pool: BaseObjectPool) {
 	companion object {
 		val DATA_VERSION_2_3: String = "2.3"
 		val DATA_VERSION_3_0: String = "3.0"
@@ -296,8 +296,8 @@ abstract class DataParser {
 			}
 		}
 
-		fun parseDragonBonesDataJson(data: String, scale: Double = 1.0): DragonBonesData? {
-			return ObjectDataParser().parseDragonBonesData(Json.parse(data), scale)
+		fun parseDragonBonesDataJson(data: String, scale: Double = 1.0, pool: BaseObjectPool = BaseObjectPool()): DragonBonesData? {
+			return ObjectDataParser(pool).parseDragonBonesData(Json.parse(data), scale)
 		}
 	}
 

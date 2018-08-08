@@ -6,6 +6,7 @@ import com.soywiz.korge.html.*
 import com.soywiz.korim.font.*
 import com.soywiz.korio.error.*
 import com.soywiz.korma.geom.*
+import com.soywiz.std.*
 import kotlin.math.*
 
 class Fonts() : Html.MetricsProvider {
@@ -39,6 +40,7 @@ class Fonts() : Html.MetricsProvider {
 	override fun getBounds(text: String, format: Html.Format, out: Rectangle) =
 		getBitmapFont(format.computedFace, format.computedSize).getBounds(text, format, out)
 
+	@ThreadLocal
 	companion object {
 		val fonts = Fonts()
 		val defaultFont by lazy {

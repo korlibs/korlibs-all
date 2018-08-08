@@ -35,7 +35,7 @@ import com.soywiz.korio.ds.*
 import com.soywiz.korma.math.*
 import kotlin.math.*
 
-abstract class TimelineState  : BaseObject() {
+abstract class TimelineState(pool: BaseObjectPool) : BaseObject(pool) {
 	var dirty: Boolean = false
 	/**
 	 * -1: start, 0: play, 1: complete;
@@ -256,7 +256,7 @@ abstract class TimelineState  : BaseObject() {
 /**
  * @internal
  */
-abstract class TweenTimelineState  :  TimelineState() {
+abstract class TweenTimelineState(pool: BaseObjectPool) :  TimelineState(pool) {
 	companion object {
 		private fun _getEasingValue(tweenType: TweenType, progress: Double, easing: Double): Double {
 			var value = progress
@@ -383,7 +383,7 @@ abstract class TweenTimelineState  :  TimelineState() {
 /**
  * @internal
  */
-abstract class SingleValueTimelineState  :  TweenTimelineState() {
+abstract class SingleValueTimelineState(pool: BaseObjectPool) :  TweenTimelineState(pool) {
 	protected var _current: Double = 0.0
 	protected var _difference: Double = 0.0
 	protected var _result: Double = 0.0
@@ -438,7 +438,7 @@ abstract class SingleValueTimelineState  :  TweenTimelineState() {
 /**
  * @internal
  */
-abstract class DoubleValueTimelineState  :  TweenTimelineState() {
+abstract class DoubleValueTimelineState(pool: BaseObjectPool) :  TweenTimelineState(pool) {
 	protected var _currentA: Double = 0.0
 	protected var _currentB: Double = 0.0
 	protected var _differenceA: Double = 0.0
@@ -507,7 +507,7 @@ abstract class DoubleValueTimelineState  :  TweenTimelineState() {
 /**
  * @internal
  */
-abstract class MutilpleValueTimelineState  :  TweenTimelineState() {
+abstract class MutilpleValueTimelineState(pool: BaseObjectPool) :  TweenTimelineState(pool) {
 	protected var _valueCount: Int = 0
 	protected val _rd:  DoubleArrayList = DoubleArrayList()
 

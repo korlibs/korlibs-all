@@ -465,7 +465,7 @@ object Korge {
 			height = module.windowSize.height,
 			icon = icon,
 			quality = module.quality,
-			koruiContext = KoruiContext()
+			koruiContext = koruiContext
 		) { container, frame ->
 			logger.trace { "Korge.test [1]" }
 			launchImmediately {

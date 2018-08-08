@@ -47,7 +47,7 @@ import kotlin.math.*
  * @version DragonBones 3.0
  * @language zh_CN
  */
-open class Bone :  TransformObject() {
+open class Bone(pool: BaseObjectPool) :  TransformObject(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.Bone]"
 	}
@@ -96,7 +96,7 @@ open class Bone :  TransformObject() {
 	 */
 	var _cachedFrameIndices:  IntArrayList? = null
 
-	protected override fun _onClear(): Unit {
+	override fun _onClear(): Unit {
 		super._onClear()
 
 		this.offsetMode = OffsetMode.Additive
@@ -121,7 +121,7 @@ open class Bone :  TransformObject() {
 		val origin = this.origin
 		val offset = this.offset
 		val animationPose = this.animationPose
-		val parent = this._parent as? Bone? //
+		val parent = this._parent //
 
 		val flipX = this._armature!!.flipX
 		val flipY = this._armature!!.flipY == DragonBones.yDown
@@ -185,7 +185,7 @@ open class Bone :  TransformObject() {
 
 			if (boneData!!.inheritScale && (!isSurface || surfaceBone != null)) {
 				if (isSurface) {
-					if (boneData!!.inheritRotation) {
+					if (boneData.inheritRotation) {
 						global.rotation += parent.global.rotation
 					}
 
@@ -493,7 +493,7 @@ open class Bone :  TransformObject() {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	fun invalidUpdate(): Unit {
+	fun invalidUpdate() {
 		this._transformDirty = true
 	}
 	/**

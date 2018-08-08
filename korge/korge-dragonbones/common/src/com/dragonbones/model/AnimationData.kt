@@ -37,7 +37,7 @@ import kotlin.math.*
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class AnimationData  :  BaseObject() {
+class AnimationData(pool: BaseObjectPool) :  BaseObject(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.AnimationData]"
 	}
@@ -333,7 +333,7 @@ class AnimationData  :  BaseObject() {
 /**
  * @private
  */
-open class TimelineData  : BaseObject() {
+open class TimelineData(pool: BaseObjectPool) : BaseObject(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.TimelineData]"
 	}
@@ -351,7 +351,7 @@ open class TimelineData  : BaseObject() {
 /**
  * @internal
  */
-class AnimationTimelineData  :  TimelineData() {
+class AnimationTimelineData(pool: BaseObjectPool) :  TimelineData(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.AnimationTimelineData]"
 	}
@@ -359,7 +359,7 @@ class AnimationTimelineData  :  TimelineData() {
 	var x: Double = 0.0
 	var y: Double = 0.0
 
-	protected override fun _onClear(): Unit {
+	override fun _onClear(): Unit {
 		super._onClear()
 
 		this.x = 0.0

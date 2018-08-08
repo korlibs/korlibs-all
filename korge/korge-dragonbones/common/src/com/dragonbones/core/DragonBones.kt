@@ -312,11 +312,11 @@ enum class RotateMode {
  */
 class DragonBones(eventManager: IEventDispatcher) {
 	companion object {
-		val VERSION: String = "5.7.000"
+		const val VERSION: String = "5.7.000"
 
-		var yDown: Boolean = true
-		var debug: Boolean = false
-		var debugDraw: Boolean = false
+		val yDown: Boolean = true
+		val debug: Boolean = false
+		val debugDraw: Boolean = false
 	}
 
 	private val _clock: WorldClock = WorldClock()

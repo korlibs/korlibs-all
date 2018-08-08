@@ -35,7 +35,7 @@ import com.soywiz.kds.*
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class SkinData  : BaseObject() {
+class SkinData(pool: BaseObjectPool) : BaseObject(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.SkinData]"
 	}

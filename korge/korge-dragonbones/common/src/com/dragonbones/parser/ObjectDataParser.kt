@@ -29,6 +29,7 @@ import com.dragonbones.util.*
 import com.soywiz.kds.*
 import com.soywiz.kmem.*
 import com.soywiz.korio.lang.*
+import com.soywiz.std.*
 import kotlin.math.*
 
 /**
@@ -44,7 +45,7 @@ enum class FrameValueType(val index: kotlin.Int) {
  * @private
  */
 @Suppress("UNCHECKED_CAST", "NAME_SHADOWING", "UNUSED_CHANGED_VALUE")
-open class ObjectDataParser : DataParser() {
+open class ObjectDataParser(pool: BaseObjectPool = BaseObjectPool()) : DataParser(pool) {
 	companion object {
 		// dynamic tools
 		internal operator fun Any?.get(key: String): Any? {
@@ -113,18 +114,18 @@ open class ObjectDataParser : DataParser() {
 			return rawData[key]?.toString() ?: defaultValue
 		}
 
-		private var _objectDataParserInstance = ObjectDataParser()
-		/**
-		 * - Deprecated, please refer to {@link dragonBones.BaseFactory#parseDragonBonesData()}.
-		 * @deprecated
-		 * @language en_US
-		 */
-		/**
-		 * - 已废弃，请参考 {@link dragonBones.BaseFactory#parseDragonBonesData()}。
-		 * @deprecated
-		 * @language zh_CN
-		 */
-		fun getInstance(): ObjectDataParser = ObjectDataParser._objectDataParserInstance
+		//private var _objectDataParserInstance = ObjectDataParser()
+		///**
+		// * - Deprecated, please refer to {@link dragonBones.BaseFactory#parseDragonBonesData()}.
+		// * @deprecated
+		// * @language en_US
+		// */
+		///**
+		// * - 已废弃，请参考 {@link dragonBones.BaseFactory#parseDragonBonesData()}。
+		// * @deprecated
+		// * @language zh_CN
+		// */
+		//fun getInstance(): ObjectDataParser = ObjectDataParser._objectDataParserInstance
 
 	}
 
@@ -332,7 +333,7 @@ open class ObjectDataParser : DataParser() {
 	}
 
 	protected fun _parseArmature(rawData: Any?, scale: Double): ArmatureData {
-		val armature = BaseObject.borrowObject<ArmatureData>()
+		val armature = pool.borrowObject<ArmatureData>()
 		armature.name = ObjectDataParser._getString(rawData, DataParser.NAME, "")
 		armature.frameRate = ObjectDataParser._getInt(rawData, DataParser.FRAME_RATE, this._data!!.frameRate)
 		armature.scale = scale
@@ -351,7 +352,7 @@ open class ObjectDataParser : DataParser() {
 
 		if (DataParser.CANVAS in rawData) {
 			val rawCanvas = rawData[DataParser.CANVAS]
-			val canvas = BaseObject.borrowObject<CanvasData>()
+			val canvas = pool.borrowObject<CanvasData>()
 
 			canvas.hasBackground = DataParser.COLOR in rawCanvas
 
@@ -516,7 +517,7 @@ open class ObjectDataParser : DataParser() {
 
 		if (!isSurface) {
 			val scale = this._armature!!.scale
-			val bone = BaseObject.borrowObject<BoneData>()
+			val bone = pool.borrowObject<BoneData>()
 			bone.inheritTranslation = ObjectDataParser._getBoolean(rawData, DataParser.INHERIT_TRANSLATION, true)
 			bone.inheritRotation = ObjectDataParser._getBoolean(rawData, DataParser.INHERIT_ROTATION, true)
 			bone.inheritScale = ObjectDataParser._getBoolean(rawData, DataParser.INHERIT_SCALE, true)
@@ -532,7 +533,7 @@ open class ObjectDataParser : DataParser() {
 			return bone
 		} else {
 
-			val surface = BaseObject.borrowObject<SurfaceData>()
+			val surface = pool.borrowObject<SurfaceData>()
 			surface.alpha = ObjectDataParser._getNumber(rawData, DataParser.ALPHA, 1.0)
 			surface.name = ObjectDataParser._getString(rawData, DataParser.NAME, "")
 			surface.segmentX = ObjectDataParser._getInt(rawData, DataParser.SEGMENT_X, 0)
@@ -548,7 +549,7 @@ open class ObjectDataParser : DataParser() {
 		val target = this._armature?.getBone(ObjectDataParser._getString(rawData, DataParser.TARGET, "")) ?: return null
 
 		val chain = ObjectDataParser._getInt(rawData, DataParser.CHAIN, 0)
-		val constraint = BaseObject.borrowObject<IKConstraintData>()
+		val constraint = pool.borrowObject<IKConstraintData>()
 		constraint.scaleEnabled = ObjectDataParser._getBoolean(rawData, DataParser.SCALE, false)
 		constraint.bendPositive = ObjectDataParser._getBoolean(rawData, DataParser.BEND_POSITIVE, true)
 		constraint.weight = ObjectDataParser._getNumber(rawData, DataParser.WEIGHT, 1.0)
@@ -584,7 +585,7 @@ open class ObjectDataParser : DataParser() {
 			return null
 		}
 
-		val constraint = BaseObject.borrowObject<PathConstraintData>()
+		val constraint = pool.borrowObject<PathConstraintData>()
 		constraint.name = ObjectDataParser._getString(rawData, DataParser.NAME, "")
 		constraint.type = ConstraintType.Path
 		constraint.pathSlot = target
@@ -617,7 +618,7 @@ open class ObjectDataParser : DataParser() {
 	}
 
 	protected fun _parseSlot(rawData: Any?, zOrder: Int): SlotData {
-		val slot = BaseObject.borrowObject<SlotData>()
+		val slot = pool.borrowObject<SlotData>()
 		slot.displayIndex = ObjectDataParser._getInt(rawData, DataParser.DISPLAY_INDEX, 0)
 		slot.zOrder = zOrder
 		slot.zIndex = ObjectDataParser._getInt(rawData, DataParser.Z_INDEX, 0)
@@ -635,7 +636,7 @@ open class ObjectDataParser : DataParser() {
 			slot.color = SlotData.createColor()
 			this._parseColorTransform(rawData[DataParser.COLOR] as Map<String, Any?>, slot.color!!)
 		} else {
-			slot.color = SlotData.DEFAULT_COLOR
+			slot.color = pool.DEFAULT_COLOR
 		}
 
 		if (DataParser.ACTIONS in rawData) {
@@ -647,7 +648,7 @@ open class ObjectDataParser : DataParser() {
 	}
 
 	protected fun _parseSkin(rawData: Any?): SkinData {
-		val skin = BaseObject.borrowObject<SkinData>()
+		val skin = pool.borrowObject<SkinData>()
 		skin.name = ObjectDataParser._getString(rawData, DataParser.NAME, DataParser.DEFAULT_NAME)
 
 		if (skin.name.isEmpty()) {
@@ -700,14 +701,14 @@ open class ObjectDataParser : DataParser() {
 
 		when (type) {
 			DisplayType.Image -> {
-				display = BaseObject.borrowObject<ImageDisplayData>()
+				display = pool.borrowObject<ImageDisplayData>()
 				val imageDisplay = display
 				imageDisplay.name = name
 				imageDisplay.path = if (path.length > 0) path else name
 				this._parsePivot(rawData, imageDisplay)
 			}
 			DisplayType.Armature -> {
-				display = BaseObject.borrowObject<ArmatureDisplayData>()
+				display = pool.borrowObject<ArmatureDisplayData>()
 				val armatureDisplay = display
 				armatureDisplay.name = name
 				armatureDisplay.path = if (path.length > 0) path else name
@@ -730,7 +731,7 @@ open class ObjectDataParser : DataParser() {
 				}
 			}
 			DisplayType.Mesh -> {
-				val meshDisplay = BaseObject.borrowObject<MeshDisplayData>()
+				val meshDisplay = pool.borrowObject<MeshDisplayData>()
 				display = meshDisplay
 				meshDisplay.geometry.inheritDeform =
 						ObjectDataParser._getBoolean(rawData, DataParser.INHERIT_DEFORM, true)
@@ -748,7 +749,7 @@ open class ObjectDataParser : DataParser() {
 			DisplayType.BoundingBox -> {
 				val boundingBox = this._parseBoundingBox(rawData)
 				if (boundingBox != null) {
-					val boundingBoxDisplay = BaseObject.borrowObject<BoundingBoxDisplayData>()
+					val boundingBoxDisplay = pool.borrowObject<BoundingBoxDisplayData>()
 					display = boundingBoxDisplay
 					boundingBoxDisplay.name = name
 					boundingBoxDisplay.path = if (path.isNotEmpty()) path else name
@@ -757,7 +758,7 @@ open class ObjectDataParser : DataParser() {
 			}
 			DisplayType.Path -> {
 				val rawCurveLengths = rawData[DataParser.LENGTHS].doubleArray
-				val pathDisplay = BaseObject.borrowObject<PathDisplayData>()
+				val pathDisplay = pool.borrowObject<PathDisplayData>()
 				display = pathDisplay
 				pathDisplay.closed = ObjectDataParser._getBoolean(rawData, DataParser.CLOSED, false)
 				pathDisplay.constantSpeed = ObjectDataParser._getBoolean(rawData, DataParser.CONSTANT_SPEED, false)
@@ -822,11 +823,11 @@ open class ObjectDataParser : DataParser() {
 
 		when (type) {
 			BoundingBoxType.Rectangle -> {
-				boundingBox = BaseObject.borrowObject<RectangleBoundingBoxData>()
+				boundingBox = pool.borrowObject<RectangleBoundingBoxData>()
 			}
 
 			BoundingBoxType.Ellipse -> {
-				boundingBox = BaseObject.borrowObject<EllipseBoundingBoxData>()
+				boundingBox = pool.borrowObject<EllipseBoundingBoxData>()
 			}
 
 			BoundingBoxType.Polygon -> {
@@ -848,7 +849,7 @@ open class ObjectDataParser : DataParser() {
 	}
 
 	protected fun _parsePolygonBoundingBox(rawData: Any?): PolygonBoundingBoxData {
-		val polygonBoundingBox = BaseObject.borrowObject<PolygonBoundingBoxData>()
+		val polygonBoundingBox = pool.borrowObject<PolygonBoundingBoxData>()
 
 		if (DataParser.VERTICES in rawData) {
 			val scale = this._armature!!.scale
@@ -894,7 +895,7 @@ open class ObjectDataParser : DataParser() {
 	}
 
 	protected open fun _parseAnimation(rawData: Any?): AnimationData {
-		val animation = BaseObject.borrowObject<AnimationData>()
+		val animation = pool.borrowObject<AnimationData>()
 		animation.blendType =
 				DataParser._getAnimationBlendType(ObjectDataParser._getString(rawData, DataParser.BLEND_TYPE, ""))
 		animation.frameCount = ObjectDataParser._getInt(rawData, DataParser.DURATION, 0)
@@ -1060,7 +1061,7 @@ open class ObjectDataParser : DataParser() {
 						}
 
 						if (timelineType == TimelineType.AnimationProgress && animation.blendType != AnimationBlendType.None) {
-							timeline = BaseObject.borrowObject<AnimationTimelineData>()
+							timeline = pool.borrowObject<AnimationTimelineData>()
 							val animaitonTimeline = timeline
 							animaitonTimeline.x = ObjectDataParser._getNumber(rawTimeline, DataParser.X, 0.0)
 							animaitonTimeline.y = ObjectDataParser._getNumber(rawTimeline, DataParser.Y, 0.0)
@@ -1243,7 +1244,7 @@ open class ObjectDataParser : DataParser() {
 		val frameFloatArrayLength = this._frameFloatArray.length
 		val timelineOffset = this._timelineArray.length
 		if (timeline == null) {
-			timeline = BaseObject.borrowObject<TimelineData>()
+			timeline = pool.borrowObject<TimelineData>()
 		}
 
 		timeline.type = timelineType
@@ -1929,7 +1930,7 @@ open class ObjectDataParser : DataParser() {
 		val actions = ArrayList<ActionData>()
 
 		if (rawData is String) {
-			val action = BaseObject.borrowObject<ActionData>()
+			val action = pool.borrowObject<ActionData>()
 			action.type = type
 			action.name = rawData
 			action.bone = bone
@@ -1937,7 +1938,7 @@ open class ObjectDataParser : DataParser() {
 			actions.push(action)
 		} else if (rawData is List<*>) {
 			for (rawAction in rawData as List<Map<String, Any?>>) {
-				val action = BaseObject.borrowObject<ActionData>()
+				val action = pool.borrowObject<ActionData>()
 
 				if (DataParser.GOTO_AND_PLAY in rawAction) {
 					action.type = ActionType.Play
@@ -1970,7 +1971,7 @@ open class ObjectDataParser : DataParser() {
 
 				if (DataParser.INTS in rawAction) {
 					if (userData == null) {
-						userData = BaseObject.borrowObject<UserData>()
+						userData = pool.borrowObject<UserData>()
 					}
 
 					val rawInts = rawAction[DataParser.INTS] .intArrayList
@@ -1981,7 +1982,7 @@ open class ObjectDataParser : DataParser() {
 
 				if (DataParser.FLOATS in rawAction) {
 					if (userData == null) {
-						userData = BaseObject.borrowObject<UserData>()
+						userData = pool.borrowObject<UserData>()
 					}
 
 					val rawFloats = rawAction[DataParser.FLOATS].doubleArrayList
@@ -1992,7 +1993,7 @@ open class ObjectDataParser : DataParser() {
 
 				if (DataParser.STRINGS in rawAction) {
 					if (userData == null) {
-						userData = BaseObject.borrowObject<UserData>()
+						userData = pool.borrowObject<UserData>()
 					}
 
 					val rawStrings = rawAction[DataParser.STRINGS] as ArrayList<String>
@@ -2170,7 +2171,7 @@ open class ObjectDataParser : DataParser() {
 			val floatOffset = this._floatArray.length
 			var weightBoneCount = 0
 			val sortedBones = this._armature?.sortedBones
-			val weight = BaseObject.borrowObject<WeightData>()
+			val weight = pool.borrowObject<WeightData>()
 			weight.count = weightCount
 			weight.offset = weightOffset
 
@@ -2373,7 +2374,7 @@ open class ObjectDataParser : DataParser() {
 			DataParser.DATA_VERSIONS.indexOf(version) >= 0 ||
 			DataParser.DATA_VERSIONS.indexOf(compatibleVersion) >= 0
 		) {
-			val data = BaseObject.borrowObject<DragonBonesData>()
+			val data = pool.borrowObject<DragonBonesData>()
 			data.version = version
 			data.name = ObjectDataParser._getString(rawData, DataParser.NAME, "")
 			data.frameRate = ObjectDataParser._getInt(rawData, DataParser.FRAME_RATE, 24)

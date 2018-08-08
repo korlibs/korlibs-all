@@ -45,7 +45,7 @@ import com.soywiz.kds.*
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class Animation : BaseObject() {
+class Animation(pool: BaseObjectPool) : BaseObject(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.Animation]"
 	}
@@ -170,7 +170,7 @@ class Animation : BaseObject() {
 		}
 
 		this._armature = armature
-		this._animationConfig = BaseObject.borrowObject<AnimationConfig>()
+		this._animationConfig = pool.borrowObject<AnimationConfig>()
 	}
 
 	/**
@@ -423,7 +423,7 @@ class Animation : BaseObject() {
 
 		this._fadeOut(animationConfig)
 		//
-		val animationState = BaseObject.borrowObject<AnimationState>()
+		val animationState = pool.borrowObject<AnimationState>()
 		animationState.init(this._armature!!, animationData, animationConfig)
 		this._animationDirty = true
 		this._armature?._cacheFrameIndex = -1
@@ -767,7 +767,7 @@ class Animation : BaseObject() {
 
 		val blendStates = this._blendStates[type]!!
 		if (name !in blendStates) {
-			val res = BaseObject.borrowObject<BlendState>()
+			val res = pool.borrowObject<BlendState>()
 			val blendState = res
 			blendStates[name] = res
 			blendState.target = target

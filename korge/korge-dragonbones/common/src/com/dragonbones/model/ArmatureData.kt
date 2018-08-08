@@ -37,7 +37,7 @@ import com.soywiz.kds.*
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class ArmatureData : BaseObject() {
+class ArmatureData(pool: BaseObjectPool) : BaseObject(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.ArmatureData]"
 	}
@@ -474,7 +474,7 @@ class ArmatureData : BaseObject() {
  * @version DragonBones 3.0
  * @language zh_CN
  */
-open class BoneData : BaseObject() {
+open class BoneData(pool: BaseObjectPool) : BaseObject(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.BoneData]"
 	}
@@ -571,7 +571,7 @@ open class BoneData : BaseObject() {
 /**
  * @internal
  */
-class SurfaceData : BoneData() {
+class SurfaceData(pool: BaseObjectPool) : BoneData(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.SurfaceData]"
 	}
@@ -595,13 +595,8 @@ class SurfaceData : BoneData() {
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class SlotData : BaseObject() {
+class SlotData(pool: BaseObjectPool) : BaseObject(pool) {
 	companion object {
-		/**
-		 * @internal
-		 */
-		val DEFAULT_COLOR: ColorTransform = ColorTransform()
-
 		/**
 		 * @internal
 		 */

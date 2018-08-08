@@ -26,6 +26,7 @@ package com.dragonbones.armature
 
 import com.dragonbones.core.*
 import com.dragonbones.geom.*
+import com.soywiz.std.*
 
 /**
  * - The base class of the transform object.
@@ -39,12 +40,11 @@ import com.dragonbones.geom.*
  * @version DragonBones 4.5
  * @language zh_CN
  */
-abstract class TransformObject : BaseObject() {
-	companion object {
-		internal val _helpMatrix: Matrix = Matrix()
-		internal val _helpTransform: Transform = Transform()
-		internal val _helpPoint: Point = Point()
-	}
+abstract class TransformObject(pool: BaseObjectPool) : BaseObject(pool) {
+	internal val _helpMatrix: Matrix get() = pool._helpMatrix
+	internal val _helpTransform: Transform get() = pool._helpTransform
+	internal val _helpPoint: Point get() = pool._helpPoint
+
 	/**
 	 * - A matrix relative to the armature coordinate system.
 	 * @version DragonBones 3.0

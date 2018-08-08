@@ -28,7 +28,7 @@ import com.dragonbones.util.*
 /**
  * @private
  */
-abstract class ConstraintData : BaseObject() {
+abstract class ConstraintData(pool: BaseObjectPool) : BaseObject(pool) {
 	var order: Int = 0
 	var name: String = ""
 	var type: ConstraintType = ConstraintType.IK
@@ -49,7 +49,7 @@ abstract class ConstraintData : BaseObject() {
 /**
  * @internal
  */
-class IKConstraintData : ConstraintData() {
+class IKConstraintData(pool: BaseObjectPool) : ConstraintData(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.IKConstraintData]"
 	}
@@ -70,7 +70,7 @@ class IKConstraintData : ConstraintData() {
 /**
  * @internal
  */
-class PathConstraintData : ConstraintData() {
+class PathConstraintData(pool: BaseObjectPool) : ConstraintData(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.PathConstraintData]"
 	}

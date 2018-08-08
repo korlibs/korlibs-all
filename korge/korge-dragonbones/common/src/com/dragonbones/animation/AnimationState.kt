@@ -45,7 +45,7 @@ import kotlin.math.*
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class AnimationState : BaseObject() {
+class AnimationState(pool: BaseObjectPool) : BaseObject(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.AnimationState]"
 	}
@@ -349,7 +349,7 @@ class AnimationState : BaseObject() {
 				for (timelineData in timelineDatas) {
 					when (timelineData.type) {
 						TimelineType.IKConstraint -> {
-							val timeline = BaseObject.borrowObject<IKConstraintTimelineState>()
+							val timeline = pool.borrowObject<IKConstraintTimelineState>()
 							timeline.target = constraint
 							timeline.init(this._armature!!, this, timelineData)
 							this._constraintTimelines.push(timeline)
@@ -359,7 +359,7 @@ class AnimationState : BaseObject() {
 					}
 				}
 			} else if (this.resetToPose) { // Pose timeline.
-				val timeline = BaseObject.borrowObject<IKConstraintTimelineState>()
+				val timeline = pool.borrowObject<IKConstraintTimelineState>()
 				timeline.target = constraint
 				timeline.init(this._armature!!, this, null)
 				this._constraintTimelines.push(timeline)
@@ -409,35 +409,35 @@ class AnimationState : BaseObject() {
 						for (timelineData in timelineDatas) {
 							when (timelineData.type) {
 								TimelineType.BoneAll -> {
-									val timeline = BaseObject.borrowObject<BoneAllTimelineState>()
+									val timeline = pool.borrowObject<BoneAllTimelineState>()
 									timeline.target = blendState
 									timeline.init(this._armature!!, this, timelineData)
 									this._boneTimelines.push(timeline)
 								}
 
 								TimelineType.BoneTranslate -> {
-									val timeline = BaseObject.borrowObject<BoneTranslateTimelineState>()
+									val timeline = pool.borrowObject<BoneTranslateTimelineState>()
 									timeline.target = blendState
 									timeline.init(this._armature!!, this, timelineData)
 									this._boneTimelines.push(timeline)
 								}
 
 								TimelineType.BoneRotate -> {
-									val timeline = BaseObject.borrowObject<BoneRotateTimelineState>()
+									val timeline = pool.borrowObject<BoneRotateTimelineState>()
 									timeline.target = blendState
 									timeline.init(this._armature!!, this, timelineData)
 									this._boneTimelines.push(timeline)
 								}
 
 								TimelineType.BoneScale -> {
-									val timeline = BaseObject.borrowObject<BoneScaleTimelineState>()
+									val timeline = pool.borrowObject<BoneScaleTimelineState>()
 									timeline.target = blendState
 									timeline.init(this._armature!!, this, timelineData)
 									this._boneTimelines.push(timeline)
 								}
 
 								TimelineType.BoneAlpha -> {
-									val timeline = BaseObject.borrowObject<AlphaTimelineState>()
+									val timeline = pool.borrowObject<AlphaTimelineState>()
 									timeline.target = this._armature!!.animation.getBlendState(
 										BlendState.BONE_ALPHA,
 										bone.name,
@@ -448,7 +448,7 @@ class AnimationState : BaseObject() {
 								}
 
 								TimelineType.Surface -> {
-									val timeline = BaseObject.borrowObject<SurfaceTimelineState>()
+									val timeline = pool.borrowObject<SurfaceTimelineState>()
 									timeline.target = this._armature!!.animation.getBlendState(
 										BlendState.SURFACE,
 										bone.name,
@@ -463,13 +463,13 @@ class AnimationState : BaseObject() {
 						}
 					} else if (this.resetToPose) { // Pose timeline.
 						if (bone._boneData?.isBone == true) {
-							val timeline = BaseObject.borrowObject<BoneAllTimelineState>()
+							val timeline = pool.borrowObject<BoneAllTimelineState>()
 							timeline.target = blendState
 							timeline.init(this._armature!!, this, null)
 							this._boneTimelines.push(timeline)
 							this._poseTimelines.push(timeline)
 						} else {
-							val timeline = BaseObject.borrowObject<SurfaceTimelineState>()
+							val timeline = pool.borrowObject<SurfaceTimelineState>()
 							timeline.target =
 									this._armature!!.animation.getBlendState(BlendState.SURFACE, bone.name, bone)
 							timeline.init(this._armature!!, this, null)
@@ -540,7 +540,7 @@ class AnimationState : BaseObject() {
 						for (timelineData in timelineDatas) {
 							when (timelineData.type) {
 								TimelineType.SlotDisplay -> {
-									val timeline = BaseObject.borrowObject<SlotDisplayTimelineState>()
+									val timeline = pool.borrowObject<SlotDisplayTimelineState>()
 									timeline.target = slot
 									timeline.init(this._armature!!, this, timelineData)
 									this._slotTimelines.push(timeline)
@@ -548,7 +548,7 @@ class AnimationState : BaseObject() {
 								}
 
 								TimelineType.SlotZIndex -> {
-									val timeline = BaseObject.borrowObject<SlotZIndexTimelineState>()
+									val timeline = pool.borrowObject<SlotZIndexTimelineState>()
 									timeline.target = this._armature!!.animation.getBlendState(
 										BlendState.SLOT_Z_INDEX,
 										slot.name,
@@ -559,7 +559,7 @@ class AnimationState : BaseObject() {
 								}
 
 								TimelineType.SlotColor -> {
-									val timeline = BaseObject.borrowObject<SlotColorTimelineState>()
+									val timeline = pool.borrowObject<SlotColorTimelineState>()
 									timeline.target = slot
 									timeline.init(this._armature!!, this, timelineData)
 									this._slotTimelines.push(timeline)
@@ -567,7 +567,7 @@ class AnimationState : BaseObject() {
 								}
 
 								TimelineType.SlotDeform -> {
-									val timeline = BaseObject.borrowObject<DeformTimelineState>()
+									val timeline = pool.borrowObject<DeformTimelineState>()
 									timeline.target = this._armature!!.animation.getBlendState(
 										BlendState.SLOT_DEFORM,
 										slot.name,
@@ -583,7 +583,7 @@ class AnimationState : BaseObject() {
 									}
 								}
 								TimelineType.SlotAlpha -> {
-									val timeline = BaseObject.borrowObject<AlphaTimelineState>()
+									val timeline = pool.borrowObject<AlphaTimelineState>()
 									timeline.target = this._armature!!.animation.getBlendState(
 										BlendState.SLOT_ALPHA,
 										slot.name,
@@ -602,7 +602,7 @@ class AnimationState : BaseObject() {
 
 					if (this.resetToPose) { // Pose timeline.
 						if (!displayIndexFlag) {
-							val timeline = BaseObject.borrowObject<SlotDisplayTimelineState>()
+							val timeline = pool.borrowObject<SlotDisplayTimelineState>()
 							timeline.target = slot
 							timeline.init(this._armature!!, this, null)
 							this._slotTimelines.push(timeline)
@@ -610,7 +610,7 @@ class AnimationState : BaseObject() {
 						}
 
 						if (!colorFlag) {
-							val timeline = BaseObject.borrowObject<SlotColorTimelineState>()
+							val timeline = pool.borrowObject<SlotColorTimelineState>()
 							timeline.target = slot
 							timeline.init(this._armature!!, this, null)
 							this._slotTimelines.push(timeline)
@@ -625,7 +625,7 @@ class AnimationState : BaseObject() {
 
 							val geometryData = displayFrame.getGeometryData()
 							if (geometryData != null && ffdFlags.indexOf(geometryData.offset) < 0) {
-								val timeline = BaseObject.borrowObject<DeformTimelineState>()
+								val timeline = pool.borrowObject<DeformTimelineState>()
 								timeline.geometryOffset = geometryData.offset //
 								timeline.displayFrame = displayFrame //
 								timeline.target = this._armature!!.animation.getBlendState(
@@ -671,7 +671,7 @@ class AnimationState : BaseObject() {
 			if (eventActive) {
 				val eventType = if (isFadeOut) EventObject.FADE_OUT else EventObject.FADE_IN
 				if (this._armature!!.eventDispatcher.hasDBEventListener(eventType)) {
-					val eventObject = BaseObject.borrowObject<EventObject>()
+					val eventObject = pool.borrowObject<EventObject>()
 					eventObject.type = eventType
 					eventObject.armature = this._armature!!
 					eventObject.animationState = this
@@ -706,7 +706,7 @@ class AnimationState : BaseObject() {
 			if (eventActive) {
 				val eventType = if (isFadeOut) EventObject.FADE_OUT_COMPLETE else EventObject.FADE_IN_COMPLETE
 				if (this._armature!!.eventDispatcher.hasDBEventListener(eventType)) {
-					val eventObject = BaseObject.borrowObject<EventObject>()
+					val eventObject = pool.borrowObject<EventObject>()
 					eventObject.type = eventType
 					eventObject.armature = this._armature!!
 					eventObject.animationState = this
@@ -783,7 +783,7 @@ class AnimationState : BaseObject() {
 			}
 		}
 
-		this._actionTimeline = BaseObject.borrowObject<ActionTimelineState>()
+		this._actionTimeline = pool.borrowObject<ActionTimelineState>()
 		this._actionTimeline!!.init(this._armature!!, this, this._animationData!!.actionTimeline)
 		this._actionTimeline!!._currentTime = this._time
 
@@ -792,7 +792,7 @@ class AnimationState : BaseObject() {
 		}
 
 		if (this._animationData!!.zOrderTimeline != null) {
-			this._zOrderTimeline = BaseObject.borrowObject<ZOrderTimelineState>()
+			this._zOrderTimeline = pool.borrowObject<ZOrderTimelineState>()
 			this._zOrderTimeline!!.init(this._armature!!, this, this._animationData!!.zOrderTimeline)
 		}
 	}
@@ -1278,7 +1278,7 @@ class AnimationState : BaseObject() {
 			for (timelineData in timelineDatas) {
 				when (timelineData.type) {
 					TimelineType.AnimationProgress -> {
-						val timeline = BaseObject.borrowObject<AnimationProgressTimelineState>()
+						val timeline = pool.borrowObject<AnimationProgressTimelineState>()
 						timeline.target = animationState
 						timeline.init(this._armature!!, this, timelineData)
 						this._animationTimelines.push(timeline)
@@ -1295,14 +1295,14 @@ class AnimationState : BaseObject() {
 					}
 
 					TimelineType.AnimationWeight -> {
-						val timeline = BaseObject.borrowObject<AnimationWeightTimelineState>()
+						val timeline = pool.borrowObject<AnimationWeightTimelineState>()
 						timeline.target = animationState
 						timeline.init(this._armature!!, this, timelineData)
 						this._animationTimelines.push(timeline)
 					}
 
 					TimelineType.AnimationParameter -> {
-						val timeline = BaseObject.borrowObject<AnimationParametersTimelineState>()
+						val timeline = pool.borrowObject<AnimationParametersTimelineState>()
 						timeline.target = animationState
 						timeline.init(this._armature!!, this, timelineData)
 						this._animationTimelines.push(timeline)
@@ -1508,7 +1508,7 @@ class AnimationState : BaseObject() {
 /**
  * @internal
  */
-class BlendState : BaseObject() {
+class BlendState(pool: BaseObjectPool) : BaseObject(pool) {
 	companion object {
 		const val BONE_TRANSFORM: String = "boneTransform"
 		const val BONE_ALPHA: String = "boneAlpha"

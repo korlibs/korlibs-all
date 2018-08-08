@@ -56,34 +56,29 @@ import com.soywiz.kmem.*
  * @version DragonBones 3.0
  * @language zh_CN
  */
-abstract class BaseFactory {
-	companion object {
-		protected val _objectParser: ObjectDataParser = ObjectDataParser()
-		protected val _binaryParser: BinaryDataParser = BinaryDataParser()
-	}
-
+/**
+ * - Create a factory instance. (typically only one global factory instance is required)
+ * @version DragonBones 3.0
+ * @language en_US
+ */
+/**
+ * - 创建一个工厂实例。 （通常只需要一个全局工厂实例）
+ * @version DragonBones 3.0
+ * @language zh_CN
+ */
+abstract class BaseFactory(val pool: BaseObjectPool, dataParser: DataParser = ObjectDataParser(pool)) {
 	/**
 	 * @private
 	 */
 	var autoSearch: Boolean = false
 
+	private val _binaryDataParser by lazy { BinaryDataParser(pool) }
+
 	protected val _dragonBonesDataMap: FastStringMap<DragonBonesData> = FastStringMap()
 	protected val _textureAtlasDataMap: FastStringMap<ArrayList<TextureAtlasData>> = FastStringMap()
 	protected lateinit var _dragonBones: DragonBones
-	protected lateinit var _dataParser: DataParser
-	/**
-	 * - Create a factory instance. (typically only one global factory instance is required)
-	 * @version DragonBones 3.0
-	 * @language en_US
-	 */
-	/**
-	 * - 创建一个工厂实例。 （通常只需要一个全局工厂实例）
-	 * @version DragonBones 3.0
-	 * @language zh_CN
-	 */
-	constructor(dataParser: DataParser? = null) {
-		this._dataParser = dataParser ?: BaseFactory._objectParser
-	}
+	protected var _dataParser: DataParser = dataParser
+
 
 	protected fun _isSupportMesh(): Boolean {
 		return true
@@ -176,7 +171,7 @@ abstract class BaseFactory {
 
 	protected fun _buildBones(dataPackage: BuildArmaturePackage, armature: Armature): Unit {
 		for (boneData in dataPackage.armature!!.sortedBones) {
-			val bone = if (boneData.isBone) BaseObject.borrowObject<Bone>() else BaseObject.borrowObject<Surface>()
+			val bone = if (boneData.isBone) pool.borrowObject<Bone>() else pool.borrowObject<Surface>()
 			bone.init(boneData, armature)
 		}
 	}
@@ -239,19 +234,19 @@ abstract class BaseFactory {
 			// TODO more constraint type.
 			when (constraintData!!.type) {
 				ConstraintType.IK -> {
-					val ikConstraint = BaseObject.borrowObject<IKConstraint>()
+					val ikConstraint = pool.borrowObject<IKConstraint>()
 					ikConstraint.init(constraintData, armature)
 					armature._addConstraint(ikConstraint)
 				}
 
 				ConstraintType.Path -> {
-					val pathConstraint = BaseObject.borrowObject<PathConstraint>()
+					val pathConstraint = pool.borrowObject<PathConstraint>()
 					pathConstraint.init(constraintData, armature)
 					armature._addConstraint(pathConstraint)
 				}
 
 				else -> {
-					val constraint = BaseObject.borrowObject<IKConstraint>()
+					val constraint = pool.borrowObject<IKConstraint>()
 					constraint.init(constraintData, armature)
 					armature._addConstraint(constraint)
 				}
@@ -300,7 +295,7 @@ abstract class BaseFactory {
 						val actions = if (armatureDisplayData.actions.length > 0) armatureDisplayData.actions else childArmature.armatureData.defaultActions
 						if (actions.length > 0) {
 							for (action in actions) {
-								val eventObject = BaseObject.borrowObject<EventObject>()
+								val eventObject = pool.borrowObject<EventObject>()
 								EventObject.actionDataToInstance(action, eventObject, slot.armature)
 								eventObject.slot = slot
 								slot.armature._bufferAction(eventObject, false)
@@ -358,7 +353,7 @@ abstract class BaseFactory {
 	 * @language zh_CN
 	 */
 	fun parseDragonBonesData(rawData: Any, name: String? = null, scale: Double = 1.0): DragonBonesData? {
-		val dataParser = if (rawData is MemBuffer) BaseFactory._binaryParser else this._dataParser
+		val dataParser = if (rawData is MemBuffer) _binaryDataParser else this._dataParser
 		val dragonBonesData = dataParser.parseDragonBonesData(rawData, scale)
 
 		while (true) {

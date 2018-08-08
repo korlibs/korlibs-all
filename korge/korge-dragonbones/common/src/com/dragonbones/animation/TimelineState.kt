@@ -36,7 +36,7 @@ import kotlin.math.*
 /**
  * @internal
  */
-class ActionTimelineState : TimelineState() {
+class ActionTimelineState(pool: BaseObjectPool) : TimelineState(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.ActionTimelineState]"
 	}
@@ -56,7 +56,7 @@ class ActionTimelineState : TimelineState() {
 				val action = actions[actionIndex]
 
 				if (action.type == ActionType.Play) {
-					val eventObject = BaseObject.borrowObject<EventObject>()
+					val eventObject = pool.borrowObject<EventObject>()
 					// eventObject.time = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
 					eventObject.time = this._frameArray!![frameOffset].toDouble() / this._frameRate
 					eventObject.animationState = this._animationState!!
@@ -66,7 +66,7 @@ class ActionTimelineState : TimelineState() {
 					val eventType =
 						if (action.type == ActionType.Frame) EventObject.FRAME_EVENT else EventObject.SOUND_EVENT
 					if (action.type == ActionType.Sound || eventDispatcher.hasDBEventListener(eventType)) {
-						val eventObject = BaseObject.borrowObject<EventObject>()
+						val eventObject = pool.borrowObject<EventObject>()
 						// eventObject.time = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
 						eventObject.time = this._frameArray!![frameOffset].toDouble() / this._frameRate
 						eventObject.animationState = this._animationState!!
@@ -98,7 +98,7 @@ class ActionTimelineState : TimelineState() {
 					prevPlayTimes = this.currentPlayTimes
 
 					if (eventActive && eventDispatcher!!.hasDBEventListener(EventObject.START)) {
-						val eventObject = BaseObject.borrowObject<EventObject>()
+						val eventObject = pool.borrowObject<EventObject>()
 						eventObject.type = EventObject.START
 						eventObject.armature = this._armature!!
 						eventObject.animationState = this._animationState!!
@@ -115,7 +115,7 @@ class ActionTimelineState : TimelineState() {
 
 			if (eventActive && this.currentPlayTimes != prevPlayTimes) {
 				if (eventDispatcher!!.hasDBEventListener(EventObject.LOOP_COMPLETE)) {
-					loopCompleteEvent = BaseObject.borrowObject<EventObject>()
+					loopCompleteEvent = pool.borrowObject<EventObject>()
 					loopCompleteEvent.type = EventObject.LOOP_COMPLETE
 					loopCompleteEvent.armature = this._armature!!
 					loopCompleteEvent.animationState = this._animationState!!
@@ -123,7 +123,7 @@ class ActionTimelineState : TimelineState() {
 
 				if (this.playState > 0) {
 					if (eventDispatcher.hasDBEventListener(EventObject.COMPLETE)) {
-						completeEvent = BaseObject.borrowObject<EventObject>()
+						completeEvent = pool.borrowObject<EventObject>()
 						completeEvent.type = EventObject.COMPLETE
 						completeEvent.armature = this._armature!!
 						completeEvent.animationState = this._animationState!!
@@ -281,7 +281,7 @@ class ActionTimelineState : TimelineState() {
 /**
  * @internal
  */
-class ZOrderTimelineState : TimelineState() {
+class ZOrderTimelineState(pool: BaseObjectPool) : TimelineState(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.ZOrderTimelineState]"
 	}
@@ -303,7 +303,7 @@ class ZOrderTimelineState : TimelineState() {
 /**
  * @internal
  */
-class BoneAllTimelineState : MutilpleValueTimelineState() {
+class BoneAllTimelineState(pool: BaseObjectPool) : MutilpleValueTimelineState(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.BoneAllTimelineState]"
 	}
@@ -371,7 +371,7 @@ class BoneAllTimelineState : MutilpleValueTimelineState() {
 /**
  * @internal
  */
-class BoneTranslateTimelineState : DoubleValueTimelineState() {
+class BoneTranslateTimelineState(pool: BaseObjectPool) : DoubleValueTimelineState(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.BoneTranslateTimelineState]"
 	}
@@ -415,7 +415,7 @@ class BoneTranslateTimelineState : DoubleValueTimelineState() {
 /**
  * @internal
  */
-class BoneRotateTimelineState : DoubleValueTimelineState() {
+class BoneRotateTimelineState(pool: BaseObjectPool) : DoubleValueTimelineState(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.BoneRotateTimelineState]"
 	}
@@ -473,7 +473,7 @@ class BoneRotateTimelineState : DoubleValueTimelineState() {
 /**
  * @internal
  */
-class BoneScaleTimelineState : DoubleValueTimelineState() {
+class BoneScaleTimelineState(pool: BaseObjectPool) : DoubleValueTimelineState(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.BoneScaleTimelineState]"
 	}
@@ -525,7 +525,7 @@ class BoneScaleTimelineState : DoubleValueTimelineState() {
 /**
  * @internal
  */
-class SurfaceTimelineState : MutilpleValueTimelineState() {
+class SurfaceTimelineState(pool: BaseObjectPool) : MutilpleValueTimelineState(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.SurfaceTimelineState]"
 	}
@@ -610,7 +610,7 @@ class SurfaceTimelineState : MutilpleValueTimelineState() {
 /**
  * @internal
  */
-class AlphaTimelineState : SingleValueTimelineState() {
+class AlphaTimelineState(pool: BaseObjectPool) : SingleValueTimelineState(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.AlphaTimelineState]"
 	}
@@ -655,7 +655,7 @@ class AlphaTimelineState : SingleValueTimelineState() {
 /**
  * @internal
  */
-class SlotDisplayTimelineState : TimelineState() {
+class SlotDisplayTimelineState(pool: BaseObjectPool) : TimelineState(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.SlotDisplayTimelineState]"
 	}
@@ -679,7 +679,7 @@ class SlotDisplayTimelineState : TimelineState() {
 /**
  * @internal
  */
-class SlotColorTimelineState : TweenTimelineState() {
+class SlotColorTimelineState(pool: BaseObjectPool) : TweenTimelineState(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.SlotColorTimelineState]"
 	}
@@ -834,7 +834,7 @@ class SlotColorTimelineState : TweenTimelineState() {
 /**
  * @internal
  */
-class SlotZIndexTimelineState : SingleValueTimelineState() {
+class SlotZIndexTimelineState(pool: BaseObjectPool) : SingleValueTimelineState(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.SlotZIndexTimelineState]"
 	}
@@ -879,7 +879,7 @@ class SlotZIndexTimelineState : SingleValueTimelineState() {
 /**
  * @internal
  */
-class DeformTimelineState : MutilpleValueTimelineState() {
+class DeformTimelineState(pool: BaseObjectPool) : MutilpleValueTimelineState(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.DeformTimelineState]"
 	}
@@ -995,7 +995,7 @@ class DeformTimelineState : MutilpleValueTimelineState() {
 /**
  * @internal
  */
-class IKConstraintTimelineState : DoubleValueTimelineState() {
+class IKConstraintTimelineState(pool: BaseObjectPool) : DoubleValueTimelineState(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.IKConstraintTimelineState]"
 	}
@@ -1030,7 +1030,7 @@ class IKConstraintTimelineState : DoubleValueTimelineState() {
 /**
  * @internal
  */
-class AnimationProgressTimelineState : SingleValueTimelineState() {
+class AnimationProgressTimelineState(pool: BaseObjectPool) : SingleValueTimelineState(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.AnimationProgressTimelineState]"
 	}
@@ -1058,7 +1058,7 @@ class AnimationProgressTimelineState : SingleValueTimelineState() {
 /**
  * @internal
  */
-class AnimationWeightTimelineState : SingleValueTimelineState() {
+class AnimationWeightTimelineState(pool: BaseObjectPool) : SingleValueTimelineState(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.AnimationWeightTimelineState]"
 	}
@@ -1086,7 +1086,7 @@ class AnimationWeightTimelineState : SingleValueTimelineState() {
 /**
  * @internal
  */
-class AnimationParametersTimelineState : DoubleValueTimelineState() {
+class AnimationParametersTimelineState(pool: BaseObjectPool) : DoubleValueTimelineState(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.AnimationParametersTimelineState]"
 	}

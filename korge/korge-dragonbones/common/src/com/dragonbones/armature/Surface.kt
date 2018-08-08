@@ -33,13 +33,7 @@ import kotlin.math.*
 /**
  * @internal
  */
-class Surface  :  Bone() {
-	companion object {
-		internal val _helpMatrix: Matrix = TransformObject._helpMatrix
-		internal val _helpTransform: Transform = TransformObject._helpTransform
-		internal val _helpPoint: Point = TransformObject._helpPoint
-	}
-
+class Surface(pool: BaseObjectPool) :  Bone(pool) {
 	override fun toString(): String {
 		return "[class dragonBones.Surface]"
 	}
@@ -205,7 +199,7 @@ class Surface  :  Bone() {
 		val pY = indexY * dY - lA
 		//
 		val matrices = this._matrixCache.data
-		val helpMatrix = Surface._helpMatrix
+		val helpMatrix = _helpMatrix
 
 		if (x < -lA) {
 			if (y < -lA || y >= lA) { // Out.
@@ -235,7 +229,7 @@ class Surface  :  Bone() {
 						sY + ddY,
 						vertices[vertexIndex],
 						vertices[vertexIndex + 1],
-						Surface._helpTransform, helpMatrix, true)
+						_helpTransform, helpMatrix, true)
 				}
 				else {
 					this._getAffineTransform(
@@ -246,7 +240,7 @@ class Surface  :  Bone() {
 						vertices[vertexIndex + 1],
 						sX + ddX,
 						sY + ddY,
-						Surface._helpTransform, helpMatrix, false)
+						_helpTransform, helpMatrix, false)
 				}
 
 				setMatricesFromHelp(matrices, matrixIndex, helpMatrix)
@@ -280,7 +274,7 @@ class Surface  :  Bone() {
 						vertices[vertexIndex + segmentXD + 3],
 						sX,
 						sY,
-						Surface._helpTransform, helpMatrix, true)
+						_helpTransform, helpMatrix, true)
 				}
 				else {
 					this._getAffineTransform(
@@ -291,7 +285,7 @@ class Surface  :  Bone() {
 						sY,
 						vertices[vertexIndex + segmentXD + 2],
 						vertices[vertexIndex + segmentXD + 3],
-						Surface._helpTransform, helpMatrix, false)
+						_helpTransform, helpMatrix, false)
 				}
 
 				setMatricesFromHelp(matrices, matrixIndex, helpMatrix)
@@ -325,7 +319,7 @@ class Surface  :  Bone() {
 						vertices[vertexIndex + 1],
 						sX + ddX,
 						sY + ddY,
-						Surface._helpTransform, helpMatrix, true)
+						_helpTransform, helpMatrix, true)
 				}
 				else {
 					this._getAffineTransform(
@@ -336,7 +330,7 @@ class Surface  :  Bone() {
 						sY + ddY,
 						vertices[vertexIndex],
 						vertices[vertexIndex + 1],
-						Surface._helpTransform, helpMatrix, false)
+						_helpTransform, helpMatrix, false)
 				}
 
 				setMatricesFromHelp(matrices, matrixIndex, helpMatrix)
@@ -370,7 +364,7 @@ class Surface  :  Bone() {
 						sY,
 						vertices[vertexIndex + 2],
 						vertices[vertexIndex + 3],
-						Surface._helpTransform, helpMatrix, true)
+						_helpTransform, helpMatrix, true)
 				}
 				else {
 					this._getAffineTransform(
@@ -381,7 +375,7 @@ class Surface  :  Bone() {
 						vertices[vertexIndex + 3],
 						sX,
 						sY,
-						Surface._helpTransform, helpMatrix, false)
+						_helpTransform, helpMatrix, false)
 				}
 
 				setMatricesFromHelp(matrices, matrixIndex, helpMatrix)
@@ -574,7 +568,7 @@ class Surface  :  Bone() {
 			val ddX = 2 * this.global.x
 			val ddY = 2 * this.global.y
 			//
-			val helpPoint = Surface._helpPoint
+			val helpPoint = _helpPoint
 			this.globalTransformMatrix.transformPoint(lB, -lA, helpPoint)
 			this._hullCache[0] = helpPoint.x
 			this._hullCache[1] = helpPoint.y

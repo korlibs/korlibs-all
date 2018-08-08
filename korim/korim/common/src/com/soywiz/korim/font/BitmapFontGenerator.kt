@@ -6,11 +6,9 @@ import com.soywiz.korim.color.*
 import com.soywiz.korim.vector.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korma.geom.*
+import com.soywiz.std.*
 
 object BitmapFontGenerator {
-	fun generate(fontName: String, fontSize: Int, chars: String): BitmapFont =
-		generate(fontName, fontSize, chars.indices.map { chars[it].toInt() }.toIntArray())
-
 	val SPACE = " "
 	val UPPERCASE = ('A'..'Z').joinToString("")
 	val LOWERCASE = ('a'..'z').joinToString("")
@@ -19,12 +17,14 @@ object BitmapFontGenerator {
 	val LATIN_BASIC = "ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜ¢£¥PÉáíóúñÑª°¿¬½¼¡«»ßµø±÷°·.²"
 	val LATIN_ALL = SPACE + UPPERCASE + LOWERCASE + NUMBERS + PUNCTUATION + LATIN_BASIC
 
-	val bni = NativeImage(1, 1)
+	fun generate(fontName: String, fontSize: Int, chars: String): BitmapFont =
+		generate(fontName, fontSize, chars.indices.map { chars[it].toInt() }.toIntArray())
 
 	fun generate(fontName: String, fontSize: Int, chars: IntArray): BitmapFont {
 		println("BitmapFontGenerator.generate($fontName, $fontSize, $chars)...")
 
 		val result = measureTime {
+			val bni = NativeImage(1, 1)
 			val bnictx = bni.getContext2d()
 			bnictx.font = Context2d.Font(fontName, fontSize.toDouble())
 			val bitmapHeight = bnictx.getTextBounds("a").bounds.height.toInt()
@@ -61,6 +61,5 @@ object BitmapFontGenerator {
 		println("   --> generated in ${result.time}")
 
 		return result.result
-
 	}
 }

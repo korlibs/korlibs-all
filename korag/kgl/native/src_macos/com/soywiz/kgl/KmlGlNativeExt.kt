@@ -17,9 +17,11 @@ fun Float.narrowFloat(): Double = this.toDouble() // For 64-bit
 
 class TempBufferAddress {
 	val pool = arrayListOf<Pinned<ByteArray>>()
+	val ARRAY1 = ByteArray(1)
 	fun KmlNativeBuffer.unsafeAddress(): CPointer<ByteVar> {
 		val byteArray = this.mem.data
-		val pin = byteArray.pin()
+		val rbyteArray = if (byteArray.size > 0) byteArray else ARRAY1
+		val pin = rbyteArray.pin()
 		pool += pin
 		return pin.addressOf(0)
 	}

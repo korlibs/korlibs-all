@@ -12,8 +12,10 @@ import com.soywiz.korge.render.*
 import com.soywiz.korge.scene.*
 import com.soywiz.korge.tween.*
 import com.soywiz.korge.view.*
+import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
 import com.soywiz.korim.format.*
+import com.soywiz.korim.vector.*
 import com.soywiz.korinject.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.file.std.*
@@ -41,29 +43,40 @@ fun main(args: Array<String>): Unit {
     //Korge(MyModule, debug = true)
     println("V0")
 
-    //Korge(object : MyModule() {
-    //    override val mainScene: KClass<out Scene> = HelloScene::class
-    //}, debug = false)
+    Korge(object : MyModule() {
+        //override val mainScene: KClass<out Scene> = HelloScene::class
+    }, debug = false)
 
-    Korge {
-        println("HelloScene.sceneInit[0]")
-        solidRect(100, 100, Colors.RED) {
-            position(100, 100)
-            alpha(0.5)
-            mouse {
-                over { alpha(1.0) }
-                out { alpha(0.5) }
-                click { println("clicked box!") }
-            }
-            launchImmediately {
-                while (true) {
-                    tween(this::x[100, 200], time = 1.seconds, easing = Easing.EASE_OUT_ELASTIC)
-                    tween(this::x[200, 100], time = 1.seconds, easing = Easing.EASE_OUT_ELASTIC)
-                }
-            }
-        }
-        println("HelloScene.sceneInit[1]")
-    }
+    //Korge {
+    //    println("HelloScene.sceneInit[0]")
+    //    val bmp = ResourcesVfs["atlas2/atlas2.png"].readBitmapOptimized()
+    //    //val bmp = Bitmap32(100, 100).apply {
+    //    //    context2d {
+    //    //        fillStyle = Context2d.Color(Colors.RED)
+    //    //        fillRoundRect(0.0, 0.0, 100.0, 100.0, 16.0, 16.0)
+    //    //    }
+    //    //}
+    //    //solidRect(100, 100, Colors.RED) {
+    //    image(bmp) {
+    //        position(100, 100)
+    //        alpha(0.5)
+    //        mouse {
+    //            over { alpha(1.0) }
+    //            out { alpha(0.5) }
+    //            click { println("clicked box!") }
+    //        }
+    //        launchImmediately {
+    //            while (true) {
+    //                println("step0")
+    //                tween(this::x[100, 200], time = 1.seconds, easing = Easing.EASE_OUT_ELASTIC)
+    //                println("step1")
+    //                tween(this::x[200, 100], time = 1.seconds, easing = Easing.EASE_OUT_ELASTIC)
+    //                println("step2")
+    //            }
+    //        }
+    //    }
+    //    println("HelloScene.sceneInit[1]")
+    //}
 
 }
 
