@@ -3,8 +3,11 @@ package com.soywiz.korui
 import com.soywiz.korio.async.*
 import com.soywiz.korui.light.*
 import com.soywiz.korio.*
+import com.soywiz.korio.lang.*
 import com.soywiz.korag.*
+import com.soywiz.korui.event.*
 import com.soywiz.std.*
+import com.soywiz.kds.*
 import com.soywiz.kgl.*
 import kotlinx.cinterop.*
 import platform.AppKit.*
@@ -25,43 +28,160 @@ import kotlinx.coroutines.experimental.*
 import kotlin.coroutines.experimental.*
 import kotlinx.coroutines.experimental.timeunit.*
 
-actual val KoruiDispatcher: CoroutineDispatcher get() = kotlinx.coroutines.experimental.DefaultDispatcher
+class MyNativeCoroutineDispatcher() : CoroutineDispatcher(), Delay, Closeable {
+	override fun dispatchYield(context: CoroutineContext, block: Runnable): Unit = dispatch(context, block)
+
+	class TimedTask(val ms: Long, val continuation: CancellableContinuation<Unit>)
+
+	val tasks = Queue<Runnable>()
+	val timedTasks = PriorityQueue<TimedTask>(Comparator<TimedTask> { a, b -> a.ms.compareTo(b.ms) })
+
+	override fun dispatch(context: CoroutineContext, block: Runnable) {
+		tasks.enqueue(block)
+	}
+
+	override fun scheduleResumeAfterDelay(time: Long, unit: TimeUnit, continuation: CancellableContinuation<Unit>): Unit {
+		val task = TimedTask(Klock.currentTimeMillis() + when (unit) {
+			TimeUnit.SECONDS -> time * 1000
+			TimeUnit.MILLISECONDS -> time
+			else -> error("Unsupported unit $unit")
+		}, continuation)
+		continuation.invokeOnCancellation {
+			timedTasks.remove(task)
+		}
+		timedTasks.add(task)
+	}
+
+	fun executeStep() {
+		val now = Klock.currentTimeMillis()
+		while (timedTasks.isNotEmpty() && now >= timedTasks.peek().ms) {
+			timedTasks.removeHead().continuation.resume(Unit)
+		}
+
+		while (tasks.isNotEmpty()) {
+			val task = tasks.dequeue()
+			task.run()
+		}
+	}
+
+	override fun close() {
+
+	}
+
+	override fun toString(): String = "MyNativeCoroutineDispatcher"
+}
+
+@ThreadLocal
+val myNativeCoroutineDispatcher: MyNativeCoroutineDispatcher = MyNativeCoroutineDispatcher()
+
+actual val KoruiDispatcher: CoroutineDispatcher get() = myNativeCoroutineDispatcher
 
 class NativeKoruiContext(
-	val ag: AG
+	val ag: AG,
+	val light: LightComponents
 	//, val app: NSApplication
 ) : KoruiContext()
 
-internal actual suspend fun KoruiWrap(entry: suspend (KoruiContext) -> Unit) {
-	val agNativeComponent = Any()
-	val ag: AG = AGOpenglFactory.create(agNativeComponent).create(agNativeComponent)
-	val listener = KMLWindowListener()
+class NativeLightComponents(val nkcAg: AG) : LightComponents() {
+	val frameHandle = Any()
 
-	val ctx = NativeKoruiContext(ag)
-	println("KoruiWrap.pentry[0]")
-	ag.__ready()
-	//launch(KoruiDispatcher) { // Doesn't work!
-	println("KoruiWrap.entry[0]")
-	entry(ctx)
-	println("KoruiWrap.entry[1]")
-	//}
-	println("KoruiWrap.pentry[1]")
+	override fun create(type: LightType): LightComponentInfo {
+		@Suppress("REDUNDANT_ELSE_IN_WHEN")
+		val handle: Any = when (type) {
+			LightType.FRAME -> frameHandle
+			LightType.CONTAINER -> Any()
+			LightType.BUTTON -> Any()
+			LightType.IMAGE -> Any()
+			LightType.PROGRESS -> Any()
+			LightType.LABEL -> Any()
+			LightType.TEXT_FIELD -> Any()
+			LightType.TEXT_AREA -> Any()
+			LightType.CHECK_BOX -> Any()
+			LightType.SCROLL_PANE -> Any()
+			LightType.AGCANVAS -> nkcAg.nativeComponent
+			else -> throw UnsupportedOperationException("Type: $type")
+		}
+		return LightComponentInfo(handle).apply {
+			this.ag = nkcAg
+		}
+	}
+
+	val eds = arrayListOf<Pair<KClass<*>, EventDispatcher>>()
+
+	fun <T : Event> dispatch(clazz: KClass<T>, e: T) {
+		for ((eclazz, ed) in eds) {
+			if (eclazz == clazz) {
+				ed.dispatch(clazz, e)
+			}
+		}
+	}
+
+	inline fun <reified T : Event> dispatch(e: T) = dispatch(T::class, e)
+
+	override fun <T : Event> registerEventKind(c: Any, clazz: KClass<T>, ed: EventDispatcher): Closeable {
+		val pair = Pair(clazz, ed)
+
+		if (c === frameHandle || c === nkcAg.nativeComponent) {
+			eds += pair
+			return Closeable { eds -= pair }
+		}
+
+		return DummyCloseable
+	}
+}
+
+internal actual suspend fun KoruiWrap(entry: suspend (KoruiContext) -> Unit) {
+	val coroutineContext = coroutineContext
 
 	autoreleasepool {
 		val app = NSApplication.sharedApplication()
 		//val ctx = NativeKoruiContext(ag, app)
 		val windowConfig = WindowConfig(640, 480, "Korui")
 
+		val agNativeComponent = Any()
+		val ag: AG = AGOpenglFactory.create(agNativeComponent).create(agNativeComponent)
+		val light = NativeLightComponents(ag)
+
 		app.delegate = MyAppDelegate(ag, windowConfig, object : MyAppHandler {
 			override fun init(context: NSOpenGLContext?) {
 				macTrace("init[a]")
 				macTrace("init[b]")
-				//runInitBlocking(listener)
+				val ctx = NativeKoruiContext(ag, light)
+				println("KoruiWrap.pentry[0]")
+				ag.__ready()
+				//launch(KoruiDispatcher) { // Doesn't work!
+				println("KoruiWrap.pentry[1]")
+				println("KoruiWrap.entry[0]")
+				launch(KoruiDispatcher) {
+					entry(ctx)
+				}
+				println("KoruiWrap.entry[1]")
+				//}
+				println("KoruiWrap.pentry[2]")
 			}
 
-			override fun mouseUp(x: Int, y: Int, button: Int) = listener.mouseUpdateButton(button, false)
-			override fun mouseDown(x: Int, y: Int, button: Int) = listener.mouseUpdateButton(button, true)
-			override fun mouseMoved(x: Int, y: Int) = listener.mouseUpdateMove(x, y)
+			val mevent = com.soywiz.korui.event.MouseEvent()
+
+			private fun mouseEvent(etype: com.soywiz.korui.event.MouseEvent.Type, ex: Int, ey: Int, ebutton: Int) {
+				light.dispatch(mevent.apply {
+					this.type = etype
+					this.x = ex
+					this.y = ey
+					this.buttons = 1 shl ebutton
+					this.isAltDown = false
+					this.isCtrlDown = false
+					this.isShiftDown = false
+					this.isMetaDown = false
+					//this.scaleCoords = false
+				})
+			}
+
+			override fun mouseUp(x: Int, y: Int, button: Int) {
+				mouseEvent(com.soywiz.korui.event.MouseEvent.Type.UP, x, y, button)
+				mouseEvent(com.soywiz.korui.event.MouseEvent.Type.CLICK, x, y, button) // @TODO: Conditionally depending on the down x,y & time
+			}
+			override fun mouseDown(x: Int, y: Int, button: Int) = mouseEvent(com.soywiz.korui.event.MouseEvent.Type.DOWN, x, y, button)
+			override fun mouseMoved(x: Int, y: Int) = mouseEvent(com.soywiz.korui.event.MouseEvent.Type.MOVE, x, y, 0)
 
 			fun keyChange(keyCode: Char, pressed: Boolean) {
 				println("KEY: $keyCode, ${keyCode.toInt()}, $pressed")
@@ -73,14 +193,14 @@ internal actual suspend fun KoruiWrap(entry: suspend (KoruiContext) -> Unit) {
 
 			override fun windowDidResize(width: Int, height: Int, context: NSOpenGLContext?) {
 				macTrace("windowDidResize")
-				listener.resized(width, height)
+				light.dispatch(ResizedEvent(width, height))
 				render(context)
 			}
 
 			override fun render(context: NSOpenGLContext?) {
 				//macTrace("render")
 
-				//step()
+				myNativeCoroutineDispatcher.executeStep()
 
 				//context?.flushBuffer()
 				context?.makeCurrentContext()
@@ -90,6 +210,7 @@ internal actual suspend fun KoruiWrap(entry: suspend (KoruiContext) -> Unit) {
 		})
 		app.setActivationPolicy(NSApplicationActivationPolicy.NSApplicationActivationPolicyRegular)
 		app.activateIgnoringOtherApps(true)
+		myNativeCoroutineDispatcher.executeStep()
 		app.run()
 	}
 }
@@ -145,7 +266,8 @@ object MacosNativeEventLoop : EventLoop() {
 
 class WindowConfig(val width: Int, val height: Int, val title: String)
 
-private class MyAppDelegate(val ag: AG, val windowConfig: WindowConfig, val handler: MyAppHandler) : NSObject(), NSApplicationDelegateProtocol {
+private class MyAppDelegate(val ag: AG, val windowConfig: WindowConfig, val handler: MyAppHandler) : NSObject(),
+	NSApplicationDelegateProtocol {
 	val mainDisplayRect = NSScreen.mainScreen()!!.frame
 	val windowRect = mainDisplayRect.useContents<CGRect, CValue<CGRect>> {
 		NSMakeRect(
@@ -349,35 +471,5 @@ class AppDelegate(
 			handler.windowDidResize(bounds.size.width.toInt(), bounds.size.height.toInt(), openGLContext)
 			Unit
 		}
-	}
-}
-
-
-open class KMLWindowListener {
-	open suspend fun init(gl: KmlGl): Unit = gl.run {
-	}
-
-	open fun render(gl: KmlGl): Unit = gl.run {
-	}
-
-	open fun keyUpdate(key: Int, pressed: Boolean) {
-	}
-
-	open fun gamepadConnection(player: Int, name: String, connected: Boolean) {
-	}
-
-	open fun gamepadButtonUpdate(player: Int, button: Int, ratio: Double) {
-	}
-
-	open fun gamepadStickUpdate(player: Int, stick: Int, x: Double, y: Double) {
-	}
-
-	open fun mouseUpdateMove(x: Int, y: Int) {
-	}
-
-	open fun mouseUpdateButton(button: Int, pressed: Boolean) {
-	}
-
-	open fun resized(width: Int, height: Int) {
 	}
 }

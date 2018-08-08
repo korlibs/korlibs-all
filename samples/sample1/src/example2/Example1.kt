@@ -48,36 +48,39 @@ fun main(args: Array<String>): Unit {
     }, debug = false)
 
     //Korge {
-    //    println("HelloScene.sceneInit[0]")
-    //    val bmp = ResourcesVfs["atlas2/atlas2.png"].readBitmapOptimized()
-    //    //val bmp = Bitmap32(100, 100).apply {
-    //    //    context2d {
-    //    //        fillStyle = Context2d.Color(Colors.RED)
-    //    //        fillRoundRect(0.0, 0.0, 100.0, 100.0, 16.0, 16.0)
-    //    //    }
-    //    //}
-    //    //solidRect(100, 100, Colors.RED) {
-    //    image(bmp) {
-    //        position(100, 100)
-    //        alpha(0.5)
-    //        mouse {
-    //            over { alpha(1.0) }
-    //            out { alpha(0.5) }
-    //            click { println("clicked box!") }
-    //        }
-    //        launchImmediately {
-    //            while (true) {
-    //                println("step0")
-    //                tween(this::x[100, 200], time = 1.seconds, easing = Easing.EASE_OUT_ELASTIC)
-    //                println("step1")
-    //                tween(this::x[200, 100], time = 1.seconds, easing = Easing.EASE_OUT_ELASTIC)
-    //                println("step2")
-    //            }
-    //        }
-    //    }
-    //    println("HelloScene.sceneInit[1]")
+    //    hello()
     //}
+}
 
+suspend fun Stage.hello() {
+    println("HelloScene.sceneInit[0]")
+    val bmp = ResourcesVfs["atlas2/atlas2.png"].readBitmapOptimized()
+    //val bmp = Bitmap32(100, 100).apply {
+    //    context2d {
+    //        fillStyle = Context2d.Color(Colors.RED)
+    //        fillRoundRect(0.0, 0.0, 100.0, 100.0, 16.0, 16.0)
+    //    }
+    //}
+    //solidRect(100, 100, Colors.RED) {
+    image(bmp) {
+        position(100, 100)
+        alpha(0.5)
+        mouse {
+            over { alpha(1.0) }
+            out { alpha(0.5) }
+            click { println("clicked box!") }
+        }
+        launchImmediately {
+            while (true) {
+                println("step0")
+                tween(this::x[100, 200], time = 1.seconds, easing = Easing.EASE_OUT_ELASTIC)
+                println("step1")
+                tween(this::x[200, 100], time = 1.seconds, easing = Easing.EASE_OUT_ELASTIC)
+                println("step2")
+            }
+        }
+    }
+    println("HelloScene.sceneInit[1]")
 }
 
 class HelloScene : Scene() {
