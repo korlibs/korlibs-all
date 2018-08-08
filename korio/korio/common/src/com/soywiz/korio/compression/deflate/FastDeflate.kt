@@ -45,18 +45,21 @@ object FastDeflate {
 		val hasDict = s.bit()
 		val flevel = s.bits(2)
 		var dictid = 0
-		if (hasDict) run { dictid = s.u32be(); TODO("Unsupported custom dictionaries (Provided DICTID=$dictid)") }
+		if (hasDict) {
+			s.discardBits()
+			dictid = s.u32be()
+			TODO("Unsupported custom dictionaries (Provided DICTID=$dictid)")
+		}
 		val out = uncompress(windowBits, s, ByteArrayBuilder.Small(expectedOutSize)).toByteArray()
 		val chash = Adler32.update(Adler32.INITIAL, out, 0, out.size)
+		s.discardBits()
 		val adler32 = s.u32be()
 		if (chash != adler32) invalidOp("Adler32 doesn't match ${chash.hex} != ${adler32.hex}")
 		return out
 	}
 
-	fun uncompress(windowBits: Int, i: ByteArray, offset: Int = 0): ByteArray {
-		return uncompress(windowBits, BitReader(i, offset)).toByteArray()
-		//println("uncompress[6]")
-	}
+	fun uncompress(windowBits: Int, i: ByteArray, offset: Int = 0): ByteArray =
+		uncompress(windowBits, BitReader(i, offset)).toByteArray()
 
 	fun uncompress(
 		windowBits: Int,
@@ -92,14 +95,14 @@ object FastDeflate {
 					readDynamicTree(reader, temp, tree, dist)
 				}
 				while (true) {
-					val value = tree.sreadOneValue(reader)
+					val value = tree.read(reader)
 					if (value == 256) break
 					if (value < 256) {
 						sout.putOut(value.toByte())
 					} else {
 						val zlenof = value - 257
 						val lengthExtra = reader.bits(LEN_EXTRA[zlenof])
-						val distanceData = dist.sreadOneValue(reader)
+						val distanceData = dist.read(reader)
 						val distanceExtra = reader.bits(DIST_EXTRA[distanceData])
 						val distance = DIST_BASE[distanceData] + distanceExtra
 						val length = LEN_BASE[zlenof] + lengthExtra
@@ -122,8 +125,8 @@ object FastDeflate {
 		var n = 0
 		val hlithdist = hlit + hdist
 		while (n < hlithdist) {
-			val value = codeLen.sreadOneValue(reader)
-			if (value !in 0..18) error("Invalid")
+			val value = codeLen.read(reader)
+			if (value !in 0..18) error("Invalid dynamic tree")
 
 			val len = when (value) {
 				16 -> reader.bits(2) + 3
@@ -162,22 +165,26 @@ object FastDeflate {
 			return this
 		}
 
-		fun peek(bitcount: Int): Int {
+		fun drop(bitcount: Int) {
+			peekbits -= bitcount
+			bitdata = bitdata ushr bitcount
+			bitsavailable -= bitcount
+		}
+
+		fun ensure(bitcount: Int) {
 			while (bitsavailable < bitcount) {
 				bitdata = bitdata or (u8() shl bitsavailable)
 				bitsavailable += 8
 				peekbits += 8
 			}
+		}
+
+		inline fun peek(bitcount: Int): Int {
+			ensure(bitcount)
 			return bitdata and ((1 shl bitcount) - 1)
 		}
 
-		fun bits(bitcount: Int): Int {
-			val read = peek(bitcount)
-			peekbits -= bitcount
-			bitdata = bitdata ushr bitcount
-			bitsavailable -= bitcount
-			return read
-		}
+		inline fun bits(bitcount: Int): Int = peek(bitcount).also { drop(bitcount) }
 
 		fun bit(): Boolean = bits(1) != 0
 
@@ -227,12 +234,8 @@ object FastDeflate {
 		val mask = data.size - 1
 		var pos = 0
 
-		fun get(offset: Int): Int {
-			return data[(pos - offset) and mask].toInt() and 0xFF
-		}
-
+		fun get(offset: Int): Int = data[(pos - offset) and mask].toInt() and 0xFF
 		fun getPut(offset: Int): Int = put(get(offset))
-
 		fun put(value: Int): Int {
 			data[pos] = value.toByte()
 			pos = (pos + 1) and mask
@@ -246,31 +249,46 @@ object FastDeflate {
 
 	// @TODO: Compute fast decodings with a lookup table and bit peeking for 9 bits
 	class HuffmanTree {
-		fun sreadOneValue(reader: BitReader): Int {
-			//val value = reader.peek(9)
+		companion object {
+			private const val INVALID_VALUE = -1
+			private const val NIL = 1023
+			private const val FAST_BITS = 9
 
-			return sreadOneValueSlow(reader)
+			//private const val ENABLE_EXPERIMENTAL_FAST_READ = true
+			private const val ENABLE_EXPERIMENTAL_FAST_READ = false
 		}
 
-		private fun sreadOneValueSlow(reader: BitReader): Int {
+		private val value = IntArray(1024)
+		private val left = IntArray(1024)
+		private val right = IntArray(1024)
+
+		private var nodeOffset = 0
+		private var root: Int = NIL
+		private var ncodes: Int = 0
+
+		// Low half-word contains the value, High half-word contains the len
+		val FAST_INFO = IntArray(1 shl FAST_BITS) { INVALID_VALUE }
+
+		fun read(reader: BitReader): Int {
+			if (ENABLE_EXPERIMENTAL_FAST_READ) {
+				val info = FAST_INFO[reader.peek(9)]
+				if (info != INVALID_VALUE) {
+					val value = info and 0xFFFF
+					val bits = (info ushr 16) and 0xFFFF
+					reader.drop(bits)
+					return value
+				}
+			}
+			return readSlow(reader)
+		}
+
+		private fun readSlow(reader: BitReader): Int {
 			var node = this.root
 			do {
 				node = if (reader.bit()) node.right else node.left
 			} while (node != NIL && node.value == INVALID_VALUE)
 			return node.value
 		}
-
-		private val INVALID_VALUE = -1
-		private val NIL = 1023
-
-		private val value = IntArray(1024)
-		private val len = IntArray(1024)
-		private val left = IntArray(1024)
-		private val right = IntArray(1024)
-
-		private var nodeOffset = 0
-		private var root: Int = NIL
-		private var symbolLimit: Int = 0
 
 		private fun resetAlloc() {
 			nodeOffset = 0
@@ -288,7 +306,6 @@ object FastDeflate {
 		private fun allocNode(left: Int, right: Int): Int = alloc(INVALID_VALUE, left, right)
 
 		private val Int.value get() = this@HuffmanTree.value[this]
-		private val Int.len get() = this@HuffmanTree.len[this]
 		private val Int.left get() = this@HuffmanTree.left[this]
 		private val Int.right get() = this@HuffmanTree.right[this]
 
@@ -297,11 +314,14 @@ object FastDeflate {
 		private val OFFSETS = IntArray(MAX_LEN + 1)
 		private val COFFSET = IntArray(MAX_LEN + 1)
 		private val CODES = IntArray(288)
-		//private val CODES = IntArray(512)
+
+		private val ENCODED_VAL = IntArray(288)
+		private val ENCODED_LEN = ByteArray(288)
+
 		fun fromLengths(codeLengths: IntArray, start: Int = 0, end: Int = codeLengths.size): HuffmanTree {
 			var oldOffset = 0
 			var oldCount = 0
-			val codeLengthsSize = end - start
+			val ncodes = end - start
 
 			resetAlloc()
 
@@ -342,9 +362,51 @@ object FastDeflate {
 				if (oldCount % 2 != 0) error("This canonical code does not represent a Huffman code tree: $oldCount")
 			}
 			if (oldCount != 2) error("This canonical code does not represent a Huffman code tree")
+
 			this.root = allocNode(nodeOffset - 2, nodeOffset - 1)
-			this.symbolLimit = codeLengthsSize
+			this.ncodes = ncodes
+
+			if (ENABLE_EXPERIMENTAL_FAST_READ) {
+				computeFastLookup()
+			}
+
 			return this
+		}
+
+		private fun computeFastLookup() {
+			ENCODED_LEN.fill(0)
+			FAST_INFO.fill(INVALID_VALUE)
+			computeEncodedValues(root, 0, 0)
+			//println("--------------------")
+			for (n in 0 until ncodes) {
+				val enc = ENCODED_VAL[n]
+				val bits = ENCODED_LEN[n].toInt()
+				check((enc and 0xFFFF) == enc)
+				check((bits and 0xFF) == bits)
+				if (bits in 1..FAST_BITS) {
+					val remainingBits = FAST_BITS - bits
+					val repeat = 1 shl remainingBits
+					val info = enc or (bits shl 16)
+
+					//println("n=$n  : enc=$enc : bits=$bits, repeat=$repeat")
+
+					for (j in 0 until repeat) {
+						FAST_INFO[enc or (j shl bits)] = info
+					}
+				}
+			}
+			//for (fv in FAST_INFO) check(fv != INVALID_VALUE)
+		}
+
+		private fun computeEncodedValues(node: Int, encoded: Int, encodedBits: Int) {
+			if (node.value == INVALID_VALUE) {
+				computeEncodedValues(node.left, encoded, encodedBits + 1)
+				computeEncodedValues(node.right, encoded or (1 shl encodedBits), encodedBits + 1)
+			} else {
+				val nvalue = node.value
+				ENCODED_VAL[nvalue] = encoded
+				ENCODED_LEN[nvalue] = encodedBits.toByte()
+			}
 		}
 	}
 }
