@@ -311,7 +311,8 @@ object FastDeflate {
 		private val CODES = IntArray(288)
 		//private val CODES = IntArray(512)
 		fun fromLengths(codeLengths: IntArray, start: Int = 0, end: Int = codeLengths.size): HuffmanTree {
-			var nodes = arrayListOf<Int>()
+			var oldOffset = 0
+			var oldCount = 0
 			val codeLengthsSize = end - start
 
 			resetAlloc()
@@ -341,18 +342,19 @@ object FastDeflate {
 			}
 
 			for (i in MAX_LEN downTo 1) {
-				val newNodes = arrayListOf<Int>()
+				val newOffset = nodeOffset
 
 				val OFFSET = OFFSETS[i]
 				val SIZE = COUNTS[i]
-				for (j in 0 until SIZE) newNodes.add(allocLeaf(CODES[OFFSET + j], i))
+				for (j in 0 until SIZE) allocLeaf(CODES[OFFSET + j], i)
+				for (j in 0 until oldCount step 2) allocNode(oldOffset + j, oldOffset + j + 1)
 
-				for (j in 0 until nodes.size step 2) newNodes.add(allocNode(nodes[j], nodes[j + 1]))
-				nodes = newNodes
-				if (nodes.size % 2 != 0) error("This canonical code does not represent a Huffman code tree: ${nodes.size}")
+				oldOffset = newOffset
+				oldCount = SIZE + oldCount / 2
+				if (oldCount % 2 != 0) error("This canonical code does not represent a Huffman code tree: $oldCount")
 			}
-			if (nodes.size != 2) error("This canonical code does not represent a Huffman code tree")
-			this.root = allocNode(nodes[0], nodes[1])
+			if (oldCount != 2) error("This canonical code does not represent a Huffman code tree")
+			this.root = allocNode(nodeOffset - 2, nodeOffset - 1)
 			this.symbolLimit = codeLengthsSize
 			return this
 		}
