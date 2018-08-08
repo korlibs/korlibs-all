@@ -152,27 +152,36 @@ object FastDeflate {
 	open class BitReader(val i: ByteArray, var offset: Int = 0) {
 		var bitdata = 0
 		var bitsavailable = 0
+		var peekbits = 0
 
 		fun discardBits(): BitReader {
-			this.bitdata = 0
-			this.bitsavailable = 0
+			bitdata = 0
+			bitsavailable = 0
+			offset -= peekbits / 8
+			peekbits = 0
 			return this
 		}
 
-		fun bits(bitcount: Int): Int {
-			while (this.bitsavailable < bitcount) {
-				this.bitdata = this.bitdata or (u8() shl this.bitsavailable)
-				this.bitsavailable += 8
+		fun peek(bitcount: Int): Int {
+			while (bitsavailable < bitcount) {
+				bitdata = bitdata or (u8() shl bitsavailable)
+				bitsavailable += 8
+				peekbits += 8
 			}
-			val readed = this.bitdata and ((1 shl bitcount) - 1)
-			this.bitdata = this.bitdata ushr bitcount
-			this.bitsavailable -= bitcount
-			return readed
+			return bitdata and ((1 shl bitcount) - 1)
+		}
+
+		fun bits(bitcount: Int): Int {
+			val read = peek(bitcount)
+			peekbits -= bitcount
+			bitdata = bitdata ushr bitcount
+			bitsavailable -= bitcount
+			return read
 		}
 
 		fun bit(): Boolean = bits(1) != 0
 
-		private fun u8(): Int = i[offset++].toInt() and 0xFF
+		private fun u8(): Int = i.getOrElse(offset++) { 0 }.toInt() and 0xFF
 
 		fun u16le(): Int {
 			val l = u8()
@@ -190,9 +199,7 @@ object FastDeflate {
 
 		fun alignedBytes(count: Int): Int {
 			discardBits()
-			val current = offset
-			offset += count
-			return current
+			return offset.apply { offset += count }
 		}
 	}
 
@@ -237,42 +244,24 @@ object FastDeflate {
 		}
 	}
 
+	// @TODO: Compute fast decodings with a lookup table and bit peeking for 9 bits
 	class HuffmanTree {
-		class Node(val value: Int, val len: Int, val left: Node?, val right: Node?) {
-			companion object {
-				fun leaf(value: Int, len: Int) = Node(value, len, null, null)
-				fun int(left: Node, right: Node) = Node(-1, 0, left, right)
-			}
+		fun sreadOneValue(reader: BitReader): Int {
+			//val value = reader.peek(9)
+
+			return sreadOneValueSlow(reader)
 		}
 
-		fun sreadOneValue(reader: BitReader) = sreadOne(reader).resultValue
-
-		private var resultValue = 0
-		private var resultBitcode = 0
-		private var resultBitcount = 0
-
-		private fun sreadOne(reader: BitReader): HuffmanTree {
-			//console.log('-------------');
+		private fun sreadOneValueSlow(reader: BitReader): Int {
 			var node = this.root
-			var bitcount = 0
-			var bitcode = 0
 			do {
-				val bbit = reader.bits(1)
-				val bit = (bbit != 0)
-				bitcode = bitcode or (bbit shl bitcount)
-				bitcount++
-				//console.log('bit', bit);
-				node = if (bit) node.right else node.left
-				//console.info(node);
-			} while (node != NIL && node.len == 0)
-			if (node == NIL) error("NODE = NULL")
-			resultValue = node.value
-			resultBitcode = bitcode
-			resultBitcount = bitcount
-			return this
+				node = if (reader.bit()) node.right else node.left
+			} while (node != NIL && node.value == INVALID_VALUE)
+			return node.value
 		}
 
-		private val NIL = -1
+		private val INVALID_VALUE = -1
+		private val NIL = 1023
 
 		private val value = IntArray(1024)
 		private val len = IntArray(1024)
@@ -287,17 +276,16 @@ object FastDeflate {
 			nodeOffset = 0
 		}
 
-		private fun alloc(value: Int, len: Int, left: Int, right: Int): Int {
+		private fun alloc(value: Int, left: Int, right: Int): Int {
 			return (nodeOffset++).apply {
 				this@HuffmanTree.value[this] = value
-				this@HuffmanTree.len[this] = len
 				this@HuffmanTree.left[this] = left
 				this@HuffmanTree.right[this] = right
 			}
 		}
 
-		private fun allocLeaf(value: Int, len: Int): Int = alloc(value, len, NIL, NIL)
-		private fun allocNode(left: Int, right: Int): Int = alloc(0, 0, left, right)
+		private fun allocLeaf(value: Int): Int = alloc(value, NIL, NIL)
+		private fun allocNode(left: Int, right: Int): Int = alloc(INVALID_VALUE, left, right)
 
 		private val Int.value get() = this@HuffmanTree.value[this]
 		private val Int.len get() = this@HuffmanTree.len[this]
@@ -322,7 +310,7 @@ object FastDeflate {
 			// Compute the count of codes per length
 			for (n in start until end) {
 				val codeLen = codeLengths[n]
-				if (codeLen !in 0 .. MAX_LEN) error("Invalid HuffmanTree.codeLengths $codeLen")
+				if (codeLen !in 0..MAX_LEN) error("Invalid HuffmanTree.codeLengths $codeLen")
 				COUNTS[codeLen]++
 			}
 
@@ -346,7 +334,7 @@ object FastDeflate {
 
 				val OFFSET = OFFSETS[i]
 				val SIZE = COUNTS[i]
-				for (j in 0 until SIZE) allocLeaf(CODES[OFFSET + j], i)
+				for (j in 0 until SIZE) allocLeaf(CODES[OFFSET + j])
 				for (j in 0 until oldCount step 2) allocNode(oldOffset + j, oldOffset + j + 1)
 
 				oldOffset = newOffset
