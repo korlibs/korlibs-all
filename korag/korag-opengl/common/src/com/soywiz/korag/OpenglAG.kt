@@ -162,6 +162,9 @@ abstract class AGOpengl : AG() {
 		renderState: RenderState,
 		scissor: Scissor?
 	) {
+		val vattrs = vertexLayout.attributes.toList()
+		val vattrspos = vertexLayout.attributePositions.toList()
+
 		val mustFreeIndices = indices == null
 		val aindices = indices ?: createIndexBuffer((0 until vertexCount).map(Int::toShort).toShortArray())
 
@@ -178,11 +181,12 @@ abstract class AGOpengl : AG() {
 		(aindices as GlBuffer).bind(gl)
 		glProgram.use()
 
+
 		val totalSize = vertexLayout.totalSize
-		for (n in vertexLayout.attributePositions.indices) {
-			val att = vertexLayout.attributes[n]
+		for (n in vattrspos.indices) {
+			val att = vattrs[n]
 			if (att.active) {
-				val off = vertexLayout.attributePositions[n]
+				val off = vattrspos[n]
 				val loc = checkErrors { glProgram.getAttribLocation(att.name) }
 				val glElementType = att.type.glElementType
 				val elementCount = att.type.elementCount
@@ -203,7 +207,10 @@ abstract class AGOpengl : AG() {
 			}
 		}
 		var textureUnit = 0
-		for ((uniform, value) in uniforms) {
+		//for ((uniform, value) in uniforms) {
+		for (pair in uniforms) {
+			val uniform = pair.key
+			val value = pair.value
 			val location = checkErrors { gl.getUniformLocation(glProgram.id, uniform.name) }
 			when (uniform.type) {
 				VarType.TextureUnit -> {
@@ -296,7 +303,7 @@ abstract class AGOpengl : AG() {
 
 		//glSetActiveTexture(gl.TEXTURE0)
 
-		for (att in vertexLayout.attributes.filter { it.active }) {
+		for (att in vattrs.filter { it.active }) {
 			val loc = checkErrors { glProgram.getAttribLocation(att.name).toInt() }
 			if (loc >= 0) {
 				checkErrors { gl.disableVertexAttribArray(loc) }

@@ -134,6 +134,7 @@ allprojects {
 							target nativeTargets
 							if (libExecutables[projectNameWithoutSuffix]) {
 								outputKinds = [EXECUTABLE]
+								extraOpts '--disable', 'devirtualization'
 							} else {
 								outputKinds = [KLIBRARY]
 							}

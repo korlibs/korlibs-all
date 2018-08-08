@@ -395,19 +395,22 @@ fun FragmentShader(callback: Program.Builder.() -> Unit): FragmentShader {
 	return FragmentShader(Program.Stm.Stms(builder.outputStms))
 }
 
-class VertexLayout(val attributes: List<Attribute>, private val layoutSize: Int?) {
+class VertexLayout(attr: List<Attribute>, private val layoutSize: Int?) {
+	// @TODO: kotlin-native bug: https://github.com/JetBrains/kotlin-native/issues/1847
+	private val myattr = attr
+	val attributes = attr.toList()
 	constructor(attributes: List<Attribute>) : this(attributes, null)
 	constructor(vararg attributes: Attribute) : this(attributes.toList(), null)
 	constructor(vararg attributes: Attribute, layoutSize: Int? = null) : this(attributes.toList(), layoutSize)
 
 	private var _lastPos: Int = 0
 
-	val alignments = attributes.map {
+	val alignments = myattr.map {
 		val a = it.type.kind.bytesSize
 		if (a <= 1) 1 else a
 	}
 
-	val attributePositions = attributes.map {
+	val attributePositions = myattr.map {
 		if (it.offset != null) {
 			_lastPos = it.offset
 		} else {
@@ -421,7 +424,7 @@ class VertexLayout(val attributes: List<Attribute>, private val layoutSize: Int?
 	val maxAlignment = alignments.max() ?: 1
 	val totalSize: Int = run { layoutSize ?: _lastPos.nextAlignedTo(maxAlignment) }
 
-	override fun toString(): String = "VertexLayout[${attributes.map { it.name }.joinToString(", ")}]"
+	override fun toString(): String = "VertexLayout[${myattr.map { it.name }.joinToString(", ")}]"
 }
 
 @Deprecated("Use VertexLayout", ReplaceWith("VertexLayout"))
