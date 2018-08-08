@@ -12,6 +12,9 @@ enum class BitmapChannel(val index: Int) {
 	fun extract(rgba: RGBA): Int = (rgba.rgba ushr shift) and 0xFF
 	fun insert(rgba: RGBA, value: Int): RGBA = RGBA((rgba.rgba and clearMask) or ((value and 0xFF) shl shift))
 
+	fun extractInt(rgba: Int): Int = (rgba ushr shift) and 0xFF
+	fun insertInt(rgba: Int, value: Int): Int = RGBAInt((rgba and clearMask) or ((value and 0xFF) shl shift))
+
 	companion object {
 		val ALL = values()
 		operator fun get(index: Int) = ALL[index]

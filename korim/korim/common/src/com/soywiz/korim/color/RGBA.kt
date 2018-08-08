@@ -5,7 +5,11 @@ import com.soywiz.korio.ds.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.lang.*
 
-// inline // @TODO: class inline or slow
+inline fun RGBAInt(rgba: Int): Int = rgba
+inline fun RGBAInt(r: Int, g: Int, b: Int, a: Int) = RGBA.pack(r, g, b, a)
+inline fun RGBAInt(rgb: Int, a: Int) = rgb or (a shl 24)
+
+//inline class RGBA(val rgba: Int) : Comparable<RGBA> {// @TODO: class inline or slow
 data class RGBA(val rgba: Int) : Comparable<RGBA> {// @TODO: SUPER Extremely slow! Mark class as inline once fixes are ready
 	val r: Int get() = (rgba ushr 0) and 0xFF
 	val g: Int get() = (rgba ushr 8) and 0xFF
@@ -134,11 +138,13 @@ data class RGBA(val rgba: Int) : Comparable<RGBA> {// @TODO: SUPER Extremely slo
 		}
 
 		//@JvmStatic
-		fun premultiplyFast(v: RGBA): RGBA {
-			val A = v.a + 1
-			val RB = (((v.rgba and 0x00FF00FF) * A) ushr 8) and 0x00FF00FF
-			val G = (((v.rgba and 0x0000FF00) * A) ushr 8) and 0x0000FF00
-			return RGBA((v.rgba and 0x00FFFFFF.inv()) or RB or G)
+		fun premultiplyFast(v: RGBA): RGBA = RGBA(premultiplyFastInt(v.rgba))
+
+		fun premultiplyFastInt(v: Int): Int {
+			val A = getFastA(v) + 1
+			val RB = (((v and 0x00FF00FF) * A) ushr 8) and 0x00FF00FF
+			val G = (((v and 0x0000FF00) * A) ushr 8) and 0x0000FF00
+			return (v and 0x00FFFFFF.inv()) or RB or G
 		}
 
 		////@JvmStatic fun premultiplyFast2(v: Int): Int {
@@ -178,23 +184,27 @@ data class RGBA(val rgba: Int) : Comparable<RGBA> {// @TODO: SUPER Extremely slo
 		fun Int.clamp255() = if (this > 255) 255 else this
 
 		//@JvmStatic
-		fun depremultiplyFast(v: RGBA): RGBA {
-			val A = v.a
+		fun depremultiplyFast(v: RGBA): RGBA = RGBA(depremultiplyFastInt(v.rgba))
+
+		fun depremultiplyFastInt(v: Int): Int {
+			val A = RGBA.getFastA(v)
 			val alpha = A.toDouble() / 255.0
-			if (alpha == 0.0) return RGBA(0)
+			if (alpha == 0.0) return 0
 			val ialpha = 1.0 / alpha
-			val R = (v.r * ialpha).toInt().clamp255()
-			val G = (v.g * ialpha).toInt().clamp255()
-			val B = (v.b * ialpha).toInt().clamp255()
-			return RGBA(R, G, B, A)
+			val R = (RGBA.getFastR(v) * ialpha).toInt().clamp255()
+			val G = (RGBA.getFastG(v) * ialpha).toInt().clamp255()
+			val B = (RGBA.getFastB(v) * ialpha).toInt().clamp255()
+			return RGBA.packFast(R, G, B, A)
 		}
 
 		fun depremultiplyFast(data: RgbaArray, start: Int = 0, end: Int = data.size): RgbaArray = data.apply {
-			for (n in start until end) data[n] = depremultiplyFast(data[n])
+			val array = data.array
+			for (n in start until end) array[n] = depremultiplyFastInt(array[n])
 		}
 
 		fun premultiplyFast(data: RgbaArray, start: Int = 0, end: Int = data.size): RgbaArray = data.apply {
-			for (n in start until end) data[n] = premultiplyFast(data[n])
+			val array = data.array
+			for (n in start until end) array[n] = premultiplyFastInt(array[n])
 		}
 
 		//@JvmStatic
@@ -228,6 +238,7 @@ data class RGBA(val rgba: Int) : Comparable<RGBA> {// @TODO: SUPER Extremely slo
 
 		//@JvmStatic
 		fun packFast(r: Int, g: Int, b: Int, a: Int) = (r shl 0) or (g shl 8) or (b shl 16) or (a shl 24)
+		fun packFast(rgb: Int, a: Int): Int = (rgb and 0xFFFFFF) or (a shl 24)
 
 		//@JvmStatic
 		fun packfFast(r: Float, g: Float, b: Float, a: Float): Int =
@@ -288,26 +299,25 @@ data class RGBA(val rgba: Int) : Comparable<RGBA> {// @TODO: SUPER Extremely slo
 		fun packf(rgb: Int, a: Float): Int = packRGB_A(rgb, f2i(a))
 
 		//@JvmStatic
-		fun mix(dst: RGBA, src: RGBA): RGBA {
-			val srcA = src.a
+		fun mix(dst: RGBA, src: RGBA): RGBA = RGBA(mixInt(dst.rgba, src.rgba))
+
+		fun mixInt(dst: Int, src: Int): Int {
+			val srcA = getA(src)
 			return when (srcA) {
 				0x000 -> dst
 				0xFF -> src
-				else -> {
-					RGBA(com.soywiz.korim.color.RGBA.packRGB_A(
-						blendRGB(dst.rgba, src.rgba, srcA + 1),
-						clampFF(com.soywiz.korim.color.RGBA.getFastA(dst.rgba) + srcA)
-					))
-				}
+				else -> RGBAInt(blendRGB(dst, src, srcA + 1), getA(dst) + srcA)
 			}
 		}
 
 		//@JvmStatic
-		fun interpolate(src: RGBA, dst: RGBA, ratio: Double): RGBA = RGBA(
-			com.soywiz.korma.interpolation.interpolate(src.r, dst.r, ratio),
-			com.soywiz.korma.interpolation.interpolate(src.g, dst.g, ratio),
-			com.soywiz.korma.interpolation.interpolate(src.b, dst.b, ratio),
-			com.soywiz.korma.interpolation.interpolate(src.a, dst.a, ratio)
+		fun interpolate(src: RGBA, dst: RGBA, ratio: Double): RGBA = RGBA(interpolateInt(src.rgba, dst.rgba, ratio))
+
+		fun interpolateInt(src: Int, dst: Int, ratio: Double): Int = RGBA.pack(
+			com.soywiz.korma.interpolation.interpolate(getR(src), getR(dst), ratio),
+			com.soywiz.korma.interpolation.interpolate(getG(src), getG(dst), ratio),
+			com.soywiz.korma.interpolation.interpolate(getB(src), getB(dst), ratio),
+			com.soywiz.korma.interpolation.interpolate(getA(src), getA(dst), ratio)
 		)
 
 		//@JvmStatic
@@ -373,7 +383,7 @@ data class RGBA(val rgba: Int) : Comparable<RGBA> {// @TODO: SUPER Extremely slo
 }
 
 
-//inline // @TODO: class inline or slow!
+//inline class RgbaArray(val array: IntArray) : List<RGBA> { // @TODO: class inline or slow!
 class RgbaArray(val array: IntArray) : List<RGBA> {
 	override fun subList(fromIndex: Int, toIndex: Int): List<RGBA> = SubListGeneric(this, fromIndex, toIndex)
 	override fun contains(element: RGBA): Boolean = array.contains(element.rgba)
@@ -389,6 +399,7 @@ class RgbaArray(val array: IntArray) : List<RGBA> {
 	companion object {
 		operator fun invoke(size: Int): RgbaArray = RgbaArray(IntArray(size))
 		operator fun invoke(size: Int, callback: (index: Int) -> RGBA): RgbaArray = RgbaArray(IntArray(size)).apply { for (n in 0 until size) this[n] = callback(n) }
+		fun genInt(size: Int, callback: (index: Int) -> Int): RgbaArray = RgbaArray(IntArray(size)).apply { for (n in 0 until size) this.array[n] = callback(n) }
 
 		/**
 		 * java.lang.VerifyError: Bad type on operand stack

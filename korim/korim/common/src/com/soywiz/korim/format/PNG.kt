@@ -162,12 +162,12 @@ object PNG : ImageFormat("png") {
 					val index = bitmap.index(0, y)
 					if (bitmap.premult) {
 						for (x in 0 until width) {
-							out.write32_le(pos, RGBA.depremultiplyFast(bitmap.data[index + x]).toInt())
+							out.write32_le(pos, RGBA.depremultiplyFastInt(bitmap.data.array[index + x]))
 							pos += 4
 						}
 					} else {
 						for (x in 0 until width) {
-							out.write32_le(pos, bitmap.data[index + x].toInt())
+							out.write32_le(pos, bitmap.data.array[index + x])
 							pos += 4
 						}
 					}

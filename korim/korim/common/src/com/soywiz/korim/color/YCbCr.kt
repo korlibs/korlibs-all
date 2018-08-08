@@ -35,11 +35,13 @@ object YCbCr : ColorFormat32() {
 	@JvmStatic
 	fun getB(y: Int, cb: Int, cr: Int): Int = clamp0_FF((y + 1.772 * (cb - 128)).toInt())
 
-	fun rgbaToYCbCr(c: RGBA): Int {
-		val R = c.r
-		val G = c.g
-		val B = c.b
-		val A = c.a
+	fun rgbaToYCbCr(c: RGBA): Int = rgbaToYCbCrInt(c.rgba)
+
+	fun rgbaToYCbCrInt(c: Int): Int {
+		val R = RGBA.getR(c)
+		val G = RGBA.getG(c)
+		val B = RGBA.getB(c)
+		val A = RGBA.getA(c)
 
 		val Y = getY(R, G, B)
 		val Cb = getCb(R, G, B)
@@ -48,7 +50,9 @@ object YCbCr : ColorFormat32() {
 		return RGBA.pack(Y, Cb, Cr, A)
 	}
 
-	fun yCbCrToRgba(c: Int): RGBA {
+	fun yCbCrToRgba(c: Int): RGBA = RGBA(yCbCrToRgbaInt(c))
+
+	fun yCbCrToRgbaInt(c: Int): Int {
 		val Y = RGBA.getR(c)
 		val Cb = RGBA.getG(c)
 		val Cr = RGBA.getB(c)
@@ -58,6 +62,6 @@ object YCbCr : ColorFormat32() {
 		val G = getG(Y, Cb, Cr)
 		val B = getB(Y, Cb, Cr)
 
-		return RGBA(R, G, B, A)
+		return RGBAInt(R, G, B, A)
 	}
 }

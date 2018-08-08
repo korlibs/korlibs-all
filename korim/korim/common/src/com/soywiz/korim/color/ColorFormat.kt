@@ -49,10 +49,13 @@ abstract class ColorFormat(val bpp: Int) : ColorFormatBase {
 	//fun clampFF(a: Int): Int = Math.min(a, 255)
 
 	fun toRGBA(v: Int): RGBA = RGBA(getR(v), getG(v), getB(v), getA(v))
+	fun toRGBAInt(v: Int): Int = RGBA.packFast(getR(v), getG(v), getB(v), getA(v))
 
 	fun packRGBA(c: RGBA): Int = pack(c.r, c.g, c.b, c.a)
+	fun packRGBAInt(c: Int): Int = pack(getR(c), getG(c), getB(c), getA(c))
 
 	fun unpackToRGBA(packed: Int): RGBA = RGBA(getR(packed), getG(packed), getB(packed), getA(packed))
+	fun unpackToRGBAInt(packed: Int): Int = RGBAInt(getR(packed), getG(packed), getB(packed), getA(packed))
 
 	fun convertTo(color: Int, target: ColorFormat): Int = target.pack(
 		this.getR(color), this.getG(color), this.getB(color), this.getA(color)
@@ -76,15 +79,16 @@ abstract class ColorFormat(val bpp: Int) : ColorFormatBase {
 		outOffset: Int,
 		size: Int,
 		read: (data: ByteArray, io: Int) -> Int
-	): Unit {
+	) {
 		var io = dataOffset
 		var oo = outOffset
 		val bytesPerPixel = this.bytesPerPixel
+		val outdata = out.array
 
 		for (n in 0 until size) {
 			val c = read(data, io)
 			io += bytesPerPixel
-			out[oo++] = RGBA(getR(c), getG(c), getB(c), getA(c))
+			outdata[oo++] = RGBA.packFast(getR(c), getG(c), getB(c), getA(c))
 		}
 	}
 
@@ -95,7 +99,7 @@ abstract class ColorFormat(val bpp: Int) : ColorFormatBase {
 		outOffset: Int,
 		size: Int,
 		littleEndian: Boolean = true
-	): Unit {
+	) {
 		when (bpp) {
 			16 -> if (littleEndian) {
 				decodeInternal(data, dataOffset, out, outOffset, size, ByteArray::readU16_le)
@@ -153,12 +157,12 @@ abstract class ColorFormat(val bpp: Int) : ColorFormatBase {
 		outOffset: Int,
 		size: Int,
 		littleEndian: Boolean = true
-	): Unit {
+	) {
 		var io = colorsOffset
 		var oo = outOffset
 		for (n in 0 until size) {
-			val c = colors[io++]
-			val ec = pack(c.r, c.g, c.b, c.a)
+			val c = colors.array[io++]
+			val ec = pack(RGBA.getR(c), RGBA.getG(c), RGBA.getB(c), RGBA.getA(c))
 			when (bpp) {
 				16 -> if (littleEndian) out.write16_le(oo, ec) else out.write16_be(oo, ec)
 				24 -> if (littleEndian) out.write24_le(oo, ec) else out.write24_be(oo, ec)
