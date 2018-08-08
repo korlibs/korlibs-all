@@ -15,18 +15,22 @@ fun Boolean.narrow(): Byte = (if (this) 1 else 0).toByte()
 fun Int.narrowSize(): Long = this.toLong() // For 64-bit
 fun Float.narrowFloat(): Double = this.toDouble() // For 64-bit
 
-
 class TempBufferAddress {
+	val pool = arrayListOf<Pinned<ByteArray>>()
 	fun KmlNativeBuffer.unsafeAddress(): CPointer<ByteVar> {
-		TODO()
+		val byteArray = this.mem.data
+		val pin = byteArray.pin()
+		pool += pin
+		return pin.addressOf(0)
 	}
 
 	fun start() {
-
+		pool.clear()
 	}
 
 	fun dispose() {
-
+		for (p in pool) p.unpin()
+		pool.clear()
 	}
 }
 

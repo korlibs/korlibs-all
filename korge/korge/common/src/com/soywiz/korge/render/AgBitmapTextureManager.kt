@@ -6,7 +6,6 @@ import com.soywiz.korim.bitmap.*
 import com.soywiz.korma.geom.*
 
 var Bitmap.texMipmaps: Boolean by Extra.Property { false }
-
 fun <T : Bitmap> T.mipmaps(enable: Boolean = true): T = this.apply { this.texMipmaps = enable }
 
 class AgBitmapTextureManager(val ag: AG) {
