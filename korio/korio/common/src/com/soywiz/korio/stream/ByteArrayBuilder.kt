@@ -66,7 +66,7 @@ class ByteArrayBuilder() {
 	// @TODO: Optimize this!
 	fun toString(charset: Charset): String = toByteArray().toString(charset)
 
-	private class Small(private var bytes: ByteArray, private var len: Int = 0) {
+	class Small(private var bytes: ByteArray, private var len: Int = 0) {
 		constructor(capacity: Int = 64) : this(ByteArray(capacity))
 
 		val size: Int get() = len
@@ -79,6 +79,12 @@ class ByteArrayBuilder() {
 		fun append(v: Byte) {
 			ensure(1)
 			bytes[len++] = v
+		}
+
+		fun append(data: ByteArray, offset: Int, size: Int) {
+			ensure(size)
+			arraycopy(data, offset, this.bytes, len, size)
+			len += size
 		}
 
 		fun clear() {

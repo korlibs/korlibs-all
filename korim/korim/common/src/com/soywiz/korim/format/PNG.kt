@@ -79,9 +79,6 @@ object PNG : ImageFormat("png") {
 		null
 	}
 
-	//private val method = Deflate
-	private val method = ZLib
-
 	override fun writeImage(image: ImageData, s: SyncStream, props: ImageEncodingProps) {
 		val bitmap = image.mainBitmap
 		val width = bitmap.width
@@ -105,7 +102,7 @@ object PNG : ImageFormat("png") {
 		val level = props.quality.convertRangeClamped(0.0, 1.0, 0.0, 9.0).toInt()
 
 		fun compress(data: ByteArray): ByteArray {
-			return data.syncCompress(method, CompressionContext(level = level))
+			return data.syncCompress(ZLib, CompressionContext(level = level))
 		}
 
 		fun writeChunk(name: String, initialCapacity: Int = 4096, callback: SyncStream.() -> Unit) {
@@ -242,11 +239,12 @@ object PNG : ImageFormat("png") {
 		val width = header.width
 		val height = header.height
 
-		val databb = ByteArrayBuffer((1 + width) * height * header.bytes)
+		//val databb = ByteArrayBuffer((1 + width) * height * header.bytes)
 
-		method.syncUncompress(pngdata.toByteArray().openSync(), MemorySyncStreamBase(databb).toSyncStream(0L))
+		val databb = FastDeflate.zlibUncompress(pngdata.toByteArray(), expectedOutSize = (1 + width) * height * header.bytes)
+		//method.syncUncompress(pngdata.toByteArray().openSync(), MemorySyncStreamBase(databb).toSyncStream(0L))
+		var databbp = 0
 
-		val data = MemorySyncStreamBase(databb).toSyncStream(0L)
 		val context = DecodingContext(header)
 		val bpp = context.header.bytes
 		val row32 = context.row32
@@ -279,10 +277,11 @@ object PNG : ImageFormat("png") {
 				val colIncrement = pass.colIncrement
 				val pixelsInThisRow = width ushr pass.colIncrementShift
 				val bytesInThisRow = (pixelsInThisRow * header.bytes)
-				val filter = data.readU8()
+				val filter = databb[databbp++].toInt() and 0xFF
 				val currentRow = context.currentRow
 				val lastRow = context.lastRow
-				data.readExact(currentRow.data, 0, bytesInThisRow)
+				arraycopy(databb, databbp, currentRow.data, 0, bytesInThisRow)
+				databbp += bytesInThisRow
 				when {
 					bmp8 != null -> {
 						applyFilter(filter, lastRow, currentRow, header.bytes)
