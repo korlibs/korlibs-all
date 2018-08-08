@@ -280,48 +280,42 @@ object FastDeflate {
 		private val COUNTS = IntArray(MAX_LEN + 1)
 		private val OFFSETS = IntArray(MAX_LEN + 1)
 		private val COFFSET = IntArray(MAX_LEN + 1)
-		private val SIZES = IntArray(MAX_LEN + 1)
 		//private val CODES = IntArray(288)
 		private val CODES = IntArray(512)
 		fun fromLengths(codeLengths: IntArray, start: Int = 0, end: Int = codeLengths.size): HuffmanTree {
 			var nodes = arrayListOf<Node>()
 			val codeLengthsSize = end - start
-//
-			//COUNTS.fill(0)
-//
-			//// Compute the count of codes per length
-			//for (n in start until end) {
-			//	val codeLen = codeLengths[n]
-			//	if (codeLen !in 0 until MAX_LEN) error("Invalid HuffmanTree.codeLengths $codeLen")
-			//	COUNTS[codeLen]++
-			//}
-//
-			//println(COUNTS.toList())
-//
-			//// Compute the disposition
-			//var currentOffset = 0
-			//for (n in MAX_LEN downTo 1) {
-			//	val count = COUNTS[n]
-			//	OFFSETS[n] = currentOffset
-			//	SIZES[n] = count
-			//	COFFSET[n] = currentOffset
-			//	currentOffset += count
-			//}
-//
-			//// Place elements in the computed disposition
-			//for (n in start until end) {
-			//	val codeLen = codeLengths[n]
-			//	CODES[COFFSET[codeLen]++] = n - start
-			//}
+
+			COUNTS.fill(0)
+
+			// Compute the count of codes per length
+			for (n in start until end) {
+				val codeLen = codeLengths[n]
+				if (codeLen !in 0 .. MAX_LEN) error("Invalid HuffmanTree.codeLengths $codeLen")
+				COUNTS[codeLen]++
+			}
+
+			// Compute the disposition using the counts per length
+			var currentOffset = 0
+			for (n in 0 until MAX_LEN) {
+				val count = COUNTS[n]
+				OFFSETS[n] = currentOffset
+				COFFSET[n] = currentOffset
+				currentOffset += count
+			}
+
+			// Place elements in the computed disposition
+			for (n in start until end) {
+				val codeLen = codeLengths[n]
+				CODES[COFFSET[codeLen]++] = n - start
+			}
 
 			for (i in MAX_LEN downTo 1) {
 				val newNodes = arrayListOf<Node>()
 
-				//val OFFSET = OFFSETS[i]
-				//val SIZE = SIZES[i]
-				//for (j in 0 until SIZE) newNodes.add(Node.leaf(CODES[OFFSET + j], i))
-
-				for (j in start until end) if (codeLengths[j] == i) newNodes.add(Node.leaf(j - start, i))
+				val OFFSET = OFFSETS[i]
+				val SIZE = COUNTS[i]
+				for (j in 0 until SIZE) newNodes.add(Node.leaf(CODES[OFFSET + j], i))
 
 				for (j in 0 until nodes.size step 2) newNodes.add(Node.int(nodes[j], nodes[j + 1]))
 				nodes = newNodes
