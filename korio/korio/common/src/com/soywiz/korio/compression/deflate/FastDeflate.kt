@@ -238,9 +238,6 @@ object FastDeflate {
 	}
 
 	class HuffmanTree {
-		private lateinit var root: Node
-		private var symbolLimit: Int = 0
-
 		class Node(val value: Int, val len: Int, val left: Node?, val right: Node?) {
 			companion object {
 				fun leaf(value: Int, len: Int) = Node(value, len, null, null)
@@ -248,15 +245,15 @@ object FastDeflate {
 			}
 		}
 
-		private data class Result(var value: Int, var bitcode: Int, var bitcount: Int)
+		fun sreadOneValue(reader: BitReader) = sreadOne(reader).resultValue
 
-		private val tempResult = Result(0, 0, 0)
+		private var resultValue = 0
+		private var resultBitcode = 0
+		private var resultBitcount = 0
 
-		fun sreadOneValue(reader: BitReader) = sreadOne(reader, tempResult).value
-
-		private fun sreadOne(reader: BitReader, out: Result = Result(0, 0, 0)): Result {
+		private fun sreadOne(reader: BitReader): HuffmanTree {
 			//console.log('-------------');
-			var node: Node? = this.root
+			var node = this.root
 			var bitcount = 0
 			var bitcode = 0
 			do {
@@ -265,26 +262,59 @@ object FastDeflate {
 				bitcode = bitcode or (bbit shl bitcount)
 				bitcount++
 				//console.log('bit', bit);
-				node = if (bit) node!!.right else node!!.left
+				node = if (bit) node.right else node.left
 				//console.info(node);
-			} while (node != null && node.len == 0)
-			if (node == null) error("NODE = NULL")
-			return out.apply {
-				this.value = node.value
-				this.bitcode = bitcode
-				this.bitcount = bitcount
+			} while (node != NIL && node.len == 0)
+			if (node == NIL) error("NODE = NULL")
+			resultValue = node.value
+			resultBitcode = bitcode
+			resultBitcount = bitcount
+			return this
+		}
+
+		private val NIL = -1
+
+		private val value = IntArray(1024)
+		private val len = IntArray(1024)
+		private val left = IntArray(1024)
+		private val right = IntArray(1024)
+
+		private var nodeOffset = 0
+		private var root: Int = NIL
+		private var symbolLimit: Int = 0
+
+		private fun resetAlloc() {
+			nodeOffset = 0
+		}
+
+		private fun alloc(value: Int, len: Int, left: Int, right: Int): Int {
+			return (nodeOffset++).apply {
+				this@HuffmanTree.value[this] = value
+				this@HuffmanTree.len[this] = len
+				this@HuffmanTree.left[this] = left
+				this@HuffmanTree.right[this] = right
 			}
 		}
+
+		private fun allocLeaf(value: Int, len: Int): Int = alloc(value, len, NIL, NIL)
+		private fun allocNode(left: Int, right: Int): Int = alloc(0, 0, left, right)
+
+		private val Int.value get() = this@HuffmanTree.value[this]
+		private val Int.len get() = this@HuffmanTree.len[this]
+		private val Int.left get() = this@HuffmanTree.left[this]
+		private val Int.right get() = this@HuffmanTree.right[this]
 
 		private val MAX_LEN = 16
 		private val COUNTS = IntArray(MAX_LEN + 1)
 		private val OFFSETS = IntArray(MAX_LEN + 1)
 		private val COFFSET = IntArray(MAX_LEN + 1)
-		//private val CODES = IntArray(288)
-		private val CODES = IntArray(512)
+		private val CODES = IntArray(288)
+		//private val CODES = IntArray(512)
 		fun fromLengths(codeLengths: IntArray, start: Int = 0, end: Int = codeLengths.size): HuffmanTree {
-			var nodes = arrayListOf<Node>()
+			var nodes = arrayListOf<Int>()
 			val codeLengthsSize = end - start
+
+			resetAlloc()
 
 			COUNTS.fill(0)
 
@@ -311,18 +341,18 @@ object FastDeflate {
 			}
 
 			for (i in MAX_LEN downTo 1) {
-				val newNodes = arrayListOf<Node>()
+				val newNodes = arrayListOf<Int>()
 
 				val OFFSET = OFFSETS[i]
 				val SIZE = COUNTS[i]
-				for (j in 0 until SIZE) newNodes.add(Node.leaf(CODES[OFFSET + j], i))
+				for (j in 0 until SIZE) newNodes.add(allocLeaf(CODES[OFFSET + j], i))
 
-				for (j in 0 until nodes.size step 2) newNodes.add(Node.int(nodes[j], nodes[j + 1]))
+				for (j in 0 until nodes.size step 2) newNodes.add(allocNode(nodes[j], nodes[j + 1]))
 				nodes = newNodes
 				if (nodes.size % 2 != 0) error("This canonical code does not represent a Huffman code tree: ${nodes.size}")
 			}
 			if (nodes.size != 2) error("This canonical code does not represent a Huffman code tree")
-			this.root = Node.int(nodes[0], nodes[1])
+			this.root = allocNode(nodes[0], nodes[1])
 			this.symbolLimit = codeLengthsSize
 			return this
 		}
