@@ -58,7 +58,12 @@ class Armature(pool: BaseObjectPool) : BaseObject(pool), IAnimatable {
 	}
 	companion object {
 		fun _onSortSlots(a: Slot, b: Slot): Int {
-			return if (a._zIndex * 1000 + a._zOrder > b._zIndex * 1000 + b._zOrder) 1 else -1
+			// @TODO: Circumvents kotlin-native bug
+			val aa = a._zIndex * 1000 + a._zOrder
+			val bb = b._zIndex * 1000 + b._zOrder
+			return aa.compareTo(bb)
+			//return if (a._zIndex * 1000 + a._zOrder > b._zIndex * 1000 + b._zOrder) 1 else -1
+
 		}
 	}
 	/**
@@ -324,7 +329,11 @@ class Armature(pool: BaseObjectPool) : BaseObject(pool), IAnimatable {
 		this._animation?.advanceTime(passedTime)
 		// Sort slots.
 		if (this._slotsDirty || this._zIndexDirty) {
+			println("+++++++++++")
+			println(this._slots.map { a -> a._zIndex * 1000 + a._zOrder })
+			println("***********")
 			this._slots.sortWith(Comparator(Armature.Companion::_onSortSlots))
+			println("-----------")
 
 			if (this._zIndexDirty) {
 				for (i in 0 until this._slots.lengthSet) {
@@ -915,4 +924,11 @@ class Armature(pool: BaseObjectPool) : BaseObject(pool), IAnimatable {
 	//fun getDisplay(): Any {
 	//	return this._display
 	//}
+}
+
+fun main(args: Array<String>) {
+	val items = arrayListOf(100000, 190001, 200002, 200003, 200004, 210005, 220006, 250007, 300008, 310009, 360010, 365011, 380012, 390013, 390014, 399015, 400016, 400017, 400018, 400019, 400020, 400021, 400022, 400023, 400024, 400025, 400026, 450027, 450028, 480029, 480030, 500031, 500032, 500033, 500034, 500035, 500036, 500037, 500038, 500039, 500040, 500041, 500042, 500043, 500044, 500045, 500046, 500047, 500048, 500049, 500050, 500051, 500052, 500053, 505054, 510055, 510056, 510057, 510058, 510059, 510060, 510061, 510062, 510063, 410064, 410065, 511066, 511067, 520068, 520069, 420070, 520071, 530072, 530073, 530074, 430075, 430076, 530077, 540078, 540079, 540080, 540081, 540082, 540083, 540084, 490085, 540086, 540087, 542088, 544089, 546090, 550091, 550092, 550093, 550094, 590095, 590096, 595097, 600098, 600099, 600100, 600101, 600102, 600103, 600104, 550105, 600106, 600107, 600108, 600109, 600110, 610111, 610112, 610113, 620114, 620115, 620116, 620117, 620118, 620119, 640120, 640121, 645122, 645123, 645124, 645125, 645126, 645127, 650128, 700129, 700130)
+	println(items)
+	items.sortWith(Comparator { a ,b -> if (a > b) 1 else -1 })
+	println(items)
 }
