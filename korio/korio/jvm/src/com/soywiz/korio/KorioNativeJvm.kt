@@ -1,6 +1,7 @@
 package com.soywiz.korio
 
 import com.soywiz.korio.async.*
+import com.soywiz.korio.compression.deflate.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.file.std.*
 import com.soywiz.korio.net.*
@@ -14,6 +15,7 @@ import java.lang.*
 import java.nio.*
 import java.security.*
 import java.util.*
+import java.util.zip.*
 import javax.crypto.*
 import javax.crypto.spec.*
 import kotlin.coroutines.experimental.*
@@ -113,6 +115,9 @@ actual object KorioNative {
 	actual val asyncSocketFactory: AsyncSocketFactory by lazy { JvmAsyncSocketFactory() }
 	actual val websockets: WebSocketClientFactory by lazy { JvmWebSocketClientFactory() }
 	actual val File_separatorChar: Char by lazy { File.separatorChar }
+
+	actual fun uncompress(input: ByteArray, outputHint: Int, method: String): ByteArray =
+		FastDeflate.uncompress(input, outputHint, method)
 
 	private val absoluteCwd = File(".").absolutePath
 

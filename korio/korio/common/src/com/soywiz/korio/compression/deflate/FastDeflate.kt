@@ -6,6 +6,14 @@ import com.soywiz.korio.error.*
 import com.soywiz.korio.stream.*
 
 object FastDeflate {
+	fun uncompress(input: ByteArray, outputHint: Int, method: String): ByteArray {
+		return when (method) {
+			"zlib" -> zlibUncompress(input, 0, expectedOutSize = outputHint)
+			"deflate" -> uncompress(15, BitReader(input), expectedOutSize = outputHint).toByteArray()
+			else -> error("Unsupported compression method $method")
+		}
+	}
+
 	// https://www.ietf.org/rfc/rfc1951.txt
 	private val FIXED_TREE: HuffmanTree = HuffmanTree().fromLengths(IntArray(288).apply {
 		for (n in 0..143) this[n] = 8
@@ -50,7 +58,7 @@ object FastDeflate {
 			dictid = s.u32be()
 			TODO("Unsupported custom dictionaries (Provided DICTID=$dictid)")
 		}
-		val out = uncompress(windowBits, s, ByteArrayBuilder.Small(expectedOutSize)).toByteArray()
+		val out = uncompress(windowBits, s, expectedOutSize = expectedOutSize).toByteArray()
 		val chash = Adler32.update(Adler32.INITIAL, out, 0, out.size)
 		s.discardBits()
 		val adler32 = s.u32be()
@@ -64,7 +72,8 @@ object FastDeflate {
 	fun uncompress(
 		windowBits: Int,
 		reader: BitReader,
-		out: ByteArrayBuilder.Small = ByteArrayBuilder.Small()
+		expectedOutSize: Int = 64,
+		out: ByteArrayBuilder.Small = ByteArrayBuilder.Small(expectedOutSize)
 	): ByteArrayBuilder.Small = out.apply {
 		val temp = TempState()
 		val dynTree = HuffmanTree()

@@ -2,6 +2,7 @@ package com.soywiz.korio
 
 import com.soywiz.kds.*
 import com.soywiz.korio.async.*
+import com.soywiz.korio.compression.deflate.*
 import com.soywiz.korio.crypto.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.file.*
@@ -131,6 +132,7 @@ actual object KorioNative {
 		}
 	}
 
+	actual fun uncompress(input: ByteArray, outputHint: Int, method: String): ByteArray = FastDeflate.uncompress(input, outputHint, method)
 
 	actual val File_separatorChar: Char = '/'
 

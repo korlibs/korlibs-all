@@ -92,6 +92,10 @@ actual object KorioNative {
 
 	actual val File_separatorChar: Char get() = '/'
 
+	actual fun uncompress(input: ByteArray, outputHint: Int, method: String): ByteArray =
+		//com.soywiz.korio.compression.deflate.FastDeflate.uncompress(input, outputHint, method)
+		zlibInflate(input, outputHint)
+
 	actual val asyncSocketFactory: AsyncSocketFactory get() = NativeAsyncSocketFactory
 	actual val websockets: WebSocketClientFactory get() = NativeWebSocketClientFactory
 	actual val systemLanguageStrings: List<String> get() = listOf("english")

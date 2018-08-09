@@ -3,6 +3,7 @@ package com.soywiz.korim.format
 import com.soywiz.kmem.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
+import com.soywiz.korio.*
 import com.soywiz.korio.compression.*
 import com.soywiz.korio.compression.deflate.*
 import com.soywiz.korio.crypto.*
@@ -241,7 +242,7 @@ object PNG : ImageFormat("png") {
 
 		//val databb = ByteArrayBuffer((1 + width) * height * header.bytes)
 
-		val databb = FastDeflate.zlibUncompress(pngdata.toByteArray(), expectedOutSize = (1 + width) * height * header.bytes)
+		val databb = KorioNative.uncompress(pngdata.toByteArray(), (1 + width) * height * header.bytes, "zlib")
 		//method.syncUncompress(pngdata.toByteArray().openSync(), MemorySyncStreamBase(databb).toSyncStream(0L))
 		var databbp = 0
 
