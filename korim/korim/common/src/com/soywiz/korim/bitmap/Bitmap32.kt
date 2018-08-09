@@ -216,6 +216,17 @@ class Bitmap32(
 	}
 
 	companion object {
+		operator fun invoke(width: Int, height: Int, premult: Boolean = false, generator: (x: Int, y: Int) -> Int): Bitmap32 {
+			val data = IntArray(width * height)
+			var n = 0
+			for (y in 0 until height) {
+				for (x in 0 until width) {
+					data[n++] = generator(x, y)
+				}
+			}
+			return Bitmap32(width, height, RgbaArray(data), premult)
+		}
+
 		fun copyRect(
 			src: Bitmap32,
 			srcX: Int,
@@ -312,22 +323,24 @@ class Bitmap32(
 	fun premultiplied(): Bitmap32 = this.clone().apply { premultiplyInplace() }
 	fun depremultiplied(): Bitmap32 = this.clone().apply { depremultiplyInplace() }
 
-	fun premultiplyInplace() {
-		if (premult) return
+	fun premultiplyInplace(): Bitmap32 {
+		if (premult) return this
 		premult = true
-		for (n in 0 until data.size) data.array[n] = RGBA.premultiplyFastInt(data.array[n])
+		val array = data.array
+		for (n in 0 until array.size) array[n] = RGBA.premultiplyFastInt(array[n])
+		return this
 	}
 
-	fun depremultiplyInplace() {
-		if (!premult) return
+	fun depremultiplyInplace(): Bitmap32 {
+		if (!premult) return this
 		premult = false
-		for (n in 0 until data.size) data.array[n] = RGBA.depremultiplyFastInt(data.array[n])
+		val array = data.array
+		for (n in 0 until array.size) array[n] = RGBA.depremultiplyFastInt(array[n])
 		//for (n in 0 until data.size) data[n] = RGBA.depremultiplyAccurate(data[n])
+		return this
 	}
 
-	fun applyTransform(ct: ColorTransform): Bitmap32 {
-		return clone().apply { applyTransformInline(ct) }
-	}
+	fun applyTransform(ct: ColorTransform): Bitmap32 = clone().apply { applyTransformInline(ct) }
 
 	fun applyTransformInline(ct: ColorTransform) {
 		val R = IntArray(256) { ((it * ct.mR) + ct.aR).toInt().clamp(0x00, 0xFF) }
@@ -455,3 +468,14 @@ class Bitmap32(
 	}
 }
 
+fun Bitmap32Int(width: Int, height: Int, premult: Boolean = false, generator: (x: Int, y: Int) -> Int): Bitmap32 {
+	val out = Bitmap32(width, height, Colors.TRANSPARENT_BLACK, premult)
+	val aout = out.data.array
+	var n = 0
+	for (y in 0 until height) {
+		for (x in 0 until width) {
+			aout[n++] = generator(x, y)
+		}
+	}
+	return out
+}

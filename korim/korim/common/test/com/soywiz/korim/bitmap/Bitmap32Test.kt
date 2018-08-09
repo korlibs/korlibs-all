@@ -15,7 +15,7 @@ class Bitmap32Test {
 
 	@kotlin.test.Test
 	fun constructGen() {
-		val c = Bitmap32(1, 1) { _, _ -> Colors.BLUE }
+		val c = Bitmap32(1, 1, Colors.BLUE, premult = false)
 		assertTrue(c.all { it == Colors.BLUE })
 	}
 

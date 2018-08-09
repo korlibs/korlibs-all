@@ -95,10 +95,18 @@ abstract class Bitmap(
 
 	open fun createWithThisFormat(width: Int, height: Int): Bitmap = invalidOp("Unsupported createWithThisFormat ($this)")
 
-	fun toBMP32(): Bitmap32 = when (this) {
+	open fun toBMP32(): Bitmap32 = when (this) {
 		is Bitmap32 -> this
 		is NativeImage -> this.toBmp32()
-		else -> Bitmap32(width, height, premult = premult) { x, y -> get32(x, y) }
+		else -> Bitmap32(width, height, premult = premult).also { out ->
+			val array = out.data.array
+			var n = 0
+			for (y in 0 until height) {
+				for (x in 0 until width) {
+					array[n++] = get32Int(x, y)
+				}
+			}
+		}
 	}
 }
 

@@ -69,8 +69,7 @@ object FastDeflate {
 		val temp = TempState()
 		val dynTree = HuffmanTree()
 		val dynDist = HuffmanTree()
-		val ring = SlidingWindow(windowBits)
-		val sout = SlidingWindowWithOutput(ring, out)
+		val sout = SlidingWindowWithOutput(windowBits, out)
 		var lastBlock = false
 		while (!lastBlock) {
 			lastBlock = reader.bit()
@@ -165,7 +164,7 @@ object FastDeflate {
 			return this
 		}
 
-		fun drop(bitcount: Int) {
+		inline fun drop(bitcount: Int) {
 			peekbits -= bitcount
 			bitdata = bitdata ushr bitcount
 			bitsavailable -= bitcount
@@ -210,26 +209,49 @@ object FastDeflate {
 		}
 	}
 
-	class SlidingWindowWithOutput(val sliding: SlidingWindow, val out: ByteArrayBuilder.Small) {
+	class SlidingWindowWithOutput(nbits: Int, val out: ByteArrayBuilder.Small) : SlidingWindow(nbits) {
+		//fun getPutCopyOut(distance: Int, length: Int) {
+		//	var src = (pos - distance) and mask
+		//	var dst = (pos) and mask
+		//	for (n in 0 until length) {
+		//		val v = data[src]
+		//		data[dst] = v
+		//		out.append(v)
+		//		src = (src + 1) and mask
+		//		dst = (dst + 1) and mask
+		//	}
+		//}
 		fun getPutCopyOut(distance: Int, length: Int) {
+			out.ensure(length)
+			var src = (pos - distance) and mask
+			var dst = pos
+			val outBytes = out._bytes
+			var outPos = out._len
 			for (n in 0 until length) {
-				val v = sliding.getPut(distance)
-				out.append(v.toByte())
+				val v = data[src]
+				data[dst] = v
+				outBytes[outPos++] = v
+				out.appendUnsafe(v)
+
+				src = (src + 1) and mask
+				dst = (dst + 1) and mask
 			}
+			pos = dst
+			out._len = outPos
 		}
 
 		fun putOut(bytes: ByteArray, offset: Int, len: Int) {
 			out.append(bytes, offset, len)
-			sliding.putBytes(bytes, offset, len)
+			putBytes(bytes, offset, len)
 		}
 
 		fun putOut(byte: Byte) {
 			out.append(byte)
-			sliding.put(byte.toUnsigned())
+			put(byte.toUnsigned())
 		}
 	}
 
-	class SlidingWindow(nbits: Int) {
+	open class SlidingWindow(nbits: Int) {
 		val data = ByteArray(1 shl nbits)
 		val mask = data.size - 1
 		var pos = 0
@@ -305,9 +327,9 @@ object FastDeflate {
 		private fun allocLeaf(value: Int): Int = alloc(value, NIL, NIL)
 		private fun allocNode(left: Int, right: Int): Int = alloc(INVALID_VALUE, left, right)
 
-		private val Int.value get() = this@HuffmanTree.value[this]
-		private val Int.left get() = this@HuffmanTree.left[this]
-		private val Int.right get() = this@HuffmanTree.right[this]
+		private inline val Int.value get() = this@HuffmanTree.value[this]
+		private inline val Int.left get() = this@HuffmanTree.left[this]
+		private inline val Int.right get() = this@HuffmanTree.right[this]
 
 		private val MAX_LEN = 16
 		private val COUNTS = IntArray(MAX_LEN + 1)

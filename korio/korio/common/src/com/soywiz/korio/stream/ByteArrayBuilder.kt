@@ -66,32 +66,36 @@ class ByteArrayBuilder() {
 	// @TODO: Optimize this!
 	fun toString(charset: Charset): String = toByteArray().toString(charset)
 
-	class Small(private var bytes: ByteArray, private var len: Int = 0) {
+	class Small(var _bytes: ByteArray, var _len: Int = 0) {
 		constructor(capacity: Int = 64) : this(ByteArray(capacity))
 
-		val size: Int get() = len
+		val size: Int get() = _len
 
 		fun ensure(size: Int) {
-			if (len + size < bytes.size) return
-			bytes = bytes.copyOf(max(bytes.size + size, bytes.size * 2))
+			if (_len + size < _bytes.size) return
+			_bytes = _bytes.copyOf(max(_bytes.size + size, _bytes.size * 2))
 		}
 
 		fun append(v: Byte) {
 			ensure(1)
-			bytes[len++] = v
+			appendUnsafe(v)
+		}
+
+		inline fun appendUnsafe(v: Byte) {
+			_bytes[_len++] = v
 		}
 
 		fun append(data: ByteArray, offset: Int, size: Int) {
 			ensure(size)
-			arraycopy(data, offset, this.bytes, len, size)
-			len += size
+			arraycopy(data, offset, this._bytes, _len, size)
+			_len += size
 		}
 
 		fun clear() {
-			len = 0
+			_len = 0
 		}
 
-		fun toByteArray() = bytes.copyOf(len)
+		fun toByteArray() = _bytes.copyOf(_len)
 
 		// @TODO: Optimize this!
 		fun toString(charset: Charset): String = toByteArray().toString(charset)

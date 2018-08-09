@@ -76,7 +76,8 @@ abstract class TimelineState(pool: BaseObjectPool) : BaseObject(pool) {
 	//protected var _valueArray:  NumberArrayList? = null
 	//protected var _valueArray:  IntArrayList? = null
 	//protected var _valueArray:  DoubleArrayList? = null
-	protected var _valueArray:  NumberRawArray? = null
+	//protected var _valueArray:  NumberRawArray? = null
+	protected var _valueArray:  Float32Buffer? = null
 
 	//protected var _frameIndices:  DoubleArrayList? = null
 	protected var _frameIndices:  IntArrayList? = null
@@ -410,16 +411,16 @@ abstract class SingleValueTimelineState(pool: BaseObjectPool) :  TweenTimelineSt
 					this._valueOffset + this._frameValueOffset else valueOffset + 1
 
 				if (valueScale == 1.0) {
-					this._current = valueArray.getDouble(valueOffset)
-					this._difference = valueArray.getDouble(nextValueOffset) - this._current
+					this._current = valueArray[valueOffset].toDouble()
+					this._difference = valueArray[nextValueOffset] - this._current
 				}
 				else {
-					this._current = valueArray.getDouble(valueOffset) * valueScale
-					this._difference = valueArray.getDouble(nextValueOffset) * valueScale - this._current
+					this._current = valueArray[valueOffset].toDouble() * valueScale
+					this._difference = valueArray[nextValueOffset].toDouble() * valueScale - this._current
 				}
 			}
 			else {
-				this._result = valueArray.getDouble(valueOffset) * valueScale
+				this._result = valueArray[valueOffset].toDouble() * valueScale
 			}
 		}
 		else {
@@ -472,21 +473,21 @@ abstract class DoubleValueTimelineState(pool: BaseObjectPool) :  TweenTimelineSt
 					valueOffset + 2
 
 				if (valueScale == 1.0) {
-					this._currentA = valueArray.getDouble(valueOffset)
-					this._currentB = valueArray.getDouble(valueOffset + 1)
-					this._differenceA = valueArray.getDouble(nextValueOffset) - this._currentA
-					this._differenceB = valueArray.getDouble(nextValueOffset + 1) - this._currentB
+					this._currentA = valueArray[valueOffset].toDouble()
+					this._currentB = valueArray[valueOffset + 1].toDouble()
+					this._differenceA = valueArray[nextValueOffset] - this._currentA
+					this._differenceB = valueArray[nextValueOffset + 1] - this._currentB
 				}
 				else {
-					this._currentA = valueArray.getDouble(valueOffset) * valueScale
-					this._currentB = valueArray.getDouble(valueOffset + 1) * valueScale
-					this._differenceA = valueArray.getDouble(nextValueOffset) * valueScale - this._currentA
-					this._differenceB = valueArray.getDouble(nextValueOffset + 1) * valueScale - this._currentB
+					this._currentA = valueArray[valueOffset] * valueScale
+					this._currentB = valueArray[valueOffset + 1] * valueScale
+					this._differenceA = valueArray[nextValueOffset] * valueScale - this._currentA
+					this._differenceB = valueArray[nextValueOffset + 1] * valueScale - this._currentB
 				}
 			}
 			else {
-				this._resultA = valueArray.getDouble(valueOffset) * valueScale
-				this._resultB = valueArray.getDouble(valueOffset + 1) * valueScale
+				this._resultA = valueArray[valueOffset] * valueScale
+				this._resultB = valueArray[valueOffset + 1] * valueScale
 			}
 		}
 		else {
@@ -537,23 +538,23 @@ abstract class MutilpleValueTimelineState(pool: BaseObjectPool) :  TweenTimeline
 
 				if (valueScale == 1.0) {
 					for (i in 0 until valueCount) {
-						rd[valueCount + i] = valueArray.getDouble(nextValueOffset + i) - valueArray.getDouble(valueOffset + i)
+						rd[valueCount + i] = (valueArray[nextValueOffset + i] - valueArray[valueOffset + i]).toDouble()
 					}
 				}
 				else {
 					for (i in 0 until valueCount) {
-						rd[valueCount + i] = (valueArray.getDouble(nextValueOffset + i) - valueArray.getDouble(valueOffset + i)) * valueScale
+						rd[valueCount + i] = (valueArray[nextValueOffset + i] - valueArray[valueOffset + i]) * valueScale
 					}
 				}
 			}
 			else if (valueScale == 1.0) {
 				for (i in 0 until valueCount) {
-					rd[i] = valueArray.getDouble(valueOffset + i)
+					rd[i] = valueArray[valueOffset + i].toDouble()
 				}
 			}
 			else {
 				for (i in 0 until valueCount) {
-					rd[i] = valueArray.getDouble(valueOffset + i) * valueScale
+					rd[i] = valueArray[valueOffset + i] * valueScale
 				}
 			}
 		}
@@ -578,12 +579,12 @@ abstract class MutilpleValueTimelineState(pool: BaseObjectPool) :  TweenTimeline
 
 			if (valueScale == 1.0) {
 				for (i in 0 until valueCount) {
-					rd[i] = valueArray.getDouble(valueOffset + i) + rd[valueCount + i] * tweenProgress
+					rd[i] = valueArray[valueOffset + i] + rd[valueCount + i] * tweenProgress
 				}
 			}
 			else {
 				for (i in 0 until valueCount) {
-					rd[i] = valueArray.getDouble(valueOffset + i) * valueScale + rd[valueCount + i] * tweenProgress
+					rd[i] = valueArray[valueOffset + i] * valueScale + rd[valueCount + i] * tweenProgress
 				}
 			}
 		}
