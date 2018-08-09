@@ -327,7 +327,8 @@ class Bitmap32(
 		if (premult) return this
 		premult = true
 		val array = data.array
-		for (n in 0 until array.size) array[n] = RGBA.premultiplyFastInt(array[n])
+		//for (n in 0 until array.size) array[n] = RGBA.premultiplyFastInt(array[n])
+		for (n in 0 until array.size) array[n] = RGBA.premultiplyAccurate(array[n])
 		return this
 	}
 

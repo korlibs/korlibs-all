@@ -133,13 +133,14 @@ data class RGBA(val rgba: Int) : Comparable<RGBA> {// @TODO: SUPER Extremely slo
 		//@JvmStatic
 		fun premultiplyAccurate(v: Int): Int {
 			val a1 = getFastA(v)
-			val af = a1.toDouble() / 255.0
+			val af = a1.toFloat() / 255f
 			return packFast((getFastR(v) * af).toInt(), (getFastG(v) * af).toInt(), (getFastB(v) * af).toInt(), a1)
 		}
 
 		//@JvmStatic
 		fun premultiplyFast(v: RGBA): RGBA = RGBA(premultiplyFastInt(v.rgba))
 
+		// @TODO: kotlin-native in release make colors yellowish (a bug in LLVM optimizer?)
 		fun premultiplyFastInt(v: Int): Int {
 			val A = getFastA(v) + 1
 			val RB = (((v and 0x00FF00FF) * A) ushr 8) and 0x00FF00FF
