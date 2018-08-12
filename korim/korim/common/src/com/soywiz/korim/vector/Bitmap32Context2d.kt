@@ -82,7 +82,7 @@ class Bitmap32Context2d(val bmp: Bitmap32, val antialiasing: Boolean) : Context2
 		//println("a=$a,b=$b :: h=$h,slope=$slope, coplanaer=")
 		//}
 
-		fun containsY(y: Int): Boolean = y in (a.y..b.y)
+		fun containsY(y: Int): Boolean = y >= a.y && y < b.y
 		fun intersectX(y: Int): Double = if (isCoplanarY) a.x else ((y - h) / slope)
 	}
 

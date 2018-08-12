@@ -32,8 +32,8 @@ open class TileMap(val map: IntArray2, val tileset: TileSet) : View() {
 		val dU = m.transform(tileWidth, 0.0) - pos
 		val dV = m.transform(0.0, tileHeight) - pos
 
-		val colMul = globalColorMul
-		val colAdd = globalColorAdd
+		val colMulInt = renderColorMulInt
+		val colAdd = renderColorAdd
 
 
 		// @TODO: Bounds in clipped view
@@ -72,10 +72,10 @@ open class TileMap(val map: IntArray2, val tileset: TileSet) : View() {
 					val p2 = p0 + dU + dV
 					val p3 = p0 + dV
 
-					info.vertices.select(info.vcount++).xy(p0.x, p0.y).uv(tex.tl_x, tex.tl_y).cols(colMul, colAdd)
-					info.vertices.select(info.vcount++).xy(p1.x, p1.y).uv(tex.tr_x, tex.tr_y).cols(colMul, colAdd)
-					info.vertices.select(info.vcount++).xy(p2.x, p2.y).uv(tex.br_x, tex.br_y).cols(colMul, colAdd)
-					info.vertices.select(info.vcount++).xy(p3.x, p3.y).uv(tex.bl_x, tex.bl_y).cols(colMul, colAdd)
+					info.vertices.select(info.vcount++).xy(p0.x, p0.y).uv(tex.tl_x, tex.tl_y).cols(colMulInt, colAdd)
+					info.vertices.select(info.vcount++).xy(p1.x, p1.y).uv(tex.tr_x, tex.tr_y).cols(colMulInt, colAdd)
+					info.vertices.select(info.vcount++).xy(p2.x, p2.y).uv(tex.br_x, tex.br_y).cols(colMulInt, colAdd)
+					info.vertices.select(info.vcount++).xy(p3.x, p3.y).uv(tex.bl_x, tex.bl_y).cols(colMulInt, colAdd)
 				}
 
 				info.icount += 6
@@ -107,7 +107,7 @@ open class TileMap(val map: IntArray2, val tileset: TileSet) : View() {
 
 		for ((tex, buffer) in verticesPerTex) {
 			ctx.batch.drawVertices(
-				buffer.vertices, ctx.getTex(tex), smoothing, computedBlendMode.factors, buffer.vcount, buffer.icount
+				buffer.vertices, ctx.getTex(tex), smoothing, renderBlendMode.factors, buffer.vcount, buffer.icount
 			)
 		}
 		ctx.flush()

@@ -49,10 +49,10 @@ class NinePatchEx(
 					x.toFloat(), y.toFloat(),
 					width.toFloat(), height.toFloat(),
 					m = m,
-					colorMul = colorMul,
-					colorAdd = colorAdd,
+					colorMulInt = renderColorMulInt,
+					colorAdd = renderColorAdd,
 					filtering = smoothing,
-					blendFactors = blendMode.factors
+					blendFactors = renderBlendMode.factors
 				)
 			}
 		}

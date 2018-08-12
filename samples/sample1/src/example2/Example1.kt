@@ -105,7 +105,9 @@ class HelloScene : Scene() {
 open class MyModule : Module() {
     override val mainScene: KClass<out Scene> = MyScene::class
     //override val quality: LightQuality = LightQuality.QUALITY
-    override val quality: LightQuality = LightQuality.PERFORMANCE
+    //override val quality: LightQuality = LightQuality.PERFORMANCE
+    //override val quality: LightQuality = LightQuality.AUTO
+    override val quality: LightQuality = LightQuality.QUALITY
 
     override suspend fun init(injector: AsyncInjector) {
         println("init[0]")
@@ -210,7 +212,9 @@ class HelloWorldScene : BaseDbScene() {
         println(armatureDisplay.animation.animationNames)
         //armatureDisplay.animation.play("jump")
         armatureDisplay.animation.play("idle")
-        this += armatureDisplay
+        //scaleView(512, 512) {
+            this += armatureDisplay
+        //}
     }
 }
 

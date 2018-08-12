@@ -112,7 +112,7 @@ class BitmapFont(
 				(dx + glyph.xoffset).toFloat(),
 				(dy + glyph.yoffset).toFloat(),
 				m = m2,
-				colorMul = colMul,
+				colorMulInt = colMul.rgba,
 				colorAdd = colAdd,
 				blendFactors = blendMode.factors,
 				filtering = filtering

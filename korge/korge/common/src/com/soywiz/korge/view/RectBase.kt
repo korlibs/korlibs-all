@@ -30,18 +30,19 @@ open class RectBase(
 	private fun computeVertexIfRequired() {
 		if (!dirtyVertices) return
 		dirtyVertices = false
-		val matrix = this.renderMatrix
+		val matrix = renderMatrix
+		val colMulInt = renderColorMulInt
+		val colAdd = renderColorAdd
 		val x = sLeft
 		val y = sTop
 		val width = bwidth
 		val height = bheight
-		val colMul = globalColorMul
-		val colAdd = globalColorAdd
 		val bmp = baseBitmap
-		vertices.select(0).xy(x, y, matrix).uv(bmp.tl_x, bmp.tl_y).cols(colMul, colAdd)
-		vertices.select(1).xy(x + width, y, matrix).uv(bmp.tr_x, bmp.tr_y).cols(colMul, colAdd)
-		vertices.select(2).xy(x + width, y + height, matrix).uv(bmp.br_x, bmp.br_y).cols(colMul, colAdd)
-		vertices.select(3).xy(x, y + height, matrix).uv(bmp.bl_x, bmp.bl_y).cols(colMul, colAdd)
+		vertices
+			.select(0).xy(x, y, matrix).uv(bmp.tl_x, bmp.tl_y).cols(colMulInt, colAdd)
+			.select(1).xy(x + width, y, matrix).uv(bmp.tr_x, bmp.tr_y).cols(colMulInt, colAdd)
+			.select(2).xy(x + width, y + height, matrix).uv(bmp.br_x, bmp.br_y).cols(colMulInt, colAdd)
+			.select(3).xy(x, y + height, matrix).uv(bmp.bl_x, bmp.bl_y).cols(colMulInt, colAdd)
 	}
 
 	override fun render(ctx: RenderContext) {
@@ -50,7 +51,7 @@ open class RectBase(
 		if (baseBitmap !== Bitmaps.transparent) {
 			computeVertexIfRequired()
 			//println("$name: ${vertices.str(0)}, ${vertices.str(1)}, ${vertices.str(2)}, ${vertices.str(3)}")
-			ctx.batch.drawVertices(vertices, ctx.getTex(baseBitmap).base, smoothing, computedBlendMode.factors)
+			ctx.batch.drawVertices(vertices, ctx.getTex(baseBitmap).base, smoothing, renderBlendMode.factors)
 		}
 	}
 

@@ -86,8 +86,8 @@ class Text : View(), IText, IHtml {
 
 	override fun render(ctx: RenderContext) {
 		if (!visible) return
-		val colorMul = globalColorMul
-		val colorAdd = globalColorAdd
+		val colorMul = renderColorMul
+		val colorAdd = renderColorAdd
 		val m = renderMatrix
 		if (document != null) {
 			for (span in document!!.allSpans) {
@@ -99,7 +99,7 @@ class Text : View(), IText, IHtml {
 					m,
 					colMul = RGBA.multiply(colorMul, format.computedColor),
 					colAdd = colorAdd,
-					blendMode = computedBlendMode,
+					blendMode = renderBlendMode,
 					filtering = filtering
 				)
 			}
@@ -123,9 +123,9 @@ class Text : View(), IText, IHtml {
 					height = textBounds.height.toFloat(),
 					m = m,
 					filtering = false,
-					colorMul = RGBA.multiply(bgcolor, globalColorMul),
+					colorMulInt = RGBA.multiplyInt(bgcolor.rgba, renderColorMulInt),
 					colorAdd = colorAdd,
-					blendFactors = computedBlendMode.factors
+					blendFactors = renderBlendMode.factors
 				)
 			}
 
@@ -135,7 +135,7 @@ class Text : View(), IText, IHtml {
 				m,
 				colMul = RGBA.multiply(colorMul, format.computedColor),
 				colAdd = colorAdd,
-				blendMode = computedBlendMode,
+				blendMode = renderBlendMode,
 				filtering = filtering
 			)
 		}

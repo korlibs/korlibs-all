@@ -93,12 +93,12 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 	init { logger.trace { "BatchBuilder2D[11]" } }
 
 	// @TODO: copy data from TexturedVertexArray
-	private fun addVertex(x: Float, y: Float, u: Float, v: Float, colorMul: RGBA, colorAdd: Int) {
+	private fun addVertex(x: Float, y: Float, u: Float, v: Float, colorMulInt: Int, colorAdd: Int) {
 		vertices.setAlignedFloat32(vertexPos++, x)
 		vertices.setAlignedFloat32(vertexPos++, y)
 		vertices.setAlignedFloat32(vertexPos++, u)
 		vertices.setAlignedFloat32(vertexPos++, v)
-		vertices.setAlignedInt32(vertexPos++, colorMul.rgba)
+		vertices.setAlignedInt32(vertexPos++, colorMulInt)
 		vertices.setAlignedInt32(vertexPos++, colorAdd)
 		vertexCount++
 	}
@@ -129,7 +129,7 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 		x3: Float,
 		y3: Float,
 		tex: Texture,
-		colorMul: RGBA,
+		colorMulInt: Int,
 		colorAdd: Int,
 		rotated: Boolean = false
 	) {
@@ -145,15 +145,15 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 
 		if (rotated) {
 			// @TODO:
-			addVertex(x0, y0, tex.x0, tex.y0, colorMul, colorAdd)
-			addVertex(x1, y1, tex.x1, tex.y0, colorMul, colorAdd)
-			addVertex(x2, y2, tex.x1, tex.y1, colorMul, colorAdd)
-			addVertex(x3, y3, tex.x0, tex.y1, colorMul, colorAdd)
+			addVertex(x0, y0, tex.x0, tex.y0, colorMulInt, colorAdd)
+			addVertex(x1, y1, tex.x1, tex.y0, colorMulInt, colorAdd)
+			addVertex(x2, y2, tex.x1, tex.y1, colorMulInt, colorAdd)
+			addVertex(x3, y3, tex.x0, tex.y1, colorMulInt, colorAdd)
 		} else {
-			addVertex(x0, y0, tex.x0, tex.y0, colorMul, colorAdd)
-			addVertex(x1, y1, tex.x1, tex.y0, colorMul, colorAdd)
-			addVertex(x2, y2, tex.x1, tex.y1, colorMul, colorAdd)
-			addVertex(x3, y3, tex.x0, tex.y1, colorMul, colorAdd)
+			addVertex(x0, y0, tex.x0, tex.y0, colorMulInt, colorAdd)
+			addVertex(x1, y1, tex.x1, tex.y0, colorMulInt, colorAdd)
+			addVertex(x2, y2, tex.x1, tex.y1, colorMulInt, colorAdd)
+			addVertex(x3, y3, tex.x0, tex.y1, colorMulInt, colorAdd)
 		}
 	}
 
@@ -202,7 +202,7 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 		texCuts: Array<MPoint2d>,
 		m: Matrix2d = identity,
 		filtering: Boolean = true,
-		colorMul: RGBA = Colors.WHITE,
+		colorMulInt: Int = Colors.WHITE.rgba,
 		colorAdd: Int = 0x7f7f7f7f,
 		blendFactors: AG.Blending = BlendMode.NORMAL.factors
 	) {
@@ -243,7 +243,7 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 					)
 				)
 
-				addVertex(p.x.toFloat(), p.y.toFloat(), t.x.toFloat(), t.y.toFloat(), colorMul, colorAdd)
+				addVertex(p.x.toFloat(), p.y.toFloat(), t.x.toFloat(), t.y.toFloat(), colorMulInt, colorAdd)
 			}
 		}
 
@@ -276,7 +276,7 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 		height: Float = tex.height.toFloat(),
 		m: Matrix2d = identity,
 		filtering: Boolean = true,
-		colorMul: RGBA = Colors.WHITE,
+		colorMulInt: Int = Colors.WHITE.rgba,
 		colorAdd: Int = 0x7f7f7f7f,
 		blendFactors: AG.Blending = BlendMode.NORMAL.factors,
 		rotated: Boolean = false
@@ -293,7 +293,7 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 			m.transformXf(x1, y0), m.transformYf(x1, y0),
 			m.transformXf(x1, y1), m.transformYf(x1, y1),
 			m.transformXf(x0, y1), m.transformYf(x0, y1),
-			tex, colorMul, colorAdd, rotated
+			tex, colorMulInt, colorAdd, rotated
 		)
 	}
 
@@ -446,12 +446,12 @@ class TexturedVertexArray(val vcount: Int, val indices: IntArray) {
 	fun setY(v: Float) = this.apply { f32[offset + 1] = v }
 	fun setU(v: Float) = this.apply { f32[offset + 2] = v }
 	fun setV(v: Float) = this.apply { f32[offset + 3] = v }
-	fun setCMul(v: RGBA) = this.apply { i32[offset + 4] = v.rgba }
+	fun setCMulInt(v: Int) = this.apply { i32[offset + 4] = v }
 	fun setCAdd(v: Int) = this.apply { i32[offset + 5] = v }
 	fun xy(x: Double, y: Double, matrix: Matrix2d) = setX(matrix.transformX(x, y).toFloat()).setY(matrix.transformY(x, y).toFloat())
 	fun xy(x: Double, y: Double) = setX(x.toFloat()).setY(y.toFloat())
 	fun uv(tx: Float, ty: Float) = setU(tx).setV(ty)
-	fun cols(colMul: RGBA, colAdd: Int) = setCMul(colMul).setCAdd(colAdd)
+	fun cols(colMulInt: Int, colAdd: Int) = setCMulInt(colMulInt).setCAdd(colAdd)
 
 	val x: Float get() = f32[offset + 0]
 	val y: Float get() = f32[offset + 1]

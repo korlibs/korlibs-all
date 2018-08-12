@@ -100,8 +100,8 @@ class SpriterView(
 	override fun render(ctx: RenderContext) {
 		if (!visible) return
 		val batch = ctx.batch
-		val colorMul = globalColorMul
-		val colorAdd = globalColorAdd
+		val colorMulInt = renderColorMulInt
+		val colorAdd = renderColorAdd
 		for (obj in player.objectIterator()) {
 			val file = library.data.getFile(obj.ref)
 			val ttex = library.atlas[file.name] ?: transformedDummyTexture
@@ -134,7 +134,7 @@ class SpriterView(
 				tex.width.toFloat(),
 				tex.height.toFloat(),
 				t2,
-				colorMul = colorMul,
+				colorMulInt = colorMulInt,
 				colorAdd = colorAdd,
 				rotated = false
 			)

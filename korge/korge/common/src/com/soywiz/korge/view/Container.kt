@@ -63,11 +63,9 @@ open class Container : View() {
 	fun addChild(view: View) = this.plusAssign(view)
 
 	override fun invalidate() {
-		dirtyVertices = true
-		validGlobal = false
+		super.invalidate()
 		for (child in children) {
-			if (!child.validGlobal) continue
-			child.validGlobal = false
+			if (!child._requireInvalidate) continue
 			child.invalidate()
 		}
 	}

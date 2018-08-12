@@ -322,11 +322,13 @@ data class RGBA(val rgba: Int) : Comparable<RGBA> {// @TODO: SUPER Extremely slo
 		)
 
 		//@JvmStatic
-		fun multiply(c1: RGBA, c2: RGBA): RGBA = RGBA(
-			clamp0_FF((c1.r * c2.r) / 0xFF),
-			clamp0_FF((c1.g * c2.g) / 0xFF),
-			clamp0_FF((c1.b * c2.b) / 0xFF),
-			clamp0_FF((c1.a * c2.a) / 0xFF)
+		fun multiply(c1: RGBA, c2: RGBA): RGBA = RGBA(multiplyInt(c1.rgba, c2.rgba))
+
+		fun multiplyInt(c1: Int, c2: Int): Int = RGBAInt(
+			clamp0_FF((RGBA.getR(c1) * RGBA.getR(c2)) / 0xFF),
+			clamp0_FF((RGBA.getG(c1) * RGBA.getG(c2)) / 0xFF),
+			clamp0_FF((RGBA.getB(c1) * RGBA.getB(c2)) / 0xFF),
+			clamp0_FF((RGBA.getA(c1) * RGBA.getA(c2)) / 0xFF)
 		)
 
 		//@JvmStatic

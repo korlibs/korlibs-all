@@ -47,7 +47,7 @@ actual class Int8Buffer(val mbuffer: MemBuffer, val jbuffer: ByteBuffer)
 
 actual val Int8Buffer.mem: MemBuffer get() = mbuffer
 actual val Int8Buffer.offset: Int get() = jbuffer.position()
-actual val Int8Buffer.size: Int get() = jbuffer.limit()
+actual val Int8Buffer.size: Int get() = jbuffer.limit() - offset
 actual operator fun Int8Buffer.get(index: Int): Byte = jbuffer.get(offset + index)
 actual operator fun Int8Buffer.set(index: Int, value: Byte): Unit = run { jbuffer.put(offset + index, value) }
 
@@ -55,7 +55,7 @@ actual class Int16Buffer(val mbuffer: MemBuffer, val jbuffer: ShortBuffer)
 
 actual val Int16Buffer.mem: MemBuffer get() = mbuffer
 actual val Int16Buffer.offset: Int get() = jbuffer.position()
-actual val Int16Buffer.size: Int get() = jbuffer.limit()
+actual val Int16Buffer.size: Int get() = jbuffer.limit() - offset
 actual operator fun Int16Buffer.get(index: Int): Short = jbuffer.get(offset + index)
 actual operator fun Int16Buffer.set(index: Int, value: Short): Unit = run { jbuffer.put(offset + index, value) }
 
@@ -63,7 +63,7 @@ actual class Int32Buffer(val mbuffer: MemBuffer, val jbuffer: IntBuffer)
 
 actual val Int32Buffer.mem: MemBuffer get() = mbuffer
 actual val Int32Buffer.offset: Int get() = jbuffer.position()
-actual val Int32Buffer.size: Int get() = jbuffer.limit()
+actual val Int32Buffer.size: Int get() = jbuffer.limit() - offset
 actual operator fun Int32Buffer.get(index: Int): Int = jbuffer.get(offset + index)
 actual operator fun Int32Buffer.set(index: Int, value: Int): Unit = run { jbuffer.put(offset + index, value) }
 
@@ -71,7 +71,7 @@ actual class Float32Buffer(val mbuffer: MemBuffer, val jbuffer: FloatBuffer)
 
 actual val Float32Buffer.mem: MemBuffer get() = mbuffer
 actual val Float32Buffer.offset: Int get() = jbuffer.position()
-actual val Float32Buffer.size: Int get() = jbuffer.limit()
+actual val Float32Buffer.size: Int get() = jbuffer.limit() - offset
 actual operator fun Float32Buffer.get(index: Int): Float = jbuffer.get(offset + index)
 actual operator fun Float32Buffer.set(index: Int, value: Float): Unit = run { jbuffer.put(offset + index, value) }
 
@@ -79,7 +79,7 @@ actual class Float64Buffer(val mbuffer: MemBuffer, val jbuffer: DoubleBuffer)
 
 actual val Float64Buffer.mem: MemBuffer get() = mbuffer
 actual val Float64Buffer.offset: Int get() = jbuffer.position()
-actual val Float64Buffer.size: Int get() = jbuffer.limit()
+actual val Float64Buffer.size: Int get() = jbuffer.limit() - offset
 actual operator fun Float64Buffer.get(index: Int): Double = jbuffer.get(offset + index)
 actual operator fun Float64Buffer.set(index: Int, value: Double): Unit = run { jbuffer.put(offset + index, value) }
 

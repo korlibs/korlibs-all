@@ -87,7 +87,7 @@ class RenderContext2D(val batch: BatchBuilder2D) : Extra by Extra.Mixin() {
 			(texture.width * scale).toFloat(),
 			(texture.height * scale).toFloat(),
 			m = m,
-			colorMul = multiplyColor,
+			colorMulInt = multiplyColor.rgba,
 			blendFactors = blendFactors
 		)
 	}

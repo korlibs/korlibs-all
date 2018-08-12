@@ -20,12 +20,21 @@ open class Mesh(
 	var pivotX: Double = 0.0
 	var pivotY: Double = 0.0
 
-	override fun render(ctx: RenderContext) {
+	fun updatedVertices() {
+		dirtyVertices = true
+	}
+
+	private var tva = TexturedVertexArray(0, intArrayOf())
+
+	private fun recomputeVerticesIfRequired() {
+		if (!dirtyVertices) return
+		dirtyVertices = false
+
 		// @TODO: Render in one batch without matrix multiplication in CPU
 		val m = renderMatrix
-		val cmul = this.colorMul
-		val cadd = this.colorAdd
-		val tva = TexturedVertexArray(vertices.size / 2, IntArray(indices.size))
+		val cmul = this.renderColorMulInt
+		val cadd = this.renderColorAdd
+		tva = TexturedVertexArray(vertices.size / 2, IntArray(indices.size))
 		for (n in 0 until tva.indices.size) tva.indices[n] = indices[n]
 		for (n in 0 until tva.vcount) {
 			val x = vertices[n * 2 + 0].toDouble() + pivotX
@@ -35,7 +44,11 @@ open class Mesh(
 				.uv(uvs[n * 2 + 0], uvs[n * 2 + 1])
 				.cols(cmul, cadd)
 		}
-		ctx.batch.drawVertices(tva, ctx.getTex(textureNN).base, true, this.blendMode.factors)
+	}
+
+	override fun render(ctx: RenderContext) {
+		recomputeVerticesIfRequired()
+		ctx.batch.drawVertices(tva, ctx.getTex(textureNN).base, true, renderBlendMode.factors)
 	}
 }
 

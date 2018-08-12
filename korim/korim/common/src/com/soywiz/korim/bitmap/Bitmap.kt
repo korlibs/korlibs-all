@@ -14,6 +14,8 @@ abstract class Bitmap(
 	var premult: Boolean,
 	val backingArray: Any?
 ) : Sizeable, Extra by Extra.Mixin() {
+	var texture: Any? = null
+
 	val stride: Int get() = (width * bpp) / 8
 	val area: Int get() = width * height
 	fun index(x: Int, y: Int) = y * width + x

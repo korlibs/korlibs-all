@@ -76,9 +76,9 @@ abstract class AnBaseShape(final override val library: AnLibrary, final override
 				texCuts = texCuts,
 				m = renderMatrix,
 				filtering = smoothing,
-				colorMul = globalColorMul,
-				colorAdd = globalColorAdd,
-				blendFactors = computedBlendMode.factors
+				colorMulInt = renderColorMulInt,
+				colorAdd = renderColorAdd,
+				blendFactors = renderBlendMode.factors
 			)
 		} else {
 			ctx.batch.drawQuad(
@@ -89,9 +89,9 @@ abstract class AnBaseShape(final override val library: AnLibrary, final override
 				height = texHeight,
 				m = renderMatrix,
 				filtering = smoothing,
-				colorMul = globalColorMul,
-				colorAdd = globalColorAdd,
-				blendFactors = computedBlendMode.factors
+				colorMulInt = renderColorMulInt,
+				colorAdd = renderColorAdd,
+				blendFactors = renderBlendMode.factors
 			)
 		}
 	}

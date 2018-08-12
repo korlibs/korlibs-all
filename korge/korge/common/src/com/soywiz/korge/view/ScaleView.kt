@@ -18,17 +18,12 @@ class ScaleView(width: Int, height: Int, scale: Double = 2.0, var filtering: Boo
 
 	//val once = Once()
 
-	private fun super_render(ctx: RenderContext) {
-		super.render(ctx);
-	}
-
 	override fun render(ctx: RenderContext) {
 		val iwidth = width.toInt()
 		val iheight = height.toInt()
 
 		ctx.renderToTexture(iwidth, iheight, renderToTexture = {
-			//super.render(ctx, Matrix2d()) // @TODO: Bug with JTransc 0.6.6
-			super_render(ctx)
+			super.render(ctx)
 		}, use = { renderTexture ->
 			ctx.batch.drawQuad(
 				tex = renderTexture,
@@ -36,9 +31,10 @@ class ScaleView(width: Int, height: Int, scale: Double = 2.0, var filtering: Boo
 				width = iwidth.toFloat(),
 				height = iheight.toFloat(),
 				m = renderMatrix,
-				colorMul = colorMul,
-				colorAdd = colorAdd,
-				filtering = filtering
+				colorMulInt = renderColorMulInt,
+				colorAdd = renderColorAdd,
+				filtering = filtering,
+				blendFactors = renderBlendMode.factors
 			)
 			ctx.flush()
 		})

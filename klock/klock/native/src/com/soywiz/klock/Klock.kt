@@ -21,10 +21,9 @@ actual object Klock {
 	}
 
 	/*
-	actual fun currentTimeMillis(): Long = kotlin.system.getTimeMillis()
-
 	private val microStart = kotlin.system.getTimeMicros()
 
+	actual fun currentTimeMillis(): Long = kotlin.system.getTimeMillis()
 	actual fun microClock(): Double = (kotlin.system.getTimeMicros() - microStart).toDouble()
 	*/
 
