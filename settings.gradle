@@ -2,12 +2,8 @@ rootProject.name = 'korlibs-all'
 
 enableFeaturePreview('GRADLE_METADATA')
 
-// (Do not run K/N in CI/Travis since KGL is not implemented in linux)
 def nativeEnabled() {
-	def insideCI = System.getenv("CI") == "true"
-	def requestKNBuild = System.getenv("build_kotlin_native") == "true"
-	//return System.getenv("CI") != "true"
-	return !insideCI && requestKNBuild
+	return System.getenv("build_kotlin_native") == "true"
 }
 
 def registerVersion(artifactName, path) {
