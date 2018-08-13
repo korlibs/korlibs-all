@@ -322,15 +322,13 @@ allprojects {
 					File file = (k2jsOutputFile instanceof File) ? k2jsOutputFile : new File("$k2jsOutputFile")
 					if (file.exists()) {
 						File fileOut = new File(file.absolutePath + ".fix.js")
-						def timeout = 10000
+						def timeout = 20000
 						fileOut.text = file.text.replaceAll(/(?m)(?s)test\('(.*?)', (false|true), function \(\) \{\s*(.*?);\s*\}\);/) { c ->
 							String name = c[1]
 							String disabled = c[2]
 							String body = c[3]
 							def rbody = body.startsWith("return") ? body.substring(6) : body
-							//return 'test("' + name + '", ' + disabled + ', function() { this.timeout(' + timeout + '); global.testPromise = null; var res = (' + rbody + ') || (global.testPromise); return (res instanceof Promise) ? res : undefined; });'
-							//return 'test("' + name + '", ' + disabled + ', function() { this.timeout(' + timeout + '); return (' + rbody + '); });'
-							return 'test("' + name + '", ' + disabled + ', function() { return (' + rbody + '); });'
+							return 'test("' + name + '", ' + disabled + ', function() { this.timeout(' + timeout + '); return (' + rbody + '); });'
 						}
 					}
 				}
