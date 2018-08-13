@@ -4,10 +4,11 @@ language: java
 jdk:
   - oraclejdk8
 
-#matrix:
-#  include:
-#  - env: build_kotlin_native=true
-#  - env: build_kotlin_native=false
+matrix:
+  include:
+  - os: linux
+  - os: osx
+    env: build_kotlin_native=true
 
 install:
   - nvm install 8
