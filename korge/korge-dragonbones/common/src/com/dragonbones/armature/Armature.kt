@@ -332,7 +332,7 @@ class Armature(pool: BaseObjectPool) : BaseObject(pool), IAnimatable {
 			this._slots.sortWith(Comparator(Armature.Companion::_onSortSlots))
 
 			if (this._zIndexDirty) {
-				for (i in 0 until this._slots.lengthSet) {
+				for (i in 0 until this._slots.size) {
 					this._slots[i]._setZOrder(i) //
 				}
 			}
@@ -345,12 +345,12 @@ class Armature(pool: BaseObjectPool) : BaseObject(pool), IAnimatable {
 			this._alphaDirty = false
 			this._globalAlpha = this._alpha * (this._parent?._globalAlpha ?: 1.0)
 
-			for (bone in this._bones) {
-				bone._updateAlpha()
+			for (n in 0 until _bones.size) {
+				_bones[n]._updateAlpha()
 			}
 
-			for (slot in this._slots) {
-				slot._updateAlpha()
+			for (n in 0 until _slots.size) {
+				_slots[n]._updateAlpha()
 			}
 		}
 		// Update bones and slots.
@@ -369,24 +369,23 @@ class Armature(pool: BaseObjectPool) : BaseObject(pool), IAnimatable {
 				val actionData = action.actionData
 				if (actionData != null) {
 					if (actionData.type == ActionType.Play) {
-						if (action.slot != null) {
-							val childArmature = action.slot?.childArmature
-							if (childArmature != null) {
-								childArmature.animation.fadeIn(actionData.name)
+						when {
+							action.slot != null -> {
+								val childArmature = action.slot?.childArmature
+								childArmature?.animation?.fadeIn(actionData.name)
 							}
-						}
-						else if (action.bone != null) {
-							for (slot in this.getSlots()) {
-								if (slot.parent == action.bone) {
-									val childArmature = slot.childArmature
-									if (childArmature != null) {
-										childArmature.animation.fadeIn(actionData.name)
+							action.bone != null -> {
+								for (n in 0 until this._slots.size) {
+									val slot = this._slots[n]
+									if (slot.parent == action.bone) {
+										val childArmature = slot.childArmature
+										childArmature?.animation?.fadeIn(actionData.name)
 									}
 								}
 							}
-						}
-						else {
-							this._animation?.fadeIn(actionData.name)
+							else -> {
+								this._animation?.fadeIn(actionData.name)
+							}
 						}
 					}
 				}

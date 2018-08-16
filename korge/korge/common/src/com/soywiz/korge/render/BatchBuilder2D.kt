@@ -157,10 +157,10 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 		}
 	}
 
-	fun drawVertices(array: TexturedVertexArray, vcount: Int = array.vcount, icount: Int = array.indices.size) {
+	fun drawVertices(array: TexturedVertexArray, vcount: Int = array.vcount, icount: Int = array.isize) {
 		ensure(icount, vcount)
 
-		for (idx in 0 until min(icount, array.indices.size)) addIndex(vertexCount + array.indices[idx])
+		for (idx in 0 until min(icount, array.isize)) addIndex(vertexCount + array.indices[idx])
 		//for (p in array.points) addVertex(p.x, p.y, p.tx, p.ty, p.colMul, p.colAdd)
 
 		KmlNativeBuffer.copy(array._data, 0, vertices, vertexPos * 4, vcount * 6 * 4)
@@ -169,7 +169,7 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 		vertexPos += vcount * 6
 	}
 
-	fun drawVertices(array: TexturedVertexArray, tex: Texture.Base, smoothing: Boolean, blendFactors: AG.Blending, vcount: Int = array.vcount, icount: Int = array.indices.size) {
+	fun drawVertices(array: TexturedVertexArray, tex: Texture.Base, smoothing: Boolean, blendFactors: AG.Blending, vcount: Int = array.vcount, icount: Int = array.isize) {
 		setStateFast(tex, smoothing, blendFactors)
 		drawVertices(array, vcount, icount)
 	}
@@ -411,9 +411,10 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 }
 
 // @TODO: Call this mesh?
-class TexturedVertexArray(val vcount: Int, val indices: IntArray) {
+class TexturedVertexArray(var vcount: Int, val indices: IntArray, var isize: Int = indices.size) {
+	val initialVcount = vcount
 	//internal val data = IntArray(COMPONENTS_PER_VERTEX * vcount)
-	internal val _data = KmlNativeBuffer(COMPONENTS_PER_VERTEX * vcount * 4, direct = false)
+	internal val _data = KmlNativeBuffer(COMPONENTS_PER_VERTEX * initialVcount * 4, direct = false)
 	internal val f32 = _data.f32
 	internal val i32 = _data.i32
 	//val points = (0 until vcount).map { Item(data, it) }

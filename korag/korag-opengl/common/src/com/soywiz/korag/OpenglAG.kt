@@ -162,8 +162,8 @@ abstract class AGOpengl : AG() {
 		renderState: RenderState,
 		scissor: Scissor?
 	) {
-		val vattrs = vertexLayout.attributes.toList()
-		val vattrspos = vertexLayout.attributePositions.toList()
+		val vattrs = vertexLayout.attributes
+		val vattrspos = vertexLayout.attributePositions
 
 		val mustFreeIndices = indices == null
 		val aindices = indices ?: createIndexBuffer((0 until vertexCount).map(Int::toShort).toShortArray())

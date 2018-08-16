@@ -34,8 +34,13 @@ open class Mesh(
 		val m = renderMatrix
 		val cmul = this.renderColorMulInt
 		val cadd = this.renderColorAdd
-		tva = TexturedVertexArray(vertices.size / 2, IntArray(indices.size))
-		for (n in 0 until tva.indices.size) tva.indices[n] = indices[n]
+		val vcount = vertices.size / 2
+		val isize = indices.size
+		tva = if (vcount > tva.initialVcount || isize > tva.indices.size) TexturedVertexArray(vcount, IntArray(isize)) else tva
+		tva.vcount = vcount
+		tva.isize = isize
+
+		for (n in 0 until tva.isize) tva.indices[n] = indices[n]
 		for (n in 0 until tva.vcount) {
 			val x = vertices[n * 2 + 0].toDouble() + pivotX
 			val y = vertices[n * 2 + 1].toDouble() + pivotY

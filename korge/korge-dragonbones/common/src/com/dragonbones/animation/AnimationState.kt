@@ -1491,9 +1491,9 @@ class AnimationState(pool: BaseObjectPool) : BaseObject(pool) {
 		set(value) {
 			if (this._weight == value) return
 			this._weight = value
-			for (timeline in this._boneTimelines) timeline.dirty = true
-			for (timeline in this._boneBlendTimelines) timeline.dirty = true
-			for (timeline in this._slotBlendTimelines) timeline.dirty = true
+			for (n in 0 until _boneTimelines.size) _boneTimelines[n].dirty = true
+			for (n in 0 until _boneBlendTimelines.size) _boneBlendTimelines[n].dirty = true
+			for (n in 0 until _slotBlendTimelines.size) _slotBlendTimelines[n].dirty = true
 		}
 	/**
 	 * - 动画数据。

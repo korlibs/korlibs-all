@@ -396,9 +396,8 @@ fun FragmentShader(callback: Program.Builder.() -> Unit): FragmentShader {
 }
 
 class VertexLayout(attr: List<Attribute>, private val layoutSize: Int?) {
-	// @TODO: kotlin-native bug: https://github.com/JetBrains/kotlin-native/issues/1847
 	private val myattr = attr
-	val attributes = attr.toList()
+	val attributes = attr
 	constructor(attributes: List<Attribute>) : this(attributes, null)
 	constructor(vararg attributes: Attribute) : this(attributes.toList(), null)
 	constructor(vararg attributes: Attribute, layoutSize: Int? = null) : this(attributes.toList(), layoutSize)
