@@ -93,7 +93,7 @@ open class LogAG(
 		indices: Buffer?,
 		offset: Int,
 		blending: Blending,
-		uniforms: Map<Uniform, Any>,
+		uniforms: UniformValues,
 		stencil: StencilState,
 		colorMask: ColorMaskState,
 		renderState: RenderState,

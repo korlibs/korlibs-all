@@ -156,7 +156,7 @@ abstract class AGOpengl : AG() {
 		indices: Buffer?,
 		offset: Int,
 		blending: Blending,
-		uniforms: Map<Uniform, Any>,
+		uniforms: UniformValues,
 		stencil: StencilState,
 		colorMask: ColorMaskState,
 		renderState: RenderState,
@@ -183,7 +183,7 @@ abstract class AGOpengl : AG() {
 
 
 		val totalSize = vertexLayout.totalSize
-		for (n in vattrspos.indices) {
+		for (n in 0 until vattrspos.size) {
 			val att = vattrs[n]
 			if (att.active) {
 				val off = vattrspos[n]
@@ -208,9 +208,9 @@ abstract class AGOpengl : AG() {
 		}
 		var textureUnit = 0
 		//for ((uniform, value) in uniforms) {
-		for (pair in uniforms) {
-			val uniform = pair.key
-			val value = pair.value
+		for (n in 0 until uniforms.uniforms.size) {
+			val uniform = uniforms.uniforms[n]
+			val value = uniforms.values[n]
 			val location = checkErrors { gl.getUniformLocation(glProgram.id, uniform.name) }
 			when (uniform.type) {
 				VarType.TextureUnit -> {
@@ -303,10 +303,13 @@ abstract class AGOpengl : AG() {
 
 		//glSetActiveTexture(gl.TEXTURE0)
 
-		for (att in vattrs.filter { it.active }) {
-			val loc = checkErrors { glProgram.getAttribLocation(att.name).toInt() }
-			if (loc >= 0) {
-				checkErrors { gl.disableVertexAttribArray(loc) }
+		for (n in 0 until vattrs.size) {
+			val att = vattrs[n]
+			if (att.active) {
+				val loc = checkErrors { glProgram.getAttribLocation(att.name).toInt() }
+				if (loc >= 0) {
+					checkErrors { gl.disableVertexAttribArray(loc) }
+				}
 			}
 		}
 

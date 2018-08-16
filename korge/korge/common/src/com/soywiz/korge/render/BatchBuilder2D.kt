@@ -84,7 +84,7 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 	//	DefaultShaders.u_Tex to textureUnit
 	//)
 	private val uniforms by lazy {
-		mapOf<Uniform, Any>(
+		AG.UniformValues(
 			DefaultShaders.u_ProjMat to projMat,
 			DefaultShaders.u_Tex to textureUnit
 		)

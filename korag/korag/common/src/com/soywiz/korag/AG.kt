@@ -10,6 +10,7 @@ import com.soywiz.korio.error.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
+import com.soywiz.std.*
 import kotlinx.coroutines.experimental.*
 import kotlin.coroutines.experimental.*
 
@@ -482,7 +483,7 @@ abstract class AG : Extra by Extra.Mixin() {
 		indices: Buffer? = null,
 		offset: Int = 0,
 		blending: Blending = Blending.NORMAL,
-		uniforms: Map<Uniform, Any> = mapOf(),
+		uniforms: UniformValues = UniformValues.EMPTY,
 		stencil: StencilState = dummyStencilState,
 		colorMask: ColorMaskState = dummyColorMaskState,
 		scissor: Scissor? = null
@@ -511,7 +512,7 @@ abstract class AG : Extra by Extra.Mixin() {
 		indices: Buffer? = null,
 		offset: Int = 0,
 		blending: Blending = Blending.NORMAL,
-		uniforms: Map<Uniform, Any> = mapOf(),
+		uniforms: UniformValues = UniformValues.EMPTY,
 		stencil: StencilState = dummyStencilState,
 		colorMask: ColorMaskState = dummyColorMaskState,
 		renderState: RenderState = dummyRenderState,
@@ -656,14 +657,14 @@ abstract class AG : Extra by Extra.Mixin() {
 		1f, 1f, 1f, 1f, Float.fromBits(-1)
 	)
 	private val drawBmp_INDICES = shortArrayOf(0, 1, 2, 1, 2, 3)
-	private var drawBmp_UNIFORMS: Map<Uniform, Any>? = null
+	private var drawBmp_UNIFORMS: AG.UniformValues? = null
 
 	fun drawBmp(bitmap: Bitmap32) {
 		if (drawBmpVB == null) drawBmpVB = createVertexBuffer()
 		if (drawBmpIB == null) drawBmpIB = createIndexBuffer()
 		if (drawBmpTex == null) drawBmpTex = createTexture()
 		if (drawBmpTexUnit == null) drawBmpTexUnit = AG.TextureUnit(drawBmpTex, linear = false)
-		if (drawBmp_UNIFORMS == null) drawBmp_UNIFORMS = mapOf(
+		if (drawBmp_UNIFORMS == null) drawBmp_UNIFORMS = AG.UniformValues(
 			DefaultShaders.u_ProjMat to drawBmpMat,
 			DefaultShaders.u_Tex to drawBmpTexUnit!!
 		)
@@ -687,4 +688,51 @@ abstract class AG : Extra by Extra.Mixin() {
 
 	//var checkErrors = true
 	var checkErrors = false
+
+	class UniformValues() {
+		@ThreadLocal
+		companion object {
+		    val EMPTY = UniformValues()
+		}
+
+		private val _uniforms = arrayListOf<Uniform>()
+		private val _values = arrayListOf<Any>()
+		val uniforms = _uniforms as List<Uniform>
+
+		val keys get() = uniforms
+		val values = _values as List<Any>
+
+		val size get() = _uniforms.size
+
+		constructor(vararg pairs: Pair<Uniform, Any>) : this() {
+			for (pair in pairs) put(pair.first, pair.second)
+		}
+
+		fun clear() {
+			_uniforms.clear()
+			_values.clear()
+		}
+
+		fun put(uniform: Uniform, value: Any) {
+			for (n in 0 until _uniforms.size) {
+				if (_uniforms[n].name == uniform.name) {
+					_values[n] = value
+					return
+				}
+			}
+
+			_uniforms.add(uniform)
+			_values.add(value)
+		}
+
+		fun remove(uniform: Uniform) {
+			for (n in 0 until _uniforms.size) {
+				if (_uniforms[n].name == uniform.name) {
+					_uniforms.removeAt(n)
+					_values.removeAt(n)
+					return
+				}
+			}
+		}
+	}
 }
