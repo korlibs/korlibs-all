@@ -17,7 +17,9 @@ fun Float.narrowFloat(): Double = this.toDouble() // For 64-bit
 
 class TempBufferAddress {
 	val pool = arrayListOf<Pinned<ByteArray>>()
-	val ARRAY1 = ByteArray(1)
+	companion object {
+		val ARRAY1 = ByteArray(1)
+	}
 	fun KmlNativeBuffer.unsafeAddress(): CPointer<ByteVar> {
 		val byteArray = this.mem.data
 		val rbyteArray = if (byteArray.size > 0) byteArray else ARRAY1
@@ -34,15 +36,13 @@ class TempBufferAddress {
 		for (p in pool) p.unpin()
 		pool.clear()
 	}
-}
 
-// @TODO: Performance! Use a pool
-fun <T> tempBufferAddress(callback: TempBufferAddress.() -> T): T {
-	val tba = TempBufferAddress()
-	tba.start()
-	try {
-		return callback(tba)
-	} finally {
-		tba.dispose()
+	inline operator fun <T> invoke(callback: TempBufferAddress.() -> T): T {
+		start()
+		try {
+			return callback()
+		} finally {
+			dispose()
+		}
 	}
 }

@@ -13,6 +13,7 @@ import platform.windows.*
 import platform.posix.*
 
 class KmlGlNative : KmlGl() {
+	val tempBufferAddress = TempBufferAddress()
     override fun activeTexture(texture: Int): Unit = tempBufferAddress { glActiveTexture(texture) }
     override fun attachShader(program: Int, shader: Int): Unit = tempBufferAddress { glAttachShader(program, shader) }
     override fun bindAttribLocation(program: Int, index: Int, name: String): Unit = memScoped { tempBufferAddress { glBindAttribLocation(program, index, (name).cstr.getPointer(this@memScoped)) } }

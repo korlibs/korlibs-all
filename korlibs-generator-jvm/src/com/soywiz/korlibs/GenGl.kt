@@ -181,6 +181,7 @@ object GenGl {
 		println("import platform.posix.*")
 		println("")
 		println("class KmlGlNative : KmlGl() {")
+		println("    val tempBufferAddress = TempBufferAddress()")
 		for (func in OpenglDesc.functions) {
 			val nativeName = when (target) {
 				NativeTarget.IPHONE -> func.name
