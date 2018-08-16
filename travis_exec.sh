@@ -11,7 +11,7 @@ pushd $ATOMICFU_DIR
 	git clone https://github.com/korlibs/kotlinx.atomicfu.git $ATOMICFU_DIR
 	git pull
 	git checkout master
-	./gradlew publishToMavenLocal
+	./gradlew publishToMavenLocal -x dokka -x dokkaJavadoc -x test -x check
 popd
 
 mkdir -p $XCOROUTINES_DIR
@@ -19,7 +19,7 @@ pushd $XCOROUTINES_DIR
 	git clone https://github.com/korlibs/kotlinx.coroutines.git $XCOROUTINES_DIR
 	git pull
 	git checkout master
-	./gradlew publishToMavenLocal
+	./gradlew publishToMavenLocal -x dokka -x dokkaJavadoc -x test -x check
 popd
 
 if [ "$kotlin_native_rev" != "" ]; then
