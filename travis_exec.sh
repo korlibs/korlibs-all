@@ -3,6 +3,23 @@
 set -e
 
 export PROJECT_DIR=$PWD
+export ATOMICFU_DIR=$PROJECT_DIR/../kotlinx.atomicfu
+export XCOROUTINES_DIR=$PROJECT_DIR/../kotlinx.coroutines
+
+pushd $ATOMICFU_DIR
+	git clone https://github.com/korlibs/kotlinx.atomicfu.git $ATOMICFU_DIR
+	git pull
+	git checkout master
+	./gradlew install
+popd
+
+pushd $XCOROUTINES_DIR
+	git clone https://github.com/korlibs/kotlinx.coroutines.git $XCOROUTINES_DIR
+	git pull
+	git checkout master
+	./gradlew install
+popd
+
 if [ "$kotlin_native_rev" != "" ]; then
 	export KONAN_REPO=$PROJECT_DIR/../kotlin-native
     export build_kotlin_native=true
