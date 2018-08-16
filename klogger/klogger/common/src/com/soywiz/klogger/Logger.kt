@@ -4,7 +4,7 @@ import com.soywiz.std.*
 
 class Logger internal constructor(val name: String, val dummy: Boolean) {
 	//@ThreadLocal // @TODO: kotlin-native bug https://github.com/JetBrains/kotlin-native/issues/1768
-	// @TODO: Some even with this, it produces: Uncaught Kotlin exception: konan.worker.InvalidMutabilityException: mutation attempt of frozen com.soywiz.klogger.Logger@394401d8 (hash is 0x394401d8)
+	// @TODO: Some even with this, it produces: Uncaught Kotlin exception: kotlin.native.worker.InvalidMutabilityException: mutation attempt of frozen com.soywiz.klogger.Logger@394401d8 (hash is 0x394401d8)
 	/*
 	Undefined symbols for architecture x86_64:
 	  "_kshadowobjref:com.soywiz.klogger.Logger.Companion", referenced from:

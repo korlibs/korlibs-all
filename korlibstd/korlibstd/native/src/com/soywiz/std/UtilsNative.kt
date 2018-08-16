@@ -1,19 +1,19 @@
 package com.soywiz.std
 
-import konan.*
-import konan.worker.*
+import kotlin.native.*
+import kotlin.native.worker.*
 
-actual typealias ThreadLocal = konan.ThreadLocal
+actual typealias ThreadLocal = kotlin.native.ThreadLocal
 
-// Until in Konan. Temporarily From: https://github.com/JetBrains/kotlin-native/pull/1769
+// Until in kotlin.native. Temporarily From: https://github.com/JetBrains/kotlin-native/pull/1769
 
 internal object UNINITIALIZED
 internal object INITIALIZING
 
-//@konan.internal.Frozen
+//@kotlin.native.internal.Frozen
 internal class AtomicLazyImpl<out T>(initializer: () -> T) : Lazy<T> {
-	private val initializer_ = konan.worker.AtomicReference<Function0<T>?>(initializer.freeze())
-	private val value_ = konan.worker.AtomicReference<Any?>(UNINITIALIZED)
+	private val initializer_ = kotlin.native.worker.AtomicReference<Function0<T>?>(initializer.freeze())
+	private val value_ = kotlin.native.worker.AtomicReference<Any?>(UNINITIALIZED)
 
 	override val value: T
 		get() {
@@ -50,9 +50,9 @@ internal class AtomicLazyImpl<out T>(initializer: () -> T) : Lazy<T> {
  */
 actual public fun <T> atomicLazy(initializer: () -> T): Lazy<T> = AtomicLazyImpl(initializer)
 
-actual typealias AtomicReference<T> = konan.worker.AtomicReference<T>
+actual typealias AtomicReference<T> = kotlin.native.worker.AtomicReference<T>
 
-actual fun <T> NewAtomicReference(value: T): AtomicReference<T> = konan.worker.AtomicReference<T>(value)
+actual fun <T> NewAtomicReference(value: T): AtomicReference<T> = kotlin.native.worker.AtomicReference<T>(value)
 
 actual fun AtomicInt.compareAndSet(expected: Int, newValue: Int): Boolean =
 	compareAndSwap(expected, newValue) == expected
@@ -68,42 +68,42 @@ actual fun <T> AtomicReference<T>.set(value: T) {
 }
 
 actual fun <T> AtomicReference<T>.get(): T {
-	return (this as konan.worker.AtomicReference<T>).get() as T
+	return (this as kotlin.native.worker.AtomicReference<T>).get() as T
 }
 
 
 
-actual typealias AtomicInt = konan.worker.AtomicInt
+actual typealias AtomicInt = kotlin.native.worker.AtomicInt
 
-actual fun NewAtomicInt(value: Int): AtomicInt = konan.worker.AtomicInt(value)
+actual fun NewAtomicInt(value: Int): AtomicInt = kotlin.native.worker.AtomicInt(value)
 
 actual fun AtomicInt.addAndGet(delta: Int): Int {
-	return (this as konan.worker.AtomicInt).addAndGet(delta)
+	return (this as kotlin.native.worker.AtomicInt).addAndGet(delta)
 }
 
 actual fun AtomicInt.set(value: Int) {
-	(this as konan.worker.AtomicInt).compareAndSwap(this.get(), value)
+	(this as kotlin.native.worker.AtomicInt).compareAndSwap(this.get(), value)
 }
 actual fun AtomicInt.get(): Int {
-	return (this as konan.worker.AtomicInt).get()
+	return (this as kotlin.native.worker.AtomicInt).get()
 }
 
 
 
 
-actual typealias AtomicLong = konan.worker.AtomicLong
+actual typealias AtomicLong = kotlin.native.worker.AtomicLong
 
-actual fun NewAtomicLong(value: Long): AtomicLong = konan.worker.AtomicLong(value)
+actual fun NewAtomicLong(value: Long): AtomicLong = kotlin.native.worker.AtomicLong(value)
 
 actual fun AtomicLong.addAndGet(delta: Long): Long {
-	return (this as konan.worker.AtomicLong).addAndGet(delta)
+	return (this as kotlin.native.worker.AtomicLong).addAndGet(delta)
 }
 
 actual fun AtomicLong.set(value: Long) {
-	(this as konan.worker.AtomicLong).compareAndSwap(this.get(), value)
+	(this as kotlin.native.worker.AtomicLong).compareAndSwap(this.get(), value)
 }
 actual fun AtomicLong.get(): Long {
-	return (this as konan.worker.AtomicLong).get()
+	return (this as kotlin.native.worker.AtomicLong).get()
 }
 
 

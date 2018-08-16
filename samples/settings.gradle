@@ -3,10 +3,8 @@ rootProject.name = 'korge-samples'
 enableFeaturePreview('GRADLE_METADATA')
 
 def nativeEnabled() {
-	def insideCI = System.getenv("CI") == "true"
 	def requestKNBuild = System.getenv("build_kotlin_native") == "true"
-	//return System.getenv("CI") != "true"
-	return !insideCI && requestKNBuild
+	return requestKNBuild
 }
 
 def includeVersion(name, folder) {

@@ -218,7 +218,7 @@ internal actual suspend fun KoruiWrap(entry: suspend (KoruiContext) -> Unit) {
 /*
 actual val KoruiDispatcher: CoroutineDispatcher get() = MyNativeDispatcher
 
-@konan.ThreadLocal
+@kotlin.native.ThreadLocal
 object MyNativeDispatcher : CoroutineDispatcher(), Delay, DelayFrame {
 	val ag: AG = AGOpenglFactory.create(Any()).create(Any())
 

@@ -8,7 +8,7 @@ matrix:
   include:
   - os: linux
   - os: osx
-    env: build_kotlin_native=true
+    env: build_kotlin_native=true kotlin_native_rev=4a461026582d1adb1e7adafe096e56e905d99289
 
 install:
   - nvm install 8
@@ -19,5 +19,4 @@ install:
   - which mocha
 
 script:
-  - jdk_switcher use oraclejdk8
-  - ./gradlew -s check install && pushd samples && ../gradlew -s check && popd
+  - ./travis_exec.sh
