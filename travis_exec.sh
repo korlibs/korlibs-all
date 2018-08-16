@@ -6,6 +6,7 @@ export PROJECT_DIR=$PWD
 export ATOMICFU_DIR=$PROJECT_DIR/../kotlinx.atomicfu
 export XCOROUTINES_DIR=$PROJECT_DIR/../kotlinx.coroutines
 
+mkdir -p $ATOMICFU_DIR
 pushd $ATOMICFU_DIR
 	git clone https://github.com/korlibs/kotlinx.atomicfu.git $ATOMICFU_DIR
 	git pull
@@ -13,6 +14,7 @@ pushd $ATOMICFU_DIR
 	./gradlew publishToMavenLocal
 popd
 
+mkdir -p $XCOROUTINES_DIR
 pushd $XCOROUTINES_DIR
 	git clone https://github.com/korlibs/kotlinx.coroutines.git $XCOROUTINES_DIR
 	git pull
