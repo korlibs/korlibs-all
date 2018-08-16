@@ -1,4 +1,7 @@
-jdk_switcher use oraclejdk8
+#jdk_switcher use oraclejdk8
+
+set -e
+
 export PROJECT_DIR=$PWD
 if [ "$kotlin_native_rev" != "" ]; then
 	export KONAN_REPO=$PROJECT_DIR/../kotlin-native
