@@ -33,7 +33,9 @@ class TempBufferAddress {
 	}
 
 	fun dispose() {
-		for (p in pool) p.unpin()
+		// Kotlin-native: Try to avoid allocating an iterator (lists not optimized yet)
+		for (n in 0 until pool.size) pool[n].unpin()
+		//for (p in pool) p.unpin()
 		pool.clear()
 	}
 
