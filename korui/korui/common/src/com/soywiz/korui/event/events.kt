@@ -77,14 +77,11 @@ data class GamePadButtonEvent(var type: Type, var gamepad: Int, var button: Game
 	enum class Type { UP, DOWN }
 }
 
-data class GamePadStickEvent(var gamepad: Int, var stick: GameStick, var x: Double, var y: Double) : Event() {
-}
+data class GamePadStickEvent(var gamepad: Int, var stick: GameStick, var x: Double, var y: Double) : Event()
 
-data class ChangeEvent(var oldValue: Any? = null, var newValue: Any? = null) : Event() {
-}
+data class ChangeEvent(var oldValue: Any? = null, var newValue: Any? = null) : Event()
 
-data class ResizedEvent(var width: Int = 0, var height: Int = 0) : Event() {
-}
+data class ResizedEvent(var width: Int = 0, var height: Int = 0) : Event()
 
 data class DropFileEvent(var type: Type = Type.ENTER, var files: List<VfsFile>? = null) : Event() {
 	enum class Type { ENTER, EXIT, DROP }

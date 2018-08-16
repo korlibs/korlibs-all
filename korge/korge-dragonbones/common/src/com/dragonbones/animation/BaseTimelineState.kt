@@ -9,10 +9,10 @@
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
  * the Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
@@ -63,23 +63,9 @@ abstract class TimelineState(pool: BaseObjectPool) : BaseObject(pool) {
 	protected var _animationState: AnimationState? = null
 	protected var _actionTimeline: TimelineState? = null
 
-	//protected var _timelineArray:  NumberArrayList? = null
-	//protected var _timelineArray:  IntArrayList? = null
-	//protected var _timelineArray:  DoubleArrayList? = null
-	//protected var _timelineArray:  NumberArrayList? = null
 	protected var _timelineArray:  Uint16Buffer? = null
-
-	//protected var _frameArray:  NumberArrayList? = null
-	//protected var _frameArray:  DoubleArrayList? = null
 	protected var _frameArray:  Int16Buffer? = null
-
-	//protected var _valueArray:  NumberArrayList? = null
-	//protected var _valueArray:  IntArrayList? = null
-	//protected var _valueArray:  DoubleArrayList? = null
-	//protected var _valueArray:  NumberRawArray? = null
 	protected var _valueArray:  Float32Buffer? = null
-
-	//protected var _frameIndices:  DoubleArrayList? = null
 	protected var _frameIndices:  IntArrayList? = null
 
 	override fun _onClear() {
@@ -510,19 +496,20 @@ abstract class DoubleValueTimelineState(pool: BaseObjectPool) :  TweenTimelineSt
  */
 abstract class MutilpleValueTimelineState(pool: BaseObjectPool) :  TweenTimelineState(pool) {
 	protected var _valueCount: Int = 0
-	protected val _rd:  DoubleArrayList = DoubleArrayList()
+	protected var _rd:  DoubleArray = DoubleArray(0)
 
 	override fun _onClear() {
 		super._onClear()
 
 		this._valueCount = 0
-		this._rd.clear()
+		this._rd = DoubleArray(0)
 	}
 
 	override fun _onArriveAtFrame() {
 		super._onArriveAtFrame()
 
 		val valueCount = this._valueCount
+		this._rd = if (this._rd.size < valueCount) DoubleArray(valueCount) else this._rd
 		val rd = this._rd
 
 		if (this._timelineData != null) {
@@ -533,35 +520,16 @@ abstract class MutilpleValueTimelineState(pool: BaseObjectPool) :  TweenTimeline
 
 			if (this._isTween) {
 				val nextValueOffset = if (this._frameIndex == this._frameCount - 1)
-					this._valueOffset + this._frameValueOffset else
-					valueOffset + valueCount
+					this._valueOffset + this._frameValueOffset else valueOffset + valueCount
 
-				if (valueScale == 1.0) {
-					for (i in 0 until valueCount) {
-						rd[valueCount + i] = (valueArray[nextValueOffset + i] - valueArray[valueOffset + i]).toDouble()
-					}
-				}
-				else {
-					for (i in 0 until valueCount) {
-						rd[valueCount + i] = (valueArray[nextValueOffset + i] - valueArray[valueOffset + i]) * valueScale
-					}
-				}
-			}
-			else if (valueScale == 1.0) {
-				for (i in 0 until valueCount) {
-					rd[i] = valueArray[valueOffset + i].toDouble()
-				}
+				for (i in 0 until valueCount) rd[valueCount + i] = (valueArray[nextValueOffset + i] - valueArray[valueOffset + i]) * valueScale
 			}
 			else {
-				for (i in 0 until valueCount) {
-					rd[i] = valueArray[valueOffset + i] * valueScale
-				}
+				for (i in 0 until valueCount) rd[i] = valueArray[valueOffset + i] * valueScale
 			}
 		}
 		else {
-			for (i in 0 until valueCount) {
-				rd[i] = 0.0
-			}
+			for (i in 0 until valueCount) rd[i] = 0.0
 		}
 	}
 

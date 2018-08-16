@@ -558,9 +558,9 @@ class SurfaceTimelineState(pool: BaseObjectPool) : MutilpleValueTimelineState(po
 					this._animationData!!.frameFloatOffset
 			this._valueScale = this._armature!!.armatureData.scale
 			this._valueArray = dragonBonesData.frameFloatArray!!
-			this._rd.length = this._valueCount * 2
+			this._rd = DoubleArray(this._valueCount * 2)
 		} else {
-			this._deformCount = ((this.target as BlendState).target as Surface)._deformVertices.length
+			this._deformCount = ((this.target as BlendState).target as Surface)._deformVertices.size
 		}
 	}
 
@@ -941,7 +941,7 @@ class DeformTimelineState(pool: BaseObjectPool) : MutilpleValueTimelineState(poo
 					this._animationData!!.frameFloatOffset
 			this._valueScale = this._armature!!.armatureData.scale
 			this._valueArray = dragonBonesData.frameFloatArray!!
-			this._rd.size = this._valueCount * 2
+			this._rd = DoubleArray(this._valueCount * 2)
 		} else {
 			this._deformCount = this.displayFrame!!.deformVertices.size
 		}

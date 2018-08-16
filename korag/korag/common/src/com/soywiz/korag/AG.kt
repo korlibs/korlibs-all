@@ -80,7 +80,7 @@ abstract class AG : Extra by Extra.Mixin() {
 		return out
 	}
 
-	protected open fun setViewport(x: Int, y: Int, width: Int, height: Int) {
+	open fun setViewport(x: Int, y: Int, width: Int, height: Int) {
 		viewport[0] = x
 		viewport[1] = y
 		viewport[2] = width

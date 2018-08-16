@@ -343,7 +343,7 @@ object Korge {
 		}
 
 		eventDispatcher.addEventListener<ResizedEvent> { e ->
-			//println("eventDispatcher.addEventListener<ResizedEvent>:$e - backSize=(${ag.backWidth}, ${ag.backHeight}) :: frame=(${frame?.actualWidth}x${frame?.actualHeight}) :: frame=(${frame?.computedWidth}x${frame?.computedHeight})")
+			//println("Korge:eventDispatcher.addEventListener<ResizedEvent>:$e - backSize=(${ag.backWidth}, ${ag.backHeight})")
 			views.resized(ag.backWidth, ag.backHeight)
 		}
 

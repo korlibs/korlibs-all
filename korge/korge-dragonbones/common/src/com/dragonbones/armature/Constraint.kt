@@ -243,15 +243,13 @@ class PathConstraint(pool: BaseObjectPool) :  Constraint(pool) {
 	private var _pathSlot: Slot? = null
 	private var _bones: ArrayList<Bone> = ArrayList()
 
-	private var _spaces:  DoubleArrayList = DoubleArrayList()
-	//private var _spaces:  IntArrayList = IntArrayList()
-	private var _positions:  DoubleArrayList = DoubleArrayList()
-	//private var _positions:  IntArrayList = IntArrayList()
-	private var _curves:  DoubleArrayList = DoubleArrayList()
-	private var _boneLengths:  DoubleArrayList = DoubleArrayList()
+	private var _spaces:  DoubleArray = DoubleArray(0)
+	private var _positions:  DoubleArray = DoubleArray(0)
+	private var _curves:  DoubleArray = DoubleArray(0)
+	private var _boneLengths:  DoubleArray = DoubleArray(0)
 
-	private var _pathGlobalVertices:  DoubleArrayList = DoubleArrayList()
-	private var _segments:  DoubleArrayList = DoubleArrayList(10.0)
+	private var _pathGlobalVertices:  DoubleArray = DoubleArray(0)
+	private var _segments:  DoubleArray = DoubleArray(1) { 10.0 }
 
 	override fun toString(): String {
 		return "[class dragonBones.PathConstraint]"
@@ -272,12 +270,12 @@ class PathConstraint(pool: BaseObjectPool) :  Constraint(pool) {
 		this._pathSlot = null
 		this._bones.clear()
 
-		this._spaces.clear()
-		this._positions.clear()
-		this._curves.clear()
-		this._boneLengths.clear()
+		this._spaces = DoubleArray(0)
+		this._positions = DoubleArray(0)
+		this._curves = DoubleArray(0)
+		this._boneLengths = DoubleArray(0)
 
-		this._pathGlobalVertices.clear()
+		this._pathGlobalVertices = DoubleArray(0)
 	}
 
 	protected fun _updatePathVertices(verticesData: GeometryData) {
@@ -292,7 +290,7 @@ class PathConstraint(pool: BaseObjectPool) :  Constraint(pool) {
 		val pathVertexCount = intArray[pathOffset + BinaryOffset.GeometryVertexCount]
 		val pathVertexOffset = intArray[pathOffset + BinaryOffset.GeometryFloatOffset]
 
-		this._pathGlobalVertices.lengthSet = pathVertexCount * 2
+		this._pathGlobalVertices = DoubleArray(pathVertexCount * 2)
 
 		val weightData = verticesData.weight
 		//没有骨骼约束我,那节点只受自己的Bone控制
@@ -366,6 +364,7 @@ class PathConstraint(pool: BaseObjectPool) :  Constraint(pool) {
 		val intArray = armature.armatureData.parent!!.intArray!!
 		val vertexCount = intArray[pathDisplayDta.geometry.offset + BinaryOffset.GeometryVertexCount].toInt()
 
+		this._positions = DoubleArray(spaceCount * 3 + 2)
 		val positions = this._positions
 		val spaces = this._spaces
 		val isClosed = pathDisplayDta.closed
@@ -375,7 +374,6 @@ class PathConstraint(pool: BaseObjectPool) :  Constraint(pool) {
 		var preCurve = -1
 		var position: Double = this.position
 
-		positions.lengthSet = spaceCount * 3 + 2
 
 		var pathLength: Double
 		//不需要匀速运动，效率高些
@@ -673,7 +671,7 @@ class PathConstraint(pool: BaseObjectPool) :  Constraint(pool) {
 	}
 
 	//Calculates a point on the curve, for a given t value between 0 and 1.
-	private fun addCurvePosition(t: Double, x1: Double, y1: Double, cx1: Double, cy1: Double, cx2: Double, cy2: Double, x2: Double, y2: Double, out:  DoubleArrayList, offset: Int, tangents: Boolean) {
+	private fun addCurvePosition(t: Double, x1: Double, y1: Double, cx1: Double, cy1: Double, cx2: Double, cy2: Double, x2: Double, y2: Double, out:  DoubleArray, offset: Int, tangents: Boolean) {
 		if (t == 0.0) {
 			out[offset] = x1
 			out[offset + 1] = y1
@@ -738,7 +736,7 @@ class PathConstraint(pool: BaseObjectPool) :  Constraint(pool) {
 		}
 
 		if (data.rotateMode == RotateMode.ChainScale) {
-			this._boneLengths.lengthSet = this._bones.length
+			this._boneLengths = DoubleArray(this._bones.length)
 		}
 
 		this._root._hasConstraint = true
@@ -788,8 +786,8 @@ class PathConstraint(pool: BaseObjectPool) :  Constraint(pool) {
 		val spacesCount = if (isTangentMode) boneCount else boneCount + 1
 
 		val spacing = this.spacing
+		this._spaces = DoubleArray(spacesCount)
 		val spaces = this._spaces
-		spaces.lengthSet = spacesCount
 
 		//计曲线间隔和长度
 		if (isChainScaleMode || isLengthMode) {
@@ -869,10 +867,9 @@ class PathConstraint(pool: BaseObjectPool) :  Constraint(pool) {
 				val b = matrix.b
 				val c = matrix.c
 				val d = matrix.d
-				var r: Double
 				var cos: Double
 				var sin: Double
-				r = if (isTangentMode) {
+				var r: Double = if (isTangentMode) {
 					positions[p - 1]
 				} else {
 					atan2(dy, dx)

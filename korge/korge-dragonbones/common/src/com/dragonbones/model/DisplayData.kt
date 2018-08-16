@@ -186,7 +186,7 @@ class PathDisplayData(pool: BaseObjectPool) :  DisplayData(pool) {
 	var closed: Boolean = false
 	var constantSpeed: Boolean = false
 	val geometry: GeometryData = GeometryData()
-	val curveLengths: DoubleArrayList = DoubleArrayList()
+	var curveLengths: DoubleArray = DoubleArray(0)
 
 	override fun _onClear() {
 		super._onClear()
@@ -195,7 +195,7 @@ class PathDisplayData(pool: BaseObjectPool) :  DisplayData(pool) {
 		this.closed = false
 		this.constantSpeed = false
 		this.geometry.clear()
-		this.curveLengths.lengthSet = 0
+		this.curveLengths = DoubleArray(0)
 	}
 }
 /**

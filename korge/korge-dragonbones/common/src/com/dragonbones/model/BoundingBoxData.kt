@@ -546,7 +546,7 @@ class PolygonBoundingBoxData(pool: BaseObjectPool) : BoundingBoxData(pool) {
 	 */
 	fun polygonIntersectsSegment(
 		xA: Double, yA: Double, xB: Double, yB: Double,
-		vertices: DoubleArrayList,
+		vertices: DoubleArray,
 		intersectionPointA: Point? = null,
 		intersectionPointB: Point? = null,
 		normalRadians: Point? = null
@@ -556,13 +556,13 @@ class PolygonBoundingBoxData(pool: BaseObjectPool) : BoundingBoxData(pool) {
 		if (xA == xB) xA = xB + 0.000001
 		if (yA == yB) yA = yB + 0.000001
 
-		val count = vertices.length
+		val count = vertices.size
 		val dXAB = xA - xB
 		val dYAB = yA - yB
 		val llAB = xA * yB - yA * xB
 		var intersectionCount = 0
-		var xC = vertices[count - 2]
-		var yC = vertices[count - 1]
+		var xC = vertices[count - 2].toDouble()
+		var yC = vertices[count - 1].toDouble()
 		var dMin = 0.0
 		var dMax = 0.0
 		var xMin = 0.0
@@ -571,8 +571,8 @@ class PolygonBoundingBoxData(pool: BaseObjectPool) : BoundingBoxData(pool) {
 		var yMax = 0.0
 
 		for (i in 0 until count step 2) {
-			val xD = vertices[i]
-			val yD = vertices[i + 1]
+			val xD = vertices[i + 0].toDouble()
+			val yD = vertices[i + 1].toDouble()
 
 			if (xC == xD) {
 				xC = xD + 0.0001
@@ -701,7 +701,7 @@ class PolygonBoundingBoxData(pool: BaseObjectPool) : BoundingBoxData(pool) {
 	 * @version DragonBones 5.1
 	 * @language zh_CN
 	 */
-	val vertices: DoubleArrayList = DoubleArrayList()
+	var vertices: DoubleArray = DoubleArray(0)
 
 	override fun _onClear(): Unit {
 		super._onClear()
@@ -709,7 +709,7 @@ class PolygonBoundingBoxData(pool: BaseObjectPool) : BoundingBoxData(pool) {
 		this.type = BoundingBoxType.Polygon
 		this.x = 0.0
 		this.y = 0.0
-		this.vertices.lengthSet = 0
+		this.vertices = DoubleArray(0)
 	}
 
 	/**
@@ -718,8 +718,8 @@ class PolygonBoundingBoxData(pool: BaseObjectPool) : BoundingBoxData(pool) {
 	override fun containsPoint(pX: Double, pY: Double): Boolean {
 		var isInSide = false
 		if (pX >= this.x && pX <= this.width && pY >= this.y && pY <= this.height) {
-			var iP = this.vertices.length - 2
-			for (i in 0 until this.vertices.length step 2) {
+			var iP = this.vertices.size - 2
+			for (i in 0 until this.vertices.size step 2) {
 				val yA = this.vertices[iP + 1]
 				val yB = this.vertices[i + 1]
 				if ((yB < pY && yA >= pY) || (yA < pY && yB >= pY)) {

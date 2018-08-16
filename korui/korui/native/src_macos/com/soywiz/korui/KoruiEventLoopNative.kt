@@ -191,9 +191,14 @@ internal actual suspend fun KoruiWrap(entry: suspend (KoruiContext) -> Unit) {
 			override fun keyDown(keyCode: Char) = keyChange(keyCode, true)
 			override fun keyUp(keyCode: Char) = keyChange(keyCode, false)
 
+			val resizedEvent = com.soywiz.korui.event.ResizedEvent()
 			override fun windowDidResize(width: Int, height: Int, context: NSOpenGLContext?) {
-				macTrace("windowDidResize")
-				light.dispatch(ResizedEvent(width, height))
+				//macTrace("windowDidResize")
+				ag.setViewport(0, 0, width, height)
+				light.dispatch(resizedEvent.apply {
+					this.width = width
+					this.height = height
+				})
 				render(context)
 			}
 

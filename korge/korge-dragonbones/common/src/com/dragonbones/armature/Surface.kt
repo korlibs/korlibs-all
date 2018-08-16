@@ -44,8 +44,8 @@ class Surface(pool: BaseObjectPool) :  Bone(pool) {
 	private var _kX: Double = 0.0
 	private var _kY: Double = 0.0
 
-	val _vertices:  DoubleArrayList = DoubleArrayList()
-	val _deformVertices:  DoubleArrayList = DoubleArrayList()
+	var _vertices:  DoubleArray = DoubleArray(0)
+	var _deformVertices:  DoubleArray = DoubleArray(0)
 	/**
 	 * - x1, y1, x2, y2, x3, y3, x4, y4, d1X, d1Y, d2X, d2Y
 	 */
@@ -65,8 +65,8 @@ class Surface(pool: BaseObjectPool) :  Bone(pool) {
 		this._k = 0.0
 		this._kX = 0.0
 		this._kY = 0.0
-		this._vertices.clear()
-		this._deformVertices.clear()
+		this._vertices = DoubleArray(0)
+		this._deformVertices = DoubleArray(0)
 		this._matrixCache = DoubleArray(0)
 		this._bone = null
 	}
@@ -149,7 +149,7 @@ class Surface(pool: BaseObjectPool) :  Bone(pool) {
 		//isCache
 
 		val segmentXD = this._boneData!!.segmentX * 2
-		val lastIndex = this._vertices.length - 2
+		val lastIndex = this._vertices.size - 2
 		val lA = 200.0
 		//
 		val raX = this._vertices[0]
@@ -460,8 +460,8 @@ class Surface(pool: BaseObjectPool) :  Bone(pool) {
 		this._k = -this._dY / this._dX
 		this._kX = -this._dY / (lB - lA)
 		this._kY = -(lB - lA) / this._dX
-		this._vertices.length = vertexCount * 2
-		this._deformVertices.length = vertexCount * 2
+		this._vertices = DoubleArray(vertexCount * 2)
+		this._deformVertices = DoubleArray(vertexCount * 2)
 		this._matrixCache = DoubleArray((segmentX * segmentY + segmentX * 2 + segmentY * 2) * 2 * 7)
 
 		for (i in 0 until vertexCount * 2) {

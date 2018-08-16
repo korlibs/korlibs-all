@@ -46,18 +46,19 @@ class DisplayFrame(pool: BaseObjectPool) :  BaseObject(pool) {
 	var _textureData: TextureData? = null
 	//var display: Armature? = null
 	var display: Any? = null
-	val deformVertices:  DoubleArrayList = DoubleArrayList()
+	var deformVertices:  DoubleArray = DoubleArray(0)
+	//var deformVertices:  FloatArray = FloatArray(0)
 
 	override fun _onClear(): Unit {
 		this.rawDisplayData = null
 		this.displayData = null
 		this._textureData = null
 		this.display = null
-		this.deformVertices.length = 0
+		this.deformVertices = DoubleArray(0)
 	}
 
 	fun updateDeformVertices(): Unit {
-		if (this.rawDisplayData == null || this.deformVertices.length != 0) {
+		if (this.rawDisplayData == null || this.deformVertices.size != 0) {
 			return
 		}
 
@@ -80,9 +81,10 @@ class DisplayFrame(pool: BaseObjectPool) :  BaseObject(pool) {
 			vertexCount = rawGeometryData.data!!.intArray!![rawGeometryData.offset + BinaryOffset.GeometryVertexCount] * 2
 		}
 
-		this.deformVertices.length = vertexCount
+		this.deformVertices = DoubleArray(vertexCount)
+		//this.deformVertices = FloatArray(vertexCount)
 		//for (var i = 0, l = this.deformVertices.length; i < l; ++i) {
-		for (i in 0 until this.deformVertices.length) {
+		for (i in 0 until this.deformVertices.size) {
 			this.deformVertices[i] = 0.0
 		}
 	}
@@ -854,7 +856,7 @@ abstract class Slot(pool: BaseObjectPool) :  TransformObject(pool) {
 
 		val displayFrame = this._displayFrames[index]
 		if (displayFrame.rawDisplayData != displayData) {
-			displayFrame.deformVertices.length = 0
+			displayFrame.deformVertices = DoubleArray(0)
 			displayFrame.rawDisplayData = displayData
 			if (displayFrame.rawDisplayData == null) {
 				val defaultSkin = this._armature?._armatureData?.defaultSkin
@@ -875,7 +877,7 @@ abstract class Slot(pool: BaseObjectPool) :  TransformObject(pool) {
 	/**
 	 * @private
 	 */
-	fun replaceDisplayData(displayData: DisplayData?, index: Int = -1): Unit {
+	fun replaceDisplayData(displayData: DisplayData?, index: Int = -1) {
 		var index = index
 		if (index < 0) {
 			index = if (this._displayIndex < 0) 0 else this._displayIndex

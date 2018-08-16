@@ -500,7 +500,6 @@ class AnimationState(pool: BaseObjectPool) : BaseObject(pool) {
 		run {
 			// Update slot timelines.
 			val slotTimelines: FastStringMap<ArrayList<TimelineState>> = FastStringMap()
-			//val ffdFlags = DoubleArrayList()
 			val ffdFlags = IntArrayList()
 			// Create slot timelines map.
 			for (timeline in this._slotTimelines) {

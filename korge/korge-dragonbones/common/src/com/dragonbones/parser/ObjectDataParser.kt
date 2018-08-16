@@ -764,7 +764,7 @@ open class ObjectDataParser(pool: BaseObjectPool = BaseObjectPool()) : DataParse
 				pathDisplay.constantSpeed = ObjectDataParser._getBoolean(rawData, DataParser.CONSTANT_SPEED, false)
 				pathDisplay.name = name
 				pathDisplay.path = if (path.isNotEmpty()) path else name
-				pathDisplay.curveLengths.length = rawCurveLengths.size
+				pathDisplay.curveLengths = DoubleArray(rawCurveLengths.size)
 
 				//for (var i = 0, l = rawCurveLengths.length; i < l; ++i) {
 				for (i in 0 until rawCurveLengths.size) {
@@ -854,8 +854,8 @@ open class ObjectDataParser(pool: BaseObjectPool = BaseObjectPool()) : DataParse
 		if (DataParser.VERTICES in rawData) {
 			val scale = this._armature!!.scale
 			val rawVertices = rawData[DataParser.VERTICES] .doubleArray
+			polygonBoundingBox.vertices = DoubleArray(rawVertices.size)
 			val vertices = polygonBoundingBox.vertices
-			vertices.length = rawVertices.size
 
 			//for (var i = 0, l = rawVertices.length; i < l; i += 2) {
 			for (i in 0 until rawVertices.size step 2) {
@@ -1878,7 +1878,7 @@ open class ObjectDataParser(pool: BaseObjectPool = BaseObjectPool()) : DataParse
 				//for (var j = 0; j < vertexBoneCount; ++j) {
 				for (j in 0 until vertexBoneCount) {
 					val boneIndex = this._intArray[iB++]
-					this._helpMatrixB.copyFromArray(rawBonePoses, boneIndex * 7 + 1)
+					this._helpMatrixB.copyFromArray(rawBonePoses.data, boneIndex * 7 + 1)
 					this._helpMatrixB.invert()
 					this._helpMatrixB.transformPoint(x, y, this._helpPoint, true)
 

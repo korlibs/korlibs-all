@@ -165,8 +165,6 @@ class Matrix {
 		return this
 	}
 
-	fun copyFromArray(value: DoubleArrayList, offset: Int = 0): Matrix = copyFromArray(value.data, offset)
-
 	/**
 	 * - Convert to unit matrix.
 	 * The resulting matrix has the following properties: a=1, b=0, c=0, d=1, tx=0, ty=0.

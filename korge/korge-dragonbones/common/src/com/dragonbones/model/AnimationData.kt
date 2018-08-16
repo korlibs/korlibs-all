@@ -240,7 +240,6 @@ class AnimationData(pool: BaseObjectPool) :  BaseObject(pool) {
 		}
 
 		for (bone in this.parent!!.sortedBones) {
-			//val indices = DoubleArrayList(cacheFrameCount)
 			val indices = IntArrayList(cacheFrameCount)
 			for (i in 0 until indices.length) {
 				indices[i] = -1

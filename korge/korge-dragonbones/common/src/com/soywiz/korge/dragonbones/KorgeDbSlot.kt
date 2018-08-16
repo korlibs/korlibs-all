@@ -269,7 +269,7 @@ class KorgeDbSlot(pool: BaseObjectPool) : Slot(pool) {
 		val geometryData = this._geometryData as GeometryData
 		val weightData = geometryData.weight
 
-		val hasDeform = deformVertices.length > 0 && geometryData.inheritDeform
+		val hasDeform = deformVertices.size > 0 && geometryData.inheritDeform
 		val meshDisplay = this._renderDisplay as Mesh
 
 		//println("_updateMesh:" + this.name + ", hasDeform=$hasDeform, weightData=${weightData?.count}, deformVertices=${deformVertices.size}")

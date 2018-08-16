@@ -158,7 +158,7 @@ class KorgeDbArmatureDisplay : Image(Bitmaps.transparent), IArmatureProxy {
 							BoundingBoxType.Polygon -> {
 								val vertices = (boundingBoxData as PolygonBoundingBoxData).vertices
 								//for (let i = 0, l = vertices.length; i < l; i += 2) {
-								for (i in 0 until vertices.length step 2) {
+								for (i in 0 until vertices.size step 2) {
 									val x = vertices[i]
 									val y = vertices[i + 1]
 
