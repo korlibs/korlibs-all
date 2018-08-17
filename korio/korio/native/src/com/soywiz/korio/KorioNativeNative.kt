@@ -74,18 +74,14 @@ actual object KorioNative {
 
 	val tmpdir: String = getenv("TMPDIR") ?: getenv("TEMP") ?: getenv("TMP") ?: "/tmp"
 
-	val cwd: String = memScoped {
-		val data = allocArray<ByteVar>(1024)
-		getcwd(data, 1024)
-		data.toKString()
-	}
+	val cwd: String = com.soywiz.korio.nativeCwd()
 
-	actual fun rootLocalVfs(): VfsFile = localVfs(realpath("."))
-	actual fun applicationVfs(): VfsFile = localVfs(realpath("."))
-	actual fun applicationDataVfs(): VfsFile = localVfs(realpath("."))
+	actual fun rootLocalVfs(): VfsFile = localVfs(cwd)
+	actual fun applicationVfs(): VfsFile = localVfs(cwd)
+	actual fun applicationDataVfs(): VfsFile = localVfs(cwd)
 	actual fun cacheVfs(): VfsFile = MemoryVfs()
-	actual fun externalStorageVfs(): VfsFile = localVfs(realpath("."))
-	actual fun userHomeVfs(): VfsFile = localVfs(realpath("."))
+	actual fun externalStorageVfs(): VfsFile = localVfs(cwd)
+	actual fun userHomeVfs(): VfsFile = localVfs(cwd)
 	actual fun tempVfs(): VfsFile = localVfs(tmpdir)
 	actual fun localVfs(path: String): VfsFile = LocalVfsNative()[path]
 	actual val ResourcesVfs: VfsFile get() = applicationDataVfs()

@@ -17,6 +17,7 @@ import com.soywiz.korim.color.*
 import com.soywiz.korim.format.*
 import com.soywiz.korim.vector.*
 import com.soywiz.korinject.*
+import com.soywiz.korio.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.file.std.*
 import com.soywiz.korio.serialization.json.*
@@ -42,6 +43,7 @@ fun main(args: Array<String>): Unit {
     //Logger("RenderContext2D").level = Logger.Level.TRACE
     //Korge(MyModule, debug = true)
     println("V0")
+    println("KorioNative.ResourcesVfs.absolutePath: " + KorioNative.ResourcesVfs.absolutePath)
 
     Korge(object : MyModule() {
         //override val mainScene: KClass<out Scene> = HelloScene::class
