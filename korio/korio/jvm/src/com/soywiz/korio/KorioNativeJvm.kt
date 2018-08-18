@@ -1,6 +1,7 @@
 package com.soywiz.korio
 
 import com.soywiz.korio.async.*
+import com.soywiz.korio.compression.*
 import com.soywiz.korio.compression.deflate.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.file.std.*
@@ -116,8 +117,13 @@ actual object KorioNative {
 	actual val websockets: WebSocketClientFactory by lazy { JvmWebSocketClientFactory() }
 	actual val File_separatorChar: Char by lazy { File.separatorChar }
 
-	actual fun uncompress(input: ByteArray, outputHint: Int, method: String): ByteArray =
-		FastDeflate.uncompress(input, outputHint, method)
+	actual fun uncompress(input: ByteArray, outputHint: Int, method: String): ByteArray {
+		return FastDeflate.uncompress(input, outputHint, method)
+	}
+
+	actual fun compress(input: ByteArray, outputHint: Int, method: String, level: Int): ByteArray {
+		return input.syncCompress(ZLib, CompressionContext(level = level))
+	}
 
 	private val absoluteCwd = File(".").absolutePath
 

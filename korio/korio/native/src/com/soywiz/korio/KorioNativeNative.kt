@@ -92,6 +92,9 @@ actual object KorioNative {
 		//com.soywiz.korio.compression.deflate.FastDeflate.uncompress(input, outputHint, method)
 		zlibInflate(input, outputHint)
 
+	actual fun compress(input: ByteArray, outputHint: Int, method: String, level: Int): ByteArray =
+		zlibDeflate(input, outputHint, level)
+
 	actual val asyncSocketFactory: AsyncSocketFactory get() = NativeAsyncSocketFactory
 	actual val websockets: WebSocketClientFactory get() = NativeWebSocketClientFactory
 	actual val systemLanguageStrings: List<String> get() = listOf("english")

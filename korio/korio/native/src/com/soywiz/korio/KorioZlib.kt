@@ -99,3 +99,57 @@ fun <T : ZlibOutput> zlibInflate(input: ZlibInput, output: T): T {
 	}
 	return output
 }
+
+fun zlibDeflate(input: ByteArray, hintSize: Int, level: Int): ByteArray {
+	return zlibDeflate(ByteArrayZlibInput(input), ByteArrayZlibOutput(hintSize), level).toByteArray()
+}
+
+fun <T : ZlibOutput> zlibDeflate(input: ZlibInput, output: T, level: Int): T {
+	memScoped {
+		val strm: z_stream = alloc()
+
+		var ret: Int
+
+		val inpArray = ByteArray(CHUNK)
+		val outArray = ByteArray(CHUNK)
+
+		try {
+			inpArray.usePinned { _inp ->
+				outArray.usePinned { _out ->
+					val inp = _inp.addressOf(0)
+					val out = _out.addressOf(0)
+					strm.zalloc = null
+					strm.zfree = null
+					strm.opaque = null
+					strm.avail_in = 0
+					strm.next_in = null
+					ret = deflateInit2_(strm.ptr, level, Z_DEFLATED, 15, MAX_MEM_LEVEL, Z_DEFAULT_STRATEGY, zlibVersion()?.toKString(), sizeOf<z_stream>().toInt());
+					if (ret != Z_OK)
+						return@memScoped ret
+
+					do {
+						strm.avail_in = input.read(inpArray, CHUNK)
+						if (strm.avail_in == 0) break
+						strm.next_in = inp
+
+						do {
+							strm.avail_out = CHUNK
+							strm.next_out = out
+							ret = deflate(strm.ptr, Z_NO_FLUSH)
+							assert(ret != Z_STREAM_ERROR)
+							when (ret) {
+								Z_NEED_DICT -> ret = Z_DATA_ERROR
+								Z_DATA_ERROR, Z_MEM_ERROR  -> error("data/mem error")
+							}
+							val have = CHUNK - strm.avail_out
+							output.write(outArray, have)
+						} while (strm.avail_out == 0)
+					} while (ret != Z_STREAM_END)
+				}
+			}
+		} finally {
+			deflateEnd(strm.ptr)
+		}
+	}
+	return output
+}

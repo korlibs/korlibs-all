@@ -46,13 +46,19 @@ object FastDeflate {
 
 	fun zlibUncompress(i: ByteArray, offset: Int = 0, expectedOutSize: Int = 64): ByteArray {
 		val s = BitReader(i, offset)
-		val compressionMethod = s.bits(4)
+		val cmf = s.bits(8)
+		val flg = s.bits(8)
+
+		if ((cmf * 256 + flg) % 31 != 0) error("bad zlib header")
+
+		val compressionMethod = cmf.extract(0, 4)
 		if (compressionMethod != 8) error("Invalid zlib stream compressionMethod=$compressionMethod")
-		val windowBits = (s.bits(4) + 8)
-		val fcheck = s.bits(5)
-		val hasDict = s.bit()
-		val flevel = s.bits(2)
+		val windowBits = (cmf.extract(4, 4) + 8)
+		val fcheck = flg.extract(0, 5)
+		val hasDict = flg.extract(5)
+		val flevel = flg.extract(6, 2)
 		var dictid = 0
+
 		if (hasDict) {
 			s.discardBits()
 			dictid = s.u32be()

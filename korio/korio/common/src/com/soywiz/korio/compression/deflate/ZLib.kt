@@ -1,5 +1,6 @@
 package com.soywiz.korio.compression.deflate
 
+import com.soywiz.kmem.*
 import com.soywiz.korio.compression.*
 import com.soywiz.korio.compression.util.*
 import com.soywiz.korio.crypto.*
@@ -11,12 +12,18 @@ object ZLib : CompressionMethod {
 		val s = BitReader(i)
 		//println("Zlib.uncompress.available[0]:" + s.available())
 		s.prepareBigChunk()
-		val compressionMethod = s.readBits(4)
+		val cmf = s.su8()
+		val flg = s.su8()
+
+		if ((cmf * 256 + flg) % 31 != 0) error("bad zlib header")
+
+		val compressionMethod = cmf.extract(0, 4)
 		if (compressionMethod != 8) error("Invalid zlib stream compressionMethod=$compressionMethod")
-		val windowBits = (s.readBits(4) + 8)
-		val fcheck = s.readBits(5)
-		val hasDict = s.sreadBit()
-		val flevel = s.readBits(2)
+		val windowBits = (cmf.extract(4, 4) + 8)
+		val fcheck = flg.extract(0, 5)
+		val hasDict = flg.extract(5)
+		val flevel = flg.extract(6, 2)
+
 		var dictid = 0
 		if (hasDict) {
 			dictid = s.su32_le()
@@ -51,9 +58,24 @@ object ZLib : CompressionMethod {
 		o: AsyncOutputStream,
 		context: CompressionContext
 	) {
+		//val level = context.level
+		val level = 0
 		val slidingBits = 15
-		o.write8(0x8 or ((slidingBits - 8) shl 4)) // METHOD=8, BITS=7+8
-		o.write8(0x00 or (context.level shl 6)) // FCHECK=0, HASDICT=0, LEVEL = context.level
+
+		val cmf = 0x8 or ((slidingBits - 8) shl 4) // METHOD=8, BITS=7+8
+		val flg = 0x00 or (level shl 6) // FCHECK=0, HASDICT=0, LEVEL = context.level
+
+		// @TODO: This is a brute-force. Compute with an expression instead
+		var fcheck = 0
+		for (n in 0 until 32) {
+			if ((cmf * 256 + (flg or n)) % 31 == 0) {
+				fcheck = n
+				break
+			}
+		}
+
+		o.write8(cmf)
+		o.write8(flg or fcheck)
 
 		var chash = Adler32.INITIAL
 		Deflate(slidingBits).compress(object : AsyncInputWithLengthStream by i {

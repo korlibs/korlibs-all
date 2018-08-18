@@ -1,6 +1,6 @@
 package com.soywiz.korio.i18n
 
-import org.junit.*
+import kotlin.test.*
 
 class LanguageTest {
 	@Test
