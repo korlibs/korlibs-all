@@ -29,6 +29,8 @@ echo Fixed here: https://github.com/JetBrains/kotlin-native/commit/3ad52b8736482
 mkdir %LOCAL_KLIB%
 mkdir %GLOBAL_KLIB%\zlib
 
+rd /s /q %LOCAL_KLIB%\platform\mingw_x64\zlib\
+
 tree %HOMEDRIVE%%HOMEPATH%\.konan
 
 echo %KONAN_BIN%\cinterop.bat -def zlib.def -o zlib
