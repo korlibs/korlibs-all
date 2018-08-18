@@ -216,7 +216,7 @@ allprojects {
 	if (isNative) {
 		task copyResources(type: Copy) {
 			from file("testresources"), file("../common/testresources")
-			into file("build/test-results/test/debug") // This is the CWD
+			into file("build/test-exe/test/debug") // This is the CWD
 		}
 
 		afterEvaluate {

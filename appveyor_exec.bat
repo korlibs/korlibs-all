@@ -27,9 +27,9 @@ REM tree %HOMEDRIVE%%HOMEPATH%\.konan
 echo kotlin-native-macos-0.9-dev-3210 doesn't have zlib on mingw yet
 echo Fixed here: https://github.com/JetBrains/kotlin-native/commit/3ad52b8736482231d86d472e92c609a03d166cee
 mkdir %LOCAL_KLIB%
-mkdir %GLOBAL_KLIB%\zlib
 
-rd /s /q %LOCAL_KLIB%\platform\mingw_x64\zlib\
+rd /s /q %LOCAL_KLIB%\zlib\
+rd /s /q %GLOBAL_KLIB%\zlib\
 
 tree %HOMEDRIVE%%HOMEPATH%\.konan
 
