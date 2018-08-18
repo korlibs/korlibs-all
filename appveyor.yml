@@ -13,6 +13,7 @@ branches:
 
 cache:
   - C:\Users\appveyor\.gradle
+  - C:\Users\appveyor\.konan
 
 environment:
   matrix:

@@ -10,9 +10,9 @@ matrix:
   - os: osx
     #osx_image: xcode8
     env: build_kotlin_native=true
-  - os: osx
-    #osx_image: xcode8
-    env: build_kotlin_native=true kotlin_native_rev=4a461026582d1adb1e7adafe096e56e905d99289
+#  - os: osx
+#    #osx_image: xcode8
+#    env: build_kotlin_native=true kotlin_native_rev=4a461026582d1adb1e7adafe096e56e905d99289
 
 install:
   - nvm install 8

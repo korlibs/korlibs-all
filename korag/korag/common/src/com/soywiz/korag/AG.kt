@@ -49,6 +49,7 @@ abstract class AG : Extra by Extra.Mixin() {
 		//println("AG.ready!")
 		__ready()
 	}
+
 	fun __ready() {
 		_onReadyDeferred.complete(this)
 	}
@@ -392,7 +393,9 @@ abstract class AG : Extra by Extra.Mixin() {
 
 	fun createTexture(): Texture = createTexture(premultiplied = true)
 	fun createTexture(bmp: Bitmap, mipmaps: Boolean = false): Texture = createTexture().upload(bmp, mipmaps)
-	fun createTexture(bmp: BitmapSlice<Bitmap>, mipmaps: Boolean = false): Texture = createTexture().upload(bmp, mipmaps)
+	fun createTexture(bmp: BitmapSlice<Bitmap>, mipmaps: Boolean = false): Texture =
+		createTexture().upload(bmp, mipmaps)
+
 	fun createTexture(bmp: Bitmap, mipmaps: Boolean = false, premultiplied: Boolean = true): Texture =
 		createTexture(premultiplied).upload(bmp, mipmaps)
 
@@ -692,7 +695,7 @@ abstract class AG : Extra by Extra.Mixin() {
 	class UniformValues() {
 		@ThreadLocal
 		companion object {
-		    val EMPTY = UniformValues()
+			val EMPTY = UniformValues()
 		}
 
 		private val _uniforms = arrayListOf<Uniform>()
@@ -734,5 +737,7 @@ abstract class AG : Extra by Extra.Mixin() {
 				}
 			}
 		}
+
+		override fun toString() = "{" + keys.zip(values).map { "${it.first}=${it.second}" }.joinToString(", ") + "}"
 	}
 }
