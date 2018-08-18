@@ -44,7 +44,7 @@ call %KONAN_BIN%\klib.bat install zlib || exit /b
 tree %HOMEDRIVE%%HOMEPATH%\.konan
 
 echo xcopy /S /Y %LOCAL_KLIB%\zlib %GLOBAL_KLIB%\zlib
-xcopy /S /Y %LOCAL_KLIB%\zlib %GLOBAL_KLIB%\zlib
+xcopy /S /Y %LOCAL_KLIB%\zlib %GLOBAL_KLIB%\zlib\
 
 tree %HOMEDRIVE%%HOMEPATH%\.konan
 
