@@ -6,7 +6,7 @@ import platform.posix.*
 fun nativeCwd(): String = platform.Foundation.NSBundle.mainBundle.resourcePath ?: "."
 
 fun doMkdir(path: String, attr: Int): Int {
-	return platform.posix.mkdir(path, attr)
+	return platform.posix.mkdir(path, attr.toShort())
 }
 
 fun realpath(path: String): String = memScoped {
