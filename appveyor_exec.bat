@@ -19,6 +19,8 @@ pushd %XCOROUTINES_DIR%
 	call gradlew.bat publishToMavenLocal -x dokka -x dokkaJavadoc -x test -x check || exit /b
 popd
 
+tree C:\Users\appveyor\.konan
+
 REM kotlin-native-macos-0.9-dev-3210 doesn't have zlib on mingw yet
 REM Fixed here: https://github.com/JetBrains/kotlin-native/commit/3ad52b8736482231d86d472e92c609a03d166cee
 %KONAN_BIN%\bin\cinterop -def zlib.def -o zlib || exit /b
