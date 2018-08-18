@@ -15,5 +15,5 @@ object AGFactoryNative : AGFactory {
 
 class AGNative : AGOpengl() {
 	override val nativeComponent = Any()
-	override val gl: KmlGl = KmlGlNative()
+	override val gl: KmlGl = com.soywiz.kgl.KmlGlNative()
 }

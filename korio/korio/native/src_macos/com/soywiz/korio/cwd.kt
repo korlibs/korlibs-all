@@ -1,15 +1,13 @@
 package com.soywiz.korio
 
-fun nativeCwd(): String {
-	//val out = platform.Foundation.NSBundle.mainBundle.bundleURL.path ?: "."
-	//return if (out.endsWith(".app/")) "$out/Contents/Resources" else out
-	return platform.Foundation.NSBundle.mainBundle.resourcePath ?: "."
+fun nativeCwd(): String = platform.Foundation.NSBundle.mainBundle.resourcePath ?: "."
+
+fun doMkdir(path: String, attr: Int): Int {
+	return platform.posix.mkdir(path, attr)
 }
 
-//fun nativeCwd(): String {
-//	return memScoped {
-//		val data = allocArray<ByteVar>(1024)
-//		getcwd(data, 1024)
-//		data.toKString()
-//	}
-//}
+fun realpath(path: String): String = memScoped {
+	val temp = allocArray<ByteVar>(PATH_MAX)
+	realpath(path, temp)
+	temp.toKString()
+}

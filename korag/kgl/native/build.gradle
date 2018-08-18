@@ -1,9 +1,14 @@
 sourceSets {
-	main.kotlin.srcDirs += "src_macos"
+	// @TODO: we should be able to specify src folder per target instead of doing this
+	if (org.apache.tools.ant.taskdefs.condition.Os.isFamily(org.apache.tools.ant.taskdefs.condition.Os.FAMILY_WINDOWS)) {
+		main.kotlin.srcDirs += "src_win32"
+	} else {
+		main.kotlin.srcDirs += "src_macos"
+	}
+
 	main {
 		component {
 			target nativeTargets
-			//srcDir "src_macos"
 			outputKinds = [KLIBRARY]
 		}
 	}

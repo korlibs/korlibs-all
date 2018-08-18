@@ -208,13 +208,13 @@ class LocalVfsNative : LocalVfs() {
 
 			override suspend fun setLength(value: Long): Unit {
 				checkFd()
-				platform.posix.truncate(rpath, value)
+				platform.posix.truncate(rpath, value.narrow())
 			}
 
 			override suspend fun getLength(): Long {
 				checkFd()
-				platform.posix.fseek(fd, 0L, platform.posix.SEEK_END)
-				return platform.posix.ftell(fd)
+				platform.posix.fseek(fd, 0L.narrow(), platform.posix.SEEK_END)
+				return platform.posix.ftell(fd).signExtend()
 			}
 			override suspend fun close() {
 				checkFd()
@@ -227,7 +227,7 @@ class LocalVfsNative : LocalVfs() {
 	}
 
 	override suspend fun setSize(path: String, size: Long): Unit = executeInWorker {
-		platform.posix.truncate(resolve(path), size)
+		platform.posix.truncate(resolve(path), size.narrow())
 		Unit
 	}
 
@@ -236,7 +236,7 @@ class LocalVfsNative : LocalVfs() {
 		val result = memScoped {
 			val s = alloc<stat>()
 			if (platform.posix.stat(rpath, s.ptr) == 0) {
-				val size = s.st_size
+				val size: Long = s.st_size.signExtend()
 				val isDirectory = (s.st_mode.toInt() and S_IFDIR) != 0
 				createExistsStat(rpath, isDirectory, size)
 			} else {
@@ -261,7 +261,7 @@ class LocalVfsNative : LocalVfs() {
 	}
 
 	override suspend fun mkdir(path: String, attributes: List<Attribute>): Boolean = executeInWorker {
-		platform.posix.mkdir(resolve(path), "0777".toInt(8).uncheckedCast()) == 0
+		com.soywiz.korio.doMkdir(resolve(path), "0777".toInt(8).uncheckedCast()) == 0
 	}
 
 	override suspend fun touch(path: String, time: Long, atime: Long): Unit = executeInWorker {
@@ -288,10 +288,4 @@ class LocalVfsNative : LocalVfs() {
 	}
 
 	override fun toString(): String = "LocalVfs"
-}
-
-fun realpath(path: String): String = memScoped {
-	val temp = allocArray<ByteVar>(PATH_MAX)
-	realpath(path, temp)
-	temp.toKString()
 }
