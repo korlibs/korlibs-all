@@ -13,6 +13,7 @@ set GLOBAL_KLIB=%KONAN_WIN_HOME%\klib\platform\mingw_x64
 
 echo KONAN_BIN=%KONAN_BIN%
 
+
 mkdir %ATOMICFU_DIR%
 pushd %ATOMICFU_DIR%
 	git clone https://github.com/korlibs/kotlinx.atomicfu.git %ATOMICFU_DIR%
@@ -20,6 +21,18 @@ pushd %ATOMICFU_DIR%
 	git checkout master
 	call gradlew.bat publishToMavenLocal -x test -x check || exit /b
 popd
+
+
+REM tree %HOMEDRIVE%%HOMEPATH%\.konan
+echo kotlin-native-macos-0.9-dev-3210 doesn't have zlib on mingw yet
+echo Fixed here: https://github.com/JetBrains/kotlin-native/commit/3ad52b8736482231d86d472e92c609a03d166cee
+mkdir %LOCAL_KLIB%
+mkdir %GLOBAL_KLIB%\zlib
+call %KONAN_BIN%\cinterop.bat -def zlib.def -o zlib || exit /b
+call %KONAN_BIN%\klib.bat install zlib || exit /b
+xcopy /S /Y %LOCAL_KLIB%\zlib %GLOBAL_KLIB%\zlib
+tree %HOMEDRIVE%%HOMEPATH%\.konan
+
 
 mkdir %XCOROUTINES_DIR%
 pushd %XCOROUTINES_DIR%
@@ -29,15 +42,6 @@ pushd %XCOROUTINES_DIR%
 	call gradlew.bat publishToMavenLocal -x dokka -x dokkaJavadoc -x test -x check || exit /b
 popd
 
-REM tree C:\Users\appveyor\.konan
-
-REM kotlin-native-macos-0.9-dev-3210 doesn't have zlib on mingw yet
-REM Fixed here: https://github.com/JetBrains/kotlin-native/commit/3ad52b8736482231d86d472e92c609a03d166cee
-mkdir %LOCAL_KLIB%
-mkdir %GLOBAL_KLIB%\zlib
-call %KONAN_BIN%\cinterop.bat -def zlib.def -o zlib || exit /b
-call %KONAN_BIN%\klib.bat install zlib || exit /b
-xcopy /S /Y %LOCAL_KLIB%\zlib %GLOBAL_KLIB%\zlib
 
 call gradlew.bat -s check install || exit /b
 pushd samples
