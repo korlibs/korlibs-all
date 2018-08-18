@@ -1,5 +1,8 @@
 echo on
 
+REM required to mkdir parents
+setlocal enableextensions
+
 set PROJECT_DIR=%CD%
 set ATOMICFU_DIR=%PROJECT_DIR%\..\kotlinx.atomicfu
 set XCOROUTINES_DIR=%PROJECT_DIR%\..\kotlinx.coroutines
@@ -27,6 +30,7 @@ REM tree C:\Users\appveyor\.konan
 
 REM kotlin-native-macos-0.9-dev-3210 doesn't have zlib on mingw yet
 REM Fixed here: https://github.com/JetBrains/kotlin-native/commit/3ad52b8736482231d86d472e92c609a03d166cee
+mkdir KONAN_BIN=%HOMEDRIVE%%HOMEPATH%\.konan\klib
 call %KONAN_BIN%\cinterop.bat -def zlib.def -o zlib || exit /b
 call %KONAN_BIN%\klib.bat install zlib || exit /b
 
