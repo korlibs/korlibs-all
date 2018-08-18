@@ -4,10 +4,7 @@ build:
   verbosity: detailed
 
 build_script:
-  - gradlew.bat assemble --info --no-daemon
-
-test_script:
-  - gradlew.bat check --info --no-daemon
+  - appveyor_exec.bat
 
 branches:
   only:
