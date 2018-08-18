@@ -1,7 +1,7 @@
 set PROJECT_DIR=%CD%
 set ATOMICFU_DIR=%PROJECT_DIR%\..\kotlinx.atomicfu
 set XCOROUTINES_DIR=%PROJECT_DIR%\..\kotlinx.coroutines
-set KONAN_BIN=C:\Users\appveyor\.konan\kotlin-native-macos-0.9-dev-3210\bin
+set KONAN_BIN=C:\Users\appveyor\.konan\kotlin-native-windows-0.9-dev-3210\bin
 
 mkdir %ATOMICFU_DIR%
 pushd %ATOMICFU_DIR%
