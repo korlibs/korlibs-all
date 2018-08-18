@@ -28,9 +28,22 @@ echo kotlin-native-macos-0.9-dev-3210 doesn't have zlib on mingw yet
 echo Fixed here: https://github.com/JetBrains/kotlin-native/commit/3ad52b8736482231d86d472e92c609a03d166cee
 mkdir %LOCAL_KLIB%
 mkdir %GLOBAL_KLIB%\zlib
+
+tree %HOMEDRIVE%%HOMEPATH%\.konan
+
+echo %KONAN_BIN%\cinterop.bat -def zlib.def -o zlib
 call %KONAN_BIN%\cinterop.bat -def zlib.def -o zlib || exit /b
+
+tree %HOMEDRIVE%%HOMEPATH%\.konan
+
+echo %KONAN_BIN%\klib.bat install zlib
 call %KONAN_BIN%\klib.bat install zlib || exit /b
+
+tree %HOMEDRIVE%%HOMEPATH%\.konan
+
+echo xcopy /S /Y %LOCAL_KLIB%\zlib %GLOBAL_KLIB%\zlib
 xcopy /S /Y %LOCAL_KLIB%\zlib %GLOBAL_KLIB%\zlib
+
 tree %HOMEDRIVE%%HOMEPATH%\.konan
 
 
