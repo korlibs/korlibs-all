@@ -14,6 +14,7 @@ import com.soywiz.korio.net.http.*
 import com.soywiz.korio.net.ws.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
+import com.soywiz.std.*
 import kotlin.collections.set
 import kotlin.reflect.*
 import com.soywiz.std.*
@@ -192,8 +193,8 @@ class LocalVfsNative : LocalVfs() {
 					if (len > 0) {
 						val totalLen = getLength()
 						//platform.posix.fseeko64(fd, position, platform.posix.SEEK_SET)
-						platform.posix.fseek(fd, position.uncheckedCast(), platform.posix.SEEK_SET)
-						var result = platform.posix.fread(pin.addressOf(offset), 1, len.uncheckedCast(), fd).toInt()
+						platform.posix.fseek(fd, position.narrow(), platform.posix.SEEK_SET)
+						var result = platform.posix.fread(pin.addressOf(offset), 1, len.toLong().narrow(), fd).toInt()
 						//println("AsyncStreamBase:position=$position,len=$len,totalLen=$totalLen,result=$result,presult=$presult,ferror=${platform.posix.ferror(fd)},feof=${platform.posix.feof(fd)}")
 						return result
 					} else {
@@ -207,8 +208,8 @@ class LocalVfsNative : LocalVfs() {
 				return buffer.usePinned { pin ->
 					if (len > 0) {
 						//platform.posix.fseeko64(fd, position, platform.posix.SEEK_SET)
-						platform.posix.fseek(fd, position.uncheckedCast(), platform.posix.SEEK_SET)
-						platform.posix.fwrite(pin.addressOf(offset), 1, len.uncheckedCast(), fd)
+						platform.posix.fseek(fd, position.narrow(), platform.posix.SEEK_SET)
+						platform.posix.fwrite(pin.addressOf(offset), 1, len.toLong().narrow(), fd)
 					}
 					Unit
 				}
@@ -223,8 +224,8 @@ class LocalVfsNative : LocalVfs() {
 				checkFd()
 				//platform.posix.fseeko64(fd, 0L, platform.posix.SEEK_END)
 				//return platform.posix.ftello64(fd)
-				platform.posix.fseek(fd, 0, platform.posix.SEEK_END)
-				return platform.posix.ftell(fd).uncheckedCast()
+				platform.posix.fseek(fd, 0L.narrow(), platform.posix.SEEK_END)
+				return platform.posix.ftell(fd).toLong()
 			}
 			override suspend fun close() {
 				checkFd()
@@ -271,7 +272,7 @@ class LocalVfsNative : LocalVfs() {
 	}
 
 	override suspend fun mkdir(path: String, attributes: List<Attribute>): Boolean = executeInWorker {
-		com.soywiz.korio.doMkdir(resolve(path), "0777".toInt(8).uncheckedCast()) == 0
+		com.soywiz.korio.doMkdir(resolve(path), "0777".toInt(8).toLong().narrow()) == 0
 	}
 
 	override suspend fun touch(path: String, time: Long, atime: Long): Unit = executeInWorker {
