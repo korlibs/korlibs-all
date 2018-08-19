@@ -218,12 +218,12 @@ enum class VfsOpenMode(
 	val createIfNotExists: Boolean = false,
 	val truncate: Boolean = false
 ) {
-	READ("r", write = false),
-	WRITE("rw", write = true, createIfNotExists = true),
-	APPEND("a+", write = true, createIfNotExists = true),
-	CREATE_OR_TRUNCATE("rw", write = true, createIfNotExists = true, truncate = true),
-	CREATE("rw", write = true, createIfNotExists = true),
-	CREATE_NEW("rw", write = true);
+	READ("rb", write = false),
+	WRITE("rwb", write = true, createIfNotExists = true),
+	APPEND("a+b", write = true, createIfNotExists = true),
+	CREATE_OR_TRUNCATE("rwb", write = true, createIfNotExists = true, truncate = true),
+	CREATE("rwb", write = true, createIfNotExists = true),
+	CREATE_NEW("rwb", write = true);
 
 	companion object {
 		fun fromString(str: String): VfsOpenMode {

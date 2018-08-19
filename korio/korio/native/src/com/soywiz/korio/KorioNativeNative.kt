@@ -190,8 +190,11 @@ class LocalVfsNative : LocalVfs() {
 				//println("AsyncStreamBase.read($position, buffer=${buffer.size}, offset=$offset, len=$len)")
 				return buffer.usePinned { pin ->
 					if (len > 0) {
-						platform.posix.fseek(fd, position.uncheckedCast(), platform.posix.SEEK_SET)
-						platform.posix.fread(pin.addressOf(offset), 1, len.uncheckedCast(), fd).toInt()
+						val totalLen = getLength()
+						platform.posix.fseeko64(fd, position, platform.posix.SEEK_SET)
+						var result = platform.posix.fread(pin.addressOf(offset), 1, len.signExtend(), fd).toInt()
+						//println("AsyncStreamBase:position=$position,len=$len,totalLen=$totalLen,result=$result,presult=$presult,ferror=${platform.posix.ferror(fd)},feof=${platform.posix.feof(fd)}")
+						return result
 					} else {
 						0
 					}
@@ -202,8 +205,8 @@ class LocalVfsNative : LocalVfs() {
 				checkFd()
 				return buffer.usePinned { pin ->
 					if (len > 0) {
-						platform.posix.fseek(fd, position.uncheckedCast(), platform.posix.SEEK_SET)
-						platform.posix.fwrite(pin.addressOf(offset), 1, len.uncheckedCast(), fd)
+						platform.posix.fseeko64(fd, position, platform.posix.SEEK_SET)
+						platform.posix.fwrite(pin.addressOf(offset), 1, len.signExtend(), fd)
 					}
 					Unit
 				}
@@ -216,8 +219,8 @@ class LocalVfsNative : LocalVfs() {
 
 			override suspend fun getLength(): Long {
 				checkFd()
-				platform.posix.fseek(fd, 0L.narrow(), platform.posix.SEEK_END)
-				return platform.posix.ftell(fd).signExtend()
+				platform.posix.fseeko64(fd, 0L, platform.posix.SEEK_END)
+				return platform.posix.ftello64(fd)
 			}
 			override suspend fun close() {
 				checkFd()
@@ -264,7 +267,7 @@ class LocalVfsNative : LocalVfs() {
 	}
 
 	override suspend fun mkdir(path: String, attributes: List<Attribute>): Boolean = executeInWorker {
-		com.soywiz.korio.doMkdir(resolve(path), "0777".toInt(8).uncheckedCast()) == 0
+		com.soywiz.korio.doMkdir(resolve(path), "0777".toInt(8).signExtend()) == 0
 	}
 
 	override suspend fun touch(path: String, time: Long, atime: Long): Unit = executeInWorker {
