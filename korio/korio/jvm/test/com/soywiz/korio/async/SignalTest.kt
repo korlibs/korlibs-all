@@ -37,7 +37,7 @@ class SignalTest {
 		val s = Signal<Int>()
 		launchImmediately(coroutineContext) {
 			try {
-				withTimeout(100) {
+				withTimeout(200) {
 					while (true) {
 						out += "" + s.waitOne()
 					}
@@ -47,11 +47,11 @@ class SignalTest {
 			}
 		}
 		s(1)
-		delay(50)
+		delay(20)
 		s(2)
-		delay(100)
+		delay(220)
 		s(3)
-		delay(100)
+		delay(120)
 		assertEquals("12<cancel>", out)
 	}
 }
