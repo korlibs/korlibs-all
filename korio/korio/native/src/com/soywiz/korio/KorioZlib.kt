@@ -123,6 +123,9 @@ fun <T : ZlibOutput> zlibDeflate(input: ZlibInput, output: T, level: Int): T {
 					strm.opaque = null
 					strm.avail_in = 0
 					strm.next_in = null
+					val Z_DEFLATED = 8
+					val MAX_MEM_LEVEL = 9
+					val Z_DEFAULT_STRATEGY = 0
 					ret = deflateInit2_(strm.ptr, level, Z_DEFLATED, 15, MAX_MEM_LEVEL, Z_DEFAULT_STRATEGY, zlibVersion()?.toKString(), sizeOf<z_stream>().toInt());
 					if (ret != Z_OK)
 						return@memScoped ret
