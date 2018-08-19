@@ -21,6 +21,13 @@ buildscript {
 	//ext.nativeTargets = ['macbook', 'linux']
 	ext.nativeTargets = ['macos']
 
+	ext.skipNativeBuildOnCI = [
+	        "korim-qr",
+			"korau-atrac3plus", "korau-mod", "korau-opus", "korau-ogg-vorbis",
+			"korfl", "korge-ext-swf", "korge-ext-fla",
+			"korge-ext-spriter", "korge-build"
+	]
+
 	ext.libDependencies = [
 			"korlibstd"        : [],
 			"dynarek"          : ["korlibstd"],
@@ -85,6 +92,12 @@ allprojects {
 	def isCommon = project.name.endsWith("-common")
 	def isKotlin = isJs || isJvm || isNative || isCommon
 	String projectNameWithoutSuffix = project.name[0..<project.name.lastIndexOf('-')]
+
+	if (isNative && projectNameWithoutSuffix in skipNativeBuildOnCI) {
+		println("SKIP: " + projectNameWithoutSuffix)
+		return
+	}
+
 
 	String suffix = ""
 	String jsuffix = ""
