@@ -11,7 +11,7 @@ class withTimeoutTest {
 		var out = ""
 		var result = "none"
 		try {
-			result = withTimeout(200, TimeUnit.MILLISECONDS) {
+			result = withTimeout(300, TimeUnit.MILLISECONDS) {
 				out += "a"
 				delay(20)
 				out += "b"
@@ -25,7 +25,7 @@ class withTimeoutTest {
 			out += "<CANCEL>"
 		}
 
-		delay(500)
+		delay(650)
 		assertEquals("abcd", out)
 		assertEquals("done", result)
 	}

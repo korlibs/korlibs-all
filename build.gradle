@@ -227,13 +227,13 @@ allprojects {
 	}
 
 	if (isNative) {
-		task copyResources(type: Copy) {
+		task copyNativeTestResources(type: Copy) {
 			from file("testresources"), file("../common/testresources")
 			into file("build/test-exe/test/debug") // This is the CWD
 		}
 
 		afterEvaluate {
-			compileTestDebugKotlinNative.dependsOn(copyResources)
+			compileTestDebugKotlinNative.dependsOn(copyNativeTestResources)
 		}
 	}
 

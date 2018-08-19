@@ -3,11 +3,16 @@ package com.soywiz.korio
 import kotlinx.cinterop.*
 import platform.posix.*
 
-fun nativeCwd(): String = memScoped {
-	val data = allocArray<ByteVar>(1024)
-	getcwd(data, 1024)
+fun getExecutablePath(): String = kotlinx.cinterop.memScoped {
+	val maxSize = 4096
+	val data = allocArray<kotlinx.cinterop.ByteVar>(maxSize + 1)
+	platform.windows.GetModuleFileNameA(null, data, maxSize)
 	data.toKString()
-}
+}.replace('/', '\\')
+
+fun getExecutableDirectory(): String = getExecutablePath().substringBeforeLast('\\')
+
+fun nativeCwd(): String = getExecutableDirectory()
 
 fun doMkdir(path: String, attr: Int): Int {
 	return platform.posix.mkdir(path)
