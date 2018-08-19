@@ -3,6 +3,19 @@ package com.soywiz.korinject
 import java.lang.reflect.*
 import kotlin.reflect.*
 
+@Target(AnnotationTarget.CLASS)
+annotation class Prototype
+
+@Target(AnnotationTarget.CLASS)
+annotation class Singleton
+
+@Target(AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.FIELD)
+@Deprecated("Do not use Inject but injector.get() with a lateinit")
+annotation class Inject
+
+@Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.FIELD)
+annotation class Optional
+
 fun AsyncInjector.jvmAutomapping(): AsyncInjector = this.apply {
 	this.fallbackProvider = { kclazz, ctx -> fallback(this, kclazz, ctx) }
 }
