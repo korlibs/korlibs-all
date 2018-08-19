@@ -191,8 +191,9 @@ class LocalVfsNative : LocalVfs() {
 				return buffer.usePinned { pin ->
 					if (len > 0) {
 						val totalLen = getLength()
-						platform.posix.fseeko64(fd, position, platform.posix.SEEK_SET)
-						var result = platform.posix.fread(pin.addressOf(offset), 1, len.signExtend(), fd).toInt()
+						//platform.posix.fseeko64(fd, position, platform.posix.SEEK_SET)
+						platform.posix.fseek(fd, position.uncheckedCast(), platform.posix.SEEK_SET)
+						var result = platform.posix.fread(pin.addressOf(offset), 1, len.uncheckedCast(), fd).toInt()
 						//println("AsyncStreamBase:position=$position,len=$len,totalLen=$totalLen,result=$result,presult=$presult,ferror=${platform.posix.ferror(fd)},feof=${platform.posix.feof(fd)}")
 						return result
 					} else {
@@ -205,8 +206,9 @@ class LocalVfsNative : LocalVfs() {
 				checkFd()
 				return buffer.usePinned { pin ->
 					if (len > 0) {
-						platform.posix.fseeko64(fd, position, platform.posix.SEEK_SET)
-						platform.posix.fwrite(pin.addressOf(offset), 1, len.signExtend(), fd)
+						//platform.posix.fseeko64(fd, position, platform.posix.SEEK_SET)
+						platform.posix.fseek(fd, position.uncheckedCast(), platform.posix.SEEK_SET)
+						platform.posix.fwrite(pin.addressOf(offset), 1, len.uncheckedCast(), fd)
 					}
 					Unit
 				}
@@ -219,8 +221,10 @@ class LocalVfsNative : LocalVfs() {
 
 			override suspend fun getLength(): Long {
 				checkFd()
-				platform.posix.fseeko64(fd, 0L, platform.posix.SEEK_END)
-				return platform.posix.ftello64(fd)
+				//platform.posix.fseeko64(fd, 0L, platform.posix.SEEK_END)
+				//return platform.posix.ftello64(fd)
+				platform.posix.fseek(fd, 0, platform.posix.SEEK_END)
+				return platform.posix.ftell(fd).uncheckedCast()
 			}
 			override suspend fun close() {
 				checkFd()
@@ -242,7 +246,7 @@ class LocalVfsNative : LocalVfs() {
 		val result = memScoped {
 			val s = alloc<stat>()
 			if (platform.posix.stat(rpath, s.ptr) == 0) {
-				val size: Long = s.st_size.signExtend()
+				val size: Long = s.st_size.toLong()
 				val isDirectory = (s.st_mode.toInt() and S_IFDIR) != 0
 				createExistsStat(rpath, isDirectory, size)
 			} else {
@@ -267,7 +271,7 @@ class LocalVfsNative : LocalVfs() {
 	}
 
 	override suspend fun mkdir(path: String, attributes: List<Attribute>): Boolean = executeInWorker {
-		com.soywiz.korio.doMkdir(resolve(path), "0777".toInt(8).signExtend()) == 0
+		com.soywiz.korio.doMkdir(resolve(path), "0777".toInt(8).uncheckedCast()) == 0
 	}
 
 	override suspend fun touch(path: String, time: Long, atime: Long): Unit = executeInWorker {
