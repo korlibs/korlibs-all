@@ -20,6 +20,7 @@ pushd %ATOMICFU_DIR%
 	git clone https://github.com/korlibs/kotlinx.atomicfu.git %ATOMICFU_DIR%
 	git pull
 	git checkout master
+	echo "gradle.taskGraph.whenReady { graph -> graph.allTasks.findAll { it.name ==~ /(.*ReleaseMacos.*|.*Ios.*)/ }*.enabled = false }" >> build.gradle
 	call gradlew.bat publishToMavenLocal -x test -x check || exit /b
 popd
 
@@ -46,6 +47,7 @@ pushd %XCOROUTINES_DIR%
 	git clone https://github.com/korlibs/kotlinx.coroutines.git %XCOROUTINES_DIR%
 	git pull
 	git checkout master
+	echo "gradle.taskGraph.whenReady { graph -> graph.allTasks.findAll { it.name ==~ /(.*ReleaseMacos.*|.*Ios.*)/ }*.enabled = false }" >> build.gradle
 	call gradlew.bat publishToMavenLocal -x dokka -x dokkaJavadoc -x test -x check -x compileReleaseKotlinNative || exit /b
 popd
 

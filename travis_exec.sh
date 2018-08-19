@@ -6,20 +6,22 @@ export PROJECT_DIR=$PWD
 export ATOMICFU_DIR=$PROJECT_DIR/../kotlinx.atomicfu
 export XCOROUTINES_DIR=$PROJECT_DIR/../kotlinx.coroutines
 
-mkdir -p $ATOMICFU_DIR
+test -d $ATOMICFU_DIR || mkdir -p $ATOMICFU_DIR
 pushd $ATOMICFU_DIR
-	git clone https://github.com/korlibs/kotlinx.atomicfu.git $ATOMICFU_DIR
+	test -d $ATOMICFU_DIR/.git || git clone https://github.com/korlibs/kotlinx.atomicfu.git $ATOMICFU_DIR
 	git pull
 	git checkout master
-	./gradlew publishToMavenLocal -x test -x check -x compileReleaseKotlinNative
+	echo "gradle.taskGraph.whenReady { graph -> graph.allTasks.findAll { it.name ==~ /(.*ReleaseMacos.*|.*Ios.*)/ }*.enabled = false }" >> build.gradle
+	./gradlew publishToMavenLocal -x test -x check
 popd
 
-mkdir -p $XCOROUTINES_DIR
+test -d $XCOROUTINES_DIR || mkdir -p $XCOROUTINES_DIR
 pushd $XCOROUTINES_DIR
-	git clone https://github.com/korlibs/kotlinx.coroutines.git $XCOROUTINES_DIR
+	test -d $XCOROUTINES_DIR/.git || git clone https://github.com/korlibs/kotlinx.coroutines.git $XCOROUTINES_DIR
 	git pull
 	git checkout master
-	./gradlew publishToMavenLocal -x dokka -x dokkaJavadoc -x test -x check -x compileReleaseKotlinNative
+	echo "gradle.taskGraph.whenReady { graph -> graph.allTasks.findAll { it.name ==~ /(.*ReleaseMacos.*|.*Ios.*)/ }*.enabled = false }" >> build.gradle
+	./gradlew publishToMavenLocal -x dokka -x dokkaJavadoc -x test -x check
 popd
 
 if [ "$kotlin_native_rev" != "" ]; then
@@ -34,7 +36,7 @@ if [ "$kotlin_native_rev" != "" ]; then
 		./gradlew dist distPlatformLibs
 	popd
 
-    ./gradlew -s check -x compileReleaseKotlinNative -Pkonan.home=$KONAN_REPO/dist --include-build $KONAN_REPO/shared --include-build $KONAN_REPO/tools/kotlin-native-gradle-plugin
+    ./gradlew -s check install -Pkonan.home=$KONAN_REPO/dist --include-build $KONAN_REPO/shared --include-build $KONAN_REPO/tools/kotlin-native-gradle-plugin
     pushd samples
 		./gradlew -s :sample1-native:compileDebugMacos_x64KotlinNative -Pkonan.home=$KONAN_REPO/dist --include-build $KONAN_REPO/shared --include-build $KONAN_REPO/tools/kotlin-native-gradle-plugin
 		./gradlew -s check -x compileReleaseKotlinNative -Pkonan.home=$KONAN_REPO/dist --include-build $KONAN_REPO/shared --include-build $KONAN_REPO/tools/kotlin-native-gradle-plugin
