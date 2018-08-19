@@ -225,16 +225,33 @@ class AsyncInjectorTest {
 		//	injector.child().get<MySingleton>()
 		//}
 
+		data class Unmapped(val name: String)
+		//@Singleton
+		class MySingleton(val unmapped: Unmapped)
+
 		expectException<AsyncInjector.NotMappedException> {
-			data class Unmapped(val name: String)
-			//@Singleton
-			class MySingleton(val unmapped: Unmapped)
+
+			// @TODO: kotlin-native bug
+			////error: compilation failed: org.jetbrains.kotlin.ir.declarations.impl.IrFunctionImpl@5b34e7bd
+			////
+			////* Source files: AsyncInjector.kt, Korinject.kt, KorinjectVersion.kt, AsyncInjectorTest.kt, expectException.kt, syncTest.kt, syncTestImpl.kt, syncTestImplNative.kt
+			////* Compiler version info: Konan: 0.8.2-dev / Kotlin: 1.2.70
+			////* Output kind: PROGRAM
+			////
+			////	exception: java.lang.IllegalStateException: org.jetbrains.kotlin.ir.declarations.impl.IrFunctionImpl@5b34e7bd
+			////at org.jetbrains.kotlin.backend.konan.llvm.LlvmDeclarations.forFunction(LlvmDeclarations.kt:55)
+			////at org.jetbrains.kotlin.backend.konan.llvm.ContextUtils$DefaultImpls.getLlvmFunction(ContextUtils.kt:176)
+			////at org.jetbrains.kotlin.backend.konan.llvm.CodeGenerator.getLlvmFunction(CodeGenerator.kt:37)
+			//data class Unmapped(val name: String)
+			////@Singleton
+			//class MySingleton(val unmapped: Unmapped)
 
 			val injector = AsyncInjector()
 			injector.mapSingleton(MySingleton::class) { MySingleton(get(Unmapped::class)) }
 			injector.child().get(MySingleton::class)
 		}
 	}
+
 
 	@kotlin.test.Test
 	fun testMap1() = suspendTest {
@@ -250,5 +267,5 @@ class AsyncInjectorTest {
 	}
 }
 
-private inline suspend fun <reified T : Any> AsyncInjector.getPath(path: String) =
+private suspend inline fun <reified T : Any> AsyncInjector.getPath(path: String) =
 	getWith<T>(AsyncInjectorTest.VPath(path))
