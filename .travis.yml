@@ -24,3 +24,10 @@ install:
 
 script:
   - ./travis_exec.sh
+
+cache:
+  directories:
+    - $HOME/.konan/cache
+
+before_cache:
+  - echo before_cache
