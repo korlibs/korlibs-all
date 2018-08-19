@@ -56,5 +56,6 @@ popd
 
 call gradlew.bat -s check install || exit /b
 pushd samples
-	call ..\gradlew.bat -s check || exit /b
+	echo Not bulding sample, because dragonbones is not built because out of memory on CI
+	REM call ..\gradlew.bat -s check || exit /b
 popd

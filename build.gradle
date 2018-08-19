@@ -32,6 +32,9 @@ buildscript {
 			//kotlin.AssertionError: Expected <6956>, actual <670>.
 			//		at kfun:kotlin.Throwable.<init>(kotlin.String?)kotlin.Throwable (000000000049c5b0)
 			"korau-mp3",
+
+			// @TODO: This crashes appveyor with an out of memory :(
+			"korge-dragonbones",
 	]
 
 	ext.libDependencies = [
