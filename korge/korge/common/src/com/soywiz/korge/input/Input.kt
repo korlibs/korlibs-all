@@ -7,7 +7,7 @@ import com.soywiz.korma.geom.*
 import com.soywiz.korui.event.*
 import com.soywiz.korui.input.*
 
-@Singleton
+//@Singleton
 class Input : Extra by Extra.Mixin() {
 	companion object {
 		const val KEYCODES = 0x100

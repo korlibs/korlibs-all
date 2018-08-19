@@ -4,7 +4,7 @@ import com.soywiz.korinject.*
 import com.soywiz.korio.lang.*
 import kotlin.reflect.*
 
-@Prototype
+//@Prototype
 class Bus(
 	private val globalBus: GlobalBus
 ) : Closeable, InjectedHandler {
@@ -41,7 +41,7 @@ class Bus(
 	}
 }
 
-@Singleton
+//@Singleton
 class GlobalBus {
 	val perClassHandlers = HashMap<KClass<*>, ArrayList<suspend (Any) -> Unit>>()
 

@@ -5,7 +5,7 @@ import com.soywiz.korio.file.*
 import com.soywiz.korio.file.std.*
 import com.soywiz.korio.util.*
 
-@Singleton
+//@Singleton
 class ResourcesRoot : AsyncDependency {
 	private lateinit var root: VfsFile
 	private lateinit var mountable: Mountable

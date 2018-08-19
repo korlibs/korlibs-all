@@ -8,7 +8,7 @@ import com.soywiz.korui.light.*
 import com.soywiz.korui.ui.*
 import kotlin.coroutines.experimental.*
 
-@Singleton
+//@Singleton
 open class Browser(val injector: AsyncInjector) {
 	//companion object {
 	//	operator fun invoke() = Services.load(Browser::class.java).firstOrNull() ?: unsupported("Not ${Browser::class.java.name} implementation found")

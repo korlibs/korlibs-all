@@ -19,7 +19,7 @@ class AsyncInjectorTest {
 
 	@Test
 	fun testSingleton() = suspendTest {
-		@Singleton
+		//@Singleton
 		class A(val holder: Holder) {
 			val id: Int = holder.lastId++
 		}
@@ -38,17 +38,17 @@ class AsyncInjectorTest {
 		var lastId = NewAtomicInt(0)
 	}
 
-	@Prototype
+	//@Prototype
 	class PrototypeA {
 		val id: Int = lastId.preIncrement()
 	}
 
-	@Singleton
+	//@Singleton
 	class SingletonS {
 		val id: Int = lastId.preIncrement()
 	}
 
-	@Prototype
+	//@Prototype
 	class PrototypeB(val s: SingletonS) {
 		val id: Int = lastId.preIncrement()
 	}
@@ -94,7 +94,7 @@ class AsyncInjectorTest {
 
 	@kotlin.test.Test
 	fun testLoader() = suspendTest {
-		@Singleton
+		//@Singleton
 		class Demo(
 			//@Path("path/to/font") val font: BitmapFont
 		) : InjectorAsyncDependency {
@@ -120,8 +120,10 @@ class AsyncInjectorTest {
 	class BitmapFont2(val path: String)
 
 	class BitmapFontLoader2(
-		@Optional val pathA: Path2A?,
-		@Optional val pathB: Path2B?
+		//@Optional
+		val pathA: Path2A?,
+		//@Optional
+		val pathB: Path2B?
 	) : AsyncFactory<BitmapFont2> {
 		override suspend fun create(): BitmapFont2 = when {
 			pathA != null -> BitmapFont2(pathA.path1)
@@ -171,7 +173,7 @@ class AsyncInjectorTest {
 			}
 		}
 
-		@Singleton
+		//@Singleton
 		class Demo(
 			val a: Int
 		) : Base() {
@@ -193,7 +195,7 @@ class AsyncInjectorTest {
 
 	@kotlin.test.Test
 	fun testSingletonInChilds() = suspendTest {
-		@Singleton
+		//@Singleton
 		class MySingleton {
 			var a = 10
 		}
@@ -225,7 +227,7 @@ class AsyncInjectorTest {
 
 		expectException<AsyncInjector.NotMappedException> {
 			data class Unmapped(val name: String)
-			@Singleton
+			//@Singleton
 			class MySingleton(val unmapped: Unmapped)
 
 			val injector = AsyncInjector()
@@ -237,7 +239,7 @@ class AsyncInjectorTest {
 	@kotlin.test.Test
 	fun testMap1() = suspendTest {
 		data class Mapped(val name: String)
-		@Singleton
+		//@Singleton
 		class MySingleton(val mapped: Mapped)
 
 		val injector = AsyncInjector()

@@ -3,7 +3,7 @@ package com.soywiz.korge.ui
 import com.soywiz.korge.resources.*
 import com.soywiz.korinject.*
 
-@Singleton
+//@Singleton
 class UIFactory : InjectorAsyncDependency {
 	lateinit var skin: UISkin
 	val views get() = skin.views

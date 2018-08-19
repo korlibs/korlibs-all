@@ -44,7 +44,7 @@ interface BoundsProvider {
 	}
 }
 
-@Singleton
+//@Singleton
 class Views(
 	override val coroutineContext: CoroutineContext,
 	val ag: AG,

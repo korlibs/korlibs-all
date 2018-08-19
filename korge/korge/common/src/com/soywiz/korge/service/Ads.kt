@@ -2,7 +2,7 @@ package com.soywiz.korge.service
 
 import com.soywiz.korinject.*
 
-@Singleton
+//@Singleton
 open class Ads() {
 	suspend fun preload() {
 	}

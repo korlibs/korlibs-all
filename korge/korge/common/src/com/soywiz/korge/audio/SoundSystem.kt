@@ -11,7 +11,7 @@ import com.soywiz.korio.async.*
 import com.soywiz.korio.file.*
 import kotlinx.coroutines.experimental.*
 
-@Singleton
+//@Singleton
 class SoundSystem(val views: Views) : AsyncDependency {
 	override suspend fun init() {
 		nativeSoundProvider.initOnce()
@@ -38,7 +38,7 @@ interface AudioChannel {
 	fun stop(): Unit
 }
 
-@Prototype
+//@Prototype
 open class SoundChannel(override val soundSystem: SoundSystem) : AudioChannel {
 	var enabled: Boolean = true
 
@@ -113,7 +113,7 @@ open class SoundChannel(override val soundSystem: SoundSystem) : AudioChannel {
 	}
 }
 
-@Prototype
+//@Prototype
 class MusicChannel(override val soundSystem: SoundSystem) : SoundChannel(soundSystem) {
 }
 

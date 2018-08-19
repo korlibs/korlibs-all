@@ -1,5 +1,6 @@
 package com.soywiz.korinject.util
 
+import com.soywiz.std.coroutine.*
 import kotlin.coroutines.experimental.*
 
 actual fun syncTestImpl(ignoreJs: Boolean, block: suspend () -> Unit) {
@@ -18,6 +19,8 @@ actual fun syncTestImpl(ignoreJs: Boolean, block: suspend () -> Unit) {
 		}
 	})
 
-	while (!done) platform.posix.usleep(1000)
+	while (!done) {
+		//Thread.sleep(1L) // @TODO: kotlin-native: No std sleep available in native? so spinlock for now
+	}
 	e?.let { throw it }
 }
