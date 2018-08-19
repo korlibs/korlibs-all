@@ -7,7 +7,9 @@ package com.soywiz.kgl
 import com.soywiz.kmem.*
 import com.soywiz.korim.bitmap.*
 
-object KmlGlDummy : KmlGl() {
+object KmlGlDummy : KmlGlDummyBase()
+
+open class KmlGlDummyBase : KmlGl() {
     override fun activeTexture(texture: Int): Unit = Unit
     override fun attachShader(program: Int, shader: Int): Unit = Unit
     override fun bindAttribLocation(program: Int, index: Int, name: String): Unit = Unit

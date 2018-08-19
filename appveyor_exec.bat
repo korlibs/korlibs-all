@@ -3,6 +3,8 @@ echo on
 REM required to mkdir parents
 setlocal enableextensions
 
+set build_kotlin_native=true
+
 set PROJECT_DIR=%CD%
 set ATOMICFU_DIR=%PROJECT_DIR%\..\kotlinx.atomicfu
 set XCOROUTINES_DIR=%PROJECT_DIR%\..\kotlinx.coroutines
