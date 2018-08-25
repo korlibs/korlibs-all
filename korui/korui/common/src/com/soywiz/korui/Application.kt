@@ -2,7 +2,6 @@ package com.soywiz.korui
 
 import com.soywiz.klogger.*
 import com.soywiz.korim.bitmap.*
-import com.soywiz.korio.async.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korui.event.*
 import com.soywiz.korui.geom.len.*
@@ -136,7 +135,7 @@ suspend fun CanvasApplicationEx(
 	val frame = application.frame(title, width, height, icon) {
 		canvas = agCanvas().apply { focus() }
 	}
-	if (isNative) println("CanvasApplicationEx[4]")
+	if (isNative) println("CanvasApplicationEx[4] - canvas.waitReady()")
 	canvas.waitReady()
 	if (isNative) println("CanvasApplicationEx[5]")
 	callback(canvas, frame)

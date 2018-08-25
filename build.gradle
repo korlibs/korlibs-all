@@ -102,7 +102,7 @@ allprojects {
 	def isKotlin = isJs || isJvm || isNative || isCommon
 	String projectNameWithoutSuffix = project.name[0..<project.name.lastIndexOf('-')]
 
-	if (isNative && projectNameWithoutSuffix in skipNativeBuildOnCI) {
+	if (isNative && System.getenv("CI") != null && projectNameWithoutSuffix in skipNativeBuildOnCI) {
 		println("SKIP: " + projectNameWithoutSuffix)
 		return
 	}

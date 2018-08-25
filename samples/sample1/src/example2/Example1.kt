@@ -3,6 +3,7 @@ package example2
 import com.dragonbones.event.*
 import com.soywiz.kds.*
 import com.soywiz.klock.*
+import com.soywiz.klogger.*
 import com.soywiz.kmem.*
 import com.soywiz.korge.*
 import com.soywiz.korge.async.*
@@ -41,6 +42,7 @@ fun main(args: Array<String>): Unit {
     //Logger("BatchBuilder2D").level = Logger.Level.TRACE
     //Logger("DefaultShaders").level = Logger.Level.TRACE
     //Logger("RenderContext2D").level = Logger.Level.TRACE
+
     //Korge(MyModule, debug = true)
     println("V0")
     println("KorioNative.ResourcesVfs.absolutePath: " + KorioNative.ResourcesVfs.absolutePath)
