@@ -1,6 +1,6 @@
 package com.soywiz.korio
 
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.*
 
 fun Korio(entry: suspend CoroutineDispatcher.() -> Unit) = Korio(com.soywiz.korio.async.KorioDefaultDispatcher, entry)
 

@@ -2,12 +2,13 @@ package com.soywiz.korau.sound
 
 import com.soywiz.korio.file.std.*
 import com.soywiz.korio.lang.*
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.*
 import org.khronos.webgl.*
 import org.w3c.dom.*
 import org.w3c.dom.events.*
 import kotlin.browser.*
-import kotlin.coroutines.experimental.*
+import kotlin.coroutines.*
+import kotlin.coroutines.*
 
 class MediaElementAudioSourceNodeWithAudioElement(
 	val node: MediaElementAudioSourceNode,

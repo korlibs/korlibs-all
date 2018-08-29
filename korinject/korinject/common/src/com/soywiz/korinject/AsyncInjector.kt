@@ -1,7 +1,7 @@
 package com.soywiz.korinject
 
 import com.soywiz.std.coroutine.*
-import kotlin.coroutines.experimental.*
+import kotlin.coroutines.*
 import kotlin.reflect.*
 
 //import kotlin.reflect.KClass

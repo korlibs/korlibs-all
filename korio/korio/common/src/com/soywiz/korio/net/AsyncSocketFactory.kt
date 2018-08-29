@@ -6,8 +6,8 @@ import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
 import com.soywiz.std.*
-import kotlinx.coroutines.experimental.*
-import kotlin.coroutines.experimental.*
+import kotlinx.coroutines.*
+import kotlin.coroutines.*
 
 val asyncSocketFactory: AsyncSocketFactory get() = KorioNative.asyncSocketFactory
 

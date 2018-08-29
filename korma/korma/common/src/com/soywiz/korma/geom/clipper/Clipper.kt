@@ -641,7 +641,7 @@ class ClipperOffset constructor(
 			sin = -sin
 		}
 
-		for (i in 0..polyNodes.childCount - 1) {
+		for (i in 0 until polyNodes.childCount) {
 			val node = polyNodes.getChilds()[i]
 			srcPoly = node.polygon
 
@@ -695,7 +695,7 @@ class ClipperOffset constructor(
 
 			//build m_normals ...
 			normals.clear()
-			for (j in 0..len - 1 - 1) {
+			for (j in 0 until len - 1) {
 				normals.add(Points.getUnitNormal(srcPoly!![j], srcPoly!![j + 1]))
 			}
 			if (node.endType == Clipper.EndType.CLOSED_LINE || node.endType == Clipper.EndType.CLOSED_POLYGON) {
@@ -706,13 +706,13 @@ class ClipperOffset constructor(
 
 			if (node.endType == Clipper.EndType.CLOSED_POLYGON) {
 				val k = intArrayOf(len - 1)
-				for (j in 0..len - 1) {
+				for (j in 0 until len) {
 					offsetPoint(j, k, node.joinType!!)
 				}
 				destPolys!!.add(destPoly!!)
 			} else if (node.endType == Clipper.EndType.CLOSED_LINE) {
 				val k = intArrayOf(len - 1)
-				for (j in 0..len - 1) {
+				for (j in 0 until len) {
 					offsetPoint(j, k, node.joinType!!)
 				}
 				destPolys!!.add(destPoly!!)
@@ -730,7 +730,7 @@ class ClipperOffset constructor(
 				destPolys!!.add(destPoly!!)
 			} else {
 				val k = IntArray(1)
-				for (j in 1..len - 1 - 1) {
+				for (j in 1 until len - 1) {
 					offsetPoint(j, k, node.joinType!!)
 				}
 
@@ -1280,7 +1280,7 @@ class DefaultClipper constructor(InitOptions: Int = 0) //constructor
 		if (activeEdges == null) return
 
 		//prepare for sorting ...
-		var e = activeEdges
+		var e: Edge? = activeEdges
 		sortedEdges = e
 		while (e != null) {
 			e.prevInSEL = e.prevInAEL
@@ -1311,8 +1311,8 @@ class DefaultClipper constructor(InitOptions: Int = 0) //constructor
 					e = eNext
 				}
 			}
-			if (e.prevInSEL != null) {
-				e.prevInSEL!!.nextInSEL = null
+			if (e?.prevInSEL != null) {
+				e?.prevInSEL?.nextInSEL = null
 			} else {
 				break
 			}
@@ -1805,10 +1805,10 @@ class DefaultClipper constructor(InitOptions: Int = 0) //constructor
 			if (sedge == null) sedge = activeEdges
 			while (sedge!!.nextInAEL != null && !Edge.doesE2InsertBeforeE1(sedge.nextInAEL!!, edge)) sedge =
 					sedge.nextInAEL
-			edge.nextInAEL = sedge.nextInAEL
-			if (sedge.nextInAEL != null) sedge.nextInAEL!!.prevInAEL = edge
+			edge.nextInAEL = sedge?.nextInAEL
+			if (sedge?.nextInAEL != null) sedge?.nextInAEL!!.prevInAEL = edge
 			edge.prevInAEL = sedge
-			sedge.nextInAEL = edge
+			sedge?.nextInAEL = edge
 		}
 	}
 
@@ -3544,7 +3544,7 @@ class Path private constructor(private val al: ArrayList<Vector2>) : MutableList
 				}
 				if (dups != null) {
 					while (dups !== p) {
-						if (!isFirstBottomPt(p, dups!!)) {
+						if (!isFirstBottomPt(p!!, dups!!)) {
 							pp = dups
 						}
 						dups = dups.next

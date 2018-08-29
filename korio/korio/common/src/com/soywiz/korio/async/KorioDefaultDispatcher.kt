@@ -1,6 +1,6 @@
 package com.soywiz.korio.async
 
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.*
 
 // @TODO:
 expect val KorioDefaultDispatcher: CoroutineDispatcher

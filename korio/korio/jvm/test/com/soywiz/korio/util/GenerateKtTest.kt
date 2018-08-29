@@ -1,6 +1,6 @@
 package com.soywiz.korio.util
 
-import kotlin.coroutines.experimental.*
+import kotlin.coroutines.*
 import kotlin.test.*
 
 class GenerateTest {

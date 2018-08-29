@@ -3,11 +3,11 @@ package com.soywiz.korui
 import com.soywiz.klock.*
 import com.soywiz.kmem.*
 import com.soywiz.korio.async.*
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.*
 import java.awt.event.*
 import java.util.concurrent.*
 import javax.swing.*
-import kotlin.coroutines.experimental.*
+import kotlin.coroutines.*
 
 actual val KoruiDispatcher: CoroutineDispatcher get() = Swing
 

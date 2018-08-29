@@ -3,7 +3,7 @@ package com.soywiz.korui.light
 import com.soywiz.korag.*
 import com.soywiz.kgl.*
 import com.soywiz.korui.*
-import kotlin.coroutines.experimental.*
+import kotlin.coroutines.*
 import com.soywiz.korio.async.*
 import com.soywiz.korui.*
 

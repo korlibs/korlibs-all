@@ -4,8 +4,9 @@ package com.soywiz.korio.async
 
 import com.soywiz.kds.*
 import com.soywiz.std.coroutine.*
-import kotlinx.coroutines.experimental.*
-import kotlin.coroutines.experimental.*
+import kotlinx.coroutines.*
+import kotlin.coroutines.*
+import kotlin.coroutines.*
 
 interface SuspendingSequenceBuilder<in T> {
 	suspend fun yield(value: T)

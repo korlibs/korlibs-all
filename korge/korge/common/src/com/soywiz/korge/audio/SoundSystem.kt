@@ -9,7 +9,7 @@ import com.soywiz.korge.view.*
 import com.soywiz.korinject.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.file.*
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.*
 
 //@Singleton
 class SoundSystem(val views: Views) : AsyncDependency {

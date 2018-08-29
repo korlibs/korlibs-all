@@ -17,9 +17,9 @@ import kotlin.reflect.KClass
 import com.soywiz.korio.async.*
 import com.soywiz.klock.*
 import com.soywiz.kmem.*
-import kotlinx.coroutines.experimental.*
-import kotlin.coroutines.experimental.*
-import kotlinx.coroutines.experimental.timeunit.*
+import kotlinx.coroutines.*
+import kotlin.coroutines.*
+import kotlinx.coroutines.timeunit.*
 import com.soywiz.korui.input.Key
 
 class MyNativeCoroutineDispatcher() : CoroutineDispatcher(), Delay, Closeable {

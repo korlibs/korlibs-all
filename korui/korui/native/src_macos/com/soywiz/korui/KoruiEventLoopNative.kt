@@ -24,9 +24,9 @@ import kotlin.reflect.KClass
 import com.soywiz.korio.async.*
 import com.soywiz.klock.*
 import com.soywiz.kmem.*
-import kotlinx.coroutines.experimental.*
-import kotlin.coroutines.experimental.*
-import kotlinx.coroutines.experimental.timeunit.*
+import kotlinx.coroutines.*
+import kotlin.coroutines.*
+import kotlinx.coroutines.timeunit.*
 
 class MyNativeCoroutineDispatcher() : CoroutineDispatcher(), Delay, Closeable {
 	override fun dispatchYield(context: CoroutineContext, block: Runnable): Unit = dispatch(context, block)

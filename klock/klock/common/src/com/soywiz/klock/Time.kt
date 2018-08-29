@@ -11,7 +11,8 @@ enum class DayOfWeek(val index: Int) {
 	}
 }
 
-data class Year(val year: Int) : Comparable<Year> {
+inline class Year(val year: Int) : Comparable<Year> {
+//data class Year(val year: Int) : Comparable<Year> {
 	companion object {
 		fun checked(year: Int) = year.apply { if (year !in 1..9999) throw DateException("Year $year not in 1..9999") }
 		fun isLeapChecked(year: Int): Boolean = isLeap(checked(year))
@@ -446,9 +447,8 @@ inline val Number.hours get() = TimeDistance(hours = this.toDouble())
 inline val Number.minutes get() = TimeDistance(minutes = this.toDouble())
 
 @Suppress("DataClassPrivateConstructor")
-//data class TimeSpan private constructor(val ms: Int) : Comparable<TimeSpan> {
-// inline // @TODO: class inline or SLOW!
-data class TimeSpan(val ms: Int) : Comparable<TimeSpan> {
+inline class TimeSpan(val ms: Int) : Comparable<TimeSpan> {
+//data class TimeSpan(val ms: Int) : Comparable<TimeSpan> {
 	val milliseconds: Int get() = this.ms
 	val seconds: Double get() = this.ms.toDouble() / 1000.0
 

@@ -1,8 +1,8 @@
 package com.soywiz.korio.async
 
 import com.soywiz.std.coroutine.*
-import kotlinx.coroutines.experimental.*
-import kotlin.coroutines.experimental.*
+import kotlinx.coroutines.*
+import kotlin.coroutines.*
 
 fun <T> CompletableDeferred<T>.toContinuation(context: CoroutineContext, job: Job? = null): Continuation<T> {
 	val deferred = CompletableDeferred<T>(job)

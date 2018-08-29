@@ -1,7 +1,7 @@
 package com.soywiz.korinject.util
 
 import com.soywiz.std.coroutine.*
-import kotlin.coroutines.experimental.*
+import kotlin.coroutines.*
 
 val global = js("(typeof global !== 'undefined') ? global : window")
 

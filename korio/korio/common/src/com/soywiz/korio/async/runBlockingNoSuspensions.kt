@@ -3,10 +3,10 @@ package com.soywiz.korio.async
 import com.soywiz.korio.error.*
 import com.soywiz.korio.lang.*
 import com.soywiz.std.coroutine.*
-import kotlinx.coroutines.experimental.*
-import kotlinx.coroutines.experimental.intrinsics.*
-import kotlinx.coroutines.experimental.timeunit.*
-import kotlin.coroutines.experimental.*
+import kotlinx.coroutines.*
+import kotlinx.coroutines.intrinsics.*
+import kotlinx.coroutines.timeunit.*
+import kotlin.coroutines.*
 
 // Fails on JS:     InvalidOperationException: ioSync completed=true, result=null, resultEx=null, suspendCount=3015
 ///**

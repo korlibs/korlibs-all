@@ -5,7 +5,7 @@ import com.soywiz.korge.resources.*
 import com.soywiz.korge.tests.*
 import com.soywiz.korge.view.*
 import com.soywiz.korim.color.*
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.*
 import kotlin.test.*
 
 class SceneContainerTest : ViewsForTesting() {

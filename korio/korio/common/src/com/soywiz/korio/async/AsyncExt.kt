@@ -6,9 +6,10 @@ import com.soywiz.korio.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.util.*
 import com.soywiz.std.coroutine.*
-import kotlinx.coroutines.experimental.*
-import kotlinx.coroutines.experimental.timeunit.*
-import kotlin.coroutines.experimental.*
+import kotlinx.coroutines.*
+import kotlinx.coroutines.timeunit.*
+import kotlin.coroutines.*
+import kotlin.coroutines.*
 
 // @TODO: BUG: kotlin-js bug :: Uncaught ReferenceError: CoroutineImpl is not defined
 //Coroutine$await$lambda.$metadata$ = {kind: Kotlin.Kind.CLASS, simpleName: null, interfaces: [CoroutineImpl]};
@@ -56,7 +57,7 @@ suspend fun CoroutineContext.delayNextFrame() {
 
 suspend fun CoroutineContext.delayMs(time: Int) {
 	withContext(this) {
-		kotlinx.coroutines.experimental.delay(time)
+		kotlinx.coroutines.delay(time)
 	}
 }
 

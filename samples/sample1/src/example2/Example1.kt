@@ -25,7 +25,7 @@ import com.soywiz.korio.serialization.json.*
 import com.soywiz.korma.geom.*
 import com.soywiz.korma.random.*
 import com.soywiz.korui.light.*
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.*
 import kotlin.math.*
 import kotlin.reflect.*
 

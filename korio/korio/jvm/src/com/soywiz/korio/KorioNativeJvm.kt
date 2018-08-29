@@ -9,7 +9,7 @@ import com.soywiz.korio.net.*
 import com.soywiz.korio.net.http.*
 import com.soywiz.korio.net.ws.*
 import com.soywiz.korio.util.*
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.*
 import org.java_websocket.handshake.*
 import java.io.*
 import java.lang.*
@@ -19,7 +19,7 @@ import java.util.*
 import java.util.zip.*
 import javax.crypto.*
 import javax.crypto.spec.*
-import kotlin.coroutines.experimental.*
+import kotlin.coroutines.*
 import kotlin.reflect.*
 
 actual typealias Synchronized = kotlin.jvm.Synchronized

@@ -6,7 +6,8 @@ import com.soywiz.korio.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.file.*
 import com.soywiz.std.coroutine.*
-import kotlin.coroutines.experimental.*
+import kotlin.coroutines.*
+import kotlin.coroutines.*
 
 suspend fun MountableVfs(callback: suspend Mountable.() -> Unit): VfsFile =
 	suspendCoroutine { c ->

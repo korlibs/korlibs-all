@@ -25,8 +25,8 @@ import com.soywiz.korui.input.*
 import com.soywiz.korui.light.*
 import com.soywiz.korui.ui.*
 import com.soywiz.std.*
-import kotlinx.coroutines.experimental.*
-import kotlin.coroutines.experimental.*
+import kotlinx.coroutines.*
+import kotlin.coroutines.*
 import kotlin.reflect.*
 
 object Korge {

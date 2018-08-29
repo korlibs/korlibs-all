@@ -12,7 +12,7 @@ import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korui.event.*
 import com.soywiz.korui.input.*
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.*
 import org.khronos.webgl.*
 import org.w3c.dom.*
 import org.w3c.dom.events.*
@@ -21,7 +21,8 @@ import org.w3c.dom.events.MouseEvent
 import org.w3c.files.*
 import kotlin.RuntimeException
 import kotlin.browser.*
-import kotlin.coroutines.experimental.*
+import kotlin.coroutines.*
+import kotlin.coroutines.*
 import kotlin.reflect.*
 
 var windowInputFile: HTMLInputElement? = null

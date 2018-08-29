@@ -24,7 +24,7 @@ import kotlin.collections.listOf
 import kotlin.collections.plus
 import kotlin.collections.plusAssign
 import kotlin.collections.set
-import kotlin.coroutines.experimental.*
+import kotlin.coroutines.*
 import kotlin.math.*
 
 suspend fun ZipVfs(s: AsyncStream, zipFile: VfsFile? = null): VfsFile =

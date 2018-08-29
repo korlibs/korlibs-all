@@ -14,15 +14,15 @@ import com.soywiz.korio.net.ws.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
 import com.soywiz.std.coroutine.*
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.*
 import org.khronos.webgl.*
 import org.khronos.webgl.set
 import org.w3c.dom.*
 import org.w3c.xhr.*
 import kotlin.browser.*
 import kotlin.collections.set
-import kotlin.coroutines.experimental.*
-import kotlin.coroutines.experimental.CoroutineContext
+import kotlin.coroutines.*
+import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.*
 
 actual annotation class Synchronized

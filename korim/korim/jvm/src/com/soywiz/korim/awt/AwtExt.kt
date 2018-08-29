@@ -4,14 +4,14 @@ import com.soywiz.kmem.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
 import com.soywiz.korio.async.*
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.*
 import java.awt.*
 import java.awt.event.*
 import java.awt.image.*
 import java.io.*
 import javax.imageio.*
 import javax.swing.*
-import kotlin.coroutines.experimental.*
+import kotlin.coroutines.*
 
 fun Bitmap32.toAwt(
 	out: BufferedImage = BufferedImage(
