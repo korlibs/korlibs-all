@@ -104,7 +104,7 @@ actual object KorioNative {
 	actual suspend fun <T> executeInWorker(callback: suspend () -> T): T = callback()
 
 	actual fun Thread_sleep(time: Long): Unit {
-		platform.posix.usleep((time * 1000L).toInt())
+		platform.posix.usleep((time * 1000L).toUInt())
 	}
 
 	actual class SimplerMessageDigest actual constructor(name: String) {
@@ -194,7 +194,11 @@ class LocalVfsNative : LocalVfs() {
 						val totalLen = getLength()
 						//platform.posix.fseeko64(fd, position, platform.posix.SEEK_SET)
 						platform.posix.fseek(fd, position.narrow(), platform.posix.SEEK_SET)
-						var result = platform.posix.fread(pin.addressOf(offset), 1, len.toLong().narrow(), fd).toInt()
+
+						// @TODO: Windows
+						//var result = platform.posix.fread(pin.addressOf(offset), 1, len.toULong().narrow(), fd).toInt()
+						var result = platform.posix.fread(pin.addressOf(offset), 1, len.toULong(), fd).toInt()
+
 						//println("AsyncStreamBase:position=$position,len=$len,totalLen=$totalLen,result=$result,presult=$presult,ferror=${platform.posix.ferror(fd)},feof=${platform.posix.feof(fd)}")
 						return result
 					} else {
@@ -209,7 +213,10 @@ class LocalVfsNative : LocalVfs() {
 					if (len > 0) {
 						//platform.posix.fseeko64(fd, position, platform.posix.SEEK_SET)
 						platform.posix.fseek(fd, position.narrow(), platform.posix.SEEK_SET)
-						platform.posix.fwrite(pin.addressOf(offset), 1, len.toLong().narrow(), fd)
+
+						// @TODO: Windows
+						//platform.posix.fwrite(pin.addressOf(offset), 1, len.toULong().narrow(), fd)
+						platform.posix.fwrite(pin.addressOf(offset), 1, len.toULong(), fd)
 					}
 					Unit
 				}

@@ -18,7 +18,7 @@ actual object Random {
 
 	init {
 		//srand(__microClock().toInt())
-		srand(kotlin.system.getTimeMicros().toInt())
+		srand(kotlin.system.getTimeMicros().toUInt())
 	}
 
 	actual fun nextInt(): Int = rand()
