@@ -30,7 +30,7 @@ actual object Klock {
 	actual fun getLocalTimezoneOffset(unix: Long): Int = memScoped {
 		val t = alloc<time_tVar>()
 		val tm = alloc<tm>()
-		t.value = (unix / 1000L).narrow()
+		t.value = (unix / 1000L).convert()
 		localtime_r(t.ptr, tm.ptr)
 		tm.tm_gmtoff.toInt() / 60
 	}

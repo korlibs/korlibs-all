@@ -214,7 +214,7 @@ object GenGl {
 				val name = func.fname.nativeName
 				val PROC = "PFN${name.toUpperCase()}PROC"
 				if (!func.core) {
-					println("val $name: $PROC by lazy { wglGetProcAddressAny(\"$name\").uncheckedCast<$PROC>() }")
+					println("val $name: $PROC by lazy { wglGetProcAddressAny(\"$name\").reinterpret<$PROC>() }")
 				}
 			}
 		}
@@ -390,13 +390,13 @@ object OpenglDesc {
 	object GlInt : GlType("Int")
 	object GlSize : GlType("Int") {
 		override fun toJVM(param: String): String = "$param.toLong()"
-		override fun toNative(param: String): String = "$param.narrowSize()"
+		override fun toNative(param: String): String = "$param.convertSize()"
 		override fun toAndroid(param: String): String = param
 	}
 
 	object GlSizeOrPointer : GlType("Int") {
 		override fun toJVM(param: String): String = "$param.toLong()"
-		override fun toNative(param: String): String = "$param.uncheckedCast()"
+		override fun toNative(param: String): String = "$param.reinterpret()"
 		override fun toAndroid(param: String): String = param
 	}
 
@@ -405,12 +405,12 @@ object OpenglDesc {
 	}
 
 	object GlDouble : GlType("Float") {
-		override fun toNative(param: String): String = "$param.narrowFloat()"
+		override fun toNative(param: String): String = "$param.convertFloat()"
 		override fun toNativeIphone(param: String): String = "$param"
 	}
 
 	object GlBool : GlType("Boolean") {
-		override fun toNative(param: String): String = "$param.narrow()"
+		override fun toNative(param: String): String = "$param.convert()"
 		override fun toNativeReturn(param: String): String = "$param.toBool()"
 	}
 
@@ -420,7 +420,7 @@ object OpenglDesc {
 	}
 
 	object GlNativeImageData : GlType(KmlNativeImageData) {
-		override fun toNative(param: String): String = "$param?.unsafeAddress()?.uncheckedCast()"
+		override fun toNative(param: String): String = "$param?.unsafeAddress()?.reinterpret()"
 	}
 
 	open class GlTypeToInt : GlType("Int") {
@@ -438,7 +438,7 @@ object OpenglDesc {
 
 	open class GlTypePtr(ktname: String, val nullable: Boolean = false) : GlType(if (nullable) "$ktname?" else ktname) {
 		override fun toJVM(param: String): String = "$param.nioBuffer"
-		override fun toNative(param: String): String = if (nullable) "$param?.unsafeAddress()?.uncheckedCast()" else "$param.unsafeAddress().uncheckedCast()"
+		override fun toNative(param: String): String = if (nullable) "$param?.unsafeAddress()?.reinterpret()" else "$param.unsafeAddress().reinterpret()"
 	}
 
 	object GlVoidPtr : GlTypePtr(KmlNativeBuffer, nullable = false) {
@@ -1308,7 +1308,7 @@ object OpenglDesc {
                 memScoped {
                     val lengths = allocArray<IntVar>(1)
                     val strings = allocArray<CPointerVar<ByteVar>>(1)
-                    lengths[0] = strlen(string).narrow()
+                    lengths[0] = strlen(string).convert()
                     strings[0] = string.cstr.placeTo(this)
                     glShaderSource(shader, 1, strings, lengths)
                 }
@@ -1364,7 +1364,7 @@ object OpenglDesc {
 			nativeBody = "run { " +
 					"val intData = (data as BitmapNativeImage).intData; " +
 					"if (intData != null) {" +
-					"	intData.usePinned { dataPin -> glTexImage2D(target, level, internalformat, data.width, data.height, 0, format, type, dataPin.addressOf(0).uncheckedCast()) }" +
+					"	intData.usePinned { dataPin -> glTexImage2D(target, level, internalformat, data.width, data.height, 0, format, type, dataPin.addressOf(0).reinterpret()) }" +
 					"} else {" +
 					"	glTexImage2D(target, level, internalformat, data.width, data.height, 0, format, type, null)" +
 					"}" +

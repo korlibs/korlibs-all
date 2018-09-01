@@ -162,7 +162,7 @@ internal actual suspend fun KoruiWrap(entry: suspend (KoruiContext) -> Unit) {
 		val clazzNamePtr = clazzName.wcstr.getPointer(this@memScoped)
 		wc.lpfnWndProc = staticCFunction(::WndProc)
 		wc.hInstance = null
-		wc.hbrBackground = COLOR_BACKGROUND.uncheckedCast()
+		wc.hbrBackground = COLOR_BACKGROUND.convert()
 
 		val hInstance = GetModuleHandleA(null)
 		//FindResourceA(null, null, 124)
@@ -389,7 +389,7 @@ fun mouseButton(button: Int, down: Boolean) {
 	}
 }
 
-//val String.glstr: CPointer<GLcharVar> get() = this.cstr.uncheckedCast()
+//val String.glstr: CPointer<GLcharVar> get() = this.cstr.reinterpret()
 val OPENGL32_DLL_MODULE: HMODULE? by lazy { LoadLibraryA("opengl32.dll") }
 
 fun wglGetProcAddressAny(name: String): PROC? {
@@ -420,7 +420,7 @@ val FindResourceAFunc by lazy {
 	).uncheckedCast<CPointer<CFunction<Function2<HMODULE?, Int, HICON?>>>>()
 }
 
-//val ARROW_CURSOR by lazy { LoadCursorA(null, 32512.uncheckedCast<CPointer<ByteVar>>().uncheckedCast()) }
+//val ARROW_CURSOR by lazy { LoadCursorA(null, 32512.uncheckedCast<CPointer<ByteVar>>().reinterpret()) }
 val ARROW_CURSOR by lazy { LoadCursorAFunc(0, 32512) }
 
 const val VK_ABNT_C1 = 0xC1

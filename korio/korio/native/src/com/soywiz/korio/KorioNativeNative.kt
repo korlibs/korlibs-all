@@ -192,12 +192,8 @@ class LocalVfsNative : LocalVfs() {
 				return buffer.usePinned { pin ->
 					if (len > 0) {
 						val totalLen = getLength()
-						//platform.posix.fseeko64(fd, position, platform.posix.SEEK_SET)
-						platform.posix.fseek(fd, position.narrow(), platform.posix.SEEK_SET)
-
-						// @TODO: Windows
-						//var result = platform.posix.fread(pin.addressOf(offset), 1, len.toULong().narrow(), fd).toInt()
-						var result = platform.posix.fread(pin.addressOf(offset), 1, len.toULong(), fd).toInt()
+						platform.posix.fseek(fd, position.convert(), platform.posix.SEEK_SET)
+						var result = platform.posix.fread(pin.addressOf(offset), 1, len.convert(), fd).toInt()
 
 						//println("AsyncStreamBase:position=$position,len=$len,totalLen=$totalLen,result=$result,presult=$presult,ferror=${platform.posix.ferror(fd)},feof=${platform.posix.feof(fd)}")
 						return result
@@ -212,11 +208,9 @@ class LocalVfsNative : LocalVfs() {
 				return buffer.usePinned { pin ->
 					if (len > 0) {
 						//platform.posix.fseeko64(fd, position, platform.posix.SEEK_SET)
-						platform.posix.fseek(fd, position.narrow(), platform.posix.SEEK_SET)
+						platform.posix.fseek(fd, position.convert(), platform.posix.SEEK_SET)
 
-						// @TODO: Windows
-						//platform.posix.fwrite(pin.addressOf(offset), 1, len.toULong().narrow(), fd)
-						platform.posix.fwrite(pin.addressOf(offset), 1, len.toULong(), fd)
+						platform.posix.fwrite(pin.addressOf(offset), 1, len.convert(), fd)
 					}
 					Unit
 				}
@@ -224,14 +218,14 @@ class LocalVfsNative : LocalVfs() {
 
 			override suspend fun setLength(value: Long): Unit {
 				checkFd()
-				platform.posix.truncate(rpath, value.narrow())
+				platform.posix.truncate(rpath, value.convert())
 			}
 
 			override suspend fun getLength(): Long {
 				checkFd()
 				//platform.posix.fseeko64(fd, 0L, platform.posix.SEEK_END)
 				//return platform.posix.ftello64(fd)
-				platform.posix.fseek(fd, 0L.narrow(), platform.posix.SEEK_END)
+				platform.posix.fseek(fd, 0L.convert(), platform.posix.SEEK_END)
 				return platform.posix.ftell(fd).toLong()
 			}
 			override suspend fun close() {
@@ -245,7 +239,7 @@ class LocalVfsNative : LocalVfs() {
 	}
 
 	override suspend fun setSize(path: String, size: Long): Unit = executeInWorker {
-		platform.posix.truncate(resolve(path), size.narrow())
+		platform.posix.truncate(resolve(path), size.convert())
 		Unit
 	}
 
@@ -279,7 +273,7 @@ class LocalVfsNative : LocalVfs() {
 	}
 
 	override suspend fun mkdir(path: String, attributes: List<Attribute>): Boolean = executeInWorker {
-		com.soywiz.korio.doMkdir(resolve(path), "0777".toInt(8).toLong().narrow()) == 0
+		com.soywiz.korio.doMkdir(resolve(path), "0777".toInt(8).convert()) == 0
 	}
 
 	override suspend fun touch(path: String, time: Long, atime: Long): Unit = executeInWorker {

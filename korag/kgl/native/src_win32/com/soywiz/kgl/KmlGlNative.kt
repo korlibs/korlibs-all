@@ -28,36 +28,36 @@ class KmlGlNative : KmlGl() {
     override fun blendEquationSeparate(modeRGB: Int, modeAlpha: Int): Unit = tempBufferAddress { glBlendEquationSeparate(modeRGB, modeAlpha) }
     override fun blendFunc(sfactor: Int, dfactor: Int): Unit = tempBufferAddress { glBlendFunc(sfactor, dfactor) }
     override fun blendFuncSeparate(sfactorRGB: Int, dfactorRGB: Int, sfactorAlpha: Int, dfactorAlpha: Int): Unit = tempBufferAddress { glBlendFuncSeparate(sfactorRGB, dfactorRGB, sfactorAlpha, dfactorAlpha) }
-    override fun bufferData(target: Int, size: Int, data: KmlNativeBuffer, usage: Int): Unit = tempBufferAddress { glBufferData(target, size.narrowSize(), data.unsafeAddress().uncheckedCast(), usage) }
-    override fun bufferSubData(target: Int, offset: Int, size: Int, data: KmlNativeBuffer): Unit = tempBufferAddress { glBufferSubData(target, offset.narrowSize(), size.narrowSize(), data.unsafeAddress().uncheckedCast()) }
+    override fun bufferData(target: Int, size: Int, data: KmlNativeBuffer, usage: Int): Unit = tempBufferAddress { glBufferData(target, size.convertSize(), data.unsafeAddress().reinterpret(), usage) }
+    override fun bufferSubData(target: Int, offset: Int, size: Int, data: KmlNativeBuffer): Unit = tempBufferAddress { glBufferSubData(target, offset.convertSize(), size.convertSize(), data.unsafeAddress().reinterpret()) }
     override fun checkFramebufferStatus(target: Int): Int = tempBufferAddress { glCheckFramebufferStatus(target) }
     override fun clear(mask: Int): Unit = tempBufferAddress { glClear(mask) }
     override fun clearColor(red: Float, green: Float, blue: Float, alpha: Float): Unit = tempBufferAddress { glClearColor(red, green, blue, alpha) }
-    override fun clearDepthf(d: Float): Unit = tempBufferAddress { glClearDepth(d.narrowFloat()) }
+    override fun clearDepthf(d: Float): Unit = tempBufferAddress { glClearDepth(d.convertFloat()) }
     override fun clearStencil(s: Int): Unit = tempBufferAddress { glClearStencil(s) }
-    override fun colorMask(red: Boolean, green: Boolean, blue: Boolean, alpha: Boolean): Unit = tempBufferAddress { glColorMask(red.narrow(), green.narrow(), blue.narrow(), alpha.narrow()) }
+    override fun colorMask(red: Boolean, green: Boolean, blue: Boolean, alpha: Boolean): Unit = tempBufferAddress { glColorMask(red.convert(), green.convert(), blue.convert(), alpha.convert()) }
     override fun compileShader(shader: Int): Unit = tempBufferAddress { glCompileShader(shader) }
-    override fun compressedTexImage2D(target: Int, level: Int, internalformat: Int, width: Int, height: Int, border: Int, imageSize: Int, data: KmlNativeBuffer): Unit = tempBufferAddress { glCompressedTexImage2D(target, level, internalformat, width, height, border, imageSize, data.unsafeAddress().uncheckedCast()) }
-    override fun compressedTexSubImage2D(target: Int, level: Int, xoffset: Int, yoffset: Int, width: Int, height: Int, format: Int, imageSize: Int, data: KmlNativeBuffer): Unit = tempBufferAddress { glCompressedTexSubImage2D(target, level, xoffset, yoffset, width, height, format, imageSize, data.unsafeAddress().uncheckedCast()) }
+    override fun compressedTexImage2D(target: Int, level: Int, internalformat: Int, width: Int, height: Int, border: Int, imageSize: Int, data: KmlNativeBuffer): Unit = tempBufferAddress { glCompressedTexImage2D(target, level, internalformat, width, height, border, imageSize, data.unsafeAddress().reinterpret()) }
+    override fun compressedTexSubImage2D(target: Int, level: Int, xoffset: Int, yoffset: Int, width: Int, height: Int, format: Int, imageSize: Int, data: KmlNativeBuffer): Unit = tempBufferAddress { glCompressedTexSubImage2D(target, level, xoffset, yoffset, width, height, format, imageSize, data.unsafeAddress().reinterpret()) }
     override fun copyTexImage2D(target: Int, level: Int, internalformat: Int, x: Int, y: Int, width: Int, height: Int, border: Int): Unit = tempBufferAddress { glCopyTexImage2D(target, level, internalformat, x, y, width, height, border) }
     override fun copyTexSubImage2D(target: Int, level: Int, xoffset: Int, yoffset: Int, x: Int, y: Int, width: Int, height: Int): Unit = tempBufferAddress { glCopyTexSubImage2D(target, level, xoffset, yoffset, x, y, width, height) }
     override fun createProgram(): Int = tempBufferAddress { glCreateProgram() }
     override fun createShader(type: Int): Int = tempBufferAddress { glCreateShader(type) }
     override fun cullFace(mode: Int): Unit = tempBufferAddress { glCullFace(mode) }
-    override fun deleteBuffers(n: Int, items: KmlNativeBuffer): Unit = tempBufferAddress { glDeleteBuffers(n, items.unsafeAddress().uncheckedCast()) }
-    override fun deleteFramebuffers(n: Int, items: KmlNativeBuffer): Unit = tempBufferAddress { glDeleteFramebuffers(n, items.unsafeAddress().uncheckedCast()) }
+    override fun deleteBuffers(n: Int, items: KmlNativeBuffer): Unit = tempBufferAddress { glDeleteBuffers(n, items.unsafeAddress().reinterpret()) }
+    override fun deleteFramebuffers(n: Int, items: KmlNativeBuffer): Unit = tempBufferAddress { glDeleteFramebuffers(n, items.unsafeAddress().reinterpret()) }
     override fun deleteProgram(program: Int): Unit = tempBufferAddress { glDeleteProgram(program) }
-    override fun deleteRenderbuffers(n: Int, items: KmlNativeBuffer): Unit = tempBufferAddress { glDeleteRenderbuffers(n, items.unsafeAddress().uncheckedCast()) }
+    override fun deleteRenderbuffers(n: Int, items: KmlNativeBuffer): Unit = tempBufferAddress { glDeleteRenderbuffers(n, items.unsafeAddress().reinterpret()) }
     override fun deleteShader(shader: Int): Unit = tempBufferAddress { glDeleteShader(shader) }
-    override fun deleteTextures(n: Int, items: KmlNativeBuffer): Unit = tempBufferAddress { glDeleteTextures(n, items.unsafeAddress().uncheckedCast()) }
+    override fun deleteTextures(n: Int, items: KmlNativeBuffer): Unit = tempBufferAddress { glDeleteTextures(n, items.unsafeAddress().reinterpret()) }
     override fun depthFunc(func: Int): Unit = tempBufferAddress { glDepthFunc(func) }
-    override fun depthMask(flag: Boolean): Unit = tempBufferAddress { glDepthMask(flag.narrow()) }
-    override fun depthRangef(n: Float, f: Float): Unit = tempBufferAddress { glDepthRange(n.narrowFloat(), f.narrowFloat()) }
+    override fun depthMask(flag: Boolean): Unit = tempBufferAddress { glDepthMask(flag.convert()) }
+    override fun depthRangef(n: Float, f: Float): Unit = tempBufferAddress { glDepthRange(n.convertFloat(), f.convertFloat()) }
     override fun detachShader(program: Int, shader: Int): Unit = tempBufferAddress { glDetachShader(program, shader) }
     override fun disable(cap: Int): Unit = tempBufferAddress { glDisable(cap) }
     override fun disableVertexAttribArray(index: Int): Unit = tempBufferAddress { glDisableVertexAttribArray(index) }
     override fun drawArrays(mode: Int, first: Int, count: Int): Unit = tempBufferAddress { glDrawArrays(mode, first, count) }
-    override fun drawElements(mode: Int, count: Int, type: Int, indices: Int): Unit = tempBufferAddress { glDrawElements(mode, count, type, indices.uncheckedCast()) }
+    override fun drawElements(mode: Int, count: Int, type: Int, indices: Int): Unit = tempBufferAddress { glDrawElements(mode, count, type, indices.reinterpret()) }
     override fun enable(cap: Int): Unit = tempBufferAddress { glEnable(cap) }
     override fun enableVertexAttribArray(index: Int): Unit = tempBufferAddress { glEnableVertexAttribArray(index) }
     override fun finish(): Unit = tempBufferAddress { glFinish() }
@@ -65,37 +65,37 @@ class KmlGlNative : KmlGl() {
     override fun framebufferRenderbuffer(target: Int, attachment: Int, renderbuffertarget: Int, renderbuffer: Int): Unit = tempBufferAddress { glFramebufferRenderbuffer(target, attachment, renderbuffertarget, renderbuffer) }
     override fun framebufferTexture2D(target: Int, attachment: Int, textarget: Int, texture: Int, level: Int): Unit = tempBufferAddress { glFramebufferTexture2D(target, attachment, textarget, texture, level) }
     override fun frontFace(mode: Int): Unit = tempBufferAddress { glFrontFace(mode) }
-    override fun genBuffers(n: Int, buffers: KmlNativeBuffer): Unit = tempBufferAddress { glGenBuffers(n, buffers.unsafeAddress().uncheckedCast()) }
+    override fun genBuffers(n: Int, buffers: KmlNativeBuffer): Unit = tempBufferAddress { glGenBuffers(n, buffers.unsafeAddress().reinterpret()) }
     override fun generateMipmap(target: Int): Unit = tempBufferAddress { glGenerateMipmap(target) }
-    override fun genFramebuffers(n: Int, framebuffers: KmlNativeBuffer): Unit = tempBufferAddress { glGenFramebuffers(n, framebuffers.unsafeAddress().uncheckedCast()) }
-    override fun genRenderbuffers(n: Int, renderbuffers: KmlNativeBuffer): Unit = tempBufferAddress { glGenRenderbuffers(n, renderbuffers.unsafeAddress().uncheckedCast()) }
-    override fun genTextures(n: Int, textures: KmlNativeBuffer): Unit = tempBufferAddress { glGenTextures(n, textures.unsafeAddress().uncheckedCast()) }
-    override fun getActiveAttrib(program: Int, index: Int, bufSize: Int, length: KmlNativeBuffer, size: KmlNativeBuffer, type: KmlNativeBuffer, name: KmlNativeBuffer): Unit = tempBufferAddress { glGetActiveAttrib(program, index, bufSize, length.unsafeAddress().uncheckedCast(), size.unsafeAddress().uncheckedCast(), type.unsafeAddress().uncheckedCast(), name.unsafeAddress().uncheckedCast()) }
-    override fun getActiveUniform(program: Int, index: Int, bufSize: Int, length: KmlNativeBuffer, size: KmlNativeBuffer, type: KmlNativeBuffer, name: KmlNativeBuffer): Unit = tempBufferAddress { glGetActiveUniform(program, index, bufSize, length.unsafeAddress().uncheckedCast(), size.unsafeAddress().uncheckedCast(), type.unsafeAddress().uncheckedCast(), name.unsafeAddress().uncheckedCast()) }
-    override fun getAttachedShaders(program: Int, maxCount: Int, count: KmlNativeBuffer, shaders: KmlNativeBuffer): Unit = tempBufferAddress { glGetAttachedShaders(program, maxCount, count.unsafeAddress().uncheckedCast(), shaders.unsafeAddress().uncheckedCast()) }
+    override fun genFramebuffers(n: Int, framebuffers: KmlNativeBuffer): Unit = tempBufferAddress { glGenFramebuffers(n, framebuffers.unsafeAddress().reinterpret()) }
+    override fun genRenderbuffers(n: Int, renderbuffers: KmlNativeBuffer): Unit = tempBufferAddress { glGenRenderbuffers(n, renderbuffers.unsafeAddress().reinterpret()) }
+    override fun genTextures(n: Int, textures: KmlNativeBuffer): Unit = tempBufferAddress { glGenTextures(n, textures.unsafeAddress().reinterpret()) }
+    override fun getActiveAttrib(program: Int, index: Int, bufSize: Int, length: KmlNativeBuffer, size: KmlNativeBuffer, type: KmlNativeBuffer, name: KmlNativeBuffer): Unit = tempBufferAddress { glGetActiveAttrib(program, index, bufSize, length.unsafeAddress().reinterpret(), size.unsafeAddress().reinterpret(), type.unsafeAddress().reinterpret(), name.unsafeAddress().reinterpret()) }
+    override fun getActiveUniform(program: Int, index: Int, bufSize: Int, length: KmlNativeBuffer, size: KmlNativeBuffer, type: KmlNativeBuffer, name: KmlNativeBuffer): Unit = tempBufferAddress { glGetActiveUniform(program, index, bufSize, length.unsafeAddress().reinterpret(), size.unsafeAddress().reinterpret(), type.unsafeAddress().reinterpret(), name.unsafeAddress().reinterpret()) }
+    override fun getAttachedShaders(program: Int, maxCount: Int, count: KmlNativeBuffer, shaders: KmlNativeBuffer): Unit = tempBufferAddress { glGetAttachedShaders(program, maxCount, count.unsafeAddress().reinterpret(), shaders.unsafeAddress().reinterpret()) }
     override fun getAttribLocation(program: Int, name: String): Int = memScoped { tempBufferAddress { glGetAttribLocation(program, (name).cstr.getPointer(this@memScoped)) } }
     override fun getUniformLocation(program: Int, name: String): Int = memScoped { tempBufferAddress { glGetUniformLocation(program, (name).cstr.getPointer(this@memScoped)) } }
-    override fun getBooleanv(pname: Int, data: KmlNativeBuffer): Unit = tempBufferAddress { glGetBooleanv(pname, data.unsafeAddress().uncheckedCast()) }
-    override fun getBufferParameteriv(target: Int, pname: Int, params: KmlNativeBuffer): Unit = tempBufferAddress { glGetBufferParameteriv(target, pname, params.unsafeAddress().uncheckedCast()) }
+    override fun getBooleanv(pname: Int, data: KmlNativeBuffer): Unit = tempBufferAddress { glGetBooleanv(pname, data.unsafeAddress().reinterpret()) }
+    override fun getBufferParameteriv(target: Int, pname: Int, params: KmlNativeBuffer): Unit = tempBufferAddress { glGetBufferParameteriv(target, pname, params.unsafeAddress().reinterpret()) }
     override fun getError(): Int = tempBufferAddress { glGetError() }
-    override fun getFloatv(pname: Int, data: KmlNativeBuffer): Unit = tempBufferAddress { glGetFloatv(pname, data.unsafeAddress().uncheckedCast()) }
-    override fun getFramebufferAttachmentParameteriv(target: Int, attachment: Int, pname: Int, params: KmlNativeBuffer): Unit = tempBufferAddress { glGetFramebufferAttachmentParameteriv(target, attachment, pname, params.unsafeAddress().uncheckedCast()) }
-    override fun getIntegerv(pname: Int, data: KmlNativeBuffer): Unit = tempBufferAddress { glGetIntegerv(pname, data.unsafeAddress().uncheckedCast()) }
-    override fun getProgramInfoLog(program: Int, bufSize: Int, length: KmlNativeBuffer, infoLog: KmlNativeBuffer): Unit = tempBufferAddress { glGetProgramInfoLog(program, bufSize, length.unsafeAddress().uncheckedCast(), infoLog.unsafeAddress().uncheckedCast()) }
-    override fun getRenderbufferParameteriv(target: Int, pname: Int, params: KmlNativeBuffer): Unit = tempBufferAddress { glGetRenderbufferParameteriv(target, pname, params.unsafeAddress().uncheckedCast()) }
-    override fun getProgramiv(program: Int, pname: Int, params: KmlNativeBuffer): Unit = tempBufferAddress { glGetProgramiv(program, pname, params.unsafeAddress().uncheckedCast()) }
-    override fun getShaderiv(shader: Int, pname: Int, params: KmlNativeBuffer): Unit = tempBufferAddress { glGetShaderiv(shader, pname, params.unsafeAddress().uncheckedCast()) }
-    override fun getShaderInfoLog(shader: Int, bufSize: Int, length: KmlNativeBuffer, infoLog: KmlNativeBuffer): Unit = tempBufferAddress { glGetShaderInfoLog(shader, bufSize, length.unsafeAddress().uncheckedCast(), infoLog.unsafeAddress().uncheckedCast()) }
+    override fun getFloatv(pname: Int, data: KmlNativeBuffer): Unit = tempBufferAddress { glGetFloatv(pname, data.unsafeAddress().reinterpret()) }
+    override fun getFramebufferAttachmentParameteriv(target: Int, attachment: Int, pname: Int, params: KmlNativeBuffer): Unit = tempBufferAddress { glGetFramebufferAttachmentParameteriv(target, attachment, pname, params.unsafeAddress().reinterpret()) }
+    override fun getIntegerv(pname: Int, data: KmlNativeBuffer): Unit = tempBufferAddress { glGetIntegerv(pname, data.unsafeAddress().reinterpret()) }
+    override fun getProgramInfoLog(program: Int, bufSize: Int, length: KmlNativeBuffer, infoLog: KmlNativeBuffer): Unit = tempBufferAddress { glGetProgramInfoLog(program, bufSize, length.unsafeAddress().reinterpret(), infoLog.unsafeAddress().reinterpret()) }
+    override fun getRenderbufferParameteriv(target: Int, pname: Int, params: KmlNativeBuffer): Unit = tempBufferAddress { glGetRenderbufferParameteriv(target, pname, params.unsafeAddress().reinterpret()) }
+    override fun getProgramiv(program: Int, pname: Int, params: KmlNativeBuffer): Unit = tempBufferAddress { glGetProgramiv(program, pname, params.unsafeAddress().reinterpret()) }
+    override fun getShaderiv(shader: Int, pname: Int, params: KmlNativeBuffer): Unit = tempBufferAddress { glGetShaderiv(shader, pname, params.unsafeAddress().reinterpret()) }
+    override fun getShaderInfoLog(shader: Int, bufSize: Int, length: KmlNativeBuffer, infoLog: KmlNativeBuffer): Unit = tempBufferAddress { glGetShaderInfoLog(shader, bufSize, length.unsafeAddress().reinterpret(), infoLog.unsafeAddress().reinterpret()) }
     override fun getShaderPrecisionFormat(shadertype: Int, precisiontype: Int, range: KmlNativeBuffer, precision: KmlNativeBuffer): Unit = tempBufferAddress { Unit }
-    override fun getShaderSource(shader: Int, bufSize: Int, length: KmlNativeBuffer, source: KmlNativeBuffer): Unit = tempBufferAddress { glGetShaderSource(shader, bufSize, length.unsafeAddress().uncheckedCast(), source.unsafeAddress().uncheckedCast()) }
+    override fun getShaderSource(shader: Int, bufSize: Int, length: KmlNativeBuffer, source: KmlNativeBuffer): Unit = tempBufferAddress { glGetShaderSource(shader, bufSize, length.unsafeAddress().reinterpret(), source.unsafeAddress().reinterpret()) }
     override fun getString(name: Int): String = tempBufferAddress { (glGetString(name))?.toKString() ?: "" }
-    override fun getTexParameterfv(target: Int, pname: Int, params: KmlNativeBuffer): Unit = tempBufferAddress { glGetTexParameterfv(target, pname, params.unsafeAddress().uncheckedCast()) }
-    override fun getTexParameteriv(target: Int, pname: Int, params: KmlNativeBuffer): Unit = tempBufferAddress { glGetTexParameteriv(target, pname, params.unsafeAddress().uncheckedCast()) }
-    override fun getUniformfv(program: Int, location: Int, params: KmlNativeBuffer): Unit = tempBufferAddress { glGetUniformfv(program, location, params.unsafeAddress().uncheckedCast()) }
-    override fun getUniformiv(program: Int, location: Int, params: KmlNativeBuffer): Unit = tempBufferAddress { glGetUniformiv(program, location, params.unsafeAddress().uncheckedCast()) }
-    override fun getVertexAttribfv(index: Int, pname: Int, params: KmlNativeBuffer): Unit = tempBufferAddress { glGetVertexAttribfv(index, pname, params.unsafeAddress().uncheckedCast()) }
-    override fun getVertexAttribiv(index: Int, pname: Int, params: KmlNativeBuffer): Unit = tempBufferAddress { glGetVertexAttribiv(index, pname, params.unsafeAddress().uncheckedCast()) }
-    override fun getVertexAttribPointerv(index: Int, pname: Int, pointer: KmlNativeBuffer): Unit = tempBufferAddress { glGetVertexAttribPointerv(index, pname, pointer.unsafeAddress().uncheckedCast()) }
+    override fun getTexParameterfv(target: Int, pname: Int, params: KmlNativeBuffer): Unit = tempBufferAddress { glGetTexParameterfv(target, pname, params.unsafeAddress().reinterpret()) }
+    override fun getTexParameteriv(target: Int, pname: Int, params: KmlNativeBuffer): Unit = tempBufferAddress { glGetTexParameteriv(target, pname, params.unsafeAddress().reinterpret()) }
+    override fun getUniformfv(program: Int, location: Int, params: KmlNativeBuffer): Unit = tempBufferAddress { glGetUniformfv(program, location, params.unsafeAddress().reinterpret()) }
+    override fun getUniformiv(program: Int, location: Int, params: KmlNativeBuffer): Unit = tempBufferAddress { glGetUniformiv(program, location, params.unsafeAddress().reinterpret()) }
+    override fun getVertexAttribfv(index: Int, pname: Int, params: KmlNativeBuffer): Unit = tempBufferAddress { glGetVertexAttribfv(index, pname, params.unsafeAddress().reinterpret()) }
+    override fun getVertexAttribiv(index: Int, pname: Int, params: KmlNativeBuffer): Unit = tempBufferAddress { glGetVertexAttribiv(index, pname, params.unsafeAddress().reinterpret()) }
+    override fun getVertexAttribPointerv(index: Int, pname: Int, pointer: KmlNativeBuffer): Unit = tempBufferAddress { glGetVertexAttribPointerv(index, pname, pointer.unsafeAddress().reinterpret()) }
     override fun hint(target: Int, mode: Int): Unit = tempBufferAddress { glHint(target, mode) }
     override fun isBuffer(buffer: Int): Boolean = tempBufferAddress { glIsBuffer(buffer).toBool() }
     override fun isEnabled(cap: Int): Boolean = tempBufferAddress { glIsEnabled(cap).toBool() }
@@ -108,17 +108,17 @@ class KmlGlNative : KmlGl() {
     override fun linkProgram(program: Int): Unit = tempBufferAddress { glLinkProgram(program) }
     override fun pixelStorei(pname: Int, param: Int): Unit = tempBufferAddress { glPixelStorei(pname, param) }
     override fun polygonOffset(factor: Float, units: Float): Unit = tempBufferAddress { glPolygonOffset(factor, units) }
-    override fun readPixels(x: Int, y: Int, width: Int, height: Int, format: Int, type: Int, pixels: KmlNativeBuffer): Unit = tempBufferAddress { glReadPixels(x, y, width, height, format, type, pixels.unsafeAddress().uncheckedCast()) }
+    override fun readPixels(x: Int, y: Int, width: Int, height: Int, format: Int, type: Int, pixels: KmlNativeBuffer): Unit = tempBufferAddress { glReadPixels(x, y, width, height, format, type, pixels.unsafeAddress().reinterpret()) }
     override fun releaseShaderCompiler(): Unit = tempBufferAddress { Unit }
     override fun renderbufferStorage(target: Int, internalformat: Int, width: Int, height: Int): Unit = tempBufferAddress { glRenderbufferStorage(target, internalformat, width, height) }
-    override fun sampleCoverage(value: Float, invert: Boolean): Unit = tempBufferAddress { glSampleCoverage(value, invert.narrow()) }
+    override fun sampleCoverage(value: Float, invert: Boolean): Unit = tempBufferAddress { glSampleCoverage(value, invert.convert()) }
     override fun scissor(x: Int, y: Int, width: Int, height: Int): Unit = tempBufferAddress { glScissor(x, y, width, height) }
     override fun shaderBinary(count: Int, shaders: KmlNativeBuffer, binaryformat: Int, binary: KmlNativeBuffer, length: Int): Unit = tempBufferAddress { throw KmlGlException("shaderBinary not implemented in Native") }
     override fun shaderSource(shader: Int, string: String): Unit = memScoped { tempBufferAddress { run {
                 memScoped {
                     val lengths = allocArray<IntVar>(1)
                     val strings = allocArray<CPointerVar<ByteVar>>(1)
-                    lengths[0] = strlen(string).narrow()
+                    lengths[0] = strlen(string).convert()
                     strings[0] = string.cstr.placeTo(this)
                     glShaderSource(shader, 1, strings, lengths)
                 }
@@ -129,147 +129,147 @@ class KmlGlNative : KmlGl() {
     override fun stencilMaskSeparate(face: Int, mask: Int): Unit = tempBufferAddress { glStencilMaskSeparate(face, mask) }
     override fun stencilOp(fail: Int, zfail: Int, zpass: Int): Unit = tempBufferAddress { glStencilOp(fail, zfail, zpass) }
     override fun stencilOpSeparate(face: Int, sfail: Int, dpfail: Int, dppass: Int): Unit = tempBufferAddress { glStencilOpSeparate(face, sfail, dpfail, dppass) }
-    override fun texImage2D(target: Int, level: Int, internalformat: Int, width: Int, height: Int, border: Int, format: Int, type: Int, pixels: KmlNativeBuffer?): Unit = tempBufferAddress { glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels?.unsafeAddress()?.uncheckedCast()) }
-    override fun texImage2D(target: Int, level: Int, internalformat: Int, format: Int, type: Int, data: NativeImage): Unit = tempBufferAddress { run { val intData = (data as BitmapNativeImage).intData; if (intData != null) {	intData.usePinned { dataPin -> glTexImage2D(target, level, internalformat, data.width, data.height, 0, format, type, dataPin.addressOf(0).uncheckedCast()) }} else {	glTexImage2D(target, level, internalformat, data.width, data.height, 0, format, type, null)}} }
+    override fun texImage2D(target: Int, level: Int, internalformat: Int, width: Int, height: Int, border: Int, format: Int, type: Int, pixels: KmlNativeBuffer?): Unit = tempBufferAddress { glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels?.unsafeAddress()?.reinterpret()) }
+    override fun texImage2D(target: Int, level: Int, internalformat: Int, format: Int, type: Int, data: NativeImage): Unit = tempBufferAddress { run { val intData = (data as BitmapNativeImage).intData; if (intData != null) {	intData.usePinned { dataPin -> glTexImage2D(target, level, internalformat, data.width, data.height, 0, format, type, dataPin.addressOf(0).reinterpret()) }} else {	glTexImage2D(target, level, internalformat, data.width, data.height, 0, format, type, null)}} }
     override fun texParameterf(target: Int, pname: Int, param: Float): Unit = tempBufferAddress { glTexParameterf(target, pname, param) }
-    override fun texParameterfv(target: Int, pname: Int, params: KmlNativeBuffer): Unit = tempBufferAddress { glTexParameterfv(target, pname, params.unsafeAddress().uncheckedCast()) }
+    override fun texParameterfv(target: Int, pname: Int, params: KmlNativeBuffer): Unit = tempBufferAddress { glTexParameterfv(target, pname, params.unsafeAddress().reinterpret()) }
     override fun texParameteri(target: Int, pname: Int, param: Int): Unit = tempBufferAddress { glTexParameteri(target, pname, param) }
-    override fun texParameteriv(target: Int, pname: Int, params: KmlNativeBuffer): Unit = tempBufferAddress { glTexParameteriv(target, pname, params.unsafeAddress().uncheckedCast()) }
-    override fun texSubImage2D(target: Int, level: Int, xoffset: Int, yoffset: Int, width: Int, height: Int, format: Int, type: Int, pixels: KmlNativeBuffer): Unit = tempBufferAddress { glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels.unsafeAddress().uncheckedCast()) }
+    override fun texParameteriv(target: Int, pname: Int, params: KmlNativeBuffer): Unit = tempBufferAddress { glTexParameteriv(target, pname, params.unsafeAddress().reinterpret()) }
+    override fun texSubImage2D(target: Int, level: Int, xoffset: Int, yoffset: Int, width: Int, height: Int, format: Int, type: Int, pixels: KmlNativeBuffer): Unit = tempBufferAddress { glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels.unsafeAddress().reinterpret()) }
     override fun uniform1f(location: Int, v0: Float): Unit = tempBufferAddress { glUniform1f(location, v0) }
-    override fun uniform1fv(location: Int, count: Int, value: KmlNativeBuffer): Unit = tempBufferAddress { glUniform1fv(location, count, value.unsafeAddress().uncheckedCast()) }
+    override fun uniform1fv(location: Int, count: Int, value: KmlNativeBuffer): Unit = tempBufferAddress { glUniform1fv(location, count, value.unsafeAddress().reinterpret()) }
     override fun uniform1i(location: Int, v0: Int): Unit = tempBufferAddress { glUniform1i(location, v0) }
-    override fun uniform1iv(location: Int, count: Int, value: KmlNativeBuffer): Unit = tempBufferAddress { glUniform1iv(location, count, value.unsafeAddress().uncheckedCast()) }
+    override fun uniform1iv(location: Int, count: Int, value: KmlNativeBuffer): Unit = tempBufferAddress { glUniform1iv(location, count, value.unsafeAddress().reinterpret()) }
     override fun uniform2f(location: Int, v0: Float, v1: Float): Unit = tempBufferAddress { glUniform2f(location, v0, v1) }
-    override fun uniform2fv(location: Int, count: Int, value: KmlNativeBuffer): Unit = tempBufferAddress { glUniform2fv(location, count, value.unsafeAddress().uncheckedCast()) }
+    override fun uniform2fv(location: Int, count: Int, value: KmlNativeBuffer): Unit = tempBufferAddress { glUniform2fv(location, count, value.unsafeAddress().reinterpret()) }
     override fun uniform2i(location: Int, v0: Int, v1: Int): Unit = tempBufferAddress { glUniform2i(location, v0, v1) }
-    override fun uniform2iv(location: Int, count: Int, value: KmlNativeBuffer): Unit = tempBufferAddress { glUniform2iv(location, count, value.unsafeAddress().uncheckedCast()) }
+    override fun uniform2iv(location: Int, count: Int, value: KmlNativeBuffer): Unit = tempBufferAddress { glUniform2iv(location, count, value.unsafeAddress().reinterpret()) }
     override fun uniform3f(location: Int, v0: Float, v1: Float, v2: Float): Unit = tempBufferAddress { glUniform3f(location, v0, v1, v2) }
-    override fun uniform3fv(location: Int, count: Int, value: KmlNativeBuffer): Unit = tempBufferAddress { glUniform3fv(location, count, value.unsafeAddress().uncheckedCast()) }
+    override fun uniform3fv(location: Int, count: Int, value: KmlNativeBuffer): Unit = tempBufferAddress { glUniform3fv(location, count, value.unsafeAddress().reinterpret()) }
     override fun uniform3i(location: Int, v0: Int, v1: Int, v2: Int): Unit = tempBufferAddress { glUniform3i(location, v0, v1, v2) }
-    override fun uniform3iv(location: Int, count: Int, value: KmlNativeBuffer): Unit = tempBufferAddress { glUniform3iv(location, count, value.unsafeAddress().uncheckedCast()) }
+    override fun uniform3iv(location: Int, count: Int, value: KmlNativeBuffer): Unit = tempBufferAddress { glUniform3iv(location, count, value.unsafeAddress().reinterpret()) }
     override fun uniform4f(location: Int, v0: Float, v1: Float, v2: Float, v3: Float): Unit = tempBufferAddress { glUniform4f(location, v0, v1, v2, v3) }
-    override fun uniform4fv(location: Int, count: Int, value: KmlNativeBuffer): Unit = tempBufferAddress { glUniform4fv(location, count, value.unsafeAddress().uncheckedCast()) }
+    override fun uniform4fv(location: Int, count: Int, value: KmlNativeBuffer): Unit = tempBufferAddress { glUniform4fv(location, count, value.unsafeAddress().reinterpret()) }
     override fun uniform4i(location: Int, v0: Int, v1: Int, v2: Int, v3: Int): Unit = tempBufferAddress { glUniform4i(location, v0, v1, v2, v3) }
-    override fun uniform4iv(location: Int, count: Int, value: KmlNativeBuffer): Unit = tempBufferAddress { glUniform4iv(location, count, value.unsafeAddress().uncheckedCast()) }
-    override fun uniformMatrix2fv(location: Int, count: Int, transpose: Boolean, value: KmlNativeBuffer): Unit = tempBufferAddress { glUniformMatrix2fv(location, count, transpose.narrow(), value.unsafeAddress().uncheckedCast()) }
-    override fun uniformMatrix3fv(location: Int, count: Int, transpose: Boolean, value: KmlNativeBuffer): Unit = tempBufferAddress { glUniformMatrix3fv(location, count, transpose.narrow(), value.unsafeAddress().uncheckedCast()) }
-    override fun uniformMatrix4fv(location: Int, count: Int, transpose: Boolean, value: KmlNativeBuffer): Unit = tempBufferAddress { glUniformMatrix4fv(location, count, transpose.narrow(), value.unsafeAddress().uncheckedCast()) }
+    override fun uniform4iv(location: Int, count: Int, value: KmlNativeBuffer): Unit = tempBufferAddress { glUniform4iv(location, count, value.unsafeAddress().reinterpret()) }
+    override fun uniformMatrix2fv(location: Int, count: Int, transpose: Boolean, value: KmlNativeBuffer): Unit = tempBufferAddress { glUniformMatrix2fv(location, count, transpose.convert(), value.unsafeAddress().reinterpret()) }
+    override fun uniformMatrix3fv(location: Int, count: Int, transpose: Boolean, value: KmlNativeBuffer): Unit = tempBufferAddress { glUniformMatrix3fv(location, count, transpose.convert(), value.unsafeAddress().reinterpret()) }
+    override fun uniformMatrix4fv(location: Int, count: Int, transpose: Boolean, value: KmlNativeBuffer): Unit = tempBufferAddress { glUniformMatrix4fv(location, count, transpose.convert(), value.unsafeAddress().reinterpret()) }
     override fun useProgram(program: Int): Unit = tempBufferAddress { glUseProgram(program) }
     override fun validateProgram(program: Int): Unit = tempBufferAddress { glValidateProgram(program) }
     override fun vertexAttrib1f(index: Int, x: Float): Unit = tempBufferAddress { glVertexAttrib1f(index, x) }
-    override fun vertexAttrib1fv(index: Int, v: KmlNativeBuffer): Unit = tempBufferAddress { glVertexAttrib1fv(index, v.unsafeAddress().uncheckedCast()) }
+    override fun vertexAttrib1fv(index: Int, v: KmlNativeBuffer): Unit = tempBufferAddress { glVertexAttrib1fv(index, v.unsafeAddress().reinterpret()) }
     override fun vertexAttrib2f(index: Int, x: Float, y: Float): Unit = tempBufferAddress { glVertexAttrib2f(index, x, y) }
-    override fun vertexAttrib2fv(index: Int, v: KmlNativeBuffer): Unit = tempBufferAddress { glVertexAttrib2fv(index, v.unsafeAddress().uncheckedCast()) }
+    override fun vertexAttrib2fv(index: Int, v: KmlNativeBuffer): Unit = tempBufferAddress { glVertexAttrib2fv(index, v.unsafeAddress().reinterpret()) }
     override fun vertexAttrib3f(index: Int, x: Float, y: Float, z: Float): Unit = tempBufferAddress { glVertexAttrib3f(index, x, y, z) }
-    override fun vertexAttrib3fv(index: Int, v: KmlNativeBuffer): Unit = tempBufferAddress { glVertexAttrib3fv(index, v.unsafeAddress().uncheckedCast()) }
+    override fun vertexAttrib3fv(index: Int, v: KmlNativeBuffer): Unit = tempBufferAddress { glVertexAttrib3fv(index, v.unsafeAddress().reinterpret()) }
     override fun vertexAttrib4f(index: Int, x: Float, y: Float, z: Float, w: Float): Unit = tempBufferAddress { glVertexAttrib4f(index, x, y, z, w) }
-    override fun vertexAttrib4fv(index: Int, v: KmlNativeBuffer): Unit = tempBufferAddress { glVertexAttrib4fv(index, v.unsafeAddress().uncheckedCast()) }
-    override fun vertexAttribPointer(index: Int, size: Int, type: Int, normalized: Boolean, stride: Int, pointer: Int): Unit = tempBufferAddress { glVertexAttribPointer(index, size, type, normalized.narrow(), stride, pointer.uncheckedCast()) }
+    override fun vertexAttrib4fv(index: Int, v: KmlNativeBuffer): Unit = tempBufferAddress { glVertexAttrib4fv(index, v.unsafeAddress().reinterpret()) }
+    override fun vertexAttribPointer(index: Int, size: Int, type: Int, normalized: Boolean, stride: Int, pointer: Int): Unit = tempBufferAddress { glVertexAttribPointer(index, size, type, normalized.convert(), stride, pointer.reinterpret()) }
     override fun viewport(x: Int, y: Int, width: Int, height: Int): Unit = tempBufferAddress { glViewport(x, y, width, height) }
 	
 	companion object {
-		//val String.glstr: CPointer<GLcharVar> get() = this.cstr.uncheckedCast()
+		//val String.glstr: CPointer<GLcharVar> get() = this.cstr.reinterpret()
 		val OPENGL32_DLL_MODULE: HMODULE? by lazy { LoadLibraryA("opengl32.dll") }
 
 		fun wglGetProcAddressAny(name: String): PROC? = wglGetProcAddress(name)
 				?: GetProcAddress(OPENGL32_DLL_MODULE, name)
 				?: throw RuntimeException("Can't find GL function: '$name'")
 
-		val glActiveTexture: PFNGLACTIVETEXTUREPROC by lazy { wglGetProcAddressAny("glActiveTexture").uncheckedCast<PFNGLACTIVETEXTUREPROC>() }
-		val glAttachShader: PFNGLATTACHSHADERPROC by lazy { wglGetProcAddressAny("glAttachShader").uncheckedCast<PFNGLATTACHSHADERPROC>() }
-		val glBindAttribLocation: PFNGLBINDATTRIBLOCATIONPROC by lazy { wglGetProcAddressAny("glBindAttribLocation").uncheckedCast<PFNGLBINDATTRIBLOCATIONPROC>() }
-		val glBindBuffer: PFNGLBINDBUFFERPROC by lazy { wglGetProcAddressAny("glBindBuffer").uncheckedCast<PFNGLBINDBUFFERPROC>() }
-		val glBindFramebuffer: PFNGLBINDFRAMEBUFFERPROC by lazy { wglGetProcAddressAny("glBindFramebuffer").uncheckedCast<PFNGLBINDFRAMEBUFFERPROC>() }
-		val glBindRenderbuffer: PFNGLBINDRENDERBUFFERPROC by lazy { wglGetProcAddressAny("glBindRenderbuffer").uncheckedCast<PFNGLBINDRENDERBUFFERPROC>() }
-		val glBlendColor: PFNGLBLENDCOLORPROC by lazy { wglGetProcAddressAny("glBlendColor").uncheckedCast<PFNGLBLENDCOLORPROC>() }
-		val glBlendEquation: PFNGLBLENDEQUATIONPROC by lazy { wglGetProcAddressAny("glBlendEquation").uncheckedCast<PFNGLBLENDEQUATIONPROC>() }
-		val glBlendEquationSeparate: PFNGLBLENDEQUATIONSEPARATEPROC by lazy { wglGetProcAddressAny("glBlendEquationSeparate").uncheckedCast<PFNGLBLENDEQUATIONSEPARATEPROC>() }
-		val glBlendFuncSeparate: PFNGLBLENDFUNCSEPARATEPROC by lazy { wglGetProcAddressAny("glBlendFuncSeparate").uncheckedCast<PFNGLBLENDFUNCSEPARATEPROC>() }
-		val glBufferData: PFNGLBUFFERDATAPROC by lazy { wglGetProcAddressAny("glBufferData").uncheckedCast<PFNGLBUFFERDATAPROC>() }
-		val glBufferSubData: PFNGLBUFFERSUBDATAPROC by lazy { wglGetProcAddressAny("glBufferSubData").uncheckedCast<PFNGLBUFFERSUBDATAPROC>() }
-		val glCheckFramebufferStatus: PFNGLCHECKFRAMEBUFFERSTATUSPROC by lazy { wglGetProcAddressAny("glCheckFramebufferStatus").uncheckedCast<PFNGLCHECKFRAMEBUFFERSTATUSPROC>() }
-		val glCompileShader: PFNGLCOMPILESHADERPROC by lazy { wglGetProcAddressAny("glCompileShader").uncheckedCast<PFNGLCOMPILESHADERPROC>() }
-		val glCompressedTexImage2D: PFNGLCOMPRESSEDTEXIMAGE2DPROC by lazy { wglGetProcAddressAny("glCompressedTexImage2D").uncheckedCast<PFNGLCOMPRESSEDTEXIMAGE2DPROC>() }
-		val glCompressedTexSubImage2D: PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC by lazy { wglGetProcAddressAny("glCompressedTexSubImage2D").uncheckedCast<PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC>() }
-		val glCreateProgram: PFNGLCREATEPROGRAMPROC by lazy { wglGetProcAddressAny("glCreateProgram").uncheckedCast<PFNGLCREATEPROGRAMPROC>() }
-		val glCreateShader: PFNGLCREATESHADERPROC by lazy { wglGetProcAddressAny("glCreateShader").uncheckedCast<PFNGLCREATESHADERPROC>() }
-		val glDeleteBuffers: PFNGLDELETEBUFFERSPROC by lazy { wglGetProcAddressAny("glDeleteBuffers").uncheckedCast<PFNGLDELETEBUFFERSPROC>() }
-		val glDeleteFramebuffers: PFNGLDELETEFRAMEBUFFERSPROC by lazy { wglGetProcAddressAny("glDeleteFramebuffers").uncheckedCast<PFNGLDELETEFRAMEBUFFERSPROC>() }
-		val glDeleteProgram: PFNGLDELETEPROGRAMPROC by lazy { wglGetProcAddressAny("glDeleteProgram").uncheckedCast<PFNGLDELETEPROGRAMPROC>() }
-		val glDeleteRenderbuffers: PFNGLDELETERENDERBUFFERSPROC by lazy { wglGetProcAddressAny("glDeleteRenderbuffers").uncheckedCast<PFNGLDELETERENDERBUFFERSPROC>() }
-		val glDeleteShader: PFNGLDELETESHADERPROC by lazy { wglGetProcAddressAny("glDeleteShader").uncheckedCast<PFNGLDELETESHADERPROC>() }
-		val glDetachShader: PFNGLDETACHSHADERPROC by lazy { wglGetProcAddressAny("glDetachShader").uncheckedCast<PFNGLDETACHSHADERPROC>() }
-		val glDisableVertexAttribArray: PFNGLDISABLEVERTEXATTRIBARRAYPROC by lazy { wglGetProcAddressAny("glDisableVertexAttribArray").uncheckedCast<PFNGLDISABLEVERTEXATTRIBARRAYPROC>() }
-		val glEnableVertexAttribArray: PFNGLENABLEVERTEXATTRIBARRAYPROC by lazy { wglGetProcAddressAny("glEnableVertexAttribArray").uncheckedCast<PFNGLENABLEVERTEXATTRIBARRAYPROC>() }
-		val glFramebufferRenderbuffer: PFNGLFRAMEBUFFERRENDERBUFFERPROC by lazy { wglGetProcAddressAny("glFramebufferRenderbuffer").uncheckedCast<PFNGLFRAMEBUFFERRENDERBUFFERPROC>() }
-		val glFramebufferTexture2D: PFNGLFRAMEBUFFERTEXTURE2DPROC by lazy { wglGetProcAddressAny("glFramebufferTexture2D").uncheckedCast<PFNGLFRAMEBUFFERTEXTURE2DPROC>() }
-		val glGenBuffers: PFNGLGENBUFFERSPROC by lazy { wglGetProcAddressAny("glGenBuffers").uncheckedCast<PFNGLGENBUFFERSPROC>() }
-		val glGenerateMipmap: PFNGLGENERATEMIPMAPPROC by lazy { wglGetProcAddressAny("glGenerateMipmap").uncheckedCast<PFNGLGENERATEMIPMAPPROC>() }
-		val glGenFramebuffers: PFNGLGENFRAMEBUFFERSPROC by lazy { wglGetProcAddressAny("glGenFramebuffers").uncheckedCast<PFNGLGENFRAMEBUFFERSPROC>() }
-		val glGenRenderbuffers: PFNGLGENRENDERBUFFERSPROC by lazy { wglGetProcAddressAny("glGenRenderbuffers").uncheckedCast<PFNGLGENRENDERBUFFERSPROC>() }
-		val glGetActiveAttrib: PFNGLGETACTIVEATTRIBPROC by lazy { wglGetProcAddressAny("glGetActiveAttrib").uncheckedCast<PFNGLGETACTIVEATTRIBPROC>() }
-		val glGetActiveUniform: PFNGLGETACTIVEUNIFORMPROC by lazy { wglGetProcAddressAny("glGetActiveUniform").uncheckedCast<PFNGLGETACTIVEUNIFORMPROC>() }
-		val glGetAttachedShaders: PFNGLGETATTACHEDSHADERSPROC by lazy { wglGetProcAddressAny("glGetAttachedShaders").uncheckedCast<PFNGLGETATTACHEDSHADERSPROC>() }
-		val glGetAttribLocation: PFNGLGETATTRIBLOCATIONPROC by lazy { wglGetProcAddressAny("glGetAttribLocation").uncheckedCast<PFNGLGETATTRIBLOCATIONPROC>() }
-		val glGetUniformLocation: PFNGLGETUNIFORMLOCATIONPROC by lazy { wglGetProcAddressAny("glGetUniformLocation").uncheckedCast<PFNGLGETUNIFORMLOCATIONPROC>() }
-		val glGetBufferParameteriv: PFNGLGETBUFFERPARAMETERIVPROC by lazy { wglGetProcAddressAny("glGetBufferParameteriv").uncheckedCast<PFNGLGETBUFFERPARAMETERIVPROC>() }
-		val glGetFramebufferAttachmentParameteriv: PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC by lazy { wglGetProcAddressAny("glGetFramebufferAttachmentParameteriv").uncheckedCast<PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC>() }
-		val glGetProgramInfoLog: PFNGLGETPROGRAMINFOLOGPROC by lazy { wglGetProcAddressAny("glGetProgramInfoLog").uncheckedCast<PFNGLGETPROGRAMINFOLOGPROC>() }
-		val glGetRenderbufferParameteriv: PFNGLGETRENDERBUFFERPARAMETERIVPROC by lazy { wglGetProcAddressAny("glGetRenderbufferParameteriv").uncheckedCast<PFNGLGETRENDERBUFFERPARAMETERIVPROC>() }
-		val glGetProgramiv: PFNGLGETPROGRAMIVPROC by lazy { wglGetProcAddressAny("glGetProgramiv").uncheckedCast<PFNGLGETPROGRAMIVPROC>() }
-		val glGetShaderiv: PFNGLGETSHADERIVPROC by lazy { wglGetProcAddressAny("glGetShaderiv").uncheckedCast<PFNGLGETSHADERIVPROC>() }
-		val glGetShaderInfoLog: PFNGLGETSHADERINFOLOGPROC by lazy { wglGetProcAddressAny("glGetShaderInfoLog").uncheckedCast<PFNGLGETSHADERINFOLOGPROC>() }
-		val glGetShaderPrecisionFormat: PFNGLGETSHADERPRECISIONFORMATPROC by lazy { wglGetProcAddressAny("glGetShaderPrecisionFormat").uncheckedCast<PFNGLGETSHADERPRECISIONFORMATPROC>() }
-		val glGetShaderSource: PFNGLGETSHADERSOURCEPROC by lazy { wglGetProcAddressAny("glGetShaderSource").uncheckedCast<PFNGLGETSHADERSOURCEPROC>() }
-		val glGetUniformfv: PFNGLGETUNIFORMFVPROC by lazy { wglGetProcAddressAny("glGetUniformfv").uncheckedCast<PFNGLGETUNIFORMFVPROC>() }
-		val glGetUniformiv: PFNGLGETUNIFORMIVPROC by lazy { wglGetProcAddressAny("glGetUniformiv").uncheckedCast<PFNGLGETUNIFORMIVPROC>() }
-		val glGetVertexAttribfv: PFNGLGETVERTEXATTRIBFVPROC by lazy { wglGetProcAddressAny("glGetVertexAttribfv").uncheckedCast<PFNGLGETVERTEXATTRIBFVPROC>() }
-		val glGetVertexAttribiv: PFNGLGETVERTEXATTRIBIVPROC by lazy { wglGetProcAddressAny("glGetVertexAttribiv").uncheckedCast<PFNGLGETVERTEXATTRIBIVPROC>() }
-		val glGetVertexAttribPointerv: PFNGLGETVERTEXATTRIBPOINTERVPROC by lazy { wglGetProcAddressAny("glGetVertexAttribPointerv").uncheckedCast<PFNGLGETVERTEXATTRIBPOINTERVPROC>() }
-		val glIsBuffer: PFNGLISBUFFERPROC by lazy { wglGetProcAddressAny("glIsBuffer").uncheckedCast<PFNGLISBUFFERPROC>() }
-		val glIsFramebuffer: PFNGLISFRAMEBUFFERPROC by lazy { wglGetProcAddressAny("glIsFramebuffer").uncheckedCast<PFNGLISFRAMEBUFFERPROC>() }
-		val glIsProgram: PFNGLISPROGRAMPROC by lazy { wglGetProcAddressAny("glIsProgram").uncheckedCast<PFNGLISPROGRAMPROC>() }
-		val glIsRenderbuffer: PFNGLISRENDERBUFFERPROC by lazy { wglGetProcAddressAny("glIsRenderbuffer").uncheckedCast<PFNGLISRENDERBUFFERPROC>() }
-		val glIsShader: PFNGLISSHADERPROC by lazy { wglGetProcAddressAny("glIsShader").uncheckedCast<PFNGLISSHADERPROC>() }
-		val glLinkProgram: PFNGLLINKPROGRAMPROC by lazy { wglGetProcAddressAny("glLinkProgram").uncheckedCast<PFNGLLINKPROGRAMPROC>() }
-		val glReleaseShaderCompiler: PFNGLRELEASESHADERCOMPILERPROC by lazy { wglGetProcAddressAny("glReleaseShaderCompiler").uncheckedCast<PFNGLRELEASESHADERCOMPILERPROC>() }
-		val glRenderbufferStorage: PFNGLRENDERBUFFERSTORAGEPROC by lazy { wglGetProcAddressAny("glRenderbufferStorage").uncheckedCast<PFNGLRENDERBUFFERSTORAGEPROC>() }
-		val glSampleCoverage: PFNGLSAMPLECOVERAGEPROC by lazy { wglGetProcAddressAny("glSampleCoverage").uncheckedCast<PFNGLSAMPLECOVERAGEPROC>() }
-		val glShaderBinary: PFNGLSHADERBINARYPROC by lazy { wglGetProcAddressAny("glShaderBinary").uncheckedCast<PFNGLSHADERBINARYPROC>() }
-		val glShaderSource: PFNGLSHADERSOURCEPROC by lazy { wglGetProcAddressAny("glShaderSource").uncheckedCast<PFNGLSHADERSOURCEPROC>() }
-		val glStencilFuncSeparate: PFNGLSTENCILFUNCSEPARATEPROC by lazy { wglGetProcAddressAny("glStencilFuncSeparate").uncheckedCast<PFNGLSTENCILFUNCSEPARATEPROC>() }
-		val glStencilMaskSeparate: PFNGLSTENCILMASKSEPARATEPROC by lazy { wglGetProcAddressAny("glStencilMaskSeparate").uncheckedCast<PFNGLSTENCILMASKSEPARATEPROC>() }
-		val glStencilOpSeparate: PFNGLSTENCILOPSEPARATEPROC by lazy { wglGetProcAddressAny("glStencilOpSeparate").uncheckedCast<PFNGLSTENCILOPSEPARATEPROC>() }
-		val glUniform1f: PFNGLUNIFORM1FPROC by lazy { wglGetProcAddressAny("glUniform1f").uncheckedCast<PFNGLUNIFORM1FPROC>() }
-		val glUniform1fv: PFNGLUNIFORM1FVPROC by lazy { wglGetProcAddressAny("glUniform1fv").uncheckedCast<PFNGLUNIFORM1FVPROC>() }
-		val glUniform1i: PFNGLUNIFORM1IPROC by lazy { wglGetProcAddressAny("glUniform1i").uncheckedCast<PFNGLUNIFORM1IPROC>() }
-		val glUniform1iv: PFNGLUNIFORM1IVPROC by lazy { wglGetProcAddressAny("glUniform1iv").uncheckedCast<PFNGLUNIFORM1IVPROC>() }
-		val glUniform2f: PFNGLUNIFORM2FPROC by lazy { wglGetProcAddressAny("glUniform2f").uncheckedCast<PFNGLUNIFORM2FPROC>() }
-		val glUniform2fv: PFNGLUNIFORM2FVPROC by lazy { wglGetProcAddressAny("glUniform2fv").uncheckedCast<PFNGLUNIFORM2FVPROC>() }
-		val glUniform2i: PFNGLUNIFORM2IPROC by lazy { wglGetProcAddressAny("glUniform2i").uncheckedCast<PFNGLUNIFORM2IPROC>() }
-		val glUniform2iv: PFNGLUNIFORM2IVPROC by lazy { wglGetProcAddressAny("glUniform2iv").uncheckedCast<PFNGLUNIFORM2IVPROC>() }
-		val glUniform3f: PFNGLUNIFORM3FPROC by lazy { wglGetProcAddressAny("glUniform3f").uncheckedCast<PFNGLUNIFORM3FPROC>() }
-		val glUniform3fv: PFNGLUNIFORM3FVPROC by lazy { wglGetProcAddressAny("glUniform3fv").uncheckedCast<PFNGLUNIFORM3FVPROC>() }
-		val glUniform3i: PFNGLUNIFORM3IPROC by lazy { wglGetProcAddressAny("glUniform3i").uncheckedCast<PFNGLUNIFORM3IPROC>() }
-		val glUniform3iv: PFNGLUNIFORM3IVPROC by lazy { wglGetProcAddressAny("glUniform3iv").uncheckedCast<PFNGLUNIFORM3IVPROC>() }
-		val glUniform4f: PFNGLUNIFORM4FPROC by lazy { wglGetProcAddressAny("glUniform4f").uncheckedCast<PFNGLUNIFORM4FPROC>() }
-		val glUniform4fv: PFNGLUNIFORM4FVPROC by lazy { wglGetProcAddressAny("glUniform4fv").uncheckedCast<PFNGLUNIFORM4FVPROC>() }
-		val glUniform4i: PFNGLUNIFORM4IPROC by lazy { wglGetProcAddressAny("glUniform4i").uncheckedCast<PFNGLUNIFORM4IPROC>() }
-		val glUniform4iv: PFNGLUNIFORM4IVPROC by lazy { wglGetProcAddressAny("glUniform4iv").uncheckedCast<PFNGLUNIFORM4IVPROC>() }
-		val glUniformMatrix2fv: PFNGLUNIFORMMATRIX2FVPROC by lazy { wglGetProcAddressAny("glUniformMatrix2fv").uncheckedCast<PFNGLUNIFORMMATRIX2FVPROC>() }
-		val glUniformMatrix3fv: PFNGLUNIFORMMATRIX3FVPROC by lazy { wglGetProcAddressAny("glUniformMatrix3fv").uncheckedCast<PFNGLUNIFORMMATRIX3FVPROC>() }
-		val glUniformMatrix4fv: PFNGLUNIFORMMATRIX4FVPROC by lazy { wglGetProcAddressAny("glUniformMatrix4fv").uncheckedCast<PFNGLUNIFORMMATRIX4FVPROC>() }
-		val glUseProgram: PFNGLUSEPROGRAMPROC by lazy { wglGetProcAddressAny("glUseProgram").uncheckedCast<PFNGLUSEPROGRAMPROC>() }
-		val glValidateProgram: PFNGLVALIDATEPROGRAMPROC by lazy { wglGetProcAddressAny("glValidateProgram").uncheckedCast<PFNGLVALIDATEPROGRAMPROC>() }
-		val glVertexAttrib1f: PFNGLVERTEXATTRIB1FPROC by lazy { wglGetProcAddressAny("glVertexAttrib1f").uncheckedCast<PFNGLVERTEXATTRIB1FPROC>() }
-		val glVertexAttrib1fv: PFNGLVERTEXATTRIB1FVPROC by lazy { wglGetProcAddressAny("glVertexAttrib1fv").uncheckedCast<PFNGLVERTEXATTRIB1FVPROC>() }
-		val glVertexAttrib2f: PFNGLVERTEXATTRIB2FPROC by lazy { wglGetProcAddressAny("glVertexAttrib2f").uncheckedCast<PFNGLVERTEXATTRIB2FPROC>() }
-		val glVertexAttrib2fv: PFNGLVERTEXATTRIB2FVPROC by lazy { wglGetProcAddressAny("glVertexAttrib2fv").uncheckedCast<PFNGLVERTEXATTRIB2FVPROC>() }
-		val glVertexAttrib3f: PFNGLVERTEXATTRIB3FPROC by lazy { wglGetProcAddressAny("glVertexAttrib3f").uncheckedCast<PFNGLVERTEXATTRIB3FPROC>() }
-		val glVertexAttrib3fv: PFNGLVERTEXATTRIB3FVPROC by lazy { wglGetProcAddressAny("glVertexAttrib3fv").uncheckedCast<PFNGLVERTEXATTRIB3FVPROC>() }
-		val glVertexAttrib4f: PFNGLVERTEXATTRIB4FPROC by lazy { wglGetProcAddressAny("glVertexAttrib4f").uncheckedCast<PFNGLVERTEXATTRIB4FPROC>() }
-		val glVertexAttrib4fv: PFNGLVERTEXATTRIB4FVPROC by lazy { wglGetProcAddressAny("glVertexAttrib4fv").uncheckedCast<PFNGLVERTEXATTRIB4FVPROC>() }
-		val glVertexAttribPointer: PFNGLVERTEXATTRIBPOINTERPROC by lazy { wglGetProcAddressAny("glVertexAttribPointer").uncheckedCast<PFNGLVERTEXATTRIBPOINTERPROC>() }
+		val glActiveTexture: PFNGLACTIVETEXTUREPROC by lazy { wglGetProcAddressAny("glActiveTexture").reinterpret<PFNGLACTIVETEXTUREPROC>() }
+		val glAttachShader: PFNGLATTACHSHADERPROC by lazy { wglGetProcAddressAny("glAttachShader").reinterpret<PFNGLATTACHSHADERPROC>() }
+		val glBindAttribLocation: PFNGLBINDATTRIBLOCATIONPROC by lazy { wglGetProcAddressAny("glBindAttribLocation").reinterpret<PFNGLBINDATTRIBLOCATIONPROC>() }
+		val glBindBuffer: PFNGLBINDBUFFERPROC by lazy { wglGetProcAddressAny("glBindBuffer").reinterpret<PFNGLBINDBUFFERPROC>() }
+		val glBindFramebuffer: PFNGLBINDFRAMEBUFFERPROC by lazy { wglGetProcAddressAny("glBindFramebuffer").reinterpret<PFNGLBINDFRAMEBUFFERPROC>() }
+		val glBindRenderbuffer: PFNGLBINDRENDERBUFFERPROC by lazy { wglGetProcAddressAny("glBindRenderbuffer").reinterpret<PFNGLBINDRENDERBUFFERPROC>() }
+		val glBlendColor: PFNGLBLENDCOLORPROC by lazy { wglGetProcAddressAny("glBlendColor").reinterpret<PFNGLBLENDCOLORPROC>() }
+		val glBlendEquation: PFNGLBLENDEQUATIONPROC by lazy { wglGetProcAddressAny("glBlendEquation").reinterpret<PFNGLBLENDEQUATIONPROC>() }
+		val glBlendEquationSeparate: PFNGLBLENDEQUATIONSEPARATEPROC by lazy { wglGetProcAddressAny("glBlendEquationSeparate").reinterpret<PFNGLBLENDEQUATIONSEPARATEPROC>() }
+		val glBlendFuncSeparate: PFNGLBLENDFUNCSEPARATEPROC by lazy { wglGetProcAddressAny("glBlendFuncSeparate").reinterpret<PFNGLBLENDFUNCSEPARATEPROC>() }
+		val glBufferData: PFNGLBUFFERDATAPROC by lazy { wglGetProcAddressAny("glBufferData").reinterpret<PFNGLBUFFERDATAPROC>() }
+		val glBufferSubData: PFNGLBUFFERSUBDATAPROC by lazy { wglGetProcAddressAny("glBufferSubData").reinterpret<PFNGLBUFFERSUBDATAPROC>() }
+		val glCheckFramebufferStatus: PFNGLCHECKFRAMEBUFFERSTATUSPROC by lazy { wglGetProcAddressAny("glCheckFramebufferStatus").reinterpret<PFNGLCHECKFRAMEBUFFERSTATUSPROC>() }
+		val glCompileShader: PFNGLCOMPILESHADERPROC by lazy { wglGetProcAddressAny("glCompileShader").reinterpret<PFNGLCOMPILESHADERPROC>() }
+		val glCompressedTexImage2D: PFNGLCOMPRESSEDTEXIMAGE2DPROC by lazy { wglGetProcAddressAny("glCompressedTexImage2D").reinterpret<PFNGLCOMPRESSEDTEXIMAGE2DPROC>() }
+		val glCompressedTexSubImage2D: PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC by lazy { wglGetProcAddressAny("glCompressedTexSubImage2D").reinterpret<PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC>() }
+		val glCreateProgram: PFNGLCREATEPROGRAMPROC by lazy { wglGetProcAddressAny("glCreateProgram").reinterpret<PFNGLCREATEPROGRAMPROC>() }
+		val glCreateShader: PFNGLCREATESHADERPROC by lazy { wglGetProcAddressAny("glCreateShader").reinterpret<PFNGLCREATESHADERPROC>() }
+		val glDeleteBuffers: PFNGLDELETEBUFFERSPROC by lazy { wglGetProcAddressAny("glDeleteBuffers").reinterpret<PFNGLDELETEBUFFERSPROC>() }
+		val glDeleteFramebuffers: PFNGLDELETEFRAMEBUFFERSPROC by lazy { wglGetProcAddressAny("glDeleteFramebuffers").reinterpret<PFNGLDELETEFRAMEBUFFERSPROC>() }
+		val glDeleteProgram: PFNGLDELETEPROGRAMPROC by lazy { wglGetProcAddressAny("glDeleteProgram").reinterpret<PFNGLDELETEPROGRAMPROC>() }
+		val glDeleteRenderbuffers: PFNGLDELETERENDERBUFFERSPROC by lazy { wglGetProcAddressAny("glDeleteRenderbuffers").reinterpret<PFNGLDELETERENDERBUFFERSPROC>() }
+		val glDeleteShader: PFNGLDELETESHADERPROC by lazy { wglGetProcAddressAny("glDeleteShader").reinterpret<PFNGLDELETESHADERPROC>() }
+		val glDetachShader: PFNGLDETACHSHADERPROC by lazy { wglGetProcAddressAny("glDetachShader").reinterpret<PFNGLDETACHSHADERPROC>() }
+		val glDisableVertexAttribArray: PFNGLDISABLEVERTEXATTRIBARRAYPROC by lazy { wglGetProcAddressAny("glDisableVertexAttribArray").reinterpret<PFNGLDISABLEVERTEXATTRIBARRAYPROC>() }
+		val glEnableVertexAttribArray: PFNGLENABLEVERTEXATTRIBARRAYPROC by lazy { wglGetProcAddressAny("glEnableVertexAttribArray").reinterpret<PFNGLENABLEVERTEXATTRIBARRAYPROC>() }
+		val glFramebufferRenderbuffer: PFNGLFRAMEBUFFERRENDERBUFFERPROC by lazy { wglGetProcAddressAny("glFramebufferRenderbuffer").reinterpret<PFNGLFRAMEBUFFERRENDERBUFFERPROC>() }
+		val glFramebufferTexture2D: PFNGLFRAMEBUFFERTEXTURE2DPROC by lazy { wglGetProcAddressAny("glFramebufferTexture2D").reinterpret<PFNGLFRAMEBUFFERTEXTURE2DPROC>() }
+		val glGenBuffers: PFNGLGENBUFFERSPROC by lazy { wglGetProcAddressAny("glGenBuffers").reinterpret<PFNGLGENBUFFERSPROC>() }
+		val glGenerateMipmap: PFNGLGENERATEMIPMAPPROC by lazy { wglGetProcAddressAny("glGenerateMipmap").reinterpret<PFNGLGENERATEMIPMAPPROC>() }
+		val glGenFramebuffers: PFNGLGENFRAMEBUFFERSPROC by lazy { wglGetProcAddressAny("glGenFramebuffers").reinterpret<PFNGLGENFRAMEBUFFERSPROC>() }
+		val glGenRenderbuffers: PFNGLGENRENDERBUFFERSPROC by lazy { wglGetProcAddressAny("glGenRenderbuffers").reinterpret<PFNGLGENRENDERBUFFERSPROC>() }
+		val glGetActiveAttrib: PFNGLGETACTIVEATTRIBPROC by lazy { wglGetProcAddressAny("glGetActiveAttrib").reinterpret<PFNGLGETACTIVEATTRIBPROC>() }
+		val glGetActiveUniform: PFNGLGETACTIVEUNIFORMPROC by lazy { wglGetProcAddressAny("glGetActiveUniform").reinterpret<PFNGLGETACTIVEUNIFORMPROC>() }
+		val glGetAttachedShaders: PFNGLGETATTACHEDSHADERSPROC by lazy { wglGetProcAddressAny("glGetAttachedShaders").reinterpret<PFNGLGETATTACHEDSHADERSPROC>() }
+		val glGetAttribLocation: PFNGLGETATTRIBLOCATIONPROC by lazy { wglGetProcAddressAny("glGetAttribLocation").reinterpret<PFNGLGETATTRIBLOCATIONPROC>() }
+		val glGetUniformLocation: PFNGLGETUNIFORMLOCATIONPROC by lazy { wglGetProcAddressAny("glGetUniformLocation").reinterpret<PFNGLGETUNIFORMLOCATIONPROC>() }
+		val glGetBufferParameteriv: PFNGLGETBUFFERPARAMETERIVPROC by lazy { wglGetProcAddressAny("glGetBufferParameteriv").reinterpret<PFNGLGETBUFFERPARAMETERIVPROC>() }
+		val glGetFramebufferAttachmentParameteriv: PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC by lazy { wglGetProcAddressAny("glGetFramebufferAttachmentParameteriv").reinterpret<PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC>() }
+		val glGetProgramInfoLog: PFNGLGETPROGRAMINFOLOGPROC by lazy { wglGetProcAddressAny("glGetProgramInfoLog").reinterpret<PFNGLGETPROGRAMINFOLOGPROC>() }
+		val glGetRenderbufferParameteriv: PFNGLGETRENDERBUFFERPARAMETERIVPROC by lazy { wglGetProcAddressAny("glGetRenderbufferParameteriv").reinterpret<PFNGLGETRENDERBUFFERPARAMETERIVPROC>() }
+		val glGetProgramiv: PFNGLGETPROGRAMIVPROC by lazy { wglGetProcAddressAny("glGetProgramiv").reinterpret<PFNGLGETPROGRAMIVPROC>() }
+		val glGetShaderiv: PFNGLGETSHADERIVPROC by lazy { wglGetProcAddressAny("glGetShaderiv").reinterpret<PFNGLGETSHADERIVPROC>() }
+		val glGetShaderInfoLog: PFNGLGETSHADERINFOLOGPROC by lazy { wglGetProcAddressAny("glGetShaderInfoLog").reinterpret<PFNGLGETSHADERINFOLOGPROC>() }
+		val glGetShaderPrecisionFormat: PFNGLGETSHADERPRECISIONFORMATPROC by lazy { wglGetProcAddressAny("glGetShaderPrecisionFormat").reinterpret<PFNGLGETSHADERPRECISIONFORMATPROC>() }
+		val glGetShaderSource: PFNGLGETSHADERSOURCEPROC by lazy { wglGetProcAddressAny("glGetShaderSource").reinterpret<PFNGLGETSHADERSOURCEPROC>() }
+		val glGetUniformfv: PFNGLGETUNIFORMFVPROC by lazy { wglGetProcAddressAny("glGetUniformfv").reinterpret<PFNGLGETUNIFORMFVPROC>() }
+		val glGetUniformiv: PFNGLGETUNIFORMIVPROC by lazy { wglGetProcAddressAny("glGetUniformiv").reinterpret<PFNGLGETUNIFORMIVPROC>() }
+		val glGetVertexAttribfv: PFNGLGETVERTEXATTRIBFVPROC by lazy { wglGetProcAddressAny("glGetVertexAttribfv").reinterpret<PFNGLGETVERTEXATTRIBFVPROC>() }
+		val glGetVertexAttribiv: PFNGLGETVERTEXATTRIBIVPROC by lazy { wglGetProcAddressAny("glGetVertexAttribiv").reinterpret<PFNGLGETVERTEXATTRIBIVPROC>() }
+		val glGetVertexAttribPointerv: PFNGLGETVERTEXATTRIBPOINTERVPROC by lazy { wglGetProcAddressAny("glGetVertexAttribPointerv").reinterpret<PFNGLGETVERTEXATTRIBPOINTERVPROC>() }
+		val glIsBuffer: PFNGLISBUFFERPROC by lazy { wglGetProcAddressAny("glIsBuffer").reinterpret<PFNGLISBUFFERPROC>() }
+		val glIsFramebuffer: PFNGLISFRAMEBUFFERPROC by lazy { wglGetProcAddressAny("glIsFramebuffer").reinterpret<PFNGLISFRAMEBUFFERPROC>() }
+		val glIsProgram: PFNGLISPROGRAMPROC by lazy { wglGetProcAddressAny("glIsProgram").reinterpret<PFNGLISPROGRAMPROC>() }
+		val glIsRenderbuffer: PFNGLISRENDERBUFFERPROC by lazy { wglGetProcAddressAny("glIsRenderbuffer").reinterpret<PFNGLISRENDERBUFFERPROC>() }
+		val glIsShader: PFNGLISSHADERPROC by lazy { wglGetProcAddressAny("glIsShader").reinterpret<PFNGLISSHADERPROC>() }
+		val glLinkProgram: PFNGLLINKPROGRAMPROC by lazy { wglGetProcAddressAny("glLinkProgram").reinterpret<PFNGLLINKPROGRAMPROC>() }
+		val glReleaseShaderCompiler: PFNGLRELEASESHADERCOMPILERPROC by lazy { wglGetProcAddressAny("glReleaseShaderCompiler").reinterpret<PFNGLRELEASESHADERCOMPILERPROC>() }
+		val glRenderbufferStorage: PFNGLRENDERBUFFERSTORAGEPROC by lazy { wglGetProcAddressAny("glRenderbufferStorage").reinterpret<PFNGLRENDERBUFFERSTORAGEPROC>() }
+		val glSampleCoverage: PFNGLSAMPLECOVERAGEPROC by lazy { wglGetProcAddressAny("glSampleCoverage").reinterpret<PFNGLSAMPLECOVERAGEPROC>() }
+		val glShaderBinary: PFNGLSHADERBINARYPROC by lazy { wglGetProcAddressAny("glShaderBinary").reinterpret<PFNGLSHADERBINARYPROC>() }
+		val glShaderSource: PFNGLSHADERSOURCEPROC by lazy { wglGetProcAddressAny("glShaderSource").reinterpret<PFNGLSHADERSOURCEPROC>() }
+		val glStencilFuncSeparate: PFNGLSTENCILFUNCSEPARATEPROC by lazy { wglGetProcAddressAny("glStencilFuncSeparate").reinterpret<PFNGLSTENCILFUNCSEPARATEPROC>() }
+		val glStencilMaskSeparate: PFNGLSTENCILMASKSEPARATEPROC by lazy { wglGetProcAddressAny("glStencilMaskSeparate").reinterpret<PFNGLSTENCILMASKSEPARATEPROC>() }
+		val glStencilOpSeparate: PFNGLSTENCILOPSEPARATEPROC by lazy { wglGetProcAddressAny("glStencilOpSeparate").reinterpret<PFNGLSTENCILOPSEPARATEPROC>() }
+		val glUniform1f: PFNGLUNIFORM1FPROC by lazy { wglGetProcAddressAny("glUniform1f").reinterpret<PFNGLUNIFORM1FPROC>() }
+		val glUniform1fv: PFNGLUNIFORM1FVPROC by lazy { wglGetProcAddressAny("glUniform1fv").reinterpret<PFNGLUNIFORM1FVPROC>() }
+		val glUniform1i: PFNGLUNIFORM1IPROC by lazy { wglGetProcAddressAny("glUniform1i").reinterpret<PFNGLUNIFORM1IPROC>() }
+		val glUniform1iv: PFNGLUNIFORM1IVPROC by lazy { wglGetProcAddressAny("glUniform1iv").reinterpret<PFNGLUNIFORM1IVPROC>() }
+		val glUniform2f: PFNGLUNIFORM2FPROC by lazy { wglGetProcAddressAny("glUniform2f").reinterpret<PFNGLUNIFORM2FPROC>() }
+		val glUniform2fv: PFNGLUNIFORM2FVPROC by lazy { wglGetProcAddressAny("glUniform2fv").reinterpret<PFNGLUNIFORM2FVPROC>() }
+		val glUniform2i: PFNGLUNIFORM2IPROC by lazy { wglGetProcAddressAny("glUniform2i").reinterpret<PFNGLUNIFORM2IPROC>() }
+		val glUniform2iv: PFNGLUNIFORM2IVPROC by lazy { wglGetProcAddressAny("glUniform2iv").reinterpret<PFNGLUNIFORM2IVPROC>() }
+		val glUniform3f: PFNGLUNIFORM3FPROC by lazy { wglGetProcAddressAny("glUniform3f").reinterpret<PFNGLUNIFORM3FPROC>() }
+		val glUniform3fv: PFNGLUNIFORM3FVPROC by lazy { wglGetProcAddressAny("glUniform3fv").reinterpret<PFNGLUNIFORM3FVPROC>() }
+		val glUniform3i: PFNGLUNIFORM3IPROC by lazy { wglGetProcAddressAny("glUniform3i").reinterpret<PFNGLUNIFORM3IPROC>() }
+		val glUniform3iv: PFNGLUNIFORM3IVPROC by lazy { wglGetProcAddressAny("glUniform3iv").reinterpret<PFNGLUNIFORM3IVPROC>() }
+		val glUniform4f: PFNGLUNIFORM4FPROC by lazy { wglGetProcAddressAny("glUniform4f").reinterpret<PFNGLUNIFORM4FPROC>() }
+		val glUniform4fv: PFNGLUNIFORM4FVPROC by lazy { wglGetProcAddressAny("glUniform4fv").reinterpret<PFNGLUNIFORM4FVPROC>() }
+		val glUniform4i: PFNGLUNIFORM4IPROC by lazy { wglGetProcAddressAny("glUniform4i").reinterpret<PFNGLUNIFORM4IPROC>() }
+		val glUniform4iv: PFNGLUNIFORM4IVPROC by lazy { wglGetProcAddressAny("glUniform4iv").reinterpret<PFNGLUNIFORM4IVPROC>() }
+		val glUniformMatrix2fv: PFNGLUNIFORMMATRIX2FVPROC by lazy { wglGetProcAddressAny("glUniformMatrix2fv").reinterpret<PFNGLUNIFORMMATRIX2FVPROC>() }
+		val glUniformMatrix3fv: PFNGLUNIFORMMATRIX3FVPROC by lazy { wglGetProcAddressAny("glUniformMatrix3fv").reinterpret<PFNGLUNIFORMMATRIX3FVPROC>() }
+		val glUniformMatrix4fv: PFNGLUNIFORMMATRIX4FVPROC by lazy { wglGetProcAddressAny("glUniformMatrix4fv").reinterpret<PFNGLUNIFORMMATRIX4FVPROC>() }
+		val glUseProgram: PFNGLUSEPROGRAMPROC by lazy { wglGetProcAddressAny("glUseProgram").reinterpret<PFNGLUSEPROGRAMPROC>() }
+		val glValidateProgram: PFNGLVALIDATEPROGRAMPROC by lazy { wglGetProcAddressAny("glValidateProgram").reinterpret<PFNGLVALIDATEPROGRAMPROC>() }
+		val glVertexAttrib1f: PFNGLVERTEXATTRIB1FPROC by lazy { wglGetProcAddressAny("glVertexAttrib1f").reinterpret<PFNGLVERTEXATTRIB1FPROC>() }
+		val glVertexAttrib1fv: PFNGLVERTEXATTRIB1FVPROC by lazy { wglGetProcAddressAny("glVertexAttrib1fv").reinterpret<PFNGLVERTEXATTRIB1FVPROC>() }
+		val glVertexAttrib2f: PFNGLVERTEXATTRIB2FPROC by lazy { wglGetProcAddressAny("glVertexAttrib2f").reinterpret<PFNGLVERTEXATTRIB2FPROC>() }
+		val glVertexAttrib2fv: PFNGLVERTEXATTRIB2FVPROC by lazy { wglGetProcAddressAny("glVertexAttrib2fv").reinterpret<PFNGLVERTEXATTRIB2FVPROC>() }
+		val glVertexAttrib3f: PFNGLVERTEXATTRIB3FPROC by lazy { wglGetProcAddressAny("glVertexAttrib3f").reinterpret<PFNGLVERTEXATTRIB3FPROC>() }
+		val glVertexAttrib3fv: PFNGLVERTEXATTRIB3FVPROC by lazy { wglGetProcAddressAny("glVertexAttrib3fv").reinterpret<PFNGLVERTEXATTRIB3FVPROC>() }
+		val glVertexAttrib4f: PFNGLVERTEXATTRIB4FPROC by lazy { wglGetProcAddressAny("glVertexAttrib4f").reinterpret<PFNGLVERTEXATTRIB4FPROC>() }
+		val glVertexAttrib4fv: PFNGLVERTEXATTRIB4FVPROC by lazy { wglGetProcAddressAny("glVertexAttrib4fv").reinterpret<PFNGLVERTEXATTRIB4FVPROC>() }
+		val glVertexAttribPointer: PFNGLVERTEXATTRIBPOINTERPROC by lazy { wglGetProcAddressAny("glVertexAttribPointer").reinterpret<PFNGLVERTEXATTRIBPOINTERPROC>() }
 	}
 }

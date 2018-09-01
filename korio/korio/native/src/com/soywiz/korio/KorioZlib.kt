@@ -83,13 +83,13 @@ fun <T : ZlibOutput> zlibInflate(input: ZlibInput, output: T): T {
 						return@memScoped ret
 
 					do {
-						strm.avail_in = input.read(inpArray, CHUNK).toUInt()
-						if (strm.avail_in == 0u || strm.avail_in > CHUNK.toUInt()) break
-						strm.next_in = inp.uncheckedCast()
+						strm.avail_in = input.read(inpArray, CHUNK).convert()
+						if (strm.avail_in == 0u || strm.avail_in > CHUNK.convert()) break
+						strm.next_in = inp.reinterpret()
 
 						do {
-							strm.avail_out = CHUNK.toUInt()
-							strm.next_out = out.uncheckedCast()
+							strm.avail_out = CHUNK.convert()
+							strm.next_out = out.reinterpret()
 							ret = inflate(strm.ptr, Z_NO_FLUSH)
 							assert(ret != Z_STREAM_ERROR)
 							when (ret) {
@@ -140,13 +140,13 @@ fun <T : ZlibOutput> zlibDeflate(input: ZlibInput, output: T, level: Int): T {
 						return@memScoped ret
 
 					do {
-						strm.avail_in = input.read(inpArray, CHUNK).toUInt()
-						if (strm.avail_in == 0u || strm.avail_in > CHUNK.toUInt()) break
-						strm.next_in = inp.uncheckedCast()
+						strm.avail_in = input.read(inpArray, CHUNK).convert()
+						if (strm.avail_in == 0u || strm.avail_in > CHUNK.convert()) break
+						strm.next_in = inp.reinterpret()
 
 						do {
-							strm.avail_out = CHUNK.toUInt()
-							strm.next_out = out.uncheckedCast()
+							strm.avail_out = CHUNK.convert()
+							strm.next_out = out.reinterpret()
 							ret = deflate(strm.ptr, Z_NO_FLUSH)
 							assert(ret != Z_STREAM_ERROR)
 							when (ret) {

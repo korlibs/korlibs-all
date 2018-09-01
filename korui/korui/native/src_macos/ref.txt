@@ -161,7 +161,7 @@ private class MyAppDelegate(val handler: MyAppHandler, val windowConfig: WindowC
         macTrace("[c]")
 
         val pixelFormat = attrs.usePinned {
-            NSOpenGLPixelFormat.alloc()!!.initWithAttributes(it.addressOf(0).uncheckedCast())!!
+            NSOpenGLPixelFormat.alloc()!!.initWithAttributes(it.addressOf(0).reinterpret())!!
         }
 
         openglView = AppNSOpenGLView(handler, NSMakeRect(0.0, 0.0, 16.0, 16.0), pixelFormat)!!
