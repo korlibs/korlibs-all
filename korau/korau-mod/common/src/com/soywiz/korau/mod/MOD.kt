@@ -10,6 +10,7 @@ import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
 import com.soywiz.korma.math.*
+import com.soywiz.std.*
 import com.soywiz.std.random.*
 import kotlin.math.*
 
@@ -190,7 +191,7 @@ class MOD {
 
 					//println("sampleRate: $sampleRate")
 
-					synchronized(samples) {
+					synchronized2(samples) {
 						//println("--------------")
 						for (n in 0 until ((rate / rowsPerSecond)).toInt()) {
 							val sample = ir.read(sampleRate.toInt(), 90000)
@@ -230,7 +231,7 @@ class MOD {
 			}
 
 			// MIX channels
-			synchronized(samples) {
+			synchronized2(samples) {
 				for (n in 0 until (channels.map { it.samples.size }.max() ?: 0)) {
 					var accum = 0
 					var count = 0
@@ -255,7 +256,7 @@ class MOD {
 
 		suspend fun play() {
 			nativeSoundProvider.play(AudioStream.generator(rate, 1) {
-				synchronized(samples) {
+				synchronized2(samples) {
 					val out = samples.toShortArray()
 					samples.clear()
 					out

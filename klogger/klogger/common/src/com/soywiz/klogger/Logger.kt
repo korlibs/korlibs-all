@@ -48,7 +48,7 @@ class Logger internal constructor(val name: String, val dummy: Boolean) {
 	init {
 		// @TODO: kotlin-native this produces a freeze error
 		if (!isNative) {
-			synchronized(Logger.loggers) {
+			synchronized2(Logger.loggers) {
 				Logger.loggers += mapOf(name to this)
 			}
 		}

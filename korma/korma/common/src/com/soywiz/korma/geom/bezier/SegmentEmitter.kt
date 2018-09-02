@@ -1,6 +1,7 @@
 package com.soywiz.korma.geom.bezier
 
 import com.soywiz.korma.geom.*
+import com.soywiz.std.*
 
 object SegmentEmitter {
 	inline fun emit(
@@ -9,7 +10,7 @@ object SegmentEmitter {
 		crossinline gen: (p0: MPoint2d, p1: MPoint2d) -> Unit,
 		p1: MPoint2d = MPoint2d(),
 		p2: MPoint2d = MPoint2d()
-	) = synchronized(this) {
+	) = synchronized2(this) {
 		val dt = 1.0 / segments
 		for (n in 0 until segments) {
 			p1.copyFrom(p2)

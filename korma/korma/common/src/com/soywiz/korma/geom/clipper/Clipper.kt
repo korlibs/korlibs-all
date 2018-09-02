@@ -45,6 +45,7 @@ package com.soywiz.korma.geom.clipper
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 import com.soywiz.korma.math.*
+import com.soywiz.std.*
 import kotlin.math.*
 
 private fun Vector2(v: Double) = Vector2(v, v)
@@ -1579,7 +1580,7 @@ class DefaultClipper constructor(InitOptions: Int = 0) //constructor
 		clipFillType: Clipper.PolyFillType
 	): Boolean {
 
-		return synchronized(this) {
+		return synchronized2(this) {
 
 			if (hasOpenPaths) {
 				throw IllegalStateException("Error: PolyTree struct is need for open path clipping.")
@@ -1597,7 +1598,7 @@ class DefaultClipper constructor(InitOptions: Int = 0) //constructor
 				if (succeeded) {
 					buildResult(solution)
 				}
-				return@synchronized succeeded
+				return@synchronized2 succeeded
 			} finally {
 				polyOuts.clear()
 
@@ -1616,7 +1617,7 @@ class DefaultClipper constructor(InitOptions: Int = 0) //constructor
 		subjFillType: Clipper.PolyFillType,
 		clipFillType: Clipper.PolyFillType
 	): Boolean {
-		return synchronized(this) {
+		return synchronized2(this) {
 			this.subjFillType = subjFillType
 			this.clipFillType = clipFillType
 			this.clipType = clipType
@@ -1631,7 +1632,7 @@ class DefaultClipper constructor(InitOptions: Int = 0) //constructor
 			} finally {
 				polyOuts.clear()
 			}
-			return@synchronized succeeded
+			return@synchronized2 succeeded
 		}
 	}
 

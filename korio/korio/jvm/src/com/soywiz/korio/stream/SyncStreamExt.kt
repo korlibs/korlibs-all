@@ -1,16 +1,17 @@
 package com.soywiz.korio.stream
 
+import com.soywiz.std.*
 import java.io.*
 
 class FileSyncStreamBase(val file: java.io.File, val mode: String = "r") : SyncStreamBase() {
 	val ra = RandomAccessFile(file, mode)
 
-	override fun read(position: Long, buffer: ByteArray, offset: Int, len: Int): Int = synchronized(ra) {
+	override fun read(position: Long, buffer: ByteArray, offset: Int, len: Int): Int = synchronized2(ra) {
 		ra.seek(position)
 		return ra.read(buffer, offset, len)
 	}
 
-	override fun write(position: Long, buffer: ByteArray, offset: Int, len: Int) = synchronized(ra) {
+	override fun write(position: Long, buffer: ByteArray, offset: Int, len: Int) = synchronized2(ra) {
 		ra.seek(position)
 		ra.write(buffer, offset, len)
 	}

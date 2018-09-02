@@ -15,9 +15,9 @@ class EventLoopFactoryJvmAndCSharp : EventLoopFactory() {
 class ConcurrentSignal {
 	private val lock = java.lang.Object()
 
-	fun sleep(): Unit = run { synchronized(lock) { lock.wait() } }
-	fun sleep(timeout: Long): Unit = run { synchronized(lock) { lock.wait(timeout) } }
-	fun wake(): Unit = run { synchronized(lock) { lock.notifyAll() } }
+	fun sleep(): Unit = run { synchronized2(lock) { lock.wait() } }
+	fun sleep(timeout: Long): Unit = run { synchronized2(lock) { lock.wait(timeout) } }
+	fun wake(): Unit = run { synchronized2(lock) { lock.notifyAll() } }
 }
 
 class EventLoopJvmAndCSharp : EventLoop(captureCloseables = false) {
@@ -49,7 +49,7 @@ class EventLoopJvmAndCSharp : EventLoop(captureCloseables = false) {
 	private val immediateTasks = LinkedList<ImmediateTask>()
 
 	override fun setImmediateInternal(handler: () -> Unit) {
-		synchronized(lock) {
+		synchronized2(lock) {
 			immediateTasks += immediateTasksPool.alloc().apply {
 				this.callback = handler
 			}
@@ -58,7 +58,7 @@ class EventLoopJvmAndCSharp : EventLoop(captureCloseables = false) {
 	}
 
 	override fun <T> queueContinuation(continuation: Continuation<T>, result: T): Unit {
-		synchronized(lock) {
+		synchronized2(lock) {
 			immediateTasks += immediateTasksPool.alloc().apply {
 				this.continuation = continuation
 				this.continuationResult = result
@@ -68,7 +68,7 @@ class EventLoopJvmAndCSharp : EventLoop(captureCloseables = false) {
 	}
 
 	override fun <T> queueContinuationException(continuation: Continuation<T>, result: Throwable): Unit {
-		synchronized(lock) {
+		synchronized2(lock) {
 			immediateTasks += immediateTasksPool.alloc().apply {
 				this.continuation = continuation
 				this.continuationException = result
@@ -79,8 +79,8 @@ class EventLoopJvmAndCSharp : EventLoop(captureCloseables = false) {
 
 	override fun setTimeoutInternal(ms: Int, callback: () -> Unit): Closeable {
 		val task = Task(System.currentTimeMillis() + ms, callback)
-		synchronized(lock) { timedTasks += task }
-		return Closeable { synchronized(timedTasks) { timedTasks -= task } }
+		synchronized2(lock) { timedTasks += task }
+		return Closeable { synchronized2(timedTasks) { timedTasks -= task } }
 	}
 
 	override fun step(ms: Int) {
@@ -89,7 +89,7 @@ class EventLoopJvmAndCSharp : EventLoop(captureCloseables = false) {
 			while (true) {
 				val currentTime = System.currentTimeMillis()
 				val item =
-					synchronized(lock) { if (timedTasks.isNotEmpty() && currentTime >= timedTasks.peek().time) timedTasks.remove() else null }
+					synchronized2(lock) { if (timedTasks.isNotEmpty() && currentTime >= timedTasks.peek().time) timedTasks.remove() else null }
 							?: break
 				item.callback()
 			}
@@ -98,7 +98,7 @@ class EventLoopJvmAndCSharp : EventLoop(captureCloseables = false) {
 					continue@timer
 				}
 				val task =
-					synchronized(lock) { if (immediateTasks.isNotEmpty()) immediateTasks.removeFirst() else null }
+					synchronized2(lock) { if (immediateTasks.isNotEmpty()) immediateTasks.removeFirst() else null }
 							?: break
 				if (task.callback != null) {
 					task.callback?.invoke()
@@ -110,7 +110,7 @@ class EventLoopJvmAndCSharp : EventLoop(captureCloseables = false) {
 						cont.resume(task.continuationResult)
 					}
 				}
-				synchronized(lock) {
+				synchronized2(lock) {
 					immediateTasksPool.free(task)
 				}
 			}
@@ -123,10 +123,10 @@ class EventLoopJvmAndCSharp : EventLoop(captureCloseables = false) {
 	override fun loop() {
 		loopThread = Thread.currentThread()
 
-		while (synchronized(lock) { immediateTasks.isNotEmpty() || timedTasks.isNotEmpty() } || (tasksInProgress.get() != 0)) {
+		while (synchronized2(lock) { immediateTasks.isNotEmpty() || timedTasks.isNotEmpty() } || (tasksInProgress.get() != 0)) {
 			step(1)
 			if (useLock) {
-				if (synchronized(lock) { immediateTasks.isEmpty() }) {
+				if (synchronized2(lock) { immediateTasks.isEmpty() }) {
 					slock.sleep(1L)
 				}
 			} else {

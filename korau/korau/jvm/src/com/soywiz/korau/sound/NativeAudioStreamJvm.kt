@@ -3,6 +3,7 @@ package com.soywiz.korau.sound
 import com.soywiz.kds.*
 import com.soywiz.klogger.*
 import com.soywiz.korio.async.*
+import com.soywiz.std.*
 import java.nio.*
 import javax.sound.sampled.*
 import kotlin.coroutines.*
@@ -25,10 +26,10 @@ actual class NativeAudioStream actual constructor(val freq: Int) {
 	var thread: Thread? = null
 	var running = true
 
-	val availableBuffers: Int get() = synchronized(buffers) { buffers.size }
+	val availableBuffers: Int get() = synchronized2(buffers) { buffers.size }
 	val line by lazy { mixer.getLine(DataLine.Info(SourceDataLine::class.java, format)) as SourceDataLine }
 
-	actual val availableSamples get() = synchronized(buffers) { totalShorts }
+	actual val availableSamples get() = synchronized2(buffers) { totalShorts }
 
 	fun ensureThread() {
 		if (thread == null) {
@@ -42,8 +43,8 @@ actual class NativeAudioStream actual constructor(val freq: Int) {
 					while (running) {
 						while (availableBuffers > 0) {
 							timesWithoutBuffers = 0
-							val buf = synchronized(buffers) { buffers.dequeue() }
-							synchronized(buffers) { totalShorts -= buf.data.size }
+							val buf = synchronized2(buffers) { buffers.dequeue() }
+							synchronized2(buffers) { totalShorts -= buf.data.size }
 							val bdata = convertFromShortToByte(buf.data)
 
 							val msChunk = (((bdata.size / 2) * 1000.0) / freq.toDouble()).toInt()
@@ -81,7 +82,7 @@ actual class NativeAudioStream actual constructor(val freq: Int) {
 
 	actual suspend fun addSamples(samples: ShortArray, offset: Int, size: Int) {
 		val buffer = SampleBuffer(System.currentTimeMillis(), samples.copyOfRange(offset, offset + size))
-		synchronized(buffers) {
+		synchronized2(buffers) {
 			totalShorts += buffer.data.size
 			buffers.enqueue(buffer)
 		}
@@ -96,7 +97,7 @@ actual class NativeAudioStream actual constructor(val freq: Int) {
 		////val BUFFER_TIME_SIZE = ONE_SECOND / 8 // 1/8 second of buffer
 		//val BUFFER_TIME_SIZE = ONE_SECOND / 4 // 1/4 second of buffer
 		////val BUFFER_TIME_SIZE = ONE_SECOND / 2 // 1/2 second of buffer
-		//while (bufferSize >= 32 && synchronized(buffers) { totalShorts } > BUFFER_TIME_SIZE) {
+		//while (bufferSize >= 32 && synchronized2(buffers) { totalShorts } > BUFFER_TIME_SIZE) {
 		//	ensureThread()
 		//	getCoroutineContext().eventLoop.sleepNextFrame()
 		//}

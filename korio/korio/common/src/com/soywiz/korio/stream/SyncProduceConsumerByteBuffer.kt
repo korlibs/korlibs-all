@@ -4,6 +4,7 @@ import com.soywiz.kds.*
 import com.soywiz.kmem.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.util.*
+import com.soywiz.std.*
 import kotlin.math.*
 
 class SyncProduceConsumerByteBuffer : SyncOutputStream, SyncInputStream {
@@ -21,25 +22,25 @@ class SyncProduceConsumerByteBuffer : SyncOutputStream, SyncInputStream {
 
 	val available: Int get() = availableInCurrent + availableInBuffers
 
-	fun produce(data: ByteArray): Unit = synchronized(this) {
+	fun produce(data: ByteArray): Unit = synchronized2(this) {
 		buffers.enqueue(data)
 		availableInBuffers += data.size
 		producedSema.release()
 	}
 
-	private fun useNextBuffer() = synchronized(this) {
+	private fun useNextBuffer() = synchronized2(this) {
 		current = if (buffers.size == 0) EMPTY else buffers.dequeue()
 		currentPos = 0
 		availableInBuffers -= current.size
 	}
 
-	private fun ensureCurrentBuffer() = synchronized(this) {
+	private fun ensureCurrentBuffer() = synchronized2(this) {
 		if (availableInCurrent <= 0) {
 			useNextBuffer()
 		}
 	}
 
-	fun consume(data: ByteArray, offset: Int = 0, len: Int = data.size): Int = synchronized(this) {
+	fun consume(data: ByteArray, offset: Int = 0, len: Int = data.size): Int = synchronized2(this) {
 		var totalRead = 0
 		var remaining = len
 		var outputPos = offset
@@ -58,7 +59,7 @@ class SyncProduceConsumerByteBuffer : SyncOutputStream, SyncInputStream {
 
 	fun consume(len: Int): ByteArray = ByteArray(len).run { this.copyOf(consume(this, 0, len)) }
 
-	fun consumeUntil(end: Byte, including: Boolean = true, limit: Int = Int.MAX_VALUE): ByteArray = synchronized(this) {
+	fun consumeUntil(end: Byte, including: Boolean = true, limit: Int = Int.MAX_VALUE): ByteArray = synchronized2(this) {
 		val out = ByteArrayBuilder()
 		while (true) {
 			ensureCurrentBuffer()
@@ -71,7 +72,7 @@ class SyncProduceConsumerByteBuffer : SyncOutputStream, SyncInputStream {
 			currentPos += len
 			if (p >= 0) break // found!
 		}
-		return@synchronized out.toByteArray()
+		return@synchronized2 out.toByteArray()
 	}
 
 	override fun write(buffer: ByteArray, offset: Int, len: Int) {

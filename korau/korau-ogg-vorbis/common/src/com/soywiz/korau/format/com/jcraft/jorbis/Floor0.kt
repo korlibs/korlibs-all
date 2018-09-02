@@ -28,6 +28,7 @@ package com.soywiz.korau.format.com.jcraft.jorbis
 
 import com.soywiz.kmem.*
 import com.soywiz.korau.format.com.jcraft.jogg.*
+import com.soywiz.std.*
 import kotlin.math.*
 
 class Floor0 : FuncFloor() {
@@ -133,7 +134,7 @@ class Floor0 : FuncFloor() {
 
 			if (booknum != -1 && booknum < info.numbooks) {
 
-				return synchronized(this) {
+				return synchronized2(this) {
 					if (lsp.size < look.m) {
 						lsp = FloatArray(look.m)
 					} else {
@@ -154,7 +155,7 @@ class Floor0 : FuncFloor() {
 								for (k in 0 until look.n) {
 									out[k] = 0.0f
 								}
-								return@synchronized 0
+								return@synchronized2 0
 							}
 							j += b.dim
 						}
@@ -171,7 +172,7 @@ class Floor0 : FuncFloor() {
 					}
 					// take the coefficients back to a spectral envelope curve
 					Lsp.lsp_to_curve(out, look.linearmap, look.n, look.ln, lsp, look.m, amp, info.ampdB.toFloat())
-					return@synchronized 1
+					return@synchronized2 1
 				}
 			}
 		}

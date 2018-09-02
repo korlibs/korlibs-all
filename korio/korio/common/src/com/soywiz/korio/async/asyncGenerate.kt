@@ -3,6 +3,7 @@
 package com.soywiz.korio.async
 
 import com.soywiz.kds.*
+import com.soywiz.std.*
 import com.soywiz.std.coroutine.*
 import kotlinx.coroutines.*
 import kotlin.coroutines.*
@@ -243,7 +244,7 @@ class AsyncSequenceEmitter<T : Any> : Extra by Extra.Mixin() {
 	}
 
 	fun emit(v: T) {
-		synchronized(queuedElements) { queuedElements.add(v) }
+		synchronized2(queuedElements) { queuedElements.add(v) }
 		signal()
 	}
 
@@ -252,14 +253,14 @@ class AsyncSequenceEmitter<T : Any> : Extra by Extra.Mixin() {
 	fun toSequence(): SuspendingSequence<T> = object : SuspendingSequence<T> {
 		override fun iterator(): SuspendingIterator<T> = object : SuspendingIterator<T> {
 			override suspend fun hasNext(): Boolean {
-				while (synchronized(queuedElements) { queuedElements.isEmpty() && !closed }) signal.waitOne()
+				while (synchronized2(queuedElements) { queuedElements.isEmpty() && !closed }) signal.waitOne()
 				return queuedElements.isNotEmpty() || !closed
 			}
 
 			override suspend fun next(): T {
-				while (synchronized(queuedElements) { queuedElements.isEmpty() && !closed }) signal.waitOne()
+				while (synchronized2(queuedElements) { queuedElements.isEmpty() && !closed }) signal.waitOne()
 				if (queuedElements.isEmpty() && closed) throw RuntimeException("Already closed")
-				return synchronized(queuedElements) { queuedElements.removeAt(queuedElements.size - 1) }
+				return synchronized2(queuedElements) { queuedElements.removeAt(queuedElements.size - 1) }
 			}
 		}
 	}

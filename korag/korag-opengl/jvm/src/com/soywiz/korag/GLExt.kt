@@ -110,7 +110,7 @@ class AGAwt : AGAwtBase(), AGContainer {
 			setAutoDrawable(d)
 
 			//while (true) {
-			//	val callback = synchronized(queue) { if (queue.isNotEmpty()) queue.remove() else null } ?: break
+			//	val callback = synchronized2(queue) { if (queue.isNotEmpty()) queue.remove() else null } ?: break
 			//	callback(gl)
 			//}
 

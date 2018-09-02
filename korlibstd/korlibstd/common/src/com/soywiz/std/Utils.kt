@@ -88,3 +88,6 @@ class atomicLateinit<T>() {
 expect val isNative: Boolean
 expect val isJs: Boolean
 expect val isJvm: Boolean
+
+
+expect inline fun <R> synchronized2(lock: Any, block: () -> R): R

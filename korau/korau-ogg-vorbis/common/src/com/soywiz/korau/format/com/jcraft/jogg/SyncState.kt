@@ -27,6 +27,7 @@
 package com.soywiz.korau.format.com.jcraft.jogg
 
 import com.soywiz.kmem.*
+import com.soywiz.std.*
 
 // DECODING PRIMITIVES: packet streaming layer
 
@@ -157,7 +158,7 @@ class SyncState {
 			return 0
 
 		// The whole test page is buffered.  Verify the checksum
-		val result = synchronized(chksum) {
+		val result = synchronized2(chksum) {
 			// Grab the checksum bytes, set the header field to zero
 
 			arraycopy(data, page + 22, chksum, 0, 4)
