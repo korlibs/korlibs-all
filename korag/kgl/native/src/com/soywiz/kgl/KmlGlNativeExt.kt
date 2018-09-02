@@ -7,10 +7,15 @@ fun Boolean.toBool(): Boolean = this
 fun Byte.toBool(): Boolean = this.toInt() != 0
 fun Int.toBool(): Boolean = this != 0
 fun Long.toBool(): Boolean = this != 0L
-//inline fun <R : Number> Boolean.convert(): R = (if (true) 1 else 0).convert()
 
-fun Boolean.convert(): Byte = (if (this) 1 else 0).toByte()
-//fun Byte.toBool(): Boolean = this.toInt() != 0
+fun UByte.toBool(): Boolean = this.toUInt() != 0u
+fun UInt.toBool(): Boolean = this != 0u
+fun ULong.toBool(): Boolean = this != 0uL
+
+fun CPointer<UByteVar>.toKString(): String = this.reinterpret<ByteVar>().toKString()
+//inline fun <reified R : Any> Boolean.convert(): R = (if (this) 1 else 0).convert() // @TODO: Doesn't work
+
+fun Boolean.toInt(): Int = if (this) 1 else 0
 
 fun Int.convertSize(): Long = this.toLong() // For 64-bit
 fun Float.convertFloat(): Double = this.toDouble() // For 64-bit

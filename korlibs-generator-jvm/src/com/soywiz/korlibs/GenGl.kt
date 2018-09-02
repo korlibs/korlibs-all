@@ -4,7 +4,17 @@ object GenGl {
 		val root = "korag/kgl"
 
 		println("Generating...")
-		printToFile("$root/common/src/com/soywiz/kgl/KmlGlProxy.kt") { generateProxy() }
+		//printToFile("$root/common/src/com/soywiz/kgl/KmlGlProxy.kt") { generateProxy() }
+
+		printToFile("$root/native/src_macos/com/soywiz/kgl/KmlGlNative.kt") {
+			generateNative(NativeTarget.MACOS)
+		}
+		printToFile("$root/native/src_iphone/com/soywiz/kgl/KmlGlNative.kt") {
+			generateNative(NativeTarget.IPHONE)
+		}
+		printToFile("$root/native/src_win32/com/soywiz/kgl/KmlGlNative.kt") {
+			generateNative(NativeTarget.WIN32)
+		}
 
 		/*
 		printToFile("$root/common/src/com/soywiz/kgl/KmlGl.kt") { generateCommon() }
@@ -12,15 +22,6 @@ object GenGl {
 		printToFile("$root/android/src/com/soywiz/kgl/KmlGlAndroid.kt") { generateAndroid() }
 		//printToFile("$root/jvm/src/com/soywiz/kgl/KmlGlJvm.kt") { generateJvmJogl() } // Manually modified
 		printToFile("$root/js/src/com/soywiz/kgl/KmlGlJsCanvas.kt") { generateJs() }
-		printToFile("$root/native/src_macos/com/soywiz/kgl/KmlGlNative.kt") {
-			generateNative(NativeTarget.MACOS)
-		}
-		printToFile("$root/native/src_iphone/com/soywiz/kgl/KmlGlNative.kt") {
-			generateNative(NativeTarget.IPHONE)
-		}
-		printToFile("$root/native/src_mingw/com/soywiz/kgl/KmlGlNative.kt") {
-			generateNative(NativeTarget.WIN32)
-		}
 		//printToConsole { generateCommon() }
 		//printToConsole { generateJvm() }
 		*/
@@ -188,13 +189,18 @@ object GenGl {
 				NativeTarget.WIN32 -> func.fname.nativeName
 				else -> func.fname.nativeName
 			}
-			val call = func.nativeBody
+			val call2 = func.nativeBody
 					?: func.rettype.toNativeReturn("$nativeName(${func.args.joinToString(", ") {
 						it.type.toNative(
 							it.name,
 							target
 						)
 					}})")
+
+			val call = when (func.rettype) {
+				OpenglDesc.GlVoid, OpenglDesc.GlString, OpenglDesc.GlBool -> call2
+				else ->"$call2.convert()"
+			}
 			val hasStrings = func.args.any { it.type == OpenglDesc.GlString }
 			val funcDecl =
 				"override fun ${func.unprefixedName}(${func.args.joinToString(", ") { it.name + ": " + it.type.ktname }}): ${func.rettype.ktname}"
@@ -387,16 +393,25 @@ object OpenglDesc {
 	}
 
 	object GlVoid : GlType("Unit")
-	object GlInt : GlType("Int")
+	object GlInt : GlType("Int") {
+		override fun toNative(param: String): String = "$param.convert()"
+	}
+	object GlUInt : GlType("Int") {
+		override fun toNative(param: String): String = "$param.convert()"
+	}
+	object GlEnum : GlType("Int") {
+		override fun toNative(param: String): String = "$param.convert()"
+	}
 	object GlSize : GlType("Int") {
 		override fun toJVM(param: String): String = "$param.toLong()"
-		override fun toNative(param: String): String = "$param.convertSize()"
+		override fun toNative(param: String): String = "$param.convert()"
 		override fun toAndroid(param: String): String = param
 	}
 
 	object GlSizeOrPointer : GlType("Int") {
 		override fun toJVM(param: String): String = "$param.toLong()"
-		override fun toNative(param: String): String = "$param.reinterpret()"
+		override fun toNative(param: String): String = "$param.uncheckedCast()"
+		//override fun toNative(param: String): String = "$param"
 		override fun toAndroid(param: String): String = param
 	}
 
@@ -410,13 +425,13 @@ object OpenglDesc {
 	}
 
 	object GlBool : GlType("Boolean") {
-		override fun toNative(param: String): String = "$param.convert()"
+		override fun toNative(param: String): String = "$param.toInt().convert()"
 		override fun toNativeReturn(param: String): String = "$param.toBool()"
 	}
 
 	object GlString : GlType("String") {
-		override fun toNativeReturn(param: String): String = "($param)?.toKString() ?: \"\""
-		override fun toNativeWin32(param: String): String = "($param).cstr.getPointer(this@memScoped)"
+		override fun toNativeReturn(param: String): String = "(($param)?.toKString() ?: \"\")"
+		override fun toNativeWin32(param: String): String = "(($param).cstr.getPointer(this@memScoped))"
 	}
 
 	object GlNativeImageData : GlType(KmlNativeImageData) {
@@ -425,6 +440,7 @@ object OpenglDesc {
 
 	open class GlTypeToInt : GlType("Int") {
 		override fun toJSParam(param: String): String = "$param.get()"
+		override fun toNative(param: String): String = "$param.convert()"
 		override fun toJSReturn(param: String): String = "$param.alloc()"
 	}
 
@@ -438,7 +454,9 @@ object OpenglDesc {
 
 	open class GlTypePtr(ktname: String, val nullable: Boolean = false) : GlType(if (nullable) "$ktname?" else ktname) {
 		override fun toJVM(param: String): String = "$param.nioBuffer"
-		override fun toNative(param: String): String = if (nullable) "$param?.unsafeAddress()?.reinterpret()" else "$param.unsafeAddress().reinterpret()"
+		//override fun toNative(param: String): String = if (nullable) "$param?.unsafeAddress()?.reinterpret()" else "$param.unsafeAddress().reinterpret()"
+		override fun toNative(param: String): String = if (nullable) "$param?.unsafeAddress()?.uncheckedCast()" else "$param.unsafeAddress().uncheckedCast()"
+		//override fun toNative(param: String): String = if (nullable) "$param?.unsafeAddress()" else "$param.unsafeAddress()"
 	}
 
 	object GlVoidPtr : GlTypePtr(KmlNativeBuffer, nullable = false) {
@@ -450,6 +468,11 @@ object OpenglDesc {
 	}
 
 	object GlIntPtr : GlTypePtr(KmlNativeBuffer) {
+		override fun toAndroid(param: String): String = "$param.nioIntBuffer"
+		override fun toJVM(param: String): String = "$param.nioIntBuffer"
+	}
+
+	object GlUIntPtr : GlTypePtr(KmlNativeBuffer) {
 		override fun toAndroid(param: String): String = "$param.nioIntBuffer"
 		override fun toJVM(param: String): String = "$param.nioIntBuffer"
 	}
@@ -914,7 +937,7 @@ object OpenglDesc {
 			GlVoid,
 			FunctionName("glDeleteBuffers"),
 			"n" to GlInt,
-			"items" to GlIntPtr,
+			"items" to GlUIntPtr,
 			jsBody = jsBodyDelete("deleteBuffer", "items")
 		)
 		function(
@@ -1310,7 +1333,7 @@ object OpenglDesc {
                     val strings = allocArray<CPointerVar<ByteVar>>(1)
                     lengths[0] = strlen(string).convert()
                     strings[0] = string.cstr.placeTo(this)
-                    glShaderSource(shader, 1, strings, lengths)
+                    glShaderSource(shader.convert(), 1.convert(), strings.reinterpret(), lengths.reinterpret())
                 }
                 }"""
 		)
@@ -1364,9 +1387,9 @@ object OpenglDesc {
 			nativeBody = "run { " +
 					"val intData = (data as BitmapNativeImage).intData; " +
 					"if (intData != null) {" +
-					"	intData.usePinned { dataPin -> glTexImage2D(target, level, internalformat, data.width, data.height, 0, format, type, dataPin.addressOf(0).reinterpret()) }" +
+					"	intData.usePinned { dataPin -> glTexImage2D(target.convert(), level.convert(), internalformat.convert(), data.width.convert(), data.height.convert(), 0.convert(), format.convert(), type.convert(), dataPin.addressOf(0).uncheckedCast()) }" +
 					"} else {" +
-					"	glTexImage2D(target, level, internalformat, data.width, data.height, 0, format, type, null)" +
+					"	glTexImage2D(target.convert(), level.convert(), internalformat.convert(), data.width.convert(), data.height.convert(), 0.convert(), format.convert(), type.convert(), null)" +
 					"}" +
 					"}",
 			androidBody = "TODO()", core = true
