@@ -1,0 +1,15 @@
+#!/bin/bash
+HOME=`echo ~`
+
+# Will use ~/.gradle-win and ~/.konan-win
+#SUFFIX=-win
+
+# Will use ~/.gradle and ~/.konan -- Seems to work without issues and allows to reuse artifacts
+SUFFIX=
+
+docker run -it \
+	"-v$PWD:/work" \
+	"-v$HOME/.gradle$SUFFIX:/root/.wine/drive_c/users/root/.gradle" \
+	"-v$HOME/.konan$SUFFIX:/root/.wine/drive_c/users/root/.konan" \
+	soywiz/kotlin-native-win \
+	winecmd gradlew.bat $*
