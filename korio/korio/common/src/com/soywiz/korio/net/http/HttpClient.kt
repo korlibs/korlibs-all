@@ -7,7 +7,7 @@ import com.soywiz.korio.lang.*
 import com.soywiz.korio.net.*
 import com.soywiz.korio.serialization.json.*
 import com.soywiz.korio.stream.*
-import com.soywiz.std.*
+import kotlinx.atomicfu.*
 import kotlinx.coroutines.*
 
 abstract class HttpClient protected constructor() {
@@ -317,8 +317,8 @@ object HttpStatusMessage {
 }
 
 object HttpStats {
-	val connections = NewAtomicLong(0L)
-	val disconnections = NewAtomicLong(0L)
+	val connections = atomic(0L)
+	val disconnections = atomic(0L)
 
 	override fun toString(): String = "HttpStats(connections=$connections, Disconnections=$disconnections)"
 }

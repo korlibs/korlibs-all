@@ -5,8 +5,7 @@ import com.soywiz.korio.async.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.stream.*
 import com.soywiz.korio.util.*
-import com.soywiz.std.*
-import kotlinx.coroutines.*
+import kotlinx.atomicfu.*
 import kotlin.coroutines.*
 
 val asyncSocketFactory: AsyncSocketFactory get() = KorioNative.asyncSocketFactory
@@ -25,9 +24,9 @@ interface AsyncClient : AsyncInputStream, AsyncOutputStream, AsyncCloseable {
 	//suspend open fun reconnect() = Unit
 
 	object Stats {
-		val writeCountStart = NewAtomicLong(0L)
-		val writeCountEnd = NewAtomicLong(0L)
-		val writeCountError = NewAtomicLong(0L)
+		val writeCountStart = atomic(0L)
+		val writeCountEnd = atomic(0L)
+		val writeCountError = atomic(0L)
 
 		override fun toString(): String = "AsyncClient.Stats($writeCountStart/$writeCountEnd/$writeCountError)"
 	}

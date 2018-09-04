@@ -6,7 +6,7 @@ import platform.posix.*
 fun getExecutablePath(): String = kotlinx.cinterop.memScoped {
 	val maxSize = 4096
 	val data = allocArray<kotlinx.cinterop.ByteVar>(maxSize + 1)
-	platform.windows.GetModuleFileNameA(null, data, maxSize)
+	platform.windows.GetModuleFileNameA(null, data.reinterpret(), maxSize.convert())
 	data.toKString()
 }.replace('/', '\\')
 

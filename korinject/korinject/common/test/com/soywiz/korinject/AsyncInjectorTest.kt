@@ -1,7 +1,7 @@
 package com.soywiz.korinject
 
 import com.soywiz.korinject.util.*
-import com.soywiz.std.*
+import kotlinx.atomicfu.*
 import kotlin.test.*
 
 class AsyncInjectorTest {
@@ -35,27 +35,27 @@ class AsyncInjectorTest {
 	}
 
 	companion object {
-		var lastId = NewAtomicInt(0)
+		var lastId = atomic(0)
 	}
 
 	//@Prototype
 	class PrototypeA {
-		val id: Int = lastId.preIncrement()
+		val id: Int = lastId.getAndIncrement()
 	}
 
 	//@Singleton
 	class SingletonS {
-		val id: Int = lastId.preIncrement()
+		val id: Int = lastId.getAndIncrement()
 	}
 
 	//@Prototype
 	class PrototypeB(val s: SingletonS) {
-		val id: Int = lastId.preIncrement()
+		val id: Int = lastId.getAndIncrement()
 	}
 
 	@kotlin.test.Test
 	fun testPrototype() = suspendTest {
-		lastId.set(0)
+		lastId.value = 0
 		val inject = AsyncInjector()
 		inject.mapPrototype(PrototypeA::class) { PrototypeA() }
 		val a0 = inject.get(PrototypeA::class)
@@ -66,7 +66,7 @@ class AsyncInjectorTest {
 
 	@kotlin.test.Test
 	fun testPrototypeSingleton() = suspendTest {
-		lastId.set(0)
+		lastId.value = 0
 		val inject = AsyncInjector()
 		inject.mapPrototype(PrototypeA::class) { PrototypeA() }
 		inject.mapSingleton(SingletonS::class) { SingletonS() }

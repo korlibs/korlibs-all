@@ -40,7 +40,7 @@ buildscript {
 	]
 
 	ext.libDependencies = [
-			"korlibstd"        : [],
+			"korlibstd"        : ["org.jetbrains.kotlinx:atomicfu{JSUFFIX}:$atomicfuVersion"],
 			"dynarek"          : ["korlibstd"],
 			"kbignum"          : ["korlibstd"],
 			"kds"              : ["korlibstd"],

@@ -289,11 +289,11 @@ private class MyAppDelegate(val ag: AG, val windowConfig: WindowConfig, val hand
 	val attrs = intArrayOf(
 		//NSOpenGLPFAOpenGLProfile,
 		//NSOpenGLProfileVersion4_1Core,
-		NSOpenGLPFAColorSize, 24,
-		NSOpenGLPFAAlphaSize, 8,
-		NSOpenGLPFADoubleBuffer,
-		NSOpenGLPFADepthSize, 32,
-		0
+		NSOpenGLPFAColorSize.convert(), 24.convert(),
+		NSOpenGLPFAAlphaSize.convert(), 8.convert(),
+		NSOpenGLPFADoubleBuffer.convert(),
+		NSOpenGLPFADepthSize.convert(), 32.convert(),
+		0.convert()
 	)
 
 	val pixelFormat = attrs.usePinned {

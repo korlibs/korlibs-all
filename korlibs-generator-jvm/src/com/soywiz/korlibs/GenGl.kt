@@ -210,20 +210,24 @@ object GenGl {
 				println("    $funcDecl = tempBufferAddress { $call }")
 			}
 		}
-		println("}")
 
 		if (target == NativeTarget.WIN32) {
 			//println("val OPENGL32_DLL_MODULE: HMODULE? by lazy { LoadLibraryA(\"opengl32.dll\") }")
 			//println("fun wglGetProcAddressAny(name: String): PROC? = wglGetProcAddress(name) ?: GetProcAddress(OPENGL32_DLL_MODULE, name)")
 			//println("val String.glstr: CPointer<GLcharVar> get() = this.cstr.uncheckedCast()")
+			println("")
+			println("    companion object {")
 			for (func in OpenglDesc.functions) {
 				val name = func.fname.nativeName
 				val PROC = "PFN${name.toUpperCase()}PROC"
 				if (!func.core) {
-					println("val $name: $PROC by lazy { wglGetProcAddressAny(\"$name\").reinterpret<$PROC>() }")
+					println("        val $name: $PROC by lazy { wglGetProcAddressAny(\"$name\").uncheckedCast<$PROC>() }")
 				}
 			}
+			println("    }")
 		}
+
+		println("}")
 
 		println("")
 	}

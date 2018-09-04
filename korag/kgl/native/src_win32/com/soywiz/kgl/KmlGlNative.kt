@@ -118,7 +118,7 @@ class KmlGlNative : KmlGl() {
                     val strings = allocArray<CPointerVar<ByteVar>>(1)
                     lengths[0] = strlen(string).convert()
                     strings[0] = string.cstr.placeTo(this)
-                    glShaderSource(shader.convert(), 1.convert(), strings.reinterpret(), lengths.reinterpret())
+                    glShaderSource(shader.convert(), 1.convert(), strings.uncheckedCast(), lengths.uncheckedCast())
                 }
                 } } }
     override fun stencilFunc(func: Int, ref: Int, mask: Int): Unit = tempBufferAddress { glStencilFunc(func.convert(), ref.convert(), mask.convert()) }
@@ -165,99 +165,102 @@ class KmlGlNative : KmlGl() {
     override fun vertexAttrib4fv(index: Int, v: KmlNativeBuffer): Unit = tempBufferAddress { glVertexAttrib4fv(index.convert(), v.unsafeAddress().uncheckedCast()) }
     override fun vertexAttribPointer(index: Int, size: Int, type: Int, normalized: Boolean, stride: Int, pointer: Int): Unit = tempBufferAddress { glVertexAttribPointer(index.convert(), size.convert(), type.convert(), normalized.toInt().convert(), stride.convert(), pointer.uncheckedCast()) }
     override fun viewport(x: Int, y: Int, width: Int, height: Int): Unit = tempBufferAddress { glViewport(x.convert(), y.convert(), width.convert(), height.convert()) }
+
+	companion object {
+		val glActiveTexture: PFNGLACTIVETEXTUREPROC by lazy { wglGetProcAddressAny("glActiveTexture").uncheckedCast<PFNGLACTIVETEXTUREPROC>() }
+		val glAttachShader: PFNGLATTACHSHADERPROC by lazy { wglGetProcAddressAny("glAttachShader").uncheckedCast<PFNGLATTACHSHADERPROC>() }
+		val glBindAttribLocation: PFNGLBINDATTRIBLOCATIONPROC by lazy { wglGetProcAddressAny("glBindAttribLocation").uncheckedCast<PFNGLBINDATTRIBLOCATIONPROC>() }
+		val glBindBuffer: PFNGLBINDBUFFERPROC by lazy { wglGetProcAddressAny("glBindBuffer").uncheckedCast<PFNGLBINDBUFFERPROC>() }
+		val glBindFramebuffer: PFNGLBINDFRAMEBUFFERPROC by lazy { wglGetProcAddressAny("glBindFramebuffer").uncheckedCast<PFNGLBINDFRAMEBUFFERPROC>() }
+		val glBindRenderbuffer: PFNGLBINDRENDERBUFFERPROC by lazy { wglGetProcAddressAny("glBindRenderbuffer").uncheckedCast<PFNGLBINDRENDERBUFFERPROC>() }
+		val glBlendColor: PFNGLBLENDCOLORPROC by lazy { wglGetProcAddressAny("glBlendColor").uncheckedCast<PFNGLBLENDCOLORPROC>() }
+		val glBlendEquation: PFNGLBLENDEQUATIONPROC by lazy { wglGetProcAddressAny("glBlendEquation").uncheckedCast<PFNGLBLENDEQUATIONPROC>() }
+		val glBlendEquationSeparate: PFNGLBLENDEQUATIONSEPARATEPROC by lazy { wglGetProcAddressAny("glBlendEquationSeparate").uncheckedCast<PFNGLBLENDEQUATIONSEPARATEPROC>() }
+		val glBlendFuncSeparate: PFNGLBLENDFUNCSEPARATEPROC by lazy { wglGetProcAddressAny("glBlendFuncSeparate").uncheckedCast<PFNGLBLENDFUNCSEPARATEPROC>() }
+		val glBufferData: PFNGLBUFFERDATAPROC by lazy { wglGetProcAddressAny("glBufferData").uncheckedCast<PFNGLBUFFERDATAPROC>() }
+		val glBufferSubData: PFNGLBUFFERSUBDATAPROC by lazy { wglGetProcAddressAny("glBufferSubData").uncheckedCast<PFNGLBUFFERSUBDATAPROC>() }
+		val glCheckFramebufferStatus: PFNGLCHECKFRAMEBUFFERSTATUSPROC by lazy { wglGetProcAddressAny("glCheckFramebufferStatus").uncheckedCast<PFNGLCHECKFRAMEBUFFERSTATUSPROC>() }
+		val glCompileShader: PFNGLCOMPILESHADERPROC by lazy { wglGetProcAddressAny("glCompileShader").uncheckedCast<PFNGLCOMPILESHADERPROC>() }
+		val glCompressedTexImage2D: PFNGLCOMPRESSEDTEXIMAGE2DPROC by lazy { wglGetProcAddressAny("glCompressedTexImage2D").uncheckedCast<PFNGLCOMPRESSEDTEXIMAGE2DPROC>() }
+		val glCompressedTexSubImage2D: PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC by lazy { wglGetProcAddressAny("glCompressedTexSubImage2D").uncheckedCast<PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC>() }
+		val glCreateProgram: PFNGLCREATEPROGRAMPROC by lazy { wglGetProcAddressAny("glCreateProgram").uncheckedCast<PFNGLCREATEPROGRAMPROC>() }
+		val glCreateShader: PFNGLCREATESHADERPROC by lazy { wglGetProcAddressAny("glCreateShader").uncheckedCast<PFNGLCREATESHADERPROC>() }
+		val glDeleteBuffers: PFNGLDELETEBUFFERSPROC by lazy { wglGetProcAddressAny("glDeleteBuffers").uncheckedCast<PFNGLDELETEBUFFERSPROC>() }
+		val glDeleteFramebuffers: PFNGLDELETEFRAMEBUFFERSPROC by lazy { wglGetProcAddressAny("glDeleteFramebuffers").uncheckedCast<PFNGLDELETEFRAMEBUFFERSPROC>() }
+		val glDeleteProgram: PFNGLDELETEPROGRAMPROC by lazy { wglGetProcAddressAny("glDeleteProgram").uncheckedCast<PFNGLDELETEPROGRAMPROC>() }
+		val glDeleteRenderbuffers: PFNGLDELETERENDERBUFFERSPROC by lazy { wglGetProcAddressAny("glDeleteRenderbuffers").uncheckedCast<PFNGLDELETERENDERBUFFERSPROC>() }
+		val glDeleteShader: PFNGLDELETESHADERPROC by lazy { wglGetProcAddressAny("glDeleteShader").uncheckedCast<PFNGLDELETESHADERPROC>() }
+		val glDetachShader: PFNGLDETACHSHADERPROC by lazy { wglGetProcAddressAny("glDetachShader").uncheckedCast<PFNGLDETACHSHADERPROC>() }
+		val glDisableVertexAttribArray: PFNGLDISABLEVERTEXATTRIBARRAYPROC by lazy { wglGetProcAddressAny("glDisableVertexAttribArray").uncheckedCast<PFNGLDISABLEVERTEXATTRIBARRAYPROC>() }
+		val glEnableVertexAttribArray: PFNGLENABLEVERTEXATTRIBARRAYPROC by lazy { wglGetProcAddressAny("glEnableVertexAttribArray").uncheckedCast<PFNGLENABLEVERTEXATTRIBARRAYPROC>() }
+		val glFramebufferRenderbuffer: PFNGLFRAMEBUFFERRENDERBUFFERPROC by lazy { wglGetProcAddressAny("glFramebufferRenderbuffer").uncheckedCast<PFNGLFRAMEBUFFERRENDERBUFFERPROC>() }
+		val glFramebufferTexture2D: PFNGLFRAMEBUFFERTEXTURE2DPROC by lazy { wglGetProcAddressAny("glFramebufferTexture2D").uncheckedCast<PFNGLFRAMEBUFFERTEXTURE2DPROC>() }
+		val glGenBuffers: PFNGLGENBUFFERSPROC by lazy { wglGetProcAddressAny("glGenBuffers").uncheckedCast<PFNGLGENBUFFERSPROC>() }
+		val glGenerateMipmap: PFNGLGENERATEMIPMAPPROC by lazy { wglGetProcAddressAny("glGenerateMipmap").uncheckedCast<PFNGLGENERATEMIPMAPPROC>() }
+		val glGenFramebuffers: PFNGLGENFRAMEBUFFERSPROC by lazy { wglGetProcAddressAny("glGenFramebuffers").uncheckedCast<PFNGLGENFRAMEBUFFERSPROC>() }
+		val glGenRenderbuffers: PFNGLGENRENDERBUFFERSPROC by lazy { wglGetProcAddressAny("glGenRenderbuffers").uncheckedCast<PFNGLGENRENDERBUFFERSPROC>() }
+		val glGetActiveAttrib: PFNGLGETACTIVEATTRIBPROC by lazy { wglGetProcAddressAny("glGetActiveAttrib").uncheckedCast<PFNGLGETACTIVEATTRIBPROC>() }
+		val glGetActiveUniform: PFNGLGETACTIVEUNIFORMPROC by lazy { wglGetProcAddressAny("glGetActiveUniform").uncheckedCast<PFNGLGETACTIVEUNIFORMPROC>() }
+		val glGetAttachedShaders: PFNGLGETATTACHEDSHADERSPROC by lazy { wglGetProcAddressAny("glGetAttachedShaders").uncheckedCast<PFNGLGETATTACHEDSHADERSPROC>() }
+		val glGetAttribLocation: PFNGLGETATTRIBLOCATIONPROC by lazy { wglGetProcAddressAny("glGetAttribLocation").uncheckedCast<PFNGLGETATTRIBLOCATIONPROC>() }
+		val glGetUniformLocation: PFNGLGETUNIFORMLOCATIONPROC by lazy { wglGetProcAddressAny("glGetUniformLocation").uncheckedCast<PFNGLGETUNIFORMLOCATIONPROC>() }
+		val glGetBufferParameteriv: PFNGLGETBUFFERPARAMETERIVPROC by lazy { wglGetProcAddressAny("glGetBufferParameteriv").uncheckedCast<PFNGLGETBUFFERPARAMETERIVPROC>() }
+		val glGetFramebufferAttachmentParameteriv: PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC by lazy { wglGetProcAddressAny("glGetFramebufferAttachmentParameteriv").uncheckedCast<PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC>() }
+		val glGetProgramInfoLog: PFNGLGETPROGRAMINFOLOGPROC by lazy { wglGetProcAddressAny("glGetProgramInfoLog").uncheckedCast<PFNGLGETPROGRAMINFOLOGPROC>() }
+		val glGetRenderbufferParameteriv: PFNGLGETRENDERBUFFERPARAMETERIVPROC by lazy { wglGetProcAddressAny("glGetRenderbufferParameteriv").uncheckedCast<PFNGLGETRENDERBUFFERPARAMETERIVPROC>() }
+		val glGetProgramiv: PFNGLGETPROGRAMIVPROC by lazy { wglGetProcAddressAny("glGetProgramiv").uncheckedCast<PFNGLGETPROGRAMIVPROC>() }
+		val glGetShaderiv: PFNGLGETSHADERIVPROC by lazy { wglGetProcAddressAny("glGetShaderiv").uncheckedCast<PFNGLGETSHADERIVPROC>() }
+		val glGetShaderInfoLog: PFNGLGETSHADERINFOLOGPROC by lazy { wglGetProcAddressAny("glGetShaderInfoLog").uncheckedCast<PFNGLGETSHADERINFOLOGPROC>() }
+		val glGetShaderPrecisionFormat: PFNGLGETSHADERPRECISIONFORMATPROC by lazy { wglGetProcAddressAny("glGetShaderPrecisionFormat").uncheckedCast<PFNGLGETSHADERPRECISIONFORMATPROC>() }
+		val glGetShaderSource: PFNGLGETSHADERSOURCEPROC by lazy { wglGetProcAddressAny("glGetShaderSource").uncheckedCast<PFNGLGETSHADERSOURCEPROC>() }
+		val glGetUniformfv: PFNGLGETUNIFORMFVPROC by lazy { wglGetProcAddressAny("glGetUniformfv").uncheckedCast<PFNGLGETUNIFORMFVPROC>() }
+		val glGetUniformiv: PFNGLGETUNIFORMIVPROC by lazy { wglGetProcAddressAny("glGetUniformiv").uncheckedCast<PFNGLGETUNIFORMIVPROC>() }
+		val glGetVertexAttribfv: PFNGLGETVERTEXATTRIBFVPROC by lazy { wglGetProcAddressAny("glGetVertexAttribfv").uncheckedCast<PFNGLGETVERTEXATTRIBFVPROC>() }
+		val glGetVertexAttribiv: PFNGLGETVERTEXATTRIBIVPROC by lazy { wglGetProcAddressAny("glGetVertexAttribiv").uncheckedCast<PFNGLGETVERTEXATTRIBIVPROC>() }
+		val glGetVertexAttribPointerv: PFNGLGETVERTEXATTRIBPOINTERVPROC by lazy { wglGetProcAddressAny("glGetVertexAttribPointerv").uncheckedCast<PFNGLGETVERTEXATTRIBPOINTERVPROC>() }
+		val glIsBuffer: PFNGLISBUFFERPROC by lazy { wglGetProcAddressAny("glIsBuffer").uncheckedCast<PFNGLISBUFFERPROC>() }
+		val glIsFramebuffer: PFNGLISFRAMEBUFFERPROC by lazy { wglGetProcAddressAny("glIsFramebuffer").uncheckedCast<PFNGLISFRAMEBUFFERPROC>() }
+		val glIsProgram: PFNGLISPROGRAMPROC by lazy { wglGetProcAddressAny("glIsProgram").uncheckedCast<PFNGLISPROGRAMPROC>() }
+		val glIsRenderbuffer: PFNGLISRENDERBUFFERPROC by lazy { wglGetProcAddressAny("glIsRenderbuffer").uncheckedCast<PFNGLISRENDERBUFFERPROC>() }
+		val glIsShader: PFNGLISSHADERPROC by lazy { wglGetProcAddressAny("glIsShader").uncheckedCast<PFNGLISSHADERPROC>() }
+		val glLinkProgram: PFNGLLINKPROGRAMPROC by lazy { wglGetProcAddressAny("glLinkProgram").uncheckedCast<PFNGLLINKPROGRAMPROC>() }
+		val glReleaseShaderCompiler: PFNGLRELEASESHADERCOMPILERPROC by lazy { wglGetProcAddressAny("glReleaseShaderCompiler").uncheckedCast<PFNGLRELEASESHADERCOMPILERPROC>() }
+		val glRenderbufferStorage: PFNGLRENDERBUFFERSTORAGEPROC by lazy { wglGetProcAddressAny("glRenderbufferStorage").uncheckedCast<PFNGLRENDERBUFFERSTORAGEPROC>() }
+		val glSampleCoverage: PFNGLSAMPLECOVERAGEPROC by lazy { wglGetProcAddressAny("glSampleCoverage").uncheckedCast<PFNGLSAMPLECOVERAGEPROC>() }
+		val glShaderBinary: PFNGLSHADERBINARYPROC by lazy { wglGetProcAddressAny("glShaderBinary").uncheckedCast<PFNGLSHADERBINARYPROC>() }
+		val glShaderSource: PFNGLSHADERSOURCEPROC by lazy { wglGetProcAddressAny("glShaderSource").uncheckedCast<PFNGLSHADERSOURCEPROC>() }
+		val glStencilFuncSeparate: PFNGLSTENCILFUNCSEPARATEPROC by lazy { wglGetProcAddressAny("glStencilFuncSeparate").uncheckedCast<PFNGLSTENCILFUNCSEPARATEPROC>() }
+		val glStencilMaskSeparate: PFNGLSTENCILMASKSEPARATEPROC by lazy { wglGetProcAddressAny("glStencilMaskSeparate").uncheckedCast<PFNGLSTENCILMASKSEPARATEPROC>() }
+		val glStencilOpSeparate: PFNGLSTENCILOPSEPARATEPROC by lazy { wglGetProcAddressAny("glStencilOpSeparate").uncheckedCast<PFNGLSTENCILOPSEPARATEPROC>() }
+		val glUniform1f: PFNGLUNIFORM1FPROC by lazy { wglGetProcAddressAny("glUniform1f").uncheckedCast<PFNGLUNIFORM1FPROC>() }
+		val glUniform1fv: PFNGLUNIFORM1FVPROC by lazy { wglGetProcAddressAny("glUniform1fv").uncheckedCast<PFNGLUNIFORM1FVPROC>() }
+		val glUniform1i: PFNGLUNIFORM1IPROC by lazy { wglGetProcAddressAny("glUniform1i").uncheckedCast<PFNGLUNIFORM1IPROC>() }
+		val glUniform1iv: PFNGLUNIFORM1IVPROC by lazy { wglGetProcAddressAny("glUniform1iv").uncheckedCast<PFNGLUNIFORM1IVPROC>() }
+		val glUniform2f: PFNGLUNIFORM2FPROC by lazy { wglGetProcAddressAny("glUniform2f").uncheckedCast<PFNGLUNIFORM2FPROC>() }
+		val glUniform2fv: PFNGLUNIFORM2FVPROC by lazy { wglGetProcAddressAny("glUniform2fv").uncheckedCast<PFNGLUNIFORM2FVPROC>() }
+		val glUniform2i: PFNGLUNIFORM2IPROC by lazy { wglGetProcAddressAny("glUniform2i").uncheckedCast<PFNGLUNIFORM2IPROC>() }
+		val glUniform2iv: PFNGLUNIFORM2IVPROC by lazy { wglGetProcAddressAny("glUniform2iv").uncheckedCast<PFNGLUNIFORM2IVPROC>() }
+		val glUniform3f: PFNGLUNIFORM3FPROC by lazy { wglGetProcAddressAny("glUniform3f").uncheckedCast<PFNGLUNIFORM3FPROC>() }
+		val glUniform3fv: PFNGLUNIFORM3FVPROC by lazy { wglGetProcAddressAny("glUniform3fv").uncheckedCast<PFNGLUNIFORM3FVPROC>() }
+		val glUniform3i: PFNGLUNIFORM3IPROC by lazy { wglGetProcAddressAny("glUniform3i").uncheckedCast<PFNGLUNIFORM3IPROC>() }
+		val glUniform3iv: PFNGLUNIFORM3IVPROC by lazy { wglGetProcAddressAny("glUniform3iv").uncheckedCast<PFNGLUNIFORM3IVPROC>() }
+		val glUniform4f: PFNGLUNIFORM4FPROC by lazy { wglGetProcAddressAny("glUniform4f").uncheckedCast<PFNGLUNIFORM4FPROC>() }
+		val glUniform4fv: PFNGLUNIFORM4FVPROC by lazy { wglGetProcAddressAny("glUniform4fv").uncheckedCast<PFNGLUNIFORM4FVPROC>() }
+		val glUniform4i: PFNGLUNIFORM4IPROC by lazy { wglGetProcAddressAny("glUniform4i").uncheckedCast<PFNGLUNIFORM4IPROC>() }
+		val glUniform4iv: PFNGLUNIFORM4IVPROC by lazy { wglGetProcAddressAny("glUniform4iv").uncheckedCast<PFNGLUNIFORM4IVPROC>() }
+		val glUniformMatrix2fv: PFNGLUNIFORMMATRIX2FVPROC by lazy { wglGetProcAddressAny("glUniformMatrix2fv").uncheckedCast<PFNGLUNIFORMMATRIX2FVPROC>() }
+		val glUniformMatrix3fv: PFNGLUNIFORMMATRIX3FVPROC by lazy { wglGetProcAddressAny("glUniformMatrix3fv").uncheckedCast<PFNGLUNIFORMMATRIX3FVPROC>() }
+		val glUniformMatrix4fv: PFNGLUNIFORMMATRIX4FVPROC by lazy { wglGetProcAddressAny("glUniformMatrix4fv").uncheckedCast<PFNGLUNIFORMMATRIX4FVPROC>() }
+		val glUseProgram: PFNGLUSEPROGRAMPROC by lazy { wglGetProcAddressAny("glUseProgram").uncheckedCast<PFNGLUSEPROGRAMPROC>() }
+		val glValidateProgram: PFNGLVALIDATEPROGRAMPROC by lazy { wglGetProcAddressAny("glValidateProgram").uncheckedCast<PFNGLVALIDATEPROGRAMPROC>() }
+		val glVertexAttrib1f: PFNGLVERTEXATTRIB1FPROC by lazy { wglGetProcAddressAny("glVertexAttrib1f").uncheckedCast<PFNGLVERTEXATTRIB1FPROC>() }
+		val glVertexAttrib1fv: PFNGLVERTEXATTRIB1FVPROC by lazy { wglGetProcAddressAny("glVertexAttrib1fv").uncheckedCast<PFNGLVERTEXATTRIB1FVPROC>() }
+		val glVertexAttrib2f: PFNGLVERTEXATTRIB2FPROC by lazy { wglGetProcAddressAny("glVertexAttrib2f").uncheckedCast<PFNGLVERTEXATTRIB2FPROC>() }
+		val glVertexAttrib2fv: PFNGLVERTEXATTRIB2FVPROC by lazy { wglGetProcAddressAny("glVertexAttrib2fv").uncheckedCast<PFNGLVERTEXATTRIB2FVPROC>() }
+		val glVertexAttrib3f: PFNGLVERTEXATTRIB3FPROC by lazy { wglGetProcAddressAny("glVertexAttrib3f").uncheckedCast<PFNGLVERTEXATTRIB3FPROC>() }
+		val glVertexAttrib3fv: PFNGLVERTEXATTRIB3FVPROC by lazy { wglGetProcAddressAny("glVertexAttrib3fv").uncheckedCast<PFNGLVERTEXATTRIB3FVPROC>() }
+		val glVertexAttrib4f: PFNGLVERTEXATTRIB4FPROC by lazy { wglGetProcAddressAny("glVertexAttrib4f").uncheckedCast<PFNGLVERTEXATTRIB4FPROC>() }
+		val glVertexAttrib4fv: PFNGLVERTEXATTRIB4FVPROC by lazy { wglGetProcAddressAny("glVertexAttrib4fv").uncheckedCast<PFNGLVERTEXATTRIB4FVPROC>() }
+		val glVertexAttribPointer: PFNGLVERTEXATTRIBPOINTERPROC by lazy { wglGetProcAddressAny("glVertexAttribPointer").uncheckedCast<PFNGLVERTEXATTRIBPOINTERPROC>() }
+	}
 }
-val glActiveTexture: PFNGLACTIVETEXTUREPROC by lazy { wglGetProcAddressAny("glActiveTexture").reinterpret<PFNGLACTIVETEXTUREPROC>() }
-val glAttachShader: PFNGLATTACHSHADERPROC by lazy { wglGetProcAddressAny("glAttachShader").reinterpret<PFNGLATTACHSHADERPROC>() }
-val glBindAttribLocation: PFNGLBINDATTRIBLOCATIONPROC by lazy { wglGetProcAddressAny("glBindAttribLocation").reinterpret<PFNGLBINDATTRIBLOCATIONPROC>() }
-val glBindBuffer: PFNGLBINDBUFFERPROC by lazy { wglGetProcAddressAny("glBindBuffer").reinterpret<PFNGLBINDBUFFERPROC>() }
-val glBindFramebuffer: PFNGLBINDFRAMEBUFFERPROC by lazy { wglGetProcAddressAny("glBindFramebuffer").reinterpret<PFNGLBINDFRAMEBUFFERPROC>() }
-val glBindRenderbuffer: PFNGLBINDRENDERBUFFERPROC by lazy { wglGetProcAddressAny("glBindRenderbuffer").reinterpret<PFNGLBINDRENDERBUFFERPROC>() }
-val glBlendColor: PFNGLBLENDCOLORPROC by lazy { wglGetProcAddressAny("glBlendColor").reinterpret<PFNGLBLENDCOLORPROC>() }
-val glBlendEquation: PFNGLBLENDEQUATIONPROC by lazy { wglGetProcAddressAny("glBlendEquation").reinterpret<PFNGLBLENDEQUATIONPROC>() }
-val glBlendEquationSeparate: PFNGLBLENDEQUATIONSEPARATEPROC by lazy { wglGetProcAddressAny("glBlendEquationSeparate").reinterpret<PFNGLBLENDEQUATIONSEPARATEPROC>() }
-val glBlendFuncSeparate: PFNGLBLENDFUNCSEPARATEPROC by lazy { wglGetProcAddressAny("glBlendFuncSeparate").reinterpret<PFNGLBLENDFUNCSEPARATEPROC>() }
-val glBufferData: PFNGLBUFFERDATAPROC by lazy { wglGetProcAddressAny("glBufferData").reinterpret<PFNGLBUFFERDATAPROC>() }
-val glBufferSubData: PFNGLBUFFERSUBDATAPROC by lazy { wglGetProcAddressAny("glBufferSubData").reinterpret<PFNGLBUFFERSUBDATAPROC>() }
-val glCheckFramebufferStatus: PFNGLCHECKFRAMEBUFFERSTATUSPROC by lazy { wglGetProcAddressAny("glCheckFramebufferStatus").reinterpret<PFNGLCHECKFRAMEBUFFERSTATUSPROC>() }
-val glCompileShader: PFNGLCOMPILESHADERPROC by lazy { wglGetProcAddressAny("glCompileShader").reinterpret<PFNGLCOMPILESHADERPROC>() }
-val glCompressedTexImage2D: PFNGLCOMPRESSEDTEXIMAGE2DPROC by lazy { wglGetProcAddressAny("glCompressedTexImage2D").reinterpret<PFNGLCOMPRESSEDTEXIMAGE2DPROC>() }
-val glCompressedTexSubImage2D: PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC by lazy { wglGetProcAddressAny("glCompressedTexSubImage2D").reinterpret<PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC>() }
-val glCreateProgram: PFNGLCREATEPROGRAMPROC by lazy { wglGetProcAddressAny("glCreateProgram").reinterpret<PFNGLCREATEPROGRAMPROC>() }
-val glCreateShader: PFNGLCREATESHADERPROC by lazy { wglGetProcAddressAny("glCreateShader").reinterpret<PFNGLCREATESHADERPROC>() }
-val glDeleteBuffers: PFNGLDELETEBUFFERSPROC by lazy { wglGetProcAddressAny("glDeleteBuffers").reinterpret<PFNGLDELETEBUFFERSPROC>() }
-val glDeleteFramebuffers: PFNGLDELETEFRAMEBUFFERSPROC by lazy { wglGetProcAddressAny("glDeleteFramebuffers").reinterpret<PFNGLDELETEFRAMEBUFFERSPROC>() }
-val glDeleteProgram: PFNGLDELETEPROGRAMPROC by lazy { wglGetProcAddressAny("glDeleteProgram").reinterpret<PFNGLDELETEPROGRAMPROC>() }
-val glDeleteRenderbuffers: PFNGLDELETERENDERBUFFERSPROC by lazy { wglGetProcAddressAny("glDeleteRenderbuffers").reinterpret<PFNGLDELETERENDERBUFFERSPROC>() }
-val glDeleteShader: PFNGLDELETESHADERPROC by lazy { wglGetProcAddressAny("glDeleteShader").reinterpret<PFNGLDELETESHADERPROC>() }
-val glDetachShader: PFNGLDETACHSHADERPROC by lazy { wglGetProcAddressAny("glDetachShader").reinterpret<PFNGLDETACHSHADERPROC>() }
-val glDisableVertexAttribArray: PFNGLDISABLEVERTEXATTRIBARRAYPROC by lazy { wglGetProcAddressAny("glDisableVertexAttribArray").reinterpret<PFNGLDISABLEVERTEXATTRIBARRAYPROC>() }
-val glEnableVertexAttribArray: PFNGLENABLEVERTEXATTRIBARRAYPROC by lazy { wglGetProcAddressAny("glEnableVertexAttribArray").reinterpret<PFNGLENABLEVERTEXATTRIBARRAYPROC>() }
-val glFramebufferRenderbuffer: PFNGLFRAMEBUFFERRENDERBUFFERPROC by lazy { wglGetProcAddressAny("glFramebufferRenderbuffer").reinterpret<PFNGLFRAMEBUFFERRENDERBUFFERPROC>() }
-val glFramebufferTexture2D: PFNGLFRAMEBUFFERTEXTURE2DPROC by lazy { wglGetProcAddressAny("glFramebufferTexture2D").reinterpret<PFNGLFRAMEBUFFERTEXTURE2DPROC>() }
-val glGenBuffers: PFNGLGENBUFFERSPROC by lazy { wglGetProcAddressAny("glGenBuffers").reinterpret<PFNGLGENBUFFERSPROC>() }
-val glGenerateMipmap: PFNGLGENERATEMIPMAPPROC by lazy { wglGetProcAddressAny("glGenerateMipmap").reinterpret<PFNGLGENERATEMIPMAPPROC>() }
-val glGenFramebuffers: PFNGLGENFRAMEBUFFERSPROC by lazy { wglGetProcAddressAny("glGenFramebuffers").reinterpret<PFNGLGENFRAMEBUFFERSPROC>() }
-val glGenRenderbuffers: PFNGLGENRENDERBUFFERSPROC by lazy { wglGetProcAddressAny("glGenRenderbuffers").reinterpret<PFNGLGENRENDERBUFFERSPROC>() }
-val glGetActiveAttrib: PFNGLGETACTIVEATTRIBPROC by lazy { wglGetProcAddressAny("glGetActiveAttrib").reinterpret<PFNGLGETACTIVEATTRIBPROC>() }
-val glGetActiveUniform: PFNGLGETACTIVEUNIFORMPROC by lazy { wglGetProcAddressAny("glGetActiveUniform").reinterpret<PFNGLGETACTIVEUNIFORMPROC>() }
-val glGetAttachedShaders: PFNGLGETATTACHEDSHADERSPROC by lazy { wglGetProcAddressAny("glGetAttachedShaders").reinterpret<PFNGLGETATTACHEDSHADERSPROC>() }
-val glGetAttribLocation: PFNGLGETATTRIBLOCATIONPROC by lazy { wglGetProcAddressAny("glGetAttribLocation").reinterpret<PFNGLGETATTRIBLOCATIONPROC>() }
-val glGetUniformLocation: PFNGLGETUNIFORMLOCATIONPROC by lazy { wglGetProcAddressAny("glGetUniformLocation").reinterpret<PFNGLGETUNIFORMLOCATIONPROC>() }
-val glGetBufferParameteriv: PFNGLGETBUFFERPARAMETERIVPROC by lazy { wglGetProcAddressAny("glGetBufferParameteriv").reinterpret<PFNGLGETBUFFERPARAMETERIVPROC>() }
-val glGetFramebufferAttachmentParameteriv: PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC by lazy { wglGetProcAddressAny("glGetFramebufferAttachmentParameteriv").reinterpret<PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC>() }
-val glGetProgramInfoLog: PFNGLGETPROGRAMINFOLOGPROC by lazy { wglGetProcAddressAny("glGetProgramInfoLog").reinterpret<PFNGLGETPROGRAMINFOLOGPROC>() }
-val glGetRenderbufferParameteriv: PFNGLGETRENDERBUFFERPARAMETERIVPROC by lazy { wglGetProcAddressAny("glGetRenderbufferParameteriv").reinterpret<PFNGLGETRENDERBUFFERPARAMETERIVPROC>() }
-val glGetProgramiv: PFNGLGETPROGRAMIVPROC by lazy { wglGetProcAddressAny("glGetProgramiv").reinterpret<PFNGLGETPROGRAMIVPROC>() }
-val glGetShaderiv: PFNGLGETSHADERIVPROC by lazy { wglGetProcAddressAny("glGetShaderiv").reinterpret<PFNGLGETSHADERIVPROC>() }
-val glGetShaderInfoLog: PFNGLGETSHADERINFOLOGPROC by lazy { wglGetProcAddressAny("glGetShaderInfoLog").reinterpret<PFNGLGETSHADERINFOLOGPROC>() }
-val glGetShaderPrecisionFormat: PFNGLGETSHADERPRECISIONFORMATPROC by lazy { wglGetProcAddressAny("glGetShaderPrecisionFormat").reinterpret<PFNGLGETSHADERPRECISIONFORMATPROC>() }
-val glGetShaderSource: PFNGLGETSHADERSOURCEPROC by lazy { wglGetProcAddressAny("glGetShaderSource").reinterpret<PFNGLGETSHADERSOURCEPROC>() }
-val glGetUniformfv: PFNGLGETUNIFORMFVPROC by lazy { wglGetProcAddressAny("glGetUniformfv").reinterpret<PFNGLGETUNIFORMFVPROC>() }
-val glGetUniformiv: PFNGLGETUNIFORMIVPROC by lazy { wglGetProcAddressAny("glGetUniformiv").reinterpret<PFNGLGETUNIFORMIVPROC>() }
-val glGetVertexAttribfv: PFNGLGETVERTEXATTRIBFVPROC by lazy { wglGetProcAddressAny("glGetVertexAttribfv").reinterpret<PFNGLGETVERTEXATTRIBFVPROC>() }
-val glGetVertexAttribiv: PFNGLGETVERTEXATTRIBIVPROC by lazy { wglGetProcAddressAny("glGetVertexAttribiv").reinterpret<PFNGLGETVERTEXATTRIBIVPROC>() }
-val glGetVertexAttribPointerv: PFNGLGETVERTEXATTRIBPOINTERVPROC by lazy { wglGetProcAddressAny("glGetVertexAttribPointerv").reinterpret<PFNGLGETVERTEXATTRIBPOINTERVPROC>() }
-val glIsBuffer: PFNGLISBUFFERPROC by lazy { wglGetProcAddressAny("glIsBuffer").reinterpret<PFNGLISBUFFERPROC>() }
-val glIsFramebuffer: PFNGLISFRAMEBUFFERPROC by lazy { wglGetProcAddressAny("glIsFramebuffer").reinterpret<PFNGLISFRAMEBUFFERPROC>() }
-val glIsProgram: PFNGLISPROGRAMPROC by lazy { wglGetProcAddressAny("glIsProgram").reinterpret<PFNGLISPROGRAMPROC>() }
-val glIsRenderbuffer: PFNGLISRENDERBUFFERPROC by lazy { wglGetProcAddressAny("glIsRenderbuffer").reinterpret<PFNGLISRENDERBUFFERPROC>() }
-val glIsShader: PFNGLISSHADERPROC by lazy { wglGetProcAddressAny("glIsShader").reinterpret<PFNGLISSHADERPROC>() }
-val glLinkProgram: PFNGLLINKPROGRAMPROC by lazy { wglGetProcAddressAny("glLinkProgram").reinterpret<PFNGLLINKPROGRAMPROC>() }
-val glReleaseShaderCompiler: PFNGLRELEASESHADERCOMPILERPROC by lazy { wglGetProcAddressAny("glReleaseShaderCompiler").reinterpret<PFNGLRELEASESHADERCOMPILERPROC>() }
-val glRenderbufferStorage: PFNGLRENDERBUFFERSTORAGEPROC by lazy { wglGetProcAddressAny("glRenderbufferStorage").reinterpret<PFNGLRENDERBUFFERSTORAGEPROC>() }
-val glSampleCoverage: PFNGLSAMPLECOVERAGEPROC by lazy { wglGetProcAddressAny("glSampleCoverage").reinterpret<PFNGLSAMPLECOVERAGEPROC>() }
-val glShaderBinary: PFNGLSHADERBINARYPROC by lazy { wglGetProcAddressAny("glShaderBinary").reinterpret<PFNGLSHADERBINARYPROC>() }
-val glShaderSource: PFNGLSHADERSOURCEPROC by lazy { wglGetProcAddressAny("glShaderSource").reinterpret<PFNGLSHADERSOURCEPROC>() }
-val glStencilFuncSeparate: PFNGLSTENCILFUNCSEPARATEPROC by lazy { wglGetProcAddressAny("glStencilFuncSeparate").reinterpret<PFNGLSTENCILFUNCSEPARATEPROC>() }
-val glStencilMaskSeparate: PFNGLSTENCILMASKSEPARATEPROC by lazy { wglGetProcAddressAny("glStencilMaskSeparate").reinterpret<PFNGLSTENCILMASKSEPARATEPROC>() }
-val glStencilOpSeparate: PFNGLSTENCILOPSEPARATEPROC by lazy { wglGetProcAddressAny("glStencilOpSeparate").reinterpret<PFNGLSTENCILOPSEPARATEPROC>() }
-val glUniform1f: PFNGLUNIFORM1FPROC by lazy { wglGetProcAddressAny("glUniform1f").reinterpret<PFNGLUNIFORM1FPROC>() }
-val glUniform1fv: PFNGLUNIFORM1FVPROC by lazy { wglGetProcAddressAny("glUniform1fv").reinterpret<PFNGLUNIFORM1FVPROC>() }
-val glUniform1i: PFNGLUNIFORM1IPROC by lazy { wglGetProcAddressAny("glUniform1i").reinterpret<PFNGLUNIFORM1IPROC>() }
-val glUniform1iv: PFNGLUNIFORM1IVPROC by lazy { wglGetProcAddressAny("glUniform1iv").reinterpret<PFNGLUNIFORM1IVPROC>() }
-val glUniform2f: PFNGLUNIFORM2FPROC by lazy { wglGetProcAddressAny("glUniform2f").reinterpret<PFNGLUNIFORM2FPROC>() }
-val glUniform2fv: PFNGLUNIFORM2FVPROC by lazy { wglGetProcAddressAny("glUniform2fv").reinterpret<PFNGLUNIFORM2FVPROC>() }
-val glUniform2i: PFNGLUNIFORM2IPROC by lazy { wglGetProcAddressAny("glUniform2i").reinterpret<PFNGLUNIFORM2IPROC>() }
-val glUniform2iv: PFNGLUNIFORM2IVPROC by lazy { wglGetProcAddressAny("glUniform2iv").reinterpret<PFNGLUNIFORM2IVPROC>() }
-val glUniform3f: PFNGLUNIFORM3FPROC by lazy { wglGetProcAddressAny("glUniform3f").reinterpret<PFNGLUNIFORM3FPROC>() }
-val glUniform3fv: PFNGLUNIFORM3FVPROC by lazy { wglGetProcAddressAny("glUniform3fv").reinterpret<PFNGLUNIFORM3FVPROC>() }
-val glUniform3i: PFNGLUNIFORM3IPROC by lazy { wglGetProcAddressAny("glUniform3i").reinterpret<PFNGLUNIFORM3IPROC>() }
-val glUniform3iv: PFNGLUNIFORM3IVPROC by lazy { wglGetProcAddressAny("glUniform3iv").reinterpret<PFNGLUNIFORM3IVPROC>() }
-val glUniform4f: PFNGLUNIFORM4FPROC by lazy { wglGetProcAddressAny("glUniform4f").reinterpret<PFNGLUNIFORM4FPROC>() }
-val glUniform4fv: PFNGLUNIFORM4FVPROC by lazy { wglGetProcAddressAny("glUniform4fv").reinterpret<PFNGLUNIFORM4FVPROC>() }
-val glUniform4i: PFNGLUNIFORM4IPROC by lazy { wglGetProcAddressAny("glUniform4i").reinterpret<PFNGLUNIFORM4IPROC>() }
-val glUniform4iv: PFNGLUNIFORM4IVPROC by lazy { wglGetProcAddressAny("glUniform4iv").reinterpret<PFNGLUNIFORM4IVPROC>() }
-val glUniformMatrix2fv: PFNGLUNIFORMMATRIX2FVPROC by lazy { wglGetProcAddressAny("glUniformMatrix2fv").reinterpret<PFNGLUNIFORMMATRIX2FVPROC>() }
-val glUniformMatrix3fv: PFNGLUNIFORMMATRIX3FVPROC by lazy { wglGetProcAddressAny("glUniformMatrix3fv").reinterpret<PFNGLUNIFORMMATRIX3FVPROC>() }
-val glUniformMatrix4fv: PFNGLUNIFORMMATRIX4FVPROC by lazy { wglGetProcAddressAny("glUniformMatrix4fv").reinterpret<PFNGLUNIFORMMATRIX4FVPROC>() }
-val glUseProgram: PFNGLUSEPROGRAMPROC by lazy { wglGetProcAddressAny("glUseProgram").reinterpret<PFNGLUSEPROGRAMPROC>() }
-val glValidateProgram: PFNGLVALIDATEPROGRAMPROC by lazy { wglGetProcAddressAny("glValidateProgram").reinterpret<PFNGLVALIDATEPROGRAMPROC>() }
-val glVertexAttrib1f: PFNGLVERTEXATTRIB1FPROC by lazy { wglGetProcAddressAny("glVertexAttrib1f").reinterpret<PFNGLVERTEXATTRIB1FPROC>() }
-val glVertexAttrib1fv: PFNGLVERTEXATTRIB1FVPROC by lazy { wglGetProcAddressAny("glVertexAttrib1fv").reinterpret<PFNGLVERTEXATTRIB1FVPROC>() }
-val glVertexAttrib2f: PFNGLVERTEXATTRIB2FPROC by lazy { wglGetProcAddressAny("glVertexAttrib2f").reinterpret<PFNGLVERTEXATTRIB2FPROC>() }
-val glVertexAttrib2fv: PFNGLVERTEXATTRIB2FVPROC by lazy { wglGetProcAddressAny("glVertexAttrib2fv").reinterpret<PFNGLVERTEXATTRIB2FVPROC>() }
-val glVertexAttrib3f: PFNGLVERTEXATTRIB3FPROC by lazy { wglGetProcAddressAny("glVertexAttrib3f").reinterpret<PFNGLVERTEXATTRIB3FPROC>() }
-val glVertexAttrib3fv: PFNGLVERTEXATTRIB3FVPROC by lazy { wglGetProcAddressAny("glVertexAttrib3fv").reinterpret<PFNGLVERTEXATTRIB3FVPROC>() }
-val glVertexAttrib4f: PFNGLVERTEXATTRIB4FPROC by lazy { wglGetProcAddressAny("glVertexAttrib4f").reinterpret<PFNGLVERTEXATTRIB4FPROC>() }
-val glVertexAttrib4fv: PFNGLVERTEXATTRIB4FVPROC by lazy { wglGetProcAddressAny("glVertexAttrib4fv").reinterpret<PFNGLVERTEXATTRIB4FVPROC>() }
-val glVertexAttribPointer: PFNGLVERTEXATTRIBPOINTERPROC by lazy { wglGetProcAddressAny("glVertexAttribPointer").reinterpret<PFNGLVERTEXATTRIBPOINTERPROC>() }

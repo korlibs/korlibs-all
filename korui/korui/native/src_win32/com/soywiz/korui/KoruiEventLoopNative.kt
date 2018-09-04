@@ -162,7 +162,7 @@ internal actual suspend fun KoruiWrap(entry: suspend (KoruiContext) -> Unit) {
 		val clazzNamePtr = clazzName.wcstr.getPointer(this@memScoped)
 		wc.lpfnWndProc = staticCFunction(::WndProc)
 		wc.hInstance = null
-		wc.hbrBackground = COLOR_BACKGROUND.convert()
+		wc.hbrBackground = COLOR_BACKGROUND.uncheckedCast()
 
 		val hInstance = GetModuleHandleA(null)
 		//FindResourceA(null, null, 124)
@@ -171,8 +171,8 @@ internal actual suspend fun KoruiWrap(entry: suspend (KoruiContext) -> Unit) {
 		//wc.hIcon = LoadIconAFunc(hInstance, 32512)
 		//wc.hIcon = LoadIconAFunc(null, 32512) // IDI_APPLICATION - MAKEINTRESOURCE(32512)
 
-		wc.lpszClassName = clazzNamePtr
-		wc.style = CS_OWNDC
+		wc.lpszClassName = clazzNamePtr.reinterpret()
+		wc.style = CS_OWNDC.convert()
 		if (RegisterClassW(wc.ptr).toInt() == 0) {
 			return
 		}
@@ -180,19 +180,19 @@ internal actual suspend fun KoruiWrap(entry: suspend (KoruiContext) -> Unit) {
 		val screenWidth = GetSystemMetrics(SM_CXSCREEN)
 		val screenHeight = GetSystemMetrics(SM_CYSCREEN)
 		hwnd = CreateWindowExW(
-			WS_EX_CLIENTEDGE,
+			WS_EX_CLIENTEDGE.convert(),
 			clazzName,
 			windowTitle,
-			WS_OVERLAPPEDWINDOW or WS_VISIBLE,
-			kotlin.math.min(kotlin.math.max(0, (screenWidth - windowWidth) / 2), screenWidth - 16),
-			kotlin.math.min(kotlin.math.max(0, (screenHeight - windowHeight) / 2), screenHeight - 16),
-			windowWidth,
-			windowHeight,
+			(WS_OVERLAPPEDWINDOW or WS_VISIBLE).convert(),
+			kotlin.math.min(kotlin.math.max(0, (screenWidth - windowWidth) / 2), screenWidth - 16).convert(),
+			kotlin.math.min(kotlin.math.max(0, (screenHeight - windowHeight) / 2), screenHeight - 16).convert(),
+			windowWidth.convert(),
+			windowHeight.convert(),
 			null, null, null, null
 		)
 		println("ERROR: " + GetLastError())
 
-		ShowWindow(hwnd, SW_SHOWNORMAL)
+		ShowWindow(hwnd, SW_SHOWNORMAL.convert())
 
 		//SetTimer(hwnd, 1, 1000 / 60, staticCFunction(::WndTimer))
 	}
@@ -215,7 +215,15 @@ internal actual suspend fun KoruiWrap(entry: suspend (KoruiContext) -> Unit) {
 			//var start = milliStamp()
 			var prev = Klock.currentTimeMillis()
 			while (running) {
-				while (PeekMessageW(msg.ptr, null, 0, 0, PM_REMOVE) != 0) {
+				while (
+					PeekMessageW(
+						msg.ptr,
+						null,
+						0.convert(),
+						0.convert(),
+						PM_REMOVE.convert()
+					).toInt() != 0
+				) {
 					TranslateMessage(msg.ptr)
 					DispatchMessageW(msg.ptr)
 				}
@@ -231,7 +239,7 @@ internal actual suspend fun KoruiWrap(entry: suspend (KoruiContext) -> Unit) {
 				val sleepTime = kotlin.math.max(0L, (msPerFrame - elapsed)).toInt()
 				prev = now
 
-				Sleep(sleepTime)
+				Sleep(sleepTime.convert())
 				myNativeCoroutineDispatcher.executeStep()
 				tryRender()
 			}
@@ -242,21 +250,36 @@ internal actual suspend fun KoruiWrap(entry: suspend (KoruiContext) -> Unit) {
 @ThreadLocal
 var glRenderContext: HGLRC? = null
 
+// @TODO: when + cases with .toUInt() or .convert() didn't work
+val _WM_CREATE: UINT = WM_CREATE.convert()
+val _WM_SIZE: UINT = WM_SIZE.convert()
+val _WM_QUIT: UINT = WM_QUIT.convert()
+val _WM_MOUSEMOVE: UINT = WM_MOUSEMOVE.convert()
+val _WM_LBUTTONDOWN: UINT = WM_LBUTTONDOWN.convert()
+val _WM_MBUTTONDOWN: UINT = WM_MBUTTONDOWN.convert()
+val _WM_RBUTTONDOWN: UINT = WM_RBUTTONDOWN.convert()
+val _WM_LBUTTONUP: UINT = WM_LBUTTONUP.convert()
+val _WM_MBUTTONUP: UINT = WM_MBUTTONUP.convert()
+val _WM_RBUTTONUP: UINT = WM_RBUTTONUP.convert()
+val _WM_KEYDOWN: UINT = WM_KEYDOWN.convert()
+val _WM_KEYUP: UINT = WM_KEYUP.convert()
+val _WM_CLOSE: UINT = WM_CLOSE.convert()
+
 @Suppress("UNUSED_PARAMETER")
 fun WndProc(hWnd: HWND?, message: UINT, wParam: WPARAM, lParam: LPARAM): LRESULT {
 	//println("WndProc: $hWnd, $message, $wParam, $lParam")
 	when (message) {
-		WM_CREATE -> {
+		_WM_CREATE -> {
 			memScoped {
 				val pfd = alloc<PIXELFORMATDESCRIPTOR>()
-				pfd.nSize = PIXELFORMATDESCRIPTOR.size.toShort()
-				pfd.nVersion = 1
-				pfd.dwFlags = PFD_DRAW_TO_WINDOW or PFD_SUPPORT_OPENGL or PFD_DOUBLEBUFFER
-				pfd.iPixelType = PFD_TYPE_RGBA.toByte()
-				pfd.cColorBits = 32
-				pfd.cDepthBits = 24
-				pfd.cStencilBits = 8
-				pfd.iLayerType = PFD_MAIN_PLANE.toByte()
+				pfd.nSize = PIXELFORMATDESCRIPTOR.size.convert()
+				pfd.nVersion = 1.convert()
+				pfd.dwFlags = (PFD_DRAW_TO_WINDOW or PFD_SUPPORT_OPENGL or PFD_DOUBLEBUFFER).convert()
+				pfd.iPixelType = PFD_TYPE_RGBA.convert()
+				pfd.cColorBits = 32.convert()
+				pfd.cDepthBits = 24.convert()
+				pfd.cStencilBits = 8.convert()
+				pfd.iLayerType = PFD_MAIN_PLANE.convert()
 				val hDC = GetDC(hWnd)
 				val letWindowsChooseThisPixelFormat = ChoosePixelFormat(hDC, pfd.ptr)
 
@@ -275,37 +298,36 @@ fun WndProc(hWnd: HWND?, message: UINT, wParam: WPARAM, lParam: LPARAM): LRESULT
 				ag.__ready()
 			}
 		}
-		WM_SIZE -> {
+		_WM_SIZE -> {
 			var width = 0
 			var height = 0
 			memScoped {
 				val rect = alloc<RECT>()
 				GetClientRect(hWnd, rect.ptr)
-				width = rect.right - rect.left
-				height = rect.bottom - rect.top
+				width = (rect.right - rect.left).convert()
+				height = (rect.bottom - rect.top).convert()
 			}
 			//val width = (lParam.toInt() ushr 0) and 0xFFFF
 			//val height = (lParam.toInt() ushr 16) and 0xFFFF
 			resized(width, height)
 		}
-		WM_QUIT -> {
-			kotlin.system.exitProcess(0)
+		_WM_QUIT -> {
+			kotlin.system.exitProcess(0.convert())
 		}
-		WM_MOUSEMOVE -> {
+		_WM_MOUSEMOVE -> {
 			val x = (lParam.toInt() ushr 0) and 0xFFFF
 			val y = (lParam.toInt() ushr 16) and 0xFFFF
 			mouseMove(x, y)
 		}
-		WM_LBUTTONDOWN -> mouseButton(0, true)
-		WM_MBUTTONDOWN -> mouseButton(1, true)
-		WM_RBUTTONDOWN -> mouseButton(2, true)
-		WM_LBUTTONUP -> mouseButton(0, false)
-		WM_MBUTTONUP -> mouseButton(1, false)
-		WM_RBUTTONUP -> mouseButton(2, false)
-		WM_KEYDOWN -> keyUpdate(wParam.toInt(), true)
-		WM_KEYUP -> keyUpdate(wParam.toInt(), false)
-
-		WM_CLOSE -> {
+		_WM_LBUTTONDOWN -> mouseButton(0, true)
+		_WM_MBUTTONDOWN -> mouseButton(1, true)
+		_WM_RBUTTONDOWN -> mouseButton(2, true)
+		_WM_LBUTTONUP -> mouseButton(0, false)
+		_WM_MBUTTONUP -> mouseButton(1, false)
+		_WM_RBUTTONUP -> mouseButton(2, false)
+		_WM_KEYDOWN -> keyUpdate(wParam.toInt(), true)
+		_WM_KEYUP -> keyUpdate(wParam.toInt(), false)
+		_WM_CLOSE -> {
 			kotlin.system.exitProcess(0)
 		}
 	}
