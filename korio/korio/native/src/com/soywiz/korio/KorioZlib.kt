@@ -17,13 +17,6 @@ interface ZlibOutput {
 	fun write(out: ByteArray, size: Int): Unit
 }
 
-// @TODO: ByteArray.copyRangeTo is internal in kotlin.collections?
-//fun ByteArray.copyRangeTo2(other: ByteArray, fromIndex: Int, toIndex: Int, dstIndex: Int) {
-//	val size = toIndex - fromIndex
-//	arraycopy(this, fromIndex, other, dstIndex, size)
-//	//for (n in 0 until size) other[dstIndex + n] = this[fromIndex + n]
-//}
-
 class ByteArrayZlibOutput(expectedSize: Int) : ZlibOutput {
 	var array = ByteArray(expectedSize)
 	var pos = 0
@@ -36,8 +29,7 @@ class ByteArrayZlibOutput(expectedSize: Int) : ZlibOutput {
 
 	override fun write(out: ByteArray, size: Int) {
 		ensure(size)
-		//out.copyRangeTo2(array, 0, size, pos)
-		arraycopy(array, 0, out, pos, size)
+		arraycopy(out, 0, array, pos, size)
 		pos += size
 	}
 
@@ -50,7 +42,6 @@ class ByteArrayZlibInput(val ba: ByteArray) : ZlibInput {
 	override fun read(out: ByteArray, size: Int): Int {
 		val remaining = ba.size - pos
 		val toRead = min(size, remaining)
-		//this.ba.copyRangeTo2(out, pos, pos + toRead, 0)
 		arraycopy(this.ba, pos, out, 0, toRead)
 		pos += toRead
 		return toRead
