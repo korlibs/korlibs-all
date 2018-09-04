@@ -279,16 +279,16 @@ class ArmatureData(pool: BaseObjectPool) : BaseObject(pool) {
 		val arrayOffset = dataArray.size
 
 		dataArray.lengthSet += 10
-		dataArray[arrayOffset] = globalTransformMatrix.a
-		dataArray[arrayOffset + 1] = globalTransformMatrix.b
-		dataArray[arrayOffset + 2] = globalTransformMatrix.c
-		dataArray[arrayOffset + 3] = globalTransformMatrix.d
-		dataArray[arrayOffset + 4] = globalTransformMatrix.tx
-		dataArray[arrayOffset + 5] = globalTransformMatrix.ty
-		dataArray[arrayOffset + 6] = transform.rotation
-		dataArray[arrayOffset + 7] = transform.skew
-		dataArray[arrayOffset + 8] = transform.scaleX
-		dataArray[arrayOffset + 9] = transform.scaleY
+		dataArray[arrayOffset] = globalTransformMatrix.a.toDouble()
+		dataArray[arrayOffset + 1] = globalTransformMatrix.b.toDouble()
+		dataArray[arrayOffset + 2] = globalTransformMatrix.c.toDouble()
+		dataArray[arrayOffset + 3] = globalTransformMatrix.d.toDouble()
+		dataArray[arrayOffset + 4] = globalTransformMatrix.tx.toDouble()
+		dataArray[arrayOffset + 5] = globalTransformMatrix.ty.toDouble()
+		dataArray[arrayOffset + 6] = transform.rotation.toDouble()
+		dataArray[arrayOffset + 7] = transform.skew.toDouble()
+		dataArray[arrayOffset + 8] = transform.scaleX.toDouble()
+		dataArray[arrayOffset + 9] = transform.scaleY.toDouble()
 
 		return arrayOffset
 	}
@@ -298,16 +298,16 @@ class ArmatureData(pool: BaseObjectPool) : BaseObject(pool) {
 	 */
 	fun getCacheFrame(globalTransformMatrix: Matrix, transform: Transform, arrayOffset: Int) {
 		val dataArray = this.parent!!.cachedFrames
-		globalTransformMatrix.a = dataArray[arrayOffset]
-		globalTransformMatrix.b = dataArray[arrayOffset + 1]
-		globalTransformMatrix.c = dataArray[arrayOffset + 2]
-		globalTransformMatrix.d = dataArray[arrayOffset + 3]
-		globalTransformMatrix.tx = dataArray[arrayOffset + 4]
-		globalTransformMatrix.ty = dataArray[arrayOffset + 5]
-		transform.rotation = dataArray[arrayOffset + 6]
-		transform.skew = dataArray[arrayOffset + 7]
-		transform.scaleX = dataArray[arrayOffset + 8]
-		transform.scaleY = dataArray[arrayOffset + 9]
+		globalTransformMatrix.a = dataArray[arrayOffset].toFloat()
+		globalTransformMatrix.b = dataArray[arrayOffset + 1].toFloat()
+		globalTransformMatrix.c = dataArray[arrayOffset + 2].toFloat()
+		globalTransformMatrix.d = dataArray[arrayOffset + 3].toFloat()
+		globalTransformMatrix.tx = dataArray[arrayOffset + 4].toFloat()
+		globalTransformMatrix.ty = dataArray[arrayOffset + 5].toFloat()
+		transform.rotation = dataArray[arrayOffset + 6].toFloat()
+		transform.skew = dataArray[arrayOffset + 7].toFloat()
+		transform.scaleX = dataArray[arrayOffset + 8].toFloat()
+		transform.scaleY = dataArray[arrayOffset + 9].toFloat()
 		transform.x = globalTransformMatrix.tx
 		transform.y = globalTransformMatrix.ty
 	}

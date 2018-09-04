@@ -888,12 +888,12 @@ class AnimationState(pool: BaseObjectPool) : BaseObject(pool) {
 
 						if (blendState.dirty == 1) {
 							val pose = (blendState.target as Bone).animationPose
-							pose.x = 0.0
-							pose.y = 0.0
-							pose.rotation = 0.0
-							pose.skew = 0.0
-							pose.scaleX = 1.0
-							pose.scaleY = 1.0
+							pose.x = 0f
+							pose.y = 0f
+							pose.rotation = 0f
+							pose.skew = 0f
+							pose.scaleX = 1f
+							pose.scaleY = 1f
 						}
 					}
 

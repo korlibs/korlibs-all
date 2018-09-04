@@ -346,19 +346,19 @@ class BoneAllTimelineState(pool: BaseObjectPool) : MutilpleValueTimelineState(po
 		val result = bone.animationPose
 
 		if (blendState.dirty > 1) {
-			result.x += rd[0] * blendWeight * valueScale
-			result.y += rd[1] * blendWeight * valueScale
-			result.rotation += rd[2] * blendWeight
-			result.skew += rd[3] * blendWeight
-			result.scaleX += (rd[4] - 1.0) * blendWeight
-			result.scaleY += (rd[5] - 1.0) * blendWeight
+			result.x += (rd[0] * blendWeight * valueScale).toFloat()
+			result.y += (rd[1] * blendWeight * valueScale).toFloat()
+			result.rotation += (rd[2] * blendWeight).toFloat()
+			result.skew += (rd[3] * blendWeight).toFloat()
+			result.scaleX += ((rd[4] - 1.0) * blendWeight).toFloat()
+			result.scaleY += ((rd[5] - 1.0) * blendWeight).toFloat()
 		} else {
-			result.x = rd[0] * blendWeight * valueScale
-			result.y = rd[1] * blendWeight * valueScale
-			result.rotation = rd[2] * blendWeight
-			result.skew = rd[3] * blendWeight
-			result.scaleX = (rd[4] - 1.0) * blendWeight + 1.0 //
-			result.scaleY = (rd[5] - 1.0) * blendWeight + 1.0 //
+			result.x = (rd[0] * blendWeight * valueScale).toFloat()
+			result.y = (rd[1] * blendWeight * valueScale).toFloat()
+			result.rotation = (rd[2] * blendWeight).toFloat()
+			result.skew = (rd[3] * blendWeight).toFloat()
+			result.scaleX = ((rd[4] - 1.0) * blendWeight + 1.0).toFloat() //
+			result.scaleY = ((rd[5] - 1.0) * blendWeight + 1.0).toFloat() //
 		}
 
 		if (_isDirty || this.dirty) {
@@ -392,16 +392,16 @@ class BoneTranslateTimelineState(pool: BaseObjectPool) : DoubleValueTimelineStat
 
 		when {
 			blendState.dirty > 1 -> {
-				result.x += this._resultA * blendWeight
-				result.y += this._resultB * blendWeight
+				result.x += (this._resultA * blendWeight).toFloat()
+				result.y += (this._resultB * blendWeight).toFloat()
 			}
 			blendWeight != 1.0 -> {
-				result.x = this._resultA * blendWeight
-				result.y = this._resultB * blendWeight
+				result.x = (this._resultA * blendWeight).toFloat()
+				result.y = (this._resultB * blendWeight).toFloat()
 			}
 			else -> {
-				result.x = this._resultA
-				result.y = this._resultB
+				result.x = this._resultA.toFloat()
+				result.y = this._resultB.toFloat()
 			}
 		}
 
@@ -450,16 +450,16 @@ class BoneRotateTimelineState(pool: BaseObjectPool) : DoubleValueTimelineState(p
 
 		when {
 			blendState.dirty > 1 -> {
-				result.rotation += this._resultA * blendWeight
-				result.skew += this._resultB * blendWeight
+				result.rotation += (this._resultA * blendWeight).toFloat()
+				result.skew += (this._resultB * blendWeight).toFloat()
 			}
 			blendWeight != 1.0 -> {
-				result.rotation = this._resultA * blendWeight
-				result.skew = this._resultB * blendWeight
+				result.rotation = (this._resultA * blendWeight).toFloat()
+				result.skew = (this._resultB * blendWeight).toFloat()
 			}
 			else -> {
-				result.rotation = this._resultA
-				result.skew = this._resultB
+				result.rotation = this._resultA.toFloat()
+				result.skew = this._resultB.toFloat()
 			}
 		}
 
@@ -502,16 +502,16 @@ class BoneScaleTimelineState(pool: BaseObjectPool) : DoubleValueTimelineState(po
 
 		when {
 			blendState.dirty > 1 -> {
-				result.scaleX += (this._resultA - 1.0) * blendWeight
-				result.scaleY += (this._resultB - 1.0) * blendWeight
+				result.scaleX += ((this._resultA - 1.0) * blendWeight).toFloat()
+				result.scaleY += ((this._resultB - 1.0) * blendWeight).toFloat()
 			}
 			blendWeight != 1.0 -> {
-				result.scaleX = (this._resultA - 1.0) * blendWeight + 1.0
-				result.scaleY = (this._resultB - 1.0) * blendWeight + 1.0
+				result.scaleX = ((this._resultA - 1.0) * blendWeight + 1.0).toFloat()
+				result.scaleY = ((this._resultB - 1.0) * blendWeight + 1.0).toFloat()
 			}
 			else -> {
-				result.scaleX = this._resultA
-				result.scaleY = this._resultB
+				result.scaleX = this._resultA.toFloat()
+				result.scaleY = this._resultB.toFloat()
 			}
 		}
 
@@ -589,14 +589,14 @@ class SurfaceTimelineState(pool: BaseObjectPool) : MutilpleValueTimelineState(po
 				}
 
 				if (blendState.dirty > 1) {
-					result[i] += value * blendWeight
+					result[i] += (value * blendWeight).toFloat()
 				} else {
-					result[i] = value * blendWeight
+					result[i] = (value * blendWeight).toFloat()
 				}
 			}
 		} else if (blendState.dirty == 1) {
 			for (i in 0 until this._deformCount) {
-				result[i] = 0.0
+				result[i] = 0f
 			}
 		}
 

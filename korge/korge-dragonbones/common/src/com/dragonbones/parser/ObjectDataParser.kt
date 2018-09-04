@@ -29,7 +29,6 @@ import com.dragonbones.util.*
 import com.soywiz.kds.*
 import com.soywiz.kmem.*
 import com.soywiz.korio.lang.*
-import com.soywiz.std.*
 import kotlin.math.*
 
 /**
@@ -192,8 +191,8 @@ open class ObjectDataParser(pool: BaseObjectPool = BaseObjectPool()) : DataParse
 		val kC = 3.0 * l_t * powB
 		val kD = t * powB
 
-		result.x = kA * x1 + kB * x2 + kC * x3 + kD * x4
-		result.y = kA * y1 + kB * y2 + kC * y3 + kD * y4
+		result.x = (kA * x1 + kB * x2 + kC * x3 + kD * x4).toFloat()
+		result.y = (kA * y1 + kB * y2 + kC * y3 + kD * y4).toFloat()
 	}
 
 	private fun _samplingEasingCurve(curve: DoubleArrayList, samples: DoubleArrayList): Boolean {
@@ -230,7 +229,7 @@ open class ObjectDataParser(pool: BaseObjectPool = BaseObjectPool()) : DataParse
 					}
 				}
 
-				samples[i] = this._helpPoint.y
+				samples[i] = this._helpPoint.y.toDouble()
 			}
 
 			return true
@@ -264,7 +263,7 @@ open class ObjectDataParser(pool: BaseObjectPool = BaseObjectPool()) : DataParse
 					}
 				}
 
-				samples[i] = this._helpPoint.y
+				samples[i] = this._helpPoint.y.toDouble()
 			}
 
 			return false
@@ -791,11 +790,11 @@ open class ObjectDataParser(pool: BaseObjectPool = BaseObjectPool()) : DataParse
 	protected fun _parsePivot(rawData: Any?, display: ImageDisplayData) {
 		if (DataParser.PIVOT in rawData) {
 			val rawPivot = rawData[DataParser.PIVOT]
-			display.pivot.x = ObjectDataParser._getNumber(rawPivot, DataParser.X, 0.0)
-			display.pivot.y = ObjectDataParser._getNumber(rawPivot, DataParser.Y, 0.0)
+			display.pivot.x = ObjectDataParser._getNumber(rawPivot, DataParser.X, 0.0).toFloat()
+			display.pivot.y = ObjectDataParser._getNumber(rawPivot, DataParser.Y, 0.0).toFloat()
 		} else {
-			display.pivot.x = 0.5
-			display.pivot.y = 0.5
+			display.pivot.x = 0.5f
+			display.pivot.y = 0.5f
 		}
 	}
 
@@ -1092,7 +1091,7 @@ open class ObjectDataParser(pool: BaseObjectPool = BaseObjectPool()) : DataParse
 							}
 						} else {
 							if (timelineType == TimelineType.BoneRotate) {
-								this._frameValueScale = Transform.DEG_RAD
+								this._frameValueScale = Transform.DEG_RAD.toDouble()
 							} else {
 								this._frameValueScale = 1.0
 							}
@@ -1682,29 +1681,29 @@ open class ObjectDataParser(pool: BaseObjectPool = BaseObjectPool()) : DataParse
 		var rotation = this._helpTransform.rotation
 		if (frameStart != 0) {
 			if (this._prevClockwise == 0.0) {
-				rotation = this._prevRotation + Transform.normalizeRadian(rotation - this._prevRotation)
+				rotation = (this._prevRotation + Transform.normalizeRadian(rotation - this._prevRotation)).toFloat()
 			} else {
 				if (if (this._prevClockwise > 0) rotation >= this._prevRotation else rotation <= this._prevRotation) {
 					this._prevClockwise =
 							if (this._prevClockwise > 0) this._prevClockwise - 1 else this._prevClockwise + 1
 				}
 
-				rotation = this._prevRotation + rotation - this._prevRotation + Transform.PI_D * this._prevClockwise
+				rotation = (this._prevRotation + rotation - this._prevRotation + Transform.PI_D * this._prevClockwise).toFloat()
 			}
 		}
 
 		this._prevClockwise = ObjectDataParser._getNumber(rawData, DataParser.TWEEN_ROTATE, 0.0)
-		this._prevRotation = rotation
+		this._prevRotation = rotation.toDouble()
 		//
 		val frameOffset = this._parseTweenFrame(rawData, frameStart, frameCount)
 		var frameFloatOffset = this._frameFloatArray.length
 		this._frameFloatArray.length += 6
-		this._frameFloatArray[frameFloatOffset++] = this._helpTransform.x
-		this._frameFloatArray[frameFloatOffset++] = this._helpTransform.y
-		this._frameFloatArray[frameFloatOffset++] = rotation
-		this._frameFloatArray[frameFloatOffset++] = this._helpTransform.skew
-		this._frameFloatArray[frameFloatOffset++] = this._helpTransform.scaleX
-		this._frameFloatArray[frameFloatOffset++] = this._helpTransform.scaleY
+		this._frameFloatArray[frameFloatOffset++] = this._helpTransform.x.toDouble()
+		this._frameFloatArray[frameFloatOffset++] = this._helpTransform.y.toDouble()
+		this._frameFloatArray[frameFloatOffset++] = rotation.toDouble()
+		this._frameFloatArray[frameFloatOffset++] = this._helpTransform.skew.toDouble()
+		this._frameFloatArray[frameFloatOffset++] = this._helpTransform.scaleX.toDouble()
+		this._frameFloatArray[frameFloatOffset++] = this._helpTransform.scaleY.toDouble()
 		this._parseActionDataInFrame(rawData, frameStart, this._bone, this._slot)
 
 		return frameOffset
@@ -1835,8 +1834,8 @@ open class ObjectDataParser(pool: BaseObjectPool = BaseObjectPool()) : DataParse
 		val meshName = "" + this._mesh?.parent?.name + "_" + this._slot?.name + "_" + this._mesh?.name
 		val weight = this._mesh?.geometry!!.weight
 
-		var x: Double
-		var y: Double
+		var x: Float
+		var y: Float
 		var iB = 0
 		var iV = 0
 		if (weight != null) {
@@ -1851,19 +1850,19 @@ open class ObjectDataParser(pool: BaseObjectPool = BaseObjectPool()) : DataParse
 		//for (var i = 0; i < vertexCount * 2; i += 2) {
 		for (i in 0 until vertexCount * 2 step 2) {
 			if (rawVertices == null) { // Fill 0.
-				x = 0.0
-				y = 0.0
+				x = 0f
+				y = 0f
 			} else {
 				if (i < offset || i - offset >= rawVertices.size) {
-					x = 0.0
+					x = 0f
 				} else {
-					x = rawVertices[i - offset]
+					x = rawVertices[i - offset].toFloat()
 				}
 
 				if (i + 1 < offset || i + 1 - offset >= rawVertices.size) {
-					y = 0.0
+					y = 0f
 				} else {
-					y = rawVertices[i + 1 - offset]
+					y = rawVertices[i + 1 - offset].toFloat()
 				}
 			}
 
@@ -1882,12 +1881,12 @@ open class ObjectDataParser(pool: BaseObjectPool = BaseObjectPool()) : DataParse
 					this._helpMatrixB.invert()
 					this._helpMatrixB.transformPoint(x, y, this._helpPoint, true)
 
-					this._frameFloatArray[frameFloatOffset + iV++] = this._helpPoint.x
-					this._frameFloatArray[frameFloatOffset + iV++] = this._helpPoint.y
+					this._frameFloatArray[frameFloatOffset + iV++] = this._helpPoint.x.toDouble()
+					this._frameFloatArray[frameFloatOffset + iV++] = this._helpPoint.y.toDouble()
 				}
 			} else {
-				this._frameFloatArray[frameFloatOffset + i] = x
-				this._frameFloatArray[frameFloatOffset + i + 1] = y
+				this._frameFloatArray[frameFloatOffset + i] = x.toDouble()
+				this._frameFloatArray[frameFloatOffset + i + 1] = y.toDouble()
 			}
 		}
 
@@ -2070,8 +2069,8 @@ open class ObjectDataParser(pool: BaseObjectPool = BaseObjectPool()) : DataParse
 	}
 
 	protected fun _parseTransform(rawData: Any?, transform: Transform, scale: Double) {
-		transform.x = ObjectDataParser._getNumber(rawData, DataParser.X, 0.0) * scale
-		transform.y = ObjectDataParser._getNumber(rawData, DataParser.Y, 0.0) * scale
+		transform.x = (ObjectDataParser._getNumber(rawData, DataParser.X, 0.0) * scale).toFloat()
+		transform.y = (ObjectDataParser._getNumber(rawData, DataParser.Y, 0.0) * scale).toFloat()
 
 		if (DataParser.ROTATE in rawData || DataParser.SKEW in rawData) {
 			transform.rotation = Transform.normalizeRadian(
@@ -2080,14 +2079,14 @@ open class ObjectDataParser(pool: BaseObjectPool = BaseObjectPool()) : DataParse
 					DataParser.ROTATE,
 					0.0
 				) * Transform.DEG_RAD
-			)
+			).toFloat()
 			transform.skew = Transform.normalizeRadian(
 				ObjectDataParser._getNumber(
 					rawData,
 					DataParser.SKEW,
 					0.0
 				) * Transform.DEG_RAD
-			)
+			).toFloat()
 		} else if (DataParser.SKEW_X in rawData || DataParser.SKEW_Y in rawData) {
 			transform.rotation = Transform.normalizeRadian(
 				ObjectDataParser._getNumber(
@@ -2095,18 +2094,18 @@ open class ObjectDataParser(pool: BaseObjectPool = BaseObjectPool()) : DataParse
 					DataParser.SKEW_Y,
 					0.0
 				) * Transform.DEG_RAD
-			)
-			transform.skew = Transform.normalizeRadian(
+			).toFloat()
+			transform.skew = (Transform.normalizeRadian(
 				ObjectDataParser._getNumber(
 					rawData,
 					DataParser.SKEW_X,
 					0.0
 				) * Transform.DEG_RAD
-			) - transform.rotation
+			) - transform.rotation).toFloat()
 		}
 
-		transform.scaleX = ObjectDataParser._getNumber(rawData, DataParser.SCALE_X, 1.0)
-		transform.scaleY = ObjectDataParser._getNumber(rawData, DataParser.SCALE_Y, 1.0)
+		transform.scaleX = ObjectDataParser._getNumber(rawData, DataParser.SCALE_X, 1.0).toFloat()
+		transform.scaleY = ObjectDataParser._getNumber(rawData, DataParser.SCALE_Y, 1.0).toFloat()
 	}
 
 	protected fun _parseColorTransform(rawData: Any?, color: ColorTransform) {
@@ -2208,8 +2207,8 @@ open class ObjectDataParser(pool: BaseObjectPool = BaseObjectPool()) : DataParse
 					val vertexBoneCount = rawWeights[iW++].toInt() // uint
 					this._intArray[iB++] = vertexBoneCount
 
-					var x = this._floatArray[verticesOffset + iD]
-					var y = this._floatArray[verticesOffset + iD + 1]
+					var x = this._floatArray[verticesOffset + iD].toFloat()
+					var y = this._floatArray[verticesOffset + iD + 1].toFloat()
 					this._helpMatrixA.transformPoint(x, y, this._helpPoint)
 					x = this._helpPoint.x
 					y = this._helpPoint.y
@@ -2223,8 +2222,8 @@ open class ObjectDataParser(pool: BaseObjectPool = BaseObjectPool()) : DataParse
 						this._helpMatrixB.transformPoint(x, y, this._helpPoint)
 						this._intArray[iB++] = boneIndex
 						this._floatArray[iV++] = rawWeights[iW++]
-						this._floatArray[iV++] = this._helpPoint.x
-						this._floatArray[iV++] = this._helpPoint.y
+						this._floatArray[iV++] = this._helpPoint.x.toDouble()
+						this._floatArray[iV++] = this._helpPoint.y.toDouble()
 					}
 				}
 			} else {

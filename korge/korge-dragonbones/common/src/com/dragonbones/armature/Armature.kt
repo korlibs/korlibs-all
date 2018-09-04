@@ -531,12 +531,12 @@ class Armature(pool: BaseObjectPool) : BaseObject(pool), IAnimatable {
 
 						if (intSlotA == null || d < dMin) {
 							dMin = d
-							intXA = intersectionPointA.x
-							intYA = intersectionPointA.y
+							intXA = intersectionPointA.x.toDouble()
+							intYA = intersectionPointA.y.toDouble()
 							intSlotA = slot
 
 							if (normalRadians != null) {
-								intAN = normalRadians.x
+								intAN = normalRadians.x.toDouble()
 							}
 						}
 					}
@@ -549,12 +549,12 @@ class Armature(pool: BaseObjectPool) : BaseObject(pool), IAnimatable {
 
 						if (intSlotB == null || d > dMax) {
 							dMax = d
-							intXB = intersectionPointB.x
-							intYB = intersectionPointB.y
+							intXB = intersectionPointB.x.toDouble()
+							intYB = intersectionPointB.y.toDouble()
 							intSlotB = slot
 
 							if (normalRadians != null) {
-								intBN = normalRadians.y
+								intBN = normalRadians.y.toDouble()
 							}
 						}
 					}
@@ -567,20 +567,20 @@ class Armature(pool: BaseObjectPool) : BaseObject(pool), IAnimatable {
 		}
 
 		if (intSlotA != null && intersectionPointA != null) {
-			intersectionPointA.x = intXA
-			intersectionPointA.y = intYA
+			intersectionPointA.x = intXA.toFloat()
+			intersectionPointA.y = intYA.toFloat()
 
 			if (normalRadians != null) {
-				normalRadians.x = intAN
+				normalRadians.x = intAN.toFloat()
 			}
 		}
 
 		if (intSlotB != null && intersectionPointB != null) {
-			intersectionPointB.x = intXB
-			intersectionPointB.y = intYB
+			intersectionPointB.x = intXB.toFloat()
+			intersectionPointB.y = intYB.toFloat()
 
 			if (normalRadians != null) {
-				normalRadians.y = intBN
+				normalRadians.y = intBN.toFloat()
 			}
 		}
 

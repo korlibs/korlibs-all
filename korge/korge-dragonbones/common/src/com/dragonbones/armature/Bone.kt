@@ -215,13 +215,13 @@ open class Bone(pool: BaseObjectPool) :  TransformObject(pool) {
 							rotation = global.rotation + parent.global.rotation + PI
 						}
 						else if (flipY) {
-							rotation = global.rotation + parent.global.rotation
+							rotation = (global.rotation + parent.global.rotation).toDouble()
 						}
 						else {
-							rotation = global.rotation - parent.global.rotation
+							rotation = (global.rotation - parent.global.rotation).toDouble()
 						}
 
-						global.rotation = rotation
+						global.rotation = rotation.toFloat()
 					}
 
 					global.toMatrix(globalTransformMatrix)
@@ -268,14 +268,14 @@ open class Bone(pool: BaseObjectPool) :  TransformObject(pool) {
 						rotation = global.rotation + parent.global.rotation + PI
 					}
 					else {
-						rotation = global.rotation + parent.global.rotation
+						rotation = (global.rotation + parent.global.rotation).toDouble()
 					}
 
 					if (parentMatrix.a * parentMatrix.d - parentMatrix.b * parentMatrix.c < 0.0) {
 						rotation -= global.rotation * 2.0
 
 						if (flipX != flipY || boneData.inheritReflection) {
-							global.skew += PI
+							global.skew += PI.toFloat()
 						}
 
 						if (!DragonBones.yDown) {
@@ -283,7 +283,7 @@ open class Bone(pool: BaseObjectPool) :  TransformObject(pool) {
 						}
 					}
 
-					global.rotation = rotation
+					global.rotation = rotation.toFloat()
 				}
 				else if (flipX || flipY) {
 					if (flipX && flipY) {
@@ -294,13 +294,13 @@ open class Bone(pool: BaseObjectPool) :  TransformObject(pool) {
 							rotation = PI - global.rotation
 						}
 						else {
-							rotation = -global.rotation
+							rotation = (-global.rotation).toDouble()
 						}
 
-						global.skew += PI
+						global.skew += PI.toFloat()
 					}
 
-					global.rotation = rotation
+					global.rotation = rotation.toFloat()
 				}
 
 				global.toMatrix(globalTransformMatrix)
@@ -324,13 +324,13 @@ open class Bone(pool: BaseObjectPool) :  TransformObject(pool) {
 						rotation = PI - global.rotation
 					}
 					else {
-						rotation = -global.rotation
+						rotation = (-global.rotation).toDouble()
 					}
 
-					global.skew += PI
+					global.skew += PI.toFloat()
 				}
 
-				global.rotation = rotation
+				global.rotation = rotation.toFloat()
 			}
 
 			global.toMatrix(globalTransformMatrix)

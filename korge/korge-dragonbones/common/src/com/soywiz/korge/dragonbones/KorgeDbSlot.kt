@@ -294,8 +294,8 @@ class KorgeDbSlot(pool: BaseObjectPool) : Slot(pool) {
 				if (iD >= meshDisplay.vertices.size) break // @TODO: This shouldn't be required!
 
 				val boneCount = intArray[iB++]
-				var xG = 0.0
-				var yG = 0.0
+				var xG = 0f
+				var yG = 0f
 
 				//for (let j = 0; j < boneCount; ++j) {
 				for (j in 0 until boneCount) {
@@ -304,20 +304,20 @@ class KorgeDbSlot(pool: BaseObjectPool) : Slot(pool) {
 
 					val matrix = bone.globalTransformMatrix
 					val weight = floatArray[iV++]
-					var xL = floatArray[iV++] * scale
-					var yL = floatArray[iV++] * scale
+					var xL: Float = (floatArray[iV++] * scale).toFloat()
+					var yL: Float = (floatArray[iV++] * scale).toFloat()
 
 					if (hasDeform) {
-						xL += deformVertices[iF++]
-						yL += deformVertices[iF++]
+						xL += deformVertices[iF++].toFloat()
+						yL += deformVertices[iF++].toFloat()
 					}
 
-					xG += matrix.transformX(xL, yL) * weight
-					yG += matrix.transformY(xL, yL) * weight
+					xG += matrix.transformX(xL.toFloat(), yL.toFloat()) * weight
+					yG += matrix.transformY(xL.toFloat(), yL.toFloat()) * weight
 				}
 
-				meshDisplay.vertices[iD++] = xG.toFloat()
-				meshDisplay.vertices[iD++] = yG.toFloat()
+				meshDisplay.vertices[iD++] = xG
+				meshDisplay.vertices[iD++] = yG
 			}
 		} else {
 			val isSurface = this._parent?._boneData?.isSurface ?: false
@@ -335,12 +335,12 @@ class KorgeDbSlot(pool: BaseObjectPool) : Slot(pool) {
 			for (i in 0 until vertexCount * 2 step 2) {
 				if (i + 1 >= meshDisplay.vertices.size) break // @TODO: This shouldn't be required!
 
-				var x: Double = floatArray[vertexOffset + i + 0] * scale
-				var y: Double = floatArray[vertexOffset + i + 1] * scale
+				var x: Float = (floatArray[vertexOffset + i + 0] * scale).toFloat()
+				var y: Float = (floatArray[vertexOffset + i + 1] * scale).toFloat()
 
 				if (hasDeform) {
-					x += deformVertices[i + 0]
-					y += deformVertices[i + 1]
+					x += deformVertices[i + 0].toFloat()
+					y += deformVertices[i + 1].toFloat()
 				}
 
 				if (isSurface) {

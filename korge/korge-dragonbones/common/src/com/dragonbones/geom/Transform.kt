@@ -51,7 +51,7 @@ class Transform
 	 * @version DragonBones 3.0
 	 * @language en_US
 	 */
-	override var x: Double = 0.0,
+	override var x: Float = 0f,
 	/**
 	 * - 垂直位移。
 	 * @version DragonBones 3.0
@@ -62,7 +62,7 @@ class Transform
 	 * @version DragonBones 3.0
 	 * @language en_US
 	 */
-	override var y: Double = 0.0,
+	override var y: Float = 0f,
 	/**
 	 * - 倾斜。 （以弧度为单位）
 	 * @version DragonBones 3.0
@@ -73,7 +73,7 @@ class Transform
 	 * @version DragonBones 3.0
 	 * @language en_US
 	 */
-	var skew: Double = 0.0,
+	var skew: Float = 0f,
 	/**
 	 * - 旋转。 （以弧度为单位）
 	 * @version DragonBones 3.0
@@ -84,7 +84,7 @@ class Transform
 	 * @version DragonBones 3.0
 	 * @language en_US
 	 */
-	var rotation: Double = 0.0,
+	var rotation: Float = 0f,
 	/**
 	 * - 水平缩放。
 	 * @version DragonBones 3.0
@@ -95,7 +95,7 @@ class Transform
 	 * @version DragonBones 3.0
 	 * @language en_US
 	 */
-	var scaleX: Double = 1.0,
+	var scaleX: Float = 1f,
 	/**
 	 * - 垂直缩放。
 	 * @version DragonBones 3.0
@@ -106,50 +106,50 @@ class Transform
 	 * @version DragonBones 3.0
 	 * @language en_US
 	 */
-	var scaleY: Double = 1.0
+	var scaleY: Float = 1f
 ) : XY {
 	companion object {
 		/**
 		 * @private
 		 */
-		val PI: Double = kotlin.math.PI
+		val PI: Float = kotlin.math.PI.toFloat()
 		/**
 		 * @private
 		 */
-		val PI_D: Double = PI * 2.0
+		val PI_D: Float = PI * 2f
 		/**
 		 * @private
 		 */
-		val PI_H: Double = PI / 2.0
+		val PI_H: Float = PI / 2f
 		/**
 		 * @private
 		 */
-		val PI_Q: Double = PI / 4.0
+		val PI_Q: Float = PI / 4f
 		/**
 		 * @private
 		 */
-		val RAD_DEG: Double = 180.0 / PI
+		val RAD_DEG: Float = 180f / PI
 		/**
 		 * @private
 		 */
-		val DEG_RAD: Double = PI / 180.0
+		val DEG_RAD: Float = PI / 180f
 
 		/**
 		 * @private
 		 */
 		fun normalizeRadian(value: Double): Double {
 			var value = (value + PI) % (PI * 2.0)
-			value += if (value > 0.0) -PI else PI
+			value += if (value > 0f) -PI else PI
 
 			return value
 		}
 	}
 
 	override fun toString(): String {
-		return "[object dragonBones.Transform] x:" + this.x + " y:" + this.y + " skewX:" + this.skew * 180.0 / PI + " skewY:" + this.rotation * 180.0 / PI + " scaleX:" + this.scaleX + " scaleY:" + this.scaleY
+		return "[object dragonBones.Transform] x:" + this.x + " y:" + this.y + " skewX:" + this.skew * 180f / PI + " skewY:" + this.rotation * 180f / PI + " scaleX:" + this.scaleX + " scaleY:" + this.scaleY
 	}
 
-	fun setTo(x: Double, y: Double, skew: Double, rotation: Double, scaleX: Double, scaleY: Double): Transform {
+	fun setTo(x: Float, y: Float, skew: Float, rotation: Float, scaleX: Float, scaleY: Float): Transform {
 		this.x = x
 		this.y = y
 		this.skew = skew
@@ -172,7 +172,7 @@ class Transform
 	/**
 	 * @private
 	 */
-	fun identity(): Transform = setTo(0.0, 0.0, 0.0, 0.0, 1.0, 1.0)
+	fun identity(): Transform = setTo(0f, 0f, 0f, 0f, 1f, 1f)
 
 	/**
 	 * @private
@@ -214,12 +214,12 @@ class Transform
 		this.scaleX = if (this.rotation > -PI_Q && this.rotation < PI_Q) matrix.a / cos(this.rotation) else matrix.b / sin(this.rotation)
 		this.scaleY = if (skewX > -PI_Q && skewX < PI_Q) matrix.d / cos(skewX) else -matrix.c / sin(skewX)
 
-		if (backupScaleX >= 0.0 && this.scaleX < 0.0) {
+		if (backupScaleX >= 0f && this.scaleX < 0f) {
 			this.scaleX = -this.scaleX
-			this.rotation = this.rotation - PI
+			this.rotation = (this.rotation - PI).toFloat()
 		}
 
-		if (backupScaleY >= 0.0 && this.scaleY < 0.0) {
+		if (backupScaleY >= 0f && this.scaleY < 0f) {
 			this.scaleY = -this.scaleY
 			skewX -= PI
 		}
@@ -233,16 +233,16 @@ class Transform
 	 * @private
 	 */
 	fun toMatrix(matrix: Matrix): Transform {
-		if (this.rotation == 0.0) {
-			matrix.a = 1.0
-			matrix.b = 0.0
+		if (this.rotation == 0f) {
+			matrix.a = 1f
+			matrix.b = 0f
 		}
 		else {
 			matrix.a = cos(this.rotation)
 			matrix.b = sin(this.rotation)
 		}
 
-		if (this.skew == 0.0) {
+		if (this.skew == 0f) {
 			matrix.c = -matrix.b
 			matrix.d = matrix.a
 		}
@@ -251,12 +251,12 @@ class Transform
 			matrix.d = cos(this.skew + this.rotation)
 		}
 
-		if (this.scaleX != 1.0) {
+		if (this.scaleX != 1f) {
 			matrix.a *= this.scaleX
 			matrix.b *= this.scaleX
 		}
 
-		if (this.scaleY != 1.0) {
+		if (this.scaleY != 1f) {
 			matrix.c *= this.scaleY
 			matrix.d *= this.scaleY
 		}
@@ -268,36 +268,36 @@ class Transform
 	}
 
 	fun toMatrix2d(matrix: Matrix2d): Transform {
-		if (this.rotation == 0.0) {
+		if (this.rotation == 0f) {
 			matrix.a = 1.0
 			matrix.b = 0.0
 		}
 		else {
-			matrix.a = cos(this.rotation)
-			matrix.b = sin(this.rotation)
+			matrix.a = cos(this.rotation).toDouble()
+			matrix.b = sin(this.rotation).toDouble()
 		}
 
-		if (this.skew == 0.0) {
+		if (this.skew == 0f) {
 			matrix.c = -matrix.b
 			matrix.d = matrix.a
 		}
 		else {
-			matrix.c = -sin(this.skew + this.rotation)
-			matrix.d = cos(this.skew + this.rotation)
+			matrix.c = (-sin(this.skew + this.rotation)).toDouble()
+			matrix.d = cos(this.skew + this.rotation).toDouble()
 		}
 
-		if (this.scaleX != 1.0) {
+		if (this.scaleX != 1f) {
 			matrix.a *= this.scaleX
 			matrix.b *= this.scaleX
 		}
 
-		if (this.scaleY != 1.0) {
+		if (this.scaleY != 1f) {
 			matrix.c *= this.scaleY
 			matrix.d *= this.scaleY
 		}
 
-		matrix.tx = this.x
-		matrix.ty = this.y
+		matrix.tx = this.x.toDouble()
+		matrix.ty = this.y.toDouble()
 
 		return this
 	}

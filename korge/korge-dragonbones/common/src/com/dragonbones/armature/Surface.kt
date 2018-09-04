@@ -38,42 +38,54 @@ class Surface(pool: BaseObjectPool) :  Bone(pool) {
 		return "[class dragonBones.Surface]"
 	}
 
-	private var _dX: Double = 0.0
-	private var _dY: Double = 0.0
-	private var _k: Double = 0.0
-	private var _kX: Double = 0.0
-	private var _kY: Double = 0.0
+	private var _dX: Float = 0f
+	private var _dY: Float = 0f
+	private var _k: Float = 0f
+	private var _kX: Float = 0f
+	private var _kY: Float = 0f
 
-	var _vertices:  DoubleArray = DoubleArray(0)
-	var _deformVertices:  DoubleArray = DoubleArray(0)
+	var _vertices:  FloatArray = FloatArray(0)
+	var _deformVertices:  FloatArray = FloatArray(0)
 	/**
 	 * - x1, y1, x2, y2, x3, y3, x4, y4, d1X, d1Y, d2X, d2Y
 	 */
-	private val _hullCache:  DoubleArray = DoubleArray(12)
+	//private val _hullCache:  FloatArray = FloatArray(12)
+	private var _hullCache0 = 0f
+	private var _hullCache1 = 0f
+	private var _hullCache2 = 0f
+	private var _hullCache3 = 0f
+	private var _hullCache4 = 0f
+	private var _hullCache5 = 0f
+	private var _hullCache6 = 0f
+	private var _hullCache7 = 0f
+	private var _hullCache8 = 0f
+	private var _hullCache9 = 0f
+	private var _hullCache10 = 0f
+	private var _hullCache11 = 0f
 	/**
 	 * - Inside [flag, a, b, c, d, tx, ty], Outside [flag, a, b, c, d, tx, ty]
 	 */
-	private var _matrixCache = DoubleArray(0)
+	private var _matrixCache = FloatArray(0)
 
 	var _bone: Bone? = null
 
 	override fun _onClear() {
 		super._onClear()
 
-		this._dX = 0.0
-		this._dY = 0.0
-		this._k = 0.0
-		this._kX = 0.0
-		this._kY = 0.0
-		this._vertices = DoubleArray(0)
-		this._deformVertices = DoubleArray(0)
-		this._matrixCache = DoubleArray(0)
-		this._bone = null
+		_dX = 0f
+		_dY = 0f
+		_k = 0f
+		_kX = 0f
+		_kY = 0f
+		_vertices = FloatArray(0)
+		_deformVertices = FloatArray(0)
+		_matrixCache = FloatArray(0)
+		_bone = null
 	}
 
 	private fun _getAffineTransform(
-		x: Double, y: Double, lX: Double, lY: Double,
-		aX: Double, aY: Double, bX: Double, bY: Double, cX: Double, cY: Double,
+		x: Float, y: Float, lX: Float, lY: Float,
+		aX: Float, aY: Float, bX: Float, bY: Float, cX: Float, cY: Float,
 		transform: Transform, matrix: Matrix, isDown: Boolean
 	) {
 		val dabX = bX - aX
@@ -82,10 +94,10 @@ class Surface(pool: BaseObjectPool) :  Bone(pool) {
 		val dacY = cY - aY
 
 		transform.rotation = atan2(dabY, dabX)
-		transform.skew = atan2(dacY, dacX) - PI * 0.5 - transform.rotation
+		transform.skew = (atan2(dacY, dacX) - PI * 0.5 - transform.rotation).toFloat()
 
 		if (isDown) {
-			transform.rotation += PI
+			transform.rotation += PI.toFloat()
 		}
 
 		transform.scaleX = sqrt(dabX * dabX + dabY * dabY) / lX
@@ -100,19 +112,19 @@ class Surface(pool: BaseObjectPool) :  Bone(pool) {
 	}
 
 	private fun _updateVertices() {
-		val data = this._armature!!.armatureData.parent!!
-		val geometry = this._boneData!!.geometry
+		val data = _armature!!.armatureData.parent!!
+		val geometry = _boneData!!.geometry
 		val intArray = data.intArray!!
 		val floatArray = data.floatArray!!
 		val vertexCount = intArray[geometry.offset + BinaryOffset.GeometryVertexCount]
 		val verticesOffset = intArray[geometry.offset + BinaryOffset.GeometryFloatOffset]
-		val vertices = this._vertices
-		val animationVertices = this._deformVertices
+		val vertices = _vertices
+		val animationVertices = _deformVertices
 
-		if (this._parent != null) {
-			if (this._parent?._boneData?.isSurface == true) {
+		if (_parent != null) {
+			if (_parent?._boneData?.isSurface == true) {
 				//for (var i = 0, l = vertexCount; i < l; ++i) {
-				val surface = this._parent as Surface
+				val surface = _parent as Surface
 				for (i in 0 until vertexCount) {
 					val iD = i * 2
 					val x = floatArray[verticesOffset + iD + 0] + animationVertices[iD + 0]
@@ -123,7 +135,7 @@ class Surface(pool: BaseObjectPool) :  Bone(pool) {
 				}
 			}
 			else {
-				val parentMatrix = this._parent!!.globalTransformMatrix
+				val parentMatrix = _parent!!.globalTransformMatrix
 				//for (var i = 0, l = vertexCount; i < l; ++i) {
 				for (i in 0 until vertexCount) {
 					val iD = i * 2
@@ -148,64 +160,68 @@ class Surface(pool: BaseObjectPool) :  Bone(pool) {
 		// tslint:disable-next-line:no-unused-expression
 		//isCache
 
-		val segmentXD = this._boneData!!.segmentX * 2
-		val lastIndex = this._vertices.size - 2
-		val lA = 200.0
+		val segmentXD = _boneData!!.segmentX * 2
+		val lastIndex = _vertices.size - 2
+		val lA = 200f
 		//
-		val raX = this._vertices[0]
-		val raY = this._vertices[1]
-		val rbX = this._vertices[segmentXD]
-		val rbY = this._vertices[segmentXD + 1]
-		val rcX = this._vertices[lastIndex]
-		val rcY = this._vertices[lastIndex + 1]
-		val rdX = this._vertices[lastIndex - segmentXD]
-		val rdY = this._vertices[lastIndex - segmentXD + 1]
+		val raX = _vertices[0]
+		val raY = _vertices[1]
+		val rbX = _vertices[segmentXD + 0]
+		val rbY = _vertices[segmentXD + 1]
+		val rcX = _vertices[lastIndex + 0]
+		val rcY = _vertices[lastIndex + 1]
+		val rdX = _vertices[lastIndex - segmentXD + 0]
+		val rdY = _vertices[lastIndex - segmentXD + 1]
 		//
-		val dacX = raX + (rcX - raX) * 0.5
-		val dacY = raY + (rcY - raY) * 0.5
-		val dbdX = rbX + (rdX - rbX) * 0.5
-		val dbdY = rbY + (rdY - rbY) * 0.5
-		val aX = dacX + (dbdX - dacX) * 0.5
-		val aY = dacY + (dbdY - dacY) * 0.5
-		val bX = rbX + (rcX - rbX) * 0.5
-		val bY = rbY + (rcY - rbY) * 0.5
-		val cX = rdX + (rcX - rdX) * 0.5
-		val cY = rdY + (rcY - rdY) * 0.5
+		val dacX = raX + (rcX - raX) * 0.5f
+		val dacY = raY + (rcY - raY) * 0.5f
+		val dbdX = rbX + (rdX - rbX) * 0.5f
+		val dbdY = rbY + (rdY - rbY) * 0.5f
+		val aX = dacX + (dbdX - dacX) * 0.5f
+		val aY = dacY + (dbdY - dacY) * 0.5f
+		val bX = rbX + (rcX - rbX) * 0.5f
+		val bY = rbY + (rcY - rbY) * 0.5f
+		val cX = rdX + (rcX - rdX) * 0.5f
+		val cY = rdY + (rcY - rdY) * 0.5f
 		// TODO interpolation
-		this._getAffineTransform(0.0, 0.0, lA, lA, aX, aY, bX, bY, cX, cY, this.global, this.globalTransformMatrix, false)
-		this._globalDirty = false
+		_getAffineTransform(0f, 0f,
+			lA, lA, aX, aY, bX, bY, cX, cY,
+			global, globalTransformMatrix, false
+		)
+		_globalDirty = false
 	}
 
-	fun _getGlobalTransformMatrix(x: Double, y: Double): Matrix {
-		val lA = 200.0
-		val lB = 1000.0
+	fun _getGlobalTransformMatrix(x: Float, y: Float): Matrix {
+		val lA = 200f
+		val lB = 1000f
 		if (x < -lB || lB < x || y < -lB || lB < y) {
-			return this.globalTransformMatrix
+			return globalTransformMatrix
 		}
 
 		val isDown: Boolean
-		val surfaceData = this._boneData!!
+		val surfaceData = _boneData!!
 		val segmentX = surfaceData.segmentX
 		val segmentY = surfaceData.segmentY
 		val segmentXD = surfaceData.segmentX * 2
-		val dX = this._dX
-		val dY = this._dY
+		val dX = _dX
+		val dY = _dY
 		val indexX = ((x + lA) / dX).toInt() // -1 ~ segmentX - 1
 		val indexY = ((y + lA) / dY).toInt() // -1 ~ segmentY - 1
 		//println("x=" + x + "lA=" + lA + "dX=" + dX);
 		val matrixIndex: Int
 		val pX = indexX * dX - lA
 		val pY = indexY * dY - lA
+
 		//
-		val matrices = this._matrixCache
+		val matrices = _matrixCache
 		val helpMatrix = _helpMatrix
 
 		if (x < -lA) {
 			if (y < -lA || y >= lA) { // Out.
-				return this.globalTransformMatrix
+				return globalTransformMatrix
 			}
 			// Left.
-			isDown = y > this._kX * (x + lA) + pY
+			isDown = y > _kX * (x + lA) + pY
 			matrixIndex = ((segmentX * segmentY + segmentX + segmentY + segmentY + indexY) * 2 + (if (isDown) 1 else 0)) * 7
 
 			if (matrices[matrixIndex] > 0.0) {
@@ -213,15 +229,15 @@ class Surface(pool: BaseObjectPool) :  Bone(pool) {
 			}
 			else {
 				val vertexIndex = indexY * (segmentXD + 2)
-				val ddX = this._hullCache[4]
-				val ddY = this._hullCache[5]
-				val sX = this._hullCache[2] - (segmentY - indexY) * ddX
-				val sY = this._hullCache[3] - (segmentY - indexY) * ddY
-				val vertices = this._vertices
+				val ddX = _hullCache4
+				val ddY = _hullCache5
+				val sX = _hullCache2 - (segmentY - indexY) * ddX
+				val sY = _hullCache3 - (segmentY - indexY) * ddY
+				val vertices = _vertices
 
 				if (isDown) {
-					this._getAffineTransform(
-						-lA, pY + dY, lB - lA, dY,
+					_getAffineTransform(
+						(-lA), (pY + dY), (lB - lA), dY,
 						vertices[vertexIndex + segmentXD + 2],
 						vertices[vertexIndex + segmentXD + 3],
 						sX + ddX,
@@ -231,8 +247,8 @@ class Surface(pool: BaseObjectPool) :  Bone(pool) {
 						_helpTransform, helpMatrix, true)
 				}
 				else {
-					this._getAffineTransform(
-						-lB, pY, lB - lA, dY,
+					_getAffineTransform(
+						(-lB), pY, (lB - lA), dY,
 						sX,
 						sY,
 						vertices[vertexIndex],
@@ -247,10 +263,10 @@ class Surface(pool: BaseObjectPool) :  Bone(pool) {
 		}
 		else if (x >= lA) {
 			if (y < -lA || y >= lA) { // Out.
-				return this.globalTransformMatrix
+				return globalTransformMatrix
 			}
 			// Right.
-			isDown = y > this._kX * (x - lB) + pY
+			isDown = y > _kX * (x - lB) + pY
 			matrixIndex = ((segmentX * segmentY + segmentX + indexY) * 2 + (if (isDown) 1 else 0)) * 7
 
 			if (matrices[matrixIndex] > 0.0) {
@@ -258,15 +274,15 @@ class Surface(pool: BaseObjectPool) :  Bone(pool) {
 			}
 			else {
 				val vertexIndex = (indexY + 1) * (segmentXD + 2) - 2
-				val ddX = this._hullCache[4]
-				val ddY = this._hullCache[5]
-				val sX = this._hullCache[0] + indexY * ddX
-				val sY = this._hullCache[1] + indexY * ddY
-				val vertices = this._vertices
+				val ddX = _hullCache4
+				val ddY = _hullCache5
+				val sX = _hullCache0 + indexY * ddX
+				val sY = _hullCache1 + indexY * ddY
+				val vertices = _vertices
 
 				if (isDown) {
-					this._getAffineTransform(
-						lB, pY + dY, lB - lA, dY,
+					_getAffineTransform(
+						lB, (pY + dY), (lB - lA), dY,
 						sX + ddX,
 						sY + ddY,
 						vertices[vertexIndex + segmentXD + 2],
@@ -276,8 +292,8 @@ class Surface(pool: BaseObjectPool) :  Bone(pool) {
 						_helpTransform, helpMatrix, true)
 				}
 				else {
-					this._getAffineTransform(
-						lA, pY, lB - lA, dY,
+					_getAffineTransform(
+						lA, pY, (lB - lA), dY,
 						vertices[vertexIndex],
 						vertices[vertexIndex + 1],
 						sX,
@@ -292,10 +308,10 @@ class Surface(pool: BaseObjectPool) :  Bone(pool) {
 		}
 		else if (y < -lA) {
 			if (x < -lA || x >= lA) { // Out.
-				return this.globalTransformMatrix
+				return globalTransformMatrix
 			}
 			// Up.
-			isDown = y > this._kY * (x - pX - dX) - lB
+			isDown = y > _kY * (x - pX - dX) - lB
 			matrixIndex = ((segmentX * segmentY + indexX) * 2 + (if (isDown) 1 else 0)) * 7
 
 			if (matrices[matrixIndex] > 0.0) {
@@ -303,15 +319,15 @@ class Surface(pool: BaseObjectPool) :  Bone(pool) {
 			}
 			else {
 				val vertexIndex = indexX * 2
-				val ddX = this._hullCache[10]
-				val ddY = this._hullCache[11]
-				val sX = this._hullCache[8] + indexX * ddX
-				val sY = this._hullCache[9] + indexX * ddY
-				val vertices = this._vertices
+				val ddX = _hullCache10
+				val ddY = _hullCache11
+				val sX = _hullCache8 + indexX * ddX
+				val sY = _hullCache9 + indexX * ddY
+				val vertices = _vertices
 
 				if (isDown) {
-					this._getAffineTransform(
-						pX + dX, -lA, dX, lB - lA,
+					_getAffineTransform(
+						(pX + dX), (-lA), dX, (lB - lA),
 						vertices[vertexIndex + 2],
 						vertices[vertexIndex + 3],
 						vertices[vertexIndex],
@@ -321,8 +337,8 @@ class Surface(pool: BaseObjectPool) :  Bone(pool) {
 						_helpTransform, helpMatrix, true)
 				}
 				else {
-					this._getAffineTransform(
-						pX, -lB, dX, lB - lA,
+					_getAffineTransform(
+						pX, (-lB), dX, (lB - lA),
 						sX,
 						sY,
 						sX + ddX,
@@ -337,10 +353,10 @@ class Surface(pool: BaseObjectPool) :  Bone(pool) {
 		}
 		else if (y >= lA) {
 			if (x < -lA || x >= lA) { //  Out.
-				return this.globalTransformMatrix
+				return globalTransformMatrix
 			}
 			// Down
-			isDown = y > this._kY * (x - pX - dX) + lA
+			isDown = y > _kY * (x - pX - dX) + lA
 			matrixIndex = ((segmentX * segmentY + segmentX + segmentY + indexX) * 2 + (if (isDown) 1 else 0)) * 7
 
 			if (matrices[matrixIndex] > 0.0) {
@@ -348,15 +364,15 @@ class Surface(pool: BaseObjectPool) :  Bone(pool) {
 			}
 			else {
 				val vertexIndex = segmentY * (segmentXD + 2) + indexX * 2
-				val ddX = this._hullCache[10]
-				val ddY = this._hullCache[11]
-				val sX = this._hullCache[6] - (segmentX - indexX) * ddX
-				val sY = this._hullCache[7] - (segmentX - indexX) * ddY
-				val vertices = this._vertices
+				val ddX = _hullCache10
+				val ddY = _hullCache11
+				val sX = _hullCache6 - (segmentX - indexX) * ddX
+				val sY = _hullCache7 - (segmentX - indexX) * ddY
+				val vertices = _vertices
 
 				if (isDown) {
-					this._getAffineTransform(
-						pX + dX, lB, dX, lB - lA,
+					_getAffineTransform(
+						(pX + dX), lB, dX, (lB - lA),
 						sX + ddX,
 						sY + ddY,
 						sX,
@@ -366,8 +382,8 @@ class Surface(pool: BaseObjectPool) :  Bone(pool) {
 						_helpTransform, helpMatrix, true)
 				}
 				else {
-					this._getAffineTransform(
-						pX, lA, dX, lB - lA,
+					_getAffineTransform(
+						pX, lA, dX, (lB - lA),
 						vertices[vertexIndex],
 						vertices[vertexIndex + 1],
 						vertices[vertexIndex + 2],
@@ -381,7 +397,7 @@ class Surface(pool: BaseObjectPool) :  Bone(pool) {
 			}
 		}
 		else { // Center.
-			isDown = y > this._k * (x - pX - dX) + pY
+			isDown = y > _k * (x - pX - dX) + pY
 			matrixIndex = ((segmentX * indexY + indexX) * 2 + (if (isDown) 1 else 0)) * 7
 
 			if (matrices[matrixIndex] > 0.0) {
@@ -389,11 +405,11 @@ class Surface(pool: BaseObjectPool) :  Bone(pool) {
 			}
 			else {
 				val vertexIndex = indexX * 2 + indexY * (segmentXD + 2)
-				val vertices = this._vertices
+				val vertices = _vertices
 
 				if (isDown) {
-					this._getAffineTransform(
-						pX + dX, pY + dY, dX, dY,
+					_getAffineTransform(
+						(pX + dX), (pY + dY), dX, dY,
 						vertices[vertexIndex + segmentXD + 4],
 						vertices[vertexIndex + segmentXD + 5],
 						vertices[vertexIndex + segmentXD + 2],
@@ -403,7 +419,7 @@ class Surface(pool: BaseObjectPool) :  Bone(pool) {
 						_helpTransform, helpMatrix, true)
 				}
 				else {
-					this._getAffineTransform(
+					_getAffineTransform(
 						pX, pY, dX, dY,
 						vertices[vertexIndex],
 						vertices[vertexIndex + 1],
@@ -422,11 +438,11 @@ class Surface(pool: BaseObjectPool) :  Bone(pool) {
 	}
 
 	private fun setMatricesFromHelp(
-		matrices: DoubleArray,
+		matrices: FloatArray,
 		matrixIndex: Int,
 		helpMatrix: Matrix
 	) {
-		matrices[matrixIndex] = 1.0
+		matrices[matrixIndex] = 1f
 		matrices[matrixIndex + 1] = helpMatrix.a
 		matrices[matrixIndex + 2] = helpMatrix.b
 		matrices[matrixIndex + 3] = helpMatrix.c
@@ -441,7 +457,7 @@ class Surface(pool: BaseObjectPool) :  Bone(pool) {
 	 */
 	override fun init(boneData: BoneData, armatureValue: Armature) {
 		val surfaceData = boneData
-		if (this._boneData != null) {
+		if (_boneData != null) {
 			return
 		}
 
@@ -450,30 +466,30 @@ class Surface(pool: BaseObjectPool) :  Bone(pool) {
 		val segmentX = surfaceData.segmentX
 		val segmentY = surfaceData.segmentY
 		val vertexCount =
-			this._armature!!.armatureData.parent!!.intArray!![surfaceData.geometry.offset + BinaryOffset.GeometryVertexCount]
-		val lB = 1000.0
-		val lA = 200.0
+			_armature!!.armatureData.parent!!.intArray!![surfaceData.geometry.offset + BinaryOffset.GeometryVertexCount]
+		val lB = 1000f
+		val lA = 200f
 		//
-		this._dX = lA * 2.0 / segmentX
-		this._dY = lA * 2.0 / segmentY
+		_dX = lA * 2f / segmentX
+		_dY = lA * 2f / segmentY
 		//println("Surface.Init: dX=$_dX, dY=$_dY")
-		this._k = -this._dY / this._dX
-		this._kX = -this._dY / (lB - lA)
-		this._kY = -(lB - lA) / this._dX
-		this._vertices = DoubleArray(vertexCount * 2)
-		this._deformVertices = DoubleArray(vertexCount * 2)
-		this._matrixCache = DoubleArray((segmentX * segmentY + segmentX * 2 + segmentY * 2) * 2 * 7)
+		_k = -_dY / _dX
+		_kX = -_dY / (lB - lA)
+		_kY = -(lB - lA) / _dX
+		_vertices = FloatArray(vertexCount * 2)
+		_deformVertices = FloatArray(vertexCount * 2)
+		_matrixCache = FloatArray((segmentX * segmentY + segmentX * 2 + segmentY * 2) * 2 * 7)
 
 		for (i in 0 until vertexCount * 2) {
-			this._deformVertices[i] = 0.0
+			_deformVertices[i] = 0f
 		}
 
-		if (this._parent != null) {
-			if (this._parent?.boneData?.isBone == true) {
-				this._bone = this._parent
+		if (_parent != null) {
+			if (_parent?.boneData?.isBone == true) {
+				_bone = _parent
 			}
 			else {
-				this._bone = (this._parent as Surface)._bone
+				_bone = (_parent as Surface)._bone
 			}
 		}
 	}
@@ -484,18 +500,18 @@ class Surface(pool: BaseObjectPool) :  Bone(pool) {
 	override fun update(cacheFrameIndex: Int) {
 		@Suppress("NAME_SHADOWING")
 		var cacheFrameIndex = cacheFrameIndex
-		if (cacheFrameIndex >= 0 && this._cachedFrameIndices != null) {
-			val cachedFrameIndex = this._cachedFrameIndices!![cacheFrameIndex]
-			if (cachedFrameIndex >= 0 && this._cachedFrameIndex == cachedFrameIndex) { // Same cache.
-				this._transformDirty = false
+		if (cacheFrameIndex >= 0 && _cachedFrameIndices != null) {
+			val cachedFrameIndex = _cachedFrameIndices!![cacheFrameIndex]
+			if (cachedFrameIndex >= 0 && _cachedFrameIndex == cachedFrameIndex) { // Same cache.
+				_transformDirty = false
 			}
 			else if (cachedFrameIndex >= 0) { // Has been Cached.
-				this._transformDirty = true
-				this._cachedFrameIndex = cachedFrameIndex
+				_transformDirty = true
+				_cachedFrameIndex = cachedFrameIndex
 			}
 			else {
-				if (this._hasConstraint) { // Update constraints.
-					for (constraint in this._armature!!._constraints) {
+				if (_hasConstraint) { // Update constraints.
+					for (constraint in _armature!!._constraints) {
 						if (constraint._root == this) {
 							constraint.update()
 						}
@@ -503,92 +519,92 @@ class Surface(pool: BaseObjectPool) :  Bone(pool) {
 				}
 
 				if (
-					this._transformDirty ||
-					(this._parent != null && this._parent!!._childrenTransformDirty)
+					_transformDirty ||
+					(_parent != null && _parent!!._childrenTransformDirty)
 				) { // Dirty.
-					this._transformDirty = true
-					this._cachedFrameIndex = -1
+					_transformDirty = true
+					_cachedFrameIndex = -1
 				}
-				else if (this._cachedFrameIndex >= 0) { // Same cache, but not set index yet.
-					this._transformDirty = false
-					this._cachedFrameIndices!![cacheFrameIndex] = this._cachedFrameIndex
+				else if (_cachedFrameIndex >= 0) { // Same cache, but not set index yet.
+					_transformDirty = false
+					_cachedFrameIndices!![cacheFrameIndex] = _cachedFrameIndex
 				}
 				else { // Dirty.
-					this._transformDirty = true
-					this._cachedFrameIndex = -1
+					_transformDirty = true
+					_cachedFrameIndex = -1
 				}
 			}
 		}
 		else {
-			if (this._hasConstraint) { // Update constraints.
-				for (constraint in this._armature!!._constraints) {
+			if (_hasConstraint) { // Update constraints.
+				for (constraint in _armature!!._constraints) {
 					if (constraint._root == this) {
 						constraint.update()
 					}
 				}
 			}
 
-			if (this._transformDirty || (this._parent != null && this._parent!!._childrenTransformDirty)) { // Dirty.
+			if (_transformDirty || (_parent != null && _parent!!._childrenTransformDirty)) { // Dirty.
 				cacheFrameIndex = -1
-				this._transformDirty = true
-				this._cachedFrameIndex = -1
+				_transformDirty = true
+				_cachedFrameIndex = -1
 			}
 		}
 
-		if (this._transformDirty) {
-			this._transformDirty = false
-			this._childrenTransformDirty = true
+		if (_transformDirty) {
+			_transformDirty = false
+			_childrenTransformDirty = true
 			//
-			for (i in 0 until this._matrixCache.size step 7) {
-				this._matrixCache[i] = -1.0
+			for (i in 0 until _matrixCache.size step 7) {
+				_matrixCache[i] = -1f
 			}
 			//
-			this._updateVertices()
+			_updateVertices()
 			//
-			if (this._cachedFrameIndex < 0) {
+			if (_cachedFrameIndex < 0) {
 				val isCache = cacheFrameIndex >= 0
-				if (this._localDirty) {
-					this._updateGlobalTransformMatrix(isCache)
+				if (_localDirty) {
+					_updateGlobalTransformMatrix(isCache)
 				}
 
-				if (isCache && this._cachedFrameIndices != null) {
-					val res = this._armature!!._armatureData!!.setCacheFrame(this.globalTransformMatrix, this.global)
-					this._cachedFrameIndex = res
-					this._cachedFrameIndices!![cacheFrameIndex] = res
+				if (isCache && _cachedFrameIndices != null) {
+					val res = _armature!!._armatureData!!.setCacheFrame(globalTransformMatrix, global)
+					_cachedFrameIndex = res
+					_cachedFrameIndices!![cacheFrameIndex] = res
 				}
 			}
 			else {
-				this._armature?._armatureData?.getCacheFrame(this.globalTransformMatrix, this.global, this._cachedFrameIndex)
+				_armature?._armatureData?.getCacheFrame(globalTransformMatrix, global, _cachedFrameIndex)
 			}
 			// Update hull vertices.
-			val lB = 1000.0
-			val lA = 200.0
-			val ddX = 2 * this.global.x
-			val ddY = 2 * this.global.y
+			val lB = 1000f
+			val lA = 200f
+			val ddX = 2 * global.x
+			val ddY = 2 * global.y
 			//
 			val helpPoint = _helpPoint
-			this.globalTransformMatrix.transformPoint(lB, -lA, helpPoint)
-			this._hullCache[0] = helpPoint.x
-			this._hullCache[1] = helpPoint.y
-			this._hullCache[2] = ddX - helpPoint.x
-			this._hullCache[3] = ddY - helpPoint.y
-			this.globalTransformMatrix.transformPoint(0.0, this._dY, helpPoint, true)
-			this._hullCache[4] = helpPoint.x
-			this._hullCache[5] = helpPoint.y
+			globalTransformMatrix.transformPoint(lB, -lA, helpPoint)
+			_hullCache0 = helpPoint.x
+			_hullCache1 = helpPoint.y
+			_hullCache2 = ddX - helpPoint.x
+			_hullCache3 = ddY - helpPoint.y
+			globalTransformMatrix.transformPoint(0f, _dY, helpPoint, true)
+			_hullCache4 = helpPoint.x
+			_hullCache5 = helpPoint.y
 			//
-			this.globalTransformMatrix.transformPoint(lA, lB, helpPoint)
-			this._hullCache[6] = helpPoint.x
-			this._hullCache[7] = helpPoint.y
-			this._hullCache[8] = ddX - helpPoint.x
-			this._hullCache[9] = ddY - helpPoint.y
-			this.globalTransformMatrix.transformPoint(this._dX, 0.0, helpPoint, true)
-			this._hullCache[10] = helpPoint.x
-			this._hullCache[11] = helpPoint.y
+			globalTransformMatrix.transformPoint(lA, lB, helpPoint)
+			_hullCache6 = helpPoint.x
+			_hullCache7 = helpPoint.y
+			_hullCache8 = ddX - helpPoint.x
+			_hullCache9 = ddY - helpPoint.y
+			globalTransformMatrix.transformPoint(_dX, 0f, helpPoint, true)
+			_hullCache10 = helpPoint.x
+			_hullCache11 = helpPoint.y
 		}
-		else if (this._childrenTransformDirty) {
-			this._childrenTransformDirty = false
+		else if (_childrenTransformDirty) {
+			_childrenTransformDirty = false
 		}
 
-		this._localDirty = true
+		_localDirty = true
 	}
 }

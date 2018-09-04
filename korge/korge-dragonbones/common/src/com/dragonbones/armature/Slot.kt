@@ -434,8 +434,8 @@ abstract class Slot(pool: BaseObjectPool) :  TransformObject(pool) {
 				val scale = _textureData.parent!!.scale * this._armature!!._armatureData!!.scale
 				val frame = _textureData.frame
 
-				this._pivotX = imageDisplayData.pivot.x
-				this._pivotY = imageDisplayData.pivot.y
+				this._pivotX = imageDisplayData.pivot.x.toDouble()
+				this._pivotY = imageDisplayData.pivot.y.toDouble()
 
 				val rect = frame ?: _textureData.region
 				var width = rect.width
@@ -458,13 +458,13 @@ abstract class Slot(pool: BaseObjectPool) :  TransformObject(pool) {
 				if (rawDisplayData != null && imageDisplayData != rawDisplayData) {
 					rawDisplayData.transform.toMatrix(_helpMatrix)
 					_helpMatrix.invert()
-					_helpMatrix.transformPoint(0.0, 0.0, _helpPoint)
+					_helpMatrix.transformPoint(0f, 0f, _helpPoint)
 					this._pivotX -= _helpPoint.x
 					this._pivotY -= _helpPoint.y
 
 					imageDisplayData.transform.toMatrix(_helpMatrix)
 					_helpMatrix.invert()
-					_helpMatrix.transformPoint(0.0, 0.0, _helpPoint)
+					_helpMatrix.transformPoint(0f, 0f, _helpPoint)
 					this._pivotX += _helpPoint.x
 					this._pivotY += _helpPoint.y
 				}
@@ -993,7 +993,7 @@ abstract class Slot(pool: BaseObjectPool) :  TransformObject(pool) {
 		_helpMatrix.invert()
 		_helpMatrix.transformPoint(x, y, _helpPoint)
 
-		return this._boundingBoxData!!.containsPoint(_helpPoint.x, _helpPoint.y)
+		return this._boundingBoxData!!.containsPoint(_helpPoint.x.toDouble(), _helpPoint.y.toDouble())
 	}
 	/**
 	 * - Check whether a specific segment intersects a custom bounding box for the slot.
@@ -1045,7 +1045,8 @@ abstract class Slot(pool: BaseObjectPool) :  TransformObject(pool) {
 		val xB = _helpPoint.x
 		val yB = _helpPoint.y
 
-		val intersectionCount = this._boundingBoxData!!.intersectsSegment(xA, yA, xB, yB, intersectionPointA, intersectionPointB, normalRadians)
+		val intersectionCount = this._boundingBoxData!!.intersectsSegment(xA.toDouble(),
+			yA.toDouble(), xB.toDouble(), yB.toDouble(), intersectionPointA, intersectionPointB, normalRadians)
 		if (intersectionCount > 0) {
 			if (intersectionCount == 1 || intersectionCount == 2) {
 				if (intersectionPointA != null) {

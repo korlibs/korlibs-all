@@ -111,11 +111,11 @@ class KorgeDbArmatureDisplay : Image(Bitmaps.transparent), IArmatureProxy {
 					val endY = startY + bone.globalTransformMatrix.b * boneLength
 
 					boneDrawer.lineStyle(2.0, Colors.PURPLE, 0.7)
-					boneDrawer.moveTo(startX, startY)
+					boneDrawer.moveTo(startX.toDouble(), startY.toDouble())
 					boneDrawer.lineTo(endX, endY)
 					boneDrawer.lineStyle(0.0, Colors.BLACK, 0.0)
 					boneDrawer.beginFill(Colors.PURPLE, 0.7)
-					boneDrawer.drawCircle(startX, startY, 3.0)
+					boneDrawer.drawCircle(startX.toDouble(), startY.toDouble(), 3.0)
 					boneDrawer.endFill()
 				}
 

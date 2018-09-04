@@ -37,7 +37,53 @@ import kotlin.math.*
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class Matrix {
+class Matrix
+/**
+ * @private
+ */(
+	/**
+	 * - 缩放或旋转图像时影响像素沿 x 轴定位的值。
+	 * @default 1.0
+	 * @version DragonBones 3.0
+	 * @language zh_CN
+	 */
+	var a: Float = 1f,
+	/**
+	 * - 旋转或倾斜图像时影响像素沿 y 轴定位的值。
+	 * @default 0.0
+	 * @version DragonBones 3.0
+	 * @language zh_CN
+	 */
+	var b: Float = 0f,
+	/**
+	 * - 旋转或倾斜图像时影响像素沿 x 轴定位的值。
+	 * @default 0.0
+	 * @version DragonBones 3.0
+	 * @language zh_CN
+	 */
+	var c: Float = 0f,
+	/**
+	 * - 缩放或旋转图像时影响像素沿 y 轴定位的值。
+	 * @default 1.0
+	 * @version DragonBones 3.0
+	 * @language zh_CN
+	 */
+	var d: Float = 1f,
+	/**
+	 * - 沿 x 轴平移每个点的距离。
+	 * @default 0.0
+	 * @version DragonBones 3.0
+	 * @language zh_CN
+	 */
+	var tx: Float = 0f,
+	/**
+	 * - 沿 y 轴平移每个点的距离。
+	 * @default 0.0
+	 * @version DragonBones 3.0
+	 * @language zh_CN
+	 */
+	var ty: Float = 0f
+) {
 	/**
 	 * - The value that affects the positioning of pixels along the x axis when scaling or rotating an image.
 	 * @default 1.0
@@ -45,25 +91,11 @@ class Matrix {
 	 * @language en_US
 	 */
 	/**
-	 * - 缩放或旋转图像时影响像素沿 x 轴定位的值。
-	 * @default 1.0
-	 * @version DragonBones 3.0
-	 * @language zh_CN
-	 */
-	var a: Double
-	/**
 	 * - The value that affects the positioning of pixels along the y axis when rotating or skewing an image.
 	 * @default 0.0
 	 * @version DragonBones 3.0
 	 * @language en_US
 	 */
-	/**
-	 * - 旋转或倾斜图像时影响像素沿 y 轴定位的值。
-	 * @default 0.0
-	 * @version DragonBones 3.0
-	 * @language zh_CN
-	 */
-	var b: Double
 	/**
 	 * - The value that affects the positioning of pixels along the x axis when rotating or skewing an image.
 	 * @default 0.0
@@ -71,25 +103,11 @@ class Matrix {
 	 * @language en_US
 	 */
 	/**
-	 * - 旋转或倾斜图像时影响像素沿 x 轴定位的值。
-	 * @default 0.0
-	 * @version DragonBones 3.0
-	 * @language zh_CN
-	 */
-	var c: Double
-	/**
 	 * - The value that affects the positioning of pixels along the y axis when scaling or rotating an image.
 	 * @default 1.0
 	 * @version DragonBones 3.0
 	 * @language en_US
 	 */
-	/**
-	 * - 缩放或旋转图像时影响像素沿 y 轴定位的值。
-	 * @default 1.0
-	 * @version DragonBones 3.0
-	 * @language zh_CN
-	 */
-	var d: Double
 	/**
 	 * - The distance by which to translate each point along the x axis.
 	 * @default 0.0
@@ -97,41 +115,11 @@ class Matrix {
 	 * @language en_US
 	 */
 	/**
-	 * - 沿 x 轴平移每个点的距离。
-	 * @default 0.0
-	 * @version DragonBones 3.0
-	 * @language zh_CN
-	 */
-	var tx: Double
-	/**
 	 * - The distance by which to translate each point along the y axis.
 	 * @default 0.0
 	 * @version DragonBones 3.0
 	 * @language en_US
 	 */
-	/**
-	 * - 沿 y 轴平移每个点的距离。
-	 * @default 0.0
-	 * @version DragonBones 3.0
-	 * @language zh_CN
-	 */
-	var ty: Double
-
-	/**
-	 * @private
-	 */
-	constructor(
-		a: Double = 1.0, b: Double = 0.0,
-		c: Double = 0.0, d: Double = 1.0,
-		tx: Double = 0.0, ty: Double = 0.0
-	) {
-		this.a = a
-		this.b = b
-		this.c = c
-		this.d = d
-		this.tx = tx
-		this.ty = ty
-	}
 
 	override fun toString(): String {
 		return "[object dragonBones.Matrix] a:" + this.a + " b:" + this.b + " c:" + this.c + " d:" + this.d + " tx:" + this.tx + " ty:" + this.ty
@@ -151,19 +139,27 @@ class Matrix {
 		return this
 	}
 
+	fun setTo(a: Float, b: Float, c: Float, d: Float, tx: Float, ty: Float) = this.apply {
+		this.a = a
+		this.b = b
+		this.c = c
+		this.d = d
+		this.tx = tx
+		this.ty = ty
+	}
+
 	/**
 	 * @private
 	 */
-	fun copyFromArray(value: DoubleArray, offset: Int = 0): Matrix {
-		this.a = value[offset]
-		this.b = value[offset + 1]
-		this.c = value[offset + 2]
-		this.d = value[offset + 3]
-		this.tx = value[offset + 4]
-		this.ty = value[offset + 5]
+	fun copyFromArray(value: FloatArray, offset: Int = 0): Matrix = setTo(
+		value[offset + 0], value[offset + 1], value[offset + 2],
+		value[offset + 3], value[offset + 4], value[offset + 5]
+	)
 
-		return this
-	}
+	fun copyFromArray(value: DoubleArray, offset: Int = 0): Matrix = setTo(
+		value[offset + 0].toFloat(), value[offset + 1].toFloat(), value[offset + 2].toFloat(),
+		value[offset + 3].toFloat(), value[offset + 4].toFloat(), value[offset + 5].toFloat()
+	)
 
 	/**
 	 * - Convert to unit matrix.
@@ -178,12 +174,12 @@ class Matrix {
 	 * @language zh_CN
 	 */
 	fun identity(): Matrix {
-		this.a = 1.0
-		this.b = 0.0
-		this.d = 1.0
-		this.c = 0.0
-		this.tx = 0.0
-		this.ty = 0.0
+		this.a = 1f
+		this.b = 0f
+		this.d = 1f
+		this.c = 0f
+		this.tx = 0f
+		this.ty = 0f
 
 		return this
 	}
@@ -201,20 +197,20 @@ class Matrix {
 	 */
 	fun concat(value: Matrix): Matrix {
 		var aA = this.a * value.a
-		var bA = 0.0
-		var cA = 0.0
+		var bA = 0f
+		var cA = 0f
 		var dA = this.d * value.d
 		var txA = this.tx * value.a + value.tx
 		var tyA = this.ty * value.d + value.ty
 
-		if (this.b != 0.0 || this.c != 0.0) {
+		if (this.b != 0f || this.c != 0f) {
 			aA += this.b * value.c
 			bA += this.b * value.d
 			cA += this.c * value.a
 			dA += this.c * value.b
 		}
 
-		if (value.b != 0.0 || value.c != 0.0) {
+		if (value.b != 0f || value.c != 0f) {
 			bA += this.a * value.b
 			cA += this.d * value.c
 			txA += this.ty * value.c
@@ -248,17 +244,17 @@ class Matrix {
 		val txA = this.tx
 		val tyA = this.ty
 
-		if (bA == 0.0 && cA == 0.0) {
-			this.b = 0.0
-			this.c = 0.0
-			if (aA == 0.0 || dA == 0.0) {
-				this.a = 0.0
-				this.b = 0.0
-				this.tx = 0.0
-				this.ty = 0.0
+		if (bA == 0f && cA == 0f) {
+			this.b = 0f
+			this.c = 0f
+			if (aA == 0f || dA == 0f) {
+				this.a = 0f
+				this.b = 0f
+				this.tx = 0f
+				this.ty = 0f
 			} else {
-				aA = 1.0 / aA
-				dA = 1.0 / dA
+				aA = 1f / aA
+				dA = 1f / dA
 				this.a = aA
 				this.d = dA
 				this.tx = -aA * txA
@@ -269,18 +265,18 @@ class Matrix {
 		}
 
 		var determinant = aA * dA - bA * cA
-		if (determinant == 0.0) {
-			this.a = 1.0
-			this.b = 0.0
-			this.c = 0.0
-			this.d = 1.0
-			this.tx = 0.0
-			this.ty = 0.0
+		if (determinant == 0f) {
+			this.a = 1f
+			this.b = 0f
+			this.c = 0f
+			this.d = 1f
+			this.tx = 0f
+			this.ty = 0f
 
 			return this
 		}
 
-		determinant = 1.0 / determinant
+		determinant = 1f / determinant
 		val k = dA * determinant
 		this.a = k
 		bA = -bA * determinant
@@ -312,7 +308,7 @@ class Matrix {
 	 * @version DragonBones 3.0
 	 * @language zh_CN
 	 */
-	fun transformPoint(x: Double, y: Double, result: XY, delta: Boolean = false): Unit {
+	fun transformPoint(x: Float, y: Float, result: XY, delta: Boolean = false): Unit {
 		result.x = this.a * x + this.c * y
 		result.y = this.b * x + this.d * y
 
@@ -322,8 +318,10 @@ class Matrix {
 		}
 	}
 
-	fun transformX(x: Double, y: Double): Double = (this.a * x + this.c * y + this.tx)
-	fun transformY(x: Double, y: Double): Double = (this.b * x + this.d * y + this.ty)
+	fun transformPoint(x: Double, y: Double, result: XY, delta: Boolean = false): Unit = transformPoint(x.toFloat(), y.toFloat(), result, delta)
+
+	fun transformX(x: Float, y: Float): Float = (this.a * x + this.c * y + this.tx)
+	fun transformY(x: Float, y: Float): Float = (this.b * x + this.d * y + this.ty)
 
 	/**
 	 * @private
@@ -333,8 +331,8 @@ class Matrix {
 		val b = this.b
 		val c = this.c
 		val d = this.d
-		val tx = if (delta) 0.0 else this.tx
-		val ty = if (delta) 0.0 else this.ty
+		val tx = if (delta) 0f else this.tx
+		val ty = if (delta) 0f else this.ty
 
 		val x = rectangle.x
 		val y = rectangle.y
@@ -382,11 +380,11 @@ class Matrix {
 	}
 
 	fun toMatrix2d(m: Matrix2d) {
-		m.a = this.a
-		m.b = this.b
-		m.c = this.c
-		m.d = this.d
-		m.tx = this.tx
-		m.ty = this.ty
+		m.a = this.a.toDouble()
+		m.b = this.b.toDouble()
+		m.c = this.c.toDouble()
+		m.d = this.d.toDouble()
+		m.tx = this.tx.toDouble()
+		m.ty = this.ty.toDouble()
 	}
 }
