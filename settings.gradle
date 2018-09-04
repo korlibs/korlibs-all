@@ -4,6 +4,7 @@ enableFeaturePreview('GRADLE_METADATA')
 
 def nativeEnabled() {
 	return System.getenv("build_kotlin_native") == "true"
+	//return true
 }
 
 def registerVersion(artifactName, path) {

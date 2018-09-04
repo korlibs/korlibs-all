@@ -19,9 +19,8 @@ buildscript {
 		classpath "com.android.tools.build:gradle:3.1.3"
 	}
 
-	//ext.nativeTargets = ['iphone', 'iphone_sim', 'macbook', 'linux', 'raspberrypi', 'android_arm32', 'android_arm64']
-	//ext.nativeTargets = ['macbook', 'linux']
-	ext.nativeTargets = ['macos']
+	//ext.nativeTargets = ["ios_arm64", "ios_arm32", "ios_x64", "macos_x64", "linux_x64", "mingw_x64"]
+	ext.nativeTargets = ["macos_x64", "linux_x64", "mingw_x64"]
 
 	ext.skipNativeBuildOnCI = [
 	        "korim-qr",
@@ -79,6 +78,38 @@ buildscript {
 }
 
 apply plugin: 'idea'
+
+def pomConfig = {
+	licenses {
+		license {
+			name projectLicense
+			url "https://opensource.org/licenses/$projectLicense"
+			distribution "repo"
+		}
+	}
+	developers {
+		developer {
+			id projectDevelNick
+			name projectDevelName
+			organization projectDevelNick
+			organizationUrl "https://soywiz.com/"
+		}
+	}
+
+	scm {
+		url "https://github.com/korlibs/korlibs"
+	}
+}
+
+project.ext.configureMavenCentralMetadata = {
+	def root = it.asNode()
+	// NOTE: Don't try to move top-level things (especially "description") to the pomConfig block
+	//       because they would resolve incorrectly to top-level project properties in Gradle/Groovy
+	root.appendNode('name', project.name)
+	root.appendNode('description', 'Korlibs')
+	root.appendNode('url', 'https://github.com/korlibs/korlibs')
+	root.children().last() + pomConfig
+}
 
 def samplesGradleProps = new File("samples/gradle.properties")
 if (samplesGradleProps.exists()) {
@@ -267,10 +298,14 @@ allprojects {
 				main {
 					component {
 						target nativeTargets
+						//target "ios_arm64", "ios_arm32", "ios_x64", "macos_x64", "linux_x64", "mingw_x64"
 						if (libExecutables[projectNameWithoutSuffix]) {
 							outputKinds = [EXECUTABLE]
 						} else {
 							outputKinds = [KLIBRARY]
+						}
+						pom {
+							withXml(configureMavenCentralMetadata)
 						}
 					}
 				}
@@ -447,21 +482,27 @@ allprojects {
 		}
 	}
 
-	artifacts {
-		archives javadocJar
-		if (isKotlin && !isNative && !isAndroid) {
-			archives sourcesJar // @TODO: from sourceSets.main.allSource requires Java plugin
-		}
-	}
+	//artifacts {
+	//	archives javadocJar
+	//	if (isKotlin && !isNative && !isAndroid) {
+	//		archives sourcesJar // @TODO: from sourceSets.main.allSource requires Java plugin
+	//	}
+	//}
 
-	publishing {
-		publications {
-			if (!isNative && !isAndroid) {
-				MyPublication(MavenPublication) {
-					from components.java
-					groupId project.group
-					artifactId project.name
-					version "$project.version"
+	if (isKotlin) {
+		publishing {
+			publications {
+				maven(MavenPublication) {
+					if (!isNative && !isAndroid) {
+						from components.java
+						artifact javadocJar
+						artifact sourcesJar
+
+						//groupId project.group
+						//artifactId project.name
+						//version "$project.version"
+					}
+					pom.withXml(configureMavenCentralMetadata)
 				}
 			}
 		}
@@ -479,7 +520,7 @@ allprojects {
 		bintray {
 			user = rootProject.property('BINTRAY_USER')
 			key = rootProject.property('BINTRAY_KEY')
-			publications = ['MyPublication']
+			publications = ['maven']
 			publish = true
 			override = true
 

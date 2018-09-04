@@ -1,6 +1,7 @@
 package com.soywiz.klogger
 
 import com.soywiz.std.*
+import kotlinx.atomicfu.*
 
 class Logger internal constructor(val name: String, val dummy: Boolean) {
 	//@ThreadLocal // @TODO: kotlin-native bug https://github.com/JetBrains/kotlin-native/issues/1768
@@ -17,9 +18,9 @@ class Logger internal constructor(val name: String, val dummy: Boolean) {
 		  ___unnamed_897 in combined.o
 	 */
 	companion object {
-		private var loggers: Map<String, Logger> by atomicRef(mapOf())
-		var defaultLevel: Level? by atomicRef(null)
-		var defaultOutput: Output by atomicRef(ConsoleLogOutput)
+		private var loggers: Map<String, Logger> by atomic(mapOf())
+		var defaultLevel: Level? by atomic<Level?>(null)
+		var defaultOutput: Output by atomic<Output>(ConsoleLogOutput)
 		fun getLogger(name: String): Logger = loggers[name] ?: Logger(name, true)
 		fun setLevel(name: String, level: Level) = getLogger(name).apply { this.level = level }
 		fun setOutput(name: String, output: Output) = getLogger(name).apply { this.output = output }
@@ -54,8 +55,8 @@ class Logger internal constructor(val name: String, val dummy: Boolean) {
 		}
 	}
 
-	var level: Level? by atomicRef(null)
-	var output: Output? by atomicRef(null)
+	var level: Level? by atomic<Level?>(null)
+	var output: Output? by atomic<Output?>(null)
 
 	private val processedLevel: Level get() = level ?: Logger.defaultLevel ?: Level.WARN
 	private val processedOutput: Output get() = output ?: Logger.defaultOutput

@@ -1,3 +1,5 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package com.soywiz.std
 
 import kotlinx.atomicfu.*
@@ -44,18 +46,17 @@ internal class AtomicLazyImpl<out T>(initializer: () -> T) : Lazy<T> {
 // Until in Konan. Temporarily From: https://github.com/JetBrains/kotlin-native/pull/1769
 fun <T> atomicLazy(initializer: () -> T): Lazy<T> = AtomicLazyImpl(initializer)
 
-class atomicRef<T>(initial: T) {
-	val atomic = atomic(initial)
+inline operator fun <T> AtomicRef<T>.getValue(obj: Any, property: KProperty<Any?>): T = this.value
+inline operator fun <T> AtomicRef<T>.setValue(obj: Any, property: KProperty<Any?>, value: T) = run { this.value = value }
 
-	//operator var value: T
-	//	get() = atomic.value
-	//	set(value) {
-	//		atomic.value = value
-	//	}
+inline operator fun AtomicBoolean.getValue(obj: Any, property: KProperty<Any?>): Boolean = this.value
+inline operator fun AtomicBoolean.setValue(obj: Any, property: KProperty<Any?>, value: Boolean) = run { this.value = value }
 
-	operator fun getValue(obj: Any, property: KProperty<Any?>): T = atomic.value
-	operator fun setValue(obj: Any, property: KProperty<Any?>, value: T) = run { atomic.value = value }
-}
+inline operator fun AtomicInt.getValue(obj: Any, property: KProperty<Any?>): Int = this.value
+inline operator fun AtomicInt.setValue(obj: Any, property: KProperty<Any?>, value: Int) = run { this.value = value }
+
+inline operator fun AtomicLong.getValue(obj: Any, property: KProperty<Any?>): Long = this.value
+inline operator fun AtomicLong.setValue(obj: Any, property: KProperty<Any?>, value: Long) = run { this.value = value }
 
 expect val isNative: Boolean
 expect val isJs: Boolean

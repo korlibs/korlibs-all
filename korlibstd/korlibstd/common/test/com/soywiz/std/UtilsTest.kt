@@ -1,5 +1,6 @@
 package com.soywiz.std
 
+import kotlinx.atomicfu.*
 import kotlin.test.*
 
 object Sample {
@@ -7,7 +8,7 @@ object Sample {
 	//var demo: Map<String, String>
 	//	set(value) = run { _demo.set(value) }
 	//	get() = _demo.get()!!
-	var demo by atomicRef(mapOf("hello" to "world"))
+	var demo by atomic(mapOf("hello" to "world"))
 }
 
 class UtilsTest {
