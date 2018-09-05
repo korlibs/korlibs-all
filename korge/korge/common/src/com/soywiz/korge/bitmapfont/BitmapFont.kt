@@ -143,9 +143,10 @@ fun RenderContext.drawText(
 	m: Matrix2d = Matrix2d(),
 	colMul: RGBA = Colors.WHITE,
 	colAdd: Int = 0x7f7f7f7f,
-	blendMode: BlendMode = BlendMode.INHERIT
+	blendMode: BlendMode = BlendMode.INHERIT,
+	filtering: Boolean = true
 ) {
-	font.drawText(this, textSize, str, x, y, m, colMul, colAdd, blendMode)
+	font.drawText(this, textSize, str, x, y, m, colMul, colAdd, blendMode, filtering)
 }
 
 suspend fun VfsFile.readBitmapFont(imageFormats: ImageFormats = defaultImageFormats): BitmapFont {

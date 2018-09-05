@@ -3,6 +3,7 @@ package com.soywiz.korge.view
 import com.soywiz.korge.bitmapfont.*
 import com.soywiz.korge.bitmapfont.BitmapFont
 import com.soywiz.korge.html.*
+import com.soywiz.korge.scene.*
 import com.soywiz.korim.font.*
 import com.soywiz.korio.error.*
 import com.soywiz.korma.geom.*
@@ -43,9 +44,10 @@ class Fonts() : Html.MetricsProvider {
 	@ThreadLocal
 	companion object {
 		val fonts = Fonts()
-		val defaultFont by lazy {
-			com.soywiz.korim.font.BitmapFontGenerator.generate("Arial", 16, BitmapFontGenerator.LATIN_ALL)
-				.convert()
+		lateinit var defaultFont: BitmapFont
+
+		suspend fun init() {
+			defaultFont = getDebugBmpFontOnce()
 		}
 	}
 }

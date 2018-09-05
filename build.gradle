@@ -570,6 +570,6 @@ idea {
 	}
 }
 
-gradle.taskGraph.whenReady { graph ->
-	graph.allTasks.findAll { it.name ==~ /.*ReleaseMacos.*/ }*.enabled = false
-}
+//gradle.taskGraph.whenReady { graph ->
+	//graph.allTasks.findAll { it.name ==~ /.*ReleaseMacos.*/ }*.enabled = false
+//}

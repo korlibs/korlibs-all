@@ -58,8 +58,19 @@ inline operator fun AtomicInt.setValue(obj: Any, property: KProperty<Any?>, valu
 inline operator fun AtomicLong.getValue(obj: Any, property: KProperty<Any?>): Long = this.value
 inline operator fun AtomicLong.setValue(obj: Any, property: KProperty<Any?>, value: Long) = run { this.value = value }
 
+enum class KotlinPlatformKind {
+	NATIVE, JS, JVM, UNKNOWN
+}
+
 expect val isNative: Boolean
 expect val isJs: Boolean
 expect val isJvm: Boolean
 
 expect inline fun <R> synchronized2(lock: Any, block: () -> R): R
+
+val kotlinPlatformKind: KotlinPlatformKind get() = when {
+	isNative -> KotlinPlatformKind.NATIVE
+	isJs -> KotlinPlatformKind.JS
+	isJvm -> KotlinPlatformKind.JVM
+	else ->  KotlinPlatformKind.UNKNOWN
+}

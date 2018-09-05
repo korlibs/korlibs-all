@@ -44,6 +44,7 @@ object Korge {
 		val moduleArgs = ModuleArgs(config.args)
 
 		logger.trace { "pre injector" }
+		Fonts.init()
 		injector
 			// Instances
 			.mapInstance(ModuleArgs::class, moduleArgs)
@@ -524,6 +525,7 @@ fun Korge(
 			val injector = AsyncInjector()
 			val input = Input()
 			val stats = Stats()
+			Fonts.init()
 			val views = Views(coroutineContext, canvas.ag, injector, input, TimeProvider(), stats, koruiContext)
 			injector
 				.mapInstance(views)

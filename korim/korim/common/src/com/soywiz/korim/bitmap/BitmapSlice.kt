@@ -27,6 +27,7 @@ interface BmpSlice : Extra {
 }
 
 class BitmapSlice<out T : Bitmap>(override val bmp: T, val bounds: RectangleInt, override val name: String = "unknown", rotated: Boolean = false) : BmpSlice, Extra by Extra.Mixin() {
+	val premult get() = bmp.premult
 	override var parent: Any? = null
 
 	override val left get() = bounds.left

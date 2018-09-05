@@ -2,6 +2,7 @@
 
 package com.soywiz.korio.async
 
+import com.soywiz.klock.*
 import com.soywiz.korio.lang.*
 import kotlinx.coroutines.*
 import kotlin.coroutines.*
@@ -90,17 +91,6 @@ suspend fun Iterable<Signal<*>>.waitOne(): Any? = suspendCancellableCoroutine { 
 	}
 }
 
-suspend fun <T> Signal<T>.waitOne(): T = suspendCancellableCoroutine { c ->
-	var close: Closeable? = null
-	close = once {
-		close?.close()
-		c.resume(it)
-	}
-	c.invokeOnCancellation {
-		close?.close()
-	}
-}
-
 fun <T> Signal<T>.waitOnePromise(): Deferred<T> {
 	val deferred = CompletableDeferred<T>(Job())
 	var close: Closeable? = null
@@ -112,4 +102,66 @@ fun <T> Signal<T>.waitOnePromise(): Deferred<T> {
 		close.close()
 	}
 	return deferred
+}
+
+suspend fun <T> Signal<T>.addSuspend(handler: suspend (T) -> Unit): Closeable {
+	val cc = coroutineContext
+	return this@addSuspend { value ->
+		launchImmediately(cc) {
+			handler(value)
+		}
+	}
+}
+
+fun <T> Signal<T>.addSuspend(context: CoroutineContext, handler: suspend (T) -> Unit): Closeable =
+	this@addSuspend { value ->
+		launchImmediately(context) {
+			handler(value)
+		}
+	}
+
+
+suspend fun <T> Signal<T>.waitOne(): T = suspendCancellableCoroutine { c ->
+	var close: Closeable? = null
+	close = once {
+		close?.close()
+		c.resume(it)
+	}
+	c.invokeOnCancellation {
+		close?.close()
+	}
+}
+
+suspend fun <T> Signal<T>.waitOne(timeout: Int): T? = kotlinx.coroutines.suspendCancellableCoroutine { c ->
+	var close: Closeable? = null
+	var running = true
+
+	fun closeAll() {
+		running = false
+		close?.close()
+	}
+
+	launchImmediately(c.context) {
+		delay(timeout)
+		if (running) {
+			closeAll()
+			c.resume(null)
+		}
+	}
+
+	close = once {
+		closeAll()
+		c.resume(it)
+	}
+
+	c.invokeOnCancellation {
+		closeAll()
+	}
+}
+
+suspend fun <T> Signal<T>.waitOne(timeout: TimeSpan): T? = waitOne(timeout.milliseconds)
+
+suspend fun <T> Signal<T>.waitOneOpt(timeout: TimeSpan?): T? = when {
+	timeout != null -> waitOne(timeout)
+	else -> waitOne()
 }

@@ -61,20 +61,3 @@ suspend fun <T> AsyncSignal<T>.waitOne(): T = suspendCancellableCoroutine { c ->
 		close.close()
 	}
 }
-
-
-suspend fun <T> Signal<T>.addSuspend(handler: suspend (T) -> Unit): Closeable {
-	val cc = coroutineContext
-	return this@addSuspend { value ->
-		launchImmediately(cc) {
-			handler(value)
-		}
-	}
-}
-
-fun <T> Signal<T>.addSuspend(context: CoroutineContext, handler: suspend (T) -> Unit): Closeable =
-	this@addSuspend { value ->
-		launchImmediately(context) {
-			handler(value)
-		}
-	}

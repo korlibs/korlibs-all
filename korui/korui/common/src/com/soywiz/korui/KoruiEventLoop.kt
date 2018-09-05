@@ -1,6 +1,7 @@
 package com.soywiz.korui
 
 import com.soywiz.korio.*
+import com.soywiz.korui.input.*
 import kotlinx.coroutines.*
 
 expect val KoruiDispatcher: CoroutineDispatcher

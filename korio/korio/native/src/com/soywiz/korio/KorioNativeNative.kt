@@ -127,7 +127,7 @@ actual object KorioNative {
 	}
 
 	actual fun printStackTrace(e: Throwable): Unit {
-		println("Exception: $e")
+		e.printStackTrace()
 	}
 
 	actual fun getenv(key: String): String? = platform.posix.getenv(key)?.toKString()

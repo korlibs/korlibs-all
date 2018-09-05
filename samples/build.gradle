@@ -15,8 +15,8 @@ buildscript {
 		classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
 	}
 
-	//ext.nativeTargets = ['iphone', 'iphone_sim', 'macbook', 'linux', 'raspberrypi', 'android_arm32', 'android_arm64']
-	ext.nativeTargets = ['macbook', 'linux']
+	ext.nativeTargets = ["macos_x64", "linux_x64", "mingw_x64"]
+
 	ext.libDependencies = [
 			"sample1": [
 					//"com.soywiz:kds{SUFFIX}:$korgeVersion",

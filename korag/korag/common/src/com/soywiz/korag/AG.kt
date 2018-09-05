@@ -392,9 +392,9 @@ abstract class AG : Extra by Extra.Mixin() {
 	val dummyTexture by lazy { createTexture() }
 
 	fun createTexture(): Texture = createTexture(premultiplied = true)
-	fun createTexture(bmp: Bitmap, mipmaps: Boolean = false): Texture = createTexture().upload(bmp, mipmaps)
+	fun createTexture(bmp: Bitmap, mipmaps: Boolean = false): Texture = createTexture(bmp.premult).upload(bmp, mipmaps)
 	fun createTexture(bmp: BitmapSlice<Bitmap>, mipmaps: Boolean = false): Texture =
-		createTexture().upload(bmp, mipmaps)
+		createTexture(bmp.premult).upload(bmp, mipmaps)
 
 	fun createTexture(bmp: Bitmap, mipmaps: Boolean = false, premultiplied: Boolean = true): Texture =
 		createTexture(premultiplied).upload(bmp, mipmaps)

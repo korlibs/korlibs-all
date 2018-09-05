@@ -4,6 +4,7 @@ import com.soywiz.korio.async.*
 import com.soywiz.korui.light.*
 import com.soywiz.korio.*
 import com.soywiz.korio.lang.*
+import com.soywiz.korio.file.*
 import com.soywiz.korag.*
 import com.soywiz.korui.event.*
 import com.soywiz.std.*
@@ -121,6 +122,16 @@ class NativeLightComponents(val nkcAg: AG) : LightComponents() {
 		}
 
 		return DummyCloseable
+	}
+
+	override suspend fun dialogOpenFile(c: Any, filter: String): VfsFile {
+		// openSelectFile(initialDir: String? = null, filters: List<FileFilter> = listOf(FileFilter("All (*.*)", "*.*")), hwnd: HWND? = null)
+		val selectedFile = openSelectFile(hwnd = hwnd)
+		if (selectedFile != null) {
+			return com.soywiz.korio.file.std.LocalVfs(selectedFile)
+		} else {
+			throw com.soywiz.korio.error.CancelException()
+		}
 	}
 }
 
@@ -383,6 +394,33 @@ private fun mouseEvent(etype: com.soywiz.korui.event.MouseEvent.Type, ex: Int, e
 		this.isMetaDown = false
 		//this.scaleCoords = false
 	})
+}
+
+val COMDLG32_DLL: HMODULE? by lazy { LoadLibraryA("comdlg32.dll") }
+
+val GetOpenFileNameWFunc by lazy {
+	GetProcAddress(COMDLG32_DLL, "GetOpenFileNameW") as CPointer<CFunction<Function1<CPointer<OPENFILENAMEW>, BOOL>>>
+}
+
+data class FileFilter(val name: String, val pattern: String)
+
+fun openSelectFile(initialDir: String? = null, filters: List<FileFilter> = listOf(FileFilter("All (*.*)", "*.*")), hwnd: HWND? = null): String? = memScoped {
+	val szFileSize = 1024
+	val szFile = allocArray<WCHARVar>(szFileSize + 1)
+	val ofn = alloc<OPENFILENAMEW>().apply {
+		lStructSize = OPENFILENAMEW.size.convert()
+		hwndOwner = hwnd
+		lpstrFile = szFile.reinterpret()
+		nMaxFile = szFileSize.convert()
+		lpstrFilter = (filters.flatMap { listOf(it.name, it.pattern) }.joinToString("\u0000") + "\u0000").wcstr.ptr.reinterpret()
+		nFilterIndex = 1.convert()
+		lpstrFileTitle = null
+		nMaxFileTitle = 0.convert()
+		lpstrInitialDir = if (initialDir != null) initialDir.wcstr.ptr.reinterpret() else null
+		Flags = (OFN_PATHMUSTEXIST or OFN_FILEMUSTEXIST).convert()
+	}
+	val res = GetOpenFileNameWFunc(ofn.ptr.reinterpret())
+	if (res.toInt() != 0) szFile.reinterpret<ShortVar>().toKString() else null
 }
 
 @ThreadLocal

@@ -11,6 +11,7 @@ class MustValidateCodeException(str: String = "Must Validate Code") : Exception(
 class MustOverrideException(str: String = "Must Override") : Exception(str)
 class DeprecatedException(str: String = "Deprecated") : Exception(str)
 class UnexpectedException(str: String = "Unexpected") : Exception(str)
+class CancelException(str: String = "Cancel") : Exception(str)
 
 val deprecated: Nothing get() = throw MustValidateCodeException()
 val mustValidate: Nothing get() = throw NotImplementedException()

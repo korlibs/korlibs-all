@@ -5,6 +5,7 @@ import com.soywiz.korui.light.*
 import com.soywiz.korio.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korag.*
+import com.soywiz.korio.file.*
 import com.soywiz.korui.event.*
 import com.soywiz.std.*
 import com.soywiz.kds.*
@@ -27,6 +28,8 @@ import com.soywiz.kmem.*
 import kotlinx.coroutines.*
 import kotlin.coroutines.*
 import kotlinx.coroutines.timeunit.*
+import platform.AppKit.*
+import com.soywiz.korui.input.Key
 
 class MyNativeCoroutineDispatcher() : CoroutineDispatcher(), Delay, Closeable {
 	override fun dispatchYield(context: CoroutineContext, block: Runnable): Unit = dispatch(context, block)
@@ -40,12 +43,18 @@ class MyNativeCoroutineDispatcher() : CoroutineDispatcher(), Delay, Closeable {
 		tasks.enqueue(block)
 	}
 
-	override fun scheduleResumeAfterDelay(time: Long, unit: TimeUnit, continuation: CancellableContinuation<Unit>): Unit {
-		val task = TimedTask(Klock.currentTimeMillis() + when (unit) {
-			TimeUnit.SECONDS -> time * 1000
-			TimeUnit.MILLISECONDS -> time
-			else -> error("Unsupported unit $unit")
-		}, continuation)
+	override fun scheduleResumeAfterDelay(
+		time: Long,
+		unit: TimeUnit,
+		continuation: CancellableContinuation<Unit>
+	): Unit {
+		val task = TimedTask(
+			Klock.currentTimeMillis() + when (unit) {
+				TimeUnit.SECONDS -> time * 1000
+				TimeUnit.MILLISECONDS -> time
+				else -> error("Unsupported unit $unit")
+			}, continuation
+		)
 		continuation.invokeOnCancellation {
 			timedTasks.remove(task)
 		}
@@ -128,6 +137,19 @@ class NativeLightComponents(val nkcAg: AG) : LightComponents() {
 
 		return DummyCloseable
 	}
+
+	override suspend fun dialogOpenFile(c: Any, filter: String): VfsFile {
+		val openDlg: NSOpenPanel = NSOpenPanel().apply {
+			setCanChooseFiles(true)
+			setAllowsMultipleSelection(false)
+			setCanChooseDirectories(false)
+		}
+		if (openDlg.runModalForDirectory(null, null).toInt() == NSOKButton.toInt()) {
+			return com.soywiz.korio.file.std.LocalVfs(openDlg.filename())
+		} else {
+			throw com.soywiz.korio.error.CancelException()
+		}
+	}
 }
 
 internal actual suspend fun KoruiWrap(entry: suspend (KoruiContext) -> Unit) {
@@ -180,16 +202,25 @@ internal actual suspend fun KoruiWrap(entry: suspend (KoruiContext) -> Unit) {
 				mouseEvent(com.soywiz.korui.event.MouseEvent.Type.UP, x, y, button)
 				mouseEvent(com.soywiz.korui.event.MouseEvent.Type.CLICK, x, y, button) // @TODO: Conditionally depending on the down x,y & time
 			}
-			override fun mouseDown(x: Int, y: Int, button: Int) = mouseEvent(com.soywiz.korui.event.MouseEvent.Type.DOWN, x, y, button)
+
+			override fun mouseDown(x: Int, y: Int, button: Int) =
+				mouseEvent(com.soywiz.korui.event.MouseEvent.Type.DOWN, x, y, button)
+
 			override fun mouseMoved(x: Int, y: Int) = mouseEvent(com.soywiz.korui.event.MouseEvent.Type.MOVE, x, y, 0)
 
-			fun keyChange(keyCode: Char, pressed: Boolean) {
-				println("KEY: $keyCode, ${keyCode.toInt()}, $pressed")
-				//listener.keyUpdate(key, pressed)
-			}
+			val keyEvent = com.soywiz.korui.event.KeyEvent()
 
-			override fun keyDown(keyCode: Char) = keyChange(keyCode, true)
-			override fun keyUp(keyCode: Char) = keyChange(keyCode, false)
+			override fun keyDownUp(char: Char, modifiers: Int, keyCode: Int, pressed: Boolean) {
+				val key = KeyCodesToKeys[keyCode] ?: CharToKeys[char] ?: Key.UNKNOWN
+				//println("keyDownUp: char=$char, modifiers=$modifiers, keyCode=${keyCode.toInt()}, key=$key, pressed=$pressed")
+				light.dispatch(keyEvent.apply {
+					this.type = if (pressed) com.soywiz.korui.event.KeyEvent.Type.DOWN else com.soywiz.korui.event.KeyEvent.Type.UP
+					this.id = 0
+					this.key = key
+					this.keyCode = keyCode
+					this.char = char
+				})
+			}
 
 			val resizedEvent = com.soywiz.korui.event.ResizedEvent()
 			override fun windowDidResize(width: Int, height: Int, context: NSOpenGLContext?) {
@@ -414,11 +445,7 @@ class MyResponder(val handler: MyAppHandler, val openGLView: NSOpenGLView) : NSR
 		val c = str.getOrNull(0) ?: '\u0000'
 		val cc = c.toInt().toChar()
 		//println("keyDownUp")
-		if (pressed) {
-			handler.keyDown(cc)
-		} else {
-			handler.keyUp(cc)
-		}
+		handler.keyDownUp(cc, event.modifierFlags.convert(), event.keyCode.toInt(), pressed)
 	}
 
 	override fun keyDown(event: NSEvent) {
@@ -441,8 +468,7 @@ interface MyAppHandler {
 	fun mouseUp(x: Int, y: Int, button: Int)
 	fun mouseDown(x: Int, y: Int, button: Int)
 	fun mouseMoved(x: Int, y: Int)
-	fun keyDown(keyCode: Char)
-	fun keyUp(keyCode: Char)
+	fun keyDownUp(char: Char, modifiers: Int, keyCode: Int, pressed: Boolean)
 	fun windowDidResize(width: Int, height: Int, context: NSOpenGLContext?)
 	fun render(context: NSOpenGLContext?)
 }
@@ -478,3 +504,87 @@ class AppDelegate(
 		}
 	}
 }
+
+
+val KeyCodesToKeys = mapOf(
+	0x24 to Key.ENTER,
+	0x4C to Key.ENTER,
+	0x30 to Key.TAB,
+	0x31 to Key.SPACE,
+	0x33 to Key.DELETE,
+	0x35 to Key.ESCAPE,
+	0x37 to Key.META,
+	0x38 to Key.LEFT_SHIFT,
+	0x39 to Key.CAPS_LOCK,
+	0x3A to Key.LEFT_ALT,
+	0x3B to Key.LEFT_CONTROL,
+	0x3C to Key.RIGHT_SHIFT,
+	0x3D to Key.RIGHT_ALT,
+	0x3E to Key.RIGHT_CONTROL,
+	0x7B to Key.LEFT,
+	0x7C to Key.RIGHT,
+	0x7D to Key.DOWN,
+	0x7E to Key.UP,
+	0x48 to Key.VOLUME_UP,
+	0x49 to Key.VOLUME_DOWN,
+	0x4A to Key.MUTE,
+	0x72 to Key.HELP,
+	0x73 to Key.HOME,
+	0x74 to Key.PAGE_UP,
+	0x75 to Key.DELETE,
+	0x77 to Key.END,
+	0x79 to Key.PAGE_DOWN,
+	0x3F to Key.FUNCTION,
+	0x7A to Key.F1,
+	0x78 to Key.F2,
+	0x76 to Key.F4,
+	0x60 to Key.F5,
+	0x61 to Key.F6,
+	0x62 to Key.F7,
+	0x63 to Key.F3,
+	0x64 to Key.F8,
+	0x65 to Key.F9,
+	0x6D to Key.F10,
+	0x67 to Key.F11,
+	0x6F to Key.F12,
+	0x69 to Key.F13,
+	0x6B to Key.F14,
+	0x71 to Key.F15,
+	0x6A to Key.F16,
+	0x40 to Key.F17,
+	0x4F to Key.F18,
+	0x50 to Key.F19,
+	0x5A to Key.F20
+)
+
+
+val CharToKeys = mapOf(
+	'a' to Key.A, 'A' to Key.A,
+	'b' to Key.B, 'B' to Key.B,
+	'c' to Key.C, 'C' to Key.C,
+	'd' to Key.D, 'D' to Key.D,
+	'e' to Key.E, 'E' to Key.E,
+	'f' to Key.F, 'F' to Key.F,
+	'g' to Key.G, 'G' to Key.G,
+	'h' to Key.H, 'H' to Key.H,
+	'i' to Key.I, 'I' to Key.I,
+	'j' to Key.J, 'J' to Key.J,
+	'k' to Key.K, 'K' to Key.K,
+	'l' to Key.L, 'L' to Key.L,
+	'm' to Key.M, 'M' to Key.M,
+	'n' to Key.N, 'N' to Key.N,
+	'o' to Key.O, 'O' to Key.O,
+	'p' to Key.P, 'P' to Key.P,
+	'q' to Key.Q, 'Q' to Key.Q,
+	'r' to Key.R, 'R' to Key.R,
+	's' to Key.S, 'S' to Key.S,
+	't' to Key.T, 'T' to Key.T,
+	'u' to Key.U, 'U' to Key.U,
+	'v' to Key.V, 'V' to Key.V,
+	'w' to Key.W, 'W' to Key.W,
+	'x' to Key.X, 'X' to Key.X,
+	'y' to Key.Y, 'Y' to Key.Y,
+	'z' to Key.Z, 'Z' to Key.Z,
+	'0' to Key.N0, '1' to Key.N1, '2' to Key.N2, '3' to Key.N3, '4' to Key.N4,
+	'5' to Key.N5, '6' to Key.N6, '7' to Key.N7, '8' to Key.N8, '9' to Key.N9
+)

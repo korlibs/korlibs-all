@@ -2,6 +2,7 @@ package com.soywiz.korui.light
 
 import com.soywiz.korag.*
 import com.soywiz.korim.awt.*
+import com.soywiz.korio.error.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.file.std.*
 import com.soywiz.korio.lang.*
@@ -23,7 +24,6 @@ import javax.swing.border.*
 import javax.swing.event.*
 import javax.swing.text.*
 import kotlin.reflect.*
-
 
 typealias KoruiMouseEvent = com.soywiz.korui.event.MouseEvent
 typealias KoruiMouseEventType = com.soywiz.korui.event.MouseEvent.Type
@@ -435,13 +435,13 @@ class AwtLightComponents : LightComponents() {
 		return jpf.text
 	}
 
-	suspend override fun dialogOpenFile(c: Any, filter: String): VfsFile {
+	override suspend fun dialogOpenFile(c: Any, filter: String): VfsFile {
 		val fd = FileDialog(c as JFrame2, "Open file", FileDialog.LOAD)
 		fd.isVisible = true
 		return if (fd.files.isNotEmpty()) {
 			LocalVfs(fd.files.first())
 		} else {
-			throw CancellationException()
+			throw CancelException()
 		}
 	}
 

@@ -189,23 +189,51 @@ suspend fun <T> asyncAsap(job: Job? = null, callback: suspend () -> T) =
 
 fun launchImmediately(coroutineContext: CoroutineContext, job: Job? = null, callback: suspend () -> Unit) =
 	launch(coroutineContext, start = CoroutineStart.UNDISPATCHED, parent = job) {
-		callback()
+		try {
+			callback()
+		} catch (e: JobCancellationException) {
+			throw e
+		} catch (e: Throwable) {
+			e.printStackTrace()
+			throw e
+		}
 	}
 
 
 fun launchAsap(coroutineContext: CoroutineContext, job: Job? = null, callback: suspend () -> Unit) =
 	launch(coroutineContext, start = CoroutineStart.DEFAULT, parent = job) {
-		callback()
+		try {
+			callback()
+		} catch (e: JobCancellationException) {
+			throw e
+		} catch (e: Throwable) {
+			e.printStackTrace()
+			throw e
+		}
 	}
 
 
 fun <T> asyncImmediately(coroutineContext: CoroutineContext, job: Job? = null, callback: suspend () -> T) =
 	async(coroutineContext, start = CoroutineStart.UNDISPATCHED, parent = job) {
-		callback()
+		try {
+			callback()
+		} catch (e: JobCancellationException) {
+			throw e
+		} catch (e: Throwable) {
+			e.printStackTrace()
+			throw e
+		}
 	}
 
 fun <T> asyncAsap(coroutineContext: CoroutineContext, job: Job? = null, callback: suspend () -> T) =
 	async(coroutineContext, start = CoroutineStart.DEFAULT, parent = job) {
-		callback()
+		try {
+			callback()
+		} catch (e: JobCancellationException) {
+			throw e
+		} catch (e: Throwable) {
+			e.printStackTrace()
+			throw e
+		}
 	}
 
