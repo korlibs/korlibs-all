@@ -2,9 +2,7 @@ package com.soywiz.korge.bitmapfont
 
 import com.soywiz.korag.log.*
 import com.soywiz.korge.*
-import com.soywiz.korge.async.*
 import com.soywiz.korge.render.*
-import com.soywiz.korge.view.*
 import com.soywiz.korim.format.*
 import com.soywiz.korio.async.*
 import kotlin.test.*
