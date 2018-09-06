@@ -14,7 +14,7 @@ buildscript {
 	dependencies {
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
 		classpath "org.jetbrains.kotlin:kotlin-native-gradle-plugin:$kotlinNativeVersion"
-		classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+		classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayVersion"
 		classpath 'com.moowork.gradle:gradle-node-plugin:1.2.0'
 		classpath "com.android.tools.build:gradle:3.1.3"
 	}
@@ -451,10 +451,10 @@ allprojects {
 	}
 
 	apply plugin: 'maven'
-	apply plugin: 'signing'
 	apply plugin: 'maven-publish'
-	apply plugin: 'idea'
 	apply plugin: 'com.jfrog.bintray'
+	apply plugin: 'signing'
+	apply plugin: 'idea'
 
 	group projectGroup
 	version projectVersion
@@ -490,7 +490,26 @@ allprojects {
 	//}
 
 	if (isKotlin) {
+		//apply from: rootProject.file('gradle/publish-bintray.gradle')
+
+
+		def hasCredentials = rootProject.hasProperty('BINTRAY_USER') && rootProject.hasProperty('BINTRAY_KEY')
+
 		publishing {
+			//repositories {
+			//	//https://docs.gradle.org/current/userguide/publishing_maven.html
+			//	if (hasCredentials) {
+			//		//maven { url = "https://dl.bintray.com/soywiz/soywiz" }
+			//		maven {
+			//			credentials {
+			//				username rootProject.property('BINTRAY_USER')
+			//				password rootProject.property('BINTRAY_KEY')
+			//			}
+			//			//url = "https://dl.bintray.com/soywiz/soywiz"
+			//			url = "https://api.bintray.com/content/soywiz/soywiz/korlibs/$projectVersion"
+			//		}
+			//	}
+			//}
 			publications {
 				maven(MavenPublication) {
 					if (!isNative && !isAndroid) {
@@ -506,6 +525,36 @@ allprojects {
 				}
 			}
 		}
+
+		if (hasCredentials) {
+			bintray {
+				user = rootProject.property('BINTRAY_USER')
+				key = rootProject.property('BINTRAY_KEY')
+				publications = ['maven']
+				publish = true
+				override = true // Required: ./gradlew bintrayUpload && ./gradlew_wine bintrayUpload && ./gradlew_linux bintrayUpload
+
+				pkg {
+					repo = "soywiz"
+					name = "korlibs"
+					userOrg = 'soywiz'
+					licenses = ['Apache-2.0']
+					vcsUrl = 'https://github.com/korlibs/korlibs-all.git'
+				}
+			}
+
+			// Required for K/N
+			bintrayUpload.dependsOn publishToMavenLocal
+
+			// This is for easier debugging of bintray uploading problems
+			bintrayUpload.doFirst {
+				publications = project.publishing.publications.collect {
+					println("Uploading artifact '$it.groupId:$it.artifactId:$it.version' from publication '$it.name'")
+					it
+				}
+			}
+		}
+
 	}
 
 	tasks.withType(Test) {
@@ -516,23 +565,6 @@ allprojects {
 	}
 
 	// gradle bintrayUpload
-	if (rootProject.hasProperty('BINTRAY_USER') && rootProject.hasProperty('BINTRAY_KEY')) {
-		bintray {
-			user = rootProject.property('BINTRAY_USER')
-			key = rootProject.property('BINTRAY_KEY')
-			publications = ['maven']
-			publish = true
-			override = true
-
-			pkg {
-				repo = "soywiz"
-				name = "korlibs"
-				userOrg = 'soywiz'
-				licenses = ['Apache-2.0']
-				vcsUrl = 'https://github.com/korlibs/korlibs-all.git'
-			}
-		}
-	}
 	if (!project.tasks.findByName("install")) {
 		task("install")
 	}
