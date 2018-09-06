@@ -3,6 +3,7 @@ Korlibs
 
 [![Build Status](https://travis-ci.org/korlibs/korlibs.svg?branch=master)](https://travis-ci.org/korlibs/korlibs)
 [![Build status](https://ci.appveyor.com/api/projects/status/15m7n3axie8h812s?svg=true)](https://ci.appveyor.com/project/soywiz/korlibs)
+[![Download]([https://api.bintray.com/packages/soywiz/soywiz/korlibs/images/download.svg)](https://bintray.com/soywiz/soywiz/korlibs/_latestVersion)
 
 To make development, evolution and deployment easier, all the korlibs libraries are in this single mono-repository.
 
