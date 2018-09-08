@@ -22,6 +22,8 @@ buildscript {
 	//ext.nativeTargets = ["ios_arm64", "ios_arm32", "ios_x64", "macos_x64", "linux_x64", "mingw_x64"]
 	ext.nativeTargets = ["macos_x64", "linux_x64", "mingw_x64"]
 
+	ext.isWindows = org.apache.tools.ant.taskdefs.condition.Os.isFamily(org.apache.tools.ant.taskdefs.condition.Os.FAMILY_WINDOWS)
+
 	ext.skipNativeBuildOnCI = [
 	        "korim-qr",
 			"korau-atrac3plus", "korau-mod", "korau-opus", "korau-ogg-vorbis",
@@ -320,7 +322,12 @@ allprojects {
 	if (isNative) {
 		task copyNativeTestResources(type: Copy) {
 			from file("testresources"), file("../common/testresources")
-			into file("build/test-exe/test/debug") // This is the CWD
+			// This is the CWD
+			if (isWindows) {
+				into file("build/test-exe/test/debug/mingw_x64")
+			} else {
+				into file("build/test-exe/test/debug/macos_x64")
+			}
 		}
 
 		afterEvaluate {
