@@ -1,7 +1,6 @@
 package com.soywiz.korinject
 
 import com.soywiz.korinject.util.*
-import kotlinx.atomicfu.*
 import kotlin.test.*
 
 class AsyncInjectorTest {
@@ -34,30 +33,28 @@ class AsyncInjectorTest {
 		assertEquals(0, a1.id)
 	}
 
-	companion object {
-		var lastId = atomic(0)
-	}
+	data class Counter(var lastId: Int = 0)
 
 	//@Prototype
-	class PrototypeA {
-		val id: Int = lastId.getAndIncrement()
+	class PrototypeA(val counter: Counter) {
+		val id: Int = counter.lastId++
 	}
 
 	//@Singleton
-	class SingletonS {
-		val id: Int = lastId.getAndIncrement()
+	class SingletonS(val counter: Counter) {
+		val id: Int = counter.lastId++
 	}
 
 	//@Prototype
 	class PrototypeB(val s: SingletonS) {
-		val id: Int = lastId.getAndIncrement()
+		val id: Int = s.counter.lastId++
 	}
 
 	@kotlin.test.Test
 	fun testPrototype() = suspendTest {
-		lastId.value = 0
 		val inject = AsyncInjector()
-		inject.mapPrototype(PrototypeA::class) { PrototypeA() }
+		inject.mapInstance(Counter())
+		inject.mapPrototype(PrototypeA::class) { PrototypeA(get()) }
 		val a0 = inject.get(PrototypeA::class)
 		val a1 = inject.child().child().get<PrototypeA>()
 		assertEquals(0, a0.id)
@@ -66,11 +63,11 @@ class AsyncInjectorTest {
 
 	@kotlin.test.Test
 	fun testPrototypeSingleton() = suspendTest {
-		lastId.value = 0
 		val inject = AsyncInjector()
-		inject.mapPrototype(PrototypeA::class) { PrototypeA() }
-		inject.mapSingleton(SingletonS::class) { SingletonS() }
-		inject.mapPrototype(PrototypeB::class) { PrototypeB(get(SingletonS::class)) }
+		inject.mapInstance(Counter())
+		inject.mapPrototype(PrototypeA::class) { PrototypeA(get()) }
+		inject.mapSingleton(SingletonS::class) { SingletonS(get()) }
+		inject.mapPrototype(PrototypeB::class) { PrototypeB(get()) }
 		val a0 = inject.getOrNull(PrototypeB::class)
 		val a1 = inject.child().child().getOrNull(PrototypeB::class)
 		assertEquals(0, a0?.s?.id)
