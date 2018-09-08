@@ -1,3 +1,98 @@
+buildscript {
+	repositories {
+		mavenLocal()
+		jcenter()
+		maven { url 'https://dl.bintray.com/kotlin/kotlin-dev' }
+		maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
+		maven { url 'https://dl.bintray.com/soywiz/soywiz' }
+
+		mavenCentral()
+	}
+
+	ext.deps = [
+			"com.soywiz:korge{SUFFIX}:$korgeVersion",
+			"com.soywiz:korge-dragonbones{SUFFIX}:$korgeVersion",
+	]
+
+	dependencies {
+		classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.0-dev-192'
+	}
+}
+
+repositories {
+	mavenLocal()
+	jcenter()
+	maven { url 'https://dl.bintray.com/kotlin/kotlin-dev' }
+	maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
+	maven { url 'https://dl.bintray.com/soywiz/soywiz' }
+	mavenCentral()
+}
+
+apply plugin: 'kotlin-multiplatform'
+apply plugin: 'application'
+
+mainClassName = 'com.soywiz.example1.JvmExample1'
+
+kotlin {
+	targets {
+		fromPreset(presets.jvm, 'jvm')
+		fromPreset(presets.js, 'js')
+		fromPreset(presets.mingwX64, 'windows')
+		fromPreset(presets.macosX64, 'mac')
+		configure([windows, mac]) {
+			compilations.main.outputKinds += org.jetbrains.kotlin.gradle.plugin.mpp.NativeOutputKind.EXECUTABLE
+		}
+	}
+	sourceSets {
+		commonMain {
+			dependencies {
+				for (dep in deps) implementation dep.replace("{SUFFIX}", "-common")
+			}
+		}
+		jvmMain {
+			dependencies {
+				for (dep in deps) implementation dep.replace("{SUFFIX}", "-jvm")
+			}
+		}
+		jsMain {
+			dependencies {
+				for (dep in deps) implementation dep.replace("{SUFFIX}", "-js")
+			}
+		}
+		macMain {
+			dependencies {
+				for (dep in deps) implementation dep.replace("{SUFFIX}", "-native_release_macos_x64")
+			}
+		}
+		windowsMain {
+			dependencies {
+				for (dep in deps) implementation dep.replace("{SUFFIX}", "-native_release_mingw_x64")
+			}
+		}
+
+
+		// TESTS
+
+		commonTest {
+			dependencies {
+				implementation 'org.jetbrains.kotlin:kotlin-test-common'
+				implementation 'org.jetbrains.kotlin:kotlin-test-annotations-common'
+			}
+		}
+		jvmTest {
+			dependencies {
+				implementation 'org.jetbrains.kotlin:kotlin-test'
+				implementation 'org.jetbrains.kotlin:kotlin-test-junit'
+			}
+		}
+		jsTest {
+			dependencies {
+				implementation 'org.jetbrains.kotlin:kotlin-test-js'
+			}
+		}
+	}
+}
+
 /*
 apply plugin: 'kotlin-platform-common'
 
@@ -15,3 +110,5 @@ dependencies {
 
 kotlin.experimental.coroutines "enable"
 */
+
+run.dependsOn('jvmClasses')

@@ -1,12 +1,30 @@
+/*
+pluginManagement {
+	resolutionStrategy {
+		eachPlugin {
+			if (requested.id.id == "kotlin-multiplatform") {
+				useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
+			}
+		}
+	}
+
+	repositories {
+		mavenLocal()
+		maven { url 'http://dl.bintray.com/kotlin/kotlin-eap' }
+		mavenCentral()
+		maven { url 'https://plugins.gradle.org/m2/' }
+	}
+}
+*/
 rootProject.name = 'korge-samples'
 
 enableFeaturePreview('GRADLE_METADATA')
 
 def nativeEnabled() {
-	def requestKNBuild = System.getenv("build_kotlin_native") == "true"
-	return requestKNBuild
+	return System.getenv("build_kotlin_native") != "false"
 }
 
+/*
 def includeVersion(name, folder) {
 	include name
 	findProject(name)?.projectDir = file(folder)
@@ -22,4 +40,7 @@ def includeProject(name) {
 }
 
 includeProject("sample1")
-includeProject("sample2")
+//includeProject("sample2")
+*/
+
+include ":sample1"
