@@ -409,6 +409,66 @@ object Korge {
 		)
 	}
 
+	// New Korge
+	operator fun invoke(
+		title: String = "Korge",
+		width: Int = 640, height: Int = 480,
+		virtualWidth: Int = width, virtualHeight: Int = height,
+		icon: Bitmap? = null,
+		quality: LightQuality = LightQuality.AUTO,
+		targetFps: Double = 0.0,
+		scaleAnchor: Anchor = Anchor.MIDDLE_CENTER,
+		scaleMode: ScaleMode = ScaleMode.SHOW_ALL,
+		clipBorders: Boolean = true,
+		bgcolor: RGBA? = Colors.BLACK,
+		debug: Boolean = false,
+		args: Array<String> = arrayOf(),
+		entry: suspend Stage.() -> Unit
+	) {
+		val coroutineContext = KoruiDispatcher
+		Korui(coroutineContext) { koruiContext ->
+			if (isNative) println("Korui[0]")
+			CanvasApplicationEx(
+				title = title,
+				width = width,
+				height = height,
+				icon = icon,
+				quality = quality,
+				koruiContext = koruiContext
+			) { canvas, frame ->
+				if (isNative) println("CanvasApplicationEx.IN[0]")
+				val injector = AsyncInjector()
+				val input = Input()
+				val stats = Stats()
+				Fonts.init()
+				val views = Views(coroutineContext, canvas.ag, injector, input, TimeProvider(), stats, koruiContext)
+				injector
+					.mapInstance(views)
+					.mapInstance(input)
+					.mapInstance(stats)
+					.mapInstance(Korge.ModuleArgs(args))
+				input._isTouchDeviceGen = { AGOpenglFactory.isTouchDevice }
+				views.debugViews = debug
+				views.virtualWidth = virtualWidth
+				views.virtualHeight = virtualHeight
+				views.scaleAnchor = scaleAnchor
+				views.scaleMode = scaleMode
+				views.clipBorders = clipBorders
+				views.targetFps = targetFps
+				Korge.prepareViews(views, canvas, bgcolor != null, bgcolor ?: Colors.TRANSPARENT_BLACK)
+				coroutineContext.animationFrameLoop {
+					Korge.logger.trace { "views.animationFrameLoop" }
+					//println("views.animationFrameLoop")
+					//ag.resized()
+					canvas.repaint()
+				}
+				entry(views.stage)
+				if (isNative) println("CanvasApplicationEx.IN[1]")
+			}
+			if (isNative) println("Korui[1]")
+		}
+	}
+
 	operator fun invoke(config: Config) = Korui(config.context as CoroutineDispatcher) { koruiContext ->
 		logger.trace { "Korge.invoke(config)" }
 		test(config, koruiContext)
@@ -491,66 +551,6 @@ object Korge {
 
 	internal fun configureViews() {
 
-	}
-}
-
-// New Korge
-fun Korge(
-	title: String = "Korge",
-	width: Int = 640, height: Int = 480,
-	virtualWidth: Int = width, virtualHeight: Int = height,
-	icon: Bitmap? = null,
-	quality: LightQuality = LightQuality.AUTO,
-	targetFps: Double = 0.0,
-	scaleAnchor: Anchor = Anchor.MIDDLE_CENTER,
-	scaleMode: ScaleMode = ScaleMode.SHOW_ALL,
-	clipBorders: Boolean = true,
-	bgcolor: RGBA? = Colors.BLACK,
-	debug: Boolean = false,
-	args: Array<String> = arrayOf(),
-	entry: suspend Stage.() -> Unit
-) {
-	val coroutineContext = KoruiDispatcher
-	Korui(coroutineContext) { koruiContext ->
-		if (isNative) println("Korui[0]")
-		CanvasApplicationEx(
-			title = title,
-			width = width,
-			height = height,
-			icon = icon,
-			quality = quality,
-			koruiContext = koruiContext
-		) { canvas, frame ->
-			if (isNative) println("CanvasApplicationEx.IN[0]")
-			val injector = AsyncInjector()
-			val input = Input()
-			val stats = Stats()
-			Fonts.init()
-			val views = Views(coroutineContext, canvas.ag, injector, input, TimeProvider(), stats, koruiContext)
-			injector
-				.mapInstance(views)
-				.mapInstance(input)
-				.mapInstance(stats)
-				.mapInstance(Korge.ModuleArgs(args))
-			input._isTouchDeviceGen = { AGOpenglFactory.isTouchDevice }
-			views.debugViews = debug
-			views.virtualWidth = virtualWidth
-			views.virtualHeight = virtualHeight
-			views.scaleAnchor = scaleAnchor
-			views.scaleMode = scaleMode
-			views.clipBorders = clipBorders
-			views.targetFps = targetFps
-			Korge.prepareViews(views, canvas, bgcolor != null, bgcolor ?: Colors.TRANSPARENT_BLACK)
-			coroutineContext.animationFrameLoop {
-				Korge.logger.trace { "views.animationFrameLoop" }
-				//println("views.animationFrameLoop")
-				//ag.resized()
-				canvas.repaint()
-			}
-			entry(views.stage)
-			if (isNative) println("CanvasApplicationEx.IN[1]")
-		}
-		if (isNative) println("Korui[1]")
 	}
 }
 

@@ -716,6 +716,23 @@ abstract class AG : Extra by Extra.Mixin() {
 			_values.clear()
 		}
 
+		operator fun get(uniform: Uniform): Any? {
+			for (n in 0 until _uniforms.size) {
+				if (_uniforms[n].name == uniform.name) return _values[n]
+			}
+			return null
+		}
+
+		operator fun set(uniform: Uniform, value: Any) = put(uniform, value)
+
+		fun putOrRemove(uniform: Uniform, value: Any?) {
+			if (value == null) {
+				remove(uniform)
+			} else {
+				put(uniform, value)
+			}
+		}
+
 		fun put(uniform: Uniform, value: Any) {
 			for (n in 0 until _uniforms.size) {
 				if (_uniforms[n].name == uniform.name) {
@@ -736,6 +753,17 @@ abstract class AG : Extra by Extra.Mixin() {
 					return
 				}
 			}
+		}
+
+		fun put(uniforms: UniformValues) {
+			for (n in 0 until uniforms.size) {
+				this.put(uniforms._uniforms[n], uniforms._values[n])
+			}
+		}
+
+		fun setTo(uniforms: UniformValues) {
+			clear()
+			put(uniforms)
 		}
 
 		override fun toString() = "{" + keys.zip(values).map { "${it.first}=${it.second}" }.joinToString(", ") + "}"

@@ -5,6 +5,12 @@ import com.soywiz.korag.shader.*
 
 private val logger = Logger("DefaultShaders")
 
+fun ProgramWithDefault(
+	vertex: VertexShader = DefaultShaders.VERTEX_DEFAULT,
+	fragment: FragmentShader = DefaultShaders.FRAGMENT_SOLID_COLOR,
+	name: String = "program"
+): Program = Program(vertex, fragment, name)
+
 object DefaultShaders {
 	init { logger.trace { "DefaultShaders[0]" } }
 
@@ -13,6 +19,7 @@ object DefaultShaders {
 	init { logger.trace { "DefaultShaders[1]" } }
 
 	val u_ProjMat = Uniform("u_ProjMat", VarType.Mat4)
+	val u_ViewMat = Uniform("u_ViewMat", VarType.Mat4)
 	val a_Pos = Attribute("a_Pos", VarType.Float2, normalized = false)
 	val a_Tex = Attribute("a_Tex", VarType.Float2, normalized = false)
 	val a_Col = Attribute("a_Col", VarType.Byte4, normalized = true)
@@ -35,7 +42,7 @@ object DefaultShaders {
 	val VERTEX_DEFAULT = VertexShader {
 		SET(v_Tex, a_Tex)
 		SET(v_Col, a_Col)
-		SET(out, u_ProjMat * vec4(a_Pos, 0f.lit, 1f.lit))
+		SET(out, u_ProjMat * u_ViewMat * vec4(a_Pos, 0f.lit, 1f.lit))
 	}
 
 	val FRAGMENT_SOLID_COLOR = FragmentShader {

@@ -33,6 +33,7 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 	private var currentTex: AG.Texture? = null
 	private var currentSmoothing: Boolean = false
 	private var currentBlendFactors: AG.Blending = BlendMode.NORMAL.factors
+	private var currentProgram: Program? = null
 
 	init { logger.trace { "BatchBuilder2D[3]" } }
 
@@ -71,6 +72,7 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 	init { logger.trace { "BatchBuilder2D[8]" } }
 
 	private val projMat = Matrix4()
+	val viewMat = Matrix4()
 
 	init { logger.trace { "BatchBuilder2D[9]" } }
 
@@ -83,9 +85,11 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 	//	DefaultShaders.u_ProjMat to projMat,
 	//	DefaultShaders.u_Tex to textureUnit
 	//)
-	private val uniforms by lazy {
+	@PublishedApi
+	internal val uniforms by lazy {
 		AG.UniformValues(
 			DefaultShaders.u_ProjMat to projMat,
+			DefaultShaders.u_ViewMat to viewMat,
 			DefaultShaders.u_Tex to textureUnit
 		)
 	}
@@ -169,8 +173,8 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 		vertexPos += vcount * 6
 	}
 
-	fun drawVertices(array: TexturedVertexArray, tex: Texture.Base, smoothing: Boolean, blendFactors: AG.Blending, vcount: Int = array.vcount, icount: Int = array.isize) {
-		setStateFast(tex, smoothing, blendFactors)
+	fun drawVertices(array: TexturedVertexArray, tex: Texture.Base, smoothing: Boolean, blendFactors: AG.Blending, vcount: Int = array.vcount, icount: Int = array.isize, program: Program? = null) {
+		setStateFast(tex, smoothing, blendFactors, program)
 		drawVertices(array, vcount, icount)
 	}
 
@@ -180,15 +184,16 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 		}
 	}
 
-	fun setStateFast(tex: Texture.Base, smoothing: Boolean, blendFactors: AG.Blending) =
-		setStateFast(tex.base, smoothing, blendFactors)
+	fun setStateFast(tex: Texture.Base, smoothing: Boolean, blendFactors: AG.Blending, program: Program?) =
+		setStateFast(tex.base, smoothing, blendFactors, program)
 
-	fun setStateFast(tex: AG.Texture, smoothing: Boolean, blendFactors: AG.Blending) {
-		if (tex != currentTex || currentSmoothing != smoothing || currentBlendFactors != blendFactors) {
+	fun setStateFast(tex: AG.Texture, smoothing: Boolean, blendFactors: AG.Blending, program: Program?) {
+		if (tex != currentTex || currentSmoothing != smoothing || currentBlendFactors != blendFactors || currentProgram != program) {
 			flush()
 			currentTex = tex
 			currentSmoothing = smoothing
 			currentBlendFactors = blendFactors
+			currentProgram = program
 		}
 	}
 
@@ -204,9 +209,10 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 		filtering: Boolean = true,
 		colorMulInt: Int = Colors.WHITE.rgba,
 		colorAdd: Int = 0x7f7f7f7f,
-		blendFactors: AG.Blending = BlendMode.NORMAL.factors
+		blendFactors: AG.Blending = BlendMode.NORMAL.factors,
+		program: Program? = null
 	) {
-		setStateFast(tex.base, filtering, blendFactors)
+		setStateFast(tex.base, filtering, blendFactors, program)
 
 		ensure(indices = 6 * 9, vertices = 4 * 4)
 
@@ -279,14 +285,15 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 		colorMulInt: Int = Colors.WHITE.rgba,
 		colorAdd: Int = 0x7f7f7f7f,
 		blendFactors: AG.Blending = BlendMode.NORMAL.factors,
-		rotated: Boolean = false
+		rotated: Boolean = false,
+		program: Program? = null
 	) {
 		val x0 = x.toDouble()
 		val x1 = (x + width).toDouble()
 		val y0 = y.toDouble()
 		val y1 = (y + height).toDouble()
 
-		setStateFast(tex.base, filtering, blendFactors)
+		setStateFast(tex.base, filtering, blendFactors, program)
 
 		drawQuadFast(
 			m.transformXf(x0, y0), m.transformYf(x0, y0),
@@ -312,23 +319,25 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 
 		val LAYOUT = VertexLayout(DefaultShaders.a_Pos, DefaultShaders.a_Tex, a_ColMul, a_ColAdd)
 		val VERTEX = VertexShader {
-			SET(DefaultShaders.v_Tex, DefaultShaders.a_Tex)
-			SET(v_ColMul, a_ColMul)
-			SET(v_ColAdd, a_ColAdd)
-			SET(out, DefaultShaders.u_ProjMat * vec4(DefaultShaders.a_Pos, 0f.lit, 1f.lit))
+			DefaultShaders.apply {
+				SET(v_Tex, a_Tex)
+				SET(v_ColMul, a_ColMul)
+				SET(v_ColAdd, a_ColAdd)
+				SET(out, (u_ProjMat * u_ViewMat) * vec4(DefaultShaders.a_Pos, 0f.lit, 1f.lit))
+			}
 		}
 
 		init { logger.trace { "BatchBuilder2D.Companion[3]" } }
 
 		val PROGRAM_PRE = Program(
 			vertex = VERTEX,
-			fragment = buildFragment(premultiplied = true),
+			fragment = buildTextureLookupFragment(premultiplied = true),
 			name = "BatchBuilder2D.Premultiplied.Tinted"
 		)
 
 		val PROGRAM_NOPRE = Program(
 			vertex = VERTEX,
-			fragment = buildFragment(premultiplied = false),
+			fragment = buildTextureLookupFragment(premultiplied = false),
 			name = "BatchBuilder2D.NoPremultiplied.Tinted"
 		)
 
@@ -345,7 +354,7 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 		//	name = "BatchBuilder2D.Tinted"
 		//)
 
-		private fun buildFragment(premultiplied: Boolean) = FragmentShader {
+		fun buildTextureLookupFragment(premultiplied: Boolean) = FragmentShader {
 			DefaultShaders.apply {
 				SET(t_Temp1, texture2D(u_Tex, v_Tex["xy"]))
 				if (premultiplied) {
@@ -390,7 +399,7 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 			ag.draw(
 				vertices = vertexBuffer,
 				indices = indexBuffer,
-				program = if (currentTex?.premultiplied == true) PROGRAM_PRE else PROGRAM_NOPRE,
+				program = currentProgram ?: (if (currentTex?.premultiplied == true) PROGRAM_PRE else PROGRAM_NOPRE),
 				//program = PROGRAM_PRE,
 				type = AG.DrawType.TRIANGLES,
 				vertexLayout = LAYOUT,
@@ -407,6 +416,41 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 		vertexPos = 0
 		indexPos = 0
 		currentTex = null
+	}
+
+	inline fun setViewMatrixTemp(matrix: Matrix2d, temp: Matrix4 = Matrix4(), callback: () -> Unit) {
+		flush()
+		temp.copyFrom(this.viewMat)
+		this.viewMat.copyFrom(matrix)
+		try {
+			callback()
+		} finally {
+			flush()
+			this.viewMat.copyFrom(temp)
+		}
+	}
+
+	inline fun setTemporalUniform(uniform: Uniform, value: Any?, callback: () -> Unit) {
+		val old = this.uniforms[uniform]
+		this.uniforms.putOrRemove(uniform, value)
+		try {
+			callback()
+		} finally {
+			this.uniforms.putOrRemove(uniform, old)
+		}
+	}
+
+	@PublishedApi
+	internal val tempOldUniforms = AG.UniformValues()
+
+	inline fun setTemporalUniforms(uniforms: AG.UniformValues, callback: () -> Unit) {
+		tempOldUniforms.setTo(this.uniforms)
+		this.uniforms.put(uniforms)
+		try {
+			callback()
+		} finally {
+			this.uniforms.setTo(tempOldUniforms)
+		}
 	}
 }
 

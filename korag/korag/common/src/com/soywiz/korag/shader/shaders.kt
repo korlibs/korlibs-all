@@ -146,10 +146,7 @@ class Program(val vertex: VertexShader, val fragment: FragmentShader, val name: 
 	class IntLiteral(val value: Int) : Operand(VarType.Int1)
 	class FloatLiteral(val value: Float) : Operand(VarType.Float1)
 	class BoolLiteral(val value: Boolean) : Operand(VarType.Bool1)
-
-	class Vector(type: VarType, val ops: List<Operand>) : Operand(type) {
-	}
-
+	class Vector(type: VarType, val ops: List<Operand>) : Operand(type)
 	class Swizzle(val left: Operand, val swizzle: String) : Operand(left.type)
 
 	class Func(val name: String, val ops: List<Operand>) : Operand(VarType.Float1)
@@ -203,9 +200,8 @@ class Program(val vertex: VertexShader, val fragment: FragmentShader, val name: 
 			outputStms += Stm.Discard()
 		}
 
-		infix fun Operand.set(from: Operand) {
-			outputStms += Stm.Set(this, from)
-		}
+		infix fun Operand.set(from: Operand) = run { outputStms += Stm.Set(this, from) }
+		infix fun Operand.setTo(from: Operand) = run { outputStms += Stm.Set(this, from) }
 
 		fun Operand.assign(from: Operand) {
 			outputStms += Stm.Set(this, from)
@@ -383,6 +379,10 @@ open class Shader(val type: ShaderType, val stm: Program.Stm) {
 open class VertexShader(stm: Program.Stm) : Shader(ShaderType.VERTEX, stm)
 open class FragmentShader(stm: Program.Stm) : Shader(ShaderType.FRAGMENT, stm)
 
+fun FragmentShader.appending(callback: Program.Builder.() -> Unit): FragmentShader {
+	return FragmentShader(Program.Stm.Stms(listOf(this.stm, FragmentShader(callback).stm)))
+}
+
 fun VertexShader(callback: Program.Builder.() -> Unit): VertexShader {
 	val builder = Program.Builder(ShaderType.VERTEX)
 	builder.callback()
@@ -425,6 +425,3 @@ class VertexLayout(attr: List<Attribute>, private val layoutSize: Int?) {
 
 	override fun toString(): String = "VertexLayout[${myattr.map { it.name }.joinToString(", ")}]"
 }
-
-@Deprecated("Use VertexLayout", ReplaceWith("VertexLayout"))
-typealias VertexFormat = VertexLayout

@@ -601,7 +601,7 @@ abstract class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by Eve
 
 	fun getLocalBounds(out: Rectangle = _localBounds) = out.apply { getLocalBoundsInternal(out) }
 
-	private val _localBounds:Rectangle = Rectangle()
+	private val _localBounds: Rectangle = Rectangle()
 	open fun getLocalBoundsInternal(out: Rectangle = _localBounds): Unit = run { out.setTo(0, 0, 0, 0) }
 
 	protected open fun createInstance(): View =
@@ -633,6 +633,9 @@ abstract class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by Eve
 		this@apply.copyPropsFrom(this@View)
 	}
 }
+
+// Doesn't seems to work
+//operator fun <T : View, R> T.invoke(callback: T.() -> R): R = this.apply(callback)
 
 
 /*

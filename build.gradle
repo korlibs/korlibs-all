@@ -67,6 +67,7 @@ buildscript {
 			"korau-opus"       : ["korau"],
 			"korge"            : ["korio", "korau", "korui", "korag", "korinject"],
 			"korfl"            : ["korio", "korma", "korim", "korau-mp3"],
+			"korge-samples"    : ["korge"],
 			"korge-ext-swf"    : ["korge", "korfl"],
 			"korge-ext-fla"    : ["korge"],
 			"korge-ext-spriter": ["korge"],
