@@ -65,7 +65,7 @@ class BlurEffectView(initialRadius: Double = 10.0) : EffectView() {
 			}
 		}, { newtex ->
 			if (level > 0) {
-				renderFilterLevel(ctx, matrix, newtex, texWidth, texHeight, level -1)
+				renderFilterLevel(ctx, matrix, newtex, texWidth, texHeight, level - 1)
 			} else {
 				super.renderFilter(ctx, matrix, newtex, texWidth, texHeight)
 			}

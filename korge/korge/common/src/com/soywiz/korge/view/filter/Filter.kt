@@ -56,6 +56,7 @@ abstract class Filter {
 		renderColorMulInt: Int,
 		blendMode: BlendMode
 	) {
+		//println("$this.render()")
 		// @TODO: Precompute vertices
 		textureSizeHolder[0] = texture.base.width.toFloat()
 		textureSizeHolder[1] = texture.base.height.toFloat()
@@ -73,65 +74,6 @@ abstract class Filter {
 				blendFactors = blendMode.factors,
 				program = program
 			)
-		}
-	}
-}
-
-class ComposedFilter(val filters: List<Filter>) : Filter() {
-	constructor(vararg filters: Filter) : this(filters.toList())
-
-	override val border get() = filters.sumBy { it.border }
-
-	override fun render(
-		ctx: RenderContext,
-		matrix: Matrix2d,
-		texture: Texture,
-		texWidth: Int,
-		texHeight: Int,
-		renderColorAdd: Int,
-		renderColorMulInt: Int,
-		blendMode: BlendMode
-	) {
-		if (filters.isEmpty()) {
-			super.render(ctx, matrix, texture, texWidth, texHeight, renderColorAdd, renderColorMulInt, blendMode)
-		} else {
-			renderIndex(ctx, matrix, texture, texWidth, texHeight, renderColorAdd, renderColorMulInt, blendMode, 0)
-		}
-	}
-	private val identity = Matrix2d()
-
-	fun renderIndex(
-		ctx: RenderContext,
-		matrix: Matrix2d,
-		texture: Texture,
-		texWidth: Int,
-		texHeight: Int,
-		renderColorAdd: Int,
-		renderColorMulInt: Int,
-		blendMode: BlendMode,
-		index: Int
-	) {
-		val filter = filters[index]
-		val isLast = index >= filters.size - 1
-		if (isLast) {
-			filter.render(ctx, matrix, texture, texWidth, texHeight, renderColorAdd, renderColorMulInt, blendMode)
-		} else {
-			// @TODO: We only need two render textures
-			ctx.renderToTexture(texWidth, texHeight, {
-				ctx.batch.setTemporalUniforms(this.uniforms) {
-					ctx.batch.drawQuad(
-						texture,
-						m = identity,
-						filtering = true,
-						colorAdd = renderColorAdd,
-						colorMulInt = renderColorMulInt,
-						blendFactors = blendMode.factors,
-						program = program
-					)
-				}
-			}, { newtex ->
-				renderIndex(ctx, matrix, texture, texWidth, texHeight, renderColorAdd, renderColorMulInt, blendMode, index + 1)
-			})
 		}
 	}
 }

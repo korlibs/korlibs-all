@@ -30,15 +30,22 @@ object Sample1 {
 		}
 		*/
 
-		val mfilter = ColorMatrixFilter(ColorMatrixFilter.GRAYSCALE_MATRIX, 0.0)
+		//val mfilter = ColorMatrixFilter(ColorMatrixFilter.GRAYSCALE_MATRIX, 0.0)
+		val mfilter = WaveFilter()
 		image(Bitmap32(100, 100) { x, y -> RGBA(156 + x, 156 + y, 0, 255) }) {
 			x = 100.0
 			y = 100.0
 			//filter = ComposedFilter(SwizzleColorsFilter("bgra"), SwizzleColorsFilter("bgra"))
-			//filter = Convolute3Filter(Convolute3Filter.KERNEL_EDGE_DETECTION)
+			//filter = ComposedFilter(
+			//	SwizzleColorsFilter("bgra"),
+			//	Convolute3Filter(Convolute3Filter.KERNEL_GAUSSIAN_BLUR),
+			//	Convolute3Filter(Convolute3Filter.KERNEL_EDGE_DETECTION)
+			//)
 			filter = mfilter
+			//filter = WaveFilter()
 		}.apply {
-			tween(mfilter::blendRatio[0.0, 1.0], time = 4.seconds)
+			tween(mfilter::time[0.0, 10.0], time = 10.seconds)
+			//tween(mfilter::blendRatio[0.0, 1.0], time = 4.seconds)
 		}
 		//val bmp = SolidRect(100, 100, Colors.RED).renderToBitmap(views)
 		//val bmp = view.renderToBitmap(views)
