@@ -8,9 +8,12 @@ import com.soywiz.korag.shader.*
 import com.soywiz.korag.shader.gl.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
+import com.soywiz.korim.format.*
 import com.soywiz.korio.error.*
+import com.soywiz.korio.file.std.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korma.*
+import kotlinx.coroutines.*
 
 abstract class AGOpengl : AG() {
 	abstract val gl: KmlGl
@@ -38,8 +41,11 @@ abstract class AGOpengl : AG() {
 		setViewport(0, 0, width, height)
 	}
 
+	var lastRenderContextId = 0
+
 	inner class GlRenderBuffer : RenderBuffer() {
 		var cachedVersion = -1
+		val id = lastRenderContextId++
 
 		private var icachedTexVersion = -1
 		private var _ftex: GlTexture? = null
@@ -94,6 +100,8 @@ abstract class AGOpengl : AG() {
 
 		override fun prepareTexture(): AG.Texture {
 			readColorTexture(tex, width, height)
+			//val color = readColor()
+			//launch { color.writeTo("/tmp/$id.png".uniVfs, PNG) }
 			return super.prepareTexture()
 		}
 
@@ -105,6 +113,8 @@ abstract class AGOpengl : AG() {
 				depth.setInt(0, 0)
 			}
 		}
+
+		override fun toString(): String = "GlRenderBuffer[$id]($width, $height)"
 	}
 
 	override fun createRenderBuffer(): RenderBuffer = GlRenderBuffer()

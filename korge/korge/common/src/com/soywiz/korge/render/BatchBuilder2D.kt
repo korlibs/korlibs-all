@@ -16,6 +16,7 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 	init { logger.trace { "BatchBuilder2D[0]" } }
 
 	var flipRenderTexture = true
+	//var flipRenderTexture = false
 	val maxQuadsMargin = maxQuads + 9
 	val maxVertices = maxQuads * 4
 	val maxIndices = maxQuads * 6

@@ -591,10 +591,14 @@ abstract class AG : Extra by Extra.Mixin() {
 	@PublishedApi
 	internal var currentRenderBuffer: RenderBuffer? = null
 
-	inline fun backupTexture(tex: Texture, callback: () -> Unit) {
-		//readTexture()
-		callback()
-	}
+	//inline fun backupTexture(tex: Texture, callback: () -> Unit) {
+	//	readColorTexture(tex, backWidth, backHeight)
+	//	try {
+	//		callback()
+	//	} finally {
+	//		drawTexture(tex)
+	//	}
+	//}
 
 	inline fun renderToTexture(width: Int, height: Int, render: () -> Unit, use: (tex: Texture) -> Unit = { }) {
 		val rb = renderBuffers.alloc()
@@ -605,7 +609,7 @@ abstract class AG : Extra by Extra.Mixin() {
 		frameRenderBuffers += rb
 		val oldRenderBuffer = currentRenderBuffer
 
-		backupTexture(rb.tex) {
+		//backupTexture(rb.btex) {
 			rb.start(width, height)
 			setRenderBuffer(rb)
 
@@ -619,10 +623,15 @@ abstract class AG : Extra by Extra.Mixin() {
 				viewport[2] = vW
 				viewport[3] = vH
 				setRenderBuffer(oldRenderBuffer)
+				if (oldRenderBuffer != null) {
+					drawTexture(oldRenderBuffer.tex)
+				}
 			}
-		}
+		//}
+
 		try {
 			use(rb.tex)
+			//rb.prepareTexture()
 		} finally {
 			frameRenderBuffers -= rb
 			renderBuffers.free(rb)
@@ -650,8 +659,10 @@ abstract class AG : Extra by Extra.Mixin() {
 
 	open fun readColor(bitmap: Bitmap32): Unit = TODO()
 	open fun readDepth(width: Int, height: Int, out: FloatArray): Unit = TODO()
+	open fun readDepth(out: FloatArray2): Unit = readDepth(out.width, out.height, out.data)
 	open fun readColorTexture(texture: Texture, width: Int = backWidth, height: Int = backHeight): Unit = TODO()
-
+	fun readColor() = Bitmap32(backWidth, backHeight).apply { readColor(this) }
+	fun readDepth() = FloatArray2(backWidth, backHeight).apply { readDepth(this) }
 
 	inner class TextureDrawer {
 		val VERTEX_COUNT = 4
@@ -710,11 +721,11 @@ abstract class AG : Extra by Extra.Mixin() {
 	val flipRenderTexture = true
 
 	fun drawTexture(tex: Texture) {
-		if (renderingToTexture) {
-			textureDrawer.draw(tex, -1f, -1f, +1f, +1f)
-		} else {
-			textureDrawer.draw(tex, -1f, -1f, +1f, +1f)
-		}
+		//if (renderingToTexture) {
+		//	textureDrawer.draw(tex, 0f, 0f, +1f, +1f)
+		//} else {
+			textureDrawer.draw(tex, -1f, +1f, +1f, -1f)
+		//}
 	}
 
 	//var checkErrors = true

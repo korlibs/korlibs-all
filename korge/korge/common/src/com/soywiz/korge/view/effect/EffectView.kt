@@ -5,6 +5,7 @@ import com.soywiz.korag.shader.*
 import com.soywiz.korge.render.*
 import com.soywiz.korge.view.*
 import com.soywiz.korma.*
+import com.soywiz.korma.geom.*
 
 open class EffectView : Container() {
 	var filtering = true
@@ -84,6 +85,14 @@ open class EffectView : Container() {
 				)
 			}
 		}
+	}
+
+	override fun getLocalBoundsInternal(out: Rectangle) {
+		super.getLocalBoundsInternal(out)
+		out.x -= borderEffect
+		out.y -= borderEffect
+		out.width += borderEffect * 2
+		out.height += borderEffect * 2
 	}
 
 	protected open fun updateUniforms() {

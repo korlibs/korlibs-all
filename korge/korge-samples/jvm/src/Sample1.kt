@@ -14,12 +14,12 @@ object Sample1 {
 		//convolute3EffectView(Convolute3EffectView.KERNEL_EDGE_DETECTION) {
 		convolute3EffectView(Convolute3EffectView.KERNEL_GAUSSIAN_BLUR) {
 			//convolute3EffectView(Convolute3EffectView.KERNEL_BOX_BLUR) {
-				//swizzleColorsEffectView("bgra") {
-				x = 100.0
-				y = 100.0
-				image(Bitmap32(100, 100) { x, y -> RGBA(156 + x, 156 + y, 0, 255) })
-				//solidRect(100, 100, Colors.RED)
-				//}
+				swizzleColorsEffectView("bgra") {
+					x = 100.0
+					y = 100.0
+					image(Bitmap32(100, 100) { x, y -> RGBA(156 + x, 156 + y, 0, 255) })
+					//solidRect(100, 100, Colors.RED)
+				}
 			//}
 		}
 		//val bmp = SolidRect(100, 100, Colors.RED).renderToBitmap(views)
