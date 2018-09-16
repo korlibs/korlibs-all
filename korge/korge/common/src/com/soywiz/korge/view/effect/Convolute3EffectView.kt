@@ -56,7 +56,6 @@ class Convolute3EffectView(val kernel: Matrix3) : EffectView() {
 						out setTo out + (tex(fragmentCoords + vec2((x - 1).toFloat(), (y - 1).toFloat()))) * u_Weights[x][y]
 					}
 				}
-				//out.a setTo tex(fragmentCoords).a
 			}
 		}
 	}

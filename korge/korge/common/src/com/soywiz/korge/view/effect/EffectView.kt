@@ -58,7 +58,10 @@ open class EffectView : Container() {
 
 		//println("$this: [0] $bounds")
 
-		ctx.renderToTexture(bounds.width.toInt() + borderEffect * 2, bounds.height.toInt() + borderEffect * 2, render = {
+		val texWidth = bounds.width.toInt() + borderEffect * 2
+		val texHeight = bounds.height.toInt() + borderEffect * 2
+
+		ctx.renderToTexture(texWidth, texHeight, render = {
 			tempMat2d.copyFrom(globalMatrixInv)
 			tempMat2d.translate(-bounds.x + borderEffect, -bounds.y + borderEffect)
 			//println("$this: [1] $tempMat2d")
@@ -77,17 +80,21 @@ open class EffectView : Container() {
 			if (program == null) program = Program(vertex, fragment)
 			//println("EffectUniforms: ${this.uniforms}")
 			//println("$this: [2] $tempMat2d")
-			ctx.batch.setTemporalUniforms(this.uniforms) {
-				ctx.batch.drawQuad(
-					texture,
-					m = tempMat2d,
-					filtering = filtering,
-					colorAdd = renderColorAdd,
-					colorMulInt = renderColorMulInt,
-					blendFactors = blendMode.factors,
-					program = program
-				)
-			}
+			renderFilter(ctx, tempMat2d, texture, texWidth, texHeight)
+		}
+	}
+
+	open fun renderFilter(ctx: RenderContext, matrix: Matrix2d, texture: Texture, texWidth: Int, texHeight: Int) {
+		ctx.batch.setTemporalUniforms(this.uniforms) {
+			ctx.batch.drawQuad(
+				texture,
+				m = matrix,
+				filtering = filtering,
+				colorAdd = renderColorAdd,
+				colorMulInt = renderColorMulInt,
+				blendFactors = blendMode.factors,
+				program = program
+			)
 		}
 	}
 
