@@ -467,6 +467,12 @@ class Bitmap32(
 	fun yCbCrToRgba(): Bitmap32 = Bitmap32(width, height).apply {
 		for (n in 0 until area) this.data.array[n] = YCbCr.yCbCrToRgbaInt(this@Bitmap32.data.array[n])
 	}
+
+	fun computeHash(): Int {
+		var hash = 0
+		for (n in 0 until data.size) hash += data.array[n]
+		return hash
+	}
 }
 
 fun Bitmap32Int(width: Int, height: Int, premult: Boolean = false, generator: (x: Int, y: Int) -> Int): Bitmap32 {

@@ -12,13 +12,7 @@ class Pool<T>(private val reset: (T) -> Unit = {}, preallocate: Int = 0, private
 		for (n in 0 until preallocate) items += gen(lastId++)
 	}
 
-	fun alloc(): T {
-		if (items.isNotEmpty()) {
-			return items.removeLast()
-		} else {
-			return gen(lastId++)
-		}
-	}
+	fun alloc(): T = if (items.isNotEmpty()) items.removeLast() else gen(lastId++)
 
 	fun free(v: T) {
 		reset(v)

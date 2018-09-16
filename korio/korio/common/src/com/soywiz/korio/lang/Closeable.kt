@@ -30,7 +30,7 @@ interface OptionalCloseable : Closeable {
 //	for (closeable in this@closeable) closeable.close()
 //}
 
-fun <TCloseable : Closeable, T : Any> TCloseable.use(callback: (TCloseable) -> T): T {
+inline fun <TCloseable : Closeable, T : Any> TCloseable.use(callback: (TCloseable) -> T): T {
 	try {
 		return callback(this)
 	} finally {

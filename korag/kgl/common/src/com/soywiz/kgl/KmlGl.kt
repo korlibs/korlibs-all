@@ -66,11 +66,11 @@ abstract class KmlGl : IKmlGl {
     val POLYGON_OFFSET_FILL: Int = 0x8037
     val SAMPLE_ALPHA_TO_COVERAGE: Int = 0x809E
     val SAMPLE_COVERAGE: Int = 0x80A0
-    val NO_ERROR: Int = 0x0000
-    val INVALID_ENUM: Int = 0x0500
-    val INVALID_VALUE: Int = 0x0501
-    val INVALID_OPERATION: Int = 0x0502
-    val OUT_OF_MEMORY: Int = 0x0505
+    val NO_ERROR: Int = 0x0000 // 0
+    val INVALID_ENUM: Int = 0x0500 // 1280
+    val INVALID_VALUE: Int = 0x0501 // 1281
+    val INVALID_OPERATION: Int = 0x0502 // 1282
+    val OUT_OF_MEMORY: Int = 0x0505 // 1283
     val CW: Int = 0x0900
     val CCW: Int = 0x0901
     val LINE_WIDTH: Int = 0x0B21
@@ -305,7 +305,7 @@ abstract class KmlGl : IKmlGl {
     val FRAMEBUFFER_BINDING: Int = 0x8CA6
     val RENDERBUFFER_BINDING: Int = 0x8CA7
     val MAX_RENDERBUFFER_SIZE: Int = 0x84E8
-    val INVALID_FRAMEBUFFER_OPERATION: Int = 0x0506
+    val INVALID_FRAMEBUFFER_OPERATION: Int = 0x0506 // 1286
 
     override fun startFrame(): Unit = Unit
     override fun endFrame(): Unit = Unit

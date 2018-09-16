@@ -43,7 +43,11 @@ object DefaultShaders {
 	val VERTEX_DEFAULT = VertexShader {
 		SET(v_Tex, a_Tex)
 		SET(v_Col, a_Col)
-		SET(out, u_ProjMat * u_ViewMat * vec4(a_Pos, 0f.lit, 1f.lit))
+		SET(out, u_ProjMat * u_ViewMat * vec4(a_Pos, 0f, 1f))
+	}
+
+	val FRAGMENT_DEBUG = FragmentShader {
+		out set vec4(1f, 1f, 0f, 1f)
 	}
 
 	val FRAGMENT_SOLID_COLOR = FragmentShader {
@@ -91,20 +95,20 @@ object DefaultShaders {
 
 	val PROGRAM_DEBUG = Program(
 		vertex = VertexShader {
-			SET(out, vec4(a_Pos, 0f.lit, 1f.lit))
+			SET(out, vec4(a_Pos, 0f, 1f))
 		},
 		fragment = FragmentShader {
-			out set vec4(1f.lit, 0f.lit, 0f.lit, 1f.lit)
+			out set vec4(1f, 0f, 0f, 1f)
 		},
 		name = "PROGRAM_DEBUG"
 	)
 
 	val PROGRAM_DEBUG_WITH_PROJ = Program(
 		vertex = VertexShader {
-			SET(out, u_ProjMat * vec4(a_Pos, 0f.lit, 1f.lit))
+			SET(out, u_ProjMat * vec4(a_Pos, 0f, 1f))
 		},
 		fragment = FragmentShader {
-			SET(out, vec4(1f.lit, 0f.lit, 0f.lit, 1f.lit))
+			SET(out, vec4(1f, 0f, 0f, 1f))
 		},
 		name = "PROGRAM_DEBUG_WITH_PROJ"
 	)
