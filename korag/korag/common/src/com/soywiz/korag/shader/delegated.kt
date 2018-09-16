@@ -1,6 +1,7 @@
 package com.soywiz.korag.shader
 
 import com.soywiz.korag.*
+import com.soywiz.korma.*
 import kotlin.reflect.*
 
 class FloatDelegatedUniform(val uniform: Uniform, val values: FloatArray, val index: Int, val onSet: (Float) -> Unit, default: Float) {
@@ -33,7 +34,7 @@ class IntDelegatedUniform(val uniform: Uniform, val values: FloatArray, val inde
 	}
 }
 
-class UniformFloatStorage(val uniforms: AG.UniformValues, val uniform: Uniform, val array: FloatArray = FloatArray(4)) {
+class UniformFloatStorage(val uniforms: AG.UniformValues, val uniform: Uniform, val array: FloatArray) {
 	init {
 		uniforms[uniform] = array
 	}
@@ -47,4 +48,19 @@ class UniformFloatStorage(val uniforms: AG.UniformValues, val uniform: Uniform, 
 	fun intDelegateY(default: Int = 0, onSet: (Int) -> Unit = {}) = intDelegate(1, default, onSet)
 }
 
-fun AG.UniformValues.storageFor(uniform: Uniform) = UniformFloatStorage(this, uniform)
+class UniformMatrixStorage(val uniforms: AG.UniformValues, val uniform: Uniform, val matrix: Matrix4) {
+	init {
+		uniforms[uniform] = matrix
+	}
+
+	fun delegate() = this
+
+	operator fun getValue(obj: Any, prop: KProperty<*>): Matrix4 = matrix
+	operator fun setValue(obj: Any, prop: KProperty<*>, matrix: Matrix4) {
+		uniforms[uniform] = matrix
+	}
+
+}
+
+fun AG.UniformValues.storageFor(uniform: Uniform, array: FloatArray = FloatArray(4)) = UniformFloatStorage(this, uniform, array)
+fun AG.UniformValues.storageForMatrix(uniform: Uniform, matrix: Matrix4 = Matrix4()) = UniformMatrixStorage(this, uniform, matrix)

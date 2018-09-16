@@ -16,6 +16,8 @@ class Matrix4(
 	companion object {
 		private val TEMP = Matrix4()
 		private val TEMP_LINE = FloatArray(4)
+
+		operator fun invoke(vararg data: Float) = Matrix4(data)
 	}
 
 	fun transpose(): Matrix4 {

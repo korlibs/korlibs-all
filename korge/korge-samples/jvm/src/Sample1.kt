@@ -3,11 +3,13 @@ import com.soywiz.korge.view.*
 import com.soywiz.korge.view.effect.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
+import com.soywiz.korma.*
 
 object Sample1 {
 	@JvmStatic
 	fun main(args: Array<String>) = Korge(title = "Sample1") {
-		waveEffectView {
+		//waveEffectView {
+		colorMatrixEffectView(ColorMatrixEffectView.GRAYSCALE_MATRIX) {
 			//swizzleColorsEffectView("bgra") {
 				x = 100.0
 				y = 100.0
