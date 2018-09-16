@@ -28,9 +28,7 @@ class TransitionView() : Container() {
 		this.addChild(next)
 	}
 
-	override fun render(ctx: RenderContext) {
-		if (!visible) return
-		val m = globalMatrix
+	override fun renderInternal(ctx: RenderContext) {
 		when {
 			ratio <= 0.0 -> prev.render(ctx)
 			ratio >= 1.0 -> next.render(ctx)

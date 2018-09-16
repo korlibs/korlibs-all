@@ -81,7 +81,7 @@ class Graphics : Image(Bitmaps.transparent) {
 	override var sLeft = 0.0
 	override var sTop = 0.0
 
-	override fun render(ctx: RenderContext) {
+	override fun renderInternal(ctx: RenderContext) {
 		if (dirty) {
 			dirty = false
 			val bounds = shapes.map { it.getBounds() }.bounds()
@@ -95,7 +95,7 @@ class Graphics : Image(Bitmaps.transparent) {
 			sLeft = bounds.x
 			sTop = bounds.y
 		}
-		super.render(ctx)
+		super.renderInternal(ctx)
 	}
 
 	//override fun hitTestInternal(x: Double, y: Double): View? {

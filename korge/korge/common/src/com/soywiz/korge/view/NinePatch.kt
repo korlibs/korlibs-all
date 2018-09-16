@@ -38,7 +38,7 @@ class NinePatch(
 		MPoint2d(1.0, 1.0)
 	)
 
-	override fun render(ctx: RenderContext) {
+	override fun renderInternal(ctx: RenderContext) {
 		if (!visible) return
 		// Precalculate points to avoid matrix multiplication per vertex on each frame
 

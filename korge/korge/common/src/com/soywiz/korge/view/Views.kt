@@ -292,8 +292,7 @@ class Stage(val views: Views) : Container(), View.Reference {
 
 	override fun hitTest(x: Double, y: Double): View? = super.hitTest(x, y) ?: this
 
-	override fun render(ctx: RenderContext) {
-		val m = globalMatrix
+	override fun renderInternal(ctx: RenderContext) {
 		if (views.clipBorders) {
 			ctx.ctx2d.scissor(
 				AG.Scissor(
@@ -301,10 +300,10 @@ class Stage(val views: Views) : Container(), View.Reference {
 					(views.virtualHeight * scaleY).toInt()
 				)
 			) {
-				super.render(ctx)
+				super.renderInternal(ctx)
 			}
 		} else {
-			super.render(ctx)
+			super.renderInternal(ctx)
 		}
 	}
 }

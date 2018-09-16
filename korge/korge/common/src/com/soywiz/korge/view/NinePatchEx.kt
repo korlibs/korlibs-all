@@ -30,7 +30,7 @@ class NinePatchEx(
 		): NinePatchEx = NinePatchEx(Tex(ninePatch), width, height)
 	}
 
-	override fun render(ctx: RenderContext) {
+	override fun renderInternal(ctx: RenderContext) {
 		if (!visible) return
 
 		val m = globalMatrix

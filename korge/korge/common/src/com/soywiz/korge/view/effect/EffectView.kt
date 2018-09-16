@@ -53,7 +53,7 @@ open class EffectView : Container() {
 		}
 	}
 
-	override fun render(ctx: RenderContext) {
+	override fun renderInternal(ctx: RenderContext) {
 		val bounds = getLocalBounds()
 
 		//println("$this: [0] $bounds")
@@ -66,7 +66,7 @@ open class EffectView : Container() {
 			tempMat2d.translate(-bounds.x + borderEffect, -bounds.y + borderEffect)
 			//println("$this: [1] $tempMat2d")
 			ctx.batch.setViewMatrixTemp(tempMat2d, temp = oldViewMatrix) {
-				super.render(ctx)
+				super.renderInternal(ctx)
 			}
 		}) { texture ->
 			// @TODO: Precompute vertices

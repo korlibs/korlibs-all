@@ -1,8 +1,10 @@
 package com.soywiz.korge.view
 
 import com.soywiz.kds.*
+import com.soywiz.korag.shader.*
 import com.soywiz.korge.component.*
 import com.soywiz.korge.render.*
+import com.soywiz.korge.view.filter.*
 import com.soywiz.korim.color.*
 import com.soywiz.korio.crypto.*
 import com.soywiz.korio.error.*
@@ -422,7 +424,47 @@ abstract class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by Eve
 		dirtyVertices = true
 	}
 
-	abstract override fun render(ctx: RenderContext)
+	var filter: Filter? = null
+
+	final override fun render(ctx: RenderContext) {
+		if (!visible) return
+		if (filter != null) {
+			renderFiltered(ctx, filter!!)
+		} else {
+			renderInternal(ctx)
+		}
+	}
+
+	private fun renderFiltered(ctx: RenderContext, filter: Filter) {
+		val bounds = getLocalBounds()
+
+		val borderEffect = filter.border
+		val tempMat2d = filter.tempMat2d
+		val oldViewMatrix = filter.oldViewMatrix
+
+		//println("$this: [0] $bounds")
+
+		val texWidth = bounds.width.toInt() + borderEffect * 2
+		val texHeight = bounds.height.toInt() + borderEffect * 2
+
+		ctx.renderToTexture(texWidth, texHeight, render = {
+			tempMat2d.copyFrom(this.globalMatrixInv)
+			tempMat2d.translate(-bounds.x + borderEffect, -bounds.y + borderEffect)
+			//println("$this: [1] $tempMat2d")
+			ctx.batch.setViewMatrixTemp(tempMat2d, temp = oldViewMatrix) {
+				renderInternal(ctx)
+			}
+		}) { texture ->
+			//println(textureSizeHolder.toList())
+			tempMat2d.copyFrom(this.globalMatrix)
+			tempMat2d.pretranslate(-borderEffect + bounds.x, -borderEffect + bounds.y)
+			//println("EffectUniforms: ${this.uniforms}")
+			//println("$this: [2] $tempMat2d")
+			filter.render(ctx, tempMat2d, texture, texWidth, texHeight, renderColorAdd, renderColorMulInt, blendMode)
+		}
+	}
+
+	protected abstract fun renderInternal(ctx: RenderContext)
 
 	@Suppress("RemoveCurlyBracesFromTemplate")
 	override fun toString(): String {
@@ -687,7 +729,7 @@ fun View.hitTest(pos: Point2d): View? = hitTest(pos.x, pos.y)
 
 open class DummyView : View() {
 	override fun createInstance(): View = DummyView()
-	override fun render(ctx: RenderContext) = Unit
+	override fun renderInternal(ctx: RenderContext) = Unit
 }
 
 fun View.hasAncestor(ancestor: View): Boolean {

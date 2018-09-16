@@ -39,7 +39,7 @@ abstract class AnBaseShape(final override val library: AnLibrary, final override
 	val posCuts = arrayOf(MPoint2d(0.0, 0.0), MPoint2d(0.25, 0.25), MPoint2d(0.75, 0.75), MPoint2d(1.0, 1.0))
 	val texCuts = arrayOf(MPoint2d(0.0, 0.0), MPoint2d(0.25, 0.25), MPoint2d(0.75, 0.75), MPoint2d(1.0, 1.0))
 
-	override fun render(ctx: RenderContext) {
+	override fun renderInternal(ctx: RenderContext) {
 		if (!visible) return
 		//println("%08X".format(globalColor))
 		//println("$id: " + globalColorTransform + " : " + colorTransform + " : " + parent?.colorTransform)
@@ -452,7 +452,7 @@ class AnMovieClip(override val library: AnLibrary, override val symbol: AnSymbol
 	}
 
 	private val tempMatrix = Matrix2d()
-	override fun render(ctx: RenderContext) {
+	override fun renderInternal(ctx: RenderContext) {
 		if (!visible) return
 
 		maskPopDepths.fill(false)

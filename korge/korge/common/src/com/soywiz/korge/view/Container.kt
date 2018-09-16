@@ -83,7 +83,7 @@ open class Container : View() {
 	}
 
 	private val tempMatrix = Matrix2d()
-	override fun render(ctx: RenderContext) {
+	override fun renderInternal(ctx: RenderContext) {
 		if (!visible) return
 		safeForEachChildren { child ->
 			child.render(ctx)

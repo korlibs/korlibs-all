@@ -45,9 +45,9 @@ open class RectBase(
 			.select(3).xy(x, y + height, matrix).uv(bmp.bl_x, bmp.bl_y).cols(colMulInt, colAdd)
 	}
 
-	override fun render(ctx: RenderContext) {
+	override fun renderInternal(ctx: RenderContext) {
 		if (!visible) return
-		super.render(ctx)
+		super.renderInternal(ctx)
 		if (baseBitmap !== Bitmaps.transparent) {
 			computeVertexIfRequired()
 			//println("$name: ${vertices.str(0)}, ${vertices.str(1)}, ${vertices.str(2)}, ${vertices.str(3)}")

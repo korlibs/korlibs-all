@@ -17,12 +17,12 @@ class ScaleView(width: Int, height: Int, scale: Double = 2.0, var filtering: Boo
 
 	//val once = Once()
 
-	override fun render(ctx: RenderContext) {
+	override fun renderInternal(ctx: RenderContext) {
 		val iwidth = width.toInt()
 		val iheight = height.toInt()
 
 		ctx.renderToTexture(iwidth, iheight, render = {
-			super.render(ctx)
+			super.renderInternal(ctx)
 		}, use = { renderTexture ->
 			ctx.batch.drawQuad(
 				tex = renderTexture,

@@ -84,7 +84,7 @@ class Text : View(), IText, IHtml {
 		document?.doPositioning(fonts, textBounds)
 	}
 
-	override fun render(ctx: RenderContext) {
+	override fun renderInternal(ctx: RenderContext) {
 		if (!visible) return
 		val colorMul = renderColorMul
 		val colorAdd = renderColorAdd

@@ -96,7 +96,7 @@ open class TileMap(val map: IntArray2, val tileset: TileSet) : View() {
 	private var lastVirtualRect = Rectangle(-1, -1, -1, -1)
 	private var currentVirtualRect = Rectangle(-1, -1, -1, -1)
 
-	override fun render(ctx: RenderContext) {
+	override fun renderInternal(ctx: RenderContext) {
 		if (!visible) return
 		currentVirtualRect.setBounds(ctx.virtualLeft, ctx.virtualTop, ctx.virtualRight, ctx.virtualBottom)
 		if (currentVirtualRect != lastVirtualRect) {
