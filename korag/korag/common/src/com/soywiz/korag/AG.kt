@@ -548,6 +548,7 @@ abstract class AG : Extra by Extra.Mixin() {
 
 		open fun start(width: Int, height: Int) = Unit
 		open fun set(): Unit = Unit
+		open fun prepareTexture(): AG.Texture = tex
 		fun readBitmap(bmp: Bitmap32) = this@AG.readColor(bmp)
 		fun readDepth(width: Int, height: Int, out: FloatArray): Unit = this@AG.readDepth(width, height, out)
 		override fun close() = Unit
@@ -593,6 +594,7 @@ abstract class AG : Extra by Extra.Mixin() {
 		try {
 			clear(Colors.TRANSPARENT_BLACK) // transparent
 			render()
+			rb.prepareTexture()
 		} finally {
 			viewport[0] = vX
 			viewport[1] = vY

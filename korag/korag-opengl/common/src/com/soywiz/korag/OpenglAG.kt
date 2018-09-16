@@ -40,7 +40,18 @@ abstract class AGOpengl : AG() {
 
 	inner class GlRenderBuffer : RenderBuffer() {
 		var cachedVersion = -1
-		val wtex get() = tex as GlTexture
+
+		private var icachedTexVersion = -1
+		private var _ftex: GlTexture? = null
+
+		val ftex: GlTexture
+			get() {
+				if (icachedTexVersion != contextVersion) {
+					icachedTexVersion = contextVersion
+					_ftex = (createTexture(premultiplied = false).manualUpload() as GlTexture)
+				}
+				return _ftex!!
+			}
 
 		val depth = KmlNativeBuffer(4)
 		val framebuffer = KmlNativeBuffer(4)
@@ -61,7 +72,7 @@ abstract class AGOpengl : AG() {
 					checkErrors { genFramebuffers(1, framebuffer) }
 				}
 
-				checkErrors { bindTexture(TEXTURE_2D, wtex.tex) }
+				checkErrors { bindTexture(TEXTURE_2D, ftex.tex) }
 				checkErrors { texParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, LINEAR) }
 				checkErrors { texParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, LINEAR) }
 				checkErrors { texImage2D(TEXTURE_2D, 0, RGBA, width, height, 0, RGBA, UNSIGNED_BYTE, null) }
@@ -75,10 +86,18 @@ abstract class AGOpengl : AG() {
 		override fun set() {
 			gl.apply {
 				checkErrors { bindFramebuffer(FRAMEBUFFER, framebuffer.getInt(0)) }
-				checkErrors { framebufferTexture2D(FRAMEBUFFER, COLOR_ATTACHMENT0, TEXTURE_2D, wtex.tex, 0) }
+				checkErrors { framebufferTexture2D(FRAMEBUFFER, COLOR_ATTACHMENT0, TEXTURE_2D, ftex.tex, 0) }
 				checkErrors { framebufferRenderbuffer(FRAMEBUFFER, DEPTH_ATTACHMENT, RENDERBUFFER, depth.getInt(0)) }
 				setViewport(0, 0, width, height)
 			}
+		}
+
+		override fun prepareTexture(): AG.Texture {
+			gl.apply {
+				tex.bind()
+				checkErrors { copyTexImage2D(TEXTURE_2D, 0, RGBA, 0, 0, width, height, 0) }
+			}
+			return super.prepareTexture()
 		}
 
 		override fun close() {
