@@ -1,3 +1,7 @@
+/**
+ * https://www.khronos.org/files/webgl/webgl-reference-card-1_0.pdf
+ */
+
 @file:Suppress("unused")
 
 package com.soywiz.korag.shader
@@ -10,9 +14,12 @@ enum class VarKind(val bytesSize: Int) {
 	BYTE(1), UNSIGNED_BYTE(1), SHORT(2), UNSIGNED_SHORT(2), INT(4), FLOAT(4)
 }
 
-enum class VarType(val kind: VarKind, val elementCount: Int) {
+enum class VarType(val kind: VarKind, val elementCount: Int, val isMatrix: Boolean = false) {
 	VOID(VarKind.BYTE, elementCount = 0),
-	Mat4(VarKind.FLOAT, elementCount = 16),
+
+	Mat2(VarKind.FLOAT, elementCount = 4, isMatrix = true),
+	Mat3(VarKind.FLOAT, elementCount = 9, isMatrix = true),
+	Mat4(VarKind.FLOAT, elementCount = 16, isMatrix = true),
 
 	TextureUnit(VarKind.INT, elementCount = 1),
 
@@ -147,6 +154,7 @@ class Program(val vertex: VertexShader, val fragment: FragmentShader, val name: 
 	class BoolLiteral(val value: Boolean) : Operand(VarType.Bool1)
 	class Vector(type: VarType, val ops: List<Operand>) : Operand(type)
 	class Swizzle(val left: Operand, val swizzle: String) : Operand(left.type)
+	class ArrayAccess(val left: Operand, val index: Operand) : Operand(left.type)
 
 	class Func(val name: String, val ops: List<Operand>) : Operand(VarType.Float1) {
 		constructor(name: String, vararg ops: Operand) : this(name, ops.toList())
@@ -201,6 +209,9 @@ class Program(val vertex: VertexShader, val fragment: FragmentShader, val name: 
 			outputStms += Stm.Discard()
 		}
 
+		private var tempLastId = 3
+		fun createTemp(type: VarType) = Temp(tempLastId++, type)
+
 		infix fun Operand.set(from: Any) = run { outputStms += Stm.Set(this, from.op) }
 		infix fun Operand.setTo(from: Any) = run { outputStms += Stm.Set(this, from.op) }
 
@@ -226,6 +237,8 @@ class Program(val vertex: VertexShader, val fragment: FragmentShader, val name: 
 		// Sampling
 		fun texture2D(a: Any, b: Any) = Func("texture2D", a.op, b.op)
 
+		fun func(name: String, vararg args: Any) = Func(name, *args.map { it.op }.toTypedArray())
+
 		fun pow(b: Any, e: Any) = Func("pow", b.op, e.op)
 		fun exp(v: Any) = Func("exp", v.op)
 		fun exp2(v: Any) = Func("exp2", v.op)
@@ -243,9 +256,18 @@ class Program(val vertex: VertexShader, val fragment: FragmentShader, val name: 
 		fun min(a: Any, b: Any) = Func("min", a.op, b.op)
 		fun max(a: Any, b: Any) = Func("max", a.op, b.op)
 		fun mod(a: Any, b: Any) = Func("mod", a.op, b.op)
+		fun mix(a: Any, b: Any, step: Any) = Func("mix", a.op, b.op, step.op)
 		fun step(a: Any, b: Any) = Func("step", a.op, b.op)
 		fun smoothstep(a: Any, b: Any, c: Any) = Func("smoothstep", a.op, b.op, c.op)
-		fun mix(a: Any, b: Any, step: Any) = Func("mix", a.op, b.op, step.op)
+
+		fun length(a: Any) = Func("length", a.op)
+		fun distance(a: Any, b: Any) = Func("distance", a.op, b.op)
+		fun dot(a: Any, b: Any) = Func("dot", a.op, b.op)
+		fun cross(a: Any, b: Any) = Func("cross", a.op, b.op)
+		fun normalize(a: Any) = Func("normalize", a.op)
+		fun faceforward(a: Any, b: Any, c: Any) = Func("faceforward", a.op, b.op, c.op)
+		fun reflect(a: Any, b: Any) = Func("reflect", a.op, b.op)
+		fun refract(a: Any, b: Any, c: Any) = Func("refract", a.op, b.op, c.op)
 
 		val Int.lit: IntLiteral get() = IntLiteral(this)
 		val Double.lit: FloatLiteral get() = FloatLiteral(this.toFloat())
@@ -258,11 +280,28 @@ class Program(val vertex: VertexShader, val fragment: FragmentShader, val name: 
 		fun vec3(vararg ops: Any): Operand = Vector(VarType.Float3, ops.toList().ops)
 		fun vec4(vararg ops: Any): Operand = Vector(VarType.Float4, ops.toList().ops)
 		//fun Operand.swizzle(swizzle: String): Operand = Swizzle(this, swizzle)
+		operator fun Operand.get(index: Int): Operand {
+			return when {
+				this.type.isMatrix -> ArrayAccess(this, index.lit)
+				else -> when (index) {
+					0 -> this.x
+					1 -> this.y
+					2 -> this.z
+					3 -> this.w
+					else -> error("Invalid index $index")
+				}
+			}
+		}
 		operator fun Operand.get(swizzle: String) = Swizzle(this, swizzle)
 		val Operand.x get() = this["x"]
 		val Operand.y get() = this["y"]
 		val Operand.z get() = this["z"]
 		val Operand.w get() = this["w"]
+
+		val Operand.r get() = this["x"]
+		val Operand.g get() = this["y"]
+		val Operand.b get() = this["z"]
+		val Operand.a get() = this["w"]
 
 		val List<Any>.ops: List<Operand> get() = this.map { it.op }
 
@@ -291,7 +330,9 @@ class Program(val vertex: VertexShader, val fragment: FragmentShader, val name: 
 		infix fun Any.ge(that: Any) = Binop(this.op, ">=", that.op)
 	}
 
-	open class Visitor {
+	open class Visitor<E>(val default: E) {
+		protected open fun default(): E = default
+
 		open fun visit(stm: Stm) = when (stm) {
 			is Stm.Stms -> visit(stm)
 			is Stm.Set -> visit(stm)
@@ -316,7 +357,7 @@ class Program(val vertex: VertexShader, val fragment: FragmentShader, val name: 
 		open fun visit(stm: Stm.Discard) {
 		}
 
-		open fun visit(operand: Operand) = when (operand) {
+		open fun visit(operand: Operand): E = when (operand) {
 			is Variable -> visit(operand)
 			is Binop -> visit(operand)
 			is BoolLiteral -> visit(operand)
@@ -324,15 +365,17 @@ class Program(val vertex: VertexShader, val fragment: FragmentShader, val name: 
 			is FloatLiteral -> visit(operand)
 			is Vector -> visit(operand)
 			is Swizzle -> visit(operand)
+			is ArrayAccess -> visit(operand)
 			is Func -> visit(operand)
 			else -> invalidOp("Don't know how to visit operand $operand")
 		}
 
-		open fun visit(func: Func) {
+		open fun visit(func: Func): E {
 			for (op in func.ops) visit(op)
+			return default()
 		}
 
-		open fun visit(operand: Variable) = when (operand) {
+		open fun visit(operand: Variable): E = when (operand) {
 			is Attribute -> visit(operand)
 			is Varying -> visit(operand)
 			is Uniform -> visit(operand)
@@ -341,49 +384,43 @@ class Program(val vertex: VertexShader, val fragment: FragmentShader, val name: 
 			else -> invalidOp("Don't know how to visit basename $operand")
 		}
 
-		open fun visit(temp: Temp) {
-		}
-
-		open fun visit(attribute: Attribute) {
-		}
-
-		open fun visit(varying: Varying) {
-		}
-
-		open fun visit(uniform: Uniform) {
-		}
-
-		open fun visit(output: Output) {
-		}
-
-		open fun visit(operand: Binop) {
+		open fun visit(temp: Temp): E = default()
+		open fun visit(attribute: Attribute): E = default()
+		open fun visit(varying: Varying): E = default()
+		open fun visit(uniform: Uniform): E = default()
+		open fun visit(output: Output): E = default()
+		open fun visit(operand: Binop): E {
 			visit(operand.left)
 			visit(operand.right)
+			return default()
 		}
 
-		open fun visit(operand: Swizzle) {
+		open fun visit(operand: Swizzle): E {
 			visit(operand.left)
+			return default()
 		}
 
-		open fun visit(operand: Vector) {
+		open fun visit(operand: ArrayAccess): E {
+			visit(operand.left)
+			visit(operand.index)
+			return default()
+		}
+
+		open fun visit(operand: Vector): E {
 			for (op in operand.ops) visit(op)
+			return default()
 		}
 
-		open fun visit(operand: IntLiteral) {
-		}
-
-		open fun visit(operand: FloatLiteral) {
-		}
-
-		open fun visit(operand: BoolLiteral) {
-		}
+		open fun visit(operand: IntLiteral): E = default()
+		open fun visit(operand: FloatLiteral): E = default()
+		open fun visit(operand: BoolLiteral): E = default()
 	}
 }
 
 open class Shader(val type: ShaderType, val stm: Program.Stm) {
 	val uniforms by lazy {
 		val out = LinkedHashSet<Uniform>()
-		object : Program.Visitor() {
+		object : Program.Visitor<Unit>(Unit) {
 			override fun visit(uniform: Uniform) = run { out += uniform }
 		}.visit(stm)
 		out.toSet()
@@ -391,7 +428,7 @@ open class Shader(val type: ShaderType, val stm: Program.Stm) {
 
 	val attributes by lazy {
 		val out = LinkedHashSet<Attribute>()
-		object : Program.Visitor() {
+		object : Program.Visitor<Unit>(Unit) {
 			override fun visit(attribute: Attribute) = run { out += attribute }
 		}.visit(stm)
 		out.toSet()

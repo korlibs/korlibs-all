@@ -16,7 +16,7 @@ class ColorMatrixEffectView(colorMatrix: Matrix4) : EffectView() {
 		)
 	}
 
-	val colorMatrix by uniforms.storageForMatrix(u_ColorMatrix, colorMatrix)
+	val colorMatrix by uniforms.storageForMatrix4(u_ColorMatrix, colorMatrix)
 
 	init {
 		fragment = FragmentShader {

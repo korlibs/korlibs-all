@@ -48,19 +48,21 @@ class UniformFloatStorage(val uniforms: AG.UniformValues, val uniform: Uniform, 
 	fun intDelegateY(default: Int = 0, onSet: (Int) -> Unit = {}) = intDelegate(1, default, onSet)
 }
 
-class UniformMatrixStorage(val uniforms: AG.UniformValues, val uniform: Uniform, val matrix: Matrix4) {
+class UniformValueStorage<T : Any>(val uniforms: AG.UniformValues, val uniform: Uniform, val value: T) {
 	init {
-		uniforms[uniform] = matrix
+		uniforms[uniform] = value
 	}
 
 	fun delegate() = this
 
-	operator fun getValue(obj: Any, prop: KProperty<*>): Matrix4 = matrix
-	operator fun setValue(obj: Any, prop: KProperty<*>, matrix: Matrix4) {
-		uniforms[uniform] = matrix
+	operator fun getValue(obj: Any, prop: KProperty<*>): T = value
+	operator fun setValue(obj: Any, prop: KProperty<*>, value: T) {
+		uniforms[uniform] = value
 	}
-
 }
 
 fun AG.UniformValues.storageFor(uniform: Uniform, array: FloatArray = FloatArray(4)) = UniformFloatStorage(this, uniform, array)
-fun AG.UniformValues.storageForMatrix(uniform: Uniform, matrix: Matrix4 = Matrix4()) = UniformMatrixStorage(this, uniform, matrix)
+fun AG.UniformValues.storageForMatrix2(uniform: Uniform, matrix: Matrix2 = Matrix2()) = UniformValueStorage(this, uniform, matrix)
+fun AG.UniformValues.storageForMatrix3(uniform: Uniform, matrix: Matrix3 = Matrix3()) = UniformValueStorage(this, uniform, matrix)
+fun AG.UniformValues.storageForMatrix4(uniform: Uniform, matrix: Matrix4 = Matrix4()) = UniformValueStorage(this, uniform, matrix)
+

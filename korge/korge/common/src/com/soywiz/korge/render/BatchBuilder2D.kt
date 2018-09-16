@@ -356,13 +356,13 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 
 		fun buildTextureLookupFragment(premultiplied: Boolean) = FragmentShader {
 			DefaultShaders.apply {
-				SET(t_Temp1, texture2D(u_Tex, v_Tex["xy"]))
+				SET(t_Temp0, texture2D(u_Tex, v_Tex["xy"]))
 				if (premultiplied) {
-					SET(t_Temp1["rgb"], t_Temp1["rgb"] / t_Temp1["a"])
+					SET(t_Temp0["rgb"], t_Temp0["rgb"] / t_Temp0["a"])
 				}
 				SET(
 					out,
-					(t_Temp1["rgba"] * v_ColMul["rgba"]) + ((v_ColAdd["rgba"] - vec4(
+					(t_Temp0["rgba"] * v_ColMul["rgba"]) + ((v_ColAdd["rgba"] - vec4(
 						0.5f.lit,
 						0.5f.lit,
 						0.5f.lit,

@@ -222,6 +222,26 @@ abstract class AGOpengl : AG() {
 					checkErrors { gl.uniform1i(location, textureUnit) }
 					textureUnit++
 				}
+				VarType.Mat2 -> {
+					checkErrors {
+						gl.uniformMatrix2fv(
+							location,
+							1,
+							false,
+							tempBuffer16.setFloats(0, (value as Matrix2).data, 0, 4)
+						)
+					}
+				}
+				VarType.Mat3 -> {
+					checkErrors {
+						gl.uniformMatrix3fv(
+							location,
+							1,
+							false,
+							tempBuffer16.setFloats(0, (value as Matrix3).data, 0, 9)
+						)
+					}
+				}
 				VarType.Mat4 -> {
 					checkErrors {
 						gl.uniformMatrix4fv(

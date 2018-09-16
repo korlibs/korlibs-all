@@ -65,6 +65,7 @@ open class EffectView : Container() {
 			// @TODO: Precompute vertices
 			textureSizeHolder[0] = texture.base.width.toFloat()
 			textureSizeHolder[1] = texture.base.height.toFloat()
+			updateUniforms()
 
 			//println(textureSizeHolder.toList())
 			tempMat2d.copyFrom(globalMatrix)
@@ -83,6 +84,9 @@ open class EffectView : Container() {
 				)
 			}
 		}
+	}
+
+	protected open fun updateUniforms() {
 	}
 }
 

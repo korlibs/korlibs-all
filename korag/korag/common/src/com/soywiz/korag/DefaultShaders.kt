@@ -26,7 +26,8 @@ object DefaultShaders {
 	val v_Tex = Varying("v_Tex", VarType.Float2)
 	val v_Col = Varying("v_Col", VarType.Byte4)
 
-	val t_Temp1 = Temp(0, VarType.Float4)
+	val t_Temp0 = Temp(0, VarType.Float4)
+	val t_Temp1 = Temp(1, VarType.Float4)
 
 	init { logger.trace { "DefaultShaders[2]" } }
 
@@ -68,9 +69,9 @@ object DefaultShaders {
 			//t_Temp1["xyz"] set t_Temp1["xyz"] / t_Temp1["w"]
 			//out set (t_Temp1 * v_Col)
 			//out set (texture2D(u_Tex, v_Tex["xy"])["bgra"] * v_Col)
-			SET(t_Temp1, texture2D(u_Tex, v_Tex["xy"]))
-			SET(t_Temp1["rgb"], t_Temp1["rgb"] / t_Temp1["a"])
-			SET(out, t_Temp1["rgba"] * v_Col)
+			SET(t_Temp0, texture2D(u_Tex, v_Tex["xy"]))
+			SET(t_Temp0["rgb"], t_Temp0["rgb"] / t_Temp0["a"])
+			SET(out, t_Temp0["rgba"] * v_Col)
 		},
 		name = "PROGRAM_TINTED_TEXTURE"
 	)
@@ -111,4 +112,6 @@ object DefaultShaders {
 	val PROGRAM_DEFAULT by lazy { PROGRAM_TINTED_TEXTURE_PREMULT }
 
 	init { logger.trace { "DefaultShaders[5]" } }
+
+	inline operator fun invoke(callback: DefaultShaders.() -> Unit) = this.apply(callback)
 }

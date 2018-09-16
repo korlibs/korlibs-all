@@ -2,19 +2,22 @@ package com.soywiz.korag.shader.gl
 
 import com.soywiz.korag.shader.*
 import com.soywiz.korio.error.*
+import com.soywiz.korio.util.*
 
 class GlslGenerator(val kind: ShaderType, @Suppress("unused") val gles: Boolean = true, val version: Int = 100) :
-	Program.Visitor() {
+	Program.Visitor<String>("") {
 	private val temps = hashSetOf<Temp>()
 	private val attributes = hashSetOf<Attribute>()
 	private val varyings = hashSetOf<Varying>()
 	private val uniforms = hashSetOf<Uniform>()
-	private var programStr = StringBuilder()
+	private var programIndenter = Indenter()
 
 	private fun errorType(type: VarType): Nothing = invalidOp("Don't know how to serialize type $type")
 
 	fun typeToString(type: VarType) = when (type) {
 		VarType.Byte4 -> "vec4"
+		VarType.Mat2 -> "mat2"
+		VarType.Mat3 -> "mat3"
 		VarType.Mat4 -> "mat4"
 		VarType.TextureUnit -> "sampler2D"
 		else -> {
@@ -46,172 +49,120 @@ class GlslGenerator(val kind: ShaderType, @Suppress("unused") val gles: Boolean 
 		attributes.clear()
 		varyings.clear()
 		uniforms.clear()
-		programStr = StringBuilder()
+		programIndenter = Indenter()
 		visit(root)
-
-		val prefix = arrayListOf<String>()
 
 		if (kind == ShaderType.FRAGMENT && attributes.isNotEmpty()) {
 			throw RuntimeException("Can't use attributes in fragment shader")
 		}
-		for (a in attributes) prefix += "attribute ${typeToString(a.type)} ${a.name};"
-		for (u in uniforms) prefix += "uniform ${typeToString(u.type)} ${u.name};"
-		for (v in varyings) prefix += "varying ${typeToString(v.type)} ${v.name};"
 
-		val precissions = arrayListOf<String>()
-		precissions += "#version $version"
-		precissions += "#ifdef GL_ES"
-		precissions += "precision mediump float;"
-		precissions += "precision mediump int;"
-		precissions += "precision lowp sampler2D;"
-		precissions += "precision lowp samplerCube;"
-		precissions += "#endif"
+		return Indenter {
+			if (gles) {
+				line("#version $version")
+				line("#ifdef GL_ES")
+				indent {
+					line("precision mediump float;")
+					line("precision mediump int;")
+					line("precision lowp sampler2D;")
+					line("precision lowp samplerCube;")
+				}
+				line("#endif")
+			}
 
-		val tempsStr = temps.map {
-			typeToString(it.type) + " " + it.name + ";"
-		}
+			for (it in attributes) line("attribute ${typeToString(it.type)} ${it.name};")
+			for (it in uniforms) line("uniform ${typeToString(it.type)} ${it.name};")
+			for (it in varyings) line("varying ${typeToString(it.type)} ${it.name};")
 
-		val preprefix = if (gles) {
-			precissions.joinToString("\n") + "\n"
-		} else {
-			""
-		}
+			line("void main()") {
+				for (temp in temps) {
+					line(typeToString(temp.type) + " " + temp.name + ";")
+				}
+				line(programIndenter)
+			}
+		}.toString()
 
-		return preprefix + prefix.joinToString("\n") + "\n" + "void main() {" + tempsStr.joinToString("\n") + programStr.toString() + "}"
 	}
 
 	override fun visit(stms: Program.Stm.Stms) {
-		programStr.append("{")
-		for (stm in stms.stms) visit(stm)
-		programStr.append("}")
+		//programIndenter.line("") {
+			for (stm in stms.stms) {
+				visit(stm)
+			}
+		//}
 	}
 
 	override fun visit(stm: Program.Stm.Set) {
-		visit(stm.to)
-		programStr.append(" = ")
-		visit(stm.from)
-		programStr.append(";")
+		programIndenter.line("${visit(stm.to)} = ${visit(stm.from)};")
 	}
 
 	override fun visit(stm: Program.Stm.Discard) {
-		programStr.append("discard;")
+		programIndenter.line("discard;")
 	}
 
-	override fun visit(operand: Program.Vector) {
-		val type = when (operand.type) {
-			VarType.Float1 -> "vec1"
-			VarType.Float2 -> "vec2"
-			VarType.Float3 -> "vec3"
-			VarType.Float4 -> "vec4"
-			else -> TODO("Program.Vector(type=${operand.type})")
-		}
-		programStr.append(type)
-		programStr.append("(")
-		var first = true
-		for (op in operand.ops) {
-			if (!first) {
-				programStr.append(",")
-			}
-			visit(op)
-			first = false
-		}
-		programStr.append(")")
-	}
+	override fun visit(operand: Program.Vector): String =
+		typeToString(operand.type) + "(" + operand.ops.joinToString(", ") { visit(it) } + ")"
 
-	override fun visit(operand: Program.Binop) {
-		programStr.append("(")
-		visit(operand.left)
-		programStr.append(operand.op)
-		visit(operand.right)
-		programStr.append(")")
-	}
-
-	override fun visit(func: Program.Func) {
-		programStr.append(func.name)
-		programStr.append("(")
-		var first = true
-		for (op in func.ops) {
-			if (!first) programStr.append(", ")
-			visit(op)
-			first = false
-		}
-		programStr.append(")")
-	}
+	override fun visit(operand: Program.Binop): String = "(" + visit(operand.left) + " " + operand.op + " " + visit(operand.right) + ")"
+	override fun visit(func: Program.Func): String = func.name + "(" + func.ops.joinToString(", ") { visit(it) } + ")"
 
 	override fun visit(stm: Program.Stm.If) {
-		programStr.append("if (")
-		visit(stm.cond)
-		programStr.append(") ")
-		visit(stm.tbody)
-		if (stm.fbody != null) {
-			programStr.append(" else ")
-			visit(stm.fbody!!)
-		}
-	}
-
-	override fun visit(operand: Variable) {
-		if (operand is Output) {
-			programStr.append(
-				when (kind) {
-					ShaderType.VERTEX -> "gl_Position"
-					ShaderType.FRAGMENT -> "gl_FragColor"
+		programIndenter.apply {
+			line("if (${visit(stm.cond)})") {
+				visit(stm.tbody)
+			}
+			if (stm.fbody != null) {
+				line("else") {
+					visit(stm.fbody!!)
 				}
-			)
-		} else {
-			programStr.append(operand.name)
+			}
 		}
-		super.visit(operand)
 	}
 
-	override fun visit(temp: Temp) {
+	override fun visit(operand: Variable): String {
+		super.visit(operand)
+		return when (operand) {
+			is Output -> when (kind) {
+				ShaderType.VERTEX -> "gl_Position"
+				ShaderType.FRAGMENT -> "gl_FragColor"
+			}
+			else -> operand.name
+		}
+	}
+
+	override fun visit(temp: Temp): String {
 		temps += temp
-		super.visit(temp)
+		return super.visit(temp)
 	}
 
-	override fun visit(attribute: Attribute) {
+	override fun visit(attribute: Attribute): String {
 		attributes += attribute
-		super.visit(attribute)
+		return super.visit(attribute)
 	}
 
-	override fun visit(varying: Varying) {
+	override fun visit(varying: Varying): String {
 		varyings += varying
-		super.visit(varying)
+		return super.visit(varying)
 	}
 
-	override fun visit(uniform: Uniform) {
+	override fun visit(uniform: Uniform): String {
 		uniforms += uniform
-		super.visit(uniform)
+		return super.visit(uniform)
 	}
 
-	override fun visit(output: Output) {
-		super.visit(output)
+	override fun visit(output: Output): String {
+		return super.visit(output)
 	}
 
-	override fun visit(operand: Program.IntLiteral) {
-		programStr.append(operand.value)
-		super.visit(operand)
-	}
+	override fun visit(operand: Program.IntLiteral): String = "${operand.value}"
 
-	override fun visit(operand: Program.FloatLiteral) {
+	override fun visit(operand: Program.FloatLiteral): String {
 		val str = "${operand.value}"
-
-		if (str.contains('.')) {
-			programStr.append(str)
-		} else {
-			programStr.append("$str.0")
-		}
-		super.visit(operand)
+		return if (str.contains('.')) str else "$str.0"
 	}
 
-	override fun visit(operand: Program.BoolLiteral) {
-		programStr.append(operand.value)
-		super.visit(operand)
-	}
-
-	override fun visit(operand: Program.Swizzle) {
-		visit(operand.left)
-		programStr.append(".${operand.swizzle}")
-	}
+	override fun visit(operand: Program.BoolLiteral): String = "${operand.value}"
+	override fun visit(operand: Program.Swizzle): String = visit(operand.left) + "." + operand.swizzle
+	override fun visit(operand: Program.ArrayAccess): String = visit(operand.left) + "[" + visit(operand.index) + "]"
 }
 
 fun Shader.toGlSl(): String = GlslGenerator(this.type).generate(this.stm)
