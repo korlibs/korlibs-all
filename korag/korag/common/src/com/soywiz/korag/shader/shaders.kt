@@ -331,8 +331,6 @@ class Program(val vertex: VertexShader, val fragment: FragmentShader, val name: 
 	}
 
 	open class Visitor<E>(val default: E) {
-		protected open fun default(): E = default
-
 		open fun visit(stm: Stm) = when (stm) {
 			is Stm.Stms -> visit(stm)
 			is Stm.Set -> visit(stm)
@@ -372,7 +370,7 @@ class Program(val vertex: VertexShader, val fragment: FragmentShader, val name: 
 
 		open fun visit(func: Func): E {
 			for (op in func.ops) visit(op)
-			return default()
+			return default
 		}
 
 		open fun visit(operand: Variable): E = when (operand) {
@@ -384,36 +382,36 @@ class Program(val vertex: VertexShader, val fragment: FragmentShader, val name: 
 			else -> invalidOp("Don't know how to visit basename $operand")
 		}
 
-		open fun visit(temp: Temp): E = default()
-		open fun visit(attribute: Attribute): E = default()
-		open fun visit(varying: Varying): E = default()
-		open fun visit(uniform: Uniform): E = default()
-		open fun visit(output: Output): E = default()
+		open fun visit(temp: Temp): E = default
+		open fun visit(attribute: Attribute): E = default
+		open fun visit(varying: Varying): E = default
+		open fun visit(uniform: Uniform): E = default
+		open fun visit(output: Output): E = default
 		open fun visit(operand: Binop): E {
 			visit(operand.left)
 			visit(operand.right)
-			return default()
+			return default
 		}
 
 		open fun visit(operand: Swizzle): E {
 			visit(operand.left)
-			return default()
+			return default
 		}
 
 		open fun visit(operand: ArrayAccess): E {
 			visit(operand.left)
 			visit(operand.index)
-			return default()
+			return default
 		}
 
 		open fun visit(operand: Vector): E {
 			for (op in operand.ops) visit(op)
-			return default()
+			return default
 		}
 
-		open fun visit(operand: IntLiteral): E = default()
-		open fun visit(operand: FloatLiteral): E = default()
-		open fun visit(operand: BoolLiteral): E = default()
+		open fun visit(operand: IntLiteral): E = default
+		open fun visit(operand: FloatLiteral): E = default
+		open fun visit(operand: BoolLiteral): E = default
 	}
 }
 
