@@ -523,9 +523,9 @@ abstract class AG : Extra by Extra.Mixin() {
 	) {
 	}
 
-	protected fun checkBuffers(vertices: AG.Buffer, indices: AG.Buffer) {
+	protected fun checkBuffers(vertices: AG.Buffer, indices: AG.Buffer?) {
 		if (vertices.kind != AG.Buffer.Kind.VERTEX) invalidOp("Not a VertexBuffer")
-		if (indices.kind != AG.Buffer.Kind.INDEX) invalidOp("Not a IndexBuffer")
+		if (indices != null && indices.kind != AG.Buffer.Kind.INDEX) invalidOp("Not a IndexBuffer")
 	}
 
 	open fun disposeTemporalPerFrameStuff() = Unit
@@ -544,6 +544,18 @@ abstract class AG : Extra by Extra.Mixin() {
 					_tex = this@AG.createTexture(premultiplied = false).manualUpload()
 				}
 				return _tex!!
+			}
+
+		private var bcachedTexVersion = -1
+		private var _btex: Texture? = null
+
+		val btex: AG.Texture
+			get() {
+				if (bcachedTexVersion != contextVersion) {
+					bcachedTexVersion = contextVersion
+					_btex = this@AG.createTexture(premultiplied = false).manualUpload()
+				}
+				return _btex!!
 			}
 
 		open fun start(width: Int, height: Int) = Unit
@@ -579,6 +591,11 @@ abstract class AG : Extra by Extra.Mixin() {
 	@PublishedApi
 	internal var currentRenderBuffer: RenderBuffer? = null
 
+	inline fun backupTexture(tex: Texture, callback: () -> Unit) {
+		//readTexture()
+		callback()
+	}
+
 	inline fun renderToTexture(width: Int, height: Int, render: () -> Unit, use: (tex: Texture) -> Unit = { }) {
 		val rb = renderBuffers.alloc()
 		val vX = viewport[0]
@@ -588,19 +605,21 @@ abstract class AG : Extra by Extra.Mixin() {
 		frameRenderBuffers += rb
 		val oldRenderBuffer = currentRenderBuffer
 
-		rb.start(width, height)
-		setRenderBuffer(rb)
+		backupTexture(rb.tex) {
+			rb.start(width, height)
+			setRenderBuffer(rb)
 
-		try {
-			clear(Colors.TRANSPARENT_BLACK) // transparent
-			render()
-			rb.prepareTexture()
-		} finally {
-			viewport[0] = vX
-			viewport[1] = vY
-			viewport[2] = vW
-			viewport[3] = vH
-			setRenderBuffer(oldRenderBuffer)
+			try {
+				clear(Colors.TRANSPARENT_BLACK) // transparent
+				render()
+				rb.prepareTexture()
+			} finally {
+				viewport[0] = vX
+				viewport[1] = vY
+				viewport[2] = vW
+				viewport[3] = vH
+				setRenderBuffer(oldRenderBuffer)
+			}
 		}
 		try {
 			use(rb.tex)
@@ -629,47 +648,74 @@ abstract class AG : Extra by Extra.Mixin() {
 		})
 	}
 
-	//private val drawBmpMat: Matrix4 = Matrix4().setToOrtho(0f, 1f, 1f, 0f, 0f, 1f)
-	private val drawBmpMat: Matrix4 = Matrix4().setToOrtho(0f, 0f, 1f, 1f, 0f, 1f)
-	private var drawBmpVB: Buffer? = null
-	private var drawBmpIB: Buffer? = null
-	private var drawBmpTex: Texture? = null
-	private var drawBmpTexUnit: TextureUnit? = null
-	private val drawBmp_VERTICES = floatArrayOf(
-		0f, 0f, 0f, 0f, Float.fromBits(-1),
-		1f, 0f, 1f, 0f, Float.fromBits(-1),
-		0f, 1f, 0f, 1f, Float.fromBits(-1),
-		1f, 1f, 1f, 1f, Float.fromBits(-1)
-	)
-	private val drawBmp_INDICES = shortArrayOf(0, 1, 2, 1, 2, 3)
-	private var drawBmp_UNIFORMS: AG.UniformValues? = null
-
-	fun drawBmp(bitmap: Bitmap32) {
-		if (drawBmpVB == null) drawBmpVB = createVertexBuffer()
-		if (drawBmpIB == null) drawBmpIB = createIndexBuffer()
-		if (drawBmpTex == null) drawBmpTex = createTexture()
-		if (drawBmpTexUnit == null) drawBmpTexUnit = AG.TextureUnit(drawBmpTex, linear = false)
-		if (drawBmp_UNIFORMS == null) drawBmp_UNIFORMS = AG.UniformValues(
-			DefaultShaders.u_ProjMat to drawBmpMat,
-			DefaultShaders.u_Tex to drawBmpTexUnit!!
-		)
-		drawBmpVB?.upload(drawBmp_VERTICES)
-		drawBmpIB?.upload(drawBmp_INDICES)
-		drawBmpTex?.upload(bitmap, mipmaps = false)
-		draw(
-			vertices = drawBmpVB!!,
-			indices = drawBmpIB!!,
-			program = DefaultShaders.PROGRAM_TINTED_TEXTURE,
-			type = AG.DrawType.TRIANGLES,
-			vertexLayout = DefaultShaders.LAYOUT_DEFAULT,
-			vertexCount = 6,
-			blending = AG.Blending.NONE,
-			uniforms = drawBmp_UNIFORMS!!
-		)
-	}
-
 	open fun readColor(bitmap: Bitmap32): Unit = TODO()
 	open fun readDepth(width: Int, height: Int, out: FloatArray): Unit = TODO()
+	open fun readColorTexture(texture: Texture, width: Int = backWidth, height: Int = backHeight): Unit = TODO()
+
+
+	inner class TextureDrawer {
+		val VERTEX_COUNT = 4
+		val vertices = createBuffer(AG.Buffer.Kind.VERTEX)
+		val vertexLayout = VertexLayout(DefaultShaders.a_Pos, DefaultShaders.a_Tex)
+		val verticesData = KmlNativeBuffer(VERTEX_COUNT * vertexLayout.totalSize)
+		val program = Program(VertexShader {
+			DefaultShaders.apply {
+				v_Tex setTo a_Tex
+				out setTo vec4(a_Pos, 0f, 1f)
+			}
+		}, FragmentShader {
+			DefaultShaders.apply {
+				//out setTo vec4(1f, 1f, 0f, 1f)
+				out setTo texture2D(u_Tex, v_Tex["xy"])
+			}
+		})
+		val uniforms = UniformValues()
+
+		fun setVertex(n: Int, px: Float, py: Float, tx: Float, ty: Float) {
+			val offset = n * 4
+			verticesData.setAlignedFloat32(offset + 0, px)
+			verticesData.setAlignedFloat32(offset + 1, py)
+			verticesData.setAlignedFloat32(offset + 2, tx)
+			verticesData.setAlignedFloat32(offset + 3, ty)
+		}
+
+		fun draw(tex: Texture, left: Float, top: Float, right: Float, bottom: Float) {
+			//tex.upload(Bitmap32(32, 32) { x, y -> Colors.RED })
+			uniforms[DefaultShaders.u_Tex] = TextureUnit(tex)
+
+			val texLeft = -1f
+			val texRight = +1f
+			val texTop = -1f
+			val texBottom = +1f
+
+			setVertex(0, left, top, texLeft, texTop)
+			setVertex(1, right, top, texRight, texTop)
+			setVertex(2, left, bottom, texLeft, texBottom)
+			setVertex(3, right, bottom, texRight, texBottom)
+
+			vertices.upload(verticesData)
+			draw(
+				vertices = vertices,
+				program = program,
+				type = AG.DrawType.TRIANGLE_STRIP,
+				vertexLayout = vertexLayout,
+				vertexCount = 4,
+				uniforms = uniforms,
+				blending = AG.Blending.NONE
+			)
+		}
+	}
+
+	val textureDrawer by lazy { TextureDrawer() }
+	val flipRenderTexture = true
+
+	fun drawTexture(tex: Texture) {
+		if (renderingToTexture) {
+			textureDrawer.draw(tex, -1f, -1f, +1f, +1f)
+		} else {
+			textureDrawer.draw(tex, -1f, -1f, +1f, +1f)
+		}
+	}
 
 	//var checkErrors = true
 	var checkErrors = false

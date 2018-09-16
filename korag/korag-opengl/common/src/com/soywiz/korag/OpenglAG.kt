@@ -93,10 +93,7 @@ abstract class AGOpengl : AG() {
 		}
 
 		override fun prepareTexture(): AG.Texture {
-			gl.apply {
-				tex.bind()
-				checkErrors { copyTexImage2D(TEXTURE_2D, 0, RGBA, 0, 0, width, height, 0) }
-			}
+			readColorTexture(tex, width, height)
 			return super.prepareTexture()
 		}
 
@@ -181,9 +178,6 @@ abstract class AGOpengl : AG() {
 		val vattrs = vertexLayout.attributes
 		val vattrspos = vertexLayout.attributePositions
 
-		val mustFreeIndices = indices == null
-		val aindices = indices ?: createIndexBuffer((0 until vertexCount).map(Int::toShort).toShortArray())
-
 		if (scissor != null) {
 			gl.enable(gl.SCISSOR_TEST)
 			gl.scissor(scissor.x, backHeight - scissor.y - scissor.height, scissor.width, scissor.height)
@@ -191,10 +185,10 @@ abstract class AGOpengl : AG() {
 			gl.disable(gl.SCISSOR_TEST)
 		}
 
-		checkBuffers(vertices, aindices)
+		checkBuffers(vertices, indices)
 		val glProgram = getProgram(program)
 		(vertices as GlBuffer).bind(gl)
-		(aindices as GlBuffer).bind(gl)
+		(indices as? GlBuffer?)?.bind(gl)
 		glProgram.use()
 
 
@@ -338,8 +332,11 @@ abstract class AGOpengl : AG() {
 			checkErrors { gl.stencilMask(0) }
 		}
 
-		//checkErrors { gl.drawElements(type.glDrawMode, vertexCount, gl.UNSIGNED_SHORT, offset.toLong()) }
-		checkErrors { gl.drawElements(type.glDrawMode, vertexCount, gl.UNSIGNED_SHORT, offset) }
+		if (indices != null) {
+			checkErrors { gl.drawElements(type.glDrawMode, vertexCount, gl.UNSIGNED_SHORT, offset) }
+		} else {
+			checkErrors { gl.drawArrays(type.glDrawMode, offset, vertexCount) }
+		}
 
 		//glSetActiveTexture(gl.TEXTURE0)
 
@@ -352,8 +349,6 @@ abstract class AGOpengl : AG() {
 				}
 			}
 		}
-
-		if (mustFreeIndices) aindices.close()
 	}
 
 	val DrawType.glDrawMode: Int
@@ -683,6 +678,14 @@ abstract class AGOpengl : AG() {
 				buffer
 			)
 			buffer.getAlignedArrayFloat32(0, out, 0, area)
+		}
+	}
+
+	override fun readColorTexture(texture: Texture, width: Int, height: Int) {
+		gl.apply {
+			texture.bind()
+			checkErrors { copyTexImage2D(TEXTURE_2D, 0, RGBA, 0, 0, width, height, 0) }
+			texture.unbind()
 		}
 	}
 }
