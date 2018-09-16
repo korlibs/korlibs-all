@@ -30,67 +30,64 @@ abstract class AGOpengl : AG() {
 		//gl.swapInterval = 0
 	}
 
+	override fun setBackBuffer(width: Int, height: Int) {
+		//checkErrors { gl.Flush() }
+		checkErrors { gl.bindTexture(gl.TEXTURE_2D, 0) }
+		checkErrors { gl.bindRenderbuffer(gl.RENDERBUFFER, 0) }
+		checkErrors { gl.bindFramebuffer(gl.FRAMEBUFFER, 0) }
+		setViewport(0, 0, width, height)
+	}
+
 	inner class GlRenderBuffer : RenderBuffer() {
 		var cachedVersion = -1
 		val wtex get() = tex as GlTexture
 
-		val renderbufferDepth = KmlNativeBuffer(4)
+		val depth = KmlNativeBuffer(4)
 		val framebuffer = KmlNativeBuffer(4)
-		var oldViewport = IntArray(4)
+
+		var width = 0
+		var height = 0
 
 		override fun start(width: Int, height: Int) {
+			this.width = width
+			this.height = height
+
 			setSwapInterval(0)
 
-			if (cachedVersion != contextVersion) {
-				cachedVersion = contextVersion
-				checkErrors { gl.genRenderbuffers(1, renderbufferDepth) }
-				checkErrors { gl.genFramebuffers(1, framebuffer) }
-			}
+			gl.apply {
+				if (cachedVersion != contextVersion) {
+					cachedVersion = contextVersion
+					checkErrors { genRenderbuffers(1, depth) }
+					checkErrors { genFramebuffers(1, framebuffer) }
+				}
 
-			getViewport(oldViewport)
-			checkErrors { gl.bindTexture(gl.TEXTURE_2D, wtex.tex) }
-			checkErrors { gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR) }
-			checkErrors { gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR) }
-			checkErrors { gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null) }
-			checkErrors { gl.bindTexture(gl.TEXTURE_2D, 0) }
+				checkErrors { bindTexture(TEXTURE_2D, wtex.tex) }
+				checkErrors { texParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, LINEAR) }
+				checkErrors { texParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, LINEAR) }
+				checkErrors { texImage2D(TEXTURE_2D, 0, RGBA, width, height, 0, RGBA, UNSIGNED_BYTE, null) }
+				checkErrors { bindTexture(TEXTURE_2D, 0) }
 
-			checkErrors { gl.bindRenderbuffer(gl.RENDERBUFFER, renderbufferDepth.getInt(0)) }
-			checkErrors { gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height) }
-
-			checkErrors { gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer.getInt(0)) }
-			checkErrors {
-				gl.framebufferTexture2D(
-					gl.FRAMEBUFFER,
-					gl.COLOR_ATTACHMENT0,
-					gl.TEXTURE_2D,
-					wtex.tex,
-					0
-				)
+				checkErrors { bindRenderbuffer(RENDERBUFFER, depth.getInt(0)) }
+				checkErrors { renderbufferStorage(RENDERBUFFER, DEPTH_COMPONENT16, width, height) }
 			}
-			checkErrors {
-				gl.framebufferRenderbuffer(
-					gl.FRAMEBUFFER,
-					gl.DEPTH_ATTACHMENT,
-					gl.RENDERBUFFER,
-					renderbufferDepth.getInt(0)
-				)
-			}
-			setViewport(0, 0, width, height)
 		}
 
-		override fun end() {
-			//checkErrors { gl.Flush() }
-			checkErrors { gl.bindTexture(gl.TEXTURE_2D, 0) }
-			checkErrors { gl.bindRenderbuffer(gl.RENDERBUFFER, 0) }
-			checkErrors { gl.bindFramebuffer(gl.FRAMEBUFFER, 0) }
-			setViewport(oldViewport)
+		override fun set() {
+			gl.apply {
+				checkErrors { bindFramebuffer(FRAMEBUFFER, framebuffer.getInt(0)) }
+				checkErrors { framebufferTexture2D(FRAMEBUFFER, COLOR_ATTACHMENT0, TEXTURE_2D, wtex.tex, 0) }
+				checkErrors { framebufferRenderbuffer(FRAMEBUFFER, DEPTH_ATTACHMENT, RENDERBUFFER, depth.getInt(0)) }
+				setViewport(0, 0, width, height)
+			}
 		}
 
 		override fun close() {
-			checkErrors { gl.deleteFramebuffers(1, framebuffer) }
-			checkErrors { gl.deleteRenderbuffers(1, renderbufferDepth) }
-			framebuffer.setInt(0, 0)
-			renderbufferDepth.setInt(0, 0)
+			gl.apply {
+				checkErrors { deleteFramebuffers(1, framebuffer) }
+				checkErrors { deleteRenderbuffers(1, depth) }
+				framebuffer.setInt(0, 0)
+				depth.setInt(0, 0)
+			}
 		}
 	}
 

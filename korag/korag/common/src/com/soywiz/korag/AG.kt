@@ -547,7 +547,7 @@ abstract class AG : Extra by Extra.Mixin() {
 			}
 
 		open fun start(width: Int, height: Int) = Unit
-		open fun end() = Unit
+		open fun set(): Unit = Unit
 		fun readBitmap(bmp: Bitmap32) = this@AG.readColor(bmp)
 		fun readDepth(width: Int, height: Int, out: FloatArray): Unit = this@AG.readDepth(width, height, out)
 		override fun close() = Unit
@@ -573,21 +573,32 @@ abstract class AG : Extra by Extra.Mixin() {
 		clearStencil: Boolean = true
 	) = Unit
 
-	var renderingToTexture = false
+	val renderingToTexture get() = currentRenderBuffer != null
+
+	@PublishedApi
+	internal var currentRenderBuffer: RenderBuffer? = null
 
 	inline fun renderToTexture(width: Int, height: Int, render: () -> Unit, use: (tex: Texture) -> Unit = { }) {
 		val rb = renderBuffers.alloc()
+		val vX = viewport[0]
+		val vY = viewport[1]
+		val vW = viewport[2]
+		val vH = viewport[3]
 		frameRenderBuffers += rb
-		val oldRendering = renderingToTexture
-		renderingToTexture = true
+		val oldRenderBuffer = currentRenderBuffer
 
 		rb.start(width, height)
+		setRenderBuffer(rb)
+
 		try {
 			clear(Colors.TRANSPARENT_BLACK) // transparent
 			render()
 		} finally {
-			rb.end()
-			renderingToTexture = oldRendering
+			viewport[0] = vX
+			viewport[1] = vY
+			viewport[2] = vW
+			viewport[3] = vH
+			setRenderBuffer(oldRenderBuffer)
 		}
 		try {
 			use(rb.tex)
@@ -595,6 +606,18 @@ abstract class AG : Extra by Extra.Mixin() {
 			frameRenderBuffers -= rb
 			renderBuffers.free(rb)
 		}
+	}
+
+	fun setRenderBuffer(renderBuffer: RenderBuffer?) {
+		currentRenderBuffer = renderBuffer
+		if (renderBuffer != null) {
+			renderBuffer.set()
+		} else {
+			setBackBuffer(backWidth, backHeight)
+		}
+	}
+
+	open fun setBackBuffer(width: Int, height: Int) {
 	}
 
 	inline fun renderToBitmap(bmp: Bitmap32, render: () -> Unit) {
