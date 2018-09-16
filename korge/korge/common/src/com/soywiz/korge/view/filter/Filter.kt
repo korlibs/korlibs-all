@@ -18,30 +18,30 @@ abstract class Filter {
 		fun Program.Builder.tex(coords: Operand) = texture2D(DefaultShaders.u_Tex, coords / u_TextureSize)
 	}
 
+	private val textureSizeHolder = FloatArray(2)
+
 	val uniforms = AG.UniformValues(
-		//EffectView.u_Time to timeHolder,
-		//EffectView.u_TextureSize to textureSizeHolder
+		//Filter.u_Time to timeHolder,
+		Filter.u_TextureSize to textureSizeHolder
 	)
 
 	open val border: Int = 0
+
+	var program: Program? = null
 
 	var vertex: VertexShader = BatchBuilder2D.VERTEX
 		set(value) {
 			field = value
 			program = null
 		}
-	var fragment: FragmentShader = EffectView.DEFAULT_FRAGMENT
+	var fragment: FragmentShader = Filter.DEFAULT_FRAGMENT
 		set(value) {
 			field = value
 			program = null
 		}
 
-	var program: Program? = null
-
 	internal val tempMat2d = Matrix2d()
 	internal val oldViewMatrix = Matrix4()
-
-	private val textureSizeHolder = FloatArray(2)
 
 	protected open fun updateUniforms() {
 	}

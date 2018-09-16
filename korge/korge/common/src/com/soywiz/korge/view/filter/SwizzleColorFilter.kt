@@ -2,7 +2,7 @@ package com.soywiz.korge.view.filter
 
 import com.soywiz.korag.shader.*
 
-class SwizzleColorsFilter(initialSwizzle: String = "rgba") : ShaderFilter() {
+class SwizzleColorsFilter(initialSwizzle: String = "rgba") : Filter() {
 	var swizzle: String = ""
 		set(value) {
 			field = value

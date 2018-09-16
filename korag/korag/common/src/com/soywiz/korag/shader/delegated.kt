@@ -4,15 +4,24 @@ import com.soywiz.korag.*
 import com.soywiz.korma.*
 import kotlin.reflect.*
 
+class DoubleDelegatedUniform(val uniform: Uniform, val values: FloatArray, val index: Int, val onSet: (Double) -> Unit, default: Double) {
+	init {
+		values[index] = default.toFloat()
+	}
+
+	operator fun getValue(obj: Any, prop: KProperty<*>): Double = values[index].toDouble()
+	operator fun setValue(obj: Any, prop: KProperty<*>, value: Double) {
+		values[index] = value.toFloat()
+		onSet(value)
+	}
+}
+
 class FloatDelegatedUniform(val uniform: Uniform, val values: FloatArray, val index: Int, val onSet: (Float) -> Unit, default: Float) {
 	init {
 		values[index] = default
 	}
 
-	operator fun getValue(obj: Any, prop: KProperty<*>): Float {
-		return values[index]
-	}
-
+	operator fun getValue(obj: Any, prop: KProperty<*>): Float = values[index]
 	operator fun setValue(obj: Any, prop: KProperty<*>, value: Float) {
 		values[index] = value
 		onSet(value)
@@ -24,9 +33,7 @@ class IntDelegatedUniform(val uniform: Uniform, val values: FloatArray, val inde
 		values[index] = default.toFloat()
 	}
 
-	operator fun getValue(obj: Any, prop: KProperty<*>): Int {
-		return values[index].toInt()
-	}
+	operator fun getValue(obj: Any, prop: KProperty<*>): Int = values[index].toInt()
 
 	operator fun setValue(obj: Any, prop: KProperty<*>, value: Int) {
 		values[index] = value.toFloat()
@@ -38,6 +45,10 @@ class UniformFloatStorage(val uniforms: AG.UniformValues, val uniform: Uniform, 
 	init {
 		uniforms[uniform] = array
 	}
+
+	fun doubleDelegate(index: Int, default: Double = 0.0, onSet: (Double) -> Unit = {}) = DoubleDelegatedUniform(uniform, array, index, onSet, default)
+	fun doubleDelegateX(default: Double = 0.0, onSet: (Double) -> Unit = {}) = doubleDelegate(0, default, onSet)
+	fun doubleDelegateY(default: Double = 0.0, onSet: (Double) -> Unit = {}) = doubleDelegate(1, default, onSet)
 
 	fun floatDelegate(index: Int, default: Float = 0f, onSet: (Float) -> Unit = {}) = FloatDelegatedUniform(uniform, array, index, onSet, default)
 	fun floatDelegateX(default: Float = 0f, onSet: (Float) -> Unit = {}) = floatDelegate(0, default, onSet)
