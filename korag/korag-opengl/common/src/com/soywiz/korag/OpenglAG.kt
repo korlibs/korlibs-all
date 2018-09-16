@@ -233,7 +233,11 @@ abstract class AGOpengl : AG() {
 					}
 				}
 				VarType.Float1 -> {
-					checkErrors { gl.uniform1f(location, (value as Number).toFloat()) }
+					if (value is FloatArray) {
+						checkErrors { gl.uniform1f(location, value[0]) }
+					} else {
+						checkErrors { gl.uniform1f(location, (value as Number).toFloat()) }
+					}
 				}
 				VarType.Float2 -> {
 					val fa = value as FloatArray
@@ -392,7 +396,7 @@ abstract class AGOpengl : AG() {
 			if (out != gl.TRUE) {
 				val error = gl.getShaderInfoLog(shaderId)
 				Console.error(str)
-				throw RuntimeException("Error Compiling Shader : $error")
+				throw RuntimeException("Error Compiling Shader : $error : source=$str")
 			}
 			return shaderId
 		}

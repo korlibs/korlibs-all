@@ -396,6 +396,7 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 			textureUnit.texture = currentTex
 			textureUnit.linear = currentSmoothing
 
+			//println("MyUniforms: $uniforms")
 			ag.draw(
 				vertices = vertexBuffer,
 				indices = indexBuffer,
@@ -444,11 +445,13 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 	internal val tempOldUniforms = AG.UniformValues()
 
 	inline fun setTemporalUniforms(uniforms: AG.UniformValues, callback: () -> Unit) {
+		flush()
 		tempOldUniforms.setTo(this.uniforms)
 		this.uniforms.put(uniforms)
 		try {
 			callback()
 		} finally {
+			flush()
 			this.uniforms.setTo(tempOldUniforms)
 		}
 	}

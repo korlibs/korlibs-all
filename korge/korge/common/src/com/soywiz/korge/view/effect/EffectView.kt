@@ -9,7 +9,7 @@ import com.soywiz.korma.*
 open class EffectView : Container() {
 	var filtering = true
 	private val oldViewMatrix = Matrix4()
-	var effectBorder = 0
+	open var borderEffect = 0
 	private val tempMat2d = Matrix2d()
 	var vertex: VertexShader = BatchBuilder2D.VERTEX
 		set(value) {
@@ -23,26 +23,54 @@ open class EffectView : Container() {
 		}
 
 	var program: Program? = null
-	val uniforms = AG.UniformValues()
+	private val timeHolder = FloatArray(1)
+	private val textureSizeHolder = FloatArray(2)
+	val uniforms = AG.UniformValues(
+		u_Time to timeHolder,
+		u_TextureSize to textureSizeHolder
+	)
 
 	companion object {
+		val u_Time = Uniform("time", VarType.Float1)
+		val u_TextureSize = Uniform("effectTextureSize", VarType.Float2)
 	    val DEFAULT_FRAGMENT = BatchBuilder2D.buildTextureLookupFragment(premultiplied = false)
+
+		val Program.Builder.fragmentCoords01 get() = DefaultShaders.v_Tex["xy"]
+		val Program.Builder.fragmentCoords get() = fragmentCoords01 * u_TextureSize
+		fun Program.Builder.tex(coords: Operand) = texture2D(DefaultShaders.u_Tex, coords / u_TextureSize)
+	}
+
+	private var currentTimeMs = 0
+		set(value) {
+			field = value
+			timeHolder[0] = (currentTimeMs.toDouble() / 1000.0).toFloat()
+		}
+
+	init {
+		addUpdatable { ms ->
+			currentTimeMs += ms
+		}
 	}
 
 	override fun render(ctx: RenderContext) {
 		val bounds = getLocalBounds()
 
-		ctx.renderToTexture(bounds.width.toInt() + effectBorder * 2, bounds.height.toInt() + effectBorder * 2, renderToTexture = {
+		ctx.renderToTexture(bounds.width.toInt() + borderEffect * 2, bounds.height.toInt() + borderEffect * 2, renderToTexture = {
 			tempMat2d.copyFrom(globalMatrixInv)
-			tempMat2d.translate(effectBorder, effectBorder)
+			tempMat2d.translate(borderEffect, borderEffect)
 			ctx.batch.setViewMatrixTemp(tempMat2d, temp = oldViewMatrix) {
 				super.render(ctx)
 			}
 		}) { texture ->
 			// @TODO: Precompute vertices
+			textureSizeHolder[0] = texture.base.width.toFloat()
+			textureSizeHolder[1] = texture.base.height.toFloat()
+
+			//println(textureSizeHolder.toList())
 			tempMat2d.copyFrom(globalMatrix)
-			tempMat2d.pretranslate(-effectBorder, -effectBorder)
+			tempMat2d.pretranslate(-borderEffect, -borderEffect)
 			if (program == null) program = Program(vertex, fragment)
+			//println("EffectUniforms: ${this.uniforms}")
 			ctx.batch.setTemporalUniforms(this.uniforms) {
 				ctx.batch.drawQuad(
 					texture,

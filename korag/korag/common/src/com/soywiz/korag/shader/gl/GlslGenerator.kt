@@ -98,7 +98,15 @@ class GlslGenerator(val kind: ShaderType, @Suppress("unused") val gles: Boolean 
 	}
 
 	override fun visit(operand: Program.Vector) {
-		programStr.append("vec4(")
+		val type = when (operand.type) {
+			VarType.Float1 -> "vec1"
+			VarType.Float2 -> "vec2"
+			VarType.Float3 -> "vec3"
+			VarType.Float4 -> "vec4"
+			else -> TODO("Program.Vector(type=${operand.type})")
+		}
+		programStr.append(type)
+		programStr.append("(")
 		var first = true
 		for (op in operand.ops) {
 			if (!first) {

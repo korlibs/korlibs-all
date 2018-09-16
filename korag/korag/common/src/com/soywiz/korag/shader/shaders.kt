@@ -5,7 +5,6 @@ package com.soywiz.korag.shader
 import com.soywiz.kmem.*
 import com.soywiz.korio.error.*
 import com.soywiz.korio.lang.*
-import com.soywiz.korio.util.*
 
 enum class VarKind(val bytesSize: Int) {
 	BYTE(1), UNSIGNED_BYTE(1), SHORT(2), UNSIGNED_SHORT(2), INT(4), FLOAT(4)
@@ -149,7 +148,9 @@ class Program(val vertex: VertexShader, val fragment: FragmentShader, val name: 
 	class Vector(type: VarType, val ops: List<Operand>) : Operand(type)
 	class Swizzle(val left: Operand, val swizzle: String) : Operand(left.type)
 
-	class Func(val name: String, val ops: List<Operand>) : Operand(VarType.Float1)
+	class Func(val name: String, val ops: List<Operand>) : Operand(VarType.Float1) {
+		constructor(name: String, vararg ops: Operand) : this(name, ops.toList())
+	}
 
 	sealed class Stm {
 		class Stms(val stms: List<Stm>) : Stm()
@@ -184,89 +185,110 @@ class Program(val vertex: VertexShader, val fragment: FragmentShader, val name: 
 			this.fbody = Stm.Stms(body.outputStms)
 		}
 
-		inline fun IF(cond: Operand, callback: Builder.() -> Unit): Stm.If {
+		inline fun IF(cond: Any, callback: Builder.() -> Unit): Stm.If {
 			val body = Builder(type)
 			body.callback()
-			val stmIf = Stm.If(cond, Stm.Stms(body.outputStms))
+			val stmIf = Stm.If(cond.op, Stm.Stms(body.outputStms))
 			outputStms += stmIf
 			return stmIf
 		}
 
-		fun SET(target: Operand, expr: Operand) {
-			outputStms += Stm.Set(target, expr)
+		fun SET(target: Operand, expr: Any) {
+			outputStms += Stm.Set(target, expr.op)
 		}
 
 		fun DISCARD() {
 			outputStms += Stm.Discard()
 		}
 
-		infix fun Operand.set(from: Operand) = run { outputStms += Stm.Set(this, from) }
-		infix fun Operand.setTo(from: Operand) = run { outputStms += Stm.Set(this, from) }
+		infix fun Operand.set(from: Any) = run { outputStms += Stm.Set(this, from.op) }
+		infix fun Operand.setTo(from: Any) = run { outputStms += Stm.Set(this, from.op) }
 
-		fun Operand.assign(from: Operand) {
-			outputStms += Stm.Set(this, from)
+		fun Operand.assign(from: Any) {
+			outputStms += Stm.Set(this, from.op)
 		}
 
 		//infix fun Operand.set(to: Operand) = Stm.Set(this, to)
 		val out: Output = Output
 		//fun out(to: Operand) = Stm.Set(if (type == ShaderType.VERTEX) out_Position else out_FragColor, to)
 
-		fun sin(arg: Operand) = Func("sin", listOf(arg))
-		fun cos(arg: Operand) = Func("cos", listOf(arg))
-		fun tan(arg: Operand) = Func("tan", listOf(arg))
+		fun sin(arg: Any) = Func("sin", arg.op)
+		fun cos(arg: Any) = Func("cos", arg.op)
+		fun tan(arg: Any) = Func("tan", arg.op)
 
-		fun asin(arg: Operand) = Func("asin", listOf(arg))
-		fun acos(arg: Operand) = Func("acos", listOf(arg))
-		fun atan(arg: Operand) = Func("atan", listOf(arg))
+		fun asin(arg: Any) = Func("asin", arg.op)
+		fun acos(arg: Any) = Func("acos", arg.op)
+		fun atan(arg: Any) = Func("atan", arg.op)
 
-		fun radians(arg: Operand) = Func("radians", listOf(arg))
-		fun degrees(arg: Operand) = Func("degrees", listOf(arg))
+		fun radians(arg: Any) = Func("radians", arg.op)
+		fun degrees(arg: Any) = Func("degrees", arg.op)
 
 		// Sampling
-		fun texture2D(a: Operand, b: Operand) = Func("texture2D", listOf(a, b))
+		fun texture2D(a: Any, b: Any) = Func("texture2D", a.op, b.op)
 
-		fun pow(b: Operand, e: Operand) = Func("pow", listOf(b, e))
-		fun exp(v: Operand) = Func("exp", listOf(v))
-		fun exp2(v: Operand) = Func("exp2", listOf(v))
-		fun log(v: Operand) = Func("log", listOf(v))
-		fun log2(v: Operand) = Func("log2", listOf(v))
-		fun sqrt(v: Operand) = Func("sqrt", listOf(v))
-		fun inversesqrt(v: Operand) = Func("inversesqrt", listOf(v))
+		fun pow(b: Any, e: Any) = Func("pow", b.op, e.op)
+		fun exp(v: Any) = Func("exp", v.op)
+		fun exp2(v: Any) = Func("exp2", v.op)
+		fun log(v: Any) = Func("log", v.op)
+		fun log2(v: Any) = Func("log2", v.op)
+		fun sqrt(v: Any) = Func("sqrt", v.op)
+		fun inversesqrt(v: Any) = Func("inversesqrt", v.op)
 
-		fun abs(v: Operand) = Func("abs", listOf(v))
-		fun sign(v: Operand) = Func("sign", listOf(v))
-		fun ceil(v: Operand) = Func("ceil", listOf(v))
-		fun floor(v: Operand) = Func("floor", listOf(v))
-		fun fract(v: Operand) = Func("fract", listOf(v))
-		fun clamp(v: Operand, min: Operand, max: Operand) = Func("clamp", listOf(v, min, max))
-		fun min(a: Operand, b: Operand) = Func("min", listOf(a, b))
-		fun max(a: Operand, b: Operand) = Func("max", listOf(a, b))
-		fun mod(a: Operand, b: Operand) = Func("mod", listOf(a, b))
-		fun step(a: Operand, b: Operand) = Func("step", listOf(a, b))
-		fun smoothstep(a: Operand, b: Operand, c: Operand) = Func("smoothstep", listOf(a, b, c))
-		fun mix(a: Operand, b: Operand, step: Operand) = Func("mix", listOf(a, b, step))
+		fun abs(v: Any) = Func("abs", v.op)
+		fun sign(v: Any) = Func("sign", v.op)
+		fun ceil(v: Any) = Func("ceil", v.op)
+		fun floor(v: Any) = Func("floor", v.op)
+		fun fract(v: Any) = Func("fract", v.op)
+		fun clamp(v: Any, min: Any, max: Any) = Func("clamp", v.op, min.op, max.op)
+		fun min(a: Any, b: Any) = Func("min", a.op, b.op)
+		fun max(a: Any, b: Any) = Func("max", a.op, b.op)
+		fun mod(a: Any, b: Any) = Func("mod", a.op, b.op)
+		fun step(a: Any, b: Any) = Func("step", a.op, b.op)
+		fun smoothstep(a: Any, b: Any, c: Any) = Func("smoothstep", a.op, b.op, c.op)
+		fun mix(a: Any, b: Any, step: Any) = Func("mix", a.op, b.op, step.op)
 
 		val Int.lit: IntLiteral get() = IntLiteral(this)
 		val Double.lit: FloatLiteral get() = FloatLiteral(this.toFloat())
 		val Float.lit: FloatLiteral get() = FloatLiteral(this)
 		val Boolean.lit: BoolLiteral get() = BoolLiteral(this)
-		fun lit(type: VarType, vararg ops: Operand): Operand = Vector(type, ops.toList())
-		fun vec4(vararg ops: Operand): Operand = Vector(VarType.Float4, ops.toList())
+		val Number.lit: Operand get() = this.op
+		fun lit(type: VarType, vararg ops: Any): Operand = Vector(type, ops.toList().ops)
+		fun vec1(vararg ops: Any): Operand = Vector(VarType.Float1, ops.toList().ops)
+		fun vec2(vararg ops: Any): Operand = Vector(VarType.Float2, ops.toList().ops)
+		fun vec3(vararg ops: Any): Operand = Vector(VarType.Float3, ops.toList().ops)
+		fun vec4(vararg ops: Any): Operand = Vector(VarType.Float4, ops.toList().ops)
 		//fun Operand.swizzle(swizzle: String): Operand = Swizzle(this, swizzle)
 		operator fun Operand.get(swizzle: String) = Swizzle(this, swizzle)
+		val Operand.x get() = this["x"]
+		val Operand.y get() = this["y"]
+		val Operand.z get() = this["z"]
+		val Operand.w get() = this["w"]
 
-		operator fun Operand.minus(that: Operand) = Binop(this, "-", that)
-		operator fun Operand.plus(that: Operand) = Binop(this, "+", that)
-		operator fun Operand.times(that: Operand) = Binop(this, "*", that)
-		operator fun Operand.div(that: Operand) = Binop(this, "/", that)
-		operator fun Operand.rem(that: Operand) = Binop(this, "%", that)
+		val List<Any>.ops: List<Operand> get() = this.map { it.op }
 
-		infix fun Operand.eq(that: Operand) = Binop(this, "==", that)
-		infix fun Operand.ne(that: Operand) = Binop(this, "!=", that)
-		infix fun Operand.lt(that: Operand) = Binop(this, "<", that)
-		infix fun Operand.le(that: Operand) = Binop(this, "<=", that)
-		infix fun Operand.gt(that: Operand) = Binop(this, ">", that)
-		infix fun Operand.ge(that: Operand) = Binop(this, ">=", that)
+		val Any.op: Operand get() = when (this) {
+			is Int -> this.lit
+			is Float -> this.lit
+			is Double -> this.lit
+			is Boolean -> this.lit
+			is Operand -> this
+			else -> error("Unsupported $this as Operand for shaders")
+		}
+
+		operator fun Any.unaryMinus() = 0.0.lit - this
+
+		operator fun Any.minus(that: Any) = Binop(this.op, "-", that.op)
+		operator fun Any.plus(that: Any) = Binop(this.op, "+", that.op)
+		operator fun Any.times(that: Any) = Binop(this.op, "*", that.op)
+		operator fun Any.div(that: Any) = Binop(this.op, "/", that.op)
+		operator fun Any.rem(that: Any) = Binop(this.op, "%", that.op)
+
+		infix fun Any.eq(that: Any) = Binop(this.op, "==", that.op)
+		infix fun Any.ne(that: Any) = Binop(this.op, "!=", that.op)
+		infix fun Any.lt(that: Any) = Binop(this.op, "<", that.op)
+		infix fun Any.le(that: Any) = Binop(this.op, "<=", that.op)
+		infix fun Any.gt(that: Any) = Binop(this.op, ">", that.op)
+		infix fun Any.ge(that: Any) = Binop(this.op, ">=", that.op)
 	}
 
 	open class Visitor {

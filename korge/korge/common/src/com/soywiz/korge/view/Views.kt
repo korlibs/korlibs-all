@@ -164,7 +164,10 @@ class Views(
 		}
 	}
 
+	val onBeforeRender = Signal<Unit>()
+
 	fun render(clearColor: RGBA = Colors.BLACK, clear: Boolean = true) {
+		onBeforeRender()
 		if (clear) ag.clear(clearColor, stencil = 0, clearColor = true, clearStencil = true)
 		stage.render(renderContext)
 
@@ -281,6 +284,7 @@ class Views(
 }
 
 class Stage(val views: Views) : Container(), View.Reference {
+	val ag get() = views.ag
 	override val stage: Stage = this
 
 	override fun getLocalBoundsInternal(out: Rectangle) {
