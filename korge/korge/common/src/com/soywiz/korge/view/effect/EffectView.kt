@@ -62,7 +62,7 @@ open class EffectView : Container() {
 		val texHeight = bounds.height.toInt() + borderEffect * 2
 
 		ctx.renderToTexture(texWidth, texHeight, render = {
-			tempMat2d.copyFrom(globalMatrixInv)
+			tempMat2d.copyFrom(this.globalMatrixInv)
 			tempMat2d.translate(-bounds.x + borderEffect, -bounds.y + borderEffect)
 			//println("$this: [1] $tempMat2d")
 			ctx.batch.setViewMatrixTemp(tempMat2d, temp = oldViewMatrix) {
@@ -75,7 +75,7 @@ open class EffectView : Container() {
 			updateUniforms()
 
 			//println(textureSizeHolder.toList())
-			tempMat2d.copyFrom(globalMatrix)
+			tempMat2d.copyFrom(this.globalMatrix)
 			tempMat2d.pretranslate(-borderEffect + bounds.x, -borderEffect + bounds.y)
 			if (program == null) program = Program(vertex, fragment)
 			//println("EffectUniforms: ${this.uniforms}")

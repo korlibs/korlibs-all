@@ -19,7 +19,6 @@ import com.soywiz.korinject.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.file.*
 import com.soywiz.korio.stream.*
-import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 import com.soywiz.korui.*
 import com.soywiz.korui.event.*
@@ -294,7 +293,7 @@ class Stage(val views: Views) : Container(), View.Reference {
 	override fun hitTest(x: Double, y: Double): View? = super.hitTest(x, y) ?: this
 
 	override fun render(ctx: RenderContext) {
-		val m = renderMatrix
+		val m = globalMatrix
 		if (views.clipBorders) {
 			ctx.ctx2d.scissor(
 				AG.Scissor(

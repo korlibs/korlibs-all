@@ -24,7 +24,7 @@ open class TileMap(val map: IntArray2, val tileset: TileSet) : View() {
 	private fun computeVertexIfRequired(ctx: RenderContext) {
 		if (!dirtyVertices) return
 		dirtyVertices = false
-		val m = renderMatrix
+		val m = globalMatrix
 
 		val renderTilesCounter = ctx.stats.counter("renderedTiles")
 

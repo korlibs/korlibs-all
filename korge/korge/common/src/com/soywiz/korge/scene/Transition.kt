@@ -3,7 +3,6 @@ package com.soywiz.korge.scene
 import com.soywiz.korge.render.*
 import com.soywiz.korge.tween.*
 import com.soywiz.korge.view.*
-import com.soywiz.korma.*
 
 class TransitionView() : Container() {
 	var transition: Transition = AlphaTransition
@@ -31,7 +30,7 @@ class TransitionView() : Container() {
 
 	override fun render(ctx: RenderContext) {
 		if (!visible) return
-		val m = renderMatrix
+		val m = globalMatrix
 		when {
 			ratio <= 0.0 -> prev.render(ctx)
 			ratio >= 1.0 -> next.render(ctx)

@@ -29,7 +29,7 @@ class ScaleView(width: Int, height: Int, scale: Double = 2.0, var filtering: Boo
 				x = 0f, y = 0f,
 				width = iwidth.toFloat(),
 				height = iheight.toFloat(),
-				m = renderMatrix,
+				m = globalMatrix,
 				colorMulInt = renderColorMulInt,
 				colorAdd = renderColorAdd,
 				filtering = filtering,

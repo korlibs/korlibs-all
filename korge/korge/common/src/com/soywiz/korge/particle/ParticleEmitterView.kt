@@ -4,7 +4,6 @@ import com.soywiz.korge.render.*
 import com.soywiz.korge.time.*
 import com.soywiz.korge.view.*
 import com.soywiz.korio.util.*
-import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 
 inline fun Container.particleEmitter(
@@ -42,7 +41,7 @@ class ParticleEmitterView(val emitter: ParticleEmitter, emitterPos: Point2d = Po
 		val cy = texture.height * 0.5
 		context.keep {
 			context.blendFactors = emitter.blendFactors
-			context.setMatrix(renderMatrix)
+			context.setMatrix(globalMatrix)
 
 			for (p in simulator.particles) {
 				val scale = p.scale

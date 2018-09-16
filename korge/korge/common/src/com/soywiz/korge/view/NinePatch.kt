@@ -2,7 +2,6 @@ package com.soywiz.korge.view
 
 import com.soywiz.korge.render.*
 import com.soywiz.korim.bitmap.*
-import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 import kotlin.math.*
 
@@ -69,7 +68,7 @@ class NinePatch(
 			width.toFloat(), height.toFloat(),
 			posCuts = posCuts,
 			texCuts = texCuts,
-			m = renderMatrix,
+			m = globalMatrix,
 			colorMulInt = renderColorMulInt,
 			colorAdd = renderColorAdd,
 			filtering = smoothing,

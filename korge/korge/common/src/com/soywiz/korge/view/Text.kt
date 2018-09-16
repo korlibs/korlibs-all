@@ -88,7 +88,7 @@ class Text : View(), IText, IHtml {
 		if (!visible) return
 		val colorMul = renderColorMul
 		val colorAdd = renderColorAdd
-		val m = renderMatrix
+		val m = globalMatrix
 		if (document != null) {
 			for (span in document!!.allSpans) {
 				val font = fonts.getBitmapFont(span.format)

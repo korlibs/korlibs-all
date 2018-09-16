@@ -30,7 +30,7 @@ open class RectBase(
 	private fun computeVertexIfRequired() {
 		if (!dirtyVertices) return
 		dirtyVertices = false
-		val matrix = renderMatrix
+		val matrix = globalMatrix
 		val colMulInt = renderColorMulInt
 		val colAdd = renderColorAdd
 		val x = sLeft

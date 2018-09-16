@@ -362,37 +362,10 @@ abstract class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by Eve
 			if (_globalMatrixInvVersion != this._version) {
 				_globalMatrixInvVersion = this._version
 				_requireInvalidate = true
-				_globalMatrixInv.setToInverse(globalMatrix)
+				_globalMatrixInv.setToInverse(this.globalMatrix)
 			}
 			return _globalMatrixInv
 		}
-
-	private val _renderMatrix = Matrix2d()
-	private var _renderMatrixVersion = -1
-	val renderMatrix: Matrix2d
-		get() {
-			if (_renderMatrixVersion != this._version) {
-				_renderMatrixVersion = this._version
-				_requireInvalidate = true
-				if (parent != null && this !is View.Reference) {
-					_renderMatrix.multiply(localMatrix, parent!!.renderMatrix)
-				} else {
-					_renderMatrix.copyFrom(localMatrix)
-				}
-			}
-			return _renderMatrix
-		}
-
-	private val _renderMatrixInv = Matrix2d()
-	private var _renderMatrixInvVersion = -1
-	val renderMatrixInv: Matrix2d get() {
-		if (_renderMatrixInvVersion != this._version) {
-			_renderMatrixInvVersion = this._version
-			_requireInvalidate = true
-			_renderMatrixInv.setToInverse(globalMatrix)
-		}
-		return _renderMatrixInv
-	}
 
 	private val _colorTransform = ColorTransform()
 	var colorTransform: ColorTransform
@@ -421,11 +394,7 @@ abstract class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by Eve
 			if (_renderBlendModeVersion != this._version) {
 				_renderBlendModeVersion = this._version
 				_requireInvalidate = true
-				if (parent != null) {
-					_renderBlendMode = if (blendMode == BlendMode.INHERIT) parent!!.renderBlendMode else blendMode
-				} else {
-					_renderBlendMode = if (blendMode == BlendMode.INHERIT) BlendMode.NORMAL else blendMode
-				}
+				_renderBlendMode = if (blendMode == BlendMode.INHERIT) parent?.renderBlendMode ?: BlendMode.NORMAL else blendMode
 			}
 			return _renderBlendMode
 		}
@@ -435,8 +404,8 @@ abstract class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by Eve
 	val renderColorAdd: Int get() = renderColorTransform.colorAdd
 	val renderAlpha: Double get() = renderColorTransform.mA
 
-	fun localMouseX(views: Views): Double = globalMatrixInv.transformX(views.input.mouse)
-	fun localMouseY(views: Views): Double = globalMatrixInv.transformY(views.input.mouse)
+	fun localMouseX(views: Views): Double = this.globalMatrixInv.transformX(views.input.mouse)
+	fun localMouseY(views: Views): Double = this.globalMatrixInv.transformY(views.input.mouse)
 
 	fun invalidateMatrix() {
 		validLocalMatrix = false
@@ -475,27 +444,27 @@ abstract class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by Eve
 
 	// Version with root-most object as reference
 	fun globalToLocal(p: Point2d, out: MPoint2d = MPoint2d()): MPoint2d = globalToLocalXY(p.x, p.y, out)
-	fun globalToLocalXY(x: Double, y: Double, out: MPoint2d = MPoint2d()): MPoint2d = globalMatrixInv.transform(x, y, out)
+	fun globalToLocalXY(x: Double, y: Double, out: MPoint2d = MPoint2d()): MPoint2d = this.globalMatrixInv.transform(x, y, out)
 
-	fun globalToLocalX(x: Double, y: Double): Double = globalMatrixInv.transformX(x, y)
-	fun globalToLocalY(x: Double, y: Double): Double = globalMatrixInv.transformY(x, y)
+	fun globalToLocalX(x: Double, y: Double): Double = this.globalMatrixInv.transformX(x, y)
+	fun globalToLocalY(x: Double, y: Double): Double = this.globalMatrixInv.transformY(x, y)
 
 	fun localToGlobal(p: Point2d, out: MPoint2d = MPoint2d()): MPoint2d = localToGlobalXY(p.x, p.y, out)
-	fun localToGlobalXY(x: Double, y: Double, out: MPoint2d = MPoint2d()): MPoint2d = globalMatrix.transform(x, y, out)
-	fun localToGlobalX(x: Double, y: Double): Double = globalMatrix.transformX(x, y)
-	fun localToGlobalY(x: Double, y: Double): Double = globalMatrix.transformY(x, y)
+	fun localToGlobalXY(x: Double, y: Double, out: MPoint2d = MPoint2d()): MPoint2d = this.globalMatrix.transform(x, y, out)
+	fun localToGlobalX(x: Double, y: Double): Double = this.globalMatrix.transformX(x, y)
+	fun localToGlobalY(x: Double, y: Double): Double = this.globalMatrix.transformY(x, y)
 
 	// Version with View.Reference as reference
 	fun renderToLocal(p: Point2d, out: MPoint2d = MPoint2d()): MPoint2d = renderToLocalXY(p.x, p.y, out)
-	fun renderToLocalXY(x: Double, y: Double, out: MPoint2d = MPoint2d()): MPoint2d = renderMatrixInv.transform(x, y, out)
+	fun renderToLocalXY(x: Double, y: Double, out: MPoint2d = MPoint2d()): MPoint2d = this.globalMatrixInv.transform(x, y, out)
 
-	fun renderToLocalX(x: Double, y: Double): Double = renderMatrixInv.transformX(x, y)
-	fun renderToLocalY(x: Double, y: Double): Double = renderMatrixInv.transformY(x, y)
+	fun renderToLocalX(x: Double, y: Double): Double = this.globalMatrixInv.transformX(x, y)
+	fun renderToLocalY(x: Double, y: Double): Double = this.globalMatrixInv.transformY(x, y)
 
 	fun localToRender(p: Point2d, out: MPoint2d = MPoint2d()): MPoint2d = localToRenderXY(p.x, p.y, out)
-	fun localToRenderXY(x: Double, y: Double, out: MPoint2d = MPoint2d()): MPoint2d = renderMatrix.transform(x, y, out)
-	fun localToRenderX(x: Double, y: Double): Double = renderMatrix.transformX(x, y)
-	fun localToRenderY(x: Double, y: Double): Double = renderMatrix.transformY(x, y)
+	fun localToRenderXY(x: Double, y: Double, out: MPoint2d = MPoint2d()): MPoint2d = this.globalMatrix.transform(x, y, out)
+	fun localToRenderX(x: Double, y: Double): Double = this.globalMatrix.transformX(x, y)
+	fun localToRenderY(x: Double, y: Double): Double = this.globalMatrix.transformY(x, y)
 
 	open fun hitTest(x: Double, y: Double): View? = null
 

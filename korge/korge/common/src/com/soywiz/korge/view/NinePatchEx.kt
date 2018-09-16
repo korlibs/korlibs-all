@@ -3,7 +3,6 @@ package com.soywiz.korge.view
 import com.soywiz.kds.*
 import com.soywiz.korge.render.*
 import com.soywiz.korim.bitmap.*
-import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 
 inline fun Container.ninePatch(
@@ -34,7 +33,7 @@ class NinePatchEx(
 	override fun render(ctx: RenderContext) {
 		if (!visible) return
 
-		val m = renderMatrix
+		val m = globalMatrix
 
 		val xscale = m.a
 		val yscale = m.d
