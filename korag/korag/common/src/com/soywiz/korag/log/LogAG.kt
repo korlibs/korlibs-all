@@ -67,7 +67,7 @@ open class LogAG(
 		override fun toString(): String = "Buffer[$id]"
 	}
 
-	inner class LogRenderBuffer(val id: Int) : RenderBuffer() {
+	inner class LogRenderBuffer(override val id: Int) : RenderBuffer() {
 		override fun start(width: Int, height: Int) = log("$this.start($width, $height)")
 		override fun set() = log("$this.set()")
 		override fun close() = log("$this.close()")

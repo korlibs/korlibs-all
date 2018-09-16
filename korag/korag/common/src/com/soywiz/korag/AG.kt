@@ -5,8 +5,10 @@ import com.soywiz.kmem.*
 import com.soywiz.korag.shader.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
+import com.soywiz.korim.format.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.error.*
+import com.soywiz.korio.file.std.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
@@ -534,6 +536,7 @@ abstract class AG : Extra by Extra.Mixin() {
 	val renderBuffers = Pool<RenderBuffer>() { createRenderBuffer() }
 
 	open inner class RenderBuffer : Closeable {
+		open val id: Int = -1
 		private var cachedTexVersion = -1
 		private var _tex: Texture? = null
 
@@ -546,21 +549,8 @@ abstract class AG : Extra by Extra.Mixin() {
 				return _tex!!
 			}
 
-		private var bcachedTexVersion = -1
-		private var _btex: Texture? = null
-
-		val btex: AG.Texture
-			get() {
-				if (bcachedTexVersion != contextVersion) {
-					bcachedTexVersion = contextVersion
-					_btex = this@AG.createTexture(premultiplied = false).manualUpload()
-				}
-				return _btex!!
-			}
-
 		open fun start(width: Int, height: Int) = Unit
 		open fun set(): Unit = Unit
-		open fun prepareTexture(): AG.Texture = tex
 		fun readBitmap(bmp: Bitmap32) = this@AG.readColor(bmp)
 		fun readDepth(width: Int, height: Int, out: FloatArray): Unit = this@AG.readDepth(width, height, out)
 		override fun close() = Unit
@@ -591,14 +581,16 @@ abstract class AG : Extra by Extra.Mixin() {
 	@PublishedApi
 	internal var currentRenderBuffer: RenderBuffer? = null
 
-	//inline fun backupTexture(tex: Texture, callback: () -> Unit) {
-	//	readColorTexture(tex, backWidth, backHeight)
-	//	try {
-	//		callback()
-	//	} finally {
-	//		drawTexture(tex)
-	//	}
-	//}
+	inline fun backupTexture(tex: Texture?, callback: () -> Unit) {
+		if (tex != null) {
+			readColorTexture(tex, backWidth, backHeight)
+		}
+		try {
+			callback()
+		} finally {
+			if (tex != null) drawTexture(tex)
+		}
+	}
 
 	inline fun renderToTexture(width: Int, height: Int, render: () -> Unit, use: (tex: Texture) -> Unit = { }) {
 		val rb = renderBuffers.alloc()
@@ -609,29 +601,22 @@ abstract class AG : Extra by Extra.Mixin() {
 		frameRenderBuffers += rb
 		val oldRenderBuffer = currentRenderBuffer
 
-		//backupTexture(rb.btex) {
-			rb.start(width, height)
-			setRenderBuffer(rb)
+		rb.start(width, height)
+		setRenderBuffer(rb)
 
-			try {
-				clear(Colors.TRANSPARENT_BLACK) // transparent
-				render()
-				rb.prepareTexture()
-			} finally {
-				viewport[0] = vX
-				viewport[1] = vY
-				viewport[2] = vW
-				viewport[3] = vH
-				setRenderBuffer(oldRenderBuffer)
-				if (oldRenderBuffer != null) {
-					drawTexture(oldRenderBuffer.tex)
-				}
-			}
-		//}
+		try {
+			clear(Colors.TRANSPARENT_BLACK) // transparent
+			render()
+		} finally {
+			viewport[0] = vX
+			viewport[1] = vY
+			viewport[2] = vW
+			viewport[3] = vH
+			setRenderBuffer(oldRenderBuffer)
+		}
 
 		try {
 			use(rb.tex)
-			//rb.prepareTexture()
 		} finally {
 			frameRenderBuffers -= rb
 			renderBuffers.free(rb)
@@ -727,9 +712,6 @@ abstract class AG : Extra by Extra.Mixin() {
 			textureDrawer.draw(tex, -1f, +1f, +1f, -1f)
 		//}
 	}
-
-	//var checkErrors = true
-	var checkErrors = false
 
 	class UniformValues() {
 		@ThreadLocal

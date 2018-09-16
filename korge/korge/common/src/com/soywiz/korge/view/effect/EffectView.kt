@@ -56,9 +56,12 @@ open class EffectView : Container() {
 	override fun render(ctx: RenderContext) {
 		val bounds = getLocalBounds()
 
+		//println("$this: [0] $bounds")
+
 		ctx.renderToTexture(bounds.width.toInt() + borderEffect * 2, bounds.height.toInt() + borderEffect * 2, render = {
 			tempMat2d.copyFrom(globalMatrixInv)
-			tempMat2d.translate(borderEffect, borderEffect)
+			tempMat2d.translate(-bounds.x + borderEffect, -bounds.y + borderEffect)
+			//println("$this: [1] $tempMat2d")
 			ctx.batch.setViewMatrixTemp(tempMat2d, temp = oldViewMatrix) {
 				super.render(ctx)
 			}
@@ -70,9 +73,10 @@ open class EffectView : Container() {
 
 			//println(textureSizeHolder.toList())
 			tempMat2d.copyFrom(globalMatrix)
-			tempMat2d.pretranslate(-borderEffect, -borderEffect)
+			tempMat2d.pretranslate(-borderEffect + bounds.x, -borderEffect + bounds.y)
 			if (program == null) program = Program(vertex, fragment)
 			//println("EffectUniforms: ${this.uniforms}")
+			//println("$this: [2] $tempMat2d")
 			ctx.batch.setTemporalUniforms(this.uniforms) {
 				ctx.batch.drawQuad(
 					texture,

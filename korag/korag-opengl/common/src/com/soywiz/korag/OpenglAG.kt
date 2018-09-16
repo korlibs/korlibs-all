@@ -45,19 +45,9 @@ abstract class AGOpengl : AG() {
 
 	inner class GlRenderBuffer : RenderBuffer() {
 		var cachedVersion = -1
-		val id = lastRenderContextId++
+		override val id = lastRenderContextId++
 
-		private var icachedTexVersion = -1
-		private var _ftex: GlTexture? = null
-
-		val ftex: GlTexture
-			get() {
-				if (icachedTexVersion != contextVersion) {
-					icachedTexVersion = contextVersion
-					_ftex = (createTexture(premultiplied = false).manualUpload() as GlTexture)
-				}
-				return _ftex!!
-			}
+		val ftex get() = tex as GlTexture
 
 		val depth = KmlNativeBuffer(4)
 		val framebuffer = KmlNativeBuffer(4)
@@ -96,13 +86,6 @@ abstract class AGOpengl : AG() {
 				checkErrors { framebufferRenderbuffer(FRAMEBUFFER, DEPTH_ATTACHMENT, RENDERBUFFER, depth.getInt(0)) }
 				setViewport(0, 0, width, height)
 			}
-		}
-
-		override fun prepareTexture(): AG.Texture {
-			readColorTexture(tex, width, height)
-			//val color = readColor()
-			//launch { color.writeTo("/tmp/$id.png".uniVfs, PNG) }
-			return super.prepareTexture()
 		}
 
 		override fun close() {
@@ -653,40 +636,28 @@ abstract class AGOpengl : AG() {
 		}
 	}
 
-	inline fun <T> checkErrors(desc: String = "", callback: () -> T): T = callback()
-
-	//inline fun <T> checkErrors(callback: () -> T): T {
-	//	val res = callback()
-	//	if (checkErrors) {
-	//		val error = gl.getError()
-	//		if (error != gl.NO_ERROR) {
-	//			Console.error("OpenGL error: $error")
-	//			//System.err.println(Throwable().stackTrace)
-	//			Throwable().printStackTrace()
-	//			//throw RuntimeException("OpenGL error: $error")
-	//		}
-	//	}
-	//	return res
-	//}
-
-
 	override fun readColor(bitmap: Bitmap32) {
 		kmlNativeBuffer(bitmap.area * 4) { buffer ->
-			gl.readPixels(
-				0, 0, bitmap.width, bitmap.height,
-				gl.RGBA, gl.UNSIGNED_BYTE, buffer
-			)
+			checkErrors("readPixels") {
+				gl.readPixels(
+					0, 0, bitmap.width, bitmap.height,
+					gl.RGBA, gl.UNSIGNED_BYTE, buffer
+				)
+			}
 			buffer.getAlignedArrayInt32(0, bitmap.data.array, 0, bitmap.area)
+			//println("readColor.HASH:" + bitmap.computeHash())
 		}
 	}
 
 	override fun readDepth(width: Int, height: Int, out: FloatArray) {
 		val area = width * height
 		kmlNativeBuffer(area * 4) { buffer ->
-			gl.readPixels(
-				0, 0, width, height, gl.DEPTH_COMPONENT, gl.FLOAT,
-				buffer
-			)
+			checkErrors("readPixels") {
+				gl.readPixels(
+					0, 0, width, height, gl.DEPTH_COMPONENT, gl.FLOAT,
+					buffer
+				)
+			}
 			buffer.getAlignedArrayFloat32(0, out, 0, area)
 		}
 	}
@@ -699,3 +670,19 @@ abstract class AGOpengl : AG() {
 		}
 	}
 }
+
+inline fun <T> AGOpengl.checkErrors(desc: String = "", callback: () -> T): T = callback()
+
+/*
+inline fun <T> AGOpengl.checkErrors(desc: String = "", callback: () -> T): T {
+	val res = callback()
+	val error = gl.getError()
+	if (error != gl.NO_ERROR) {
+		Console.error("OpenGL error[$desc]: $error")
+		//System.err.println(Throwable().stackTrace)
+		Throwable().printStackTrace()
+		//throw RuntimeException("OpenGL error: $error")
+	}
+	return res
+}
+*/
