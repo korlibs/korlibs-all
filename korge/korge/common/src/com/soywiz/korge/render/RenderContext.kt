@@ -5,7 +5,6 @@ import com.soywiz.korag.*
 import com.soywiz.korge.stat.*
 import com.soywiz.korge.view.*
 import com.soywiz.korim.bitmap.*
-import com.soywiz.korio.lang.*
 
 class RenderContext(
 	val ag: AG,
@@ -23,14 +22,15 @@ class RenderContext(
 		batch.flush()
 	}
 
-	fun renderToTexture(width: Int, height: Int, renderToTexture: () -> Unit, use: (Texture) -> Unit): Unit {
+	fun renderToTexture(width: Int, height: Int, render: () -> Unit, use: (Texture) -> Unit) {
 		flush()
-		ag.renderToTexture(width, height) {
-			renderToTexture()
+		ag.renderToTexture(width, height, render = {
+			render()
 			flush()
-		}.use { rt ->
-			use(Texture(rt))
-		}
+		}, use = {
+			use(Texture(it, width, height))
+			flush()
+		})
 	}
 
 	fun renderToBitmap(bmp: Bitmap32, callback: () -> Unit): Bitmap32 {

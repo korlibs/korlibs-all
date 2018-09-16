@@ -573,27 +573,9 @@ abstract class AG : Extra by Extra.Mixin() {
 		clearStencil: Boolean = true
 	) = Unit
 
-	class RenderTexture(val tex: Texture, val width: Int, val height: Int, val closeAction: () -> Unit) : Closeable {
-		override fun close() {
-			closeAction()
-		}
-	}
-
 	var renderingToTexture = false
 
-	inline fun renderToTexture(width: Int, height: Int, callback: () -> Unit): RenderTexture {
-		val oldRendering = renderingToTexture
-		val oldWidth = backWidth
-		val oldHeight = backHeight
-		renderingToTexture = true
-		try {
-			return renderToTextureInternal(width, height, callback)
-		} finally {
-			renderingToTexture = oldRendering
-		}
-	}
-
-	inline fun renderToTextureInternal(width: Int, height: Int, callback: () -> Unit): RenderTexture {
+	inline fun renderToTexture(width: Int, height: Int, render: () -> Unit, use: (tex: Texture) -> Unit = { }) {
 		val rb = renderBuffers.alloc()
 		frameRenderBuffers += rb
 		val oldRendering = renderingToTexture
@@ -602,49 +584,24 @@ abstract class AG : Extra by Extra.Mixin() {
 		rb.start(width, height)
 		try {
 			clear(Colors.TRANSPARENT_BLACK) // transparent
-			callback()
+			render()
 		} finally {
 			rb.end()
 			renderingToTexture = oldRendering
 		}
-		return RenderTexture(rb.tex, width, height) {
+		try {
+			use(rb.tex)
+		} finally {
 			frameRenderBuffers -= rb
 			renderBuffers.free(rb)
 		}
 	}
 
-	inline fun renderToBitmap(bmp: Bitmap32, callback: () -> Unit) {
-		val rb = renderBuffers.alloc()
-		val oldRendering = renderingToTexture
-		renderingToTexture = true
-
-		rb.start(bmp.width, bmp.height)
-		try {
-			clear(Colors.TRANSPARENT_BLACK)
-			callback()
-		} finally {
-			rb.readBitmap(bmp)
-			rb.end()
-			renderingToTexture = oldRendering
-			renderBuffers.free(rb)
-		}
-	}
-
-	inline fun renderToBitmapEx(bmp: Bitmap32, callback: RenderBuffer.() -> Unit) {
-		val rb = renderBuffers.alloc()
-		val oldRendering = renderingToTexture
-		renderingToTexture = true
-
-		rb.start(bmp.width, bmp.height)
-		try {
-			clear(Colors.TRANSPARENT_BLACK)
-			callback(rb)
-		} finally {
-			rb.readBitmap(bmp)
-			rb.end()
-			renderingToTexture = oldRendering
-			renderBuffers.free(rb)
-		}
+	inline fun renderToBitmap(bmp: Bitmap32, render: () -> Unit) {
+		renderToTexture(bmp.width, bmp.height, {
+			render()
+			readColor(bmp)
+		})
 	}
 
 	//private val drawBmpMat: Matrix4 = Matrix4().setToOrtho(0f, 1f, 1f, 0f, 0f, 1f)

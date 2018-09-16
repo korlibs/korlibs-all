@@ -1,7 +1,6 @@
 package com.soywiz.korge.view
 
 import com.soywiz.korge.render.*
-import com.soywiz.korma.*
 
 inline fun Container.scaleView(
 	width: Int, height: Int, scale: Double = 2.0, filtering: Boolean = false,
@@ -22,7 +21,7 @@ class ScaleView(width: Int, height: Int, scale: Double = 2.0, var filtering: Boo
 		val iwidth = width.toInt()
 		val iheight = height.toInt()
 
-		ctx.renderToTexture(iwidth, iheight, renderToTexture = {
+		ctx.renderToTexture(iwidth, iheight, render = {
 			super.render(ctx)
 		}, use = { renderTexture ->
 			ctx.batch.drawQuad(

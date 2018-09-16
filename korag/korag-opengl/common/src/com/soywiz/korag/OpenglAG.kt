@@ -632,7 +632,7 @@ abstract class AGOpengl : AG() {
 		}
 	}
 
-	inline fun <T> checkErrors(callback: () -> T): T = callback()
+	inline fun <T> checkErrors(desc: String = "", callback: () -> T): T = callback()
 
 	//inline fun <T> checkErrors(callback: () -> T): T {
 	//	val res = callback()

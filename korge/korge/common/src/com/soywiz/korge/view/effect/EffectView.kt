@@ -55,7 +55,7 @@ open class EffectView : Container() {
 	override fun render(ctx: RenderContext) {
 		val bounds = getLocalBounds()
 
-		ctx.renderToTexture(bounds.width.toInt() + borderEffect * 2, bounds.height.toInt() + borderEffect * 2, renderToTexture = {
+		ctx.renderToTexture(bounds.width.toInt() + borderEffect * 2, bounds.height.toInt() + borderEffect * 2, render = {
 			tempMat2d.copyFrom(globalMatrixInv)
 			tempMat2d.translate(borderEffect, borderEffect)
 			ctx.batch.setViewMatrixTemp(tempMat2d, temp = oldViewMatrix) {
