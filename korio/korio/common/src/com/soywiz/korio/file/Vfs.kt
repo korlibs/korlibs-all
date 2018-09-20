@@ -166,7 +166,7 @@ abstract class Vfs {
 		override suspend fun setSize(path: String, size: Long): Unit = initOnce().access(path).setSize(size)
 		override suspend fun stat(path: String): VfsStat = initOnce().access(path).stat().copy(file = file(path))
 		override suspend fun list(path: String) =
-			asyncGenerate { initOnce(); for (it in access(path).list()) yield(it.transform()) }
+			asyncGenerate<VfsFile> { initOnce(); for (it in access(path).list()) yield(it.transform()) }
 
 		override suspend fun delete(path: String): Boolean = initOnce().access(path).delete()
 		override suspend fun setAttributes(path: String, attributes: List<Attribute>) =

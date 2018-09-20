@@ -4,7 +4,6 @@ import com.soywiz.korag.*
 import com.soywiz.korag.shader.*
 import com.soywiz.korge.render.*
 import com.soywiz.korge.view.*
-import com.soywiz.korge.view.effect.*
 import com.soywiz.korma.*
 
 abstract class Filter {
@@ -62,7 +61,10 @@ abstract class Filter {
 		textureSizeHolder[1] = texture.base.height.toFloat()
 		updateUniforms()
 
-		if (program == null) program = Program(vertex, fragment)
+		// Premultiply!
+		if (program == null) program = Program(vertex, fragment.appending {
+			out setTo vec4(out["rgb"] * out.a, out.a)
+		})
 
 		ctx.batch.setTemporalUniforms(this.uniforms) {
 			ctx.batch.drawQuad(
@@ -72,6 +74,12 @@ abstract class Filter {
 				colorAdd = renderColorAdd,
 				colorMulInt = renderColorMulInt,
 				blendFactors = blendMode.factors,
+				//blendFactors = AG.Blending(
+				//	AG.BlendFactor.SOURCE_ALPHA,
+				//	AG.BlendFactor.ONE_MINUS_SOURCE_ALPHA,
+				//	AG.BlendFactor.ONE,
+				//	AG.BlendFactor.ONE
+				//),
 				program = program
 			)
 		}

@@ -3,7 +3,7 @@ package com.soywiz.std.coroutine
 import kotlin.coroutines.*
 
 abstract class OldContinuationAdaptor<T> : Continuation<T> {
-	final override fun resumeWith(result: SuccessOrFailure<T>) {
+	final override fun resumeWith(result: Result<T>) {
 		if (result.isSuccess) {
 			resume(result.getOrThrow())
 		} else {

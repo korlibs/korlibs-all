@@ -19,9 +19,9 @@ import kotlin.coroutines.*
 //suspend inline fun <R> (suspend () -> R).await(): R = withContext(coroutineContext.dispatcher) { this() }
 
 suspend fun <T, R> (suspend T.() -> R).await(receiver: T): R =
-	withContext(coroutineContext.dispatcher) { this(receiver) }
+	withContext(coroutineContext.dispatcher) { this@await(receiver) }
 
-suspend fun <R> (suspend () -> R).await(): R = withContext(coroutineContext.dispatcher) { this() }
+suspend fun <R> (suspend () -> R).await(): R = withContext(coroutineContext.dispatcher) { this@await() }
 
 // @TODO: Try to get in subinstance
 val CoroutineContext.tryDispatcher: CoroutineDispatcher? get() = this as? CoroutineDispatcher?

@@ -36,7 +36,7 @@ class IsoVfs(val iso: ISO.IsoFile) : Vfs() {
 
 	override suspend fun open(path: String, mode: VfsOpenMode): AsyncStream = isoFile[path].open2(mode)
 
-	override suspend fun list(path: String) = asyncGenerate {
+	override suspend fun list(path: String) = asyncGenerate<VfsFile> {
 		val file = isoFile[path]
 		for (c in file.children) {
 			//yield(getVfsStat(c))

@@ -203,10 +203,14 @@ interface Vector2Int {
 	}
 }
 
-internal data class IVector2Int(override val x: Int, override val y: Int) : Vector2Int
+internal data class IVector2Int(override val x: Int, override val y: Int) : Vector2Int {
+	override fun toString(): String = "($x, $y)"
+}
+
 data class MVector2Int(override var x: Int = 0, override var y: Int = 0) : Vector2Int {
 	fun setTo(x: Int, y: Int) = this.apply { this.x = x; this.y = y }
 	fun setTo(that: Vector2Int) = this.setTo(that.x, that.y)
+	override fun toString(): String = "($x, $y)"
 }
 
 operator fun Vector2Int.plus(that: Vector2Int) = Vector2Int(this.x + that.x, this.y + that.y)

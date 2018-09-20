@@ -544,7 +544,7 @@ abstract class AG : Extra by Extra.Mixin() {
 			get() {
 				if (cachedTexVersion != contextVersion) {
 					cachedTexVersion = contextVersion
-					_tex = this@AG.createTexture(premultiplied = false).manualUpload()
+					_tex = this@AG.createTexture(premultiplied = true).manualUpload()
 				}
 				return _tex!!
 			}

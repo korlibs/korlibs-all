@@ -25,8 +25,14 @@ class RenderContext(
 	fun renderToTexture(width: Int, height: Int, render: () -> Unit, use: (Texture) -> Unit) {
 		flush()
 		ag.renderToTexture(width, height, render = {
-			render()
-			flush()
+			val oldScissors = batch.scissor
+			batch.scissor = null
+			try {
+				render()
+				flush()
+			} finally {
+				batch.scissor = oldScissors
+			}
 		}, use = {
 			use(Texture(it, width, height))
 			flush()

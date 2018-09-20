@@ -150,13 +150,13 @@ fun <T> asyncGenerate(
 suspend fun <T> asyncGenerate(block: suspend SuspendingSequenceBuilder<T>.() -> Unit): SuspendingSequence<T> =
 	asyncGenerate(coroutineContext, block)
 
-suspend inline fun <T, T2> SuspendingSequence<T>.map(crossinline transform: (T) -> T2) = asyncGenerate {
+suspend inline fun <T, T2> SuspendingSequence<T>.map(crossinline transform: (T) -> T2) = asyncGenerate<T2> {
 	for (e in this@map) {
 		yield(transform(e))
 	}
 }
 
-suspend inline fun <T> SuspendingSequence<T>.filter(crossinline filter: (T) -> Boolean) = asyncGenerate {
+suspend inline fun <T> SuspendingSequence<T>.filter(crossinline filter: (T) -> Boolean) = asyncGenerate<T> {
 	for (e in this@filter) {
 		if (filter(e)) {
 			yield(e)
@@ -165,7 +165,7 @@ suspend inline fun <T> SuspendingSequence<T>.filter(crossinline filter: (T) -> B
 }
 
 
-suspend fun <T> SuspendingSequence<T>.chunks(count: Int) = asyncGenerate {
+suspend fun <T> SuspendingSequence<T>.chunks(count: Int) = asyncGenerate<List<T>> {
 	val chunk = arrayListOf<T>()
 
 	for (e in this@chunks) {

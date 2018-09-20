@@ -447,7 +447,7 @@ abstract class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by Eve
 		val texWidth = bounds.width.toInt() + borderEffect * 2
 		val texHeight = bounds.height.toInt() + borderEffect * 2
 
-		ctx.renderToTexture(texWidth, texHeight, render = {
+ 		ctx.renderToTexture(texWidth, texHeight, render = {
 			tempMat2d.copyFrom(this.globalMatrixInv)
 			tempMat2d.translate(-bounds.x + borderEffect, -bounds.y + borderEffect)
 			//println("$this: [1] $tempMat2d")

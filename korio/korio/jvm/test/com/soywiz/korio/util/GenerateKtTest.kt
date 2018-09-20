@@ -1,12 +1,11 @@
 package com.soywiz.korio.util
 
-import kotlin.coroutines.*
 import kotlin.test.*
 
 class GenerateTest {
-	fun evens() = buildSequence({
+	fun evens() = sequence {
 		for (n in 0 until Int.MAX_VALUE step 2) yield(n)
-	})
+	}
 
 	@Test
 	fun name() {

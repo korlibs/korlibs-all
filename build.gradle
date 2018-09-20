@@ -41,7 +41,7 @@ buildscript {
 	]
 
 	ext.libDependencies = [
-			"korlibstd"        : ["org.jetbrains.kotlinx:atomicfu{JSUFFIX}:$atomicfuVersion"],
+			"korlibstd"        : ["org.jetbrains.kotlinx:atomicfu{JSUFFIX2}:$atomicfuVersion"],
 			"dynarek"          : ["korlibstd"],
 			"kbignum"          : ["korlibstd"],
 			"kds"              : ["korlibstd"],
@@ -51,7 +51,7 @@ buildscript {
 			"krypto"           : ["korlibstd"],
 			"korinject"        : ["korlibstd"],
 			"korma"            : ["kds"],
-			"korio"            : ["klock", "kmem", "kds", "klogger", "org.jetbrains.kotlinx:kotlinx-coroutines-core{JSUFFIX}:$kotlinxCoroutinesVersion"],
+			"korio"            : ["klock", "kmem", "kds", "klogger", "org.jetbrains.kotlinx:kotlinx-coroutines-core{JSUFFIX2}:$kotlinxCoroutinesVersion"],
 			//"korio-ktor-ext"   : ["korio", "io.ktor:ktor-server-core:$ktorVersion"],
 			"korim"            : ["korio", "korma"],
 			"korim-qr"         : ["korim"],
@@ -162,6 +162,13 @@ allprojects {
 
 	ext.suffix = suffix
 	ext.jsuffix = jsuffix
+	ext.jsuffix2 = jsuffix
+
+	//if (isWindows) {
+	//	ext.jsuffix2 = jsuffix.replace('-native', '-native_debug_mingw_x64')
+	//} else {
+	//	ext.jsuffix2 = jsuffix.replace('-native', '-native_debug_macos_x64')
+	//}
 
 	if (suffix != "") {
 		// kotlin-platform-js
@@ -234,7 +241,7 @@ allprojects {
 			}
 
 			for (dep in libDependencies[projectNameWithoutSuffix]) {
-				String rdep = dep.replace("{SUFFIX}", suffix).replace("{JSUFFIX}", jsuffix)
+				String rdep = dep.replace("{SUFFIX}", suffix).replace("{JSUFFIX}", jsuffix).replace("{JSUFFIX2}", jsuffix2)
 				def rdepm
 				if (dep.contains(":")) {
 					rdepm = rdep
