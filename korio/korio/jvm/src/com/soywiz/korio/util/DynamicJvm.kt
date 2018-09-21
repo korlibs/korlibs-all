@@ -204,13 +204,8 @@ object DynamicJvm {
 	@Suppress("UNCHECKED_CAST")
 	fun setAnySync(instance: Any?, key: Any?, value: Any?): Any? = setAny(instance, key, value)
 
-	fun hasField(javaClass: Class<Any>, name: String): Boolean {
-		return javaClass.declaredFields.any { it.name == name }
-	}
-
-	fun getFieldType(javaClass: Class<Any>, name: String): Class<*> {
-		return javaClass.getField(name).type
-	}
+	fun hasField(javaClass: Class<Any>, name: String): Boolean = javaClass.declaredFields.any { it.name == name }
+	fun getFieldType(javaClass: Class<Any>, name: String): Class<*> = javaClass.getField(name).type
 
 	inline fun <reified T : Any> dynamicCast(value: Any?): T? = dynamicCast(value, T::class.java)
 

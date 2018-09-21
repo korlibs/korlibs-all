@@ -27,7 +27,6 @@ class ViewsJvmTest : ViewsForTesting() {
 			"""
 				createBuffer(VERTEX):0
 				createBuffer(INDEX):1
-				resized()
 				clear(#00000000, 0.0, 0, true, true, true)
 				disposeTemporalPerFrameStuff()
 				flipInternal()

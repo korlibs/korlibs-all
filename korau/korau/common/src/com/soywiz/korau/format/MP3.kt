@@ -31,7 +31,7 @@ open class MP3Base : AudioFormat("mp3") {
 		//Read entire file, frame by frame... ie: Variable Bit Rate (VBR)
 		private suspend fun _getDuration(use_cbr_estimate: Boolean): Long {
 			data.position = 0
-			val fd = data.clone()
+			val fd = data.duplicate()
 
 			var duration = 0L
 			val offset = this.skipID3v2Tag(fd.readStream(100))
@@ -40,7 +40,7 @@ open class MP3Base : AudioFormat("mp3") {
 			var info: Mp3Info? = null
 
 			while (!fd.eof()) {
-				val block2 = fd.readBytes(10)
+				val block2 = fd.readBytesUpTo(10)
 				if (block2.size < 10) break
 
 				if (block2.getu(0) == 0xFF && ((block2.getu(1) and 0xe0) != 0)) {
@@ -63,14 +63,14 @@ open class MP3Base : AudioFormat("mp3") {
 			return duration
 		}
 
-		suspend private fun estimateDuration(bitrate: Int, channels: Int, offset: Int): Long {
+		private suspend fun estimateDuration(bitrate: Int, channels: Int, offset: Int): Long {
 			val kbps = (bitrate * 1_000) / 8
 			val dataSize = data.getLength() - offset
 			return dataSize * (2 / channels) * 1_000_000L / kbps
 		}
 
-		suspend private fun skipID3v2Tag(block: AsyncStream): Long {
-			val b = block.clone()
+		private suspend fun skipID3v2Tag(block: AsyncStream): Long {
+			val b = block.duplicate()
 
 			if (b.readString(3) == "ID3") {
 				val id3v2_major_version = b.readU8()

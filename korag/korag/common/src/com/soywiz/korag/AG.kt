@@ -1,16 +1,14 @@
 package com.soywiz.korag
 
 import com.soywiz.kds.*
+import com.soywiz.klogger.*
 import com.soywiz.kmem.*
 import com.soywiz.korag.shader.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
-import com.soywiz.korim.format.*
 import com.soywiz.korio.async.*
 import com.soywiz.korio.error.*
-import com.soywiz.korio.file.std.*
 import com.soywiz.korio.lang.*
-import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
 import com.soywiz.std.*
 import kotlinx.coroutines.*
@@ -67,7 +65,11 @@ abstract class AG : Extra by Extra.Mixin() {
 	open fun repaint() {
 	}
 
-	open fun resized() {
+	open fun resized(width: Int, height: Int) {
+		//println("ag.resized($width, $height)")
+		//printStackTrace()
+		mainRenderBuffer.setSize(width, height)
+		setViewport(0, 0, width, height)
 		onResized(Unit)
 	}
 
@@ -535,7 +537,28 @@ abstract class AG : Extra by Extra.Mixin() {
 	val frameRenderBuffers = LinkedHashSet<RenderBuffer>()
 	val renderBuffers = Pool<RenderBuffer>() { createRenderBuffer() }
 
-	open inner class RenderBuffer : Closeable {
+	interface BaseRenderBuffer {
+		val width: Int
+		val height: Int
+		fun setSize(width: Int, height: Int)
+		fun set()
+	}
+
+	val mainRenderBuffer = object : BaseRenderBuffer {
+		override var width = 128
+		override var height = 128
+
+		override fun setSize(width: Int, height: Int) {
+			this.width = width
+			this.height = height
+		}
+
+		override fun set() {
+			setBackBuffer(width, height)
+		}
+	}
+
+	open inner class RenderBuffer : Closeable, BaseRenderBuffer {
 		open val id: Int = -1
 		private var cachedTexVersion = -1
 		private var _tex: Texture? = null
@@ -549,8 +572,18 @@ abstract class AG : Extra by Extra.Mixin() {
 				return _tex!!
 			}
 
-		open fun start(width: Int, height: Int) = Unit
-		open fun set(): Unit = Unit
+		override var width = 0
+		override var height = 0
+
+		protected var dirty = false
+
+		override fun setSize(width: Int, height: Int) {
+			this.width = width
+			this.height = height
+			dirty = true
+		}
+
+		override fun set(): Unit = Unit
 		fun readBitmap(bmp: Bitmap32) = this@AG.readColor(bmp)
 		fun readDepth(width: Int, height: Int, out: FloatArray): Unit = this@AG.readDepth(width, height, out)
 		override fun close() = Unit
@@ -576,10 +609,10 @@ abstract class AG : Extra by Extra.Mixin() {
 		clearStencil: Boolean = true
 	) = Unit
 
-	val renderingToTexture get() = currentRenderBuffer != null
-
 	@PublishedApi
-	internal var currentRenderBuffer: RenderBuffer? = null
+	internal var currentRenderBuffer: BaseRenderBuffer = mainRenderBuffer
+
+	val renderingToTexture get() = currentRenderBuffer !== mainRenderBuffer
 
 	inline fun backupTexture(tex: Texture?, callback: () -> Unit) {
 		if (tex != null) {
@@ -592,26 +625,27 @@ abstract class AG : Extra by Extra.Mixin() {
 		}
 	}
 
+	inline fun setRenderBufferTemporally(rb: BaseRenderBuffer, callback: () -> Unit) {
+		val old = setRenderBuffer(rb)
+		try {
+			callback()
+		} finally {
+			setRenderBuffer(old)
+		}
+	}
+
 	inline fun renderToTexture(width: Int, height: Int, render: () -> Unit, use: (tex: Texture) -> Unit = { }) {
 		val rb = renderBuffers.alloc()
-		val vX = viewport[0]
-		val vY = viewport[1]
-		val vW = viewport[2]
-		val vH = viewport[3]
 		frameRenderBuffers += rb
 		val oldRenderBuffer = currentRenderBuffer
 
-		rb.start(width, height)
+		rb.setSize(width, height)
 		setRenderBuffer(rb)
 
 		try {
 			clear(Colors.TRANSPARENT_BLACK) // transparent
 			render()
 		} finally {
-			viewport[0] = vX
-			viewport[1] = vY
-			viewport[2] = vW
-			viewport[3] = vH
 			setRenderBuffer(oldRenderBuffer)
 		}
 
@@ -623,13 +657,11 @@ abstract class AG : Extra by Extra.Mixin() {
 		}
 	}
 
-	fun setRenderBuffer(renderBuffer: RenderBuffer?) {
+	fun setRenderBuffer(renderBuffer: BaseRenderBuffer): BaseRenderBuffer {
+		val old = currentRenderBuffer
 		currentRenderBuffer = renderBuffer
-		if (renderBuffer != null) {
-			renderBuffer.set()
-		} else {
-			setBackBuffer(backWidth, backHeight)
-		}
+		renderBuffer.set()
+		return old
 	}
 
 	open fun setBackBuffer(width: Int, height: Int) {
@@ -706,11 +738,15 @@ abstract class AG : Extra by Extra.Mixin() {
 	val flipRenderTexture = true
 
 	fun drawTexture(tex: Texture) {
-		//if (renderingToTexture) {
-		//	textureDrawer.draw(tex, 0f, 0f, +1f, +1f)
-		//} else {
-			textureDrawer.draw(tex, -1f, +1f, +1f, -1f)
-		//}
+		textureDrawer.draw(tex, -1f, +1f, +1f, -1f)
+	}
+
+	private val drawTempTexture: Texture by lazy { createTexture() }
+
+	fun drawBitmap(bmp: Bitmap) {
+		drawTempTexture.upload(bmp, mipmaps = false)
+		drawTexture(drawTempTexture)
+		drawTempTexture.upload(Bitmaps.transparent)
 	}
 
 	class UniformValues() {

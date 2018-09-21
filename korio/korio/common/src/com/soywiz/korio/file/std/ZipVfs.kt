@@ -131,7 +131,7 @@ suspend fun ZipVfs(s: AsyncStream, zipFile: VfsFile? = null, caseSensitive: Bool
 					time = DosFileDateTime(fileTime, fileDate),
 					inode = n.toLong(),
 					offset = headerOffset,
-					headerEntry = s.sliceWithStart(headerOffset.toUInt()),
+					headerEntry = s.sliceStart(headerOffset.toUInt()),
 					compressedSize = compressedSize.toUInt(),
 					uncompressedSize = uncompressedSize.toUInt()
 				)

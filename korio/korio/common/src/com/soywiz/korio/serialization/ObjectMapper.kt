@@ -30,21 +30,10 @@ class ObjectMapper {
 		fun <K : Any, V : Any> Any?.genMap(kclazz: KClass<K>, vclazz: KClass<V>): MutableMap<K, V> =
 			this.toDynamicMap().map { it.key.gen(kclazz) to it.value.gen(vclazz) }.toLinkedMap()
 
-		// @TODO: Kotlin-JS BUG with those!
-		@Deprecated("Not compatible with Kotlin.JS (for now)")
 		inline fun <reified T : Any> Any?.gen(): T = map.toTyped(T::class, this)
-
-		@Deprecated("Not compatible with Kotlin.JS (for now)")
-		inline fun <reified T : Any> Any?.genList(): ArrayList<T> =
-			ArrayList(this.toDynamicList().map { it.gen<T>() }.toList())
-
-		@Deprecated("Not compatible with Kotlin.JS (for now)")
-		inline fun <reified T : Any> Any?.genSet(): HashSet<T> =
-			HashSet(this.toDynamicList().map { it.gen<T>() }.toSet())
-
-		@Deprecated("Not compatible with Kotlin.JS (for now)")
-		inline fun <reified K : Any, reified V : Any> Any?.genMap(): MutableMap<K, V> =
-			this.toDynamicMap().map { it.key.gen<K>() to it.value.gen<V>() }.toLinkedMap()
+		inline fun <reified T : Any> Any?.genList(): ArrayList<T> = ArrayList(this.toDynamicList().map { it.gen<T>() }.toList())
+		inline fun <reified T : Any> Any?.genSet(): HashSet<T> = HashSet(this.toDynamicList().map { it.gen<T>() }.toSet())
+		inline fun <reified K : Any, reified V : Any> Any?.genMap(): MutableMap<K, V> = this.toDynamicMap().map { it.key.gen<K>() to it.value.gen<V>() }.toLinkedMap()
 	}
 
 	@Suppress("NOTHING_TO_INLINE")
@@ -118,24 +107,15 @@ class ObjectMapper {
 		registerType(clazz) { nameToString[it.toString()]!! }
 	}
 
-	@Deprecated("Temporally incompatible with Kotlin.JS")
-	inline fun <reified T : Any> registerType(noinline generate: TypeContext.(Any?) -> T) =
-		registerType(T::class, generate)
-
-	@Deprecated("Temporally incompatible with Kotlin.JS")
+	inline fun <reified T : Any> registerType(noinline generate: TypeContext.(Any?) -> T) = registerType(T::class, generate)
 	inline fun <reified T : Enum<T>> registerEnum(values: Array<T>) = registerEnum(T::class, values)
-
 	fun <T : Any> registerUntype(clazz: KClass<T>, untyper: UntypeContext.(T) -> Any?) {
 		_untypers[clazz] = untyper as UntypeContext.(Any?) -> Any?
 	}
 
 	fun <T : Enum<T>> registerUntypeEnum(clazz: KClass<T>) = registerUntype(clazz) { it.name }
-
-	@Deprecated("Temporally incompatible with Kotlin.JS")
 	inline fun <reified T : Any> registerUntype(noinline untyper: UntypeContext.(T) -> Any?) =
 		registerUntype(T::class, untyper)
-
-	@Deprecated("Temporally incompatible with Kotlin.JS")
 	inline fun <reified T : Enum<T>> registerUntypeEnum() = registerUntype(T::class) { it.name }
 
 	//inline fun <reified T> registerUntypeObj(vararg props: KPro<T>) = registerUntype(T::class, untyper)

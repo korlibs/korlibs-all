@@ -120,15 +120,6 @@ class SuspendingIteratorCoroutine<T>(
 	}
 }
 
-@Deprecated("")
-typealias AsyncGenerator<T> = SuspendingSequenceBuilder<T>
-
-@Deprecated("")
-typealias AsyncSequence<T> = SuspendingSequence<T>
-
-@Deprecated("")
-typealias AsyncIterator<T> = SuspendingIterator<T>
-
 fun <T> Iterator<T>.toAsync(): SuspendingIterator<T> = object : SuspendingIterator<T> {
 	override suspend fun hasNext(): Boolean = this@toAsync.hasNext()
 	override suspend fun next(): T = this@toAsync.next()

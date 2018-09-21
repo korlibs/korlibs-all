@@ -160,9 +160,6 @@ class AsyncStream(val base: AsyncStreamBase, var position: Long = 0L) : Extra by
 
 	override suspend fun close(): Unit = base.close()
 
-	@Deprecated("Use synchronous duplicate instead", ReplaceWith("duplicate()"))
-	suspend fun clone(): AsyncStream = duplicate()
-
 	fun duplicate(): AsyncStream = AsyncStream(base, position)
 }
 
@@ -290,11 +287,7 @@ suspend fun AsyncStream.sliceWithBounds(start: Long, end: Long): AsyncStream {
 	}
 }
 
-@Deprecated("Replace with sliceStart", ReplaceWith("sliceStart()"))
-suspend fun AsyncStream.slice(): AsyncStream = this.sliceWithSize(0L, this.getLength())
-
-suspend fun AsyncStream.sliceWithStart(start: Long): AsyncStream = sliceWithBounds(start, this.getLength())
-suspend fun AsyncStream.sliceStart(): AsyncStream = this.sliceWithSize(0L, this.getLength())
+suspend fun AsyncStream.sliceStart(start: Long = 0L): AsyncStream = sliceWithBounds(start, this.getLength())
 suspend fun AsyncStream.sliceHere(): AsyncStream = this.sliceWithSize(position, this.getLength())
 
 suspend fun AsyncStream.readSlice(length: Long): AsyncStream {
@@ -363,9 +356,6 @@ private suspend fun AsyncInputStream.readTempExact(len: Int, temp: ByteArray): B
 
 suspend fun AsyncInputStream.read(data: ByteArray): Int = read(data, 0, data.size)
 suspend fun AsyncInputStream.read(data: UByteArray): Int = read(data.data, 0, data.size)
-
-@Deprecated("Use readBytesUpTo instead", ReplaceWith("readBytesUpTo(len)"))
-suspend fun AsyncInputStream.readBytes(len: Int): ByteArray = readBytesUpToFirst(len)
 
 val EMPTY_BYTE_ARRAY = ByteArray(0)
 

@@ -45,7 +45,7 @@ class AudioFormats : AudioFormat() {
 	override suspend fun tryReadInfo(data: AsyncStream): Info? {
 		for (format in formats) {
 			try {
-				return format.tryReadInfo(data.clone()) ?: continue
+				return format.tryReadInfo(data.duplicate()) ?: continue
 			} catch (e: Throwable) {
 				e.printStackTrace()
 			}
@@ -57,8 +57,8 @@ class AudioFormats : AudioFormat() {
 		//println(formats)
 		for (format in formats) {
 			try {
-				if (format.tryReadInfo(data.clone()) == null) continue
-				return format.decodeStream(data.clone()) ?: continue
+				if (format.tryReadInfo(data.duplicate()) == null) continue
+				return format.decodeStream(data.duplicate()) ?: continue
 			} catch (e: Throwable) {
 				e.printStackTrace()
 			}

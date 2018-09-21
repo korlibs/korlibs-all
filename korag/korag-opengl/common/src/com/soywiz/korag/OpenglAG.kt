@@ -16,6 +16,7 @@ import com.soywiz.korma.*
 import kotlinx.coroutines.*
 
 abstract class AGOpengl : AG() {
+	open val isGlAvailable = true
 	abstract val gl: KmlGl
 
 	override var devicePixelRatio: Double = 1.0
@@ -26,7 +27,9 @@ abstract class AGOpengl : AG() {
 
 	override fun setViewport(x: Int, y: Int, width: Int, height: Int) {
 		super.setViewport(x, y, width, height)
-		checkErrors { gl.viewport(x, y, width, height) }
+		if (isGlAvailable) {
+			checkErrors { gl.viewport(x, y, width, height) }
+		}
 	}
 
 	open fun setSwapInterval(value: Int) {
@@ -52,35 +55,27 @@ abstract class AGOpengl : AG() {
 		val depth = KmlNativeBuffer(4)
 		val framebuffer = KmlNativeBuffer(4)
 
-		var width = 0
-		var height = 0
-
-		override fun start(width: Int, height: Int) {
-			this.width = width
-			this.height = height
-
-			setSwapInterval(0)
-
-			gl.apply {
-				if (cachedVersion != contextVersion) {
-					cachedVersion = contextVersion
-					checkErrors { genRenderbuffers(1, depth) }
-					checkErrors { genFramebuffers(1, framebuffer) }
-				}
-
-				checkErrors { bindTexture(TEXTURE_2D, ftex.tex) }
-				checkErrors { texParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, LINEAR) }
-				checkErrors { texParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, LINEAR) }
-				checkErrors { texImage2D(TEXTURE_2D, 0, RGBA, width, height, 0, RGBA, UNSIGNED_BYTE, null) }
-				checkErrors { bindTexture(TEXTURE_2D, 0) }
-
-				checkErrors { bindRenderbuffer(RENDERBUFFER, depth.getInt(0)) }
-				checkErrors { renderbufferStorage(RENDERBUFFER, DEPTH_COMPONENT16, width, height) }
-			}
-		}
-
 		override fun set() {
 			gl.apply {
+				if (dirty) {
+					dirty = false
+					setSwapInterval(0)
+
+					if (cachedVersion != contextVersion) {
+						cachedVersion = contextVersion
+						checkErrors { genRenderbuffers(1, depth) }
+						checkErrors { genFramebuffers(1, framebuffer) }
+					}
+
+					checkErrors { bindTexture(TEXTURE_2D, ftex.tex) }
+					checkErrors { texParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, LINEAR) }
+					checkErrors { texParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, LINEAR) }
+					checkErrors { texImage2D(TEXTURE_2D, 0, RGBA, width, height, 0, RGBA, UNSIGNED_BYTE, null) }
+					checkErrors { bindTexture(TEXTURE_2D, 0) }
+					checkErrors { bindRenderbuffer(RENDERBUFFER, depth.getInt(0)) }
+					checkErrors { renderbufferStorage(RENDERBUFFER, DEPTH_COMPONENT16, width, height) }
+				}
+
 				checkErrors { bindFramebuffer(FRAMEBUFFER, framebuffer.getInt(0)) }
 				checkErrors { framebufferTexture2D(FRAMEBUFFER, COLOR_ATTACHMENT0, TEXTURE_2D, ftex.tex, 0) }
 				checkErrors { framebufferRenderbuffer(FRAMEBUFFER, DEPTH_ATTACHMENT, RENDERBUFFER, depth.getInt(0)) }

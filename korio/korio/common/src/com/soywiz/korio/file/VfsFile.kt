@@ -118,12 +118,6 @@ class VfsFile(
 	suspend fun mkdir(attributes: List<Vfs.Attribute>) = vfs.mkdir(path, attributes)
 	suspend fun mkdir(vararg attributes: Vfs.Attribute) = mkdir(attributes.toList())
 
-	@Deprecated("Use mkdir instead", ReplaceWith("mkdir(attributes)"))
-	suspend fun mkdirs(attributes: List<Vfs.Attribute>) = mkdir(attributes)
-
-	@Deprecated("Use mkdir instead", ReplaceWith("mkdir(attributes)"))
-	suspend fun mkdirs(vararg attributes: Vfs.Attribute) = mkdir(attributes.toList())
-
 	suspend fun copyToTree(
 		target: VfsFile,
 		vararg attributes: Vfs.Attribute,

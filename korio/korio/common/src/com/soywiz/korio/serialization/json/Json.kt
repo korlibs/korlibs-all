@@ -40,9 +40,7 @@ object Json {
 
 	fun decode(@Language("json") s: String): Any? = StrReader(s).decode()
 
-	@Deprecated("Not compatible with Kotlin.JS (for now)")
-	inline fun <reified T : Any> decodeToType(@Language("json") s: String, mapper: ObjectMapper = Mapper): T =
-		decodeToType(T::class, s, mapper)
+	inline fun <reified T : Any> decodeToType(@Language("json") s: String, mapper: ObjectMapper = Mapper): T = decodeToType(T::class, s, mapper)
 
 	@Suppress("UNCHECKED_CAST")
 	@Deprecated("Put class first")

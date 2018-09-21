@@ -15,6 +15,6 @@ class BufferedStreamTest {
 			if (read.readU8() != (n and 0xFF)) fail()
 		}
 		assertEquals(0, read.getAvailable())
-		assertEquals(0, read.readBytes(10).size)
+		assertEquals(0, read.readBytesUpTo(10).size)
 	}
 }

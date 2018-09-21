@@ -39,11 +39,6 @@ open class LogAG(
 
 	override fun repaint() = log("repaint()")
 
-	override fun resized() {
-		log("resized()")
-		onResized(Unit)
-	}
-
 	override fun dispose() = log("dispose()")
 
 	inner class LogTexture(val id: Int, override val premultiplied: Boolean) : Texture() {
@@ -68,7 +63,7 @@ open class LogAG(
 	}
 
 	inner class LogRenderBuffer(override val id: Int) : RenderBuffer() {
-		override fun start(width: Int, height: Int) = log("$this.start($width, $height)")
+		override fun setSize(width: Int, height: Int) = log("$this.setSize($width, $height)")
 		override fun set() = log("$this.set()")
 		override fun close() = log("$this.close()")
 		override fun toString(): String = "RenderBuffer[$id]"

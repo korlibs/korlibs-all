@@ -179,7 +179,7 @@ class FakeHttpClient(val redirect: HttpClient? = null) : HttpClient() {
 		headers: Http.Headers,
 		content: AsyncStream?
 	): Response {
-		val contentString = content?.slice()?.readAll()?.toString(UTF8)
+		val contentString = content?.sliceStart()?.readAll()?.toString(UTF8)
 		val requestNumber = log.size
 		log += "$method, $url, $headers, $contentString"
 		if (redirect != null) return redirect.request(method, url, headers, content)

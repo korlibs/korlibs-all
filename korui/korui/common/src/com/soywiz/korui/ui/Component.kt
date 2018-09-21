@@ -14,6 +14,7 @@ import com.soywiz.korui.event.*
 import com.soywiz.korui.geom.len.*
 import com.soywiz.korui.light.*
 import com.soywiz.korui.style.*
+import com.soywiz.std.*
 import kotlin.reflect.*
 
 open class Component(override val app: Application, val type: LightType) : Styled, Extra by Extra.Mixin(), EventDispatcher, ApplicationAware {
@@ -288,7 +289,7 @@ class AgCanvas(app: Application) : Component(app, LightType.AGCANVAS), AGContain
 
 	override fun onResized(x: Int, y: Int, width: Int, height: Int) {
 		super.onResized(x, y, width, height)
-		ag.resized()
+		ag.resized(width, height)
 	}
 
 	suspend fun waitReady() {

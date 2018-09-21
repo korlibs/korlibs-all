@@ -225,7 +225,7 @@ internal actual suspend fun KoruiWrap(entry: suspend (KoruiContext) -> Unit) {
 			val resizedEvent = com.soywiz.korui.event.ResizedEvent()
 			override fun windowDidResize(width: Int, height: Int, context: NSOpenGLContext?) {
 				//macTrace("windowDidResize")
-				ag.setViewport(0, 0, width, height)
+				ag.resized(width, height)
 				light.dispatch(resizedEvent.apply {
 					this.width = width
 					this.height = height

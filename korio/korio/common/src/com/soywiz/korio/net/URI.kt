@@ -72,7 +72,7 @@ data class URI private constructor(
 						opaque = !isHierarchical,
 						scheme = scheme,
 						userInfo = userInfo,
-						host = host.nullIf { isEmpty() },
+						host = host.takeIf { it.isNotEmpty() },
 						path = if (path != null) "/$path" else "",
 						query = query,
 						fragment = fragment

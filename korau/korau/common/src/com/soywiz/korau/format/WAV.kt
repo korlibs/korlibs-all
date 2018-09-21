@@ -32,7 +32,7 @@ object WAV : AudioFormat("wav") {
 
 		return object : AudioStream(fmt.samplesPerSec, fmt.channels) {
 			override suspend fun read(out: ShortArray, offset: Int, length: Int): Int {
-				val bytes = FastByteArrayInputStream(buffer.readBytes(length * bytesPerSample))
+				val bytes = FastByteArrayInputStream(buffer.readBytesUpTo(length * bytesPerSample))
 				val availableSamples = bytes.length / bytesPerSample
 				when (bytesPerSample) {
 					2 -> {
@@ -89,7 +89,7 @@ object WAV : AudioFormat("wav") {
 
 		riff(data) {
 			val (type, d2) = this
-			val d = d2.clone()
+			val d = d2.duplicate()
 			var cdata: Any = Unit
 			when (type) {
 				"fmt " -> {
@@ -118,7 +118,7 @@ object WAV : AudioFormat("wav") {
 	}
 
 	suspend fun riff(data: AsyncStream, handler: suspend Chunk.() -> Unit) {
-		val s2 = data.clone()
+		val s2 = data.duplicate()
 		val magic = s2.readString(4)
 		val length = s2.readS32_le()
 		val magic2 = s2.readString(4)

@@ -353,8 +353,8 @@ object Korge {
 			//println("ag.onResized: ${ag.backWidth},${ag.backHeight}")
 			views.resized(ag.backWidth, ag.backHeight)
 		}
-		ag.resized()
-		eventDispatcher.dispatch(ResizedEvent(100, 100))
+		//ag.resized(initialWidth, initialHeight)
+		eventDispatcher.dispatch(ResizedEvent(views.nativeWidth, views.nativeHeight))
 
 		//println("lastTime: $lastTime")
 		ag.onRender {

@@ -12,7 +12,4 @@ class UByteArray(val data: ByteArray) {
 	val size: Int = data.size
 	inline operator fun get(n: Int) = this.data[n].toInt() and 0xFF
 	inline operator fun set(n: Int, v: Int) = Unit.let { this.data[n] = v.toByte() }
-
-	@Deprecated("", ReplaceWith("this[n]"))
-	fun getu(n: Int) = this[n]
 }

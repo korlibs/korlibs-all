@@ -5,6 +5,7 @@ import com.jogamp.opengl.*
 import com.jogamp.opengl.awt.*
 import com.soywiz.kgl.*
 import com.soywiz.korio.util.*
+import com.soywiz.std.*
 
 
 object AGFactoryAwt : AGFactory {
@@ -38,18 +39,17 @@ abstract class AGAwtBase : AGOpengl() {
 		stencilBits = 8
 		depthBits = 24
 	}
-	var initialized = false
 	lateinit var ad: GLAutoDrawable
 	override lateinit var gl: KmlGl
 	lateinit var glThread: Thread
-
+	override var isGlAvailable: Boolean = false
 	override var devicePixelRatio: Double = 1.0
 
 	protected fun setAutoDrawable(d: GLAutoDrawable) {
 		glThread = Thread.currentThread()
 		ad = d
 		gl = KmlGlCached(JvmKmlGl(d.gl as GL2))
-		initialized = true
+		isGlAvailable = true
 	}
 
 	val awtBase = this
@@ -87,21 +87,19 @@ class AGAwt : AGAwtBase(), AGContainer {
 		//}
 	}
 
-	override fun resized() {
-		onResized(Unit)
-	}
-
 	private val tempFloat4 = FloatArray(4)
+
+	override fun resized(width: Int, height: Int) {
+		val (scaleX, scaleY) = glcanvas.getCurrentSurfaceScale(tempFloat4)
+		devicePixelRatio = (scaleX + scaleY) / 2.0
+		super.resized((width * scaleX).toInt(), (height * scaleY).toInt())
+	}
 
 	val glEventListener = object : GLEventListener {
 		override fun reshape(d: GLAutoDrawable, x: Int, y: Int, width: Int, height: Int) {
 			setAutoDrawable(d)
 
-			val (scaleX, scaleY) = glcanvas.getCurrentSurfaceScale(tempFloat4)
-			devicePixelRatio = (scaleX + scaleY) / 2.0
-			setViewport(0, 0, width, height)
-
-			resized()
+			//if (isJvm) resized(width, height)
 		}
 
 		var onReadyOnce = Once()

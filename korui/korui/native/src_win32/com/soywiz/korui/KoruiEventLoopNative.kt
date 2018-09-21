@@ -348,7 +348,7 @@ fun WndProc(hWnd: HWND?, message: UINT, wParam: WPARAM, lParam: LPARAM): LRESULT
 val resizedEvent = com.soywiz.korui.event.ResizedEvent()
 
 fun resized(width: Int, height: Int) {
-	ag.setViewport(0, 0, width, height)
+	ag.resized(width, height)
 	light.dispatch(resizedEvent.apply {
 		this.width = width
 		this.height = height

@@ -62,8 +62,8 @@ class Views(
 	val propsTriggers = hashMapOf<String, (View, String, String) -> Unit>()
 	var clampElapsedTimeTo = 100
 
-	val nativeWidth get() = ag.backWidth
-	val nativeHeight get() = ag.backHeight
+	val nativeWidth get() = ag.mainRenderBuffer.width
+	val nativeHeight get() = ag.mainRenderBuffer.height
 
 	var virtualWidth = 640; internal set
 	var virtualHeight = 480; internal set

@@ -60,7 +60,7 @@ class AGWebgl : AGOpengl(), AGContainer {
 	}
 
 	override val nativeComponent: Any = canvas
-	val tDevicePixelRatio get() = window.devicePixelRatio.toDouble();
+	val tDevicePixelRatio get() = window.devicePixelRatio.toDouble()
 	override var devicePixelRatio = 1.0; get() = when {
 		tDevicePixelRatio <= 0.0 -> 1.0
 		tDevicePixelRatio.isNaN() -> 1.0
@@ -73,23 +73,28 @@ class AGWebgl : AGOpengl(), AGContainer {
 		canvas.addEventListener("webglcontextlost", { e ->
 			//contextVersion++
 			e.preventDefault()
-		}, false);
+		}, false)
 
 		canvas.addEventListener("webglcontextrestored", { e ->
 			contextVersion++
 			//e.preventDefault()
-		}, false);
+		}, false)
+
+		//fun handleOnResized() {
+		//	ag.resized(canvas.width, canvas.height)
+		//}
+//
+		//window.addEventListener("resize", { e ->
+		//	handleOnResized()
+		//	//e.preventDefault()
+		//}, false)
+//
+		//handleOnResized()
 	}
 
 	override fun repaint() {
 		onReadyOnce { ready() }
 		onRender(this)
-	}
-
-	override fun resized() {
-		//println("RESIZED: ${canvas.width}x${canvas.height}")
-		setViewport(0, 0, canvas.width, canvas.height)
-		onResized(Unit)
 	}
 
 	override fun dispose() {

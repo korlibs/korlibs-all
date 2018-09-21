@@ -254,7 +254,7 @@ fun <T : Struct> SyncStream.writeStruct(obj: T) = this.writeBytes(obj.getStructB
 
 inline suspend fun <reified T : Struct> AsyncStream.readStruct() = this.readStruct(T::class.java)
 suspend fun <T : Struct> AsyncStream.readStruct(clazz: Class<T>): T {
-	return readBytes(clazz.getStructSize()).readStruct(0, clazz)
+	return readBytesExact(clazz.getStructSize()).readStruct(0, clazz)
 }
 
 suspend fun <T : Struct> AsyncStream.writeStruct(obj: T) = this.writeBytes(obj.getStructBytes())
