@@ -4,7 +4,9 @@ import com.soywiz.klogger.*
 import com.soywiz.kmem.*
 import com.soywiz.korag.*
 import com.soywiz.korag.shader.*
+import com.soywiz.korge.html.*
 import com.soywiz.korge.view.*
+import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
 import com.soywiz.korma.*
 import com.soywiz.korma.geom.*
@@ -502,6 +504,23 @@ class TexturedVertexArray(var vcount: Int, val indices: IntArray, var isize: Int
 	fun uv(tx: Float, ty: Float) = setU(tx).setV(ty)
 	fun cols(colMulInt: Int, colAdd: Int) = setCMulInt(colMulInt).setCAdd(colAdd)
 
+	fun quad(index: Int, x: Double, y: Double, width: Double, height: Double, matrix: Matrix2d, bmp: BmpSlice, colMulInt: Int, colAdd: Int) {
+		select(index + 0).xy(x, y, matrix).uv(bmp.tl_x, bmp.tl_y).cols(colMulInt, colAdd)
+		select(index + 1).xy(x + width, y, matrix).uv(bmp.tr_x, bmp.tr_y).cols(colMulInt, colAdd)
+		select(index + 2).xy(x + width, y + height, matrix).uv(bmp.br_x, bmp.br_y).cols(colMulInt, colAdd)
+		select(index + 3).xy(x, y + height, matrix).uv(bmp.bl_x, bmp.bl_y).cols(colMulInt, colAdd)
+	}
+
+	private val bounds: BoundsBuilder = BoundsBuilder()
+	fun getBounds(min: Int = 0, max: Int = vcount, out: Rectangle = Rectangle()): Rectangle {
+		bounds.reset()
+		for (n in min until max) {
+			select(n)
+			bounds.add(x.toDouble(), y.toDouble())
+		}
+		return bounds.getBounds(out)
+	}
+
 	val x: Float get() = f32[offset + 0]
 	val y: Float get() = f32[offset + 1]
 	val u: Float get() = f32[offset + 2]
@@ -537,6 +556,36 @@ class TexturedVertexArray(var vcount: Int, val indices: IntArray, var isize: Int
 	//	fun setCols(colMul: Int, colAdd: Int) = this.apply { this.colMul = colMul }.also { this.colAdd = colAdd }
 	//}
 }
+
+class TexturedVertexArrayBuilder(count: Int) {
+	val indices = IntArray(count * 6)
+	val array = TexturedVertexArray(count * 4, indices)
+	var offset = 0
+	fun quad(x: Double, y: Double, width: Double, height: Double, matrix: Matrix2d, bmp: BmpSlice, colMulInt: Int, colAdd: Int) {
+		val offset4 = offset * 4
+		val i6 = offset * 6
+		array.select(offset4 + 0).xy(x, y, matrix).uv(bmp.tl_x, bmp.tl_y).cols(colMulInt, colAdd)
+		array.select(offset4 + 1).xy(x + width, y, matrix).uv(bmp.tr_x, bmp.tr_y).cols(colMulInt, colAdd)
+		array.select(offset4 + 2).xy(x + width, y + height, matrix).uv(bmp.br_x, bmp.br_y).cols(colMulInt, colAdd)
+		array.select(offset4 + 3).xy(x, y + height, matrix).uv(bmp.bl_x, bmp.bl_y).cols(colMulInt, colAdd)
+		indices[i6 + 0] = offset4 + 0
+		indices[i6 + 1] = offset4 + 1
+		indices[i6 + 2] = offset4 + 2
+		indices[i6 + 3] = offset4 + 3
+		indices[i6 + 4] = offset4 + 0
+		indices[i6 + 5] = offset4 + 2
+		offset++
+	}
+	inline fun quad(x: Number, y: Number, width: Number, height: Number, matrix: Matrix2d, bmp: BmpSlice, colMulInt: Int, colAdd: Int) =
+			quad(x.toDouble(), y.toDouble(), width.toDouble(), height.toDouble(), matrix, bmp, colMulInt, colAdd)
+	fun build() = array.apply {
+		vcount = offset * 4
+		isize = offset * 6
+	}
+}
+
+fun buildQuads(count: Int, build: TexturedVertexArrayBuilder.() -> Unit): TexturedVertexArray =
+	TexturedVertexArrayBuilder(count).apply(build).build()
 
 /*
 // @TODO: Move to the right place

@@ -414,7 +414,7 @@ abstract class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by Eve
 		invalidate()
 	}
 
-	protected var dirtyVertices = false
+	protected var dirtyVertices = true
 
 	private var _version = 0
 	internal var _requireInvalidate = false

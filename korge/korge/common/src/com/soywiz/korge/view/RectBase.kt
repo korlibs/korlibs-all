@@ -30,19 +30,7 @@ open class RectBase(
 	private fun computeVertexIfRequired() {
 		if (!dirtyVertices) return
 		dirtyVertices = false
-		val matrix = globalMatrix
-		val colMulInt = renderColorMulInt
-		val colAdd = renderColorAdd
-		val x = sLeft
-		val y = sTop
-		val width = bwidth
-		val height = bheight
-		val bmp = baseBitmap
-		vertices
-			.select(0).xy(x, y, matrix).uv(bmp.tl_x, bmp.tl_y).cols(colMulInt, colAdd)
-			.select(1).xy(x + width, y, matrix).uv(bmp.tr_x, bmp.tr_y).cols(colMulInt, colAdd)
-			.select(2).xy(x + width, y + height, matrix).uv(bmp.br_x, bmp.br_y).cols(colMulInt, colAdd)
-			.select(3).xy(x, y + height, matrix).uv(bmp.bl_x, bmp.bl_y).cols(colMulInt, colAdd)
+		vertices.quad(0, sLeft, sTop, bwidth, bheight, globalMatrix, baseBitmap, renderColorMulInt, renderColorAdd)
 	}
 
 	override fun renderInternal(ctx: RenderContext) {

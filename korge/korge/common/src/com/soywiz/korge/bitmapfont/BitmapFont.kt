@@ -56,6 +56,8 @@ class BitmapFont(
 		fontSize, glyphs.toIntMap(), kernings.toIntMap()
 	)
 
+	fun getKerning(first: Int, second: Int): Kerning? = kernings[BitmapFont.Kerning.buildKey(first, second)]
+
 	class Kerning(
 		val first: Int,
 		val second: Int,
@@ -75,6 +77,8 @@ class BitmapFont(
 	)
 
 	val dummyGlyph by lazy { Glyph(-1, Bitmaps.transparent, 0, 0, 0) }
+	val anyGlyph: Glyph by lazy { glyphs[glyphs.keys.iterator().next()] ?: dummyGlyph }
+	val baseBmp: Bitmap by lazy { anyGlyph.texture.bmp }
 
 	operator fun get(charCode: Int): Glyph = glyphs[charCode] ?: glyphs[32] ?: dummyGlyph
 	operator fun get(char: Char): Glyph = this[char.toInt()]
