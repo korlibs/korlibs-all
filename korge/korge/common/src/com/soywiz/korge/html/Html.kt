@@ -1,17 +1,11 @@
 package com.soywiz.korge.html
 
-import com.soywiz.kds.Computed
-import com.soywiz.kds.Extra
-import com.soywiz.korge.bitmapfont.BitmapFont
-import com.soywiz.korge.view.*
+import com.soywiz.kds.*
+import com.soywiz.korge.bitmapfont.*
 import com.soywiz.korim.color.*
-import com.soywiz.korio.serialization.xml.Xml
-import com.soywiz.korio.serialization.xml.isComment
-import com.soywiz.korio.serialization.xml.isNode
-import com.soywiz.korio.serialization.xml.isText
-import com.soywiz.korma.geom.Anchor
-import com.soywiz.korma.geom.Rectangle
-import com.soywiz.korma.geom.bounds
+import com.soywiz.korim.font.*
+import com.soywiz.korio.serialization.xml.*
+import com.soywiz.korma.geom.*
 
 object Html {
 	data class Alignment(val anchor: Anchor) {
@@ -40,7 +34,9 @@ object Html {
 
 	interface FontFace {
 		data class Named(val name: String) : FontFace
-		data class Bitmap(val font: BitmapFont) : FontFace, Html.MetricsProvider by font
+		data class Bitmap(val font: BitmapFont) : FontFace, Html.MetricsProvider {
+			override fun getBounds(text: String, format: Format, out: Rectangle) = font.getBounds(text, format, out)
+		}
 	}
 
 	data class Format(

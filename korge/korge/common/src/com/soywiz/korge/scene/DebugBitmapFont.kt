@@ -1,7 +1,8 @@
 package com.soywiz.korge.scene
 
-import com.soywiz.korge.bitmapfont.*
+import com.soywiz.kds.*
 import com.soywiz.korim.bitmap.*
+import com.soywiz.korim.font.*
 import com.soywiz.korim.format.*
 import com.soywiz.korio.crypto.*
 import com.soywiz.korio.util.*
@@ -62,7 +63,7 @@ suspend fun getDebugBmpFontOnce() = bmpFontOnce2 {
 	val fntAdvance = 7
 	val fntWidth = 8
 	val fntHeight = 8
-	BitmapFont(fntHeight, (0 until 256).associate {
+	BitmapFont(tex.bmp, fntHeight, fntHeight, fntHeight, (0 until 256).associate {
 		val x = it % 16
 		val y = it / 16
 		it to BitmapFont.Glyph(
@@ -72,5 +73,5 @@ suspend fun getDebugBmpFontOnce() = bmpFontOnce2 {
 			0,
 			fntAdvance
 		)
-	}, mapOf())
+	}.toIntMap(), IntMap())
 }

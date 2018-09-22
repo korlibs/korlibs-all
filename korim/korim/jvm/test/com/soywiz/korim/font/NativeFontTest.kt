@@ -9,7 +9,7 @@ class NativeFontTest {
 		val bmpFont = BitmapFontGenerator.generate("Arial", 64, "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 		val bmp = Bitmap32(200, 200)
-		bmp.drawText(bmpFont, "HELLO")
+		//bmp.drawText(bmpFont, "HELLO")
 
 		//awtShowImage(bmp); Thread.sleep(10000)
 	}

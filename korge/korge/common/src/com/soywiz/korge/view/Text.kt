@@ -5,6 +5,7 @@ import com.soywiz.korge.html.*
 import com.soywiz.korge.render.*
 import com.soywiz.korim.bitmap.*
 import com.soywiz.korim.color.*
+import com.soywiz.korim.font.*
 import com.soywiz.korma.geom.*
 
 inline fun Container.text(

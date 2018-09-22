@@ -135,6 +135,29 @@ class Bitmap32(
 	fun put(src: BitmapSlice<Bitmap32>, dx: Int = 0, dy: Int = 0) = _draw(src, dx, dy, mix = false)
 	fun draw(src: BitmapSlice<Bitmap32>, dx: Int = 0, dy: Int = 0) = _draw(src, dx, dy, mix = true)
 
+	fun drawUnoptimized(src: BitmapSlice<Bitmap>, dx: Int = 0, dy: Int = 0, mix: Boolean = true) {
+		if (src.bmp is Bitmap32) {
+			_draw(src as BitmapSlice<Bitmap32>, dx, dy, mix = mix)
+		} else {
+			drawUnoptimized(src.bmp, dx, dy, src.left, src.top, src.right, src.bottom, mix = mix)
+		}
+	}
+
+	fun drawUnoptimized(src: Bitmap, dx: Int, dy: Int, sleft: Int, stop: Int, sright: Int, sbottom: Int, mix: Boolean) {
+		val dst = this
+		val width = sright - sleft
+		val height = sbottom - stop
+		val dstData = dst.data.array
+		for (y in 0 until height) {
+			val dstOffset = dst.index(dx, dy + y)
+			if (mix) {
+				for (x in 0 until width) dstData[dstOffset + x] = RGBA.mixInt(dstData[dstOffset + x], src.get32Int(sleft + x, stop + y))
+			} else {
+				for (x in 0 until width) dstData[dstOffset + x] = src.get32Int(sleft + x, stop + y)
+			}
+		}
+	}
+
 	fun copySliceWithBounds(left: Int, top: Int, right: Int, bottom: Int): Bitmap32 =
 		copySliceWithSize(left, top, right - left, bottom - top)
 

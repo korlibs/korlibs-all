@@ -1,7 +1,6 @@
 package com.soywiz.korge.view
 
 import com.soywiz.korge.bitmapfont.*
-import com.soywiz.korge.bitmapfont.BitmapFont
 import com.soywiz.korge.html.*
 import com.soywiz.korge.scene.*
 import com.soywiz.korim.font.*
@@ -22,7 +21,7 @@ class Fonts() : Html.MetricsProvider {
 		if (nameLC !in fonts) {
 			registerFont(
 				name,
-				BitmapFontGenerator.generate(name, min(size, 32), BitmapFontGenerator.LATIN_ALL).convert()
+				BitmapFontGenerator.generate(name, min(size, 32), BitmapFontGenerator.LATIN_ALL)
 			)
 		}
 		return fonts[nameLC] ?: defaultFont
