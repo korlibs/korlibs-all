@@ -56,6 +56,7 @@ class BitmapFont(
 		fontSize, glyphs.toIntMap(), kernings.toIntMap()
 	)
 
+	fun getKerning(first: Char, second: Char): Kerning? = getKerning(first.toInt(), second.toInt())
 	fun getKerning(first: Int, second: Int): Kerning? = kernings[BitmapFont.Kerning.buildKey(first, second)]
 
 	class Kerning(
