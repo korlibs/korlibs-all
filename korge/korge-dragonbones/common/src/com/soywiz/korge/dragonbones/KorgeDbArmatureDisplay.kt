@@ -37,7 +37,7 @@ import com.soywiz.korma.*
 /**
  * @inheritDoc
  */
-class KorgeDbArmatureDisplay : Image(Bitmaps.transparent), IArmatureProxy {
+class KorgeDbArmatureDisplay : Container(), IArmatureProxy {
 	private val _events = arrayListOf<EventObject>()
 	private val _eventsReturnQueue: ArrayList<BaseObject> = arrayListOf()
 

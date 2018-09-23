@@ -3,6 +3,7 @@ package com.soywiz.korge.view
 import com.soywiz.kmem.*
 import com.soywiz.korge.render.*
 import com.soywiz.korim.bitmap.*
+import com.soywiz.korma.geom.*
 
 open class Mesh(
 	var texture: BmpSlice? = null,
@@ -25,6 +26,8 @@ open class Mesh(
 	}
 
 	private var tva = TexturedVertexArray(0, intArrayOf())
+	private val bb = BoundsBuilder()
+	private val localBounds = Rectangle()
 
 	private fun recomputeVerticesIfRequired() {
 		if (!dirtyVertices) return
@@ -40,20 +43,32 @@ open class Mesh(
 		tva.vcount = vcount
 		tva.isize = isize
 
+		bb.reset()
 		for (n in 0 until tva.isize) tva.indices[n] = indices[n]
 		for (n in 0 until tva.vcount) {
 			val x = vertices[n * 2 + 0].toDouble() + pivotX
 			val y = vertices[n * 2 + 1].toDouble() + pivotY
+
+			val tx = m.transformX(x, y)
+			val ty = m.transformY(x, y)
+
 			tva.select(n)
-				.xy(m.transformX(x, y), m.transformY(x, y))
+				.xy(tx, ty)
 				.uv(uvs[n * 2 + 0], uvs[n * 2 + 1])
 				.cols(cmul, cadd)
+			bb.add(tx, ty)
 		}
+		bb.getBounds(localBounds)
 	}
 
 	override fun renderInternal(ctx: RenderContext) {
 		recomputeVerticesIfRequired()
 		ctx.batch.drawVertices(tva, ctx.getTex(textureNN).base, true, renderBlendMode.factors)
+	}
+
+	override fun getLocalBoundsInternal(out: Rectangle) {
+		recomputeVerticesIfRequired()
+		out.copyFrom(localBounds)
 	}
 }
 

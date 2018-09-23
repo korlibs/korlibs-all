@@ -5,11 +5,13 @@ import com.soywiz.korag.*
 import com.soywiz.korge.stat.*
 import com.soywiz.korge.view.*
 import com.soywiz.korim.bitmap.*
+import kotlin.coroutines.*
 
 class RenderContext(
 	val ag: AG,
 	val bp: BoundsProvider = BoundsProvider.Dummy,
-	val stats: Stats = Stats()
+	val stats: Stats = Stats(),
+	val coroutineContext: CoroutineContext = EmptyCoroutineContext
 ) : Extra by Extra.Mixin(), BoundsProvider by bp {
 	val agBitmapTextureManager = AgBitmapTextureManager(ag)
 	var frame = 0

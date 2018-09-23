@@ -420,6 +420,8 @@ class RgbaArray(val array: IntArray) : List<RGBA> {
 	override fun toString(): String = "RgbaArray($size)"
 }
 
+fun RGBA.mix(other: RGBA, ratio: Double) = RGBA.blendRGBA(this, other, ratio)
+
 /*
 java.lang.VerifyError: Bad type on operand stack
 Exception Details:

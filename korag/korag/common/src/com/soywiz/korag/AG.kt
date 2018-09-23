@@ -143,20 +143,13 @@ abstract class AG : Extra by Extra.Mixin() {
 		companion object {
 			val NONE = Blending(BlendFactor.ONE, BlendFactor.ZERO, BlendFactor.ONE, BlendFactor.ZERO)
 			val NORMAL = Blending(
-				BlendFactor.SOURCE_ALPHA,
-				BlendFactor.ONE_MINUS_SOURCE_ALPHA,
-				BlendFactor.ONE,
-				BlendFactor.ONE_MINUS_SOURCE_ALPHA
+				BlendFactor.SOURCE_ALPHA, BlendFactor.ONE_MINUS_SOURCE_ALPHA,
+				BlendFactor.ONE, BlendFactor.ONE_MINUS_SOURCE_ALPHA
 			)
-
-			// http://www.learnopengles.com/tag/additive-blending/
-			//val REPLACE = Blending(BlendFactor.ONE, BlendFactor.ZERO, BlendFactor.ONE, BlendFactor.ZERO)
-			//val NORMAL = Blending(BlendFactor.SOURCE_ALPHA, BlendFactor.ONE_MINUS_SOURCE_ALPHA, BlendFactor.ONE, BlendFactor.ONE_MINUS_SOURCE_ALPHA)
-			//val ADD = Blending(BlendFactor.ONE, BlendFactor.ONE, BlendFactor.ONE, BlendFactor.ONE)
-			//
-			//val REPLACE_PREMULT = Blending(BlendFactor.ONE, BlendFactor.ZERO, BlendFactor.ONE, BlendFactor.ZERO)
-			//val NORMAL_PREMULT = Blending(BlendFactor.ONE, BlendFactor.ONE_MINUS_SOURCE_ALPHA, BlendFactor.ONE, BlendFactor.ONE_MINUS_SOURCE_ALPHA)
-			//val ADD_PREMULT = Blending(BlendFactor.ONE, BlendFactor.ONE, BlendFactor.ONE, BlendFactor.ONE)
+			val ADD = Blending(
+				BlendFactor.SOURCE_ALPHA, BlendFactor.DESTINATION_ALPHA,
+				BlendFactor.ONE, BlendFactor.ONE
+			)
 		}
 	}
 
@@ -568,7 +561,7 @@ abstract class AG : Extra by Extra.Mixin() {
 			get() {
 				if (cachedTexVersion != contextVersion) {
 					cachedTexVersion = contextVersion
-					_tex = this@AG.createTexture(premultiplied = false).manualUpload().apply { isFbo = true }
+					_tex = this@AG.createTexture(premultiplied = true).manualUpload().apply { isFbo = true }
 				}
 				return _tex!!
 			}
@@ -827,3 +820,7 @@ abstract class AG : Extra by Extra.Mixin() {
 		override fun toString() = "{" + keys.zip(values).map { "${it.first}=${it.second}" }.joinToString(", ") + "}"
 	}
 }
+
+
+fun AG.Blending.toRenderFboIntoBack() = this
+fun AG.Blending.toRenderImageIntoFbo() = this

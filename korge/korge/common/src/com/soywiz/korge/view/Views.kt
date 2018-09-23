@@ -55,7 +55,7 @@ class Views(
 ) : Updatable, Extra by Extra.Mixin(), EventDispatcher by EventDispatcher.Mixin(), CoroutineContextHolder,
 	BoundsProvider {
 	var imageFormats = defaultImageFormats
-	val renderContext = RenderContext(ag, this, stats)
+	val renderContext = RenderContext(ag, this, stats, coroutineContext)
 	val agBitmapTextureManager = renderContext.agBitmapTextureManager
 	var clearEachFrame = true
 	val views = this

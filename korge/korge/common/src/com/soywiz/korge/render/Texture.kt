@@ -19,6 +19,7 @@ class Texture(
 	val right: Int = base.width,
 	val bottom: Int = base.height
 ) : Closeable {
+	val premultiplied get() = base.premultiplied
 	val x = left
 	val y = top
 	val width = right - left
@@ -53,6 +54,7 @@ class Texture(
 	}
 
 	class Base(val base: AG.Texture, val width: Int, val height: Int) : Closeable {
+		val premultiplied get() = base.premultiplied
 		override fun close() = base.close()
 		fun update(bmp: Bitmap32, mipmaps: Boolean = false) {
 			base.upload(bmp, mipmaps)

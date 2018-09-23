@@ -8,6 +8,12 @@ def nativeEnabled() {
 	//return false
 }
 
+def jsEnabled() {
+	return System.getenv("build_kotlin_js") != "false"
+	//return true
+	//return false
+}
+
 def registerVersion(artifactName, path) {
 	def fpath = path as File
 	if (fpath.exists()) {
@@ -20,7 +26,9 @@ def registerVersion(artifactName, path) {
 def registerProject1(name, desc, rootPath = name) {
 	registerVersion("$name-common", file("$rootPath/$name/common"))
 	registerVersion("$name-jvm", file("$rootPath/$name/jvm"))
-	registerVersion("$name-js", file("$rootPath/$name/js"))
+	if (jsEnabled()) {
+		registerVersion("$name-js", file("$rootPath/$name/js"))
+	}
 	//registerVersion("$name-android", file("$rootPath/$name/android"))
 	if (nativeEnabled()) {
 		registerVersion("$name-native", file("$rootPath/$name/native"))

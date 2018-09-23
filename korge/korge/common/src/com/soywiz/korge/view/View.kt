@@ -5,8 +5,11 @@ import com.soywiz.korge.component.*
 import com.soywiz.korge.render.*
 import com.soywiz.korge.view.filter.*
 import com.soywiz.korim.color.*
+import com.soywiz.korim.format.*
+import com.soywiz.korio.async.*
 import com.soywiz.korio.crypto.*
 import com.soywiz.korio.error.*
+import com.soywiz.korio.file.std.*
 import com.soywiz.korio.lang.*
 import com.soywiz.korio.util.*
 import com.soywiz.korma.*
@@ -49,6 +52,8 @@ abstract class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by Eve
 	}
 
 	companion object {
+		private val identity = Matrix2d()
+
 		fun commonAncestor(left: View?, right: View?): View? {
 			var l: View? = left
 			var r: View? = right
@@ -382,10 +387,10 @@ abstract class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by Eve
 		if (_renderColorTransformVersion != this._version) {
 			_renderColorTransformVersion = this._version
 			_requireInvalidate = true
-			if (parent != null && this !is View.Reference) {
-				_renderColorTransform.setToConcat(_colorTransform, parent!!.renderColorTransform)
-			} else {
-				_renderColorTransform.copyFrom(_colorTransform)
+			when {
+				parent != null && parent?.filter != null -> _renderColorTransform.copyFrom(_colorTransform)
+				parent != null && this !is View.Reference -> _renderColorTransform.setToConcat(_colorTransform, parent!!.renderColorTransform)
+				else -> _renderColorTransform.copyFrom(_colorTransform)
 			}
 		}
 		return _renderColorTransform
@@ -449,16 +454,16 @@ abstract class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by Eve
 		val texWidth = bounds.width.toInt() + borderEffect * 2
 		val texHeight = bounds.height.toInt() + borderEffect * 2
 
- 		ctx.renderToTexture(texWidth, texHeight, render = {
-			tempMat2d.copyFrom(this.globalMatrixInv)
-			tempMat2d.translate(-bounds.x + borderEffect, -bounds.y + borderEffect)
+		ctx.renderToTexture(texWidth, texHeight, render = {
+			tempMat2d.copyFrom(parent?.globalMatrixInv ?: identity)
+			tempMat2d.pretranslate(-bounds.x + borderEffect, -bounds.y + borderEffect)
 			//println("$this: [1] $tempMat2d")
 			ctx.batch.setViewMatrixTemp(tempMat2d, temp = oldViewMatrix) {
 				renderInternal(ctx)
 			}
 		}) { texture ->
 			//println(textureSizeHolder.toList())
-			tempMat2d.copyFrom(this.globalMatrix)
+			tempMat2d.copyFrom(parent?.globalMatrix ?: identity)
 			tempMat2d.pretranslate(-borderEffect + bounds.x, -borderEffect + bounds.y)
 			//println("EffectUniforms: ${this.uniforms}")
 			//println("$this: [2] $tempMat2d")
@@ -467,6 +472,52 @@ abstract class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by Eve
 			filter.render(ctx, tempMat2d, texture, texWidth, texHeight, renderColorAdd, renderColorMulInt, blendMode)
 		}
 	}
+
+	/*
+	private fun renderFiltered(ctx: RenderContext, filter: Filter) {
+		val bounds = getLocalBounds()
+
+		val borderEffect = filter.border
+		val tempMat2d = filter.tempMat2d
+		val oldViewMatrix = filter.oldViewMatrix
+
+		//println("$this: [0] $bounds")
+
+		val texWidth = bounds.width.toInt() + borderEffect * 2
+		val texHeight = bounds.height.toInt() + borderEffect * 2
+
+		val addx = -bounds.x + borderEffect
+		val addy = -bounds.y + borderEffect
+
+		println(bounds)
+
+ 		ctx.renderToTexture(texWidth, texHeight, render = {
+			tempMat2d.copyFrom(parent?.globalMatrixInv ?: identity)
+			//tempMat2d.multiply(tempMat2d, localMatrix)
+			tempMat2d.pretranslate(addx, addy)
+			//println(tempMat2d)
+
+			ctx.batch.setViewMatrixTemp(tempMat2d, temp = oldViewMatrix) {
+				renderInternal(ctx)
+			}
+
+			//launchImmediately(ctx.coroutineContext) { ctx.ag.readColor().writeTo("/tmp/demo.png".uniVfs, PNG) }
+		}) { texture ->
+			//println(textureSizeHolder.toList())
+			tempMat2d.copyFrom(parent?.globalMatrix ?: identity)
+			//tempMat2d.premultiply(localMatrix.copy().inverted())
+			tempMat2d.pretranslate(-addx, -addy)
+			//println("EffectUniforms: ${this.uniforms}")
+			//println("$this: [2] $tempMat2d")
+
+			//filter.render(ctx, tempMat2d, texture, texWidth, texHeight, renderColorAdd, renderColorMulInt, blendMode.toFbo())
+			//println(RGBA(renderColorMulInt))
+			filter.render(
+				ctx, tempMat2d, texture, texWidth, texHeight, renderColorAdd, renderColorMulInt, blendMode
+			)
+		}
+	}
+	*/
 
 	protected abstract fun renderInternal(ctx: RenderContext)
 

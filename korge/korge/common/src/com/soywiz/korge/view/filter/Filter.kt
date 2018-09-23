@@ -4,6 +4,7 @@ import com.soywiz.korag.*
 import com.soywiz.korag.shader.*
 import com.soywiz.korge.render.*
 import com.soywiz.korge.view.*
+import com.soywiz.korim.color.*
 import com.soywiz.korma.*
 
 abstract class Filter {
@@ -61,12 +62,26 @@ abstract class Filter {
 		textureSizeHolder[1] = texture.base.height.toFloat()
 		updateUniforms()
 
-		// Premultiply!
-		if (program == null) program = Program(vertex, fragment.appending {
-			//out setTo vec4(out["rgb"] * out.a, out.a) // We are rendering the FBO later in other way
-		})
+		if (program == null) {
+			program = Program(vertex, fragment.appending {
+				// Premultiplied
+				if (texture.premultiplied) {
+					out["rgb"] setTo out["rgb"] / out["a"]
+				}
+
+				// Color multiply and addition
+				out setTo (out * BatchBuilder2D.v_ColMul) + ((BatchBuilder2D.v_ColAdd - vec4(.5f, .5f, .5f, .5f)) * 2f)
+
+				// Required for shape masks:
+				if (texture.premultiplied) {
+					IF(out["a"] le 0f.lit) { DISCARD() }
+				}
+			})
+		}
 
 		ctx.batch.setTemporalUniforms(this.uniforms) {
+			//println("renderColorMulInt=" + RGBA(renderColorMulInt))
+			//println("blendMode:$blendMode")
 			ctx.batch.drawQuad(
 				texture,
 				m = matrix,
@@ -74,14 +89,9 @@ abstract class Filter {
 				colorAdd = renderColorAdd,
 				colorMulInt = renderColorMulInt,
 				blendFactors = blendMode.factors,
-				//blendFactors = AG.Blending(
-				//	AG.BlendFactor.SOURCE_ALPHA,
-				//	AG.BlendFactor.ONE_MINUS_SOURCE_ALPHA,
-				//	AG.BlendFactor.ONE,
-				//	AG.BlendFactor.ONE
-				//),
 				program = program
 			)
+			//ctx.batch.flush()
 		}
 	}
 }

@@ -6,11 +6,12 @@ import com.soywiz.korge.render.*
 import com.soywiz.korim.font.*
 import com.soywiz.korim.format.*
 import com.soywiz.korio.async.*
+import kotlin.coroutines.*
 import kotlin.test.*
 
 class BitmapFontTest {
 	val ag = LogAG()
-	val ctx = RenderContext(ag)
+	val ctx = RenderContext(ag, coroutineContext = EmptyCoroutineContext)
 	val imageFormats = defaultImageFormats
 
 	@Test

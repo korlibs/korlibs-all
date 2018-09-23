@@ -15,6 +15,13 @@ class ColorMatrixFilter(colorMatrix: Matrix4, blendRatio: Double) : Filter() {
 			0.11f, 0.11f, 0.11f, 0f,
 			0f, 0f, 0f, 1f
 		)
+
+		val IDENTITY_MATRIX = Matrix4(
+			1f, 0f, 0f, 0f,
+			0f, 1f, 0f, 0f,
+			0f, 0f, 1f, 0f,
+			0f, 0f, 0f, 1f
+		)
 	}
 
 	var colorMatrix by uniforms.storageForMatrix4(u_ColorMatrix, colorMatrix)
