@@ -449,75 +449,24 @@ abstract class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by Eve
 		val tempMat2d = filter.tempMat2d
 		val oldViewMatrix = filter.oldViewMatrix
 
-		//println("$this: [0] $bounds")
-
-		val texWidth = bounds.width.toInt() + borderEffect * 2
-		val texHeight = bounds.height.toInt() + borderEffect * 2
-
-		ctx.renderToTexture(texWidth, texHeight, render = {
-			tempMat2d.copyFrom(parent?.globalMatrixInv ?: identity)
-			tempMat2d.pretranslate(-bounds.x + borderEffect, -bounds.y + borderEffect)
-			//println("$this: [1] $tempMat2d")
-			ctx.batch.setViewMatrixTemp(tempMat2d, temp = oldViewMatrix) {
-				renderInternal(ctx)
-			}
-		}) { texture ->
-			//println(textureSizeHolder.toList())
-			tempMat2d.copyFrom(parent?.globalMatrix ?: identity)
-			tempMat2d.pretranslate(-borderEffect + bounds.x, -borderEffect + bounds.y)
-			//println("EffectUniforms: ${this.uniforms}")
-			//println("$this: [2] $tempMat2d")
-
-			//filter.render(ctx, tempMat2d, texture, texWidth, texHeight, renderColorAdd, renderColorMulInt, blendMode.toFbo())
-			filter.render(ctx, tempMat2d, texture, texWidth, texHeight, renderColorAdd, renderColorMulInt, blendMode)
-		}
-	}
-
-	/*
-	private fun renderFiltered(ctx: RenderContext, filter: Filter) {
-		val bounds = getLocalBounds()
-
-		val borderEffect = filter.border
-		val tempMat2d = filter.tempMat2d
-		val oldViewMatrix = filter.oldViewMatrix
-
-		//println("$this: [0] $bounds")
-
 		val texWidth = bounds.width.toInt() + borderEffect * 2
 		val texHeight = bounds.height.toInt() + borderEffect * 2
 
 		val addx = -bounds.x + borderEffect
 		val addy = -bounds.y + borderEffect
 
-		println(bounds)
-
- 		ctx.renderToTexture(texWidth, texHeight, render = {
-			tempMat2d.copyFrom(parent?.globalMatrixInv ?: identity)
-			//tempMat2d.multiply(tempMat2d, localMatrix)
-			tempMat2d.pretranslate(addx, addy)
-			//println(tempMat2d)
-
+		ctx.renderToTexture(texWidth, texHeight, render = {
+			tempMat2d.copyFrom(globalMatrixInv)
+			tempMat2d.translate(addx, addy)
 			ctx.batch.setViewMatrixTemp(tempMat2d, temp = oldViewMatrix) {
 				renderInternal(ctx)
 			}
-
-			//launchImmediately(ctx.coroutineContext) { ctx.ag.readColor().writeTo("/tmp/demo.png".uniVfs, PNG) }
 		}) { texture ->
-			//println(textureSizeHolder.toList())
-			tempMat2d.copyFrom(parent?.globalMatrix ?: identity)
-			//tempMat2d.premultiply(localMatrix.copy().inverted())
+			tempMat2d.copyFrom(globalMatrix)
 			tempMat2d.pretranslate(-addx, -addy)
-			//println("EffectUniforms: ${this.uniforms}")
-			//println("$this: [2] $tempMat2d")
-
-			//filter.render(ctx, tempMat2d, texture, texWidth, texHeight, renderColorAdd, renderColorMulInt, blendMode.toFbo())
-			//println(RGBA(renderColorMulInt))
-			filter.render(
-				ctx, tempMat2d, texture, texWidth, texHeight, renderColorAdd, renderColorMulInt, blendMode
-			)
+			filter.render(ctx, tempMat2d, texture, texWidth, texHeight, renderColorAdd, renderColorMulInt, blendMode)
 		}
 	}
-	*/
 
 	protected abstract fun renderInternal(ctx: RenderContext)
 

@@ -56,7 +56,7 @@ open class Mesh(
 				.xy(tx, ty)
 				.uv(uvs[n * 2 + 0], uvs[n * 2 + 1])
 				.cols(cmul, cadd)
-			bb.add(tx, ty)
+			bb.add(x, y)
 		}
 		bb.getBounds(localBounds)
 	}
