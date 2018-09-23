@@ -198,6 +198,7 @@ abstract class AG : Extra by Extra.Mixin() {
 	enum class TextureKind { RGBA, LUMINANCE }
 
 	open inner class Texture : Closeable {
+		var isFbo = false
 		open val premultiplied = true
 		var requestMipmaps = false
 		var mipmaps = false; protected set
@@ -567,7 +568,7 @@ abstract class AG : Extra by Extra.Mixin() {
 			get() {
 				if (cachedTexVersion != contextVersion) {
 					cachedTexVersion = contextVersion
-					_tex = this@AG.createTexture(premultiplied = true).manualUpload()
+					_tex = this@AG.createTexture(premultiplied = false).manualUpload().apply { isFbo = true }
 				}
 				return _tex!!
 			}

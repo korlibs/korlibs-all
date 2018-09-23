@@ -63,7 +63,7 @@ abstract class Filter {
 
 		// Premultiply!
 		if (program == null) program = Program(vertex, fragment.appending {
-			out setTo vec4(out["rgb"] * out.a, out.a)
+			//out setTo vec4(out["rgb"] * out.a, out.a) // We are rendering the FBO later in other way
 		})
 
 		ctx.batch.setTemporalUniforms(this.uniforms) {

@@ -31,7 +31,8 @@ object Sample1 {
 		*/
 
 		//val mfilter = ColorMatrixFilter(ColorMatrixFilter.GRAYSCALE_MATRIX, 0.0)
-		val mfilter = WaveFilter()
+		//val mfilter = WaveFilter()
+		val mfilter = Convolute3Filter(Convolute3Filter.KERNEL_GAUSSIAN_BLUR)
 		solidRect(640, 480, Colors.ALICEBLUE)
 		image(Bitmap32(100, 100) { x, y -> RGBA(156 + x, 156 + y, 0, 255) }) {
 			x = 100.0
@@ -43,12 +44,13 @@ object Sample1 {
 			//	Convolute3Filter(Convolute3Filter.KERNEL_EDGE_DETECTION)
 			//)
 			//filter = ComposedFilter(mfilter, Convolute3Filter(Convolute3Filter.KERNEL_GAUSSIAN_BLUR))
+			alpha = 1.0
 			filter = mfilter
 			//filter = WaveFilter()
 		}.apply {
-			mfilter.amplitudeY = 6
-			mfilter.amplitudeX = 0
-			mfilter.time = 0.5
+			//mfilter.amplitudeY = 6
+			//mfilter.amplitudeX = 0
+			//mfilter.time = 0.5
 			//tween(mfilter::time[0.0, 10.0], time = 10.seconds)
 			//tween(mfilter::blendRatio[0.0, 1.0], time = 4.seconds)
 		}

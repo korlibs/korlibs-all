@@ -195,7 +195,7 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 			flush()
 			currentTex = tex
 			currentSmoothing = smoothing
-			currentBlendFactors = blendFactors
+			currentBlendFactors = if (tex.isFbo) blendFactors.toRenderFboIntoBack() else blendFactors
 			currentProgram = program
 		}
 	}
@@ -400,6 +400,11 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 			textureUnit.linear = currentSmoothing
 
 			//println("MyUniforms: $uniforms")
+
+			val realFactors = if (ag.renderingToTexture) factors.toRenderImageIntoFbo() else factors
+
+			//println("RENDER: $realFactors")
+
 			ag.draw(
 				vertices = vertexBuffer,
 				indices = indexBuffer,
@@ -408,7 +413,7 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 				type = AG.DrawType.TRIANGLES,
 				vertexLayout = LAYOUT,
 				vertexCount = indexPos,
-				blending = factors,
+				blending = realFactors,
 				uniforms = uniforms,
 				stencil = stencil,
 				colorMask = colorMask,
@@ -421,6 +426,15 @@ class BatchBuilder2D(val ag: AG, val maxQuads: Int = 1000) {
 		indexPos = 0
 		currentTex = null
 	}
+
+	//private fun AG.Blending.toTextureRender(): AG.Blending {
+	//	//println("toTextureRender")
+	//	return when (this) {
+	//		BlendMode.NORMAL.factors -> BlendMode.ToTexture.NORMAL
+	//		//BlendMode.NORMAL.factors -> BlendMode.NORMAL.factors
+	//		else -> this
+	//	}
+	//}
 
 	inline fun setViewMatrixTemp(matrix: Matrix2d, temp: Matrix4 = Matrix4(), callback: () -> Unit) {
 		flush()

@@ -462,6 +462,8 @@ abstract class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by Eve
 			tempMat2d.pretranslate(-borderEffect + bounds.x, -borderEffect + bounds.y)
 			//println("EffectUniforms: ${this.uniforms}")
 			//println("$this: [2] $tempMat2d")
+
+			//filter.render(ctx, tempMat2d, texture, texWidth, texHeight, renderColorAdd, renderColorMulInt, blendMode.toFbo())
 			filter.render(ctx, tempMat2d, texture, texWidth, texHeight, renderColorAdd, renderColorMulInt, blendMode)
 		}
 	}

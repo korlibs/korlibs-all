@@ -18,32 +18,20 @@ abstract class Scene : InjectorAsyncDependency, ViewsContainer, CoroutineContext
 	lateinit var sceneContainer: SceneContainer
 	lateinit var resourcesRoot: ResourcesRoot
 	//protected lateinit var bus: Bus
-	internal lateinit var _sceneViewContainer: Container; private set
-	lateinit var sceneView: Container; private set
+	internal val _sceneViewContainer: Container = Container()
 	val root get() = _sceneViewContainer
 	protected val cancellables = CancellableGroup()
 	override val coroutineContext: CoroutineContext get() = views.coroutineContext
-
+	val sceneView: Container = createSceneView().apply {
+		_sceneViewContainer += this
+	}
 	protected open fun createSceneView(): Container = Container()
 
 	override suspend fun init(injector: AsyncInjector): Unit {
-		//this.injector = injector
-		//this.views = injector.get() // @TODO: Bug in Kotlin.JS (no suspension point!)
-		//this.sceneContainer = injector.get() // @TODO: Bug in Kotlin.JS (no suspension point!)
-		//this.resourcesRoot = injector.get() // @TODO: Bug in Kotlin.JS (no suspension point!)
-
 		this.injector = injector
-		this.views = injector.get(Views::class)
-		this.sceneContainer = injector.get(SceneContainer::class)
-		this.resourcesRoot = injector.get(ResourcesRoot::class)
-
-		//Console.log(injector)
-		//println("Scene.init:ResourcesRoot[1]:" + injector.get<ResourcesRoot>())
-		//println("Scene.init:ResourcesRoot[2]:" + injector.get(ResourcesRoot::class))
-		//this.bus = injector.get()
-		_sceneViewContainer = Container()
-		sceneView = createSceneView()
-		_sceneViewContainer += sceneView
+		this.views = injector.get()
+		this.sceneContainer = injector.get()
+		this.resourcesRoot = injector.get()
 	}
 
 	abstract suspend fun Container.sceneInit(): Unit
@@ -62,7 +50,7 @@ abstract class Scene : InjectorAsyncDependency, ViewsContainer, CoroutineContext
 	}
 }
 
-abstract class ScaledScene() : Scene() {
+abstract class ScaledScene : Scene() {
 	open val sceneSize: ISize = ISize(320, 240)
 	open val sceneScale: Double = 2.0
 	open val sceneFiltering: Boolean = false

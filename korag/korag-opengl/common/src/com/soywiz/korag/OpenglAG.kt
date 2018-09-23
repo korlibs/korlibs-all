@@ -278,10 +278,8 @@ abstract class AGOpengl : AG() {
 			checkErrors { gl.blendEquationSeparate(blending.eqRGB.toGl(), blending.eqA.toGl()) }
 			checkErrors {
 				gl.blendFuncSeparate(
-					blending.srcRGB.toGl(),
-					blending.dstRGB.toGl(),
-					blending.srcA.toGl(),
-					blending.dstA.toGl()
+					blending.srcRGB.toGl(), blending.dstRGB.toGl(),
+					blending.srcA.toGl(), blending.dstA.toGl()
 				)
 			}
 		} else {

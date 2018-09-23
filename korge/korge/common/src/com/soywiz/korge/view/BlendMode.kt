@@ -14,6 +14,12 @@ enum class BlendMode(val factors: AG.Blending) {
 			AG.BlendFactor.ONE, AG.BlendFactor.ONE_MINUS_SOURCE_ALPHA
 		)
 	),
+	NORMAL_FBO(
+		AG.Blending(
+			AG.BlendFactor.ONE, AG.BlendFactor.ONE_MINUS_SOURCE_ALPHA,
+			AG.BlendFactor.ONE, AG.BlendFactor.ONE_MINUS_SOURCE_ALPHA
+		)
+	),
 	ADD(
 		AG.Blending(
 			AG.BlendFactor.SOURCE_ALPHA, AG.BlendFactor.DESTINATION_ALPHA,
@@ -80,4 +86,14 @@ enum class BlendMode(val factors: AG.Blending) {
 
 		val BY_ORDINAL = values().map { it.ordinal to it }.toMap()
 	}
+}
+
+fun AG.Blending.toRenderFboIntoBack() = when (this) {
+	BlendMode.NORMAL.factors -> BlendMode.NORMAL_FBO.factors
+	else -> this
+}
+
+fun AG.Blending.toRenderImageIntoFbo() = when (this) {
+	BlendMode.NORMAL.factors -> BlendMode.NORMAL.factors
+	else -> this
 }
