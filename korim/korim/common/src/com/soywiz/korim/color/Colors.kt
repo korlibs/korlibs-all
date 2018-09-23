@@ -153,6 +153,7 @@ object Colors {
 	val WHEAT = RGB(245, 222, 179)
 	val WHITESMOKE = RGB(245, 245, 245)
 	val YELLOWGREEN = RGB(154, 205, 50)
+	val YELLOW = RGB(255, 255, 0)
 
 	val colorsByName = mapOf(
 		"black" to BLACK,
@@ -297,7 +298,8 @@ object Colors {
 		"violet" to VIOLET,
 		"wheat" to WHEAT,
 		"whitesmoke" to WHITESMOKE,
-		"yellowgreen" to YELLOWGREEN
+		"yellowgreen" to YELLOWGREEN,
+		"yellow" to YELLOW
 	)
 
 	operator fun get(str: String): RGBA = get(str, Colors.TRANSPARENT_BLACK, errorOnDefault = true)
