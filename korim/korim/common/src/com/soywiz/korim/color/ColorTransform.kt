@@ -5,14 +5,14 @@ import com.soywiz.korio.*
 import com.soywiz.korma.interpolation.*
 
 data class ColorTransform(
-	private var _mR: Double = 1.0,
-	private var _mG: Double = 1.0,
-	private var _mB: Double = 1.0,
-	private var _mA: Double = 1.0,
-	private var _aR: Int = 0,
-	private var _aG: Int = 0,
-	private var _aB: Int = 0,
-	private var _aA: Int = 0
+	private var _mR: Double,
+	private var _mG: Double,
+	private var _mB: Double,
+	private var _mA: Double,
+	private var _aR: Int,
+	private var _aG: Int,
+	private var _aB: Int,
+	private var _aA: Int
 ) : MutableInterpolable<ColorTransform>, Interpolable<ColorTransform> {
 	companion object {
 		val identity = ColorTransform()
@@ -45,17 +45,9 @@ data class ColorTransform(
 		if (dirty) {
 			dirty = false
 			_colorMulInt = RGBAInt(RGBA.packf(_mR.toFloat(), _mG.toFloat(), _mB.toFloat(), _mA.toFloat()))
-			_colorAdd = packAdd(_aR, _aG, _aB, _aA)
+			_colorAdd = ColorAdd.pack(_aR, _aG, _aB, _aA)
 		}
 	}
-
-	private fun packAdd(r: Int, g: Int, b: Int, a: Int) =
-		(packAddComponent(r) shl 0) or (packAddComponent(g) shl 8) or (packAddComponent(b) shl 16) or (packAddComponent(
-			a
-		) shl 24)
-
-	private fun packAddComponent(v: Int) = (0x7f + (v shr 1)).clamp(0, 0xFF)
-	private fun unpackAddComponent(v: Int): Int = (v - 0x7F) * 2
 
 	var colorMulInt: Int
 		get() = computeColors()._colorMulInt
@@ -77,10 +69,10 @@ data class ColorTransform(
 			return computeColors()._colorAdd
 		}
 		set(v) {
-			_aR = unpackAddComponent(RGBA.getFastR(v))
-			_aG = unpackAddComponent(RGBA.getFastG(v))
-			_aB = unpackAddComponent(RGBA.getFastB(v))
-			_aA = unpackAddComponent(RGBA.getFastA(v))
+			_aR = ColorAdd.unpackComponent(RGBA.getFastR(v))
+			_aG = ColorAdd.unpackComponent(RGBA.getFastG(v))
+			_aB = ColorAdd.unpackComponent(RGBA.getFastB(v))
+			_aA = ColorAdd.unpackComponent(RGBA.getFastA(v))
 			dirty = true
 		}
 
@@ -195,16 +187,47 @@ data class ColorTransform(
 	}
 }
 
+inline class ColorAdd(val rgba: Int) {
+	val r get() = unpackComponent((rgba ushr 0) and 0xFF)
+	val g get() = unpackComponent((rgba ushr 8) and 0xFF)
+	val b get() = unpackComponent((rgba ushr 16) and 0xFF)
+	val a get() = unpackComponent((rgba ushr 24) and 0xFF)
+
+	fun withR(r: Int) = ColorAdd(r, g, b, a)
+	fun withG(g: Int) = ColorAdd(r, g, b, a)
+	fun withB(b: Int) = ColorAdd(r, g, b, a)
+	fun withA(a: Int) = ColorAdd(r, g, b, a)
+
+	fun toInt() = rgba
+
+	companion object {
+		operator fun invoke(r: Int, g: Int, b: Int, a: Int) = ColorAdd(pack(r, g, b, a))
+
+		fun packComponent(v: Int) = (0x7f + (v shr 1)).clamp(0, 0xFF)
+		fun unpackComponent(v: Int): Int = (v - 0x7F) * 2
+		fun pack(r: Int, g: Int, b: Int, a: Int) =
+			(ColorAdd.packComponent(r) shl 0) or
+					(ColorAdd.packComponent(g) shl 8) or
+					(ColorAdd.packComponent(b) shl 16) or
+					(ColorAdd.packComponent(a) shl 24)
+	}
+}
+
+fun RGBA.toColorAdd() = ColorAdd(r, g, b, a)
+
+inline fun ColorTransform(multiply: RGBA, add: ColorAdd) =
+	ColorTransform(multiply.rf, multiply.gf, multiply.bf, multiply.af, add.r, add.g, add.b, add.a)
+
 @Suppress("NOTHING_TO_INLINE")
 inline fun ColorTransform(
-	mR: Number,
-	mG: Number,
-	mB: Number,
-	mA: Number,
-	aR: Number,
-	aG: Number,
-	aB: Number,
-	aA: Number
+	mR: Number = 1,
+	mG: Number = 1,
+	mB: Number = 1,
+	mA: Number = 1,
+	aR: Number = 0,
+	aG: Number = 0,
+	aB: Number = 0,
+	aA: Number = 0
 ) = ColorTransform(
 	mR.toDouble(),
 	mG.toDouble(),
