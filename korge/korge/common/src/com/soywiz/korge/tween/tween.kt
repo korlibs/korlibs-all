@@ -7,7 +7,6 @@ import com.soywiz.kmem.*
 import com.soywiz.korge.component.*
 import com.soywiz.korge.view.*
 import com.soywiz.korim.color.*
-import com.soywiz.korim.color.RGBA.Companion.blendRGBA
 import com.soywiz.korma.geom.*
 import com.soywiz.korma.interpolation.*
 import kotlinx.coroutines.*
@@ -99,10 +98,10 @@ suspend inline fun View.scaleTo(sx: Number, sy: Number, time: TimeSpan, easing: 
 	tween(this::scaleX[sx.toDouble()], this::scaleY[sy.toDouble()], time = time, easing = easing)
 
 suspend inline fun View.rotateTo(deg: Angle, time: TimeSpan, easing: Easing = Easing.LINEAR) =
-	tween(this::rotation[deg.radians], time = time, easing = easing)
+	tween(this::rotationRadians[deg.radians], time = time, easing = easing)
 
 suspend inline fun View.rotateBy(ddeg: Angle, time: TimeSpan, easing: Easing = Easing.LINEAR) =
-	tween(this::rotation[this.rotation + ddeg.radians], time = time, easing = easing)
+	tween(this::rotationRadians[this.rotationRadians + ddeg.radians], time = time, easing = easing)
 
 @Suppress("UNCHECKED_CAST")
 data class V2<V>(

@@ -1,7 +1,6 @@
 package com.soywiz.korge.view
 
 import com.soywiz.kds.*
-import com.soywiz.korag.shader.*
 import com.soywiz.korge.component.*
 import com.soywiz.korge.render.*
 import com.soywiz.korge.view.filter.*
@@ -119,12 +118,15 @@ abstract class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by Eve
 		get() = ensureTransform()._skewY
 		set(v) = run { ensureTransform(); if (_skewY != v) run { _skewY = v; invalidateMatrix() } }
 
-	var rotation: Double
+	var rotation: Angle
+		get() = rotationRadians.radians
+		set(v) = run { rotationRadians = v.radians }
+	var rotationRadians: Double
 		get() = ensureTransform()._rotation
 		set(v) = run { ensureTransform(); if (_rotation != v) run { _rotation = v; invalidateMatrix() } }
 	var rotationDegrees: Double
-		get() = Angle.toDegrees(rotation)
-		set(v) = run { rotation = Angle.toRadians(v) }
+		get() = Angle.toDegrees(rotationRadians)
+		set(v) = run { rotationRadians = Angle.toRadians(v) }
 
 	var globalX: Double
 		get() = parent?.localToGlobalX(x, y) ?: x;
@@ -324,7 +326,7 @@ abstract class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by Eve
 			if (!validLocalMatrix) {
 				validLocalMatrix = true
 				_requireInvalidate = true
-				_localMatrix.setTransform(x, y, scaleX, scaleY, rotation, skewX, skewY)
+				_localMatrix.setTransform(x, y, scaleX, scaleY, rotationRadians, skewX, skewY)
 			}
 			return _localMatrix
 		}
@@ -472,7 +474,7 @@ abstract class View : Renderable, Extra by Extra.Mixin(), EventDispatcher by Eve
 		if (x != 0.0 || y != 0.0) out += ":pos=(${x.str},${y.str})"
 		if (scaleX != 1.0 || scaleY != 1.0) out += ":scale=(${scaleX.str},${scaleY.str})"
 		if (skewX != 0.0 || skewY != 0.0) out += ":skew=(${skewX.str},${skewY.str})"
-		if (rotation != 0.0) out += ":rotation=(${rotationDegrees.str}º)"
+		if (rotationRadians != 0.0) out += ":rotation=(${rotationDegrees.str}º)"
 		if (name != null) out += ":name=($name)"
 		if (blendMode != BlendMode.INHERIT) out += ":blendMode=($blendMode)"
 		if (!visible) out += ":visible=$visible"
@@ -858,11 +860,11 @@ inline fun <T : View> T.position(x: Number, y: Number): T =
 
 @Suppress("NOTHING_TO_INLINE")
 inline fun <T : View> T.rotation(rot: Angle): T =
-	this.apply { this.rotation = rot.radians }
+	this.apply { this.rotationRadians = rot.radians }
 
 @Suppress("NOTHING_TO_INLINE")
 inline fun <T : View> T.rotation(rot: Number): T =
-	this.apply { this.rotation = rot.toDouble() }
+	this.apply { this.rotationRadians = rot.toDouble() }
 
 @Suppress("NOTHING_TO_INLINE")
 inline fun <T : View> T.rotationDegrees(degs: Number): T =

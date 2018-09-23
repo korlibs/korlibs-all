@@ -141,10 +141,11 @@ open class Container : View() {
 
 fun <T : View> T.addTo(parent: Container) = this.apply { parent += this }
 
+inline fun Container.fixedSizeContainer(width: Number, height: Number, callback: @ViewsDslMarker FixedSizeContainer.() -> Unit = {}) =
+	FixedSizeContainer(width.toDouble(), height.toDouble()).addTo(this).apply(callback)
+
 open class FixedSizeContainer(override var width: Double = 100.0, override var height: Double = 100.0) : Container() {
-	override fun getLocalBoundsInternal(out: Rectangle) {
-		out.setTo(0, 0, width, height)
-	}
+	override fun getLocalBoundsInternal(out: Rectangle): Unit = Unit.run { out.setTo(0, 0, width, height) }
 
 	override fun toString(): String {
 		var out = super.toString()

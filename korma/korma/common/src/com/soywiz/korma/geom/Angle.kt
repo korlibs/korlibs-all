@@ -3,21 +3,7 @@ package com.soywiz.korma.geom
 import com.soywiz.kds.*
 import kotlin.math.*
 
-//inline // @TODO: class inline!
-class Angle(val radians: Double) {
-	val degrees get() = rad2deg(radians)
-
-	//val normalizedRadians get() = KdsExt { radians umod Angle.MAX_RADIANS }
-	//val normalizedDegrees get() = KdsExt { degrees umod Angle.MAX_DEGREES }
-	val absoluteValue: Angle get() = Angle.fromRadians(radians.absoluteValue)
-
-	fun shortDistanceTo(other: Angle): Angle = Angle(Angle.shortRadDistanceTo(this.radians, other.radians))
-
-	inline operator fun times(scale: Number): Angle = Angle(this.radians * scale.toDouble())
-	inline operator fun div(scale: Number): Angle = Angle(this.radians / scale.toDouble())
-	operator fun plus(other: Angle): Angle = Angle(this.radians + other.radians)
-	operator fun minus(other: Angle): Angle = shortDistanceTo(other)
-
+inline class Angle(val radians: Double) {
 	override fun toString(): String = "Angle($degrees)"
 
 	companion object {
@@ -75,6 +61,19 @@ class Angle(val radians: Double) {
 		fun between(p0: Point2d, p1: Point2d): Angle = Angle.fromRadians(betweenRad(p0, p1))
 	}
 }
+
+val Angle.degrees get() = Angle.rad2deg(radians)
+
+//val normalizedRadians get() = KdsExt { radians umod Angle.MAX_RADIANS }
+//val normalizedDegrees get() = KdsExt { degrees umod Angle.MAX_DEGREES }
+val Angle.absoluteValue: Angle get() = Angle.fromRadians(radians.absoluteValue)
+fun Angle.shortDistanceTo(other: Angle): Angle = Angle(Angle.shortRadDistanceTo(this.radians, other.radians))
+inline operator fun Angle.times(scale: Number): Angle = Angle(this.radians * scale.toDouble())
+inline operator fun Angle.div(scale: Number): Angle = Angle(this.radians / scale.toDouble())
+inline operator fun Angle.plus(other: Angle): Angle = Angle(this.radians + other.radians)
+inline operator fun Angle.minus(other: Angle): Angle = shortDistanceTo(other)
+inline operator fun Angle.unaryMinus(): Angle = Angle(-radians)
+inline operator fun Angle.unaryPlus(): Angle = Angle(+radians)
 
 val Angle.normalizedRadians get() = KdsExt { radians umod Angle.MAX_RADIANS }
 val Angle.normalizedDegrees get() = KdsExt { degrees umod Angle.MAX_DEGREES }
