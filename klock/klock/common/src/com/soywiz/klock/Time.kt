@@ -447,16 +447,17 @@ inline val Number.hours get() = TimeDistance(hours = this.toDouble())
 inline val Number.minutes get() = TimeDistance(minutes = this.toDouble())
 
 @Suppress("DataClassPrivateConstructor")
-inline class TimeSpan(val ms: Int) : Comparable<TimeSpan> {
-//data class TimeSpan(val ms: Int) : Comparable<TimeSpan> {
-	val milliseconds: Int get() = this.ms
-	val seconds: Double get() = this.ms.toDouble() / 1000.0
+inline class TimeSpan(private val ms: Double) : Comparable<TimeSpan> {
+	val microseconds: Double get() = this.ms * 1000.0
+	val milliseconds: Int get() = this.ms.toInt()
+	val millisecondsDouble: Double get() = this.ms
+	val seconds: Double get() = this.ms / 1000.0
 
 	companion object {
-		val ZERO = TimeSpan(0)
+		val ZERO = TimeSpan(0.0)
 		@PublishedApi
-		internal fun fromMilliseconds(ms: Int) = when (ms) {
-			0 -> ZERO
+		internal fun fromMilliseconds(ms: Double) = when (ms) {
+			0.0 -> ZERO
 			else -> TimeSpan(ms)
 		}
 
@@ -492,7 +493,7 @@ inline class TimeSpan(val ms: Int) : Comparable<TimeSpan> {
 	operator fun plus(other: TimeSpan): TimeSpan = TimeSpan(this.ms + other.ms)
 	operator fun minus(other: TimeSpan): TimeSpan = TimeSpan(this.ms - other.ms)
 	operator fun times(scale: Int): TimeSpan = TimeSpan(this.ms * scale)
-	operator fun times(scale: Double): TimeSpan = TimeSpan((this.ms * scale).toInt())
+	operator fun times(scale: Double): TimeSpan = TimeSpan((this.ms * scale))
 
 	// @TODO: inline BUG
 	//fun toTimeString(components: Int = 3, addMilliseconds: Boolean = false): String =
@@ -503,8 +504,9 @@ inline class TimeSpan(val ms: Int) : Comparable<TimeSpan> {
 fun TimeSpan.toTimeString(components: Int = 3, addMilliseconds: Boolean = false): String =
 	TimeSpan.toTimeString(milliseconds, components, addMilliseconds)
 
-inline val Number.milliseconds get() = TimeSpan.fromMilliseconds(this.toInt())
-inline val Number.seconds get() = TimeSpan.fromMilliseconds((this.toDouble() * 1000.0).toInt())
+inline val Number.microseconds get() = TimeSpan.fromMilliseconds(this.toDouble() / 1000.0)
+inline val Number.milliseconds get() = TimeSpan.fromMilliseconds(this.toDouble())
+inline val Number.seconds get() = TimeSpan.fromMilliseconds((this.toDouble() * 1000.0))
 
 class SimplerDateFormat(val format: String) {
 	companion object {

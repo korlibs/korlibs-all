@@ -139,24 +139,24 @@ class Views(
 		val e = event
 		try {
 			this.stage.dispatch(clazz, event)
-			forEachComponent<EventComponent> { it.onEvent(event) }
+			stage.forEachComponent<EventComponent>(tempComponents) { it.onEvent(event) }
 			if (e is MouseEvent) {
-				forEachComponent<MouseComponent> { it.onMouseEvent(views, e) }
+				stage.forEachComponent<MouseComponent>(tempComponents) { it.onMouseEvent(views, e) }
 			}
 			else if (e is ResizedEvent) {
-				forEachComponent<ResizeComponent> { it.resized(views, e.width, e.height) }
+				stage.forEachComponent<ResizeComponent>(tempComponents) { it.resized(views, e.width, e.height) }
 			}
 			else if (e is KeyEvent) {
-				forEachComponent<KeyComponent> { it.onKeyEvent(views, e) }
+				stage.forEachComponent<KeyComponent> (tempComponents){ it.onKeyEvent(views, e) }
 			}
 			else if (e is GamePadConnectionEvent) {
-				forEachComponent<GamepadComponent> { it.onGamepadEvent(views, e) }
+				stage.forEachComponent<GamepadComponent>(tempComponents) { it.onGamepadEvent(views, e) }
 			}
 			else if (e is GamePadButtonEvent) {
-				forEachComponent<GamepadComponent> { it.onGamepadEvent(views, e) }
+				stage.forEachComponent<GamepadComponent>(tempComponents) { it.onGamepadEvent(views, e) }
 			}
 			else if (e is GamePadStickEvent) {
-				forEachComponent<GamepadComponent> { it.onGamepadEvent(views, e) }
+				stage.forEachComponent<GamepadComponent>(tempComponents) { it.onGamepadEvent(views, e) }
 			}
 		} catch (e: PreventDefaultException) {
 			//println("PreventDefaultException.Reason: ${e.reason}")
@@ -205,32 +205,11 @@ class Views(
 		//println("Update: $dtMs")
 		input.startFrame(dtMs)
 		val dtMsD = dtMs.toDouble()
-		forEachComponent<UpdateComponent> {
-			it.update(dtMsD * it.view.globalSpeed)
-		}
-		forEachComponent<UpdateComponentWithViews> {
-			it.update(this, dtMsD * it.view.globalSpeed)
-		}
+		stage.updateSingleView(dtMsD, tempComponents)
+		stage.updateSingleViewWithViews(this, dtMsD, tempComponents)
 		input.endFrame(dtMs)
 	}
 
-	private inline fun <reified T : Component> forEachComponent(callback: (T) -> Unit) {
-		for (c in getComponents(stage, tempComponents)) {
-			if (c is T) callback(c)
-		}
-	}
-
-	private fun getComponents(view: View, out: ArrayList<Component> = arrayListOf()): List<Component> {
-		out.clear()
-		appendComponents(view, out)
-		return out
-	}
-
-	private fun appendComponents(view: View, out: ArrayList<Component>) {
-		if (view is Container) for (child in view.children) appendComponents(child, out)
-		val components = view.unsafeListRawComponents
-		if (components != null) out.addAll(components)
-	}
 
 	fun mouseUpdated() {
 		//println("localMouse: (${stage.localMouseX}, ${stage.localMouseY}), inputMouse: (${input.mouse.x}, ${input.mouse.y})")
@@ -353,3 +332,38 @@ data class KorgeFileLoader<T>(val name: String, val loader: suspend VfsFile.(Fas
 }
 
 //suspend val AsyncInjector.views: Views get() = this.get<Views>()
+
+
+/////////////////////////
+/////////////////////////
+
+inline fun <reified T : Component> View.forEachComponent(tempComponents: ArrayList<Component> = arrayListOf(), callback: (T) -> Unit) {
+	for (c in getComponents(this, tempComponents)) {
+		if (c is T) callback(c)
+	}
+}
+
+fun getComponents(view: View, out: ArrayList<Component> = arrayListOf()): List<Component> {
+	out.clear()
+	appendComponents(view, out)
+	return out
+}
+
+fun appendComponents(view: View, out: ArrayList<Component>) {
+	if (view is Container) for (child in view.children) appendComponents(child, out)
+	val components = view.unsafeListRawComponents
+	if (components != null) out.addAll(components)
+}
+
+fun View.updateSingleView(dtMsD: Double, tempComponents: ArrayList<Component> = arrayListOf()) {
+	this.forEachComponent<UpdateComponent>(tempComponents) {
+		it.update(dtMsD * it.view.globalSpeed)
+	}
+}
+
+fun View.updateSingleViewWithViews(views: Views, dtMsD: Double, tempComponents: ArrayList<Component> = arrayListOf()) {
+	this.forEachComponent<UpdateComponentWithViews>(tempComponents) {
+		it.update(views, dtMsD * it.view.globalSpeed)
+	}
+}
+
