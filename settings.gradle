@@ -22,3 +22,5 @@ enableFeaturePreview('GRADLE_METADATA')
 include ':kbignum'
 include ':kds'
 include ':klock'
+include ':klogger'
+include ':korlibstd'

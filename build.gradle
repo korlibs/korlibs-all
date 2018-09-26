@@ -28,10 +28,10 @@ idea {
 		excludeDirs = [file(".gradle")]
 		[
 				// Converted
-				// "kbignum", "kds", "klock",
+				// "kbignum", "kds", "klock", "korlibstd", "klogger",
 
 				// Not converted
-				"klogger", "kmem", "korag", "korau", "korfl", "korge", "korim", "korinject", "korio", "korlibs-generator-jvm", "korlibstd", "korma", "korui", "krypto", "node_modules", "samples", "assets", "@old"
+				"kmem", "korag", "korau", "korfl", "korge", "korim", "korinject", "korio", "korlibs-generator-jvm", "korma", "korui", "krypto", "node_modules", "samples", "assets", "@old"
 		].each {
 			excludeDirs << file("$it")
 		}
