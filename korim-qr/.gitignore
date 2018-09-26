@@ -1,6 +1,6 @@
-/.gradle
 /.idea
+/.gradle
 /build
-/target
-/classes
 /out
+/classes
+/web
