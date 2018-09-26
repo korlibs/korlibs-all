@@ -36,13 +36,13 @@ if [ "$kotlin_native_rev" != "" ]; then
 		./gradlew dist distPlatformLibs
 	popd
 
-    ./gradlew -s check install -Pkonan.home=$KONAN_REPO/dist --include-build $KONAN_REPO/shared --include-build $KONAN_REPO/tools/kotlin-native-gradle-plugin
+    ./gradlew -s check publishToMavenLocal -Pkonan.home=$KONAN_REPO/dist --include-build $KONAN_REPO/shared --include-build $KONAN_REPO/tools/kotlin-native-gradle-plugin
     pushd samples
 		#./gradlew -s :sample1-native:compileDebugMacos_x64KotlinNative -Pkonan.home=$KONAN_REPO/dist --include-build $KONAN_REPO/shared --include-build $KONAN_REPO/tools/kotlin-native-gradle-plugin
 		#./gradlew -s check -x compileReleaseKotlinNative -Pkonan.home=$KONAN_REPO/dist --include-build $KONAN_REPO/shared --include-build $KONAN_REPO/tools/kotlin-native-gradle-plugin
     popd
 else
-	./gradlew -s check install
+	./gradlew -s check publishToMavenLocal
 	pushd samples
 		echo Not bulding sample, because dragonbones is not built because out of memory on CI
 		#../gradlew -s check
