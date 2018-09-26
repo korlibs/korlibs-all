@@ -1,0 +1,34 @@
+apply plugin: 'kotlin-multiplatform'
+
+handleMpp(genTargets, [], [
+
+], [':kmem', ':korim'])
+
+kotlin.sourceSets.jvmMain.dependencies {
+	api "org.jogamp.gluegen:gluegen-rt:$gluegenVersion"
+	api "org.jogamp.jogl:jogl-all:$joglVersion"
+
+	api "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-android-aarch64"
+	api "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-android-armv6"
+	api "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-linux-amd64"
+	api "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-linux-armv6"
+	api "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-linux-armv6hf"
+	api "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-linux-i586"
+	api "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-macosx-universal"
+	api "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-solaris-amd64"
+	api "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-solaris-i586"
+	api "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-windows-amd64"
+	api "org.jogamp.gluegen:gluegen-rt:$gluegenVersion:natives-windows-i586"
+
+	api "org.jogamp.jogl:jogl-all:$joglVersion:natives-android-aarch64"
+	api "org.jogamp.jogl:jogl-all:$joglVersion:natives-android-armv6"
+	api "org.jogamp.jogl:jogl-all:$joglVersion:natives-linux-amd64"
+	api "org.jogamp.jogl:jogl-all:$joglVersion:natives-linux-armv6"
+	api "org.jogamp.jogl:jogl-all:$joglVersion:natives-linux-armv6hf"
+	api "org.jogamp.jogl:jogl-all:$joglVersion:natives-linux-i586"
+	api "org.jogamp.jogl:jogl-all:$joglVersion:natives-macosx-universal"
+	api "org.jogamp.jogl:jogl-all:$joglVersion:natives-solaris-amd64"
+	api "org.jogamp.jogl:jogl-all:$joglVersion:natives-solaris-i586"
+	api "org.jogamp.jogl:jogl-all:$joglVersion:natives-windows-amd64"
+	api "org.jogamp.jogl:jogl-all:$joglVersion:natives-windows-i586"
+}
