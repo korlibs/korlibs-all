@@ -29,15 +29,30 @@ allprojects {
 	apply from: "$rootProject.rootDir/gradle/tools.gradle"
 }
 
+subprojects {
+	apply plugin: 'maven-publish'
+}
+
 idea {
 	module {
 		excludeDirs = [file(".gradle")]
 		[
 				// Converted
-				// "kbignum", "kds", "klock", "korlibstd", "klogger", "kmem", "korma", "krypto", "korio", "korinject", "korim", "korim-qr", "kgl", "korag", "korag-opengl", "korau", "korau-mp3", "korau-mod", "korau-ogg-vorbis", "korau-opus",
+				// "kbignum", "kds", "klock", "korlibstd", "klogger", "kmem", "korma",
+				// "krypto", "korio", "korinject", "korim", "korim-qr", "kgl", "korag",
+				// "korag-opengl", "korau", "korau-mp3", "korau-mod", "korau-ogg-vorbis",
+				// "korau-opus", "korfl", "korui",
+				// "korge", "korge-dragonbones", "korge-ext-fla", "korge-ext-spriter", "korge-ext-swf",
 
 				// Not converted
-				"korfl", "korge", "korlibs-generator-jvm", "korui", "node_modules", "samples", "assets", "@old"
+				"ksdl", "korlibs-generator-jvm", "node_modules", "samples", "assets", "@old",
+
+				"korge-build",
+				"korge-samples",
+				"korge-intellij-plugin",
+				"korge-gradle-plugin",
+				"korge-flash-plugin",
+
 		].each {
 			excludeDirs << file("$it")
 		}

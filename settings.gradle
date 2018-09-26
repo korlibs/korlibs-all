@@ -39,3 +39,13 @@ include ':korau-mod'
 include ':korau-mp3'
 include ':korau-ogg-vorbis'
 include ':korau-opus'
+include ':korfl'
+include ':korui'
+
+include ':korge'
+include ':korge-dragonbones'
+include ':korge-ext-fla'
+include ':korge-ext-spriter'
+include ':korge-ext-swf'
+
+include ':korio-ktor-ext'

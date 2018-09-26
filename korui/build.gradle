@@ -1,0 +1,7 @@
+apply plugin: 'kotlin-multiplatform'
+
+handleMpp(genTargets, [], [], [':korio', ':korim', ':korag-opengl'])
+
+//kotlin.sourceSets.jvmTest {
+//	api project(":korio")
+//}
