@@ -1,0 +1,15 @@
+apply plugin: 'kotlin-multiplatform'
+
+handleMpp(genTargets, [], [
+		"org.jetbrains.kotlinx:kotlinx-coroutines-core{JSUFFIX}:$kotlinxCoroutinesVersion"
+], [":klock", ":kmem", ":kds", ":klogger", ":korlibstd"])
+
+kotlin.sourceSets.jvmMain.dependencies {
+	implementation "org.java-websocket:Java-WebSocket:1.3.8"
+}
+
+/*
+dependencies {
+	implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinxCoroutinesVersion"
+}
+ */

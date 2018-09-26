@@ -38,7 +38,7 @@ project.ext.handleMpp = { List<String> mypresets = [], List<String> mydeps = [],
                     implementation 'org.jetbrains.kotlin:kotlin-stdlib-common'
                     for (dep in mydeps) implementation dep.replace('{SUFFIX}', '-common').replace('{NSUFFIX}', '').replace('{JSUFFIX}', '-common')
 					for (dep in mydepsApi) api dep.replace('{SUFFIX}', '-common').replace('{NSUFFIX}', '').replace('{JSUFFIX}', '-common')
-					for (dep in projectDeps) implementation project(dep)
+					for (dep in projectDeps) api project(dep)
                 }
             }
             commonTest {
@@ -54,7 +54,7 @@ project.ext.handleMpp = { List<String> mypresets = [], List<String> mydeps = [],
                         implementation "org.jetbrains.kotlin:kotlin-reflect"
                         for (dep in mydeps) implementation dep.replace('{SUFFIX}', '-jvm').replace('{NSUFFIX}', '-jvm').replace('{JSUFFIX}', '')
 						for (dep in mydepsApi) api dep.replace('{SUFFIX}', '-jvm').replace('{NSUFFIX}', '-jvm').replace('{JSUFFIX}', '')
-						for (dep in projectDeps) implementation project(dep)
+						for (dep in projectDeps) api project(dep)
                     }
                 }
                 jvmTest {
@@ -71,7 +71,7 @@ project.ext.handleMpp = { List<String> mypresets = [], List<String> mydeps = [],
                         implementation 'org.jetbrains.kotlin:kotlin-stdlib-js'
                         for (dep in mydeps) implementation dep.replace('{SUFFIX}', '-js').replace('{NSUFFIX}', '-js').replace('{JSUFFIX}', '-js')
 						for (dep in mydepsApi) api dep.replace('{SUFFIX}', '-js').replace('{NSUFFIX}', '-js').replace('{JSUFFIX}', '-js')
-						for (dep in projectDeps) implementation project(dep)
+						for (dep in projectDeps) api project(dep)
                     }
                 }
                 jsTest {
@@ -90,7 +90,7 @@ project.ext.handleMpp = { List<String> mypresets = [], List<String> mydeps = [],
 						for (dep in mydeps) implementation dep.replace('{SUFFIX}', '-macos64').replace('{NSUFFIX}', '-macos64').replace('{JSUFFIX}', '-macos64')
 						for (dep in mydepsApi) api dep.replace('{SUFFIX}', '-macos64').replace('{NSUFFIX}', '-macos64').replace('{JSUFFIX}', '-macos64')
 						//for (dep in mydeps) implementation dep.replace('{SUFFIX}', '-native').replace('{NSUFFIX}', '-native').replace('{JSUFFIX}', '-native')
-						for (dep in projectDeps) implementation project(dep)
+						for (dep in projectDeps) api project(dep)
 					}
 				}
 				macosX64Test {
