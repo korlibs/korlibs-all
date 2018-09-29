@@ -56,7 +56,8 @@ fun <T : Any> runBlockingNoSuspensions(callback: suspend () -> T): T {
 	var suspendCount = 0
 
 	callback.startCoroutineUndispatched(object : OldContinuationAdaptor<T?>() {
-		override val context: CoroutineContext = object : CoroutineDispatcher(), ContinuationInterceptor, Delay {
+		override val context: CoroutineContext = object :
+				AbstractCoroutineContextElement(ContinuationInterceptor), ContinuationInterceptor, Delay {
 			override val key: CoroutineContext.Key<*> = ContinuationInterceptor.Key
 
 			override fun <T> interceptContinuation(continuation: Continuation<T>): Continuation<T> {
@@ -68,11 +69,8 @@ fun <T : Any> runBlockingNoSuspensions(callback: suspend () -> T): T {
 				block.run()
 			}
 
-			override fun scheduleResumeAfterDelay(
-				time: Long,
-				unit: TimeUnit,
-				continuation: CancellableContinuation<Unit>
-			) {
+			override fun scheduleResumeAfterDelay(timeMillis: Long,
+												  continuation: CancellableContinuation<Unit>): Unit {
 				continuation.resume(Unit)
 			}
 		}

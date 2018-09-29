@@ -1,11 +1,11 @@
 buildscript {
 	//ext.genTargets = ['jvm', 'js', 'macosX64', 'mingwX64']
-	ext.genTargets = ['jvm', 'js']
+	ext.genTargets = ['jvm', 'js', 'macosX64']
 }
 
 plugins {
-	id 'kotlin-multiplatform' version '1.3.0-rc-57'
-	//id 'kotlin-serialization' version '1.3.0-rc-57'
+	id 'kotlin-multiplatform' version '1.3.0-rc-116'
+	//id 'kotlin-serialization' version '1.3.0-rc-116'
 }
 
 apply plugin: 'idea'

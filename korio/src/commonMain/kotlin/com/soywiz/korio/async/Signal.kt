@@ -132,7 +132,7 @@ suspend fun <T> Signal<T>.waitOne(): T = suspendCancellableCoroutine { c ->
 	}
 }
 
-suspend fun <T> Signal<T>.waitOne(timeout: Int): T? = kotlinx.coroutines.suspendCancellableCoroutine { c ->
+suspend fun <T> Signal<T>.waitOne(timeout: TimeSpan): T? = kotlinx.coroutines.suspendCancellableCoroutine { c ->
 	var close: Closeable? = null
 	var running = true
 
@@ -158,8 +158,6 @@ suspend fun <T> Signal<T>.waitOne(timeout: Int): T? = kotlinx.coroutines.suspend
 		closeAll()
 	}
 }
-
-suspend fun <T> Signal<T>.waitOne(timeout: TimeSpan): T? = waitOne(timeout.milliseconds)
 
 suspend fun <T> Signal<T>.waitOneOpt(timeout: TimeSpan?): T? = when {
 	timeout != null -> waitOne(timeout)

@@ -2,5 +2,5 @@ apply plugin: 'kotlin-multiplatform'
 
 handleMpp(genTargets,
 		[],
-		["org.jetbrains.kotlinx:atomicfu{JSUFFIX}:$atomicfuVersion"]
+		["org.jetbrains.kotlinx:atomicfu:$atomicfuVersion"]
 )

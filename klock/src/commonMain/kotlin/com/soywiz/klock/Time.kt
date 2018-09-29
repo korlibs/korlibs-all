@@ -449,7 +449,7 @@ inline val Number.minutes get() = TimeDistance(minutes = this.toDouble())
 @Suppress("DataClassPrivateConstructor")
 inline class TimeSpan(private val ms: Double) : Comparable<TimeSpan> {
 	val microseconds: Double get() = this.ms * 1000.0
-	val milliseconds: Int get() = this.ms.toInt()
+	val milliseconds: Long get() = this.ms.toLong()
 	val millisecondsDouble: Double get() = this.ms
 	val seconds: Double get() = this.ms / 1000.0
 
@@ -462,8 +462,8 @@ inline class TimeSpan(private val ms: Double) : Comparable<TimeSpan> {
 		}
 
 		private val timeSteps = listOf(60, 60, 24)
-		private fun toTimeStringRaw(totalMilliseconds: Int, components: Int = 3): String {
-			var timeUnit = totalMilliseconds / 1000
+		private fun toTimeStringRaw(totalMilliseconds: Long, components: Int = 3): String {
+			var timeUnit = totalMilliseconds / 1000L
 
 			val out = arrayListOf<String>()
 
@@ -481,8 +481,8 @@ inline class TimeSpan(private val ms: Double) : Comparable<TimeSpan> {
 			return out.reversed().joinToString(":")
 		}
 
-		fun toTimeString(totalMilliseconds: Int, components: Int = 3, addMilliseconds: Boolean = false): String {
-			val milliseconds = totalMilliseconds % 1000
+		fun toTimeString(totalMilliseconds: Long, components: Int = 3, addMilliseconds: Boolean = false): String {
+			val milliseconds = totalMilliseconds % 1000L
 			val out = toTimeStringRaw(totalMilliseconds, components)
 			return if (addMilliseconds) "$out.$milliseconds" else out
 		}

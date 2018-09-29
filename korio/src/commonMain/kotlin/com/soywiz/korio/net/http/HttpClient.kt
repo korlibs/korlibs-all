@@ -150,7 +150,7 @@ abstract class HttpClient protected constructor() {
 	}
 }
 
-open class DelayedHttpClient(val delayMs: Int, val parent: HttpClient) : HttpClient() {
+open class DelayedHttpClient(val delayMs: Long, val parent: HttpClient) : HttpClient() {
 	private val queue = AsyncThread()
 
 	override suspend fun requestInternal(
@@ -165,7 +165,7 @@ open class DelayedHttpClient(val delayMs: Int, val parent: HttpClient) : HttpCli
 	}
 }
 
-fun HttpClient.delayed(ms: Int) = DelayedHttpClient(ms, this)
+fun HttpClient.delayed(ms: Long) = DelayedHttpClient(ms, this)
 
 class FakeHttpClient(val redirect: HttpClient? = null) : HttpClient() {
 	val log = arrayListOf<String>()

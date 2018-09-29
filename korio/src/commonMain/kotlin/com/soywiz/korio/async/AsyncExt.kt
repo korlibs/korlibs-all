@@ -55,7 +55,7 @@ suspend fun CoroutineContext.delayNextFrame() {
 	delayFrame.delayFrame()
 }
 
-suspend fun CoroutineContext.delayMs(time: Int) {
+suspend fun CoroutineContext.delayMs(time: Long) {
 	withContext(this) {
 		kotlinx.coroutines.delay(time)
 	}
@@ -84,7 +84,7 @@ interface CoroutineContextHolder {
 }
 
 class TestCoroutineDispatcher(val frameTime: Int = 16) :
-	CoroutineDispatcher(),
+	AbstractCoroutineContextElement(ContinuationInterceptor),
 	ContinuationInterceptor,
 	Delay, DelayFrame {
 	var time = 0L; private set
@@ -115,12 +115,8 @@ class TestCoroutineDispatcher(val frameTime: Int = 16) :
 		}
 	}
 
-	override fun dispatch(context: CoroutineContext, block: Runnable) {
-		scheduleAfter(0) { block.run() }
-	}
-
-	override fun scheduleResumeAfterDelay(time: Long, unit: TimeUnit, continuation: CancellableContinuation<Unit>) {
-		scheduleAfter(unit.toMillis(time).toInt()) { continuation.resume(Unit) }
+	override fun scheduleResumeAfterDelay(timeMillis: Long, continuation: CancellableContinuation<Unit>): Unit {
+		scheduleAfter(timeMillis.toInt()) { continuation.resume(Unit) }
 	}
 
 	override fun delayFrame(continuation: CancellableContinuation<Unit>) {
