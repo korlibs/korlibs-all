@@ -52,8 +52,8 @@ project.ext.handleMpp = { List<String> mypresets = [], List<String> mydeps = [],
                     dependencies {
                         implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
                         implementation "org.jetbrains.kotlin:kotlin-reflect"
-                        for (dep in mydeps) implementation dep.replace('{SUFFIX}', '-jvm').replace('{NSUFFIX}', '-jvm').replace('{JSUFFIX}', '')
-						for (dep in mydepsApi) api dep.replace('{SUFFIX}', '-jvm').replace('{NSUFFIX}', '-jvm').replace('{JSUFFIX}', '')
+                        for (dep in mydeps) implementation dep.replace('{SUFFIX}', '-jvm').replace('{NSUFFIX}', '').replace('{JSUFFIX}', '')
+						for (dep in mydepsApi) api dep.replace('{SUFFIX}', '-jvm').replace('{NSUFFIX}', '').replace('{JSUFFIX}', '')
 						for (dep in projectDeps) api project(dep)
                     }
                 }
@@ -69,8 +69,8 @@ project.ext.handleMpp = { List<String> mypresets = [], List<String> mydeps = [],
                 jsMain {
                     dependencies {
                         implementation 'org.jetbrains.kotlin:kotlin-stdlib-js'
-                        for (dep in mydeps) implementation dep.replace('{SUFFIX}', '-js').replace('{NSUFFIX}', '-js').replace('{JSUFFIX}', '-js')
-						for (dep in mydepsApi) api dep.replace('{SUFFIX}', '-js').replace('{NSUFFIX}', '-js').replace('{JSUFFIX}', '-js')
+                        for (dep in mydeps) implementation dep.replace('{SUFFIX}', '-js').replace('{NSUFFIX}', '').replace('{JSUFFIX}', '-js')
+						for (dep in mydepsApi) api dep.replace('{SUFFIX}', '-js').replace('{NSUFFIX}', '').replace('{JSUFFIX}', '-js')
 						for (dep in projectDeps) api project(dep)
                     }
                 }
@@ -84,12 +84,12 @@ project.ext.handleMpp = { List<String> mypresets = [], List<String> mydeps = [],
 				macosX64Main {
 					dependencies {
 						//implementation 'org.jetbrains.kotlin:kotlin-stdlib-native'
-						//for (dep in mydeps) implementation dep.replace('{SUFFIX}', '-native_macos_x64').replace('{NSUFFIX}', '-native_macos_x64').replace('{JSUFFIX}', '-native_macos_x64')
-						//for (dep in mydeps) implementation dep.replace('{SUFFIX}', '-native_debug_macos_x64').replace('{NSUFFIX}', '-native_debug_macos_x64').replace('{JSUFFIX}', '-native_debug_macos_x64')
-						//for (dep in mydeps) implementation dep.replace('{SUFFIX}', '-native_release_macos_x64').replace('{NSUFFIX}', '-native_release_macos_x64').replace('{JSUFFIX}', '-native_release_macos_x64')
-						for (dep in mydeps) implementation dep.replace('{SUFFIX}', '-macos64').replace('{NSUFFIX}', '-macos64').replace('{JSUFFIX}', '-macos64')
-						for (dep in mydepsApi) api dep.replace('{SUFFIX}', '-macos64').replace('{NSUFFIX}', '-macos64').replace('{JSUFFIX}', '-macos64')
-						//for (dep in mydeps) implementation dep.replace('{SUFFIX}', '-native').replace('{NSUFFIX}', '-native').replace('{JSUFFIX}', '-native')
+						//for (dep in mydeps) implementation dep.replace('{SUFFIX}', '-native_macos_x64').replace('{NSUFFIX}', '').replace('{JSUFFIX}', '-native_macos_x64')
+						//for (dep in mydeps) implementation dep.replace('{SUFFIX}', '-native_debug_macos_x64').replace('{NSUFFIX}', '').replace('{JSUFFIX}', '-native_debug_macos_x64')
+						//for (dep in mydeps) implementation dep.replace('{SUFFIX}', '-native_release_macos_x64').replace('{NSUFFIX}', '').replace('{JSUFFIX}', '-native_release_macos_x64')
+						for (dep in mydeps) implementation dep.replace('{SUFFIX}', '-macos64').replace('{NSUFFIX}', '').replace('{JSUFFIX}', '-native')
+						for (dep in mydepsApi) api dep.replace('{SUFFIX}', '-macos64').replace('{NSUFFIX}', '').replace('{JSUFFIX}', '-native')
+						//for (dep in mydeps) implementation dep.replace('{SUFFIX}', '-native').replace('{NSUFFIX}', '').replace('{JSUFFIX}', '-native')
 						for (dep in projectDeps) api project(dep)
 					}
 				}
