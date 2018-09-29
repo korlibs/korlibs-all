@@ -115,6 +115,10 @@ class TestCoroutineDispatcher(val frameTime: Int = 16) :
 		}
 	}
 
+	fun dispatch(context: CoroutineContext, block: Runnable) {
+		scheduleAfter(0) { block.run() }
+	}
+
 	override fun scheduleResumeAfterDelay(timeMillis: Long, continuation: CancellableContinuation<Unit>): Unit {
 		scheduleAfter(timeMillis.toInt()) { continuation.resume(Unit) }
 	}

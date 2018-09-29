@@ -65,7 +65,7 @@ fun <T : Any> runBlockingNoSuspensions(callback: suspend () -> T): T {
 				return continuation
 			}
 
-			override fun dispatch(context: CoroutineContext, block: Runnable) {
+			fun dispatch(context: CoroutineContext, block: Runnable) {
 				block.run()
 			}
 
