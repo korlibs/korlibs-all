@@ -14,15 +14,15 @@ actual val KoruiDispatcher: CoroutineDispatcher get() = Swing
 object Swing : CoroutineDispatcher(), Delay, DelayFrame {
 	override fun dispatch(context: CoroutineContext, block: Runnable) = SwingUtilities.invokeLater(block)
 
-	override fun scheduleResumeAfterDelay(time: Long, unit: TimeUnit, continuation: CancellableContinuation<Unit>) {
-		val timer = schedule(time, unit, ActionListener {
+	override fun scheduleResumeAfterDelay(timeMillis: Long, continuation: CancellableContinuation<Unit>): Unit {
+		val timer = schedule(timeMillis, ActionListener {
 			with(continuation) { resumeUndispatched(Unit) }
 		})
 		continuation.invokeOnCancellation { timer.stop() }
 	}
 
 	override fun invokeOnTimeout(time: Long, unit: TimeUnit, block: Runnable): DisposableHandle {
-		val timer = schedule(time, unit, ActionListener {
+		val timer = schedule(time, ActionListener {
 			block.run()
 		})
 		return object : DisposableHandle {
@@ -32,8 +32,8 @@ object Swing : CoroutineDispatcher(), Delay, DelayFrame {
 		}
 	}
 
-	private fun schedule(time: Long, unit: TimeUnit, action: ActionListener): Timer =
-		Timer(unit.toMillis(time).coerceAtMost(Int.MAX_VALUE.toLong()).toInt(), action).apply {
+	private fun schedule(timeMillis: Long, action: ActionListener): Timer =
+		Timer(timeMillis.coerceAtMost(Int.MAX_VALUE.toLong()).toInt(), action).apply {
 			isRepeats = false
 			start()
 		}
@@ -43,7 +43,7 @@ object Swing : CoroutineDispatcher(), Delay, DelayFrame {
 	override fun delayFrame(continuation: CancellableContinuation<Unit>) {
 		val startFrameTime = Klock.currentTimeMillis()
 		val time = (16 - (startFrameTime - lastFrameTime)).clamp(0, 16)
-		schedule(time, TimeUnit.MILLISECONDS, ActionListener { continuation.resume(Unit) })
+		schedule(time, ActionListener { continuation.resume(Unit) })
 		lastFrameTime = startFrameTime
 	}
 

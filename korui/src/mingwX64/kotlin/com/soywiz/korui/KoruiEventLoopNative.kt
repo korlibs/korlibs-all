@@ -35,12 +35,11 @@ class MyNativeCoroutineDispatcher() : CoroutineDispatcher(), Delay, Closeable {
 		tasks.enqueue(block)
 	}
 
-	override fun scheduleResumeAfterDelay(time: Long, unit: TimeUnit, continuation: CancellableContinuation<Unit>): Unit {
-		val task = TimedTask(Klock.currentTimeMillis() + when (unit) {
-			TimeUnit.SECONDS -> time * 1000
-			TimeUnit.MILLISECONDS -> time
-			else -> error("Unsupported unit $unit")
-		}, continuation)
+	override fun scheduleResumeAfterDelay(timeMillis: Long, continuation: CancellableContinuation<Unit>): Unit {
+		val task = TimedTask(
+				Klock.currentTimeMillis() + timeMillis,
+				continuation
+		)
 		continuation.invokeOnCancellation {
 			timedTasks.remove(task)
 		}

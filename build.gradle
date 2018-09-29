@@ -1,6 +1,6 @@
 buildscript {
 	//ext.genTargets = ['jvm', 'js', 'macosX64', 'mingwX64']
-	ext.genTargets = ['jvm', 'js', 'macosX64']
+	ext.genTargets = ['jvm', 'js', 'macosX64', 'mingwX64']
 }
 
 plugins {

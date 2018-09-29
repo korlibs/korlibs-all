@@ -22,8 +22,8 @@ object NodeDispatcher : CoroutineDispatcher(), Delay, DelayFrame {
 		setTimeout({ block.run() }, 0)
 	}
 
-	override fun scheduleResumeAfterDelay(time: Long, unit: TimeUnit, continuation: CancellableContinuation<Unit>) {
-		val timeout = setTimeout({ with(continuation) { resumeUndispatched(Unit) } }, unit.toMillisFaster(time))
+	override fun scheduleResumeAfterDelay(timeMillis: Long, continuation: CancellableContinuation<Unit>): Unit {
+		val timeout = setTimeout({ with(continuation) { resumeUndispatched(Unit) } }, timeMillis.toInt())
 		// Actually on cancellation, but clearTimeout is idempotent
 		continuation.invokeOnCancellation {
 			clearTimeout(timeout)
@@ -62,8 +62,8 @@ object HtmlDispatcher : CoroutineDispatcher(), Delay, DelayFrame {
 		queue.enqueue(block)
 	}
 
-	override fun scheduleResumeAfterDelay(time: Long, unit: TimeUnit, continuation: CancellableContinuation<Unit>) {
-		window.setTimeout({ with(continuation) { resumeUndispatched(Unit) } }, unit.toMillis(time).toInt())
+	override fun scheduleResumeAfterDelay(timeMillis: Long, continuation: CancellableContinuation<Unit>): Unit {
+		window.setTimeout({ with(continuation) { resumeUndispatched(Unit) } }, timeMillis.toInt())
 		//window.setTimeout({ with(continuation) { resume(Unit) } }, unit.toMillis(time).toInt())
 	}
 

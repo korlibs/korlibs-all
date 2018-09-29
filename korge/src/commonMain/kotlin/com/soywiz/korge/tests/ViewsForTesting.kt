@@ -13,7 +13,7 @@ import com.soywiz.korui.input.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.timeunit.*
 
-open class ViewsForTesting(val frameTime: Int = 10) {
+open class ViewsForTesting(val frameTime: Long = 10) {
 	var time = 0L
 	//val testDispatcher = TestCoroutineDispatcher(frameTime)
 
@@ -30,7 +30,7 @@ open class ViewsForTesting(val frameTime: Int = 10) {
 	val stats get() = views.stats
 
 	init {
-		Korge.prepareViews(views, koruiEventDispatcher, fixedSizeStep = frameTime)
+		Korge.prepareViews(views, koruiEventDispatcher, fixedSizeStep = frameTime.toInt())
 	}
 
 	suspend fun mouseMoveTo(x: Number, y: Number) {

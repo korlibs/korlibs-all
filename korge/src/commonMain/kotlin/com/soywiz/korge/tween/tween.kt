@@ -16,13 +16,13 @@ import kotlin.reflect.*
 class TweenComponent(
 	override val view: View,
 	private val vs: List<V2<*>>,
-	val time: Int? = null,
+	val time: Long? = null,
 	val easing: Easing = Easing.LINEAR,
 	val callback: (Double) -> Unit,
 	val c: CancellableContinuation<Unit>
 ) : UpdateComponent {
 	var elapsed = 0
-	val ctime = time ?: vs.map { it.endTime }.max() ?: 1000
+	val ctime : Long = time ?: vs.map { it.endTime }.max()?.toLong() ?: 1000L
 	var cancelled = false
 	var done = false
 
@@ -52,7 +52,7 @@ class TweenComponent(
 		val ratio = (elapsed.toDouble() / ctime.toDouble()).clamp(0.0, 1.0)
 		for (v in vs) {
 			val durationInTween = (v.duration ?: (ctime - v.startTime))
-			val elapsedInTween = (elapsed - v.startTime).clamp(0, durationInTween)
+			val elapsedInTween = (elapsed - v.startTime).clamp(0L, durationInTween)
 			val ratioInTween =
 				if (durationInTween <= 0.0) 1.0 else elapsedInTween.toDouble() / durationInTween.toDouble()
 			v.set(easing(ratioInTween))
@@ -109,8 +109,8 @@ data class V2<V>(
 	internal val initial: V,
 	internal val end: V,
 	internal val interpolator: (V, V, Double) -> V,
-	internal val startTime: Int = 0,
-	internal val duration: Int? = null
+	internal val startTime: Long = 0,
+	internal val duration: Long? = null
 ) {
 	val endTime = startTime + (duration ?: 0)
 
