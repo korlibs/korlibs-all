@@ -449,12 +449,24 @@ inline val Number.minutes get() = TimeDistance(minutes = this.toDouble())
 @Suppress("DataClassPrivateConstructor")
 inline class TimeSpan(private val ms: Double) : Comparable<TimeSpan> {
 	val microseconds: Double get() = this.ms * 1000.0
-	val milliseconds: Long get() = this.ms.toLong()
-	val millisecondsDouble: Double get() = this.ms
+	val milliseconds: Double get() = this.ms
+	val millisecondsLong: Long get() = this.ms.toLong()
+	val millisecondsInt: Int get() = this.ms.toInt()
 	val seconds: Double get() = this.ms / 1000.0
 
 	companion object {
+		/**
+		 * Zero time
+		 */
 		val ZERO = TimeSpan(0.0)
+
+		/**
+		 * Represents an invalid TimeSpan.
+		 * Useful to represent an alternative "null" time lapse
+		 * avoiding the boxing of a nullable type.
+		 */
+		val NULL = TimeSpan(Double.NaN)
+
 		@PublishedApi
 		internal fun fromMilliseconds(ms: Double) = when (ms) {
 			0.0 -> ZERO
@@ -462,8 +474,8 @@ inline class TimeSpan(private val ms: Double) : Comparable<TimeSpan> {
 		}
 
 		private val timeSteps = listOf(60, 60, 24)
-		private fun toTimeStringRaw(totalMilliseconds: Long, components: Int = 3): String {
-			var timeUnit = totalMilliseconds / 1000L
+		private fun toTimeStringRaw(totalMilliseconds: Double, components: Int = 3): String {
+			var timeUnit = (totalMilliseconds / 1000.0).roundToInt()
 
 			val out = arrayListOf<String>()
 
@@ -481,7 +493,12 @@ inline class TimeSpan(private val ms: Double) : Comparable<TimeSpan> {
 			return out.reversed().joinToString(":")
 		}
 
-		fun toTimeString(totalMilliseconds: Long, components: Int = 3, addMilliseconds: Boolean = false): String {
+		inline fun toTimeString(totalMilliseconds: Number, components: Int = 3, addMilliseconds: Boolean = false): String {
+			return toTimeString(totalMilliseconds.toDouble(), components, addMilliseconds)
+		}
+
+		@PublishedApi
+		internal fun toTimeString(totalMilliseconds: Double, components: Int = 3, addMilliseconds: Boolean = false): String {
 			val milliseconds = totalMilliseconds % 1000L
 			val out = toTimeStringRaw(totalMilliseconds, components)
 			return if (addMilliseconds) "$out.$milliseconds" else out
