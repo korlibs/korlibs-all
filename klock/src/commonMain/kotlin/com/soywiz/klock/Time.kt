@@ -590,9 +590,13 @@ class SimplerDateFormat(val format: String) {
 				"MMM" -> englishMonths[dd.month0].substr(0, 3).capitalize()
 				"yyyy" -> "%04d".format(dd.year)
 				"YYYY" -> "%04d".format(dd.year)
+				"H" -> "%d".format(dd.hours)
 				"HH" -> "%02d".format(dd.hours)
+				"h" ->  "%d".format(((12+dd.hours)%12))
+				"hh" ->  "%02d".format(((12+dd.hours)%12))
 				"mm" -> "%02d".format(dd.minutes)
 				"ss" -> "%02d".format(dd.seconds)
+				"a" -> if (dd.hours<11) "am" else "pm"
 				else -> name
 			}
 		}
