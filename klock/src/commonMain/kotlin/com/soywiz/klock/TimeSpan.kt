@@ -2,10 +2,6 @@ package com.soywiz.klock
 
 import kotlin.math.*
 
-// @TODO: circumvent inline BUG
-fun TimeSpan.toTimeString(components: Int = 3, addMilliseconds: Boolean = false): String =
-	TimeSpan.toTimeString(milliseconds, components, addMilliseconds)
-
 inline val Number.microseconds get() = TimeSpan.fromMilliseconds(this.toDouble() / 1000.0)
 inline val Number.milliseconds get() = TimeSpan.fromMilliseconds(this.toDouble())
 inline val Number.seconds get() = TimeSpan.fromMilliseconds((this.toDouble() * 1000.0))
@@ -45,13 +41,13 @@ inline class TimeSpan(private val ms: Double) : Comparable<TimeSpan> {
 
 			for (n in 0 until components) {
 				if (n == components - 1) {
-					out += "%02d".format(timeUnit)
+					out += timeUnit.padded(2)
 					break
 				}
 				val step = timeSteps.getOrNull(n) ?: throw RuntimeException("Just supported ${timeSteps.size} steps")
 				val cunit = timeUnit % step
 				timeUnit /= step
-				out += "%02d".format(cunit)
+				out += cunit.padded(2)
 			}
 
 			return out.reversed().joinToString(":")
@@ -75,8 +71,8 @@ inline class TimeSpan(private val ms: Double) : Comparable<TimeSpan> {
 	operator fun minus(other: TimeSpan): TimeSpan = TimeSpan(this.ms - other.ms)
 	operator fun times(scale: Int): TimeSpan = TimeSpan(this.ms * scale)
 	operator fun times(scale: Double): TimeSpan = TimeSpan((this.ms * scale))
-
-	// @TODO: inline BUG
-	//fun toTimeString(components: Int = 3, addMilliseconds: Boolean = false): String =
-	//	TimeSpan.toTimeString(milliseconds, components, addMilliseconds)
 }
+
+fun TimeSpan.toTimeString(components: Int = 3, addMilliseconds: Boolean = false): String =
+	TimeSpan.toTimeString(milliseconds, components, addMilliseconds)
+

@@ -17,11 +17,12 @@ class OffsetDateTime private constructor(
 		operator fun invoke(utc: DateTime, offset: Int) = OffsetDateTime(utc.utc, offset)
 	}
 
-	override val timeZone: String = "GMT%s%02d%02d".format(
-		if (positive) "+" else "-",
-		deltaHoursAbs,
-		deltaMinutesAbs
-	)
+	override val timeZone: String = run {
+		val sign = if (positive) "+" else "-"
+		val hour = deltaHoursAbs.padded(2)
+		val minute = deltaMinutesAbs.padded(2)
+		"GMT$sign$hour$minute"
+	}
 
 	override fun add(deltaMonths: Int, deltaMilliseconds: Long): DateTime =
 		OffsetDateTime(utc.add(deltaMonths, deltaMilliseconds), offset)

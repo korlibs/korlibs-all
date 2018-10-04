@@ -4,7 +4,7 @@ enum class DayOfWeek(val index: Int) {
 	Sunday(0), Monday(1), Tuesday(2), Wednesday(3), Thursday(4), Friday(5), Saturday(6);
 
 	companion object {
-		val BY_INDEX = values()
+		private val BY_INDEX = values()
 		operator fun get(index: Int) = BY_INDEX[index]
 	}
 }

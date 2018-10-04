@@ -64,31 +64,31 @@ class SimplerDateFormat(val format: String) {
 				"EEEEE" -> englishDaysOfWeek[dd.dayOfWeek.index].substr(0, 1).capitalize()
 				"EEEEEE" -> englishDaysOfWeek[dd.dayOfWeek.index].substr(0, 2).capitalize()
 				"z", "zzz" -> dd.timeZone
-				"d" -> "%d".format(dd.dayOfMonth)
-				"dd" -> "%02d".format(dd.dayOfMonth)
-				"M" -> "%d".format(dd.month1)
-				"MM" -> "%02d".format(dd.month1)
+				"d" -> dd.dayOfMonth.toString()
+				"dd" -> dd.dayOfMonth.padded(2)
+				"M" -> dd.month1.padded(1)
+				"MM" -> dd.month1.padded(2)
 				"MMM" -> englishMonths[dd.month0].substr(0, 3).capitalize()
 				"MMMM" -> englishMonths[dd.month0].capitalize()
 				"MMMMM" -> englishMonths[dd.month0].substr(0, 1).capitalize()
-				"y","yyyy" -> "%04d".format(dd.year)
-				"YYYY" -> "%04d".format(dd.year)
-				"H" -> "%d".format(dd.hours)
-				"HH" -> "%02d".format(dd.hours)
-				"h" ->  "%d".format(((12+dd.hours)%12))
-				"hh" ->  "%02d".format(((12+dd.hours)%12))
-				"m" -> "%d".format(dd.minutes)
-				"mm" -> "%02d".format(dd.minutes)
-				"s" -> "%d".format(dd.seconds)
-				"ss" -> "%02d".format(dd.seconds)
+				"y","yyyy" -> dd.year.padded(4)
+				"YYYY" -> dd.year.padded(4)
+				"H" -> dd.hours.padded(1)
+				"HH" -> dd.hours.padded(2)
+				"h" ->  (((12 + dd.hours) % 12)).padded(1)
+				"hh" ->  (((12 + dd.hours) % 12)).padded(2)
+				"m" -> dd.minutes.padded(1)
+				"mm" -> dd.minutes.padded(2)
+				"s" -> dd.seconds.padded(1)
+				"ss" -> dd.seconds.padded(2)
 				"X", "XX", "XXX" -> {
 					val p = if (dd.offset >= 0) "+" else "-"
 					val hours = dd.offset / 60
 					val minutes = dd.offset % 60
 					when (name) {
-						"X" -> "$p${"%02d".format(hours)}"
-						"XX" -> "$p${"%02d".format(hours)}${"%02d".format(minutes)}"
-						"XXX" -> "$p${"%02d".format(hours)}:${"%02d".format(minutes)}"
+						"X" -> "$p${hours.padded(2)}"
+						"XX" -> "$p${hours.padded(2)}${minutes.padded(2)}"
+						"XXX" -> "$p${hours.padded(2)}:${minutes.padded(2)}"
 						else -> name
 					}
 				}
@@ -130,10 +130,10 @@ class SimplerDateFormat(val format: String) {
 				"d", "dd" -> day = value.toInt()
 				"M", "MM" -> month = value.toInt()
 				"MMM" -> month = englishMonths3.indexOf(value.toLowerCase()) + 1
-				"yyyy", "YYYY" -> fullYear = value.toInt()
-				"HH" -> hour = value.toInt()
-				"mm" -> minute = value.toInt()
-				"ss" -> second = value.toInt()
+				"y", "yyyy", "YYYY" -> fullYear = value.toInt()
+				"H", "HH" -> hour = value.toInt()
+				"m", "mm" -> minute = value.toInt()
+				"s", "ss" -> second = value.toInt()
 				"X", "XX", "XXX" -> when {
 					value.first() == 'Z' -> offset = 0
 					else -> {
@@ -147,14 +147,10 @@ class SimplerDateFormat(val format: String) {
 				}
 				"MMMM" -> month = englishMonths.indexOf(value.toLowerCase()) + 1
 				"MMMMM" -> throw RuntimeException("Not possible to get the month from one letter.")
-				"y", "yyyy", "YYYY" -> fullYear = value.toInt()
-				"H", "HH" -> hour = value.toInt()
 				"h", "hh" -> {
 					hour = value.toInt()
 					is12HourFormat = true
 				}
-				"m", "mm" -> minute = value.toInt()
-				"s", "ss" -> second = value.toInt()
 				"a" -> isPm = value == "pm"
 				else -> {
 					// ...
