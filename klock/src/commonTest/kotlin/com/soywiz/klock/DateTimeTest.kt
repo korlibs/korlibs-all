@@ -4,6 +4,7 @@ import kotlin.test.*
 
 class DateTimeTest {
 	val HttpDate = SimplerDateFormat("EEE, dd MMM yyyy HH:mm:ss z")
+	val HttpDate2 = SimplerDateFormat("EEE, dd MMM yyyy H:mm:ss z")
 
 	@Test
 	fun testFromString() {
@@ -11,8 +12,126 @@ class DateTimeTest {
 	}
 
 	@Test
+	fun testFormattingToCustomDateTimeFormats(){
+		val dt = DateTime(2018, 9, 8, 4, 8, 9)
+		assertEquals("Sat, 08 Sep 2018 04:08:09 UTC", SimplerDateFormat("EEE, dd MMM yyyy HH:mm:ss z").format(dt).toString())
+		assertEquals("Saturday, 08 Sep 2018 04:08:09 UTC", SimplerDateFormat("EEEE, dd MMM yyyy HH:mm:ss z").format(dt).toString())
+		assertEquals("S, 08 Sep 2018 04:08:09 UTC", SimplerDateFormat("EEEEE, dd MMM yyyy HH:mm:ss z").format(dt).toString())
+		assertEquals("Sa, 08 Sep 2018 04:08:09 UTC", SimplerDateFormat("EEEEEE, dd MMM yyyy HH:mm:ss z").format(dt).toString())
+
+		assertEquals("Sat, 8 Sep 2018 04:08:09 UTC", SimplerDateFormat("EEE, d MMM yyyy HH:mm:ss z").format(dt).toString())
+
+		assertEquals("Sat, 08 9 2018 04:08:09 UTC", SimplerDateFormat("EEE, dd M yyyy HH:mm:ss z").format(dt).toString())
+		assertEquals("Sat, 08 09 2018 04:08:09 UTC", SimplerDateFormat("EEE, dd MM yyyy HH:mm:ss z").format(dt).toString())
+		assertEquals("Sat, 08 September 2018 04:08:09 UTC", SimplerDateFormat("EEE, dd MMMM yyyy HH:mm:ss z").format(dt).toString())
+		assertEquals("Sat, 08 S 2018 04:08:09 UTC", SimplerDateFormat("EEE, dd MMMMM yyyy HH:mm:ss z").format(dt).toString())
+
+		assertEquals("Sat, 08 Sep 2018 04:08:09 UTC", SimplerDateFormat("EEE, dd MMM y HH:mm:ss z").format(dt).toString())
+		assertEquals("Sat, 08 Sep 2018 04:08:09 UTC", SimplerDateFormat("EEE, dd MMM YYYY HH:mm:ss z").format(dt).toString())
+
+		assertEquals("Sat, 08 Sep 2018 4:08:09 UTC", SimplerDateFormat("EEE, dd MMM yyyy H:mm:ss z").format(dt).toString())
+
+		assertEquals("Sat, 08 Sep 2018 4:08:09 am UTC", SimplerDateFormat("EEE, dd MMM yyyy h:mm:ss a z").format(dt).toString())
+		assertEquals("Sat, 08 Sep 2018 04:08:09 am UTC", SimplerDateFormat("EEE, dd MMM yyyy hh:mm:ss a z").format(dt).toString())
+
+		assertEquals("Sat, 08 Sep 2018 04:8:09 UTC", SimplerDateFormat("EEE, dd MMM yyyy HH:m:ss z").format(dt).toString())
+
+		assertEquals("Sat, 08 Sep 2018 04:08:9 UTC", SimplerDateFormat("EEE, dd MMM yyyy HH:mm:s z").format(dt).toString())
+	}
+
+	@Test
+	fun testParsingDateTimesInCustomStringFormats(){
+		val dtmilli = 1536379689000L
+		assertEquals(dtmilli, DateTime(2018, 9, 8, 4, 8, 9).unix)
+		assertEquals(message = "Sat, 08 Sep 2018 04:08:09 UTC",
+                expected = dtmilli,
+                actual = SimplerDateFormat("EEE, dd MMM yyyy HH:mm:ss z").parse("Sat, 08 Sep 2018 04:08:09 UTC"))
+		assertEquals(message = "Saturday, 08 Sep 2018 04:08:09 UTC",
+                expected = dtmilli,
+                actual = SimplerDateFormat("EEEE, dd MMM yyyy HH:mm:ss z").parse("Saturday, 08 Sep 2018 04:08:09 UTC"))
+		assertEquals(message = "S, 08 Sep 2018 04:08:09 UTC",
+				expected = dtmilli,
+                actual = SimplerDateFormat("EEEEE, dd MMM yyyy HH:mm:ss z").parse("S, 08 Sep 2018 04:08:09 UTC"))
+		assertEquals(message = "Sa, 08 Sep 2018 04:08:09 UTC",
+				expected = dtmilli,
+                actual = SimplerDateFormat("EEEEEE, dd MMM yyyy HH:mm:ss z").parse("Sa, 08 Sep 2018 04:08:09 UTC"))
+
+		assertEquals(message = "Sat, 8 Sep 2018 04:08:09 UTC",
+				expected = dtmilli,
+                actual = SimplerDateFormat("EEE, d MMM yyyy HH:mm:ss z").parse("Sat, 8 Sep 2018 04:08:09 UTC"))
+
+		assertEquals(message = "Sat, 08 9 2018 04:08:09 UTC",
+				expected = dtmilli,
+                actual = SimplerDateFormat("EEE, dd M yyyy HH:mm:ss z").parse("Sat, 08 9 2018 04:08:09 UTC"))
+		assertEquals(message = "Sat, 08 09 2018 04:08:09 UTC",
+				expected = dtmilli,
+                actual = SimplerDateFormat("EEE, dd MM yyyy HH:mm:ss z").parse("Sat, 08 09 2018 04:08:09 UTC"))
+		assertEquals(message = "Sat, 08 September 2018 04:08:09 UTC",
+				expected = dtmilli,
+                actual = SimplerDateFormat("EEE, dd MMMM yyyy HH:mm:ss z").parse("Sat, 08 September 2018 04:08:09 UTC"))
+		assertEquals(message = "Sat, 08 S 2018 04:08:09 UTC",
+				expected = null,
+                actual = SimplerDateFormat("EEE, dd MMMMM yyyy HH:mm:ss z").parseOrNull("Sat, 08 S 2018 04:08:09 UTC"))
+
+        assertEquals(message = "Sat, 08 Sep 2018 04:08:09 UTC - y",
+                expected = dtmilli,
+                actual = SimplerDateFormat("EEE, dd MMM y HH:mm:ss z").parse("Sat, 08 Sep 2018 04:08:09 UTC"))
+        assertEquals(message = "Sat, 08 Sep 2018 04:08:09 UTC - YYYY",
+                expected = dtmilli,
+                actual = SimplerDateFormat("EEE, dd MMM YYYY HH:mm:ss z").parse("Sat, 08 Sep 2018 04:08:09 UTC"))
+
+        assertEquals(message = "Sat, 08 Sep 2018 4:08:09 UTC",
+                expected = dtmilli,
+                actual = SimplerDateFormat("EEE, dd MMM yyyy H:mm:ss z").parse("Sat, 08 Sep 2018 4:08:09 UTC"))
+
+        assertEquals(message = "Sat, 08 Sep 2018 04:08:09 am UTC",
+                expected = dtmilli,
+                actual = SimplerDateFormat("EEE, dd MMM yyyy HH:m:ss z").parse("Sat, 08 Sep 2018 04:8:09 UTC"))
+
+        assertEquals(message = "Sat, 08 Sep 2018 04:08:9 UTC",
+                expected = dtmilli,
+                actual = SimplerDateFormat("EEE, dd MMM yyyy HH:mm:s z").parse("Sat, 08 Sep 2018 04:08:9 UTC"))
+	}
+
+    @Test
+    fun testParsingDateTimesInCustomStringFormatsWithAmPm() {
+        val amDtmilli = 1536379689000L
+        assertEquals(amDtmilli, DateTime(2018, 9, 8, 4, 8, 9).unix)
+
+        val pmDtmilli = 1536422889000L
+        assertEquals(pmDtmilli, DateTime(2018, 9, 8, 16, 8, 9).unix)
+
+        assertEquals(message = "Sat, 08 Sep 2018 4:08:09 am UTC",
+                expected = amDtmilli,
+                actual = SimplerDateFormat("EEE, dd MMM yyyy h:mm:ss a z").parse("Sat, 08 Sep 2018 4:08:09 am UTC"))
+        assertEquals(message = "Sat, 08 Sep 2018 04:08:09 am UTC",
+                expected = amDtmilli,
+                actual = SimplerDateFormat("EEE, dd MMM yyyy hh:mm:ss a z").parse("Sat, 08 Sep 2018 04:08:09 am UTC"))
+
+        assertEquals(message = "Sat, 08 Sep 2018 4:08:09 pm UTC",
+                expected = pmDtmilli,
+                actual = SimplerDateFormat("EEE, dd MMM yyyy h:mm:ss a z").parse("Sat, 08 Sep 2018 4:08:09 pm UTC"))
+        assertEquals(message = "Sat, 08 Sep 2018 04:08:09 pm UTC",
+                expected = pmDtmilli,
+                actual = SimplerDateFormat("EEE, dd MMM yyyy hh:mm:ss a z").parse("Sat, 08 Sep 2018 04:08:09 pm UTC"))
+    }
+
+    @Test
+    fun testParsingDateTimesWithPmMixedWith24Hourformat() {
+        val pmDtmilli = 1536422889000L
+        assertEquals(pmDtmilli, DateTime(2018, 9, 8, 16, 8, 9).unix)
+
+        assertEquals(message = "Sat, 08 Sep 2018 4:08:09 pm UTC",
+                expected = pmDtmilli,
+                actual = SimplerDateFormat("EEE, dd MMM yyyy H:mm:ss a z").parse("Sat, 08 Sep 2018 16:08:09 pm UTC"))
+        assertEquals(message = "Sat, 08 Sep 2018 04:08:09 pm UTC",
+                expected = pmDtmilli,
+                actual = SimplerDateFormat("EEE, dd MMM yyyy HH:mm:ss a z").parse("Sat, 08 Sep 2018 16:08:09 pm UTC"))
+    }
+
+	@Test
 	fun testParse() {
-		assertEquals("Mon, 18 Sep 2017 23:58:45 UTC", HttpDate.format(1505779125916L))
+		assertEquals("Mon, 18 Sep 2017 04:58:45 UTC", HttpDate.format(1505710725916L))
 	}
 
 	@kotlin.test.Test

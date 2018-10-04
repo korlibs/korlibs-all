@@ -583,20 +583,27 @@ class SimplerDateFormat(val format: String) {
 			out += when (name) {
 				"EEE" -> englishDaysOfWeek[dd.dayOfWeek.index].substr(0, 3).capitalize()
 				"EEEE" -> englishDaysOfWeek[dd.dayOfWeek.index].capitalize()
+				"EEEEE" -> englishDaysOfWeek[dd.dayOfWeek.index].substr(0, 1).capitalize()
+				"EEEEEE" -> englishDaysOfWeek[dd.dayOfWeek.index].substr(0, 2).capitalize()
 				"z", "zzz" -> dd.timeZone
 				"d" -> "%d".format(dd.dayOfMonth)
 				"dd" -> "%02d".format(dd.dayOfMonth)
+				"M" -> "%d".format(dd.month1)
 				"MM" -> "%02d".format(dd.month1)
 				"MMM" -> englishMonths[dd.month0].substr(0, 3).capitalize()
-				"yyyy" -> "%04d".format(dd.year)
+				"MMMM" -> englishMonths[dd.month0].capitalize()
+				"MMMMM" -> englishMonths[dd.month0].substr(0, 1).capitalize()
+				"y","yyyy" -> "%04d".format(dd.year)
 				"YYYY" -> "%04d".format(dd.year)
 				"H" -> "%d".format(dd.hours)
 				"HH" -> "%02d".format(dd.hours)
 				"h" ->  "%d".format(((12+dd.hours)%12))
 				"hh" ->  "%02d".format(((12+dd.hours)%12))
+				"m" -> "%d".format(dd.minutes)
 				"mm" -> "%02d".format(dd.minutes)
+				"s" -> "%d".format(dd.seconds)
 				"ss" -> "%02d".format(dd.seconds)
-				"a" -> if (dd.hours<11) "am" else "pm"
+				"a" -> if (dd.hours<12) "am" else "pm"
 				else -> name
 			}
 		}
@@ -622,24 +629,34 @@ class SimplerDateFormat(val format: String) {
 		var day = 1
 		var month = 1
 		var fullYear = 1970
+		var isPm = false
+		var is12HourFormat = false
 		val result = rx2.find(str) ?: return null
 		for ((name, value) in parts.zip(result.groupValues.drop(1))) {
 			when (name) {
 				"EEE", "EEEE" -> Unit // day of week (Sun | Sunday)
 				"z", "zzz" -> Unit // timezone (GMT)
 				"d", "dd" -> day = value.toInt()
-				"MM" -> month = value.toInt()
+				"M", "MM" -> month = value.toInt()
 				"MMM" -> month = englishMonths3.indexOf(value.toLowerCase()) + 1
-				"yyyy", "YYYY" -> fullYear = value.toInt()
-				"HH" -> hour = value.toInt()
-				"mm" -> minute = value.toInt()
-				"ss" -> second = value.toInt()
+				"MMMM" -> month = englishMonths.indexOf(value.toLowerCase()) + 1
+				"MMMMM" -> throw RuntimeException("Not possible to get the month from one letter.")
+				"y", "yyyy", "YYYY" -> fullYear = value.toInt()
+				"H", "HH" -> hour = value.toInt()
+				"h", "hh" -> {
+					hour = value.toInt()
+					is12HourFormat = true
+				}
+				"m", "mm" -> minute = value.toInt()
+				"s", "ss" -> second = value.toInt()
+				"a" -> isPm = value == "pm"
 				else -> {
 					// ...
 				}
 			}
 		}
 		//return DateTime.createClamped(fullYear, month, day, hour, minute, second)
+		if (is12HourFormat and isPm) hour += 12
 		return DateTime.createAdjusted(fullYear, month, day, hour, minute, second)
 	}
 }
