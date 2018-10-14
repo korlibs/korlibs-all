@@ -61,9 +61,9 @@ suspend fun CoroutineContext.delayMs(time: Long) {
 	}
 }
 
-suspend fun delay(time: TimeSpan) = delay(time.milliseconds)
+suspend fun delay(time: TimeSpan): Unit = delay(time.millisecondsLong)
 
-suspend fun CoroutineContext.delay(time: TimeSpan) = delayMs(time.milliseconds)
+suspend fun CoroutineContext.delay(time: TimeSpan) = delayMs(time.millisecondsLong)
 
 fun CoroutineContext.animationFrameLoop(callback: suspend (Closeable) -> Unit): Closeable {
 	var running = true

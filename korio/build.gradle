@@ -14,15 +14,15 @@ kotlin.sourceSets.jvmMain.dependencies {
 
 dependencies {
 	def coroutines = "kotlinx-coroutines-core"
-	commonMainImplementation "org.jetbrains.kotlinx:$coroutines-common:$coroutinesVersion"
-	jvmMainImplementation "org.jetbrains.kotlinx:$coroutines:$coroutinesVersion"
-	jsMainImplementation "org.jetbrains.kotlinx:$coroutines-js:$coroutinesVersion"
-	//linuxX64MainImplementation "org.jetbrains.kotlinx:$coroutines-native_debug_linux_x64:$coroutinesVersion"
-	mingwX64MainImplementation "org.jetbrains.kotlinx:$coroutines-native_debug_mingw_x64:$coroutinesVersion"
-	macosX64MainImplementation "org.jetbrains.kotlinx:$coroutines-native_debug_macos_x64:$coroutinesVersion"
-	//iosX64MainImplementation "org.jetbrains.kotlinx:$coroutines-native_debug_ios_x64:$coroutinesVersion"
-	//iosArm32MainImplementation "org.jetbrains.kotlinx:$coroutines-native_debug_ios_arm32:$coroutinesVersion"
-	//iosArm64MainImplementation "org.jetbrains.kotlinx:$coroutines-native_debug_ios_arm64:$coroutinesVersion"
+	commonMainApi "org.jetbrains.kotlinx:$coroutines-common:$coroutinesVersion"
+	jvmMainApi "org.jetbrains.kotlinx:$coroutines:$coroutinesVersion"
+	jsMainApi "org.jetbrains.kotlinx:$coroutines-js:$coroutinesVersion"
+	//linuxX64MainApi "org.jetbrains.kotlinx:$coroutines-native_debug_linux_x64:$coroutinesVersion"
+	mingwX64MainApi "org.jetbrains.kotlinx:$coroutines-native_debug_mingw_x64:$coroutinesVersion"
+	macosX64MainApi "org.jetbrains.kotlinx:$coroutines-native_debug_macos_x64:$coroutinesVersion"
+	//iosX64MainApi "org.jetbrains.kotlinx:$coroutines-native_debug_ios_x64:$coroutinesVersion"
+	//iosArm32MainApi "org.jetbrains.kotlinx:$coroutines-native_debug_ios_arm32:$coroutinesVersion"
+	//iosArm64MainApi "org.jetbrains.kotlinx:$coroutines-native_debug_ios_arm64:$coroutinesVersion"
 }
 
 /*
