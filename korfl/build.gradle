@@ -2,4 +2,5 @@ apply plugin: 'kotlin-multiplatform'
 
 handleMpp(genTargets, [], [
 		"com.soywiz:korma{NSUFFIX}:$kormaVersion",
-], [':korio', ':korim', ':korau-mp3'])
+		"com.soywiz:korio{NSUFFIX}:$korioVersion",
+], [':korim', ':korau-mp3'])

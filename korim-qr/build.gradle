@@ -6,6 +6,7 @@ handleMpp(genTargets, [], [
 		"com.soywiz:kds{NSUFFIX}:$kdsVersion",
 		"com.soywiz:klock{NSUFFIX}:$klockVersion",
 		"com.soywiz:kmem{NSUFFIX}:$kmemVersion",
-], [':korio', ':korim'])
+		"com.soywiz:korio{NSUFFIX}:$korioVersion",
+], [':korim'])
 
 //handleMpp(genTargets, [], [], [':korim'])
