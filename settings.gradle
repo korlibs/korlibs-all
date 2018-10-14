@@ -19,7 +19,6 @@ rootProject.name = 'korlibs-all'
 
 enableFeaturePreview('GRADLE_METADATA')
 
-include ':kbignum'
 include ':kds'
 include ':korlibstd'
 include ':klogger'
