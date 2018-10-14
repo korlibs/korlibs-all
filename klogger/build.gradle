@@ -1,4 +1,0 @@
-apply plugin: 'kotlin-multiplatform'
-
-handleMpp(genTargets, [], [], [':korlibstd'])
-//handleMpp(genTargets, ["com.soywiz:korlibstd:$projectVersion"])
