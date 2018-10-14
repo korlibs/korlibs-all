@@ -20,7 +20,6 @@ rootProject.name = 'korlibs-all'
 enableFeaturePreview('GRADLE_METADATA')
 
 include ':korlibstd'
-include ':kmem'
 include ':korma'
 include ':korio'
 include ':korim'

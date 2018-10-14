@@ -1,6 +1,8 @@
 apply plugin: 'kotlin-multiplatform'
 
-handleMpp(genTargets, [], [], [':kmem', ':korim'])
+handleMpp(genTargets, [], [
+		"com.soywiz:kmem{NSUFFIX}:$kmemVersion",
+], [':korim'])
 
 kotlin.sourceSets.jvmMain.dependencies {
 	api "org.jogamp.gluegen:gluegen-rt:$gluegenVersion"

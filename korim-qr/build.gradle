@@ -4,7 +4,8 @@ apply plugin: 'kotlin-multiplatform'
 // @TODO: so I have to define all the transitive dependencies
 handleMpp(genTargets, [], [
 		"com.soywiz:kds{NSUFFIX}:$kdsVersion",
-		"com.soywiz:klock{NSUFFIX}:$klockVersion"
-], [':kmem', ':korio', ':korim'])
+		"com.soywiz:klock{NSUFFIX}:$klockVersion",
+		"com.soywiz:kmem{NSUFFIX}:$kmemVersion",
+], [':korio', ':korim'])
 
 //handleMpp(genTargets, [], [], [':korim'])
