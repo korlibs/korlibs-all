@@ -22,7 +22,6 @@ enableFeaturePreview('GRADLE_METADATA')
 include ':korlibstd'
 include ':kmem'
 include ':korma'
-include ':krypto'
 include ':korio'
 include ':korinject'
 include ':korim'
