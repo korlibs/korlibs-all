@@ -1,3 +1,0 @@
-apply plugin: 'kotlin-multiplatform'
-
-handleMpp(genTargets, [])
