@@ -20,16 +20,9 @@ rootProject.name = 'korlibs-all'
 enableFeaturePreview('GRADLE_METADATA')
 
 include ':korlibstd'
-include ':korim'
-include ':korim-qr'
 include ':kgl'
 include ':korag'
 include ':korag-opengl'
-include ':korau'
-include ':korau-mod'
-include ':korau-mp3'
-include ':korau-ogg-vorbis'
-include ':korau-opus'
 include ':korfl'
 include ':korui'
 

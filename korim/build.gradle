@@ -1,7 +1,0 @@
-apply plugin: 'kotlin-multiplatform'
-
-handleMpp(genTargets, [], [
-		"com.soywiz:kds{NSUFFIX}:$kdsVersion",
-		"com.soywiz:korma{NSUFFIX}:$kormaVersion",
-		"com.soywiz:korio{NSUFFIX}:$korioVersion",
-], [])
