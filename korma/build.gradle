@@ -1,6 +1,8 @@
 apply plugin: 'kotlin-multiplatform'
 
-handleMpp(genTargets, [], [], [':kds', ':korlibstd'])
+handleMpp(genTargets, [], [
+		"com.soywiz:kds{NSUFFIX}:$kdsVersion"    
+], [':korlibstd'])
 
 //kotlin.sourceSets.jvmTest {
 //	api project(":korio")

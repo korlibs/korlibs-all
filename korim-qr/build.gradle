@@ -3,7 +3,8 @@ apply plugin: 'kotlin-multiplatform'
 // @TODO: Kotlin nmpp experimental plugin doesn't honor api/implementation in projects,
 // @TODO: so I have to define all the transitive dependencies
 handleMpp(genTargets, [], [
+		"com.soywiz:kds{NSUFFIX}:$kdsVersion",
 		"com.soywiz:klock{NSUFFIX}:$klockVersion"
-], [':kds', ':kmem', ':korio', ':korim'])
+], [':kmem', ':korio', ':korim'])
 
 //handleMpp(genTargets, [], [], [':korim'])
