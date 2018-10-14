@@ -20,7 +20,6 @@ rootProject.name = 'korlibs-all'
 enableFeaturePreview('GRADLE_METADATA')
 
 include ':korlibstd'
-include ':korma'
 include ':korio'
 include ':korim'
 include ':korim-qr'
@@ -37,8 +36,7 @@ include ':korui'
 
 include ':korge'
 include ':korge-dragonbones'
-include ':korge-ext-fla'
-include ':korge-ext-spriter'
-include ':korge-ext-swf'
+include ':korge-spriter'
+include ':korge-swf'
 
 include ':korio-ktor-ext'

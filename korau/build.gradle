@@ -1,3 +1,5 @@
 apply plugin: 'kotlin-multiplatform'
 
-handleMpp(genTargets, [], [], [':korio'])
+handleMpp(genTargets, [], [
+		"com.soywiz:korma{NSUFFIX}:$kormaVersion",
+], [':korio', ':korlibstd'])
