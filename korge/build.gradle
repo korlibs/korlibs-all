@@ -5,4 +5,6 @@ handleMpp(genTargets, [], [
 		"com.soywiz:korinject{NSUFFIX}:$korinjectVersion",
 		"com.soywiz:kmem{NSUFFIX}:$kmemVersion",
 		"com.soywiz:korio{NSUFFIX}:$korioVersion",
-], [':korim', ':korau', ':korag', ':korui'])
+		"com.soywiz:korim{NSUFFIX}:$korimVersion",
+		"com.soywiz:korau{NSUFFIX}:$korauVersion",
+], [':korag', ':korui'])

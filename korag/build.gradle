@@ -1,3 +1,5 @@
 apply plugin: 'kotlin-multiplatform'
 
-handleMpp(genTargets, [], [], [':korim'])
+handleMpp(genTargets, [], [
+		"com.soywiz:korim{NSUFFIX}:$korimVersion",
+], [])

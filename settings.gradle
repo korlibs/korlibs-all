@@ -19,7 +19,6 @@ rootProject.name = 'korlibs-all'
 
 enableFeaturePreview('GRADLE_METADATA')
 
-include ':korlibstd'
 include ':kgl'
 include ':korag'
 include ':korag-opengl'
@@ -29,5 +28,3 @@ include ':korge'
 include ':korge-dragonbones'
 include ':korge-spriter'
 include ':korge-swf'
-
-include ':korio-ktor-ext'
