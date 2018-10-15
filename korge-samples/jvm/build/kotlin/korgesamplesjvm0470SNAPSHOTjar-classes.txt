@@ -1,1 +1,0 @@
-/Users/soywiz/projects/korlibs/korge/korge-samples/jvm/build/classes/kotlin/main/Sample1$main$1$1.class:/Users/soywiz/projects/korlibs/korge/korge-samples/jvm/build/classes/kotlin/main/Sample1$main$1.class:/Users/soywiz/projects/korlibs/korge/korge-samples/jvm/build/classes/kotlin/main/Sample1.class

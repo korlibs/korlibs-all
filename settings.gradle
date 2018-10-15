@@ -19,7 +19,7 @@ rootProject.name = 'korlibs-all'
 
 enableFeaturePreview('GRADLE_METADATA')
 
-include ':korge'
-include ':korge-dragonbones'
-include ':korge-spriter'
-include ':korge-swf'
+//include ':korge'
+//include ':korge-dragonbones'
+//include ':korge-spriter'
+//include ':korge-swf'
