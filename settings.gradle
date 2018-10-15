@@ -23,7 +23,6 @@ include ':korlibstd'
 include ':kgl'
 include ':korag'
 include ':korag-opengl'
-include ':korfl'
 include ':korui'
 
 include ':korge'
