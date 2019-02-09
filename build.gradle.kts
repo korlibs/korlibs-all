@@ -7,7 +7,7 @@ org.apache.tools.ant.DirectoryScanner.removeDefaultExclude("**/.gitignore")
 fun copyTemplate(template: File, project: File) {
 	println("$template -> $project")
 	project["settings.gradle.kts"].delete()
-	//project["wrapper"].deleteRecursively()
+	//project["buildSrc"].deleteRecursively()
 	sync {
 		from(template["buildSrc"])
 		into(project["buildSrc"])
@@ -38,7 +38,8 @@ fun copyTemplate(template: File, project: File) {
 	}
 }
 
-val PROJECT_DIRS = rootDir.listFiles().filter { it["gradle.properties"].exists() }
+val kortemplateDir = rootDir["kortemplate"]
+val PROJECT_DIRS = rootDir.listFiles().filter { it["gradle.properties"].exists() && it != kortemplateDir }
 
 fun File.properties() = Properties().also { it.load(this.readText().reader()) }
 
@@ -49,12 +50,13 @@ val versions by lazy {
 	}
 }
 
+
 tasks.create("copyTemplate") {
-	inputs.dir(rootDir["kortemplate"])
+	inputs.dir(kortemplateDir)
 	outputs.dirs(PROJECT_DIRS)
 	doLast {
 		for (projectDir in PROJECT_DIRS) {
-			copyTemplate(rootDir["kortemplate"], projectDir)
+			copyTemplate(kortemplateDir, projectDir)
 		}
 	}
 }
