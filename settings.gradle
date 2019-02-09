@@ -1,25 +1,5 @@
-pluginManagement {
-	resolutionStrategy {
-		eachPlugin {
-			if (requested.id.id == "kotlin-multiplatform") {
-				useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
-			}
-		}
-	}
+includeBuild("kortemplate")
+//includeBuild("kds")
+//includeBuild("klock")
+//include("kmem")
 
-	repositories {
-		mavenLocal()
-		maven { url 'http://dl.bintray.com/kotlin/kotlin-eap' }
-		mavenCentral()
-		maven { url 'https://plugins.gradle.org/m2/' }
-	}
-}
-
-rootProject.name = 'korlibs-all'
-
-enableFeaturePreview('GRADLE_METADATA')
-
-//include ':korge'
-//include ':korge-dragonbones'
-//include ':korge-spriter'
-//include ':korge-swf'
