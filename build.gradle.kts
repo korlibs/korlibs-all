@@ -1,30 +1,94 @@
+import java.util.*
+
 operator fun File.get(name: String) = File(this, name)
+
+org.apache.tools.ant.DirectoryScanner.removeDefaultExclude("**/.gitignore")
 
 fun copyTemplate(template: File, project: File) {
 	println("$template -> $project")
 	project["settings.gradle.kts"].delete()
-	copy {
+	//project["wrapper"].deleteRecursively()
+	sync {
 		from(template["buildSrc"])
 		into(project["buildSrc"])
+		//include("**/*")
 	}
 	copy {
 		from(template["settings.gradle"])
+		// Gradlew
+		from(template["gradlew"])
+
+		from(template["gradlew.bat"])
+		from(template["gradlew_win"])
+		from(template["gradlew_wine"])
+		from(template["gradlew_linux"])
+		// Publishing
+		from(template["publish"])
+		from(template["publish_local"])
+		// Travis
+		from(template[".travis.yml"])
+		from(template["travis_win.bat"])
+
+		// Into
 		into(project)
+	}
+	sync {
+		from(template["gradle"])
+		into(project["gradle"])
 	}
 }
 
-val PROJECTS = listOf(
-		"kds", "kmem", "klock", "korinject", "krypto", "kbox2d", "kbignum",
-		"korma", "korio",
-		"korim", "korau",
-		"korui",
-		"korge"
-)
+val PROJECT_DIRS = rootDir.listFiles().filter { it["gradle.properties"].exists() }
+
+fun File.properties() = Properties().also { it.load(this.readText().reader()) }
+
+val versions by lazy {
+	PROJECT_DIRS.associate {
+		val properties = it["gradle.properties"].properties()
+		it.name to (properties["version"] ?: properties["projectVersion"] ?: "unknown")
+	}
+}
 
 tasks.create("copyTemplate") {
+	inputs.dir(rootDir["kortemplate"])
+	outputs.dirs(PROJECT_DIRS)
 	doLast {
-		for (project in PROJECTS) {
-			copyTemplate(rootDir["kortemplate"], rootDir[project])
+		for (projectDir in PROJECT_DIRS) {
+			copyTemplate(rootDir["kortemplate"], projectDir)
+		}
+	}
+}
+
+fun String.replaceVersions(): String = replace(Regex("(.*?)Version\\s*=\\s*.*", RegexOption.MULTILINE)) {
+	val name = it.groupValues[1]
+	if (name in versions) {
+		val version = versions[name]
+		"${name}Version=$version"
+	} else {
+		it.value
+	}
+	//println(":: ${it.groupValues[1]}")
+	//it.value
+}
+
+fun File.replaceVersions() {
+	println("Replacing versions for $this ...")
+	this.writeText(this.readText().replaceVersions())
+}
+
+tasks.create("updateVersions") {
+	doLast {
+		for (projectDir in PROJECT_DIRS) {
+			projectDir["gradle.properties"].replaceVersions()
+		}
+		rootDir["korge/plugins/gradle.properties"].replaceVersions()
+	}
+}
+
+tasks.create("versions") {
+	doLast {
+		for (version in versions) {
+			println(version)
 		}
 	}
 }
