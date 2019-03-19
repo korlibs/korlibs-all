@@ -43,3 +43,12 @@
 [submodule "kotlinx.coroutines"]
 	path = kotlinx.coroutines
 	url = git@github.com:korlibs/kotlinx.coroutines.git
+[submodule "klogger"]
+	path = klogger
+	url = git@github.com:korlibs/klogger.git
+[submodule "samples/korge-hello-world"]
+	path = samples/korge-hello-world
+	url = git@github.com:korlibs/korge-hello-world.git
+[submodule "samples/korge-samples"]
+	path = samples/korge-samples
+	url = git@github.com:korlibs/korge-samples.git

@@ -44,14 +44,21 @@ val PROJECT_DIRS = rootDir.listFiles().filter { it["gradle.properties"].exists()
 fun File.properties() = Properties().also { it.load(this.readText().reader()) }
 
 val versions by lazy {
-	PROJECT_DIRS.associate {
+	val versions = PROJECT_DIRS.associate {
 		val properties = it["gradle.properties"].properties()
 		it.name to (properties["version"] ?: properties["projectVersion"] ?: "unknown")
-	}
+	}.toMutableMap()
+	val koruiVersion = versions["korui"] ?: "unknown"
+	versions["kgl"] = koruiVersion
+	versions["korag"] = koruiVersion
+	versions["korev"] = koruiVersion
+	versions["korgw"] = koruiVersion
+	versions["korag-opengl"] = koruiVersion
+	versions
 }
 
 
-tasks.create("copyTemplate") {
+val copyTemplate = tasks.create("copyTemplate") {
 	inputs.dir(kortemplateDir)
 	outputs.dirs(PROJECT_DIRS)
 	doLast {
@@ -78,7 +85,7 @@ fun File.replaceVersions() {
 	this.writeText(this.readText().replaceVersions())
 }
 
-tasks.create("updateVersions") {
+val updateVersions = tasks.create("updateVersions") {
 	doLast {
 		for (projectDir in PROJECT_DIRS) {
 			projectDir["gradle.properties"].replaceVersions()
@@ -93,4 +100,8 @@ tasks.create("versions") {
 			println(version)
 		}
 	}
+}
+
+val synchronize = tasks.create("synchronize") {
+	dependsOn(updateVersions, copyTemplate)
 }
