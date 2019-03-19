@@ -1,0 +1,17 @@
+/.gradle
+/.idea
+/build
+/node_modules
+/@old
+*.iml
+*.iws
+*.ipr
+.DS_Store
+.classpath
+.project
+org.eclipse.build*
+/zlib.klib
+/zlib-build
+/package-lock.json
+/korio/korio-ktor-ext/jvm/build/
+/local.properties

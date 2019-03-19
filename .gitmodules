@@ -1,0 +1,51 @@
+[submodule "klock"]
+	path = klock
+	url = git@github.com:korlibs/klock.git
+[submodule "kds"]
+	path = kds
+	url = git@github.com:korlibs/kds.git
+[submodule "kmem"]
+	path = kmem
+	url = git@github.com:korlibs/kmem.git
+[submodule "korma"]
+	path = korma
+	url = git@github.com:korlibs/korma.git
+[submodule "korio"]
+	path = korio
+	url = git@github.com:korlibs/korio.git
+[submodule "krypto"]
+	path = krypto
+	url = git@github.com:korlibs/krypto.git
+[submodule "kbox2d"]
+	path = kbox2d
+	url = git@github.com:korlibs/kbox2d.git
+[submodule "korinject"]
+	path = korinject
+	url = git@github.com:korlibs/korinject.git
+[submodule "korim"]
+	path = korim
+	url = git@github.com:korlibs/korim.git
+[submodule "korui"]
+	path = korui
+	url = git@github.com:korlibs/korui.git
+[submodule "korge"]
+	path = korge
+	url = git@github.com:korlibs/korge.git
+[submodule "kortemplate"]
+	path = kortemplate
+	url = git@github.com:korlibs/kortemplate.git
+[submodule "kbignum"]
+	path = kbignum
+	url = git@github.com:korlibs/kbignum.git
+[submodule "korau"]
+	path = korau
+	url = git@github.com:korlibs/korau.git
+[submodule "klogger"]
+	path = klogger
+	url = git@github.com:korlibs/klogger.git
+[submodule "samples/korge-hello-world"]
+	path = samples/korge-hello-world
+	url = git@github.com:korlibs/korge-hello-world.git
+[submodule "samples/korge-samples"]
+	path = samples/korge-samples
+	url = git@github.com:korlibs/korge-samples.git
