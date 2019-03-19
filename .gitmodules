@@ -40,9 +40,6 @@
 [submodule "korau"]
 	path = korau
 	url = git@github.com:korlibs/korau.git
-[submodule "kotlinx.coroutines"]
-	path = kotlinx.coroutines
-	url = git@github.com:korlibs/kotlinx.coroutines.git
 [submodule "klogger"]
 	path = klogger
 	url = git@github.com:korlibs/klogger.git
