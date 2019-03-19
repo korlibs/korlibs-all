@@ -1,6 +1,8 @@
 Korlibs
 =======
 
+Multimodule including all the libraries that are part of the korlibs.
+
 ### Korlibs without dependencies (First Layer)
 
 * [klock](https://github.com/korlibs/klock) - Date and Time Library
