@@ -1,39 +1,35 @@
 Korlibs
 =======
 
-[![Build Status](https://travis-ci.org/korlibs/korlibs.svg?branch=master)](https://travis-ci.org/korlibs/korlibs)
-[![Build status](https://ci.appveyor.com/api/projects/status/15m7n3axie8h812s?svg=true)](https://ci.appveyor.com/project/soywiz/korlibs)
-[![Download](https://api.bintray.com/packages/soywiz/soywiz/korlibs/images/download.svg)](https://bintray.com/soywiz/soywiz/korlibs/_latestVersion)
+### Korlibs without dependencies (First Layer)
 
-To make development, evolution and deployment easier, all the korlibs libraries are in this single mono-repository.
+* [klock](https://github.com/korlibs/klock) - Date and Time Library
+* [kds](https://github.com/korlibs/kds) - Data Structures Library
+* [kmem](https://github.com/korlibs/kmem) - Fast Memory and bit utilities
+* [korinject](https://github.com/korlibs/kmem) - Asynchronous dependency injector
+* [krypto](https://github.com/korlibs/krypto) - Cryptographic library
+* [klogger](https://github.com/korlibs/klogger) - Logger library
+* [kbignum](https://github.com/korlibs/kbignum) - BigInteger and BigDecimal library for common
 
-Once relevant functionality is available as standard Kotlin libraries, I will deprecate the specific korlibs libraries
-and will provide a relevant migration utilities for them.
+### Depending on kds and klock (Second layer)
 
-### Useful links
+* [korio](https://github.com/korlibs/korio) - I/O Libraries
+* [korma](https://github.com/korlibs/korma) - Mathematics library mostly focused on 2d and 3d geometry and algebra
 
-* Documentation: <https://korlibs.soywiz.com/>
-* Blog: <https://soywiz.com/korlibs/>
+### Depending on korio and korma (Third layer)
 
-### Projects using Korlibs
+* [korim](https://github.com/korlibs/korim) - Imaging and Vector Library
+* [korau](https://github.com/korlibs/korau) - Audio Library
 
-* <https://github.com/mmo-poc/mmo-poc>
-* <https://github.com/kpspemu/kpspemu>
+### Depending on korim (Fourth layer)
 
-### Extra
+* [kgl/korag/korgw/korui](https://github.com/korlibs/korui) - Accelerated Grahphics, UI and Game Window
 
-To test bleeding-edge kotlin-native:
+### Depending on everything else (Fifth layer)
 
-```
-export KONAN_REPO=$PWD/../kotlin-native
-export build_kotlin_native=true
+* [korge](https://github.com/korlibs/korge) - 2D and 3D Game Engine
 
-#pushd $KONAN_REPO && git pull && ./gradlew clean dependencies:update dist distPlatformLibs && popd
+### Others
 
-./gradlew install -Pkonan.home=$KONAN_REPO/dist --include-build $KONAN_REPO/shared --include-build $KONAN_REPO/tools/kotlin-native-gradle-plugin
-
-pushd samples
-	./gradlew :sample1-native:compileDebugMacos_x64KotlinNative -Pkonan.home=$KONAN_REPO/dist --include-build $KONAN_REPO/shared --include-build $KONAN_REPO/tools/kotlin-native-gradle-plugin
-popd
-```
-
+* [kbox2d](https://github.com/korlibs/kbox2d) - Box2D port of JBox2D/Box2D physics engine
+* [kortemplate](https://github.com/korlibs/kortemplate) - Gradle Template used for all these projects (buildSrc/build.gradle and settings.gradle)
