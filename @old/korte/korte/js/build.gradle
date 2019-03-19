@@ -1,8 +1,0 @@
-apply plugin: 'kotlin-platform-js'
-
-dependencies {
-	expectedBy project(":korte-common")
-	testImplementation project(":korte-common")
-
-	compile project(":korio-js")
-}
