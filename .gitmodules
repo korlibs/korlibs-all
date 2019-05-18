@@ -1,6 +1,3 @@
-[submodule "klock"]
-	path = klock
-	url = git@github.com:korlibs/klock.git
 [submodule "kds"]
 	path = kds
 	url = git@github.com:korlibs/kds.git
@@ -13,9 +10,6 @@
 [submodule "korio"]
 	path = korio
 	url = git@github.com:korlibs/korio.git
-[submodule "krypto"]
-	path = krypto
-	url = git@github.com:korlibs/krypto.git
 [submodule "kbox2d"]
 	path = kbox2d
 	url = git@github.com:korlibs/kbox2d.git
