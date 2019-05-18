@@ -43,3 +43,11 @@
 [submodule "samples/korge-samples"]
 	path = samples/korge-samples
 	url = git@github.com:korlibs/korge-samples.git
+[submodule "klock"]
+	path = klock
+	url = git@github.com:korlibs/klock.git
+	branch = master
+[submodule "krypto"]
+	path = krypto
+	url = git@github.com:korlibs/krypto.git
+	branch = master
