@@ -3,6 +3,11 @@ Korlibs
 
 Multimodule including all the libraries that are part of the korlibs.
 
+Remember to download the modules:
+```bash
+git submodule update --init --recursive
+```
+
 ### Korlibs without dependencies (First Layer)
 
 * [klock](https://github.com/korlibs/klock) - Date and Time Library
