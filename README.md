@@ -13,7 +13,7 @@ git submodule update --init --recursive
 * [klock](https://github.com/korlibs/klock) - Date and Time Library
 * [kds](https://github.com/korlibs/kds) - Data Structures Library
 * [kmem](https://github.com/korlibs/kmem) - Fast Memory and bit utilities
-* [korinject](https://github.com/korlibs/kmem) - Asynchronous dependency injector
+* [korinject](https://github.com/korlibs/korinject) - Asynchronous dependency injector
 * [krypto](https://github.com/korlibs/krypto) - Cryptographic library
 * [klogger](https://github.com/korlibs/klogger) - Logger library
 * [kbignum](https://github.com/korlibs/kbignum) - BigInteger and BigDecimal library for common
