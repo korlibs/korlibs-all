@@ -51,3 +51,12 @@
 	path = krypto
 	url = git@github.com:korlibs/krypto.git
 	branch = master
+[submodule "korlibs-logos"]
+	path = korlibs-logos
+	url = git@github.com:korlibs/korlibs-logos.git
+[submodule "korge-hello-world"]
+	path = korge-hello-world
+	url = git@github.com:korlibs/korge-hello-world.git
+[submodule "easy-kotlin-mpp-gradle-plugin"]
+	path = easy-kotlin-mpp-gradle-plugin
+	url = git@github.com:korlibs/easy-kotlin-mpp-gradle-plugin.git
