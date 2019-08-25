@@ -1,8 +1,77 @@
 import java.util.*
+import java.io.*
+import java.lang.StringBuilder
 
 operator fun File.get(name: String) = File(this, name)
 
 org.apache.tools.ant.DirectoryScanner.removeDefaultExclude("**/.gitignore")
+
+fun InputStream.readAvailableChunk(readRest: Boolean): ByteArray {
+	val out = ByteArrayOutputStream()
+	while (if (readRest) true else available() > 0) {
+		val c = this.read()
+		if (c < 0) break
+		out.write(c)
+	}
+	return out.toByteArray()
+}
+
+val java.lang.Process.isAliveJre7: Boolean get() = try { exitValue(); false  } catch (e: IllegalThreadStateException) { true }
+
+
+fun shellExec(
+	vararg cmds: String,
+	workingDir: File = File("."),
+	envs: Map<String, String> = mapOf(),
+	passthru: Boolean = true,
+	captureOutput: Boolean = true,
+	onOut: (data: ByteArray) -> Unit = {},
+	onErr: (data: ByteArray) -> Unit = {}
+): ShellExecResult {
+
+	val p = ProcessBuilder(*cmds)
+		.directory(workingDir)
+		.also { it.environment().also { it.putAll(envs) } }
+		.start()
+	var closing = false
+	var output = StringBuilder()
+	var error = StringBuilder()
+	while (true) {
+		val o = p.inputStream.readAvailableChunk(readRest = closing)
+		val e = p.errorStream.readAvailableChunk(readRest = closing)
+		if (passthru) {
+			System.out.print(o.toString(Charsets.UTF_8))
+			System.err.print(e.toString(Charsets.UTF_8))
+		}
+		if (captureOutput) {
+			output.append(o.toString(Charsets.UTF_8))
+			error.append(e.toString(Charsets.UTF_8))
+		}
+		if (o.isNotEmpty()) onOut(o)
+		if (e.isNotEmpty()) onErr(e)
+		if (closing) break
+		if (o.isEmpty() && e.isEmpty() && !p.isAliveJre7) {
+			closing = true
+			continue
+		}
+		Thread.sleep(1L)
+	}
+	p.waitFor()
+	//handler.onCompleted(p.exitValue())
+	val exitCode = p.exitValue()
+	return ShellExecResult(exitCode, output.toString(), error.toString())
+}
+
+data class ShellExecResult(
+	val exitCode: Int,
+	val output: String,
+	val error: String
+) {
+	val outputAndError: String get() = "$output$error"
+	val outputIfNotError get() = if (exitCode == 0) output else error("Error executing command: $outputAndError")
+}
+
+
 
 fun copyTemplate(template: File, project: File) {
 	println("$template -> $project")
@@ -78,6 +147,20 @@ val copyTemplate = tasks.create("copyTemplate") {
 	doLast {
 		for (projectDir in PROJECT_DIRS) {
 			copyTemplate(kortemplateDir, projectDir)
+		}
+	}
+}
+
+val gitPushUpdateTemplate = tasks.create("gitPushUpdateTemplate") {
+	group = "zgit"
+	//inputs.dir(kortemplateDir)
+	//outputs.dirs(PROJECT_DIRS)
+	doLast {
+		for (projectDir in PROJECT_DIRS) {
+			shellExec("git", "add", "-A", workingDir = projectDir)
+			shellExec("git", "commit", "-m", "Updated template", workingDir = projectDir)
+			shellExec("git", "push", workingDir = projectDir)
+			shellExec("git", "add", projectDir.name, workingDir = rootDir)
 		}
 	}
 }
