@@ -7,13 +7,9 @@ org.apache.tools.ant.DirectoryScanner.removeDefaultExclude("**/.gitignore")
 fun copyTemplate(template: File, project: File) {
 	println("$template -> $project")
 	project["settings.gradle.kts"].delete()
-	//project["buildSrc"].deleteRecursively()
-	sync {
-		from(template["buildSrc"])
-		into(project["buildSrc"])
-		//include("**/*")
-	}
+	project["buildSrc"].deleteRecursively()
 	copy {
+		from(template["build.gradle"])
 		from(template["settings.gradle"])
 		// Gradlew
 		from(template["gradlew"])
@@ -28,6 +24,7 @@ fun copyTemplate(template: File, project: File) {
 		// Travis
 		from(template[".travis.yml"])
 		from(template["travis_win.bat"])
+		from(template["travis_win_bintray.bat"])
 
 		// Into
 		into(project)
@@ -39,7 +36,24 @@ fun copyTemplate(template: File, project: File) {
 }
 
 val kortemplateDir = rootDir["kortemplate"]
-val PROJECT_DIRS = rootDir.listFiles().filter { it["gradle.properties"].exists() && it != kortemplateDir }
+val PROJECT_NAMES = listOf(
+	"kbignum",
+	"kbox2d",
+	"kds",
+	"klock",
+	"klogger",
+	"kmem",
+	"korau",
+	"korge",
+	"korim",
+	"korinject",
+	"korio",
+	"korma",
+	"korte",
+	"korui",
+	"krypto"
+)
+val PROJECT_DIRS = PROJECT_NAMES.map { rootDir[it] }.filter { it.exists() }
 
 fun File.properties() = Properties().also { it.load(this.readText().reader()) }
 
@@ -57,10 +71,10 @@ val versions by lazy {
 	versions
 }
 
-
 val copyTemplate = tasks.create("copyTemplate") {
-	inputs.dir(kortemplateDir)
-	outputs.dirs(PROJECT_DIRS)
+	group = "sync"
+	//inputs.dir(kortemplateDir)
+	//outputs.dirs(PROJECT_DIRS)
 	doLast {
 		for (projectDir in PROJECT_DIRS) {
 			copyTemplate(kortemplateDir, projectDir)
@@ -86,6 +100,7 @@ fun File.replaceVersions() {
 }
 
 val updateVersions = tasks.create("updateVersions") {
+	group = "sync"
 	doLast {
 		for (projectDir in PROJECT_DIRS) {
 			projectDir["gradle.properties"].replaceVersions()
@@ -95,6 +110,7 @@ val updateVersions = tasks.create("updateVersions") {
 }
 
 tasks.create("versions") {
+	group = "sync"
 	doLast {
 		for (version in versions) {
 			println(version)
@@ -103,5 +119,6 @@ tasks.create("versions") {
 }
 
 val synchronize = tasks.create("synchronize") {
+	group = "sync"
 	dependsOn(updateVersions, copyTemplate)
 }

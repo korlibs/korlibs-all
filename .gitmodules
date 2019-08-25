@@ -19,9 +19,9 @@
 [submodule "korim"]
 	path = korim
 	url = git@github.com:korlibs/korim.git
-[submodule "korui"]
-	path = korui
-	url = git@github.com:korlibs/korui.git
+[submodule "korgw"]
+	path = korgw
+	url = git@github.com:korlibs/korgw.git
 [submodule "korge"]
 	path = korge
 	url = git@github.com:korlibs/korge.git
@@ -60,3 +60,9 @@
 [submodule "easy-kotlin-mpp-gradle-plugin"]
 	path = easy-kotlin-mpp-gradle-plugin
 	url = git@github.com:korlibs/easy-kotlin-mpp-gradle-plugin.git
+[submodule "korlibs.soywiz.com"]
+	path = korlibs.soywiz.com
+	url = git@github.com:korlibs/korlibs.soywiz.com.git
+[submodule "korte"]
+	path = korte
+	url = git@github.com:korlibs/korte.git
