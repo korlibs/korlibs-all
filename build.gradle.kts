@@ -90,6 +90,8 @@ fun copyTemplate(template: File, project: File) {
 		// Publishing
 		from(template["publish"])
 		from(template["publish_local"])
+		// Editorconfig
+		from(template[".editorconfig"])
 		// Travis
 		from(template[".travis.yml"])
 		from(template["travis_win.bat"])
