@@ -1,11 +1,10 @@
-Korlibs
-=======
+<h1 align="center">Korlibs</h1>
 
-Multimodule including all the libraries that are part of the korlibs.
+<p align="center">Multimodule including all the libraries that are part of the korlibs.</p>
 
 <!-- SUPPORT -->
 
-<h2 align="center">Support this project 2</h2>
+<h2 align="center">Support this project</h2>
 
 <p align="center">
 If you like the project, or want your company logo here, please consider <a href="https://github.com/sponsors/soywiz">becoming a sponsor ★</a>,<br />
