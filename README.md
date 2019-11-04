@@ -3,6 +3,17 @@ Korlibs
 
 Multimodule including all the libraries that are part of the korlibs.
 
+<!-- SUPPORT -->
+
+<h2 align="center">Support this project 2</h2>
+
+<p align="center">
+If you like the project, or want your company logo here, please consider <a href="https://github.com/sponsors/soywiz">becoming a sponsor ★</a>,<br />
+in addition to ensure the continuity of the project, you will get exclusive content.
+</p>
+
+<!-- /SUPPORT -->
+
 Remember to download the modules:
 ```bash
 git submodule update --init --recursive

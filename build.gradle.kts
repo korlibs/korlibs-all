@@ -122,6 +122,7 @@ val PROJECT_NAMES = listOf(
 	"korma",
 	"korte",
 	"korui",
+	"korgw",
 	"krypto"
 )
 val PROJECT_DIRS = PROJECT_NAMES.map { rootDir[it] }.filter { it.exists() }
@@ -140,6 +141,64 @@ val versions by lazy {
 	versions["korgw"] = koruiVersion
 	versions["korag-opengl"] = koruiVersion
 	versions
+}
+
+val updateSponsor = tasks.create("updateSponsor") {
+	group = "sponsor"
+	//inputs.dir(kortemplateDir)
+	//outputs.dirs(PROJECT_DIRS)
+
+	val readmeFiles = PROJECT_DIRS.map { File(it, "README.md") }
+
+	inputs.files(readmeFiles)
+
+	doLast {
+		for (readmeFile in readmeFiles) {
+			//copyTemplate(kortemplateDir, projectDir)
+
+			println("$readmeFile")
+
+			val readmeText = readmeFile.takeIf { it.exists() }?.readText() ?: ""
+
+			val supportContent = """
+				<!-- SUPPORT -->
+
+				<h2 align="center">Support this project</h2>
+				
+				<p align="center">
+				If you like the project, or want your company logo here, please consider <a href="https://github.com/sponsors/soywiz">becoming a sponsor ★</a>,<br />
+				in addition to ensure the continuity of the project, you will get exclusive content.
+				</p>
+				
+				<!-- /SUPPORT -->
+			""".trimIndent()
+
+			//println(readmeText.match(Regex("<!-- SUPPORT -->.*?<!-- /SUPPORT -->")))
+
+			val newReadme = if (readmeText.contains("<!-- SUPPORT -->")) {
+				readmeText.replace(Regex("<!-- SUPPORT -->.*<!-- /SUPPORT -->", setOf(RegexOption.MULTILINE, RegexOption.DOT_MATCHES_ALL))) {
+					supportContent
+				}
+			} else {
+				var foundPlace = false
+				var emptySpaces = 0
+
+				readmeText.trim().lines().withIndex().map { (index, it) ->
+					if (it.trim() == "") {
+						emptySpaces++
+					}
+					if (!foundPlace && emptySpaces >= 2) {
+						foundPlace = true
+						"$it\n" + supportContent + "\n"
+					} else {
+						it
+					}
+				}.joinToString("\n") + "\n"
+			}
+
+			readmeFile.writeText(newReadme)
+		}
+	}
 }
 
 val copyTemplate = tasks.create("copyTemplate") {
