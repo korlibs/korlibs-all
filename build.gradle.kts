@@ -126,6 +126,7 @@ val PROJECT_NAMES = listOf(
 	"krypto"
 )
 val PROJECT_DIRS = PROJECT_NAMES.map { rootDir[it] }.filter { it.exists() }
+val README_FILES = PROJECT_DIRS.map { File(it, "README.md") }
 
 fun File.properties() = Properties().also { it.load(this.readText().reader()) }
 
@@ -144,32 +145,29 @@ val versions by lazy {
 }
 
 val updateSponsor = tasks.create("updateSponsor") {
-	group = "sponsor"
+	group = "readme"
 	//inputs.dir(kortemplateDir)
 	//outputs.dirs(PROJECT_DIRS)
 
-	val readmeFiles = PROJECT_DIRS.map { File(it, "README.md") }
-
-	inputs.files(readmeFiles)
+	inputs.files(README_FILES)
 
 	doLast {
-		for (readmeFile in readmeFiles) {
+		for (readmeFile in README_FILES) {
 			//copyTemplate(kortemplateDir, projectDir)
 
-			println("$readmeFile")
+			val projectName = readmeFile.parentFile.name
+
+			println("$readmeFile : $projectName")
 
 			val readmeText = readmeFile.takeIf { it.exists() }?.readText() ?: ""
 
 			val supportContent = """
 				<!-- SUPPORT -->
-
-				<h2 align="center">Support this project</h2>
-				
+				<h2 align="center">Support $projectName</h2>
 				<p align="center">
-				If you like the project, or want your company logo here, please consider <a href="https://github.com/sponsors/soywiz">becoming a sponsor ★</a>,<br />
+				If you like $projectName, or want your company logo here, please consider <a href="https://github.com/sponsors/soywiz">becoming a sponsor ★</a>,<br />
 				in addition to ensure the continuity of the project, you will get exclusive content.
 				</p>
-				
 				<!-- /SUPPORT -->
 			""".trimIndent()
 
@@ -199,6 +197,66 @@ val updateSponsor = tasks.create("updateSponsor") {
 			readmeFile.writeText(newReadme)
 		}
 	}
+}
+
+val updateBadges = tasks.create("updateBadges") {
+	group = "readme"
+	//inputs.dir(kortemplateDir)
+	//outputs.dirs(PROJECT_DIRS)
+
+	inputs.files(README_FILES)
+
+	doLast {
+		for (readmeFile in README_FILES) {
+			//copyTemplate(kortemplateDir, projectDir)
+
+			val projectName = readmeFile.parentFile.name
+
+			println("$readmeFile : $projectName")
+
+			val readmeText = readmeFile.takeIf { it.exists() }?.readText() ?: ""
+
+			val supportContent = """
+				<!-- BADGES -->
+				<p align="center">
+					<a href="https://travis-ci.org/korlibs/$projectName"><img alt="Build Status" src="https://travis-ci.org/korlibs/$projectName.svg?branch=master" /></a>
+					<a href="http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22$projectName%22"><img alt="Maven Version" src="https://img.shields.io/github/tag/korlibs/$projectName.svg?style=flat&label=maven" /></a>
+					<a href="https://slack.soywiz.com/"><img alt="Slack" src="https://img.shields.io/badge/chat-on%20slack-green?style=flat&logo=slack" /></a>
+				</p>
+				<!-- /BADGES -->
+			""".trimIndent()
+
+			//println(readmeText.match(Regex("<!-- SUPPORT -->.*?<!-- /SUPPORT -->")))
+
+			val newReadme = if (readmeText.contains("<!-- BADGES -->")) {
+				readmeText.replace(Regex("<!-- BADGES -->.*<!-- /BADGES -->", setOf(RegexOption.MULTILINE, RegexOption.DOT_MATCHES_ALL))) {
+					supportContent
+				}
+			} else {
+				var foundPlace = false
+				var emptySpaces = 0
+
+				readmeText.trim().lines().withIndex().map { (index, it) ->
+					if (it.trim() == "") {
+						emptySpaces++
+					}
+					if (!foundPlace && emptySpaces >= 2) {
+						foundPlace = true
+						"$it\n" + supportContent + "\n"
+					} else {
+						it
+					}
+				}.joinToString("\n") + "\n"
+			}
+
+			readmeFile.writeText(newReadme)
+		}
+	}
+}
+
+val updateReadme = tasks.create("updateReadme") {
+	dependsOn(updateSponsor)
+	dependsOn(updateBadges)
 }
 
 val copyTemplate = tasks.create("copyTemplate") {
