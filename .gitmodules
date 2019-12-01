@@ -66,3 +66,6 @@
 [submodule "korte"]
 	path = korte
 	url = git@github.com:korlibs/korte.git
+[submodule "korge-samples"]
+	path = korge-samples
+	url = git@github.com:korlibs/korge-samples.git
