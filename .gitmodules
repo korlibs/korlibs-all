@@ -69,3 +69,10 @@
 [submodule "korge-samples"]
 	path = korge-samples
 	url = git@github.com:korlibs/korge-samples.git
+[submodule "korge-plugins"]
+	path = korge-plugins
+	url = git@github.com:korlibs/korge-plugins.git
+[submodule "korge-intellij-plugin"]
+	path = korge-intellij-plugin
+	url = git@github.com:korlibs/korge-intellij-plugin.git
+
