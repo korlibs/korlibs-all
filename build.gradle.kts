@@ -284,6 +284,18 @@ val gitPushUpdateTemplate = tasks.create("gitPushUpdateTemplate") {
 	}
 }
 
+val gitPull = tasks.create("gitPull") {
+	group = "zgit"
+	//inputs.dir(kortemplateDir)
+	//outputs.dirs(PROJECT_DIRS)
+	doLast {
+		for (projectDir in PROJECT_DIRS) {
+			shellExec("git", "pull", workingDir = projectDir)
+		}
+	}
+}
+
+
 fun String.replaceVersions(): String = replace(Regex("(.*?)Version\\s*=\\s*.*", RegexOption.MULTILINE)) {
 	val name = it.groupValues[1]
 	if (name in versions) {
