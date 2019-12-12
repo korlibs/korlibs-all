@@ -295,6 +295,66 @@ val gitPull = tasks.create("gitPull") {
 	}
 }
 
+fun File.writeLines(lines: List<String>) {
+	this.writeText(lines.joinToString("\n") + "\n")
+}
+
+fun File.addLineOnce(line: String) {
+	if (this.exists()) {
+		val lines = this.readLines().toMutableList()
+		if (!lines.contains(line)) {
+			lines.add(line)
+			this.writeLines(lines)
+		}
+	}
+}
+
+val addKotlinNativeIgnoreDisabledTargets = tasks.create("addKotlinNativeIgnoreDisabledTargets") {
+	for (projectDir in PROJECT_DIRS) {
+		projectDir["gradle.properties"].addLineOnce("kotlin.native.ignoreDisabledTargets=true")
+	}
+}
+
+val updateEasyKotlinMppGradlePlugin = tasks.create("updateEasyKotlinMppGradlePlugin") {
+	for (projectDir in PROJECT_DIRS) {
+		val buildGradleFile = projectDir["build.gradle"]
+		val lines = buildGradleFile.readLines()
+		val transformedLines = lines.map { line ->
+			if (line.contains("easy-kotlin-mpp-gradle-plugin")) {
+				println("LINE: $line")
+				"        classpath \"com.soywiz.korlibs:easy-kotlin-mpp-gradle-plugin:0.6.1\" // Kotlin 1.3.61: https://github.com/korlibs/easy-kotlin-mpp-gradle-plugin"
+			} else {
+				line
+			}
+		}
+		buildGradleFile.writeLines(transformedLines)
+		//println(transformedLines)
+	}
+}
+
+
+
+val migrateToGithubActions = tasks.create("migrateToGithubActions") {
+	doLast {
+		for (projectDir in PROJECT_DIRS) {
+		//for (projectDir in listOf(rootDir["klock"])) {
+			copy {
+				from(rootDir["kortemplate/.github/workflows/CI.yml"])
+				into("$projectDir/.github/workflows")
+			}
+			copy {
+				from("$projectDir/.travis.yml")
+				from("$projectDir/travis_win.bat")
+				from("$projectDir/travis_win_bintray.bat")
+				into("$projectDir/old")
+			}
+			File("$projectDir/.travis.yml").delete()
+			File("$projectDir/travis_win.bat").delete()
+			File("$projectDir/travis_win_bintray.bat").delete()
+		}
+	}
+}
+
 
 fun String.replaceVersions(): String = replace(Regex("(.*?)Version\\s*=\\s*.*", RegexOption.MULTILINE)) {
 	val name = it.groupValues[1]
