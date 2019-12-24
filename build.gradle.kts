@@ -106,6 +106,11 @@ fun copyTemplate(template: File, project: File) {
 	}
 }
 
+data class ProjectInfo(val projectDir: File) {
+	val readmeFile = projectDir["README.md"]
+	val propertiesFile = projectDir["gradle.properties"]
+}
+
 val kortemplateDir = rootDir["kortemplate"]
 val PROJECT_NAMES = listOf(
 	"kbignum",
@@ -126,7 +131,10 @@ val PROJECT_NAMES = listOf(
 	"krypto"
 )
 val PROJECT_DIRS = PROJECT_NAMES.map { rootDir[it] }.filter { it.exists() }
+val PROJECT_INFOS = PROJECT_DIRS.map { ProjectInfo(it) }
+
 val README_FILES = PROJECT_DIRS.map { File(it, "README.md") }
+
 
 fun File.properties() = Properties().also { it.load(this.readText().reader()) }
 
@@ -152,7 +160,10 @@ val updateSponsor = tasks.create("updateSponsor") {
 	inputs.files(README_FILES)
 
 	doLast {
-		for (readmeFile in README_FILES) {
+		for (projectInfo in PROJECT_INFOS) {
+			val projectDir = projectInfo.projectDir
+			val readmeFile = projectInfo.readmeFile
+			val projectProperties = projectInfo.propertiesFile.properties()
 			//copyTemplate(kortemplateDir, projectDir)
 
 			val projectName = readmeFile.parentFile.name
@@ -207,7 +218,21 @@ val updateBadges = tasks.create("updateBadges") {
 	inputs.files(README_FILES)
 
 	doLast {
-		for (readmeFile in README_FILES) {
+		for (projectInfo in PROJECT_INFOS) {
+			val projectDir = projectInfo.projectDir
+			val readmeFile = projectInfo.readmeFile
+			val projectProperties = projectInfo.propertiesFile.properties()
+
+			val bintrayOrg = projectProperties["project.bintray.org"]
+			val bintrayRepo = projectProperties["project.bintray.repository"]
+			val bintrayPackage = projectProperties["project.bintray.package"]
+			val bintrayPath = "" + bintrayOrg + "/" + bintrayRepo + "/" + bintrayPackage
+
+			val githubOrg = "korlibs"
+			val githubRepo = bintrayPackage
+
+			val bintrayUrl = "https://bintray.com/$bintrayPath"
+
 			//copyTemplate(kortemplateDir, projectDir)
 
 			val projectName = readmeFile.parentFile.name
@@ -215,12 +240,11 @@ val updateBadges = tasks.create("updateBadges") {
 			println("$readmeFile : $projectName")
 
 			val readmeText = readmeFile.takeIf { it.exists() }?.readText() ?: ""
-
 			val supportContent = """
 				<!-- BADGES -->
 				<p align="center">
-					<a href="https://travis-ci.org/korlibs/$projectName"><img alt="Build Status" src="https://travis-ci.org/korlibs/$projectName.svg?branch=master" /></a>
-					<a href="http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22$projectName%22"><img alt="Maven Version" src="https://img.shields.io/github/tag/korlibs/$projectName.svg?style=flat&label=maven" /></a>
+					<a href="https://github.com/$githubOrg/$githubRepo/actions"><img alt="Build Status" src="https://github.com/$githubOrg/$githubRepo/workflows/CI/badge.svg" /></a>
+					<a href="$bintrayUrl"><img alt="Maven Version" src="https://img.shields.io/bintray/v/$bintrayPath.svg?style=flat&label=maven" /></a>
 					<a href="https://slack.soywiz.com/"><img alt="Slack" src="https://img.shields.io/badge/chat-on%20slack-green?style=flat&logo=slack" /></a>
 				</p>
 				<!-- /BADGES -->
