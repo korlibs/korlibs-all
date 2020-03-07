@@ -37,12 +37,6 @@
 [submodule "klogger"]
 	path = klogger
 	url = git@github.com:korlibs/klogger.git
-[submodule "samples/korge-hello-world"]
-	path = samples/korge-hello-world
-	url = git@github.com:korlibs/korge-hello-world.git
-[submodule "samples/korge-samples"]
-	path = samples/korge-samples
-	url = git@github.com:korlibs/korge-samples.git
 [submodule "klock"]
 	path = klock
 	url = git@github.com:korlibs/klock.git
@@ -75,4 +69,15 @@
 [submodule "korge-intellij-plugin"]
 	path = korge-intellij-plugin
 	url = git@github.com:korlibs/korge-intellij-plugin.git
-
+[submodule "korge.soywiz.com"]
+	path = korge.soywiz.com
+	url = git@github.com:korlibs/korge.soywiz.com.git
+[submodule "korlibs-api.soywiz.com"]
+	path = korlibs-api.soywiz.com
+	url = git@github.com:korlibs/korlibs-api.soywiz.com.git
+[submodule "korvi"]
+	path = korvi
+	url = git@github.com:korlibs/korvi.git
+[submodule "luak"]
+	path = luak
+	url = git@github.com:korlibs/luak.git

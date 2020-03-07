@@ -2,6 +2,8 @@ import java.util.*
 import java.io.*
 import java.lang.StringBuilder
 
+val easyGradlePlugin = "0.7.4"
+
 operator fun File.get(name: String) = File(this, name)
 
 org.apache.tools.ant.DirectoryScanner.removeDefaultExclude("**/.gitignore")
@@ -346,7 +348,7 @@ val updateEasyKotlinMppGradlePlugin = tasks.create("updateEasyKotlinMppGradlePlu
 		val transformedLines = lines.map { line ->
 			if (line.contains("easy-kotlin-mpp-gradle-plugin")) {
 				println("LINE: $line")
-				"        classpath \"com.soywiz.korlibs:easy-kotlin-mpp-gradle-plugin:0.6.1\" // Kotlin 1.3.61: https://github.com/korlibs/easy-kotlin-mpp-gradle-plugin"
+				"        classpath \"com.soywiz.korlibs:easy-kotlin-mpp-gradle-plugin:$easyGradlePlugin\" // Kotlin 1.3.61: https://github.com/korlibs/easy-kotlin-mpp-gradle-plugin"
 			} else {
 				line
 			}
@@ -355,8 +357,6 @@ val updateEasyKotlinMppGradlePlugin = tasks.create("updateEasyKotlinMppGradlePlu
 		//println(transformedLines)
 	}
 }
-
-
 
 val migrateToGithubActions = tasks.create("migrateToGithubActions") {
 	doLast {
@@ -419,4 +419,12 @@ tasks.create("versions") {
 val synchronize = tasks.create("synchronize") {
 	group = "sync"
 	dependsOn(updateVersions, copyTemplate)
+}
+
+val updateGradlewWine = tasks.create("updateGradlewWine") {
+	doLast {
+		for (projectDir in PROJECT_DIRS) {
+			projectDir["gradlew_wine"].writeText("#!/bin/bash\n unset ANDROID_HOME\n WINEDEBUG=-all wine64 cmd /c gradlew.bat $*")
+		}
+	}
 }
