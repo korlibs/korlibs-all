@@ -2,7 +2,7 @@ import java.util.*
 import java.io.*
 import java.lang.StringBuilder
 
-val easyGradlePlugin = "0.7.4"
+val easyGradlePluginVersion: String by project
 
 operator fun File.get(name: String) = File(this, name)
 
@@ -19,7 +19,6 @@ fun InputStream.readAvailableChunk(readRest: Boolean): ByteArray {
 }
 
 val java.lang.Process.isAliveJre7: Boolean get() = try { exitValue(); false  } catch (e: IllegalThreadStateException) { true }
-
 
 fun shellExec(
 	vararg cmds: String,
@@ -154,27 +153,28 @@ val versions by lazy {
 	versions
 }
 
-val updateSponsor = tasks.create("updateSponsor") {
-	group = "readme"
-	//inputs.dir(kortemplateDir)
-	//outputs.dirs(PROJECT_DIRS)
+tasks {
+	val updateSponsor by creating {
+		group = "readme"
+		//inputs.dir(kortemplateDir)
+		//outputs.dirs(PROJECT_DIRS)
 
-	inputs.files(README_FILES)
+		inputs.files(README_FILES)
 
-	doLast {
-		for (projectInfo in PROJECT_INFOS) {
-			val projectDir = projectInfo.projectDir
-			val readmeFile = projectInfo.readmeFile
-			val projectProperties = projectInfo.propertiesFile.properties()
-			//copyTemplate(kortemplateDir, projectDir)
+		doLast {
+			for (projectInfo in PROJECT_INFOS) {
+				val projectDir = projectInfo.projectDir
+				val readmeFile = projectInfo.readmeFile
+				val projectProperties = projectInfo.propertiesFile.properties()
+				//copyTemplate(kortemplateDir, projectDir)
 
-			val projectName = readmeFile.parentFile.name
+				val projectName = readmeFile.parentFile.name
 
-			println("$readmeFile : $projectName")
+				println("$readmeFile : $projectName")
 
-			val readmeText = readmeFile.takeIf { it.exists() }?.readText() ?: ""
+				val readmeText = readmeFile.takeIf { it.exists() }?.readText() ?: ""
 
-			val supportContent = """
+				val supportContent = """
 				<!-- SUPPORT -->
 				<h2 align="center">Support $projectName</h2>
 				<p align="center">
@@ -184,65 +184,65 @@ val updateSponsor = tasks.create("updateSponsor") {
 				<!-- /SUPPORT -->
 			""".trimIndent()
 
-			//println(readmeText.match(Regex("<!-- SUPPORT -->.*?<!-- /SUPPORT -->")))
+				//println(readmeText.match(Regex("<!-- SUPPORT -->.*?<!-- /SUPPORT -->")))
 
-			val newReadme = if (readmeText.contains("<!-- SUPPORT -->")) {
-				readmeText.replace(Regex("<!-- SUPPORT -->.*<!-- /SUPPORT -->", setOf(RegexOption.MULTILINE, RegexOption.DOT_MATCHES_ALL))) {
-					supportContent
+				val newReadme = if (readmeText.contains("<!-- SUPPORT -->")) {
+					readmeText.replace(Regex("<!-- SUPPORT -->.*<!-- /SUPPORT -->", setOf(RegexOption.MULTILINE, RegexOption.DOT_MATCHES_ALL))) {
+						supportContent
+					}
+				} else {
+					var foundPlace = false
+					var emptySpaces = 0
+
+					readmeText.trim().lines().withIndex().map { (index, it) ->
+						if (it.trim() == "") {
+							emptySpaces++
+						}
+						if (!foundPlace && emptySpaces >= 2) {
+							foundPlace = true
+							"$it\n" + supportContent + "\n"
+						} else {
+							it
+						}
+					}.joinToString("\n") + "\n"
 				}
-			} else {
-				var foundPlace = false
-				var emptySpaces = 0
 
-				readmeText.trim().lines().withIndex().map { (index, it) ->
-					if (it.trim() == "") {
-						emptySpaces++
-					}
-					if (!foundPlace && emptySpaces >= 2) {
-						foundPlace = true
-						"$it\n" + supportContent + "\n"
-					} else {
-						it
-					}
-				}.joinToString("\n") + "\n"
+				readmeFile.writeText(newReadme)
 			}
-
-			readmeFile.writeText(newReadme)
 		}
 	}
-}
 
-val updateBadges = tasks.create("updateBadges") {
-	group = "readme"
-	//inputs.dir(kortemplateDir)
-	//outputs.dirs(PROJECT_DIRS)
+	val updateBadges by creating {
+		group = "readme"
+		//inputs.dir(kortemplateDir)
+		//outputs.dirs(PROJECT_DIRS)
 
-	inputs.files(README_FILES)
+		inputs.files(README_FILES)
 
-	doLast {
-		for (projectInfo in PROJECT_INFOS) {
-			val projectDir = projectInfo.projectDir
-			val readmeFile = projectInfo.readmeFile
-			val projectProperties = projectInfo.propertiesFile.properties()
+		doLast {
+			for (projectInfo in PROJECT_INFOS) {
+				val projectDir = projectInfo.projectDir
+				val readmeFile = projectInfo.readmeFile
+				val projectProperties = projectInfo.propertiesFile.properties()
 
-			val bintrayOrg = projectProperties["project.bintray.org"]
-			val bintrayRepo = projectProperties["project.bintray.repository"]
-			val bintrayPackage = projectProperties["project.bintray.package"]
-			val bintrayPath = "" + bintrayOrg + "/" + bintrayRepo + "/" + bintrayPackage
+				val bintrayOrg = projectProperties["project.bintray.org"]
+				val bintrayRepo = projectProperties["project.bintray.repository"]
+				val bintrayPackage = projectProperties["project.bintray.package"]
+				val bintrayPath = "" + bintrayOrg + "/" + bintrayRepo + "/" + bintrayPackage
 
-			val githubOrg = "korlibs"
-			val githubRepo = bintrayPackage
+				val githubOrg = "korlibs"
+				val githubRepo = bintrayPackage
 
-			val bintrayUrl = "https://bintray.com/$bintrayPath"
+				val bintrayUrl = "https://bintray.com/$bintrayPath"
 
-			//copyTemplate(kortemplateDir, projectDir)
+				//copyTemplate(kortemplateDir, projectDir)
 
-			val projectName = readmeFile.parentFile.name
+				val projectName = readmeFile.parentFile.name
 
-			println("$readmeFile : $projectName")
+				println("$readmeFile : $projectName")
 
-			val readmeText = readmeFile.takeIf { it.exists() }?.readText() ?: ""
-			val supportContent = """
+				val readmeText = readmeFile.takeIf { it.exists() }?.readText() ?: ""
+				val supportContent = """
 				<!-- BADGES -->
 				<p align="center">
 					<a href="https://github.com/$githubOrg/$githubRepo/actions"><img alt="Build Status" src="https://github.com/$githubOrg/$githubRepo/workflows/CI/badge.svg" /></a>
@@ -252,179 +252,183 @@ val updateBadges = tasks.create("updateBadges") {
 				<!-- /BADGES -->
 			""".trimIndent()
 
-			//println(readmeText.match(Regex("<!-- SUPPORT -->.*?<!-- /SUPPORT -->")))
+				//println(readmeText.match(Regex("<!-- SUPPORT -->.*?<!-- /SUPPORT -->")))
 
-			val newReadme = if (readmeText.contains("<!-- BADGES -->")) {
-				readmeText.replace(Regex("<!-- BADGES -->.*<!-- /BADGES -->", setOf(RegexOption.MULTILINE, RegexOption.DOT_MATCHES_ALL))) {
-					supportContent
+				val newReadme = if (readmeText.contains("<!-- BADGES -->")) {
+					readmeText.replace(Regex("<!-- BADGES -->.*<!-- /BADGES -->", setOf(RegexOption.MULTILINE, RegexOption.DOT_MATCHES_ALL))) {
+						supportContent
+					}
+				} else {
+					var foundPlace = false
+					var emptySpaces = 0
+
+					readmeText.trim().lines().withIndex().map { (index, it) ->
+						if (it.trim() == "") {
+							emptySpaces++
+						}
+						if (!foundPlace && emptySpaces >= 2) {
+							foundPlace = true
+							"$it\n" + supportContent + "\n"
+						} else {
+							it
+						}
+					}.joinToString("\n") + "\n"
 				}
-			} else {
-				var foundPlace = false
-				var emptySpaces = 0
 
-				readmeText.trim().lines().withIndex().map { (index, it) ->
-					if (it.trim() == "") {
-						emptySpaces++
-					}
-					if (!foundPlace && emptySpaces >= 2) {
-						foundPlace = true
-						"$it\n" + supportContent + "\n"
+				readmeFile.writeText(newReadme)
+			}
+		}
+	}
+
+	val updateReadme by creating {
+		dependsOn(updateSponsor)
+		dependsOn(updateBadges)
+	}
+
+	val copyTemplate by creating {
+		group = "sync"
+		//inputs.dir(kortemplateDir)
+		//outputs.dirs(PROJECT_DIRS)
+		doLast {
+			for (projectDir in PROJECT_DIRS) {
+				copyTemplate(kortemplateDir, projectDir)
+			}
+		}
+	}
+
+	val gitPushUpdateTemplate by creating {
+		group = "zgit"
+		//inputs.dir(kortemplateDir)
+		//outputs.dirs(PROJECT_DIRS)
+		doLast {
+			for (projectDir in PROJECT_DIRS) {
+				shellExec("git", "add", "-A", workingDir = projectDir)
+				shellExec("git", "commit", "-m", "Updated template", workingDir = projectDir)
+				shellExec("git", "push", workingDir = projectDir)
+				shellExec("git", "add", projectDir.name, workingDir = rootDir)
+			}
+		}
+	}
+
+	val gitPull by creating {
+		group = "zgit"
+		//inputs.dir(kortemplateDir)
+		//outputs.dirs(PROJECT_DIRS)
+		doLast {
+			for (projectDir in PROJECT_DIRS) {
+				shellExec("git", "pull", workingDir = projectDir)
+			}
+		}
+	}
+
+	fun File.writeLines(lines: List<String>) {
+		this.writeText(lines.joinToString("\n") + "\n")
+	}
+
+	fun File.addLineOnce(line: String) {
+		if (this.exists()) {
+			val lines = this.readLines().toMutableList()
+			if (!lines.contains(line)) {
+				lines.add(line)
+				this.writeLines(lines)
+			}
+		}
+	}
+
+	val addKotlinNativeIgnoreDisabledTargets by creating {
+		doLast {
+			for (projectDir in PROJECT_DIRS) {
+				projectDir["gradle.properties"].addLineOnce("kotlin.native.ignoreDisabledTargets=true")
+			}
+		}
+	}
+
+	val updateEasyKotlinMppGradlePlugin by creating {
+		doLast {
+			for (projectDir in PROJECT_DIRS) {
+				val buildGradleFile = projectDir["build.gradle"]
+				val lines = buildGradleFile.readLines()
+				val transformedLines = lines.map { line ->
+					if (line.contains("easy-kotlin-mpp-gradle-plugin")) {
+						println("LINE: $line")
+						"        classpath \"com.soywiz.korlibs:easy-kotlin-mpp-gradle-plugin:$easyGradlePluginVersion\" // Kotlin 1.3.61: https://github.com/korlibs/easy-kotlin-mpp-gradle-plugin"
 					} else {
-						it
+						line
 					}
-				}.joinToString("\n") + "\n"
-			}
-
-			readmeFile.writeText(newReadme)
-		}
-	}
-}
-
-val updateReadme = tasks.create("updateReadme") {
-	dependsOn(updateSponsor)
-	dependsOn(updateBadges)
-}
-
-val copyTemplate = tasks.create("copyTemplate") {
-	group = "sync"
-	//inputs.dir(kortemplateDir)
-	//outputs.dirs(PROJECT_DIRS)
-	doLast {
-		for (projectDir in PROJECT_DIRS) {
-			copyTemplate(kortemplateDir, projectDir)
-		}
-	}
-}
-
-val gitPushUpdateTemplate = tasks.create("gitPushUpdateTemplate") {
-	group = "zgit"
-	//inputs.dir(kortemplateDir)
-	//outputs.dirs(PROJECT_DIRS)
-	doLast {
-		for (projectDir in PROJECT_DIRS) {
-			shellExec("git", "add", "-A", workingDir = projectDir)
-			shellExec("git", "commit", "-m", "Updated template", workingDir = projectDir)
-			shellExec("git", "push", workingDir = projectDir)
-			shellExec("git", "add", projectDir.name, workingDir = rootDir)
-		}
-	}
-}
-
-val gitPull = tasks.create("gitPull") {
-	group = "zgit"
-	//inputs.dir(kortemplateDir)
-	//outputs.dirs(PROJECT_DIRS)
-	doLast {
-		for (projectDir in PROJECT_DIRS) {
-			shellExec("git", "pull", workingDir = projectDir)
-		}
-	}
-}
-
-fun File.writeLines(lines: List<String>) {
-	this.writeText(lines.joinToString("\n") + "\n")
-}
-
-fun File.addLineOnce(line: String) {
-	if (this.exists()) {
-		val lines = this.readLines().toMutableList()
-		if (!lines.contains(line)) {
-			lines.add(line)
-			this.writeLines(lines)
-		}
-	}
-}
-
-val addKotlinNativeIgnoreDisabledTargets = tasks.create("addKotlinNativeIgnoreDisabledTargets") {
-	for (projectDir in PROJECT_DIRS) {
-		projectDir["gradle.properties"].addLineOnce("kotlin.native.ignoreDisabledTargets=true")
-	}
-}
-
-val updateEasyKotlinMppGradlePlugin = tasks.create("updateEasyKotlinMppGradlePlugin") {
-	for (projectDir in PROJECT_DIRS) {
-		val buildGradleFile = projectDir["build.gradle"]
-		val lines = buildGradleFile.readLines()
-		val transformedLines = lines.map { line ->
-			if (line.contains("easy-kotlin-mpp-gradle-plugin")) {
-				println("LINE: $line")
-				"        classpath \"com.soywiz.korlibs:easy-kotlin-mpp-gradle-plugin:$easyGradlePlugin\" // Kotlin 1.3.61: https://github.com/korlibs/easy-kotlin-mpp-gradle-plugin"
-			} else {
-				line
+				}
+				buildGradleFile.writeLines(transformedLines)
+				//println(transformedLines)
 			}
 		}
-		buildGradleFile.writeLines(transformedLines)
-		//println(transformedLines)
 	}
-}
 
-val migrateToGithubActions = tasks.create("migrateToGithubActions") {
-	doLast {
-		for (projectDir in PROJECT_DIRS) {
-		//for (projectDir in listOf(rootDir["klock"])) {
-			copy {
-				from(rootDir["kortemplate/.github/workflows/CI.yml"])
-				into("$projectDir/.github/workflows")
+	val migrateToGithubActions by creating {
+		doLast {
+			for (projectDir in PROJECT_DIRS) {
+				//for (projectDir in listOf(rootDir["klock"])) {
+				copy {
+					from(rootDir["kortemplate/.github/workflows/CI.yml"])
+					into("$projectDir/.github/workflows")
+				}
+				copy {
+					from("$projectDir/.travis.yml")
+					from("$projectDir/travis_win.bat")
+					from("$projectDir/travis_win_bintray.bat")
+					into("$projectDir/old")
+				}
+				File("$projectDir/.travis.yml").delete()
+				File("$projectDir/travis_win.bat").delete()
+				File("$projectDir/travis_win_bintray.bat").delete()
 			}
-			copy {
-				from("$projectDir/.travis.yml")
-				from("$projectDir/travis_win.bat")
-				from("$projectDir/travis_win_bintray.bat")
-				into("$projectDir/old")
+		}
+	}
+
+	fun String.replaceVersions(): String = replace(Regex("(.*?)Version\\s*=\\s*.*", RegexOption.MULTILINE)) {
+		val name = it.groupValues[1]
+		if (name in versions) {
+			val version = versions[name]
+			"${name}Version=$version"
+		} else {
+			it.value
+		}
+		//println(":: ${it.groupValues[1]}")
+		//it.value
+	}
+
+	fun File.replaceVersions() {
+		println("Replacing versions for $this ...")
+		this.writeText(this.readText().replaceVersions())
+	}
+
+	val updateVersions by creating {
+		group = "sync"
+		doLast {
+			for (projectDir in PROJECT_DIRS) {
+				projectDir["gradle.properties"].replaceVersions()
 			}
-			File("$projectDir/.travis.yml").delete()
-			File("$projectDir/travis_win.bat").delete()
-			File("$projectDir/travis_win_bintray.bat").delete()
+			rootDir["korge/plugins/gradle.properties"].replaceVersions()
 		}
 	}
-}
 
-
-fun String.replaceVersions(): String = replace(Regex("(.*?)Version\\s*=\\s*.*", RegexOption.MULTILINE)) {
-	val name = it.groupValues[1]
-	if (name in versions) {
-		val version = versions[name]
-		"${name}Version=$version"
-	} else {
-		it.value
-	}
-	//println(":: ${it.groupValues[1]}")
-	//it.value
-}
-
-fun File.replaceVersions() {
-	println("Replacing versions for $this ...")
-	this.writeText(this.readText().replaceVersions())
-}
-
-val updateVersions = tasks.create("updateVersions") {
-	group = "sync"
-	doLast {
-		for (projectDir in PROJECT_DIRS) {
-			projectDir["gradle.properties"].replaceVersions()
-		}
-		rootDir["korge/plugins/gradle.properties"].replaceVersions()
-	}
-}
-
-tasks.create("versions") {
-	group = "sync"
-	doLast {
-		for (version in versions) {
-			println(version)
+	val versions by creating {
+		group = "sync"
+		doLast {
+			for (version in versions) {
+				println(version)
+			}
 		}
 	}
-}
 
-val synchronize = tasks.create("synchronize") {
-	group = "sync"
-	dependsOn(updateVersions, copyTemplate)
-}
+	val synchronize by creating {
+		group = "sync"
+		dependsOn(updateVersions, copyTemplate)
+	}
 
-val updateGradlewWine = tasks.create("updateGradlewWine") {
-	doLast {
-		for (projectDir in PROJECT_DIRS) {
-			projectDir["gradlew_wine"].writeText("#!/bin/bash\n unset ANDROID_HOME\n WINEDEBUG=-all wine64 cmd /c gradlew.bat $*")
+	val updateGradlewWine by creating {
+		doLast {
+			for (projectDir in PROJECT_DIRS) {
+				projectDir["gradlew_wine"].writeText("#!/bin/bash\n unset ANDROID_HOME\n WINEDEBUG=-all wine64 cmd /c gradlew.bat $*")
+			}
 		}
 	}
 }
