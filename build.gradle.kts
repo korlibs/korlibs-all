@@ -431,4 +431,20 @@ tasks {
 			}
 		}
 	}
+
+	val checkoutMasterPull by creating {
+		doLast {
+			for (projectDir in PROJECT_DIRS) {
+				println("projectDir: $projectDir")
+				exec {
+					workingDir = projectDir
+					commandLine("git", "checkout", "master")
+				}
+				exec {
+					workingDir = projectDir
+					commandLine("git", "pull")
+				}
+			}
+		}
+	}
 }
