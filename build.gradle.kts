@@ -469,4 +469,18 @@ tasks {
 			}
 		}
 	}
+
+	val updateBuildGradleKts by creating {
+		doLast {
+			for (projectDir in PROJECT_DIRS) {
+				println("projectDir: $projectDir")
+				kortemplateDir["build.gradle.kts"]
+						.copyTo(projectDir["build.gradle.kts"], overwrite = true)
+				projectDir.execInDir("git", "add", "-A")
+				projectDir.execInDir("git", "commit", "-m", "Updated CI")
+				projectDir.execInDir("git", "push")
+				projectDir.execInDir("git", "add", projectDir.name)
+			}
+		}
+	}
 }
