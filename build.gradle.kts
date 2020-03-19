@@ -20,6 +20,17 @@ fun InputStream.readAvailableChunk(readRest: Boolean): ByteArray {
 
 val java.lang.Process.isAliveJre7: Boolean get() = try { exitValue(); false  } catch (e: IllegalThreadStateException) { true }
 
+fun File.execInDir(
+		vararg cmds: String,
+		envs: Map<String, String> = mapOf(),
+		passthru: Boolean = true,
+		captureOutput: Boolean = true,
+		onOut: (data: ByteArray) -> Unit = {},
+		onErr: (data: ByteArray) -> Unit = {}
+): ShellExecResult {
+	return shellExec(*cmds, workingDir = this, envs = envs, passthru = passthru, captureOutput = captureOutput, onOut = onOut, onErr = onErr)
+}
+
 fun shellExec(
 	vararg cmds: String,
 	workingDir: File = File("."),
@@ -302,10 +313,10 @@ tasks {
 		//outputs.dirs(PROJECT_DIRS)
 		doLast {
 			for (projectDir in PROJECT_DIRS) {
-				shellExec("git", "add", "-A", workingDir = projectDir)
-				shellExec("git", "commit", "-m", "Updated template", workingDir = projectDir)
-				shellExec("git", "push", workingDir = projectDir)
-				shellExec("git", "add", projectDir.name, workingDir = rootDir)
+				projectDir.execInDir("git", "add", "-A")
+				projectDir.execInDir("git", "commit", "-m", "Updated template")
+				projectDir.execInDir("git", "push")
+				projectDir.execInDir("git", "add", projectDir.name)
 			}
 		}
 	}
@@ -316,7 +327,7 @@ tasks {
 		//outputs.dirs(PROJECT_DIRS)
 		doLast {
 			for (projectDir in PROJECT_DIRS) {
-				shellExec("git", "pull", workingDir = projectDir)
+				projectDir.execInDir("git", "pull")
 			}
 		}
 	}
@@ -436,14 +447,25 @@ tasks {
 		doLast {
 			for (projectDir in PROJECT_DIRS) {
 				println("projectDir: $projectDir")
-				exec {
-					workingDir = projectDir
-					commandLine("git", "checkout", "master")
+				projectDir.execInDir("git", "checkout", "master")
+				projectDir.execInDir("git", "pull")
+			}
+		}
+	}
+
+	val updateCI by creating {
+		doLast {
+			for (projectDir in PROJECT_DIRS) {
+				println("projectDir: $projectDir")
+				sync {
+
+					from(kortemplateDir[".github/workflows"])
+					into(projectDir[".github/workflows"])
 				}
-				exec {
-					workingDir = projectDir
-					commandLine("git", "pull")
-				}
+				projectDir.execInDir("git", "add", "-A")
+				projectDir.execInDir("git", "commit", "-m", "Updated CI")
+				projectDir.execInDir("git", "push")
+				projectDir.execInDir("git", "add", projectDir.name)
 			}
 		}
 	}
