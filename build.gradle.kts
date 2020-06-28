@@ -394,6 +394,23 @@ tasks {
 		}
 	}
 
+	val synchronizeGithubActions by creating {
+		doLast {
+			for (projectDir in PROJECT_DIRS) {
+				//for (projectDir in listOf(rootDir["klock"])) {
+				copy {
+					from(kortemplateDir[".github/workflows/TEST.yml"])
+					from(kortemplateDir[".github/workflows/DEPLOY.yml"])
+					into("$projectDir/.github/workflows")
+				}
+				copy {
+					from(kortemplateDir["build.gradle.kts"])
+					into("$projectDir/")
+				}
+			}
+		}
+	}
+
 	fun String.replaceVersions(): String = replace(Regex("(.*?)Version\\s*=\\s*.*", RegexOption.MULTILINE)) {
 		val name = it.groupValues[1]
 		if (name in versions) {
