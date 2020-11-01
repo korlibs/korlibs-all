@@ -81,3 +81,6 @@
 [submodule "luak"]
 	path = luak
 	url = git@github.com:korlibs/luak.git
+[submodule "korge-next"]
+	path = korge-next
+	url = git@github.com:korlibs/korge-next.git

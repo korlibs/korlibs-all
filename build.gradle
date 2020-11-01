@@ -1,0 +1,13 @@
+allprojects {
+	configurations.all {
+		resolutionStrategy.dependencySubstitution {
+			for (dep in [
+					'klock', 'kds', 'kmem', 'klogger', 'korinject', 'krypto', 'kbox2d', 'kbignum', 'korte',
+					'luak', 'korio', 'korma', 'korim', 'korau', 'korgw', 'korge',
+
+			]) {
+				substitute module("com.soywiz.korlibs.${dep}:${dep}") with project(":${dep}:${dep}")
+			}
+		}
+	}
+}

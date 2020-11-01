@@ -1,7 +1,22 @@
-rootProject.name = "korlibs-root"
+rootProject.name = "korlibs-combined-root"
 
-//includeBuild("kortemplate")
-//includeBuild("kds")
-//includeBuild("klock")
-//include("kmem")
-
+include("klock:klock")
+include("kds:kds")
+include("kmem:kmem")
+include("klogger:klogger")
+include("korinject:korinject")
+include("krypto:krypto")
+include("kbox2d:kbox2d")
+include("kbignum:kbignum")
+include("korte:korte")
+include("luak:luak")
+include("korio:korio")
+include("korma:korma")
+include("korma:korma-shape")
+include("korim:korim")
+include("korau:korau")
+include("korgw:korgw")
+include("korge:korge")
+include("korge:korge-dragonbones")
+include("korge:korge-spine")
+include("korge:korge-swf")
