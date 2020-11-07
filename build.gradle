@@ -11,3 +11,9 @@ allprojects {
 		}
 	}
 }
+
+task hello {
+	doLast {
+		println 'Hello world!'
+	}
+}
