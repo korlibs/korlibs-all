@@ -42,7 +42,9 @@ tasks {
 	val syncPairs = subprojects.map { subproject ->
 		val project = subproject.substringBefore('-')
 		"$project/$subproject" to subproject
-	}
+	} + listOf(
+			"korge-plugins/korge-gradle-plugin" to "korge-gradle-plugin"
+	)
 
 	val gitSyncMaster by creating(Task::class) {
 		doLast {
