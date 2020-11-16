@@ -84,3 +84,6 @@
 [submodule "korge-next"]
 	path = korge-next
 	url = git@github.com:korlibs/korge-next.git
+[submodule "dokka.korge.org"]
+	path = dokka.korge.org
+	url = git@github.com:korlibs/dokka.korge.org.git
