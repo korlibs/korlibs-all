@@ -48,7 +48,7 @@ tasks {
 
 	val gitSyncMaster by creating(Task::class) {
 		doLast {
-			for (repo in repoList) syncMaster(repo)
+			for (repo in repoList + listOf("korge-plugins")) syncMaster(repo)
 		}
 	}
 	val addGitAttributes by creating(Task::class) {
