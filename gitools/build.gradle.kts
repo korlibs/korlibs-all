@@ -16,18 +16,33 @@ fun Project.nextSyncCommon(current: String, next: String, toNext: Boolean) {
 	}
 }
 
+fun <T> retry(times: Int = 5, block: () -> T): T {
+	var lastE: Throwable? = null
+	for (n in 0 until times) {
+		try {
+			return block()
+		} catch (e: Throwable) {
+			lastE = e
+		}
+	}
+	throw lastE ?: Exception("retry.times = 0")
+}
+
 fun Project.nextSync(current: String, next: String) = nextSyncCommon(current, next, toNext = true)
 fun Project.nextUnsync(current: String, next: String) = nextSyncCommon(current, next, toNext = false)
 
 fun Project.syncMaster(pname: String) {
 	val wdir = File(project.projectDir, "../$pname")
+	println("## SYNC $pname...")
 	exec {
 		workingDir(wdir)
 		commandLine("git", "checkout", "master")
 	}
-	exec {
-		workingDir(wdir)
-		commandLine("git", "pull")
+	retry {
+		exec {
+			workingDir(wdir)
+			commandLine("git", "pull")
+		}
 	}
 }
 
