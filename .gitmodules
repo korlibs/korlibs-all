@@ -90,3 +90,6 @@
 [submodule "korge-kingdom"]
 	path = korge-kingdom
 	url = git@github.com:korlibs/korge-kingdom.git
+[submodule "kminiorm"]
+	path = kminiorm
+	url = git@github.com:korlibs/kminiorm.git
