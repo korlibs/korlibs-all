@@ -1,5 +1,6 @@
-rootProject.name = "korlibs-combined-root"
+rootProject.name = "korlibs-korge-next-sync"
 
+/*
 include("klock:klock")
 include("kds:kds")
 include("kmem:kmem")
@@ -21,3 +22,4 @@ include("korge:korge-dragonbones")
 include("korge:korge-spine")
 include("korge:korge-swf")
 include("gitools")
+*/
