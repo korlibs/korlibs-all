@@ -13,6 +13,10 @@ in addition to ensure the continuity of the project, you will get exclusive cont
 
 <!-- /SUPPORT -->
 
+This repository is for core-devs only. If you want to contribute to any lib,
+please download the `korge-next` repository and make a PR there.
+We will manually merge your changes to each repo on the next release.
+
 Remember to download the modules:
 ```bash
 git submodule update --init --recursive
