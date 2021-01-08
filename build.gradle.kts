@@ -52,6 +52,11 @@ fun Project.syncMaster(pname: String) {
 	}
 }
 
+fun generatePairForRepo(subproject: String): Pair<String, String> {
+	val project = subproject.substringBefore('-')
+	return "$project/$subproject" to subproject
+}
+
 tasks {
 	val subprojects = listOf(
 		"kbignum", "kbox2d", "kds", "klock", "klogger", "kmem", "korau", "korge",
@@ -61,8 +66,7 @@ tasks {
 	val repoList = subprojects.map { it.substringBefore('-') }.toSet().toList()
 
 	val syncPairs = subprojects.map { subproject ->
-		val project = subproject.substringBefore('-')
-		"$project/$subproject" to subproject
+		generatePairForRepo(subproject)
 	} + listOf(
 			"korge-plugins/korge-gradle-plugin" to "korge-gradle-plugin"
 	)
@@ -86,6 +90,17 @@ tasks {
 		group = "sync"
 		doLast {
 			for ((current, next) in syncPairs) {
+				nextSync(current, next)
+			}
+		}
+	}
+
+
+	for (repo in repoList) {
+		create("copy${repo.capitalize()}ToNext") {
+			group = "sync"
+			doLast {
+				val (current, next) = generatePairForRepo(repo)
 				nextSync(current, next)
 			}
 		}
