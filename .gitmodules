@@ -93,3 +93,6 @@
 [submodule "kminiorm"]
 	path = kminiorm
 	url = git@github.com:korlibs/kminiorm.git
+[submodule "kotlin-source-dependency-gradle-plugin"]
+	path = kotlin-source-dependency-gradle-plugin
+	url = git@github.com:korlibs/kotlin-source-dependency-gradle-plugin.git
