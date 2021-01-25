@@ -96,3 +96,12 @@
 [submodule "kotlin-source-dependency-gradle-plugin"]
 	path = kotlin-source-dependency-gradle-plugin
 	url = git@github.com:korlibs/kotlin-source-dependency-gradle-plugin.git
+[submodule "awesome.korge.org"]
+	path = awesome.korge.org
+	url = git@github.com:korlibs/awesome.korge.org.git
+[submodule "korge.org"]
+	path = korge.org
+	url = git@github.com:korlibs/korge.org.git
+[submodule "blog.korge.org"]
+	path = blog.korge.org
+	url = git@github.com:soywiz/blog.korge.org.git
