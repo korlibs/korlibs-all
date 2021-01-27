@@ -96,12 +96,16 @@ tasks {
 	}
 
 
-	for (repo in repoList) {
+	for (repo in repoList + listOf("korgePlugin")) {
 		create("copy${repo.capitalize()}ToNext") {
 			group = "sync"
 			doLast {
-				val (current, next) = generatePairForRepo(repo)
-				nextSync(current, next)
+				if (repo == "korgePlugin") {
+					nextSync("korge-plugins/korge-gradle-plugin", "korge-gradle-plugin")
+				} else {
+					val (current, next) = generatePairForRepo(repo)
+					nextSync(current, next)
+				}
 			}
 		}
 	}
